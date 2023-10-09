@@ -54,12 +54,12 @@ namespace core::socket::stream::tls {
 
                       socketConnection->doSSLHandshake(
                           [socketContextFactory, onConnected, socketConnection]() -> void { // onSuccess
-                              LOG(DEBUG) << "SSL/TLS initial handshake success";
+                              LOG(TRACE) << "SSL/TLS initial handshake success";
                               onConnected(socketConnection);
                               socketConnection->connected(socketContextFactory);
                           },
                           []() -> void { // onTimeout
-                              LOG(DEBUG) << "SSL/TLS initial handshake timed out";
+                              LOG(TRACE) << "SSL/TLS initial handshake timed out";
                           },
                           [](int sslErr) -> void { // onError
                               ssl_log("SSL/TLS initial handshake failed", sslErr);
@@ -105,7 +105,7 @@ namespace core::socket::stream::tls {
                 masterSslCtxSans = ssl_get_sans(masterSslCtx);
 
                 for (const std::string& san : masterSslCtxSans) {
-                    LOG(DEBUG) << "SSL_CTX for (san)'" << san << "' as master installed";
+                    LOG(TRACE) << "SSL_CTX for (san)'" << san << "' as master installed";
                 }
 
                 for (const auto& [domain, sniCertConf] : config->getSniCerts()) {
@@ -119,16 +119,16 @@ namespace core::socket::stream::tls {
                                 }
                                 sniSslCtxs.insert_or_assign(domain, sniSslCtx);
 
-                                LOG(DEBUG) << "SSL_CTX for (dom)'" << domain << "' as server name indication (sni) installed";
+                                LOG(TRACE) << "SSL_CTX for (dom)'" << domain << "' as server name indication (sni) installed";
                             }
 
                             for (const std::string& san : ssl_get_sans(sniSslCtx)) {
                                 sniSslCtxs.insert({san, sniSslCtx});
 
-                                LOG(DEBUG) << "SSL_CTX for (san)'" << san << "' as server name indication (sni) installed";
+                                LOG(TRACE) << "SSL_CTX for (san)'" << san << "' as server name indication (sni) installed";
                             }
                         } else {
-                            LOG(DEBUG) << "Can not create SNI_SSL_CTX for domain '" << domain << "'";
+                            LOG(TRACE) << "Can not create SNI_SSL_CTX for domain '" << domain << "'";
                         }
                     }
                 }
@@ -152,7 +152,7 @@ namespace core::socket::stream::tls {
     SSL_CTX* SocketAcceptor<PhysicalSocketServer, Config>::getMasterSniCtx(const std::string& serverNameIndication) {
         SSL_CTX* sniSslCtx = nullptr;
 
-        LOG(DEBUG) << "Search for sni = '" << serverNameIndication << "' in master certificate";
+        LOG(TRACE) << "Search for sni = '" << serverNameIndication << "' in master certificate";
 
         std::set<std::string>::iterator masterSniIt =
             std::find_if(masterSslCtxSans.begin(), masterSslCtxSans.end(), [&serverNameIndication](const std::string& sni) -> bool {
@@ -160,10 +160,10 @@ namespace core::socket::stream::tls {
                 return match(sni.c_str(), serverNameIndication.c_str());
             });
         if (masterSniIt != masterSslCtxSans.end()) {
-            LOG(DEBUG) << "found: " << *masterSniIt;
+            LOG(TRACE) << "found: " << *masterSniIt;
             sniSslCtx = masterSslCtx;
         } else {
-            LOG(DEBUG) << "not found";
+            LOG(TRACE) << "not found";
         }
 
         return sniSslCtx;
@@ -173,7 +173,7 @@ namespace core::socket::stream::tls {
     SSL_CTX* SocketAcceptor<PhysicalSocketServer, Config>::getPoolSniCtx(const std::string& serverNameIndication) {
         SSL_CTX* sniCtx = nullptr;
 
-        LOG(DEBUG) << "Search for sni = '" << serverNameIndication << "' in sni certificates";
+        LOG(TRACE) << "Search for sni = '" << serverNameIndication << "' in sni certificates";
 
         std::map<std::string, SSL_CTX*>::iterator sniPairIt = std::find_if(
             sniSslCtxs.begin(), sniSslCtxs.end(), [&serverNameIndication](const std::pair<std::string, SSL_CTX*>& sniPair) -> bool {
@@ -182,10 +182,10 @@ namespace core::socket::stream::tls {
             });
 
         if (sniPairIt != sniSslCtxs.end()) {
-            LOG(DEBUG) << "found: " << sniPairIt->first;
+            LOG(TRACE) << "found: " << sniPairIt->first;
             sniCtx = sniPairIt->second;
         } else {
-            LOG(DEBUG) << "not found";
+            LOG(TRACE) << "not found";
         }
 
         return sniCtx;
@@ -213,17 +213,17 @@ namespace core::socket::stream::tls {
         if (!serverNameIndication.empty()) {
             SSL_CTX* sniSslCtx = socketAcceptor->getSniCtx(serverNameIndication);
             if (sniSslCtx != nullptr) {
-                LOG(DEBUG) << "Setting sni certificate for " << serverNameIndication;
+                LOG(TRACE) << "Setting sni certificate for " << serverNameIndication;
                 ssl_set_ssl_ctx(ssl, sniSslCtx);
             } else if (socketAcceptor->forceSni) {
                 LOG(WARNING) << "No sni certificate found but forceSni set - terminating";
                 ret = SSL_CLIENT_HELLO_ERROR;
                 *al = SSL_AD_UNRECOGNIZED_NAME;
             } else {
-                LOG(DEBUG) << "No sni certificate found - still using master certificate";
+                LOG(TRACE) << "No sni certificate found - still using master certificate";
             }
         } else {
-            LOG(DEBUG) << "No sni certificate set - the client did not request one";
+            LOG(TRACE) << "No sni certificate set - the client did not request one";
         }
 
         return ret;

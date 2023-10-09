@@ -21,7 +21,8 @@
 #include "express/legacy/in/WebApp.h"
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
-#include "web/http/http_utils.h"
+
+#include <cstring>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,38 +34,43 @@ int main(int argc, char* argv[]) {
     legacy::in::WebApp legacyApp("legacy");
 
     legacyApp.get("/", [] APPLICATION(req, res) {
+        VLOG(1) << "HTTP GET on "
+                << "/";
         if (req.url == "/" || req.url == "/index.html") {
             req.url = "/wstest.html";
         }
 
-        VLOG(0) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
-        res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int ret) -> void {
-            if (ret != 0) {
-                PLOG(ERROR) << req.url;
+        VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
+        res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int errnum) -> void {
+            if (errnum == 0) {
+                VLOG(1) << req.url;
+            } else {
+                VLOG(1) << "HTTP response send file failed: " << std::strerror(errnum);
             }
         });
     });
 
     legacyApp.get("/ws", [](Request& req, Response& res) -> void {
+        VLOG(1) << "HTTP GET on  legacy /ws";
+
         std::string uri = req.originalUrl;
 
-        VLOG(1) << "OriginalUri: " << uri;
-        VLOG(1) << "Uri: " << req.url;
+        VLOG(2) << "OriginalUri: " << uri;
+        VLOG(2) << "Uri: " << req.url;
 
-        VLOG(1) << "Host: " << req.get("host");
-        VLOG(1) << "Connection: " << req.get("connection");
-        VLOG(1) << "Origin: " << req.get("origin");
-        VLOG(1) << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
-        VLOG(1) << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
-        VLOG(1) << "sec-websocket-key: " << req.get("sec-websocket-key");
-        VLOG(1) << "sec-websocket-version: " << req.get("sec-websocket-version");
-        VLOG(1) << "upgrade: " << req.get("upgrade");
-        VLOG(1) << "user-agent: " << req.get("user-agent");
+        VLOG(2) << "Host: " << req.get("host");
+        VLOG(2) << "Connection: " << req.get("connection");
+        VLOG(2) << "Origin: " << req.get("origin");
+        VLOG(2) << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
+        VLOG(2) << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
+        VLOG(2) << "sec-websocket-key: " << req.get("sec-websocket-key");
+        VLOG(2) << "sec-websocket-version: " << req.get("sec-websocket-version");
+        VLOG(2) << "upgrade: " << req.get("upgrade");
+        VLOG(2) << "user-agent: " << req.get("user-agent");
 
-        if (httputils::ci_contains(req.get("connection"), "Upgrade")) {
-            res.upgrade(req);
-        } else {
-            res.sendStatus(404);
+        if (!res.upgrade(req)) {
+            res.end();
+            VLOG(1) << "HTTP upgrade failed";
         }
     });
 
@@ -80,7 +86,7 @@ int main(int argc, char* argv[]) {
                 req.url = "/wstest.html";
             }
 
-            VLOG(0) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
+            VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
             res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int ret) -> void {
                 if (ret != 0) {
                     PLOG(ERROR) << req.url;
@@ -89,23 +95,26 @@ int main(int argc, char* argv[]) {
         });
 
         tlsApp.get("/ws", [](Request& req, Response& res) -> void {
+            VLOG(1) << "HTTP GET on  tls /ws";
+
             std::string uri = req.originalUrl;
 
-            VLOG(1) << "OriginalUri: " << uri;
-            VLOG(1) << "Uri: " << req.url;
+            VLOG(2) << "OriginalUri: " << uri;
+            VLOG(2) << "Uri: " << req.url;
 
-            VLOG(1) << "Connection: " << req.get("connection");
-            VLOG(1) << "Host: " << req.get("host");
-            VLOG(1) << "Origin: " << req.get("origin");
-            VLOG(1) << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
-            VLOG(1) << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
-            VLOG(1) << "sec-websocket-key: " << req.get("sec-websocket-key");
-            VLOG(1) << "sec-websocket-version: " << req.get("sec-websocket-version");
-            VLOG(1) << "upgrade: " << req.get("upgrade");
-            VLOG(1) << "user-agent: " << req.get("user-agent");
+            VLOG(2) << "Connection: " << req.get("connection");
+            VLOG(2) << "Host: " << req.get("host");
+            VLOG(2) << "Origin: " << req.get("origin");
+            VLOG(2) << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
+            VLOG(2) << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
+            VLOG(2) << "sec-websocket-key: " << req.get("sec-websocket-key");
+            VLOG(2) << "sec-websocket-version: " << req.get("sec-websocket-version");
+            VLOG(2) << "upgrade: " << req.get("upgrade");
+            VLOG(2) << "user-agent: " << req.get("user-agent");
 
             if (!res.upgrade(req)) {
                 res.end();
+                VLOG(1) << "HTTP upgrade failed";
             }
         });
 

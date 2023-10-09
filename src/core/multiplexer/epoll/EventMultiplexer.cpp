@@ -54,7 +54,7 @@ namespace core::epoll {
         event.data.ptr = descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::EX];
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::EventMultiplexer::DISP_TYPE::EX], &event);
 
-        LOG(TRACE) << "IO-Multiplexer: epoll";
+        LOG(DEBUG) << "IO-Multiplexer: epoll";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeout, const sigset_t& sigMask) {

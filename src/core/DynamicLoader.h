@@ -24,8 +24,8 @@
 #include "core/system/dlfcn.h" // IWYU pragma: keep
 
 #include <cstddef>
-#include <list>
 #include <map>
+#include <set>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -65,7 +65,7 @@ namespace core {
         static void execDlCloseAll();
 
         static std::map<void*, Library> dlOpenedLibraries;
-        static std::list<void*> closeHandles;
+        static std::set<void*> closeHandles;
 
         friend class EventLoop;
         friend class EventMultiplexer;

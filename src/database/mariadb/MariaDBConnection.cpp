@@ -52,7 +52,7 @@ namespace database::mariadb {
                 if (mysql_errno(mysql) == 0) {
                     int fd = mysql_get_socket(mysql);
 
-                    VLOG(0) << "Got valid descriptor: " << fd;
+                    LOG(DEBUG) << "Got valid descriptor: " << fd;
 
                     ReadEventReceiver::enable(fd);
                     WriteEventReceiver::enable(fd);
@@ -64,14 +64,14 @@ namespace database::mariadb {
 
                     connected = true;
                 } else {
-                    VLOG(0) << "Got no valid descriptor: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
+                    LOG(WARNING) << "Got no valid descriptor: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
                 }
             },
             []() -> void {
-                VLOG(0) << "Connect success";
+                LOG(DEBUG) << "Connect success";
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
-                VLOG(0) << "Connect error: " << errorString << " : " << errorNumber;
+                LOG(WARNING) << "Connect error: " << errorString << " : " << errorNumber;
             }))));
     }
 
@@ -145,7 +145,7 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::commandCompleted() {
-        VLOG(0) << "Completed: " << currentCommand->commandInfo();
+        LOG(DEBUG) << "Completed: " << currentCommand->commandInfo();
         commandSequenceQueue.front().commandCompleted();
 
         if (commandSequenceQueue.front().empty()) {

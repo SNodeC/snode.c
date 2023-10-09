@@ -23,9 +23,6 @@
 #include "log/Logger.h"
 
 #include <endian.h>
-#include <iomanip>
-#include <memory>
-#include <sstream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -89,7 +86,7 @@ namespace web::websocket {
             } else {
                 parserState = ParserState::ERROR;
                 errorState = 1002;
-                VLOG(0) << "Error opcode in continuation frame";
+                LOG(DEBUG) << "Error opcode in continuation frame";
             }
             continuation = !fin;
         }
@@ -222,21 +219,6 @@ namespace web::websocket {
         }
 
         return ret;
-    }
-
-    void Receiver::dumpFrame(char* frame, uint64_t frameLength) {
-        unsigned long modul = 4;
-
-        std::stringstream stringStream;
-
-        for (std::size_t i = 0; i < frameLength; i++) {
-            stringStream << std::setfill('0') << std::setw(2) << std::hex << static_cast<unsigned int>(static_cast<unsigned char>(frame[i]))
-                         << " ";
-
-            if ((i + 1) % modul == 0 || i == frameLength) {
-                stringStream.str("");
-            }
-        }
     }
 
     void Receiver::reset() {

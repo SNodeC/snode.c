@@ -25,6 +25,7 @@
 #include "web/http/legacy/in/Client.h"
 #include "web/http/tls/in/Client.h"
 
+#include <iostream>
 #include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
@@ -39,39 +40,40 @@ int main(int argc, char* argv[]) {
         web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
             "legacy",
             [](web::http::client::Request& request) -> void {
-                VLOG(0) << "OnRequestBegin";
+                VLOG(1) << "OnRequestBegin";
 
                 request.set("Sec-WebSocket-Protocol", "test, echo");
 
                 request.upgrade("/ws/", "websocket");
             },
             [](web::http::client::Request& request, web::http::client::Response& response) -> void {
-                VLOG(0) << "OnResponse";
-                VLOG(0) << "     Status:";
-                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
+                VLOG(1) << "OnResponse";
+                VLOG(2) << "     Status:";
+                VLOG(2) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
-                VLOG(0) << "     Headers:";
+                VLOG(2) << "     Headers:";
                 for (const auto& [field, value] : response.headers) {
-                    VLOG(0) << "       " << field + " = " + value;
+                    VLOG(2) << "       " << field + " = " + value;
                 }
 
-                VLOG(0) << "     Cookies:";
+                VLOG(2) << "     Cookies:";
                 for (auto& [name, cookie] : response.cookies) {
-                    VLOG(0) << "       " + name + " = " + cookie.getValue();
+                    VLOG(2) << "       " + name + " = " + cookie.getValue();
                     for (const auto& [option, value] : cookie.getOptions()) {
-                        VLOG(0) << "         " + option + " = " + value;
+                        VLOG(2) << "         " + option + " = " + value;
                     }
                 }
 
                 response.body.push_back(0); // make it a c-string
-                VLOG(0) << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
+                std::cout << "Body:\n----------- start body -----------\n"
+                          << response.body.data() << "\n------------ end body ------------" << std::endl;
 
                 response.upgrade(request);
             },
             [](int status, const std::string& reason) -> void {
-                VLOG(0) << "OnResponseError";
-                VLOG(0) << "     Status: " << status;
-                VLOG(0) << "     Reason: " << reason;
+                VLOG(1) << "OnResponseError";
+                VLOG(1) << "     Status: " << status;
+                VLOG(1) << "     Reason: " << reason;
             });
 
         legacyClient.connect([](const core::ProgressLog& progressLog) -> void {
@@ -81,39 +83,40 @@ int main(int argc, char* argv[]) {
         web::http::tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
             "tls",
             [](web::http::client::Request& request) -> void {
-                VLOG(0) << "OnRequestBegin";
+                VLOG(1) << "OnRequestBegin";
 
                 request.set("Sec-WebSocket-Protocol", "test, echo");
 
                 request.upgrade("/ws/", "websocket");
             },
             [](web::http::client::Request& request, web::http::client::Response& response) -> void {
-                VLOG(0) << "OnResponse";
-                VLOG(0) << "     Status:";
-                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
+                VLOG(1) << "OnResponse";
+                VLOG(2) << "     Status:";
+                VLOG(2) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
-                VLOG(0) << "     Headers:";
+                VLOG(2) << "     Headers:";
                 for (auto& [field, value] : response.headers) {
-                    VLOG(0) << "       " << field + " = " + value;
+                    VLOG(2) << "       " << field + " = " + value;
                 }
 
-                VLOG(0) << "     Cookies:";
+                VLOG(2) << "     Cookies:";
                 for (auto& [name, cookie] : response.cookies) {
-                    VLOG(0) << "       " + name + " = " + cookie.getValue();
+                    VLOG(2) << "       " + name + " = " + cookie.getValue();
                     for (auto& [option, value] : cookie.getOptions()) {
-                        VLOG(0) << "         " + option + " = " + value;
+                        VLOG(2) << "         " + option + " = " + value;
                     }
                 }
 
                 response.body.push_back(0); // make it a c-string
-                VLOG(0) << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
+                std::cout << "Body:\n----------- start body -----------\n"
+                          << response.body.data() << "\n------------ end body ------------" << std::endl;
 
                 response.upgrade(request);
             },
             [](int status, const std::string& reason) -> void {
-                VLOG(0) << "OnResponseError";
-                VLOG(0) << "     Status: " << status;
-                VLOG(0) << "     Reason: " << reason;
+                VLOG(1) << "OnResponseError";
+                VLOG(1) << "     Status: " << status;
+                VLOG(1) << "     Reason: " << reason;
             });
 
         tlsClient.connect([](const core::ProgressLog& progressLog) -> void {

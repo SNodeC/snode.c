@@ -60,7 +60,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::initAcceptEvent() {
         if (!config->getDisabled()) {
-            LOG(DEBUG) << config->getInstanceName() << ": enabled";
+            LOG(TRACE) << config->getInstanceName() << ": enabled";
 
             core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
 
@@ -97,7 +97,7 @@ namespace core::socket::stream {
                 destruct();
             }
         } else {
-            LOG(DEBUG) << "Instance '" << config->getInstanceName() << "' disabled";
+            LOG(TRACE) << "Instance '" << config->getInstanceName() << "' disabled";
 
             destruct();
         }
@@ -111,11 +111,11 @@ namespace core::socket::stream {
             PhysicalSocket physicalClientSocket(physicalSocket->accept4(PhysicalSocket::Flags::NONBLOCK));
 
             if (physicalClientSocket.isValid()) {
-                LOG(DEBUG) << config->getInstanceName() << ": accept success '" << localAddress.toString() << "'";
+                LOG(TRACE) << config->getInstanceName() << ": accept success '" << localAddress.toString() << "'";
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(physicalClientSocket, config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                PLOG(DEBUG) << config->getInstanceName() << ": accept failed '" << localAddress.toString() << "'";
+                PLOG(TRACE) << config->getInstanceName() << ": accept failed '" << localAddress.toString() << "'";
             }
         } while (--acceptsPerTick > 0);
     }

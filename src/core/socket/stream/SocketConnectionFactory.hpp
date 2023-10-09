@@ -63,7 +63,7 @@ namespace core::socket::stream {
                 onConnect(socketConnection);
                 onConnected(socketConnection);
             } else {
-                PLOG(DEBUG) << "getsockname";
+                PLOG(TRACE) << "getsockname";
             }
         }
 

@@ -46,7 +46,7 @@ namespace web::websocket {
                         sendPing();
                         flyingPings++;
                     } else {
-                        LOG(WARNING) << "MaxFlyingPings exceeded - closing";
+                        LOG(INFO) << "MaxFlyingPings exceeded - closing";
                         sendClose();
                         stop();
                     }

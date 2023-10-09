@@ -82,7 +82,7 @@ namespace iot::mqtt::server::broker {
     bool RetainTree::TopicLevel::retain(const Message& message, std::string topic, bool appeared) {
         if (appeared) {
             if (!message.getTopic().empty()) {
-                LOG(TRACE) << "Retaining: " << message.getTopic() << " - " << message.getMessage();
+                LOG(DEBUG) << "Retaining: " << message.getTopic() << " - " << message.getMessage();
                 this->message = message;
             }
         } else {
@@ -108,11 +108,11 @@ namespace iot::mqtt::server::broker {
     void RetainTree::TopicLevel::appear(const std::string& clientId, std::string topic, uint8_t qoS, bool appeared) {
         if (appeared) {
             if (!message.getMessage().empty()) {
-                LOG(TRACE) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
+                LOG(DEBUG) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
                            << static_cast<uint16_t>(message.getQoS());
-                LOG(TRACE) << "  distribute message ...";
+                LOG(DEBUG) << "  distribute message ...";
                 broker->sendPublish(clientId, message, qoS, true);
-                LOG(TRACE) << "  ... completed!";
+                LOG(DEBUG) << "  ... completed!";
             }
         } else {
             std::string::size_type slashPosition = topic.find('/');
@@ -137,11 +137,11 @@ namespace iot::mqtt::server::broker {
 
     void RetainTree::TopicLevel::appear(const std::string& clientId, uint8_t clientQoS) {
         if (!message.getTopic().empty()) {
-            LOG(TRACE) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
+            LOG(DEBUG) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
                        << static_cast<uint16_t>(message.getQoS());
-            LOG(TRACE) << "  distribute message ...";
+            LOG(DEBUG) << "  distribute message ...";
             broker->sendPublish(clientId, message, clientQoS, true);
-            LOG(TRACE) << "  ... completed!";
+            LOG(DEBUG) << "  ... completed!";
         }
 
         for (auto& [topicLevel, topicTree] : subTopicLevels) {

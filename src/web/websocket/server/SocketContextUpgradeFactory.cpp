@@ -24,6 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/base64.h"
 
 #include <tuple>
@@ -43,8 +44,9 @@ namespace web::websocket::server {
 
         if (request->get("Sec-WebSocket-Version") == "13") {
             std::string subProtocolNames = request->get("sec-websocket-protocol");
-            std::string subProtocolName;
+            LOG(DEBUG) << "Subprotocol request for '" << subProtocolNames << "'";
 
+            std::string subProtocolName;
             do {
                 std::tie(subProtocolName, subProtocolNames) = httputils::str_split(subProtocolNames, ',');
                 httputils::str_trimm(subProtocolName);

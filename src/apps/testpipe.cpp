@@ -26,11 +26,11 @@ int main(int argc, char* argv[]) {
             });
 
             pipeSink.setOnError([]([[maybe_unused]] int errnum) -> void {
-                PLOG(ERROR) << "PipeSink";
+                VLOG(0) << "PipeSink";
             });
 
             pipeSource.setOnError([]([[maybe_unused]] int errnum) -> void {
-                PLOG(ERROR) << "PipeSource";
+                VLOG(0) << "PipeSource";
             });
 
             pipeSource.send("Hello World!");

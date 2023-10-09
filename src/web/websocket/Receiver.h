@@ -64,8 +64,6 @@ namespace web::websocket {
 
         void reset();
 
-        void dumpFrame(char* frame, uint64_t frameLength);
-
         // Parser state
         enum struct ParserState { BEGIN, OPCODE, LENGTH, ELENGTH, MASKINGKEY, PAYLOAD, ERROR } parserState = ParserState::BEGIN;
 

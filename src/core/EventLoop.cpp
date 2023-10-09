@@ -137,7 +137,7 @@ namespace core {
         core::TickStatus tickStatus = TickStatus::SUCCESS;
 
         if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
-            LOG(DEBUG) << "Eventloop: started";
+            LOG(TRACE) << "Eventloop: started";
 
             struct sigaction sact;
             sigemptyset(&sact.sa_mask);
@@ -171,10 +171,10 @@ namespace core {
                 case TickStatus::SUCCESS:
                     [[fallthrough]];
                 case TickStatus::INTERRUPTED:
-                    LOG(DEBUG) << "EventLoop interrupted";
+                    LOG(TRACE) << "EventLoop interrupted";
                     break;
                 case TickStatus::NOOBSERVER:
-                    LOG(DEBUG) << "EventLoop: No Observer";
+                    LOG(TRACE) << "EventLoop: No Observer";
                     break;
                 case TickStatus::ERROR:
                     PLOG(FATAL) << "EventLoop::instance()._tick()";
@@ -208,7 +208,7 @@ namespace core {
             signal = std::to_string(stopsig);
         }
 
-        LOG(DEBUG) << "Sending 'onExit(" << signal << ")' to all DescriptorEventReceivers";
+        LOG(TRACE) << "Sending 'onExit(" << signal << ")' to all DescriptorEventReceivers";
 
         eventLoopState = State::STOPING;
 

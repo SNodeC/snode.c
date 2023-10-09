@@ -147,11 +147,11 @@ namespace core::socket::stream::tls {
                                   "' : ca-cert-dir '" + sslConfig.caDir + "'");
                     sslErr = true;
                 } else {
-                    LOG(DEBUG) << "CA certificate loaded: ca-cert-file '" << sslConfig.caFile << "' : ca-cert-dir '"
+                    LOG(TRACE) << "CA certificate loaded: ca-cert-file '" << sslConfig.caFile << "' : ca-cert-dir '"
                                << sslConfig.caDir + "'";
                 }
             } else {
-                LOG(DEBUG) << "Neither using ca-cert-file nor ca-cert-dir";
+                LOG(TRACE) << "Neither using ca-cert-file nor ca-cert-dir";
             }
             if (!sslErr && sslConfig.useDefaultCaDir) {
                 if (SSL_CTX_set_default_verify_paths(ctx) == 0) {
@@ -161,7 +161,7 @@ namespace core::socket::stream::tls {
                     ssl_log_info("Using default CA directory");
                 }
             } else {
-                LOG(DEBUG) << "Not using default CA directory";
+                LOG(TRACE) << "Not using default CA directory";
             }
             if (!sslErr) {
                 if (sslConfig.useDefaultCaDir || !sslConfig.caFile.empty() || !sslConfig.caDir.empty()) {
@@ -184,11 +184,11 @@ namespace core::socket::stream::tls {
                             ssl_log_error("Private key not consistent with CA files: " + sslConfig.certChainKey);
                             sslErr = true;
                         } else {
-                            LOG(DEBUG) << "Private key loaded: " << sslConfig.certChainKey;
+                            LOG(TRACE) << "Private key loaded: " << sslConfig.certChainKey;
                         }
                     }
                     if (!sslErr) {
-                        LOG(DEBUG) << "Certificate chain loaded: " << sslConfig.certChain;
+                        LOG(TRACE) << "Certificate chain loaded: " << sslConfig.certChain;
                     }
                 }
             }
@@ -381,29 +381,29 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log_error(const std::string& message) {
-        PLOG(DEBUG) << message;
+        PLOG(TRACE) << message;
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(DEBUG) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+            LOG(TRACE) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
     }
 
     void ssl_log_warning(const std::string& message) {
-        LOG(DEBUG) << message;
+        LOG(TRACE) << message;
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(DEBUG) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+            LOG(TRACE) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
     }
 
     void ssl_log_info(const std::string& message) {
-        PLOG(DEBUG) << message;
+        PLOG(TRACE) << message;
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(DEBUG) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+            LOG(TRACE) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
     }
 

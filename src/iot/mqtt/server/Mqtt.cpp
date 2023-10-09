@@ -122,8 +122,8 @@ namespace iot::mqtt::server {
 
     void Mqtt::initSession(const utils::Timeval& keepAlive) {
         if (broker->hasActiveSession(clientId)) {
-            LOG(TRACE) << "Existing session found for ClientId = `" << clientId << "'";
-            LOG(TRACE) << "  closing";
+            LOG(DEBUG) << "Existing session found for ClientId = `" << clientId << "'";
+            LOG(DEBUG) << "  closing";
 
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
 
@@ -133,21 +133,21 @@ namespace iot::mqtt::server {
         } else if (broker->hasRetainedSession(clientId)) {
             sendConnack(MQTT_CONNACK_ACCEPT, cleanSession ? MQTT_SESSION_NEW : MQTT_SESSION_PRESENT);
 
-            LOG(TRACE) << "Retained session found for ClientId = '" << clientId << "'";
+            LOG(DEBUG) << "Retained session found for ClientId = '" << clientId << "'";
             if (cleanSession) {
-                LOG(TRACE) << "  clean Session = " << this;
+                LOG(DEBUG) << "  clean Session = " << this;
                 broker->unsubscribe(clientId);
                 initSession(broker->newSession(clientId, this), keepAlive);
             } else {
-                LOG(TRACE) << "  renew Session = " << this;
+                LOG(DEBUG) << "  renew Session = " << this;
                 initSession(broker->renewSession(clientId, this), keepAlive);
                 broker->restartSession(clientId);
             }
         } else {
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
 
-            LOG(TRACE) << "No session found for ClientId = '" << clientId << "\'";
-            LOG(TRACE) << "  new Session = " << this;
+            LOG(DEBUG) << "No session found for ClientId = '" << clientId << "\'";
+            LOG(DEBUG) << "  new Session = " << this;
 
             initSession(broker->newSession(clientId, this), keepAlive);
         }
@@ -206,15 +206,15 @@ namespace iot::mqtt::server {
         }
 
         if (connect.getProtocol() != "MQTT") {
-            LOG(TRACE) << "Wrong Protocol: " << connect.getProtocol();
+            LOG(DEBUG) << "Wrong Protocol: " << connect.getProtocol();
             mqttContext->end(true);
         } else if (connect.getLevel() != MQTT_VERSION_3_1_1) {
-            LOG(TRACE) << "Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
+            LOG(DEBUG) << "Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
             mqttContext->end(true);
         } else if (connect.isFakedClientId() && !connect.getCleanSession()) {
-            LOG(TRACE) << "Resume session but no ClientId present";
+            LOG(DEBUG) << "Resume session but no ClientId present";
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
 
             mqttContext->end(true);
@@ -268,7 +268,7 @@ namespace iot::mqtt::server {
         }
 
         if (subscribe.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
+            LOG(DEBUG) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             std::list<uint8_t> returnCodes;
@@ -294,7 +294,7 @@ namespace iot::mqtt::server {
         }
 
         if (unsubscribe.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
+            LOG(DEBUG) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             for (const std::string& topic : unsubscribe.getTopics()) {

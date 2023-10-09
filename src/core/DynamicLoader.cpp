@@ -23,13 +23,14 @@
 #include "log/Logger.h"
 
 #include <algorithm>
+#include <ios>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
     std::map<void*, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
-    std::list<void*> DynamicLoader::closeHandles;
+    std::set<void*> DynamicLoader::closeHandles;
 
     void* DynamicLoader::dlRegisterHandle(void* handle, const std::string& libFile) {
         if (handle != nullptr) {
@@ -38,7 +39,7 @@ namespace core {
                 dlOpenedLibraries[handle].handle = handle;
             }
             dlOpenedLibraries[handle].refCount++;
-            LOG(TRACE) << "dlOpen: " << libFile << ": success";
+            LOG(TRACE) << "dlOpen: '" << libFile << "' success: handle=0x" << std::hex << handle;
         } else {
             LOG(WARNING) << "dlOpen: " << DynamicLoader::dlError();
         }
@@ -52,16 +53,16 @@ namespace core {
                 if (std::find(closeHandles.begin(), closeHandles.end(), handle) == closeHandles.end()) {
                     LOG(TRACE) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName << ": registered";
 
-                    closeHandles.push_back(handle);
+                    closeHandles.insert(handle);
                 } else {
-                    LOG(ERROR) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName
-                               << ": already registered for dlCloseDelayed";
+                    LOG(WARNING) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName
+                                 << ": already registered for dlCloseDelayed";
                 }
             } else {
                 LOG(WARNING) << "dlCloseDelayed handle = " << handle << ": not opened using dlOpen";
             }
         } else {
-            LOG(ERROR) << "dlCloseDelayed handle: nullptr";
+            LOG(WARNING) << "dlCloseDelayed handle: nullptr";
         }
     }
 
@@ -69,19 +70,20 @@ namespace core {
         int ret = 0;
 
         if (handle != nullptr) {
-            if (std::find(closeHandles.begin(), closeHandles.end(), handle) == closeHandles.end()) {
+            if (!closeHandles.contains(handle)) {
                 if (dlOpenedLibraries.contains(handle)) {
+                    LOG(TRACE) << "dlClose file = " << dlOpenedLibraries[handle].fileName << ": registered";
                     ret = dlClose(dlOpenedLibraries[handle]);
 
                     dlOpenedLibraries.erase(handle);
                 } else {
-                    LOG(WARNING) << "dlClose handle = " << handle << ": not opened with dlOpen";
+                    LOG(WARNING) << "dlCloseDelayed handle = " << handle << ": not opened using dlOpen";
                 }
             } else {
-                LOG(ERROR) << "dlClose handle = " << handle << ": already registered for dlCloseDelayed";
+                LOG(WARNING) << "dlClose file = " << dlOpenedLibraries[handle].fileName << ": already registered for dlCloseDelayed";
             }
         } else {
-            LOG(ERROR) << "dlClose handle: nullptr";
+            LOG(WARNING) << "dlClose handle: nullptr";
         }
 
         return ret;

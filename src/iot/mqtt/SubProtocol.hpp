@@ -99,7 +99,7 @@ namespace iot::mqtt {
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
         if (opCode == web::websocket::SubProtocolContext::OpCode::TEXT) {
-            LOG(ERROR) << "WebSocket: Wrong Opcode: " << opCode;
+            LOG(DEBUG) << "WebSocket: Wrong Opcode: " << opCode;
             this->end(true);
         } else {
             LOG(TRACE) << "WebSocket: Message START: " << opCode;
@@ -117,12 +117,13 @@ namespace iot::mqtt {
         for (char ch : std::string(junk, junkLen)) {
             if (i != 0 && i % 8 == 0 && i != data.size()) {
                 ss << std::endl;
-                ss << "                                                        ";
+                ss << "                                                                ";
             }
             ++i;
             ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
                << " "; // << " | ";
         }
+
         LOG(TRACE) << ss.str();
     }
 
@@ -141,7 +142,7 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) {
-        LOG(ERROR) << "WebSocket: Message error: " << errnum;
+        LOG(DEBUG) << "WebSocket: Message error: " << errnum;
     }
 
     template <typename WSSubProtocolRole>
@@ -152,7 +153,7 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onExit(int sig) {
-        LOG(INFO) << "SubProtocol 'mqtt' exit dot to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
+        LOG(INFO) << "SubProtocol 'mqtt' exit doe to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
                   << ")";
 
         iot::mqtt::MqttContext::onExit(sig);

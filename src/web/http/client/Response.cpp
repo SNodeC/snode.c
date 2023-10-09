@@ -73,15 +73,15 @@ namespace web::http::client {
 
             if (socketContextUpgradeFactory != nullptr) {
                 if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
-                    VLOG(0) << "SocketContextUpgrade not created";
+                    LOG(DEBUG) << "SocketContextUpgrade not created";
                     socketContext->close();
                 }
             } else {
-                VLOG(0) << "SocketContextUpgradeFactory not existing";
+                LOG(DEBUG) << "SocketContextUpgradeFactory not existing";
                 socketContext->close();
             }
         } else {
-            VLOG(0) << "Response did not contain upgrade";
+            LOG(DEBUG) << "Response did not contain upgrade";
             socketContext->close();
         }
     }

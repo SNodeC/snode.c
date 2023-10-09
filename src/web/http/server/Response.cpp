@@ -179,7 +179,7 @@ namespace web::http::server {
         return success;
     }
 
-    void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
+    void Response::sendFile(const std::string& file, const std::function<void(int errnum)>& onError) {
         std::string absolutFileName = file;
 
         if (std::filesystem::exists(absolutFileName)) {
@@ -241,11 +241,11 @@ namespace web::http::server {
     }
 
     void Response::eof() {
-        LOG(INFO) << "Stream EOF";
+        LOG(DEBUG) << "Stream EOF";
     }
 
     void Response::error([[maybe_unused]] int errnum) {
-        PLOG(INFO) << "Stream error: ";
+        PLOG(DEBUG) << "Stream error: ";
         requestContext->close();
     }
 

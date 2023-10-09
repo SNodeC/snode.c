@@ -42,6 +42,7 @@ namespace web::websocket {
 
 #include <cstdint>
 #include <endian.h>
+#include <iomanip>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -130,7 +131,7 @@ namespace web::websocket {
 
         void sendClose(const char* message, std::size_t messageLength) override {
             if (!closeSent) {
-                LOG(INFO) << "Sending close to peer";
+                LOG(DEBUG) << "Sending close to peer";
 
                 sendMessage(8, message, messageLength);
                 shutdownWrite();
@@ -189,9 +190,9 @@ namespace web::websocket {
                 case SubProtocolContext::OpCode::CLOSE:
                     if (closeSent) { // active close
                         closeSent = false;
-                        LOG(INFO) << "Close confirmed from peer";
+                        LOG(DEBUG) << "Close confirmed from peer";
                     } else { // passive close
-                        LOG(INFO) << "Close request received - replying with close";
+                        LOG(DEBUG) << "Close request received - replying with close";
                         sendClose(pongCloseData.data(), pongCloseData.length());
                         pongCloseData.clear();
                     }
@@ -220,13 +221,13 @@ namespace web::websocket {
 
         /* Callbacks (API) socketConnection -> WSProtocol */
         void onConnected() override {
-            VLOG(0) << "Websocket connected";
+            LOG(INFO) << "Websocket connected";
             subProtocol->onConnected();
         }
 
         void onDisconnected() override {
             subProtocol->onDisconnected();
-            VLOG(0) << "Websocket disconnected";
+            LOG(INFO) << "Websocket disconnected";
         }
 
         void onExit(int sig) override {
@@ -284,6 +285,22 @@ namespace web::websocket {
         SubProtocol* subProtocol = nullptr;
 
     private:
+        void dumpFrame(char* frame, uint64_t frameLength) {
+            unsigned int modul = 4;
+
+            std::stringstream stringStream;
+
+            for (std::size_t i = 0; i < frameLength; i++) {
+                stringStream << std::setfill('0') << std::setw(2) << std::hex
+                             << static_cast<unsigned int>(static_cast<unsigned char>(frame[i])) << " ";
+
+                if ((i + 1) % modul == 0 || i == frameLength) {
+                    LOG(TRACE) << "Frame: " << stringStream.str();
+                    stringStream.str("");
+                }
+            }
+        }
+
         bool closeSent = false;
 
         int receivedOpCode = 0;

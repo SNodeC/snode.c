@@ -37,25 +37,24 @@ namespace apps::websocket::subprotocol::echo::server {
     }
 
     void Echo::onConnected() {
-        VLOG(0) << "Echo connected:";
+        VLOG(1) << "Echo connected:";
 
         sendMessage("Welcome to SimpleChat");
         sendMessage("=====================");
     }
 
     void Echo::onMessageStart(int opCode) {
-        VLOG(0) << "Message Start - OpCode: " << opCode;
+        VLOG(2) << "Message Start - OpCode: " << opCode;
     }
 
     void Echo::onMessageData(const char* junk, std::size_t junkLen) {
         data += std::string(junk, junkLen);
 
-        VLOG(0) << "Message Fragment: " << std::string(junk, junkLen);
+        VLOG(2) << "Message Fragment: " << std::string(junk, junkLen);
     }
 
     void Echo::onMessageEnd() {
-        VLOG(0) << "Message Full Data: " << data;
-        VLOG(0) << "Message End";
+        VLOG(1) << "Message Data: " << data;
         /*
                 forEachClient([&data = this->data](SubProtocol* client) {
                     client->sendMessage(data);
@@ -67,15 +66,15 @@ namespace apps::websocket::subprotocol::echo::server {
     }
 
     void Echo::onMessageError(uint16_t errnum) {
-        VLOG(0) << "Message error: " << errnum;
+        VLOG(1) << "Message error: " << errnum;
     }
 
     void Echo::onDisconnected() {
-        VLOG(0) << "Echo disconnected:";
+        VLOG(1) << "Echo disconnected:";
     }
 
     void Echo::onExit(int sig) {
-        VLOG(0) << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
+        VLOG(1) << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
                 << ")";
 
         sendClose();

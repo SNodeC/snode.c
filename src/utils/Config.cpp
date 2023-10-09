@@ -419,7 +419,7 @@ namespace utils {
                                      "-v,--verbose-level",
                                      utils::ResetToDefault(verboseLevelOpt),
                                      "Verbose level") //
-                                  ->default_val(0)
+                                  ->default_val(1)
                                   ->type_name("level")
                                   ->check(CLI::Range(0, 10))
                                   ->group(app.get_formatter()->get_label("Persistent Options"));

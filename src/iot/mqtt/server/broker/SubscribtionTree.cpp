@@ -102,29 +102,29 @@ namespace iot::mqtt::server::broker {
 
     void SubscribtionTree::TopicLevel::publish(Message& message, std::string topic, bool leafFound) {
         if (leafFound) {
-            LOG(TRACE) << "Found match:";
-            LOG(TRACE) << "  Topic: '" << message.getTopic() << "';";
-            LOG(TRACE) << "  Message: '" << message.getMessage() << "' ";
-            LOG(TRACE) << "Distribute Publish for match ...";
+            LOG(DEBUG) << "Found match:";
+            LOG(DEBUG) << "  Topic: '" << message.getTopic() << "';";
+            LOG(DEBUG) << "  Message: '" << message.getMessage() << "' ";
+            LOG(DEBUG) << "Distribute Publish for match ...";
 
             for (auto& [clientId, clientQoS] : qoSMap) {
                 broker->sendPublish(clientId, message, clientQoS, false);
             }
 
-            LOG(TRACE) << "... completed!";
+            LOG(DEBUG) << "... completed!";
 
             auto nextHashLevel = topicLevels.find("#");
             if (nextHashLevel != topicLevels.end()) {
-                LOG(TRACE) << "Found parent match:";
-                LOG(TRACE) << "  Topic: '" << message.getTopic() << "'";
-                LOG(TRACE) << "  Message: '" << message.getMessage() << "'";
-                LOG(TRACE) << "Distribute Publish for match ...";
+                LOG(DEBUG) << "Found parent match:";
+                LOG(DEBUG) << "  Topic: '" << message.getTopic() << "'";
+                LOG(DEBUG) << "  Message: '" << message.getMessage() << "'";
+                LOG(DEBUG) << "Distribute Publish for match ...";
 
                 for (auto& [clientId, clientQoS] : nextHashLevel->second.qoSMap) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
 
-                LOG(TRACE) << "... completed!";
+                LOG(DEBUG) << "... completed!";
             }
         } else {
             std::string::size_type slashPosition = topic.find('/');
@@ -146,13 +146,13 @@ namespace iot::mqtt::server::broker {
 
             foundNode = topicLevels.find("#");
             if (foundNode != topicLevels.end()) {
-                LOG(TRACE) << "Found match for topic filter: '.../" << topicLevel << "/#', topic: '" << message.getTopic()
+                LOG(DEBUG) << "Found match for topic filter: '.../" << topicLevel << "/#', topic: '" << message.getTopic()
                            << "', Message: '" << message.getMessage() << "'";
-                LOG(TRACE) << "Distribute Publish ...";
+                LOG(DEBUG) << "Distribute Publish ...";
                 for (auto& [clientId, clientQoS] : foundNode->second.qoSMap) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
-                LOG(TRACE) << "... completed!";
+                LOG(DEBUG) << "... completed!";
             }
         }
     }

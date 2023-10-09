@@ -99,7 +99,7 @@ namespace core::socket::stream {
     void SocketWriter<PhysicalSocket>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
         errno = 0;
 
-        LOG(DEBUG) << "Do syscall shutdonw(WR)";
+        LOG(TRACE) << "Do syscall shutdonw(WR)";
 
         PhysicalSocket::shutdown(PhysicalSocket::SHUT::WR);
 
@@ -112,7 +112,7 @@ namespace core::socket::stream {
             this->onShutdown = onShutdown;
             if (writeBuffer.empty()) {
                 shutdownInProgress = true;
-                LOG(DEBUG) << "Initiating shutdown process";
+                LOG(TRACE) << "Initiating shutdown process";
                 doWriteShutdown(onShutdown);
             } else {
                 markShutdown = true;
@@ -126,7 +126,7 @@ namespace core::socket::stream {
             setTimeout(terminateTimeout);
             shutdown([this]([[maybe_unused]] int errnum) -> void {
                 if (errnum != 0) {
-                    PLOG(DEBUG) << "SocketWriter::doWriteShutdown";
+                    PLOG(TRACE) << "SocketWriter::doWriteShutdown";
                 }
                 disable();
             });

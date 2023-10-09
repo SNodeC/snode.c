@@ -54,12 +54,12 @@ namespace core::socket::stream::tls {
 
                       socketConnection->doSSLHandshake(
                           [socketContextFactory, onConnected, socketConnection]() -> void { // onSuccess
-                              LOG(DEBUG) << "SSL/TLS initial handshake success";
+                              LOG(TRACE) << "SSL/TLS initial handshake success";
                               onConnected(socketConnection);
                               socketConnection->connected(socketContextFactory);
                           },
                           []() -> void { // onTimeout
-                              LOG(DEBUG) << "SSL/TLS initial handshake timed out";
+                              LOG(TRACE) << "SSL/TLS initial handshake timed out";
                           },
                           [](int sslErr) -> void { // onError
                               ssl_log("SSL/TLS initial handshake failed", sslErr);

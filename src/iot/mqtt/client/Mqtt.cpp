@@ -53,8 +53,6 @@ namespace iot::mqtt::client {
     Mqtt::Mqtt()
         : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") { // NOLINT
         if (!sessionStoreFileName.empty()) {
-            LOG(INFO) << "Restoring safed session ...";
-
             std::ifstream sessionStoreFile(sessionStoreFileName);
 
             if (sessionStoreFile.is_open()) {
@@ -65,16 +63,16 @@ namespace iot::mqtt::client {
 
                     session.fromJson(sessionStoreJson);
 
-                    LOG(TRACE) << "  ... Persistent session data loaded successfull";
+                    LOG(DEBUG) << "  ... Persistent session data loaded successfull";
                 } catch (const nlohmann::json::exception&) {
-                    LOG(TRACE) << "  ... Starting with empty session: Session store '" << sessionStoreFileName << "' empty or corrupted";
+                    LOG(DEBUG) << "  ... Starting with empty session: Session store '" << sessionStoreFileName << "' empty or corrupted";
 
                     session.clear();
                 }
                 sessionStoreFile.close();
                 std::remove(sessionStoreFileName.data());
             } else {
-                PLOG(TRACE) << "  ... Could not read session store '" << sessionStoreFileName << "'";
+                PLOG(DEBUG) << "  ... Could not read session store '" << sessionStoreFileName << "'";
             }
             LOG(INFO) << "Restoring safed session done";
         } else {
@@ -95,7 +93,7 @@ namespace iot::mqtt::client {
 
                 sessionStoreFile.close();
             } else {
-                PLOG(TRACE) << "Could not write session store '" << sessionStoreFileName << "'";
+                PLOG(DEBUG) << "Could not write session store '" << sessionStoreFileName << "'";
             }
         } else {
             LOG(INFO) << "Session not saved: Session store filename empty";
@@ -168,7 +166,7 @@ namespace iot::mqtt::client {
         LOG(DEBUG) << "Session present: " << connack.getSessionPresent();
 
         if (connack.getReturnCode() != MQTT_CONNACK_ACCEPT) {
-            LOG(TRACE) << "Negative ack received";
+            LOG(DEBUG) << "Negative ack received";
             mqttContext->end(true);
         } else {
             initSession(&session, keepAlive * 2);
@@ -213,7 +211,7 @@ namespace iot::mqtt::client {
         LOG(DEBUG) << "Return codes: " << ss.str();
 
         if (suback.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
+            LOG(DEBUG) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             onSuback(suback);
@@ -227,7 +225,7 @@ namespace iot::mqtt::client {
         LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << unsuback.getPacketIdentifier();
 
         if (unsuback.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
+            LOG(DEBUG) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             onUnsuback(unsuback);

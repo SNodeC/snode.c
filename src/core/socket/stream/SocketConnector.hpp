@@ -60,7 +60,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::initConnectEvent() {
         if (!config->getDisabled()) {
-            LOG(DEBUG) << config->getInstanceName() << ": enabled";
+            LOG(TRACE) << config->getInstanceName() << ": enabled";
 
             core::eventreceiver::ConnectEventReceiver::setTimeout(config->getConnectTimeout());
 
@@ -120,7 +120,7 @@ namespace core::socket::stream {
                 destruct();
             }
         } else {
-            LOG(DEBUG) << "Instance '" << config->getInstanceName() << "' disabled";
+            LOG(TRACE) << "Instance '" << config->getInstanceName() << "' disabled";
 
             destruct();
         }

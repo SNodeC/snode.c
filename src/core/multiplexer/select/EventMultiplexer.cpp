@@ -38,7 +38,7 @@ namespace core::select {
         : core::EventMultiplexer(new core::select::DescriptorEventPublisher("READ", fdSets[core::EventMultiplexer::DISP_TYPE::RD]),
                                  new core::select::DescriptorEventPublisher("WRITE", fdSets[core::EventMultiplexer::DISP_TYPE::WR]),
                                  new core::select::DescriptorEventPublisher("EXCEPT", fdSets[core::EventMultiplexer::DISP_TYPE::EX])) {
-        LOG(TRACE) << "IO-Multiplexer: select";
+        LOG(DEBUG) << "IO-Multiplexer: select";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {

@@ -35,18 +35,18 @@ namespace core::socket {
 
     void SocketContext::onWriteError(int errnum) {
         if (errnum != 0) {
-            PLOG(INFO) << "OnWriteError: " << errnum;
+            PLOG(ERROR) << "OnWriteError: " << errnum;
         }
     }
 
     void SocketContext::onReadError(int errnum) {
         if (errnum != 0) {
-            PLOG(INFO) << "OnReadError: " << errnum;
+            PLOG(ERROR) << "OnReadError: " << errnum;
         }
     }
 
     void SocketContext::onExit(int sig) {
-        LOG(DEBUG) << "Applicationprotocol exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
+        LOG(TRACE) << "Applicationprotocol exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
                    << ")";
     }
 

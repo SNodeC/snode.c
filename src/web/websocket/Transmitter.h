@@ -50,7 +50,6 @@ namespace web::websocket {
         void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) const;
 
         void sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) const;
-        void dumpFrame(char* frame, uint64_t frameLength);
 
         virtual void sendFrameData(uint8_t data) const = 0;
         virtual void sendFrameData(uint16_t data) const = 0;

@@ -97,7 +97,7 @@ namespace core {
                 LOG(WARNING) << "Double suspend: " << getName() << ": fd = " << observedFd;
             }
         } else {
-            LOG(ERROR) << "Suspend while not enabled: " << getName() << ": fd = " << observedFd;
+            LOG(WARNING) << "Suspend while not enabled: " << getName() << ": fd = " << observedFd;
         }
     }
 
@@ -114,7 +114,7 @@ namespace core {
                 LOG(WARNING) << "Double resume: " << getName() << ": fd = " << observedFd;
             }
         } else {
-            LOG(ERROR) << "Resume while not enabled: " << getName() << ": fd = " << observedFd;
+            LOG(WARNING) << "Resume while not enabled: " << getName() << ": fd = " << observedFd;
         }
     }
 

@@ -57,9 +57,9 @@ namespace iot::mqtt::server::broker {
                     retainTree.fromJson(sessionStoreJson["retain_tree"]);
                     subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
 
-                    LOG(TRACE) << "Persistent session data loaded successfull";
+                    LOG(DEBUG) << "Persistent session data loaded successfull";
                 } catch (const nlohmann::json::exception&) {
-                    LOG(TRACE) << "Starting with empty session: Session store '" << sessionStoreFileName << "' empty or corrupted";
+                    LOG(DEBUG) << "Starting with empty session: Session store '" << sessionStoreFileName << "' empty or corrupted";
 
                     sessionStore.clear();
                     retainTree.clear();
@@ -69,7 +69,7 @@ namespace iot::mqtt::server::broker {
                 sessionStoreFile.close();
                 std::remove(sessionStoreFileName.data());
             } else {
-                PLOG(TRACE) << "Could not read session store '" << sessionStoreFileName << "'";
+                PLOG(DEBUG) << "Could not read session store '" << sessionStoreFileName << "'";
             }
         } else {
             LOG(INFO) << "Session not reloaded: Session store filename empty";
@@ -105,7 +105,7 @@ namespace iot::mqtt::server::broker {
 
                 sessionStoreFile.close();
             } else {
-                PLOG(TRACE) << "Could not write session store '" << sessionStoreFileName << "'";
+                PLOG(DEBUG) << "Could not write session store '" << sessionStoreFileName << "'";
             }
         } else {
             LOG(INFO) << "Session not saved: Session store filename empty";
@@ -180,10 +180,10 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::restartSession(const std::string& clientId) {
-        LOG(TRACE) << "  Retained: Send Publish: ClientId: " << clientId;
+        LOG(DEBUG) << "  Retained: Send Publish: ClientId: " << clientId;
         subscribtionTree.appear(clientId);
 
-        LOG(TRACE) << "  Queued: Send Publish: ClientId: " << clientId;
+        LOG(DEBUG) << "  Queued: Send Publish: ClientId: " << clientId;
         sessionStore[clientId].publishQueued();
     }
 
@@ -197,7 +197,7 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool retain) {
-        LOG(TRACE) << "  Send Publish: ClientId: " << clientId;
+        LOG(DEBUG) << "  Send Publish: ClientId: " << clientId;
         sessionStore[clientId].sendPublish(message, qoS, retain);
     }
 

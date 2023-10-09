@@ -62,7 +62,7 @@ namespace web::http::server {
 
         bool upgrade(Request& req);
 
-        void sendFile(const std::string& file, const std::function<void(int err)>& onError);
+        void sendFile(const std::string& file, const std::function<void(int errnum)>& onError);
 
     protected:
         RequestContextBase* requestContext;

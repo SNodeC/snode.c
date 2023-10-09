@@ -20,13 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <endian.h>
-#include <iomanip>
-#include <memory>
 #include <random>
-#include <sstream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -124,22 +119,6 @@ namespace web::websocket {
         if (masking) {
             for (uint64_t i = 0; i < payloadLength; i++) {
                 *(const_cast<char*>(payload) + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4);
-            }
-        }
-    }
-
-    void Transmitter::dumpFrame(char* frame, uint64_t frameLength) {
-        unsigned int modul = 4;
-
-        std::stringstream stringStream;
-
-        for (std::size_t i = 0; i < frameLength; i++) {
-            stringStream << std::setfill('0') << std::setw(2) << std::hex << static_cast<unsigned int>(static_cast<unsigned char>(frame[i]))
-                         << " ";
-
-            if ((i + 1) % modul == 0 || i == frameLength) {
-                VLOG(0) << "Frame: " << stringStream.str();
-                stringStream.str("");
             }
         }
     }

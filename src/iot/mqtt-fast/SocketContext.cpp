@@ -39,99 +39,99 @@ namespace iot::mqtt_fast {
     }
 
     void SocketContext::sendConnect(const std::string& clientId) {
-        LOG(TRACE) << "Send CONNECT";
-        LOG(TRACE) << "============";
+        LOG(DEBUG) << "Send CONNECT";
+        LOG(DEBUG) << "============";
 
         send(iot::mqtt_fast::packets::Connect(clientId));
     }
 
     void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
-        LOG(TRACE) << "Send CONNACK";
-        LOG(TRACE) << "============";
+        LOG(DEBUG) << "Send CONNACK";
+        LOG(DEBUG) << "============";
 
         send(iot::mqtt_fast::packets::Connack(returnCode, flags));
     }
 
     void SocketContext::sendPublish(const std::string& topic, const std::string& message, bool dup, uint8_t qoS, bool retain) {
-        LOG(TRACE) << "Send PUBLISH";
-        LOG(TRACE) << "============";
+        LOG(DEBUG) << "Send PUBLISH";
+        LOG(DEBUG) << "============";
 
         send(iot::mqtt_fast::packets::Publish(qoS == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoS, retain));
     }
 
     void SocketContext::sendPuback(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBACK";
-        LOG(TRACE) << "===========";
+        LOG(DEBUG) << "Send PUBACK";
+        LOG(DEBUG) << "===========";
 
         send(iot::mqtt_fast::packets::Puback(packetIdentifier));
     }
 
     void SocketContext::sendPubrec(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBREC";
-        LOG(TRACE) << "===========";
+        LOG(DEBUG) << "Send PUBREC";
+        LOG(DEBUG) << "===========";
 
         send(iot::mqtt_fast::packets::Pubrec(packetIdentifier));
     }
 
     void SocketContext::sendPubrel(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBREL";
-        LOG(TRACE) << "===========";
+        LOG(DEBUG) << "Send PUBREL";
+        LOG(DEBUG) << "===========";
 
         send(iot::mqtt_fast::packets::Pubrel(packetIdentifier));
     }
 
     void SocketContext::sendPubcomp(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBCOMP";
-        LOG(TRACE) << "============";
+        LOG(DEBUG) << "Send PUBCOMP";
+        LOG(DEBUG) << "============";
 
         send(iot::mqtt_fast::packets::Pubcomp(packetIdentifier));
     }
 
     void SocketContext::sendSubscribe(std::list<iot::mqtt_fast::Topic>& topics) {
-        LOG(TRACE) << "Send SUBSCRIBE";
-        LOG(TRACE) << "==============";
+        LOG(DEBUG) << "Send SUBSCRIBE";
+        LOG(DEBUG) << "==============";
 
         send(iot::mqtt_fast::packets::Subscribe(getPacketIdentifier(), topics));
     }
 
     void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
-        LOG(TRACE) << "Send SUBACK";
-        LOG(TRACE) << "===========";
+        LOG(DEBUG) << "Send SUBACK";
+        LOG(DEBUG) << "===========";
 
         send(iot::mqtt_fast::packets::Suback(packetIdentifier, returnCodes));
     }
 
     void SocketContext::sendUnsubscribe(std::list<std::string>& topics) {
-        LOG(TRACE) << "Send UNSUBSCRIBE";
-        LOG(TRACE) << "================";
+        LOG(DEBUG) << "Send UNSUBSCRIBE";
+        LOG(DEBUG) << "================";
 
         send(iot::mqtt_fast::packets::Unsubscribe(getPacketIdentifier(), topics));
     }
 
     void SocketContext::sendUnsuback(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send UNSUBACK";
-        LOG(TRACE) << "=============";
+        LOG(DEBUG) << "Send UNSUBACK";
+        LOG(DEBUG) << "=============";
 
         send(iot::mqtt_fast::packets::Unsuback(packetIdentifier));
     }
 
     void SocketContext::sendPingreq() {
-        LOG(TRACE) << "Send Pingreq";
-        LOG(TRACE) << "============";
+        LOG(DEBUG) << "Send Pingreq";
+        LOG(DEBUG) << "============";
 
         send(iot::mqtt_fast::packets::Pingreq());
     }
 
     void SocketContext::sendPingresp() {
-        LOG(TRACE) << "Send Pingresp";
-        LOG(TRACE) << "=============";
+        LOG(DEBUG) << "Send Pingresp";
+        LOG(DEBUG) << "=============";
 
         send(iot::mqtt_fast::packets::Pingresp());
     }
 
     void SocketContext::sendDisconnect() {
-        LOG(TRACE) << "Send Disconnect";
-        LOG(TRACE) << "===============";
+        LOG(DEBUG) << "Send Disconnect";
+        LOG(DEBUG) << "===============";
 
         send(iot::mqtt_fast::packets::Disconnect());
     }
@@ -143,10 +143,10 @@ namespace iot::mqtt_fast {
             LOG(ERROR) << "SocketContext: Error during ControlPacket construction";
             close();
         } else if (controlPacketFactory.isComplete()) {
-            LOG(TRACE) << "======================================================";
-            LOG(TRACE) << "PacketType: " << static_cast<uint16_t>(controlPacketFactory.getPacketType());
-            LOG(TRACE) << "PacketFlags: " << static_cast<uint16_t>(controlPacketFactory.getPacketFlags());
-            LOG(TRACE) << "RemainingLength: " << static_cast<uint16_t>(controlPacketFactory.getRemainingLength());
+            LOG(DEBUG) << "======================================================";
+            LOG(DEBUG) << "PacketType: " << static_cast<uint16_t>(controlPacketFactory.getPacketType());
+            LOG(DEBUG) << "PacketFlags: " << static_cast<uint16_t>(controlPacketFactory.getPacketFlags());
+            LOG(DEBUG) << "RemainingLength: " << static_cast<uint16_t>(controlPacketFactory.getRemainingLength());
 
             printData(controlPacketFactory.getPacket().getValue());
 
@@ -232,7 +232,7 @@ namespace iot::mqtt_fast {
                << " "; // << " | ";
         }
 
-        LOG(TRACE) << ss.str();
+        LOG(DEBUG) << ss.str();
     }
 
 } // namespace iot::mqtt_fast
