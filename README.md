@@ -1,6 +1,6 @@
 # Simple NODE in C++ (SNode.C)
 
-[SNode.C](https://SNodeC.github.io/snode.c-doc/html/index.html) is a very simple to use lightweight highly extensible event driven layer-based framework for network applications in the spirit of node.js written entirely in C\+\+.
+[SNode.C](https://snodec.github.io/snode.c-doc/html/index.html) is a very simple to use lightweight highly extensible event driven layer-based framework for network applications in the spirit of node.js written entirely in C\+\+.
 
 The development of the  framework started during the summer semester 2020 in the context of the course **Network and Distributed Systems** of the masters program [**Interactive Media**](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [**Informatics, Communications and Media**](https://www.fh-ooe.at/en/hagenberg-campus/) at the [**University of Applied Sciences Upper Austria, Campus Hagenberg**](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network and web frameworks.
 
@@ -535,9 +535,9 @@ The echo application shows the typical architecture of servers and clients using
 
   which need be be derived from the base classes
 
-  - [`core::socket::stream::SocketContextFactory`](https://SNodeC.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1_socket_context_factory.html)
+  - [`core::socket::stream::SocketContextFactory`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1SocketContextFactory.html)
 
-  - [`core::socket::stream::SocketContext`](https://SNodeC.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1_socket_context.html)
+  - [`core::socket::stream::SocketContext`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1SocketContext.html)
 
 - The framework provides
 
@@ -850,11 +850,11 @@ as can be seen in the Echo-Demo-Application above.
 
 | Network Layer       | *SocketAddress* Classes                                      | SocketAddress Header Files                                   |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [`net::in::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) | [`net/in/SocketAddress.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in_2_socket_address_8h.html) |
-| IPv6                | [`net::in6::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) | [`net/in6/SocketAddress.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in6_2_socket_address_8h.html) |
-| Unix Domain Sockets | [`net::un::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1un_1_1_socket_address.html) | [`net/un/SocketAddress.h`](https://SNodeC.github.io/snode.c-doc/html/net_2un_2_socket_address_8h.html) |
-| Bluetooth RFCOMM    | [`net::rc::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | [`net/rc/SocketAddress.h`](https://SNodeC.github.io/snode.c-doc/html/net_2rc_2_socket_address_8h.html) |
-| Bluetooth L2CAP     | [`net::l2::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | [`net/l2/SocketAddress.h`](https://SNodeC.github.io/snode.c-doc/html/net_2l2_2_socket_address_8h.html) |
+| IPv4                | [`net::in::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1in_1_1SocketAddress.html) | [`net/in/SocketAddress.h`](https://snodec.github.io/snode.c-doc/html/net_2in_2SocketAddress_8h.html) |
+| IPv6                | [`net::in6::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1in6_1_1SocketAddress.html) | [`net/in6/SocketAddress.h`](https://snodec.github.io/snode.c-doc/html/net_2in6_2SocketAddress_8h.html) |
+| Unix Domain Sockets | [`net::un::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1un_1_1SocketAddress.html) | [`net/un/SocketAddress.h`](https://snodec.github.io/snode.c-doc/html/net_2un_2SocketAddress_8h.html) |
+| Bluetooth RFCOMM    | [`net::rc::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1rc_1_1SocketAddress.html) | [`net/rc/SocketAddress.h`](https://snodec.github.io/snode.c-doc/html/net_2rc_2SocketAddress_8h.html) |
+| Bluetooth L2CAP     | [`net::l2::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1l2_1_1SocketAddress.html) | [`net/l2/SocketAddress.h`](https://snodec.github.io/snode.c-doc/html/net_2l2_2SocketAddress_8h.html) |
 
 Each *SocketAddress* class provides it's very specific set of constructors.
 
@@ -864,11 +864,11 @@ The default constructors of all *SocketAddress* classes creates wild-card *Socke
 
 | SocketAddress                                                | Constructors                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`net::in::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1in_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
-| [`net::in6::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1in6_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
-| [`net::un::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1un_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& sunPath)` |
-| [`net::rc::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1rc_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint8_t channel)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)` |
-| [`net::l2::SocketAddress`](https://SNodeC.github.io/snode.c-doc/html/classnet_1_1l2_1_1_socket_address.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t psm)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)` |
+| [`net::in::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1in_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
+| [`net::in6::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1in6_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
+| [`net::un::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1un_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& sunPath)` |
+| [`net::rc::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1rc_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(uint8_t channel)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)` |
+| [`net::l2::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1l2_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t psm)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)` |
 
 ### *SocketConnection*
 
@@ -899,8 +899,8 @@ which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption,
 
 | Encryption | SocketConnection Classes                                     | SocketConnection Header Files                                |
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Legacy     | [`core::socket::stream::legacy::SocketConnection`](https://SNodeC.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1_socket_connection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://SNodeC.github.io/snode.c-doc/html/stream_2legacy_2_socket_connection_8h.html) |
-| SSL/TLS    | [`core::socket::stream::tls::SocketConnection`](https://SNodeC.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1_socket_connection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://SNodeC.github.io/snode.c-doc/html/stream_2tls_2_socket_connection_8h.html) |
+| Legacy     | [`core::socket::stream::legacy::SocketConnection`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1SocketConnection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://snodec.github.io/snode.c-doc/html/legacy_2SocketConnection_8h.html) |
+| SSL/TLS    | [`core::socket::stream::tls::SocketConnection`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1SocketConnection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://snodec.github.io/snode.c-doc/html/tls_2SocketConnection_8h.html) |
 
 #### Most Important common *SocketConnection* Methods
 
@@ -1121,22 +1121,22 @@ Each *SocketServer* template class expects a concrete *SocketContextFactory* as 
 
 | Network Layer       | Legacy Types                                                 | SSL/TLS Types                                                |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [`net::in::stream::legacy::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
-| IPv6                | [`net::in6::stream::legacy::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) |
-| Unix Domain Sockets | [`net::un::stream::legacy::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy.html) | [`net::un::stream::tls::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls.html) |
-| Bluetooth RFCOMM    | [`net::rc::stream::legacy::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy.html) | [`net::rc::stream::tls::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
-| Bluetooth L2CAP     | [`net::l2::stream::legacy::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) | [`net::l2::stream::tls::SocketServer`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
+| IPv4                | [`net::in::stream::legacy::SocketServer`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketServer`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
+| IPv6                | [`net::in6::stream::legacy::SocketServer`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketServer`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls.html) |
+| Unix Domain Sockets | [`net::un::stream::legacy::SocketServer`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy.html) | [`net::un::stream::tls::SocketServer`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls.html) |
+| Bluetooth RFCOMM    | [`net::rc::stream::legacy::SocketServer`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy.html) | [`net::rc::stream::tls::SocketServer`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
+| Bluetooth L2CAP     | [`net::l2::stream::legacy::SocketServer`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) | [`net::l2::stream::tls::SocketServer`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
 
 ### SocketServer Header Files
 
 
 | Network Layer       | Legacy Header Files                                          | SSL/TLS Header Files                                         |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [`net/in/stream/legacy/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2_socket_server_8h.html) | [`net/in/stream/tls/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in_2stream_2tls_2_socket_server_8h.html) |
-| IPv6                | [`net/in6/stream/legacy/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2_socket_server_8h.html) | [`net/in6/stream/tls/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2_socket_server_8h.html) |
-| Unix Domain Sockets | [`net/un/stream/legacy/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2_socket_server_8h.html) | [`net/un/stream/tls/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2un_2stream_2tls_2_socket_server_8h.html) |
-| Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2_socket_server_8h.html) | [`net/rc/stream/tls/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2_socket_server_8h.html) |
-| Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2_socket_server_8h.html) | [`net/l2/stream/tls/SocketServer.h`](https://SNodeC.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2_socket_server_8h.html) |
+| IPv4                | [`net/in/stream/legacy/SocketServer.h`](https://snodec.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2SocketServer_8h.html) | [`net/in/stream/tls/SocketServer.h`](https://snodec.github.io/snode.c-doc/html/net_2in_2stream_2tls_2SocketServer_8h.html) |
+| IPv6                | [`net/in6/stream/legacy/SocketServer.h`](https://snodec.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2SocketServer_8h.html) | [`net/in6/stream/tls/SocketServer.h`](https://snodec.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2SocketServer_8h.html) |
+| Unix Domain Sockets | [`net/un/stream/legacy/SocketServer.h`](https://snodec.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2SocketServer_8h.html) | [`net/un/stream/tls/SocketServer.h`](https://snodec.github.io/snode.c-doc/html/net_2un_2stream_2tls_2SocketServer_8h.html) |
+| Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketServer.h`](https://snodec.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2SocketServer_8h.html) | [`net/rc/stream/tls/SocketServer.h`](https://snodec.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2SocketServer_8h.html) |
+| Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketServer.h`](https://snodec.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2SocketServer_8h.html) | [`net/l2/stream/tls/SocketServer.h`](https://snodec.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2SocketServer_8h.html) |
 
 ### Listen Methods
 
@@ -1243,22 +1243,22 @@ Each *SocketClient* template class expects a concrete *SocketContextFactory* as 
 
 | Network Layer       | Legacy Types                                                 | SSL/TLS Types                                                |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [`net::in::stream::legacy::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
-| IPv6                | [`net::in6::stream::legacy::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls.html) |
-| Unix Domain Sockets | [`net::un::stream::legacy::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy.html) | [`net::un::stream::tls::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls.html) |
-| Bluetooth RFCOMM    | [`net::rc::stream::legacy::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy.html) | [`net::rc::stream::tls::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
-| Bluetooth L2CAP     | [`net::l2::stream::legacy::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) | [`net::l2::stream::tls::SocketClient`](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
+| IPv4                | [`net::in::stream::legacy::SocketClient`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) | [`net::in::stream::tls::SocketClient`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
+| IPv6                | [`net::in6::stream::legacy::SocketClient`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) | [`net::in6::stream::tls::SocketClient`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls.html) |
+| Unix Domain Sockets | [`net::un::stream::legacy::SocketClient`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy.html) | [`net::un::stream::tls::SocketClient`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls.html) |
+| Bluetooth RFCOMM    | [`net::rc::stream::legacy::SocketClient`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy.html) | [`net::rc::stream::tls::SocketClient`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
+| Bluetooth L2CAP     | [`net::l2::stream::legacy::SocketClient`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) | [`net::l2::stream::tls::SocketClient`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
 
 ### SocketClient Header Files
 
 
 | Network Layer       | Legacy Header Files                                          | SSL/TLS Header Files                                         |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [`net/in/stream/legacy/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2_socket_client_8h.html) | [`net/in/stream/tls/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in_2stream_2tls_2_socket_client_8h.html) |
-| IPv6                | [`net/in6/stream/legacy/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2_socket_client_8h.html) | [`net/in6/stream/tls/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2_socket_client_8h.html) |
-| Unix Domain Sockets | [`net/un/stream/legacy/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2_socket_client_8h.html) | [`net/un/stream/tls/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2un_2stream_2tls_2_socket_client_8h.html) |
-| Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2_socket_client_8h.html) | [`net/rc/stream/tls/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2_socket_client_8h.html) |
-| Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2_socket_client_8h.html) | [`net/l2/stream/tls/SocketClient.h`](https://SNodeC.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2_socket_client_8h.html) |
+| IPv4                | [`net/in/stream/legacy/SocketClient.h`](https://snodec.github.io/snode.c-doc/html/net_2in_2stream_2legacy_2SocketClient_8h.html) | [`net/in/stream/tls/SocketClient.h`](https://snodec.github.io/snode.c-doc/html/net_2in_2stream_2tls_2SocketClient_8h.html) |
+| IPv6                | [`net/in6/stream/legacy/SocketClient.h`](https://snodec.github.io/snode.c-doc/html/net_2in6_2stream_2legacy_2SocketClient_8h.html) | [`net/in6/stream/tls/SocketClient.h`](https://snodec.github.io/snode.c-doc/html/net_2in6_2stream_2tls_2SocketClient_8h.html) |
+| Unix Domain Sockets | [`net/un/stream/legacy/SocketClient.h`](https://snodec.github.io/snode.c-doc/html/net_2un_2stream_2legacy_2SocketClient_8h.html) | [`net/un/stream/tls/SocketClient.h`](https://snodec.github.io/snode.c-doc/html/net_2un_2stream_2tls_2SocketClient_8h.html) |
+| Bluetooth RFCOMM    | [`net/rc/stream/legacy/SocketClient.h`](https://snodec.github.io/snode.c-doc/html/net_2rc_2stream_2legacy_2SocketClient_8h.html) | [`net/rc/stream/tls/SocketClient.h`](https://snodec.github.io/snode.c-doc/html/net_2rc_2stream_2tls_2SocketClient_8h.html) |
+| Bluetooth L2CAP     | [`net/l2/stream/legacy/SocketClient.h`](https://snodec.github.io/snode.c-doc/html/net_2l2_2stream_2legacy_2SocketClient_8h.html) | [`net/l2/stream/tls/SocketClient.h`](https://snodec.github.io/snode.c-doc/html/net_2l2_2stream_2tls_2SocketClient_8h.html) |
 
 ### Connect Methods
 
@@ -1427,17 +1427,17 @@ Other configuration items can be configured in the very same way but for most op
 
 #### List of all Configuration Items
 
-All *SocketServer* and *SocketClient* instances share some common [configuration options](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1config.html).
+All *SocketServer* and *SocketClient* instances share some common [configuration options](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1config.html).
 
 Network layer specific configuration options:
 
 | Network Layer       | SocketAddress                                                | Transport Layer                                              | Legacy Connection Layer                                      | TLS Connection Layer                                         |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| IPv4                | [Address configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1config.html) | [Transport layer configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1config.html) | [Legacy configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls_1_1config.html) |
-| IPv6                | [Address configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1config.html) | [Transport layer configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1config.html) | [Legacy configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls_1_1config.html) |
-| Unix Domain Sockets | [Address configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1config.html) | [Transport layer configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1config.html) | [Legacy configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls_1_1config.html) |
-| Bluetooth RFCOMM    | [Address configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1config.html) | [Transport layer configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1config.html) | [Legacy configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls_1_1config.html) |
-| Bluetoot L2CAP      | [Address configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1config.html) | [Transport layer configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1config.html) | [Legacy configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://SNodeC.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls_1_1config.html) |
+| IPv4                | [Address configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1config.html) | [Transport layer configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1config.html) | [Legacy configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls_1_1config.html) |
+| IPv6                | [Address configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1config.html) | [Transport layer configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1config.html) | [Legacy configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls_1_1config.html) |
+| Unix Domain Sockets | [Address configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un_1_1config.html) | [Transport layer configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1config.html) | [Legacy configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls_1_1config.html) |
+| Bluetooth RFCOMM    | [Address configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1config.html) | [Transport layer configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1config.html) | [Legacy configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls_1_1config.html) |
+| Bluetoot L2CAP      | [Address configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1config.html) | [Transport layer configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1config.html) | [Legacy configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy_1_1config.html) | [TLS configuration](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls_1_1config.html) |
 
 ### Configuration via the Command Line
 
