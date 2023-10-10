@@ -54,7 +54,7 @@ namespace core::socket {
 
         operator int();
 
-        bool operator==(const int& state);
+        bool operator==(const int& state) const;
 
         std::string what();
 

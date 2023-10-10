@@ -48,7 +48,7 @@ namespace core::socket {
         return state;
     }
 
-    bool State::operator==(const int& state) {
+    bool State::operator==(const int& state) const {
         return this->state == state;
     }
 
