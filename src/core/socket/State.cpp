@@ -26,4 +26,51 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace core::socket {} // namespace core::socket
+namespace core::socket {
+
+    State::State(const int& state, const std::string& file, const int& line)
+        : state(state)
+        , file(file)
+        , line(line)
+        , errnum(errno)
+        , errstr(errnum != 0 ? std::string(": ") + std::strerror(errnum) + " [" + std::to_string(errnum) + "]" : "") {
+    }
+
+    State::State(const int& state, const std::string& file, const int& line, int errnum, const std::string& errstr)
+        : state(state)
+        , file(file)
+        , line(line)
+        , errnum(errnum)
+        , errstr(errnum != 0 ? std::string(": ") + errstr + " [" + std::to_string(errnum) + "]" : "") {
+    }
+
+    State::operator int() {
+        return state;
+    }
+
+    bool State::operator==(const int& state) {
+        return this->state == state;
+    }
+
+    std::string State::what() {
+        std::string stateString;
+
+        switch (state) {
+            case OK:
+                stateString = "OK";
+                break;
+            case DISABLED:
+                stateString = "DISABLED";
+                break;
+            case ERROR:
+                stateString = file + ":" + std::to_string(line) + errstr;
+                break;
+            case FATAL:
+                stateString = file + ":" + std::to_string(line) + errstr;
+                break;
+        }
+
+        return stateString;
+    }
+
+} // namespace core::socket

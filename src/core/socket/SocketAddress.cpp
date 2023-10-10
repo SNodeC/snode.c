@@ -27,9 +27,10 @@ namespace core::socket {
     SocketAddress::~SocketAddress() {
     }
 
-    SocketAddress::BadSocketAddress::BadSocketAddress(const std::string& errorMessage, State state)
+    SocketAddress::BadSocketAddress::BadSocketAddress(State state, const std::string& errorMessage, int errnum)
         : runtime_error(errorMessage)
-        , state(state) {
+        , state(state)
+        , errnum(errnum) {
     }
 
     SocketAddress::BadSocketAddress::~BadSocketAddress() {
@@ -37,6 +38,10 @@ namespace core::socket {
 
     State SocketAddress::BadSocketAddress::getState() const {
         return state;
+    }
+
+    int SocketAddress::BadSocketAddress::getErrnum() const {
+        return errnum;
     }
 
 } // namespace core::socket

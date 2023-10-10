@@ -152,7 +152,7 @@ namespace core::socket::stream::tls {
             } else {
                 LOG(ERROR) << config->getInstanceName() << ": Master SSL/TLS certificate activation failed";
 
-                Super::onStatus(Super::config->Local::getSocketAddress(), core::socket::State::ERROR);
+                Super::onStatus(Super::config->Local::getSocketAddress(), core::socket::IS_ERROR);
                 Super::destruct();
             }
         } else {

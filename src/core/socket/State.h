@@ -21,8 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-#include <cstring>
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -38,53 +36,27 @@ namespace core::socket {
         constexpr static int ERROR = 2;
         constexpr static int FATAL = 3;
 
-#define Ok State(core::socket::State::OK, __FILE__, __LINE__)
-#define Disabled State(core::socket::State::DISABLED, __FILE__, __LINE__)
-#define Error State(core::socket::State::ERROR, __FILE__, __LINE__)
-#define Fatal State(core::socket::State::FATAL, __FILE__, __LINE__)
+#define IS_OK State(core::socket::State::OK, __FILE__, __LINE__)
+#define IS_DISABLED State(core::socket::State::DISABLED, __FILE__, __LINE__)
+#define IS_ERROR State(core::socket::State::ERROR, __FILE__, __LINE__)
+#define IS_FATAL State(core::socket::State::FATAL, __FILE__, __LINE__)
 
-        State(const int& state)
-            : state(state)
-            , errnum(errno) {
-        }
+#define STATE(state, errnum, errstr) State((state), __FILE__, __LINE__, errnum, errstr)
 
-        State(const int& state, const std::string& file, const int& line)
-            : state(state)
-            , file(file)
-            , line(line)
-            , errnum(errno) {
-        }
+        /*
+                State(const int& state)
+                    : state(state)
+                    , errnum(errno) {
+                }
+        */
+        State(const int& state, const std::string& file, const int& line);
+        State(const int& state, const std::string& file, const int& line, int errnum, const std::string& errstr);
 
-        operator int() {
-            return state;
-        }
+        operator int();
 
-        bool operator==(const int& state) {
-            return this->state == state;
-        }
+        bool operator==(const int& state);
 
-        std::string what() {
-            std::string stateString;
-
-            switch (state) {
-                case OK:
-                    stateString = "OK: ";
-                    break;
-                case DISABLED:
-                    stateString = "DISABLED: ";
-                    break;
-                case ERROR:
-                    stateString = "ERROR in " + file + " at line " + std::to_string(line) + ": " + std::strerror(errnum) + " [" +
-                                  std::to_string(errnum) + "]";
-                    break;
-                case FATAL:
-                    stateString = "FATAL in " + file + " at line " + std::to_string(line) + ": " + std::strerror(errnum) + " [" +
-                                  std::to_string(errnum) + "]";
-                    break;
-            }
-
-            return stateString;
-        }
+        std::string what();
 
     private:
         int state;
@@ -92,6 +64,7 @@ namespace core::socket {
         int line = 0;
 
         int errnum;
+        std::string errstr;
     };
 
 } // namespace core::socket

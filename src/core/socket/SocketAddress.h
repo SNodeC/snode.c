@@ -36,13 +36,15 @@ namespace core::socket {
         public:
             using Super = std::runtime_error;
 
-            explicit BadSocketAddress(const std::string& errorMessage, State state);
+            explicit BadSocketAddress(State state, const std::string& errorMessage, int errnum);
             ~BadSocketAddress() override;
 
             State getState() const;
+            int getErrnum() const;
 
         private:
-            State state = State::OK;
+            State state;
+            int errnum;
         };
 
         virtual ~SocketAddress();

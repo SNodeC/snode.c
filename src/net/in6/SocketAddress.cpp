@@ -97,18 +97,20 @@ namespace net::in6 {
         if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) == 0) {
             sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
         } else {
-            core::socket::State state = core::socket::State::OK;
+            core::socket::State state = core::socket::IS_OK;
             switch (aiErrCode) {
                 case EAI_AGAIN:
                 case EAI_MEMORY:
-                    state = core::socket::State::ERROR;
+                    state = core::socket::IS_ERROR;
                     break;
                 default:
-                    state = core::socket::State::FATAL;
+                    state = core::socket::IS_FATAL;
                     break;
             }
-            throw core::socket::SocketAddress::BadSocketAddress(
-                "IPv6 getaddrinfo for '" + host + "': " + (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)), state);
+            throw core::socket::SocketAddress::BadSocketAddress(state,
+                                                                host + ": " +
+                                                                    (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
+                                                                (aiErrCode == EAI_SYSTEM ? errno : aiErrCode));
         }
 
         return *this;
