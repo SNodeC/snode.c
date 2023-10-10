@@ -74,33 +74,33 @@ namespace core::socket::stream {
                         case ENOBUFS:
                         case ENOMEM:
                             state = core::socket::IS_ERROR;
-                            PLOG(WARNING) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
+                            PLOG(TRACE) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
                             break;
                         default:
                             state = core::socket::IS_FATAL;
-                            PLOG(ERROR) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
+                            PLOG(TRACE) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
                             break;
                     }
                 } else if (physicalSocket->bind(localAddress) < 0) {
                     switch (errno) {
                         case EADDRINUSE:
                             state = core::socket::IS_ERROR;
-                            PLOG(WARNING) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
+                            PLOG(TRACE) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
                             break;
                         default:
                             state = core::socket::IS_FATAL;
-                            PLOG(ERROR) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
+                            PLOG(TRACE) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
                             break;
                     }
                 } else if (physicalSocket->listen(config->getBacklog()) < 0) {
                     switch (errno) {
                         case EADDRINUSE:
                             state = core::socket::IS_ERROR;
-                            PLOG(WARNING) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
+                            PLOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
                             break;
                         default:
                             state = core::socket::IS_FATAL;
-                            PLOG(ERROR) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
+                            PLOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
                             break;
                     }
                 } else {
@@ -120,7 +120,7 @@ namespace core::socket::stream {
                     destruct();
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(ERROR) << config->getInstanceName() << ": " << badSocketAddress.what();
+                LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
                 onStatus(localAddress,
                          core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
@@ -145,7 +145,7 @@ namespace core::socket::stream {
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(physicalClientSocket, config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                PLOG(ERROR) << config->getInstanceName() << ": accept failed '" << localAddress.toString() << "'";
+                PLOG(TRACE) << config->getInstanceName() << ": accept failed '" << localAddress.toString() << "'";
             }
         } while (--acceptsPerTick > 0);
     }

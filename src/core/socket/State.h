@@ -27,7 +27,7 @@
 
 namespace core::socket {
 
-    //    enum class State { OK, DISABLED, ERROR, FATAL };
+    //    enum class State { OK, DISABLED, TRACE, FATAL };
 
     class State {
     public:

@@ -78,12 +78,12 @@ namespace core::socket::stream {
                             case ENFILE:
                             case ENOBUFS:
                             case ENOMEM:
-                                PLOG(WARNING) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
+                                PLOG(TRACE) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
 
                                 state = core::socket::IS_ERROR;
                                 break;
                             default:
-                                PLOG(ERROR) << config->getInstanceName() << ": open failed '" << localAddress.toString() << "'";
+                                PLOG(TRACE) << config->getInstanceName() << ": open failed '" << localAddress.toString() << "'";
 
                                 state = core::socket::IS_FATAL;
                                 break;
@@ -91,12 +91,12 @@ namespace core::socket::stream {
                     } else if (physicalSocket->bind(localAddress) < 0) {
                         switch (errno) {
                             case EADDRINUSE:
-                                PLOG(WARNING) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
+                                PLOG(TRACE) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
 
                                 state = core::socket::IS_ERROR;
                                 break;
                             default:
-                                PLOG(ERROR) << config->getInstanceName() << ": bind failed '" << localAddress.toString() << "'";
+                                PLOG(TRACE) << config->getInstanceName() << ": bind failed '" << localAddress.toString() << "'";
 
                                 state = core::socket::IS_FATAL;
                                 break;
@@ -107,12 +107,12 @@ namespace core::socket::stream {
                             case EADDRNOTAVAIL:
                             case ECONNREFUSED:
                             case ENETUNREACH:
-                                PLOG(WARNING) << config->getInstanceName() << ": connect '" << remoteAddress.toString() << "'";
+                                PLOG(TRACE) << config->getInstanceName() << ": connect '" << remoteAddress.toString() << "'";
 
                                 state = core::socket::IS_ERROR;
                                 break;
                             default:
-                                PLOG(ERROR) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+                                PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
                                 state = core::socket::IS_FATAL;
                                 break;
@@ -138,14 +138,14 @@ namespace core::socket::stream {
                         destruct();
                     }
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                    LOG(ERROR) << config->getInstanceName() << ": " << badSocketAddress.what();
+                    LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
                     onStatus(remoteAddress,
                              core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
                     destruct();
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(ERROR) << config->getInstanceName() << ": " << badSocketAddress.what();
+                LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
                 onStatus(remoteAddress,
                          core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
@@ -188,12 +188,12 @@ namespace core::socket::stream {
                         case EADDRNOTAVAIL:
                         case ECONNREFUSED:
                         case ENETUNREACH:
-                            PLOG(WARNING) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+                            PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
                             state = core::socket::IS_ERROR;
                             break;
                         default:
-                            PLOG(ERROR) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+                            PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
                             state = core::socket::IS_FATAL;
                             break;
@@ -207,7 +207,7 @@ namespace core::socket::stream {
                 // Connect still in progress
             }
         } else {
-            PLOG(ERROR) << config->getInstanceName() << ": getsockopt syscall error '" << remoteAddress.toString() << "'";
+            PLOG(TRACE) << config->getInstanceName() << ": getsockopt syscall error '" << remoteAddress.toString() << "'";
 
             onStatus(remoteAddress, core::socket::IS_FATAL);
             disable();
@@ -226,7 +226,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectTimeout() {
-        LOG(WARNING) << config->getInstanceName() << ": connect timeout " << remoteAddress.toString();
+        LOG(TRACE) << config->getInstanceName() << ": connect timeout " << remoteAddress.toString();
 
         if (remoteAddress.useNext()) {
             LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '" << config->Remote::getSocketAddress().toString()
@@ -234,7 +234,7 @@ namespace core::socket::stream {
 
             new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
         } else {
-            LOG(ERROR) << config->getInstanceName() << ": connect timeout '" << remoteAddress.toString() << "'";
+            LOG(TRACE) << config->getInstanceName() << ": connect timeout '" << remoteAddress.toString() << "'";
 
             onStatus(remoteAddress, core::socket::IS_ERROR);
         }

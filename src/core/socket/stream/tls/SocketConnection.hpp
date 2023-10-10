@@ -198,7 +198,7 @@ namespace core::socket::stream::tls {
                     }
                 },
                 [this]() -> void {
-                    LOG(WARNING) << "SSL_shutdown: Handshake timed out";
+                    LOG(TRACE) << "SSL_shutdown: Handshake timed out";
                     SocketWriter::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
                         if (errno != 0) {
                             PLOG(TRACE) << "SocketWriter::doWriteShutdown";

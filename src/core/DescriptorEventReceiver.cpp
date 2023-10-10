@@ -54,7 +54,7 @@ namespace core {
             enabled = true;
             descriptorEventPublisher.enable(this);
         } else {
-            LOG(WARNING) << "Double enable: " << getName() << ": fd = " << observedFd;
+            LOG(TRACE) << "Double enable: " << getName() << ": fd = " << observedFd;
         }
     }
 
@@ -73,7 +73,7 @@ namespace core {
             enabled = false;
             descriptorEventPublisher.disable(this);
         } else {
-            LOG(WARNING) << "Double disable: " << getName() << ": fd = " << observedFd;
+            LOG(TRACE) << "Double disable: " << getName() << ": fd = " << observedFd;
         }
     }
 
@@ -94,10 +94,10 @@ namespace core {
                     descriptorEventPublisher.suspend(this);
                 }
             } else {
-                LOG(WARNING) << "Double suspend: " << getName() << ": fd = " << observedFd;
+                LOG(TRACE) << "Double suspend: " << getName() << ": fd = " << observedFd;
             }
         } else {
-            LOG(WARNING) << "Suspend while not enabled: " << getName() << ": fd = " << observedFd;
+            LOG(TRACE) << "Suspend while not enabled: " << getName() << ": fd = " << observedFd;
         }
     }
 
@@ -111,10 +111,10 @@ namespace core {
                     descriptorEventPublisher.resume(this);
                 }
             } else {
-                LOG(WARNING) << "Double resume: " << getName() << ": fd = " << observedFd;
+                LOG(TRACE) << "Double resume: " << getName() << ": fd = " << observedFd;
             }
         } else {
-            LOG(WARNING) << "Resume while not enabled: " << getName() << ": fd = " << observedFd;
+            LOG(TRACE) << "Resume while not enabled: " << getName() << ": fd = " << observedFd;
         }
     }
 

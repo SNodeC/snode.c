@@ -25,7 +25,7 @@
 
 namespace core {
 
-    enum class TickStatus { SUCCESS, INTERRUPTED, NOOBSERVER, ERROR };
+    enum class TickStatus { SUCCESS, INTERRUPTED, NOOBSERVER, TRACE };
 
 } // namespace core
 

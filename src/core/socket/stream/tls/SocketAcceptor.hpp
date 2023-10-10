@@ -150,7 +150,7 @@ namespace core::socket::stream::tls {
 
                 Super::initAcceptEvent();
             } else {
-                LOG(ERROR) << config->getInstanceName() << ": Master SSL/TLS certificate activation failed";
+                LOG(TRACE) << config->getInstanceName() << ": Master SSL/TLS certificate activation failed";
 
                 Super::onStatus(Super::config->Local::getSocketAddress(), core::socket::IS_ERROR);
                 Super::destruct();
@@ -232,8 +232,8 @@ namespace core::socket::stream::tls {
                 LOG(TRACE) << socketAcceptor->config->getInstanceName() << ": Setting sni certificate for '" << serverNameIndication << "'";
                 ssl_set_ssl_ctx(ssl, sniSslCtx);
             } else if (socketAcceptor->forceSni) {
-                LOG(WARNING) << socketAcceptor->config->getInstanceName() << ": No sni certificate found for '" << serverNameIndication
-                             << "' but forceSni set - terminating";
+                LOG(TRACE) << socketAcceptor->config->getInstanceName() << ": No sni certificate found for '" << serverNameIndication
+                           << "' but forceSni set - terminating";
                 ret = SSL_CLIENT_HELLO_ERROR;
                 *al = SSL_AD_UNRECOGNIZED_NAME;
             } else {

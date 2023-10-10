@@ -114,7 +114,7 @@ namespace core {
             activeDescriptorCount = monitorDescriptors(nextTimeout, sigMask);
 
             if (activeDescriptorCount < 0 && errno != EINTR) {
-                tickStatus = TickStatus::ERROR;
+                tickStatus = TickStatus::TRACE;
             } else if (errno == EINTR) {
                 tickStatus = TickStatus::INTERRUPTED;
             }

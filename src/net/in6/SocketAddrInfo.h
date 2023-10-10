@@ -40,7 +40,7 @@ namespace net::in6 {
         const sockaddr* getSockAddr();
 
     private:
-        static void logAddressInfo(const std::string& title, const addrinfo* addrInfo);
+        static void logAddressInfo(const addrinfo* addrInfo);
 
         struct addrinfo* addrInfo = nullptr;
         struct addrinfo* currentAddrInfo = nullptr;

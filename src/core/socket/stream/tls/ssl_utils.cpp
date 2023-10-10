@@ -70,7 +70,7 @@ namespace core::socket::stream::tls {
         } else {
             int err = X509_STORE_CTX_get_error(ctx);
 
-            LOG(WARNING) << "SSL/TLS verify error at depth=" << depth << ": verifyErr=" << err << ", "
+            LOG(TRACE) << "SSL/TLS verify error at depth=" << depth << ": verifyErr=" << err << ", "
                          << X509_verify_cert_error_string(err);
 
             /*
@@ -81,7 +81,7 @@ namespace core::socket::stream::tls {
             switch (err) {
                 case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
                     X509_NAME_oneline(X509_get_issuer_name(curr_cert), buf, 256);
-                    LOG(WARNING) << "no issuer certificate for issuer= " << buf;
+                    LOG(TRACE) << "no issuer certificate for issuer= " << buf;
                     break;
                 default:
                     break;

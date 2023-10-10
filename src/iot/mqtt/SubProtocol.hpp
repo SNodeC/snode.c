@@ -92,7 +92,7 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onConnected() {
-        LOG(INFO) << "Mqtt connected:";
+        LOG(INFO) << "WSMQTT connected:";
         iot::mqtt::MqttContext::onConnected();
     }
 
@@ -147,14 +147,14 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onDisconnected() {
-        LOG(INFO) << "MQTT disconnected:";
+        LOG(INFO) << "WSMQTT disconnected:";
         iot::mqtt::MqttContext::onDisconnected();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onExit(int sig) {
-        LOG(INFO) << "SubProtocol 'mqtt' exit doe to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
-                  << ")";
+        LOG(INFO) << "WebSocket: SubProtocol 'mqtt' exit doe to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig)
+                  << " = " << sig << ")";
 
         iot::mqtt::MqttContext::onExit(sig);
         this->sendClose();

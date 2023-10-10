@@ -20,7 +20,7 @@ find_package(OpenSSL)
 
 if(NOT OpenSSL_FOUND)
     message(
-        FATAL_ERROR
+        FATAL_TRACE
             " libssl-dev not found:\n"
             "   libssl-dev is mandatory for SNode.C.\n" "   Thus, install it!"
     )

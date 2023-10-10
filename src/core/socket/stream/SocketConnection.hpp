@@ -163,7 +163,7 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             ret = SocketReader::readFromPeer(junk, junkLen);
         } else {
-            LOG(ERROR) << "ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
+            LOG(TRACE) << "ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
         }
 
         return ret;
@@ -178,7 +178,7 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             SocketWriter::sendToPeer(junk, junkLen);
         } else {
-            LOG(ERROR) << "SendToPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
+            LOG(TRACE) << "SendToPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
         }
     }
 

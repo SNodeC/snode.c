@@ -48,7 +48,7 @@ namespace core::socket::stream::tls {
                             LOG(TRACE) << "SSL/TLS renegotiation on write success";
                         },
                         []() -> void {
-                            LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
+                            LOG(TRACE) << "SSL/TLS renegotiation on write timed out";
                         },
                         [](int ssl_err) -> void {
                             ssl_log("SSL/TLS renegotiation", ssl_err);

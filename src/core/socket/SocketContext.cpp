@@ -35,13 +35,13 @@ namespace core::socket {
 
     void SocketContext::onWriteError(int errnum) {
         if (errnum != 0) {
-            PLOG(ERROR) << "OnWriteError: " << errnum;
+            PLOG(TRACE) << "OnWriteError: " << errnum;
         }
     }
 
     void SocketContext::onReadError(int errnum) {
         if (errnum != 0) {
-            PLOG(ERROR) << "OnReadError: " << errnum;
+            PLOG(TRACE) << "OnReadError: " << errnum;
         }
     }
 

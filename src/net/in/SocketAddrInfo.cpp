@@ -48,7 +48,6 @@ namespace net::in {
 
         if ((aiErrCode = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &addrInfo)) == 0) {
             currentAddrInfo = addrInfo;
-            SocketAddrInfo::logAddressInfo("Initialized AddressInfo", currentAddrInfo);
         }
 
         return aiErrCode;
@@ -64,18 +63,16 @@ namespace net::in {
             currentAddrInfo = addrInfo;
         }
 
-        if (useNext) {
-            SocketAddrInfo::logAddressInfo("Next potentially used AddressInfo", currentAddrInfo);
-        }
-
         return useNext;
     }
 
     const sockaddr* SocketAddrInfo::getSockAddr() {
+        SocketAddrInfo::logAddressInfo(currentAddrInfo);
+
         return currentAddrInfo != nullptr ? currentAddrInfo->ai_addr : nullptr;
     }
 
-    void SocketAddrInfo::logAddressInfo(const std::string& title, const addrinfo* addrInfo) {
+    void SocketAddrInfo::logAddressInfo(const addrinfo* addrInfo) {
         if (addrInfo != nullptr) {
             el::Logger* defaultLogger = el::Loggers::getLogger("default");
             static char hostBfr[NI_MAXHOST];
@@ -93,18 +90,18 @@ namespace net::in {
 
             struct sockaddr_in* aiAddr = reinterpret_cast<sockaddr_in*>(addrInfo->ai_addr);
 
-            std::string format = title + ":\n"
-                                         "   ai_next      = %v\n"
-                                         "   ai_flags     = %v\n"
-                                         "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
-                                         "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
-                                         "   ai_protocol  = %v (IPPROTO_TCP = %v, IPPROTO_UDP = %v)\n"
-                                         "   ai_addrlen   = %v (sockaddr_in = %v, "
-                                         "sockaddr_in6 = %v)\n"
-                                         "   ai_addr      = sin_family:   %v (AF_INET = %v, "
-                                         "AF_INET6 = %v)\n"
-                                         "                  sin_addr:     %v\n"
-                                         "                  sin_port:     %v";
+            std::string format = "AddressInfo:\n"
+                                 "   ai_next      = %v\n"
+                                 "   ai_flags     = %v\n"
+                                 "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
+                                 "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
+                                 "   ai_protocol  = %v (IPPROTO_TCP = %v, IPPROTO_UDP = %v)\n"
+                                 "   ai_addrlen   = %v (sockaddr_in = %v, "
+                                 "sockaddr_in6 = %v)\n"
+                                 "   ai_addr      = sin_family:   %v (AF_INET = %v, "
+                                 "AF_INET6 = %v)\n"
+                                 "                  sin_addr:     %v\n"
+                                 "                  sin_port:     %v";
 
             defaultLogger->trace(format.c_str(),
                                  addrInfo->ai_next,

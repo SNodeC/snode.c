@@ -110,7 +110,7 @@ namespace core {
     }
 
     TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
-        TickStatus tickStatus = TickStatus::ERROR;
+        TickStatus tickStatus = TickStatus::TRACE;
 
         if (eventLoopState == State::INITIALIZED) {
             struct sigaction sact;
@@ -176,7 +176,7 @@ namespace core {
                 case TickStatus::NOOBSERVER:
                     LOG(TRACE) << "EventLoop: No Observer";
                     break;
-                case TickStatus::ERROR:
+                case TickStatus::TRACE:
                     PLOG(FATAL) << "EventLoop::instance()._tick()";
                     break;
             }
