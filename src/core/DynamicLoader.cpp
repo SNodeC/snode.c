@@ -56,7 +56,7 @@ namespace core {
                     closeHandles.insert(handle);
                 } else {
                     LOG(TRACE) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName
-                                 << ": already registered for dlCloseDelayed";
+                               << ": already registered for dlCloseDelayed";
                 }
             } else {
                 LOG(TRACE) << "dlCloseDelayed handle = " << handle << ": not opened using dlOpen";

@@ -70,8 +70,7 @@ namespace core::socket::stream::tls {
         } else {
             int err = X509_STORE_CTX_get_error(ctx);
 
-            LOG(TRACE) << "SSL/TLS verify error at depth=" << depth << ": verifyErr=" << err << ", "
-                         << X509_verify_cert_error_string(err);
+            LOG(TRACE) << "SSL/TLS verify error at depth=" << depth << ": verifyErr=" << err << ", " << X509_verify_cert_error_string(err);
 
             /*
              * At this point, err contains the last verification error. We can use

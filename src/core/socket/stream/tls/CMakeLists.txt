@@ -19,9 +19,7 @@ cmake_minimum_required(VERSION 3.18)
 find_package(OpenSSL)
 
 if(NOT OpenSSL_FOUND)
-    message(
-        FATAL_TRACE
-            " libssl-dev not found:\n"
+    message(FATAL_TRACE " libssl-dev not found:\n"
             "   libssl-dev is mandatory for SNode.C.\n" "   Thus, install it!"
     )
 else(NOT OpenSSL_FOUND)
