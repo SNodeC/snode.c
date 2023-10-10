@@ -792,13 +792,13 @@ During package installation a new *unix group* with member *root* is created use
 
 SNode.C currently supports five different network layer protocols, each living in it's own C++ namespace.
 
-| Network Layer                                                | C++ Namespace Name |
-| ------------------------------------------------------------ | ------------------ |
-| Internet Protocol version 4 (IPv4)                           | `net::ip`          |
-| Internet Protocol version 6 (IPv6)                           | `net::ip6`         |
-| Unix Domain Sockets                                          | `net::un`          |
-| Bluetooth Radio Frequency Communication (RFCOMM)             | `net::rc`          |
-| Bluetooth Logical Link Control and Adaptation Protocol (L2CAP) | `net::l2`          |
+| Network Layer                                                | C++ Namespace Name                                           |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Internet Protocol version 4 (IPv4)                           | [`net::ip`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in.html) |
+| Internet Protocol version 6 (IPv6)                           | [`net::ip6`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6.html) |
+| Unix Domain Sockets                                          | [`net::un`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un.html) |
+| Bluetooth Radio Frequency Communication (RFCOMM)             | [`net::rc`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc.html) |
+| Bluetooth Logical Link Control and Adaptation Protocol (L2CAP) | [`net::l2`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2.html) |
 
 ## Transport Layer
 
