@@ -21,11 +21,78 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
+#include <cstring>
+#include <string>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket {
 
-    enum class State { OK, DISABLED, ERROR, FATAL };
+    //    enum class State { OK, DISABLED, ERROR, FATAL };
+
+    class State {
+    public:
+        constexpr static int OK = 0;
+        constexpr static int DISABLED = 1;
+        constexpr static int ERROR = 2;
+        constexpr static int FATAL = 3;
+
+#define Ok State(core::socket::State::OK, __FILE__, __LINE__)
+#define Disabled State(core::socket::State::DISABLED, __FILE__, __LINE__)
+#define Error State(core::socket::State::ERROR, __FILE__, __LINE__)
+#define Fatal State(core::socket::State::FATAL, __FILE__, __LINE__)
+
+        State(const int& state)
+            : state(state)
+            , errnum(errno) {
+        }
+
+        State(const int& state, const std::string& file, const int& line)
+            : state(state)
+            , file(file)
+            , line(line)
+            , errnum(errno) {
+        }
+
+        operator int() {
+            return state;
+        }
+
+        bool operator==(const int& state) {
+            return this->state == state;
+        }
+
+        std::string what() {
+            std::string stateString;
+
+            switch (state) {
+                case OK:
+                    stateString = "OK: ";
+                    break;
+                case DISABLED:
+                    stateString = "DISABLED: ";
+                    break;
+                case ERROR:
+                    stateString = "ERROR in " + file + " at line " + std::to_string(line) + ": " + std::strerror(errnum) + " [" +
+                                  std::to_string(errnum) + "]";
+                    break;
+                case FATAL:
+                    stateString = "FATAL in " + file + " at line " + std::to_string(line) + ": " + std::strerror(errnum) + " [" +
+                                  std::to_string(errnum) + "]";
+                    break;
+            }
+
+            return stateString;
+        }
+
+    private:
+        int state;
+        std::string file;
+        int line = 0;
+
+        int errnum;
+    };
 
 } // namespace core::socket
 

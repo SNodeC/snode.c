@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(CORE_SOCKET_CPP SocketAddress.cpp SocketContext.cpp)
+set(CORE_SOCKET_CPP SocketAddress.cpp SocketContext.cpp State.cpp)
 
 set(CORE_SOCKET_H Socket.h Socket.hpp SocketAddress.h SocketContext.h State.h)
 
