@@ -134,8 +134,6 @@ namespace core {
     }
 
     int EventLoop::start(const utils::Timeval& timeOut) {
-        core::TickStatus tickStatus = TickStatus::SUCCESS;
-
         if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
             LOG(TRACE) << "Eventloop: started";
 
@@ -162,10 +160,11 @@ namespace core {
             sigaction(SIGHUP, &sact, &oldHupAct);
 
             eventLoopState = State::RUNNING;
+            core::TickStatus tickStatus = TickStatus::SUCCESS;
 
-            while ((tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED) && eventLoopState == State::RUNNING) {
+            do {
                 tickStatus = EventLoop::instance()._tick(timeOut);
-            }
+            } while ((tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED) && eventLoopState == State::RUNNING);
 
             switch (tickStatus) {
                 case TickStatus::SUCCESS:
@@ -192,7 +191,7 @@ namespace core {
             EventLoop::instance().eventMultiplexer.clear();
         }
 
-        free(tickStatus);
+        free();
 
         return stopsig;
     }
@@ -201,7 +200,7 @@ namespace core {
         eventLoopState = State::STOPING;
     }
 
-    void EventLoop::free(TickStatus tickStatus) {
+    void EventLoop::free() {
         std::string signal = "SIG" + utils::system::sigabbrev_np(stopsig);
 
         if (signal == "SIGUNKNOWN") {
@@ -217,6 +216,8 @@ namespace core {
         }
 
         utils::Timeval timeout = 2;
+
+        core::TickStatus tickStatus = TickStatus::SUCCESS;
         do {
             LOG(TRACE) << "Stopping all DescriptorEventReceivers";
 

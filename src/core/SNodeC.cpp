@@ -46,8 +46,8 @@ namespace core {
         return EventLoop::tick(timeOut);
     }
 
-    void SNodeC::free(TickStatus tickStatus) {
-        EventLoop::free(tickStatus);
+    void SNodeC::free() {
+        EventLoop::free();
     }
 
     State SNodeC::state() {

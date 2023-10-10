@@ -46,8 +46,8 @@ namespace express {
         return core::SNodeC::tick(timeOut);
     }
 
-    void WebApp::free(core::TickStatus tickStatus) {
-        core::SNodeC::free(tickStatus);
+    void WebApp::free() {
+        core::SNodeC::free();
     }
 
     core::State WebApp::state() {
