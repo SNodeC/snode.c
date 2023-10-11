@@ -8,6 +8,7 @@ Main focus (but not only) of the framework is "Machine to Machine" (M2M) communi
 
 # Table of Content
 <!--ts-->
+
 * [Simple NODE in C++ (SNode.C)](#simple-node-in-c-snodec)
 * [Table of Content](#table-of-content)
 * [License](#license)
@@ -416,7 +417,7 @@ int main(int argc, char* argv[]) {
     using SocketAddress = EchoServer::SocketAddress;                                    // Simplify data type
 
     EchoServer echoServer; // Create server instance and listen on port 8001 on all interfaces
-    echoServer.listen(8001, 5, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+    echoServer.listen(8001, 5, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoServer: connected to '" << socketAddress.toString() << "'";
@@ -462,7 +463,7 @@ int main(int argc, char* argv[]) {
     using SocketAddress = EchoClient::SocketAddress;                                    // Simplify data type
 
     EchoClient echoClient; // Create anonymous client instance and connect to localhost:8001
-    echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+    echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoClient: connected to '" << socketAddress.toString() << "'";
@@ -1145,7 +1146,7 @@ As already mentioned above, for convenience each *SocketServer* class provides i
 All *listen* methods expect an status callback as argument which is called in case the socket has been created and switched into the listen state or an error has occurred. The signature of this callback is
 
 ```c++
-const std::function<void(const SocketAddress& socketAddress, core::socket::State state)>
+const std::function<void(const SocketAddress& socketAddress, const core::socket::State& state)>
 ```
 
 The bound *SocketAddress* and a *state* value is passed to this callback as arguments. 
@@ -1267,7 +1268,7 @@ As already mentioned above, for convenience each *SocketClient* class provides i
 All *connect* methods expect an status callback as argument which is called in case the socket has been created and connected to the peer or an error has occurred. The signature of this callback is
 
 ```c++
-const std::function<void(const SocketAddress& socketAddress, core::socket::State state)>
+const std::function<void(const SocketAddress& socketAddress, const core::socket::State& state)>
 ```
 
 The bound *SocketAddress* and a *state* value is passed to this callback as arguments. 
@@ -1405,7 +1406,7 @@ Thus, if the port number is configured by using `setPort()` the *listen* method 
 ```cpp
 EchoServer echoServer;
 echoServer.getConfig().setPort(8001);
-echoServer.listen([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+echoServer.listen([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
     ...
 });
 ```
@@ -1418,7 +1419,7 @@ Though, because a *SocketClient* has two independent sets of IP-Addresses/host n
 EchoServer echoClient;
 echoClient.getConfig().Remote::setIpOrHostname("localhost");
 echoClient.getConfig().Remote::setPort(8001);
-echoClient.connect([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+echoClient.connect([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
     ...
 });
 ```
@@ -1639,7 +1640,7 @@ Options (persistent):
 which offer configuration options to configure the host name or IP-Address and port number the physical server socket should be bound to. Note, that the default value of the port number is `[8001]`, what is this port number used to activate the `echo` instance:
 
 ```cpp
-echoServer.listen(8001, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+echoServer.listen(8001, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
     ...
 });
 ```
@@ -1675,7 +1676,7 @@ In case the parameterless *listen* method is used for activating a server instan
 
 ```cpp
 EchoServer echoServer("echo"); // Create server instance
-echoServer.listen([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+echoServer.listen([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
     ...
 });
 ```
@@ -1717,7 +1718,7 @@ Lets have look at the case of the named `echoclient`
 
 ```cpp
 EchoClient echoClient("echo"); // Create named client instance
-echoClient.connect([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+echoClient.connect([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
     ...
 });
 ```
@@ -2134,7 +2135,7 @@ int main(int argc, char* argv[]) {
     using SocketAddressIn = EchoServerIn::SocketAddress;
 
     EchoServerIn echoServerIn;
-    echoServerIn.listen(8001, [](const SocketAddressIn& socketAddress, core::socket::State state) -> void {
+    echoServerIn.listen(8001, [](const SocketAddressIn& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoServerIn: listening on '" << socketAddress.toString() << "'";
@@ -2155,7 +2156,7 @@ int main(int argc, char* argv[]) {
     using SocketAddressUn = EchoServerUn::SocketAddress;
 
     EchoServerUn echoServerUn;
-    echoServerUn.listen("/tmp/echoserver", [](const SocketAddressUn& socketAddress, core::socket::State state) -> void {
+    echoServerUn.listen("/tmp/echoserver", [](const SocketAddressUn& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoServerUn: listening on '" << socketAddress.toString() << "'";
@@ -2181,7 +2182,7 @@ int main(int argc, char* argv[]) {
     // of the peer.
     EchoServerRc echoServerRc;
     echoServerRc.getConfig().setDisabled();
-    echoServerRc.listen(16, [](const SocketAddressRc& socketAddress, core::socket::State state) -> void {
+    echoServerRc.listen(16, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoServerRc: listening on '" << socketAddress.toString() << "'";
@@ -2213,7 +2214,7 @@ int main(int argc, char* argv[]) {
     using SocketAddressIn = EchoClientIn::SocketAddress;
 
     EchoClientIn echoClientIn;
-    echoClientIn.connect("localhost", 8001, [](const SocketAddressIn& socketAddress, core::socket::State state) -> void {
+    echoClientIn.connect("localhost", 8001, [](const SocketAddressIn& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoClientIn: connected to '" << socketAddress.toString() << "'";
@@ -2235,7 +2236,7 @@ int main(int argc, char* argv[]) {
     using SocketAddressUn = EchoClientUn::SocketAddress;
 
     EchoClientUn echoClientUn;
-    echoClientUn.connect("/tmp/echoserver", [](const SocketAddressUn& socketAddress, core::socket::State state) -> void {
+    echoClientUn.connect("/tmp/echoserver", [](const SocketAddressUn& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoClientUn: connected to '" << socketAddress.toString() << "'";
@@ -2265,7 +2266,7 @@ int main(int argc, char* argv[]) {
     echoClientRc.connect("10:3D:1C:AC:BA:9C",
                          1,
                          [](const SocketAddressRc& socketAddress,
-                            core::socket::State state) -> void { // Connect to server
+                            const core::socket::State& state) -> void { // Connect to server
                              switch (state) {
                                  case core::socket::State::OK:
                                      VLOG(1) << "EchoClientRc: connected to '" << socketAddress.toString() << "'";
@@ -2343,7 +2344,7 @@ int main(int argc, char* argv[]) {
 
     legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    legacyApp.listen(8080, [](const SocketAddressRc& socketAddress, core::socket::State state) -> void {
+    legacyApp.listen(8080, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "LegacyWebApp: listening on '" << socketAddress.toString() << "'";
@@ -2371,7 +2372,7 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    tlsApp.listen(8088, [](const SocketAddressRc& socketAddress, core::socket::State state) -> void {
+    tlsApp.listen(8088, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "TLSWebApp: listening on '" << socketAddress.toString() << "'";
@@ -2459,7 +2460,7 @@ int main(int argc, char* argv[]) {
                  "</html>");
     });
 
-    legacyApp.listen(8080, [](const SocketAddressRc& socketAddress, core::socket::State state) -> void {
+    legacyApp.listen(8080, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "LegacyWebApp: listening on '" << socketAddress.toString() << "'";
@@ -2487,7 +2488,7 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(legacyApp);
 
-    tlsApp.listen(8088, [](const SocketAddressRc& socketAddress, core::socket::State state) -> void {
+    tlsApp.listen(8088, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "TLSWebApp: listening on '" << socketAddress.toString() << "'";
