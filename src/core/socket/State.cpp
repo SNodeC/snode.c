@@ -44,7 +44,7 @@ namespace core::socket {
         , errstr(errnum != 0 ? std::string(": ") + errstr + " [" + std::to_string(errnum) + "]" : "") {
     }
 
-    State::operator int() {
+    State::operator int() const {
         return state;
     }
 
@@ -52,7 +52,7 @@ namespace core::socket {
         return this->state == state;
     }
 
-    std::string State::what() {
+    std::string State::what() const {
         std::string stateString;
 
         switch (state) {

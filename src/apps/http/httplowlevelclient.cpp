@@ -237,7 +237,7 @@ namespace tls {
 
         SocketAddress remoteAddress("localhost", 8088);
 
-        tlsClient.connect(remoteAddress, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+        tlsClient.connect(remoteAddress, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << "httpclient: connected to '" << socketAddress.toString() << "'";
@@ -292,7 +292,7 @@ namespace legacy {
 
         SocketAddress remoteAddress("localhost", 8080);
 
-        legacyClient.connect(remoteAddress, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+        legacyClient.connect(remoteAddress, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << "httpclient: connected to '" << socketAddress.toString() << "'";
@@ -322,30 +322,30 @@ int main(int argc, char* argv[]) {
 
         legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
-        legacyClient.connect(
-            legacyRemoteAddress,
-            [](const tls::SocketAddress& socketAddress, core::socket::State state) -> void { // example.com:81 simulate connnect timeout
-                switch (state) {
-                    case core::socket::State::OK:
-                        VLOG(1) << "legacyClient: connected to '" << socketAddress.toString() << "'";
-                        break;
-                    case core::socket::State::DISABLED:
-                        VLOG(1) << "legacyClient: disabled";
-                        break;
-                    case core::socket::State::ERROR:
-                        VLOG(1) << "legacyClient: non critical error occurred";
-                        break;
-                    case core::socket::State::FATAL:
-                        VLOG(1) << "legacyClient: critical error occurred";
-                        break;
-                }
-            });
+        legacyClient.connect(legacyRemoteAddress,
+                             [](const tls::SocketAddress& socketAddress,
+                                const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                                 switch (state) {
+                                     case core::socket::State::OK:
+                                         VLOG(1) << "legacyClient: connected to '" << socketAddress.toString() << "'";
+                                         break;
+                                     case core::socket::State::DISABLED:
+                                         VLOG(1) << "legacyClient: disabled";
+                                         break;
+                                     case core::socket::State::ERROR:
+                                         VLOG(1) << "legacyClient: non critical error occurred";
+                                         break;
+                                     case core::socket::State::FATAL:
+                                         VLOG(1) << "legacyClient: critical error occurred";
+                                         break;
+                                 }
+                             });
 
         tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
 
         tls::SocketClient tlsClient = tls::getClient();
 
-        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, core::socket::State state) -> void {
+        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << "legacy: connected to '" << socketAddress.toString() << "'";

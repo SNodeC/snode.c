@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 
     legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, core::socket::State state) {
+    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "legacyApp: listening on '" << socketAddress.toString() << "'";
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, core::socket::State state) {
+    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "tlsApp: listening on '" << socketAddress.toString() << "'";

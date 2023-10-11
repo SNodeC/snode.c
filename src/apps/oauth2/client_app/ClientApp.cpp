@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
 
     app.use(express::middleware::StaticMiddleware("/home/rathalin/projects/snode.c/src/oauth2/client_app/vue-frontend-oauth2-client/dist"));
 
-    app.listen(8081, [](const express::legacy::in::WebApp::SocketAddress socketAddress, core::socket::State state) {
+    app.listen(8081, [](const express::legacy::in::WebApp::SocketAddress socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "OAuth2Client: connected to '" << socketAddress.toString() << "'";

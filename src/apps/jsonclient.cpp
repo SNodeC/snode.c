@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Reason: " << reason;
         });
 
-    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "legacy (1): connected to '" << socketAddress.toString() << "'";
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "legacy (2): connected to '" << socketAddress.toString() << "'";

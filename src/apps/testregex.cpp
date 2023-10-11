@@ -235,7 +235,7 @@ int main(int argc, char* argv[]) {
 
         legacyApp.use(router(db));
 
-        legacyApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+        legacyApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << "legacy-testregex: listening on '" << socketAddress.toString() << "'";
@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
 
         tlsApp.use(legacyApp);
 
-        tlsApp.listen(8088, [](const tls::in::WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+        tlsApp.listen(8088, [](const tls::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << "tls-testregex: listening on '" << socketAddress.toString() << "'";

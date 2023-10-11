@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
     server.getConfig().addSniCerts(sniCerts);
 #endif
 
-    server.listen([](const SocketServer::SocketAddress& socketAddress, core::socket::State state) -> void {
+    server.listen([](const SocketServer::SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "echoserver: listening on '" << socketAddress.toString() << "'";

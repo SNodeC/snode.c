@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
 
     legacyApp.use(express::middleware::JsonMiddleware());
 
-    legacyApp.listen(8080, [](const SocketAddress& socketAddress, core::socket::State state) -> void {
+    legacyApp.listen(8080, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "legacy-jsonserver: listening on '" << socketAddress.toString() << "'";

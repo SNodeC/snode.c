@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     //    webApp.addSniCerts(sniCerts);
     //    webApp.forceSni();
 #endif
-    webApp.listen([](const WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+    webApp.listen([](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "httpserver: listening on '" << socketAddress.toString() << "'";
@@ -67,27 +67,27 @@ int main(int argc, char* argv[]) {
 /*
 #if (NET_TYPE == IN) // in
 #if (STREAM_TYPE == LEGACY)
-    webApp.listen(8080, 5, [](const WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+    webApp.listen(8080, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
 #elif (STREAM_TYPE == TLS)
-    webApp.listen(8088, 5, [](const WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+    webApp.listen(8088, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
 #endif
 #elif (NET_TYPE == IN6) // in6
 #if (STREAM_TYPE == LEGACY)
-        webApp.listen(8080, 5, [](const WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+        webApp.listen(8080, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
 #elif (STREAM_TYPE == TLS)
-        webApp.listen(8088, 5, [](const WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+        webApp.listen(8088, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
 #endif
 #elif (NET_TYPE == L2) //
     // ATLAS: 10:3D:1C:AC:BA:9C
     // TITAN: A4:B1:C1:2C:82:37
     // USB: 44:01:BB:A3:63:32
 
-    // webApp.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const WebApp::SocketAddress& socketAddress, core::socket::State state) -> void { //
-titan webApp.listen("10:3D:1C:AC:BA:9C", 0x1023, 5, [](const WebApp::SocketAddress& socketAddress, core::socket::State state) -> void { //
+    // webApp.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void { //
+titan webApp.listen("10:3D:1C:AC:BA:9C", 0x1023, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void { //
 titan #elif (NET_TYPE == RC) // rf
-    // webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](const WebApp::SocketAddress& socketAddress, core::socket::State state) -> void { // titan
-        webApp.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const WebApp::SocketAddress& socketAddress, core::socket::State state) -> void { //
-titan #elif (NET_TYPE == UN) // un webApp.listen("/tmp/testme", 5, [](const WebApp::SocketAddress& socketAddress, core::socket::State state)
+    // webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void { // titan
+        webApp.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void { //
+titan #elif (NET_TYPE == UN) // un webApp.listen("/tmp/testme", 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state)
 -> void { // titan #endif if (errnum != 0) { PLOG(FATAL) << "listen"; } else { VLOG(0) << "snode.c listening on " <<
 socketAddress.toString();
         }

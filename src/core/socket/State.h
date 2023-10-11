@@ -41,22 +41,16 @@ namespace core::socket {
 #define IS_ERROR State(core::socket::State::ERROR, __FILE__, __LINE__)
 #define IS_FATAL State(core::socket::State::FATAL, __FILE__, __LINE__)
 
-#define STATE(state, errnum, errstr) State((state), __FILE__, __LINE__, errnum, errstr)
+#define STATE(state, errnum, errstr) State((state), __FILE__, __LINE__, (errnum), (errstr))
 
-        /*
-                State(const int& state)
-                    : state(state)
-                    , errnum(errno) {
-                }
-        */
         State(const int& state, const std::string& file, const int& line);
         State(const int& state, const std::string& file, const int& line, int errnum, const std::string& errstr);
 
-        operator int();
+        operator int() const;
 
         bool operator==(const int& state) const;
 
-        std::string what();
+        std::string what() const;
 
     private:
         int state;

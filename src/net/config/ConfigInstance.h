@@ -45,7 +45,7 @@ namespace net::config {
 
         virtual ~ConfigInstance();
 
-        const std::string& getInstanceName() const;
+        std::string getInstanceName() const;
 
         bool getDisabled() const;
         void setDisabled(bool disabled = true);

@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
         res.status(404).send("No Jalousie specified");
     });
 
-    webApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+    webApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "werema: listening on '" << socketAddress.toString() << "'";

@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
             res.status(404).send("The requested resource is not found.");
         });
 
-        legacyApp.listen(8080, [](const legacy::in6::WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+        legacyApp.listen(8080, [](const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << "legacy: listening on '" << socketAddress.toString() << "'";
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
                 res.status(404).send("The requested resource is not found.");
             });
 
-            tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, core::socket::State state) -> void {
+            tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
                 switch (state) {
                     case core::socket::State::OK:
                         VLOG(1) << "tls: listening on '" << socketAddress.toString() << "'";

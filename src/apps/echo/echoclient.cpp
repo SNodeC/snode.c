@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     using SocketAddress = SocketClient::SocketAddress;
     SocketClient client = apps::echo::model::STREAM::getClient();
 
-    client.connect([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+    client.connect([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'";
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
         }
     });
     /*
-        client.connect([](const SocketAddress& socketAddress, core::socket::State state) -> void {
+        client.connect([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'";

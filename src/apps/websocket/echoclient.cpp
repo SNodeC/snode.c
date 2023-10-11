@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "     Reason: " << reason;
             });
 
-        legacyClient.connect([](const LegacySocketAddress& socketAddress, core::socket::State state) -> void {
+        legacyClient.connect([](const LegacySocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << "legacy: connected to '" << socketAddress.toString() << "'";
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "     Reason: " << reason;
             });
 
-        tlsClient.connect([](const TLSSocketAddress& socketAddress, core::socket::State state) -> void {
+        tlsClient.connect([](const TLSSocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << "tls: connected to '" << socketAddress.toString() << "'";
