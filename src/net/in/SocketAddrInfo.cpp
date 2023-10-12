@@ -48,8 +48,6 @@ namespace net::in {
 
         if ((aiErrCode = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &addrInfo)) == 0) {
             currentAddrInfo = addrInfo;
-
-            SocketAddrInfo::logAddressInfo(currentAddrInfo);
         }
 
         return aiErrCode;
