@@ -54,16 +54,9 @@ namespace net::in {
     }
 
     bool SocketAddrInfo::useNext() {
-        bool useNext = false;
+        currentAddrInfo = currentAddrInfo->ai_next;
 
-        if (currentAddrInfo != nullptr && currentAddrInfo->ai_next != nullptr) {
-            currentAddrInfo = currentAddrInfo->ai_next;
-            useNext = true;
-        } else {
-            currentAddrInfo = addrInfo;
-        }
-
-        return useNext;
+        return currentAddrInfo != nullptr;
     }
 
     const sockaddr* SocketAddrInfo::getSockAddr() {
