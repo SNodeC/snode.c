@@ -104,7 +104,7 @@ namespace core::socket::stream::tls {
             if (ctx != nullptr) {
                 Super::initConnectEvent();
             } else {
-                Super::onStatus(config->Remote::getSocketAddress(), core::socket::IS_FATAL);
+                Super::onStatus(config->Remote::getSocketAddress(), core::socket::STATE_FATAL);
                 Super::destruct();
             }
         } else {

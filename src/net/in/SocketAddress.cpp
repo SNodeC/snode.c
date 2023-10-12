@@ -97,14 +97,14 @@ namespace net::in {
         if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) == 0) {
             sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
         } else {
-            core::socket::State state = core::socket::IS_OK;
+            core::socket::State state = core::socket::STATE_OK;
             switch (aiErrCode) {
                 case EAI_AGAIN:
                 case EAI_MEMORY:
-                    state = core::socket::IS_ERROR;
+                    state = core::socket::STATE_ERROR;
                     break;
                 default:
-                    state = core::socket::IS_FATAL;
+                    state = core::socket::STATE_FATAL;
                     break;
             }
             throw core::socket::SocketAddress::BadSocketAddress(state,

@@ -62,7 +62,7 @@ namespace core::socket::stream {
             core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
 
             try {
-                core::socket::State state = core::socket::IS_OK;
+                core::socket::State state = core::socket::STATE_OK;
 
                 localAddress = config->Local::getSocketAddress();
                 physicalServerSocket = new PhysicalServerSocket();
@@ -73,33 +73,33 @@ namespace core::socket::stream {
                         case ENFILE:
                         case ENOBUFS:
                         case ENOMEM:
-                            state = core::socket::IS_ERROR;
+                            state = core::socket::STATE_ERROR;
                             PLOG(TRACE) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
                             break;
                         default:
-                            state = core::socket::IS_FATAL;
+                            state = core::socket::STATE_FATAL;
                             PLOG(TRACE) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
                             break;
                     }
                 } else if (physicalServerSocket->bind(localAddress) < 0) {
                     switch (errno) {
                         case EADDRINUSE:
-                            state = core::socket::IS_ERROR;
+                            state = core::socket::STATE_ERROR;
                             PLOG(TRACE) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
                             break;
                         default:
-                            state = core::socket::IS_FATAL;
+                            state = core::socket::STATE_FATAL;
                             PLOG(TRACE) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
                             break;
                     }
                 } else if (physicalServerSocket->listen(config->getBacklog()) < 0) {
                     switch (errno) {
                         case EADDRINUSE:
-                            state = core::socket::IS_ERROR;
+                            state = core::socket::STATE_ERROR;
                             PLOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
                             break;
                         default:
-                            state = core::socket::IS_FATAL;
+                            state = core::socket::STATE_FATAL;
                             PLOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
                             break;
                     }
@@ -129,7 +129,7 @@ namespace core::socket::stream {
         } else {
             LOG(TRACE) << config->getInstanceName() << ": disabled";
 
-            onStatus(localAddress, core::socket::IS_DISABLED);
+            onStatus(localAddress, core::socket::STATE_DISABLED);
             destruct();
         }
     }

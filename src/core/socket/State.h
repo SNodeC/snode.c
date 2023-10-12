@@ -36,10 +36,10 @@ namespace core::socket {
         constexpr static int ERROR = 2;
         constexpr static int FATAL = 3;
 
-#define IS_OK State(core::socket::State::OK, __FILE__, __LINE__)
-#define IS_DISABLED State(core::socket::State::DISABLED, __FILE__, __LINE__)
-#define IS_ERROR State(core::socket::State::ERROR, __FILE__, __LINE__)
-#define IS_FATAL State(core::socket::State::FATAL, __FILE__, __LINE__)
+#define STATE_OK State(core::socket::State::OK, __FILE__, __LINE__)
+#define STATE_DISABLED State(core::socket::State::DISABLED, __FILE__, __LINE__)
+#define STATE_ERROR State(core::socket::State::ERROR, __FILE__, __LINE__)
+#define STATE_FATAL State(core::socket::State::FATAL, __FILE__, __LINE__)
 
 #define STATE(state, errnum, errstr) State((state), __FILE__, __LINE__, (errnum), (errstr))
 

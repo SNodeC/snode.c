@@ -51,7 +51,7 @@ namespace net::un {
             sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + len + 1);
         } else {
             throw core::socket::SocketAddress::BadSocketAddress(
-                core::socket::IS_FATAL,
+                core::socket::STATE_FATAL,
                 "Unix-Domain error sun-path to long: Lenght is = " + std::to_string(sunPath.length()) +
                     ", should be: " + std::to_string(sizeof(sockAddr.sun_path) - 1),
                 EINVAL);
