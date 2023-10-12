@@ -124,7 +124,6 @@ namespace iot::mqtt::server {
         uint8_t connectFlags = 0;
         uint16_t keepAlive = 0;
 
-        std::string clientId;
         std::string willTopic;
         std::string willMessage;
         std::string username;

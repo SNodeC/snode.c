@@ -25,7 +25,7 @@
 namespace iot::mqtt::packets {
 
     Pubrec::Pubrec()
-        : iot::mqtt::ControlPacket(MQTT_PUBREC) {
+        : iot::mqtt::ControlPacket(MQTT_PUBREC, "PUBREC") {
     }
 
     Pubrec::Pubrec(const uint16_t packetIdentifier)

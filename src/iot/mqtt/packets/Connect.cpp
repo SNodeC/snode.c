@@ -25,7 +25,7 @@
 namespace iot::mqtt::packets {
 
     Connect::Connect()
-        : iot::mqtt::ControlPacket(MQTT_CONNECT) {
+        : iot::mqtt::ControlPacket(MQTT_CONNECT, "CONNECT") {
     }
 
     Connect::Connect(const std::string& clientId,

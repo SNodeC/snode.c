@@ -25,7 +25,7 @@
 namespace iot::mqtt::packets {
 
     Publish::Publish()
-        : iot::mqtt::ControlPacket(MQTT_PUBLISH) {
+        : iot::mqtt::ControlPacket(MQTT_PUBLISH, "PUBLISH") {
     }
 
     Publish::Publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message, uint8_t qoS, bool dup, bool retain)

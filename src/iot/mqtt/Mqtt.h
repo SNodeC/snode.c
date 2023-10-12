@@ -52,6 +52,7 @@ namespace iot::mqtt {
     class Mqtt {
     public:
         Mqtt() = default;
+        explicit Mqtt(const std::string& clientId);
 
         virtual ~Mqtt();
 
@@ -92,14 +93,22 @@ namespace iot::mqtt {
         void _onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
         void _onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
 
-        static std::string dataToHexString(const std::vector<char>& data);
-
         uint16_t getPacketIdentifier();
 
         void send(const iot::mqtt::ControlPacket& controlPacket) const;
+
+    public:
+        static std::string dataToHexString(const std::vector<char>& data);
+        static std::string stringToHexString(const std::string data);
+
+    private:
         void send(const std::vector<char>& data) const;
 
-        static void printStandardHeader(const iot::mqtt::ControlPacket& packet);
+    protected:
+        void printVP(const iot::mqtt::ControlPacket& packet);
+        static void printFixedHeader(const iot::mqtt::FixedHeader& fixedHeader);
+
+        std::string clientId;
 
     private:
         iot::mqtt::FixedHeader fixedHeader;

@@ -62,6 +62,7 @@ namespace iot::mqtt::client::packets {
     }
 
     void Connack::deliverPacket(iot::mqtt::client::Mqtt* mqtt) {
+        mqtt->printVP(*this);
         mqtt->_onConnack(*this);
     }
 

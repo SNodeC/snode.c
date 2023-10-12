@@ -59,7 +59,7 @@ namespace iot::mqtt {
         return consumed;
     }
 
-    uint8_t FixedHeader::getPacketType() const {
+    uint8_t FixedHeader::getType() const {
         return static_cast<uint8_t>(typeFlags >> 0x04);
     }
 
@@ -83,7 +83,7 @@ namespace iot::mqtt {
         return error;
     }
 
-    std::vector<char> FixedHeader::serialize() {
+    std::vector<char> FixedHeader::serialize() const {
         std::vector<char> packet = typeFlags.serialize();
 
         std::vector<char> tmpVector = remainingLength.serialize();

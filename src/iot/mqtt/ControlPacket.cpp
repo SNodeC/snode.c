@@ -26,8 +26,9 @@
 
 namespace iot::mqtt {
 
-    ControlPacket::ControlPacket(uint8_t type)
-        : type(type) {
+    ControlPacket::ControlPacket(uint8_t type, const std::string& name)
+        : name(name)
+        , type(type) {
         switch (type) {
             case MQTT_CONNECT:
                 flags = MQTT_CONNECT_FLAGS;
@@ -75,6 +76,10 @@ namespace iot::mqtt {
     }
 
     ControlPacket::~ControlPacket() {
+    }
+
+    const std::string& ControlPacket::getName() const {
+        return name;
     }
 
     std::vector<char> ControlPacket::serialize() const {

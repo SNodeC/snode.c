@@ -28,7 +28,7 @@
 namespace iot::mqtt::packets {
 
     Subscribe::Subscribe()
-        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE) {
+        : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, "SUBSCRIBE") {
     }
 
     Subscribe::Subscribe(uint16_t packetIdentifier, std::list<Topic>& topics)

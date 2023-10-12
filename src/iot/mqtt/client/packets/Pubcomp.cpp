@@ -42,6 +42,7 @@ namespace iot::mqtt::client::packets {
     }
 
     void Pubcomp::deliverPacket(iot::mqtt::client::Mqtt* mqtt) {
+        mqtt->printVP(*this);
         mqtt->_onPubcomp(*this);
     }
 

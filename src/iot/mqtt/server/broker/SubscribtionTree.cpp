@@ -18,6 +18,7 @@
 
 #include "iot/mqtt/server/broker/SubscribtionTree.h"
 
+#include "iot/mqtt/Mqtt.h"
 #include "iot/mqtt/server/broker/Broker.h"
 #include "iot/mqtt/server/broker/Message.h"
 
@@ -67,8 +68,8 @@ namespace iot::mqtt::server::broker {
     }
 
     void SubscribtionTree::TopicLevel::appear(const std::string& clientId, const std::string& topic) {
-        if (qoSMap.contains(clientId)) {
-            broker->appear(clientId, topic, qoSMap[clientId]);
+        if (clientIds.contains(clientId)) {
+            broker->appear(clientId, topic, clientIds[clientId]);
         }
 
         for (auto& [topicLevel, subscribtion] : topicLevels) {
@@ -80,7 +81,7 @@ namespace iot::mqtt::server::broker {
         bool success = true;
 
         if (leafFound) {
-            qoSMap[clientId] = qoS;
+            clientIds[clientId] = qoS;
         } else {
             std::string::size_type slashPosition = topic.find('/');
 
@@ -104,10 +105,10 @@ namespace iot::mqtt::server::broker {
         if (leafFound) {
             LOG(DEBUG) << "Found match:";
             LOG(DEBUG) << "  Topic: '" << message.getTopic() << "';";
-            LOG(DEBUG) << "  Message: '" << message.getMessage() << "' ";
+            LOG(DEBUG) << "  Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
             LOG(DEBUG) << "Distribute Publish for match ...";
 
-            for (auto& [clientId, clientQoS] : qoSMap) {
+            for (auto& [clientId, clientQoS] : clientIds) {
                 broker->sendPublish(clientId, message, clientQoS, false);
             }
 
@@ -117,10 +118,10 @@ namespace iot::mqtt::server::broker {
             if (nextHashLevel != topicLevels.end()) {
                 LOG(DEBUG) << "Found parent match:";
                 LOG(DEBUG) << "  Topic: '" << message.getTopic() << "'";
-                LOG(DEBUG) << "  Message: '" << message.getMessage() << "'";
+                LOG(DEBUG) << "  Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
                 LOG(DEBUG) << "Distribute Publish for match ...";
 
-                for (auto& [clientId, clientQoS] : nextHashLevel->second.qoSMap) {
+                for (auto& [clientId, clientQoS] : nextHashLevel->second.clientIds) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
 
@@ -146,12 +147,15 @@ namespace iot::mqtt::server::broker {
 
             foundNode = topicLevels.find("#");
             if (foundNode != topicLevels.end()) {
-                LOG(DEBUG) << "Found match for topic filter: '.../" << topicLevel << "/#', topic: '" << message.getTopic()
-                           << "', Message: '" << message.getMessage() << "'";
-                LOG(DEBUG) << "Distribute Publish ...";
-                for (auto& [clientId, clientQoS] : foundNode->second.qoSMap) {
+                LOG(DEBUG) << "Found match:";
+                LOG(DEBUG) << "  Topic: '" << message.getTopic() << "';";
+                LOG(DEBUG) << "  Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+                LOG(DEBUG) << "Distribute Publish for match ...";
+
+                for (auto& [clientId, clientQoS] : foundNode->second.clientIds) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
+
                 LOG(DEBUG) << "... completed!";
             }
         }
@@ -159,7 +163,7 @@ namespace iot::mqtt::server::broker {
 
     bool SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId, std::string topic, bool leafFound) {
         if (leafFound) {
-            qoSMap.erase(clientId);
+            clientIds.erase(clientId);
         } else {
             std::string::size_type slashPosition = topic.find('/');
 
@@ -173,11 +177,11 @@ namespace iot::mqtt::server::broker {
             }
         }
 
-        return qoSMap.empty() && topicLevels.empty();
+        return clientIds.empty() && topicLevels.empty();
     }
 
     bool SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId) {
-        qoSMap.erase(clientId);
+        clientIds.erase(clientId);
 
         for (auto it = topicLevels.begin(); it != topicLevels.end();) {
             if (it->second.unsubscribe(clientId)) {
@@ -187,7 +191,7 @@ namespace iot::mqtt::server::broker {
             }
         }
 
-        return qoSMap.empty() && topicLevels.empty();
+        return clientIds.empty() && topicLevels.empty();
     }
 
     nlohmann::json SubscribtionTree::TopicLevel::toJson() const {
@@ -197,7 +201,7 @@ namespace iot::mqtt::server::broker {
             json["topic_filter"][topicLevelName] = topicLevel.toJson();
         }
 
-        for (const auto& [subscriber, qoS] : qoSMap) {
+        for (const auto& [subscriber, qoS] : clientIds) {
             json["qos_map"][subscriber] = qoS;
         }
 
@@ -205,12 +209,12 @@ namespace iot::mqtt::server::broker {
     }
 
     SubscribtionTree::TopicLevel& SubscribtionTree::TopicLevel::fromJson(const nlohmann::json& json) {
-        qoSMap.clear();
+        clientIds.clear();
         topicLevels.clear();
 
         if (json.contains("qos_map")) {
             for (const auto& subscriber : json["qos_map"].items()) {
-                qoSMap.emplace(subscriber.key(), subscriber.value());
+                clientIds.emplace(subscriber.key(), subscriber.value());
             }
         }
 

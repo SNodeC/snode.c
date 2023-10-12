@@ -74,6 +74,7 @@ namespace iot::mqtt::client::packets {
     }
 
     void Publish::deliverPacket(iot::mqtt::client::Mqtt* mqtt) {
+        mqtt->printVP(*this);
         mqtt->_onPublish(*this);
     }
 

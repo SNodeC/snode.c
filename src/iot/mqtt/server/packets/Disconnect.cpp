@@ -40,6 +40,7 @@ namespace iot::mqtt::server::packets {
     }
 
     void Disconnect::deliverPacket(iot::mqtt::server::Mqtt* mqtt) {
+        mqtt->printVP(*this);
         mqtt->_onDisconnect(*this);
     }
 

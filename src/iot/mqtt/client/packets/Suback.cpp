@@ -66,6 +66,7 @@ namespace iot::mqtt::client::packets {
     }
 
     void Suback::deliverPacket(iot::mqtt::client::Mqtt* mqtt) {
+        mqtt->printVP(*this);
         mqtt->_onSuback(*this);
     }
 

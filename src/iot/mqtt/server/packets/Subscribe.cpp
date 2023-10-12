@@ -77,6 +77,7 @@ namespace iot::mqtt::server::packets {
     }
 
     void Subscribe::deliverPacket(iot::mqtt::server::Mqtt* mqtt) {
+        mqtt->printVP(*this);
         mqtt->_onSubscribe(*this);
     }
 

@@ -42,6 +42,7 @@ namespace iot::mqtt::client::packets {
     }
 
     void Puback::deliverPacket(iot::mqtt::client::Mqtt* mqtt) {
+        mqtt->printVP(*this);
         mqtt->_onPuback(*this);
     }
 

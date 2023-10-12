@@ -25,7 +25,7 @@
 namespace iot::mqtt::packets {
 
     Disconnect::Disconnect()
-        : iot::mqtt::ControlPacket(MQTT_DISCONNECT) {
+        : iot::mqtt::ControlPacket(MQTT_DISCONNECT, "DISCONNECT") {
     }
 
     std::vector<char> Disconnect::serializeVP() const {

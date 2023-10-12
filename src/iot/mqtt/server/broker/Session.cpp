@@ -25,10 +25,7 @@
 #include "log/Logger.h"
 
 #include <algorithm>
-#include <fstream>
-#include <iomanip>
 #include <nlohmann/json.hpp>
-#include <string>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
 
@@ -41,23 +38,9 @@ namespace iot::mqtt::server::broker {
     }
 
     void Session::sendPublish(Message& message, uint8_t qoS, bool retain) {
-        std::stringstream messageData;
-        const std::string& mes = message.getMessage();
-
-        unsigned long i = 0;
-        for (char ch : mes) {
-            if (i != 0 && i % 8 == 0 && i != mes.size()) {
-                messageData << std::endl;
-                messageData << "                                                                  ";
-            }
-            ++i;
-            messageData << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
-                        << " "; // << " | ";
-        }
-
-        LOG(DEBUG) << "                TopicName: " << message.getTopic();
-        LOG(DEBUG) << "                Message: " << messageData.str();
-        LOG(DEBUG) << "                QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
+        LOG(DEBUG) << "  TopicName: " << message.getTopic();
+        LOG(DEBUG) << "  Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+        LOG(DEBUG) << "  QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
             mqtt->sendPublish(message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), retain);

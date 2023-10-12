@@ -63,7 +63,7 @@ namespace iot::mqtt::client {
     public:
         using Super = iot::mqtt::Mqtt;
 
-        Mqtt();
+        Mqtt(const std::string& clientId);
 
         ~Mqtt() override;
 

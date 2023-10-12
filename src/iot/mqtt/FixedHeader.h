@@ -40,9 +40,9 @@ namespace iot::mqtt {
         ~FixedHeader();
 
         std::size_t deserialize(iot::mqtt::MqttContext* mqttContext);
-        std::vector<char> serialize();
+        std::vector<char> serialize() const;
 
-        uint8_t getPacketType() const;
+        uint8_t getType() const;
         uint8_t getFlags() const;
 
         void setRemainingLength(uint32_t remainingLength);

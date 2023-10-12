@@ -136,6 +136,7 @@ namespace iot::mqtt::server::packets {
     }
 
     void Connect::deliverPacket(iot::mqtt::server::Mqtt* mqtt) {
+        mqtt->printVP(*this);
         mqtt->_onConnect(*this);
     }
 

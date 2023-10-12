@@ -180,10 +180,10 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::restartSession(const std::string& clientId) {
-        LOG(DEBUG) << "  Retained: Send Publish: ClientId: " << clientId;
+        LOG(DEBUG) << "  Retained: Send Publish: " << clientId;
         subscribtionTree.appear(clientId);
 
-        LOG(DEBUG) << "  Queued: Send Publish: ClientId: " << clientId;
+        LOG(DEBUG) << "  Queued: Send Publish: " << clientId;
         sessionStore[clientId].publishQueued();
     }
 
@@ -197,7 +197,7 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool retain) {
-        LOG(DEBUG) << "  Send Publish: ClientId: " << clientId;
+        LOG(DEBUG) << "Send retained Publish: " << clientId;
         sessionStore[clientId].sendPublish(message, qoS, retain);
     }
 

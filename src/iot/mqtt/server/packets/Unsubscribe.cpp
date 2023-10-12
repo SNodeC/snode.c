@@ -65,6 +65,7 @@ namespace iot::mqtt::server::packets {
     }
 
     void Unsubscribe::deliverPacket(iot::mqtt::server::Mqtt* mqtt) {
+        mqtt->printVP(*this);
         mqtt->_onUnsubscribe(*this);
     }
 

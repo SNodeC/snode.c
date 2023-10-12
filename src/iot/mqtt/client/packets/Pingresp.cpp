@@ -40,6 +40,7 @@ namespace iot::mqtt::client::packets {
     }
 
     void Pingresp::deliverPacket(iot::mqtt::client::Mqtt* mqtt) {
+        mqtt->printVP(*this);
         mqtt->_onPingresp(*this);
     }
 

@@ -50,8 +50,9 @@
 
 namespace iot::mqtt::client {
 
-    Mqtt::Mqtt()
-        : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") { // NOLINT
+    Mqtt::Mqtt(const std::string& clientId)
+        : Super(clientId)
+        , sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") { // NOLINT
         if (!sessionStoreFileName.empty()) {
             std::ifstream sessionStoreFile(sessionStoreFileName);
 
@@ -105,7 +106,7 @@ namespace iot::mqtt::client {
     iot::mqtt::ControlPacketDeserializer* Mqtt::createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) {
         iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
 
-        switch (fixedHeader.getPacketType()) {
+        switch (fixedHeader.getType()) {
             case MQTT_CONNACK:
                 currentPacket = new iot::mqtt::client::packets::Connack(fixedHeader.getRemainingLength(), fixedHeader.getFlags());
                 break;
@@ -158,15 +159,12 @@ namespace iot::mqtt::client {
     }
 
     void Mqtt::_onConnack(const iot::mqtt::client::packets::Connack& connack) {
-        LOG(DEBUG) << "Received Connack:";
-        LOG(DEBUG) << "=================";
-        printStandardHeader(connack);
-        LOG(DEBUG) << "Acknowledge Flag: " << static_cast<int>(connack.getAcknowledgeFlags());
-        LOG(DEBUG) << "Return code: " << static_cast<int>(connack.getReturnCode());
-        LOG(DEBUG) << "Session present: " << connack.getSessionPresent();
+        LOG(DEBUG) << "  Acknowledge Flag: " << static_cast<int>(connack.getAcknowledgeFlags());
+        LOG(DEBUG) << "  Return code: " << static_cast<int>(connack.getReturnCode());
+        LOG(DEBUG) << "  Session present: " << connack.getSessionPresent();
 
         if (connack.getReturnCode() != MQTT_CONNACK_ACCEPT) {
-            LOG(DEBUG) << "Negative ack received";
+            LOG(DEBUG) << "  Negative ack received";
             mqttContext->end(true);
         } else {
             initSession(&session, keepAlive * 2);
@@ -182,61 +180,48 @@ namespace iot::mqtt::client {
     }
 
     void Mqtt::_onPublish(const iot::mqtt::client::packets::Publish& publish) {
-        LOG(DEBUG) << "Received PUBLISH:";
-        LOG(DEBUG) << "=================";
-
         if (Super::_onPublish(publish)) {
             onPublish(publish);
         }
     }
 
     void Mqtt::_onSuback(const iot::mqtt::client::packets::Suback& suback) {
-        LOG(DEBUG) << "Received SUBACK:";
-        LOG(DEBUG) << "================";
-        printStandardHeader(suback);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << suback.getPacketIdentifier();
-
-        std::stringstream ss;
-        std::list<uint8_t>::size_type i = 0;
-
-        for (uint8_t returnCode : suback.getReturnCodes()) {
-            if (i != 0 && i % 8 == 0 && i != suback.getReturnCodes().size()) {
-                ss << std::endl;
-                ss << "                                                       ";
-            }
-            ++i;
-            ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(returnCode) << " "; // << " | ";
-        }
-
-        LOG(DEBUG) << "Return codes: " << ss.str();
-
         if (suback.getPacketIdentifier() == 0) {
-            LOG(DEBUG) << "PackageIdentifier missing";
+            LOG(DEBUG) << "  PackageIdentifier missing";
             mqttContext->end(true);
         } else {
+            LOG(DEBUG) << "  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << suback.getPacketIdentifier();
+
+            std::stringstream ss;
+            std::list<uint8_t>::size_type i = 0;
+
+            for (uint8_t returnCode : suback.getReturnCodes()) {
+                if (i != 0 && i % 8 == 0 && i != suback.getReturnCodes().size()) {
+                    ss << std::endl;
+                    ss << "                                                       ";
+                }
+                ++i;
+                ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(returnCode) << " "; // << " | ";
+            }
+
+            LOG(DEBUG) << "  Return codes: " << ss.str();
+
             onSuback(suback);
         }
     }
 
     void Mqtt::_onUnsuback(const iot::mqtt::client::packets::Unsuback& unsuback) {
-        LOG(DEBUG) << "Received UNSUBACK:";
-        LOG(DEBUG) << "==================";
-        printStandardHeader(unsuback);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << unsuback.getPacketIdentifier();
-
         if (unsuback.getPacketIdentifier() == 0) {
             LOG(DEBUG) << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
+            LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << unsuback.getPacketIdentifier();
+
             onUnsuback(unsuback);
         }
     }
 
     void Mqtt::_onPingresp(const iot::mqtt::client::packets::Pingresp& pingresp) {
-        LOG(DEBUG) << "Received PINGRESP:";
-        LOG(DEBUG) << "==================";
-        printStandardHeader(pingresp);
-
         onPingresp(pingresp);
     }
 
@@ -249,8 +234,9 @@ namespace iot::mqtt::client {
                            bool willRetain,
                            const std::string& username,
                            const std::string& password) { // Client
-        LOG(DEBUG) << "Send CONNECT";
-        LOG(DEBUG) << "============";
+        this->clientId = clientId.empty() ? "<unnamed>" : clientId;
+
+        LOG(DEBUG) << "CONNECT send: " << clientId;
 
         send(iot::mqtt::packets::Connect(
             clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password));
@@ -259,30 +245,18 @@ namespace iot::mqtt::client {
     }
 
     void Mqtt::sendSubscribe(std::list<iot::mqtt::Topic>& topics) { // Client
-        LOG(DEBUG) << "Send SUBSCRIBE";
-        LOG(DEBUG) << "==============";
-
         send(iot::mqtt::packets::Subscribe(getPacketIdentifier(), topics));
     }
 
     void Mqtt::sendUnsubscribe(std::list<std::string>& topics) { // Client
-        LOG(DEBUG) << "Send UNSUBSCRIBE";
-        LOG(DEBUG) << "================";
-
         send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
     }
 
     void Mqtt::sendPingreq() const { // Client
-        LOG(DEBUG) << "Send Pingreq";
-        LOG(DEBUG) << "============";
-
         send(iot::mqtt::packets::Pingreq());
     }
 
     void Mqtt::sendDisconnect() const { // Client
-        LOG(DEBUG) << "Send Disconnect";
-        LOG(DEBUG) << "===============";
-
         send(iot::mqtt::packets::Disconnect());
     }
 
