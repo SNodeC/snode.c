@@ -42,7 +42,6 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
     endif()
 endif()
 
-
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(AppendSourceFileConfig)
 include(GetAllTargetsDependencies)
@@ -69,7 +68,6 @@ set(SNODEC_IO_MULTIPLEXER
 )
 set_property(CACHE SNODEC_IO_MULTIPLEXER PROPERTY STRINGS ${IO_MULTIPLEXERS})
 message(STATUS "I/O-Multiplexer selected: '${SNODEC_IO_MULTIPLEXER}'")
-
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

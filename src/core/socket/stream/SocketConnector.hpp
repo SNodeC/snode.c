@@ -185,7 +185,7 @@ namespace core::socket::stream {
             } else {
                 utils::PreserveErrno pe(cErrno);
 
-                switch (cErrno) {
+                switch (errno) {
                     case EADDRINUSE:
                     case EADDRNOTAVAIL:
                     case ECONNREFUSED:
@@ -204,7 +204,6 @@ namespace core::socket::stream {
                 onStatus(remoteAddress, state);
                 disable();
             }
-
         } else {
             PLOG(TRACE) << config->getInstanceName() << ": getsockopt syscall error '" << remoteAddress.toString() << "'";
 
