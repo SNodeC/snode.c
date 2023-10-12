@@ -53,6 +53,12 @@ namespace core::socket::stream::tls {
     void ssl_log_info(const std::string& message);
     void ssl_log(const std::string& message, int sslErr);
 
+    // From https://www.geeksforgeeks.org/wildcard-character-matching/
+    //
+    // The main function that checks if two given strings
+    // match. The first string may contain wildcard characters
+    bool match(const char* first, const char* second);
+
 } // namespace core::socket::stream::tls
 
 #endif // CORE_SOCKET_STREAM_TLS_SSL_UTILS_H

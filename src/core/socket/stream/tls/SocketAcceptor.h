@@ -70,12 +70,6 @@ namespace core::socket::stream::tls {
 
         static int clientHelloCallback(SSL* ssl, int* al, void* arg);
 
-        // From https://www.geeksforgeeks.org/wildcard-character-matching/
-        //
-        // The main function that checks if two given strings
-        // match. The first string may contain wildcard characters
-        static bool match(const char* first, const char* second);
-
         SSL_CTX* masterSslCtx = nullptr;
         std::set<std::string> masterSslCtxSans;
 
