@@ -180,6 +180,7 @@ namespace core::socket::stream {
                            << "'";
 
                 new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
+
                 disable();
             } else {
                 utils::PreserveErrno pe(cErrno);
