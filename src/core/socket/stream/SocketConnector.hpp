@@ -154,6 +154,7 @@ namespace core::socket::stream {
         } else {
             LOG(TRACE) << config->getInstanceName() << ": disabled";
 
+            onStatus(remoteAddress, core::socket::STATE_DISABLED);
             destruct();
         }
     }
