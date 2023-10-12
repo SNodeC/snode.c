@@ -49,8 +49,8 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     SocketConnector<PhysicalSocketClient, Config, SocketConnection>::~SocketConnector() {
-        if (physicalSocket != nullptr) {
-            delete physicalSocket;
+        if (physicalClientSocket != nullptr) {
+            delete physicalClientSocket;
         }
     }
 
@@ -70,9 +70,9 @@ namespace core::socket::stream {
                     core::socket::State state = core::socket::IS_OK;
 
                     remoteAddress = config->Remote::getSocketAddress();
-                    physicalSocket = new PhysicalSocket();
+                    physicalClientSocket = new PhysicalClientSocket();
 
-                    if (physicalSocket->open(config->getSocketOptions(), PhysicalSocket::Flags::NONBLOCK) < 0) {
+                    if (physicalClientSocket->open(config->getSocketOptions(), PhysicalClientSocket::Flags::NONBLOCK) < 0) {
                         switch (errno) {
                             case EMFILE:
                             case ENFILE:
@@ -88,7 +88,7 @@ namespace core::socket::stream {
                                 state = core::socket::IS_FATAL;
                                 break;
                         }
-                    } else if (physicalSocket->bind(localAddress) < 0) {
+                    } else if (physicalClientSocket->bind(localAddress) < 0) {
                         switch (errno) {
                             case EADDRINUSE:
                                 PLOG(TRACE) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
@@ -101,7 +101,7 @@ namespace core::socket::stream {
                                 state = core::socket::IS_FATAL;
                                 break;
                         }
-                    } else if (physicalSocket->connect(remoteAddress) < 0 && !physicalSocket->connectInProgress(errno)) {
+                    } else if (physicalClientSocket->connect(remoteAddress) < 0 && !physicalClientSocket->connectInProgress(errno)) {
                         switch (errno) {
                             case EADDRINUSE:
                             case EADDRNOTAVAIL:
@@ -117,14 +117,14 @@ namespace core::socket::stream {
                                 state = core::socket::IS_FATAL;
                                 break;
                         }
-                    } else if (physicalSocket->connectInProgress(errno)) {
+                    } else if (physicalClientSocket->connectInProgress(errno)) {
                         LOG(TRACE) << config->getInstanceName() << ": connect in progress'" << remoteAddress.toString() << "'";
 
-                        enable(physicalSocket->getFd());
+                        enable(physicalClientSocket->getFd());
                     } else {
                         LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
-                        SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalSocket, config);
+                        SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
                         onStatus(remoteAddress, state);
                     }
 
@@ -164,15 +164,15 @@ namespace core::socket::stream {
 
         core::socket::State state = core::socket::IS_OK;
 
-        if (physicalSocket->getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed errno = cErrno;
+        if (physicalClientSocket->getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed errno = cErrno;
             if (cErrno == 0) {
                 LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
                 onStatus(remoteAddress, state);
                 disable();
 
-                SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalSocket, config);
-            } else if (!physicalSocket->connectInProgress(cErrno)) {
+                SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
+            } else if (!physicalClientSocket->connectInProgress(cErrno)) {
                 LOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
                 if (remoteAddress.useNext()) {

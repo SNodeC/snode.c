@@ -37,15 +37,15 @@ namespace core::socket::stream {
         : protected core::eventreceiver::InitAcceptEventReceiver
         , protected core::eventreceiver::AcceptEventReceiver {
     private:
-        using PhysicalSocket = PhysicalSocketServerT;
+        using PhysicalServerSocket = PhysicalSocketServerT;
 
     protected:
         using Config = ConfigT;
-        using SocketAddress = typename PhysicalSocket::SocketAddress;
-        using SocketConnection = SocketConnectionT<PhysicalSocket>;
+        using SocketAddress = typename PhysicalServerSocket::SocketAddress;
+        using SocketConnection = SocketConnectionT<PhysicalServerSocket>;
 
     private:
-        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PhysicalSocket, Config, SocketConnection>;
+        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PhysicalServerSocket, Config, SocketConnection>;
 
     public:
         SocketAcceptor() = delete;
@@ -77,7 +77,7 @@ namespace core::socket::stream {
     private:
         void unobservedEvent() final;
 
-        PhysicalSocket* physicalSocket = nullptr;
+        PhysicalServerSocket* physicalServerSocket = nullptr;
         SocketAddress localAddress;
 
     protected:
