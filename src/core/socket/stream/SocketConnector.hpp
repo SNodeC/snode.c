@@ -175,36 +175,35 @@ namespace core::socket::stream {
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
             } else if (physicalClientSocket->connectInProgress(cErrno)) {
                 // Connect still in progress
+            } else if (remoteAddress.useNext()) {
+                LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '" << config->Remote::getSocketAddress().toString()
+                           << "'";
+
+                new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
+                disable();
             } else {
-                if (remoteAddress.useNext()) {
-                    LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
-                               << config->Remote::getSocketAddress().toString() << "'";
+                utils::PreserveErrno pe(cErrno);
 
-                    new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
-                } else {
-                    utils::PreserveErrno pe(cErrno);
+                switch (cErrno) {
+                    case EADDRINUSE:
+                    case EADDRNOTAVAIL:
+                    case ECONNREFUSED:
+                    case ENETUNREACH:
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
-                    switch (cErrno) {
-                        case EADDRINUSE:
-                        case EADDRNOTAVAIL:
-                        case ECONNREFUSED:
-                        case ENETUNREACH:
-                            PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+                        state = core::socket::STATE_ERROR;
+                        break;
+                    default:
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
-                            state = core::socket::STATE_ERROR;
-                            break;
-                        default:
-                            PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
-
-                            state = core::socket::STATE_FATAL;
-                            break;
-                    }
-
-                    onStatus(remoteAddress, state);
+                        state = core::socket::STATE_FATAL;
+                        break;
                 }
 
+                onStatus(remoteAddress, state);
                 disable();
             }
+
         } else {
             PLOG(TRACE) << config->getInstanceName() << ": getsockopt syscall error '" << remoteAddress.toString() << "'";
 
