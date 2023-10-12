@@ -46,6 +46,7 @@ namespace net::config {
 
     public:
         SocketAddress& getSocketAddress();
+        void reset();
 
     private:
         virtual void setSocketAddress(const SocketAddress& address) = 0;

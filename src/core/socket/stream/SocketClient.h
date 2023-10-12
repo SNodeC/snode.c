@@ -153,6 +153,9 @@ namespace core::socket::stream {
                          unsigned int tries,
                          double retryTimeoutScale) {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
+                Super::getConfig().Local::reset();
+                Super::getConfig().Remote::reset();
+
                 new SocketConnector(
                     socketContextFactory,
                     onConnect,

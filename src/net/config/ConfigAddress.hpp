@@ -53,6 +53,11 @@ namespace net::config {
         return *socketAddress;
     }
 
+    template <typename SocketAddress>
+    void ConfigAddress<SocketAddress>::reset() {
+        socketAddress = nullptr;
+    }
+
 } // namespace net::config
 
 #endif // NET_CONFIG_CONFIGADDRESS_HPP

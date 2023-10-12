@@ -94,9 +94,7 @@ namespace net::in6 {
 
         int aiErrCode = 0;
 
-        if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) == 0) {
-            sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
-        } else {
+        if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) != 0) {
             core::socket::State state = core::socket::STATE_OK;
             switch (aiErrCode) {
                 case EAI_AGAIN:

@@ -149,6 +149,8 @@ namespace core::socket::stream {
                         unsigned int tries,
                         double retryTimeoutScale) const {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
+                Super::getConfig().Local::reset();
+
                 new SocketAcceptor(
                     socketContextFactory,
                     onConnect,
