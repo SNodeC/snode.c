@@ -174,8 +174,6 @@ namespace core::socket::stream {
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
             } else if (!physicalClientSocket->connectInProgress(cErrno)) {
-                LOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
-
                 if (remoteAddress.useNext()) {
                     LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
                                << config->Remote::getSocketAddress().toString() << "'";
