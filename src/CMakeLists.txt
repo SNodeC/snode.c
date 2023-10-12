@@ -42,7 +42,6 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
     endif()
 endif()
 
-set(SNODEC_INTREE_BUILD "YES")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(AppendSourceFileConfig)
@@ -51,6 +50,12 @@ include(GetAllTargetsDependencies)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(iwyu)
+
+set(SNODEC_INTREE_BUILD "YES")
+
+if("${SNODEC_INTREE_BUILD}" STREQUAL "YES")
+    add_compile_definitions(SNODEC_INTREE_BUILD)
+endif("${SNODEC_INTREE_BUILD}" STREQUAL "YES")
 
 set(IO_MULTIPLEXERS "epoll;poll;select")
 
@@ -64,6 +69,7 @@ set(SNODEC_IO_MULTIPLEXER
 )
 set_property(CACHE SNODEC_IO_MULTIPLEXER PROPERTY STRINGS ${IO_MULTIPLEXERS})
 message(STATUS "I/O-Multiplexer selected: '${SNODEC_IO_MULTIPLEXER}'")
+
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

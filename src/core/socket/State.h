@@ -36,12 +36,14 @@ namespace core::socket {
         constexpr static int ERROR = 2;
         constexpr static int FATAL = 3;
 
+#ifdef SNODEC_INTREE_BUILD
 #define STATE_OK State(core::socket::State::OK, __FILE__, __LINE__)
 #define STATE_DISABLED State(core::socket::State::DISABLED, __FILE__, __LINE__)
 #define STATE_ERROR State(core::socket::State::ERROR, __FILE__, __LINE__)
 #define STATE_FATAL State(core::socket::State::FATAL, __FILE__, __LINE__)
 
 #define STATE(state, errnum, errstr) State((state), __FILE__, __LINE__, (errnum), (errstr))
+#endif
 
         State(const int& state, const std::string& file, const int& line);
         State(const int& state, const std::string& file, const int& line, int errnum, const std::string& errstr);
