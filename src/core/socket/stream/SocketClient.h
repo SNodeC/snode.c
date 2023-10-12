@@ -153,9 +153,6 @@ namespace core::socket::stream {
                          unsigned int tries,
                          double retryTimeoutScale) {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
-                Super::getConfig().Local::reset();
-                Super::getConfig().Remote::reset();
-
                 new SocketConnector(
                     socketContextFactory,
                     onConnect,
@@ -170,6 +167,9 @@ namespace core::socket::stream {
 
                             core::timer::Timer::singleshotTimer(
                                 [client, onStatus]() mutable -> void {
+                                    client.getConfig().Local::reset();
+                                    client.getConfig().Remote::reset();
+
                                     client.realConnect(onStatus, 0, 1);
                                 },
                                 relativeReconnectTimeout);
@@ -196,6 +196,9 @@ namespace core::socket::stream {
 
                                     core::timer::Timer::singleshotTimer(
                                         [client, onStatus, tries, retryTimeoutScale]() mutable -> void {
+                                            client.getConfig().Local::reset();
+                                            client.getConfig().Remote::reset();
+
                                             client.realConnect(onStatus, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
                                         },
                                         relativeRetryTimeout);

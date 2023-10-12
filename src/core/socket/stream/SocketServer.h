@@ -149,8 +149,6 @@ namespace core::socket::stream {
                         unsigned int tries,
                         double retryTimeoutScale) const {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
-                Super::getConfig().Local::reset();
-
                 new SocketAcceptor(
                     socketContextFactory,
                     onConnect,
@@ -177,6 +175,7 @@ namespace core::socket::stream {
 
                                     core::timer::Timer::singleshotTimer(
                                         [server, onStatus, tries, retryTimeoutScale]() mutable -> void {
+                                            server.getConfig().Local::reset();
                                             server.realListen(onStatus, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
                                         },
                                         relativeRetryTimeout);
