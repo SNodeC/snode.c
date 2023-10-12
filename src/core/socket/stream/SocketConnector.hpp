@@ -57,7 +57,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::initConnectEvent() {
         if (!config->getDisabled()) {
-            LOG(TRACE) << config->getInstanceName() << ": enabled";
+            LOG(TRACE) << config->getInstanceName() << ": connecting";
 
             core::eventreceiver::ConnectEventReceiver::setTimeout(config->getConnectTimeout());
 
@@ -118,7 +118,7 @@ namespace core::socket::stream {
                                 break;
                         }
                     } else if (physicalClientSocket->connectInProgress(errno)) {
-                        LOG(TRACE) << config->getInstanceName() << ": connect in progress'" << remoteAddress.toString() << "'";
+                        LOG(TRACE) << config->getInstanceName() << ": connect in progress '" << remoteAddress.toString() << "'";
 
                         enable(physicalClientSocket->getFd());
                     } else {
@@ -163,9 +163,9 @@ namespace core::socket::stream {
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectEvent() {
         int cErrno;
 
-        core::socket::State state = core::socket::STATE_OK;
-
         if (physicalClientSocket->getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed errno = cErrno;
+            core::socket::State state = core::socket::STATE_OK;
+
             if (cErrno == 0) {
                 LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
@@ -173,7 +173,9 @@ namespace core::socket::stream {
                 disable();
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
-            } else if (!physicalClientSocket->connectInProgress(cErrno)) {
+            } else if (physicalClientSocket->connectInProgress(cErrno)) {
+                // Connect still in progress
+            } else {
                 if (remoteAddress.useNext()) {
                     LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
                                << config->Remote::getSocketAddress().toString() << "'";
@@ -202,8 +204,6 @@ namespace core::socket::stream {
                 }
 
                 disable();
-            } else {
-                // Connect still in progress
             }
         } else {
             PLOG(TRACE) << config->getInstanceName() << ": getsockopt syscall error '" << remoteAddress.toString() << "'";
