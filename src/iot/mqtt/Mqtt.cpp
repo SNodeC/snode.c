@@ -168,7 +168,7 @@ namespace iot::mqtt {
 
     void Mqtt::send(const ControlPacket& controlPacket) const {
         LOG(DEBUG) << "======================================================";
-        LOG(DEBUG) << controlPacket.getName() << " send: " << clientId;
+        LOG(INFO) << controlPacket.getName() << " send: " << clientId;
 
         send(controlPacket.serialize());
     }
@@ -321,7 +321,7 @@ namespace iot::mqtt {
     void Mqtt::printVP(const iot::mqtt::ControlPacket& packet) {
         LOG(TRACE) << "Received data (full):\n" << dataToHexString(packet.serialize());
 
-        LOG(DEBUG) << packet.getName() << " received: " << clientId;
+        LOG(INFO) << packet.getName() << " received: " << clientId;
     }
 
     void Mqtt::printFixedHeader(const FixedHeader& fixedHeader) {
