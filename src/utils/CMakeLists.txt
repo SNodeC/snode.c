@@ -50,7 +50,7 @@ set(UTILS_H
 )
 
 append_source_file_config(
-    config/Config.cpp GROUP_NAME
+    Config.cpp GROUP_NAME
     "Group name of group used for config file management" snodec
 )
 
