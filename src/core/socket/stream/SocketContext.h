@@ -41,10 +41,9 @@ namespace core::socket::stream {
     private:
         using Super = core::socket::SocketContext;
 
-    protected:
+    public:
         explicit SocketContext(core::socket::stream::SocketConnection* socketConnection);
 
-    public:
         ~SocketContext() override = default;
 
         using Super::sendToPeer;
