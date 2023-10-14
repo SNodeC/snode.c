@@ -202,17 +202,19 @@ namespace utils {
                     configDirectory,
                     (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
                         ~std::filesystem::perms::others_all);
-                struct group* gr = nullptr; // cppcheck-suppress shadowVariable
-                if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
-                    if (chown(configDirectory.c_str(), euid, gr->gr_gid) < 0) {
-                        std::cout << "Warning: Can not set group ownership of '" << configDirectory << "' to 'snodec':" << strerror(errno)
-                                  << std::endl;
+                if (geteuid() == 0) {
+                    struct group* gr = nullptr; // cppcheck-suppress shadowVariable
+                    if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
+                        if (chown(configDirectory.c_str(), euid, gr->gr_gid) < 0) {
+                            std::cout << "Warning: Can not set group ownership of '" << configDirectory
+                                      << "' to 'snodec':" << strerror(errno) << std::endl;
+                        }
+                    } else {
+                        std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
+                        std::cout << "       and add the current user to this group." << std::endl;
+                        std::filesystem::remove(configDirectory);
+                        success = false;
                     }
-                } else {
-                    std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
-                    std::cout << "       and add the current user to this group." << std::endl;
-                    std::filesystem::remove(configDirectory);
-                    success = false;
                 }
             } else {
                 std::cout << "Error: Can not create directory '" << configDirectory << "'" << std::endl;
@@ -225,17 +227,19 @@ namespace utils {
                 std::filesystem::permissions(logDirectory,
                                              (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
                                                  ~std::filesystem::perms::others_all);
-                struct group* gr = nullptr; // cppcheck-suppress shadowVariable
-                if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
-                    if (chown(logDirectory.c_str(), euid, gr->gr_gid) < 0) {
-                        std::cout << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec':" << strerror(errno)
-                                  << std::endl;
+                if (geteuid() == 0) {
+                    struct group* gr = nullptr; // cppcheck-suppress shadowVariable
+                    if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
+                        if (chown(logDirectory.c_str(), euid, gr->gr_gid) < 0) {
+                            std::cout << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec':" << strerror(errno)
+                                      << std::endl;
+                        }
+                    } else {
+                        std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
+                        std::cout << "       and add the current user to this group." << std::endl;
+                        std::filesystem::remove(configDirectory);
+                        success = false;
                     }
-                } else {
-                    std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
-                    std::cout << "       and add the current user to this group." << std::endl;
-                    std::filesystem::remove(configDirectory);
-                    success = false;
                 }
             } else {
                 std::cout << "Error: Can not create directory '" << logDirectory << "'" << std::endl;
@@ -248,17 +252,19 @@ namespace utils {
                 std::filesystem::permissions(pidDirectory,
                                              (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
                                                  ~std::filesystem::perms::others_all);
-                struct group* gr = nullptr; // cppcheck-suppress shadowVariable
-                if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
-                    if (chown(pidDirectory.c_str(), euid, gr->gr_gid) < 0) {
-                        std::cout << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec':" << strerror(errno)
-                                  << std::endl;
+                if (geteuid() == 0) {
+                    struct group* gr = nullptr; // cppcheck-suppress shadowVariable
+                    if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
+                        if (chown(pidDirectory.c_str(), euid, gr->gr_gid) < 0) {
+                            std::cout << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec':" << strerror(errno)
+                                      << std::endl;
+                        }
+                    } else {
+                        std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup." << std::endl;
+                        std::cout << "       and add the current user to this group." << std::endl;
+                        std::filesystem::remove(configDirectory);
+                        success = false;
                     }
-                } else {
-                    std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup." << std::endl;
-                    std::cout << "       and add the current user to this group." << std::endl;
-                    std::filesystem::remove(configDirectory);
-                    success = false;
                 }
             } else {
                 std::cout << "Error: Can not create directory '" << pidDirectory << "'" << std::endl;
