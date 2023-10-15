@@ -55,7 +55,10 @@ namespace net::config {
 
     template <typename SocketAddress>
     void ConfigAddress<SocketAddress>::reset() {
-        socketAddress = nullptr;
+        if (socketAddress != nullptr) {
+            delete socketAddress;
+            socketAddress = nullptr;
+        }
     }
 
 } // namespace net::config
