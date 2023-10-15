@@ -34,4 +34,6 @@ namespace iot::mqtt::server {
 
 } // namespace iot::mqtt::server
 
+extern template class iot::mqtt::SubProtocol<web::websocket::server::SubProtocol>;
+
 #endif // IOT_MQTT_SERVER_MQTTSUBPROTOCOL_H

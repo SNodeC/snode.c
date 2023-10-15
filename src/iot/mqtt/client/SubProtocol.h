@@ -34,4 +34,6 @@ namespace iot::mqtt::client {
 
 } // namespace iot::mqtt::client
 
+extern template class iot::mqtt::SubProtocol<web::websocket::client::SubProtocol>;
+
 #endif // IOT_MQTT_CLIENT_MQTTSUBPROTOCOL_H
