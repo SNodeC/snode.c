@@ -122,7 +122,7 @@ namespace iot::mqtt::server {
 
     void Mqtt::initSession(const utils::Timeval& keepAlive) {
         if (broker->hasActiveSession(clientId)) {
-            LOG(DEBUG) << "Existing session found for ClientId = `" << clientId << "'";
+            LOG(DEBUG) << "Existing session found for ClientId = " << clientId;
             LOG(DEBUG) << "  closing";
 
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
@@ -133,21 +133,21 @@ namespace iot::mqtt::server {
         } else if (broker->hasRetainedSession(clientId)) {
             sendConnack(MQTT_CONNACK_ACCEPT, cleanSession ? MQTT_SESSION_NEW : MQTT_SESSION_PRESENT);
 
-            LOG(DEBUG) << "Retained session found for ClientId = '" << clientId << "'";
+            LOG(DEBUG) << "Retained session found for ClientId = " << clientId;
             if (cleanSession) {
-                LOG(DEBUG) << "  clean Session = " << this;
+                LOG(DEBUG) << "  clean SessionId = " << this;
                 broker->unsubscribe(clientId);
                 initSession(broker->newSession(clientId, this), keepAlive);
             } else {
-                LOG(DEBUG) << "  renew Session = " << this;
+                LOG(DEBUG) << "  renew SessionId = " << this;
                 initSession(broker->renewSession(clientId, this), keepAlive);
                 broker->restartSession(clientId);
             }
         } else {
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
 
-            LOG(DEBUG) << "No session found for ClientId = '" << clientId << "\'";
-            LOG(DEBUG) << "  new Session = " << this;
+            LOG(DEBUG) << "No session found for ClientId = " << clientId;
+            LOG(DEBUG) << "  new SessionId = " << this;
 
             initSession(broker->newSession(clientId, this), keepAlive);
         }
@@ -156,10 +156,12 @@ namespace iot::mqtt::server {
     void Mqtt::releaseSession() {
         if (broker->isActiveSession(clientId, this)) {
             if (cleanSession) {
-                LOG(DEBUG) << "Delete session: " << clientId;
+                LOG(DEBUG) << "Delete session for ClientId = " << clientId;
+                LOG(DEBUG) << "  SessionId = " << this;
                 broker->deleteSession(clientId);
             } else {
-                LOG(DEBUG) << "Retain session: " << clientId;
+                LOG(DEBUG) << "Retain session for ClientId = " << clientId;
+                LOG(DEBUG) << "  SessionId = " << this;
                 broker->retainSession(clientId);
             }
         }
