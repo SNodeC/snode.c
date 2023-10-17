@@ -164,18 +164,21 @@ namespace core::socket::stream {
         int cErrno;
 
         if (physicalClientSocket->getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed errno = cErrno;
+            utils::PreserveErrno pe(cErrno);
+
             core::socket::State state = core::socket::STATE_OK;
 
-            if (cErrno == 0) {
+            if (errno == 0) {
                 LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
                 onStatus(remoteAddress, state);
                 disable();
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
-            } else if (physicalClientSocket->connectInProgress(cErrno)) {
-                // Connect still in progress
+            } else if (physicalClientSocket->connectInProgress(errno)) {
+                LOG(TRACE) << config->getInstanceName() << ": connect still in progress '" << remoteAddress.toString() << "'";
             } else if (remoteAddress.useNext()) {
+                PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
                 LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '" << config->Remote::getSocketAddress().toString()
                            << "'";
 
@@ -183,8 +186,6 @@ namespace core::socket::stream {
 
                 disable();
             } else {
-                utils::PreserveErrno pe(cErrno);
-
                 switch (errno) {
                     case EADDRINUSE:
                     case EADDRNOTAVAIL:
