@@ -19,7 +19,6 @@
 #ifndef CORE_SOCKET_STREAM_LEGACY_SOCKETCONNECTOR_H
 #define CORE_SOCKET_STREAM_LEGACY_SOCKETCONNECTOR_H
 
-#include "core/socket/State.h"
 #include "core/socket/stream/SocketConnector.h"
 
 namespace core::socket::stream::legacy {
