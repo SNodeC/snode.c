@@ -51,9 +51,9 @@ namespace net::in::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress>(instance) {
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
+        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setPortRequired();
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE)
-            .setAiSocktype(SOCK_STREAM)
+            .setAiSockType(SOCK_STREAM)
             .setAiProtocol(IPPROTO_TCP);
 
         net::config::ConfigPhysicalSocket::add_socket_option(reusePortOpt, //
@@ -82,7 +82,7 @@ namespace net::in::stream::config {
             ->clear();
     }
 
-    bool ConfigSocketServer::getReusePort() {
+    bool ConfigSocketServer::getReusePort() const {
         return reusePortOpt->as<bool>();
     }
 

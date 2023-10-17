@@ -55,29 +55,33 @@ namespace net::in::config {
         SocketAddress* init() final;
 
     public:
-        void setSocketAddress(const SocketAddress& socketAddress) final;
+        ConfigAddress& setSocketAddress(const SocketAddress& socketAddress) final;
 
-        std::string getHost();
+        std::string getHost() const;
         ConfigAddress& setHost(const std::string& ipOrHostname);
 
-        uint16_t getPort();
+        uint16_t getPort() const;
         ConfigAddress& setPort(uint16_t port);
 
-    protected:
-        void hostRequired(int required = true);
-        void portRequired(int required = true);
-
-    public:
         ConfigAddress& setAiFlags(int aiFlags);
-        ConfigAddress& setAiSocktype(int aiSocktype);
+        int getAiFlags() const;
+
+        ConfigAddress& setAiSockType(int aiSocktype);
+        int getAiSockType() const;
+
         ConfigAddress& setAiProtocol(int aiProtocol);
+        int getAiProtocol() const;
+
+    protected:
+        ConfigAddress& setHostRequired(int required = true);
+        ConfigAddress& setPortRequired(int required = true);
 
     private:
         CLI::Option* hostOpt = nullptr;
         CLI::Option* portOpt = nullptr;
 
         int aiFlags = 0;
-        int aiSocktype = 0;
+        int aiSockType = 0;
         int aiProtocol = 0;
     };
 

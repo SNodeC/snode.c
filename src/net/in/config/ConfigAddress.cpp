@@ -52,32 +52,24 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::hostRequired(int required) {
-        Super::required(hostOpt, required);
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::portRequired(int required) {
-        Super::required(portOpt, required);
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
         return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
                     ->setAiFlags(aiFlags)
-                    .setAiSocktype(aiSocktype)
+                    .setAiSockType(aiSockType)
                     .setAiProtocol(aiProtocol)
                     .init();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
         setHost(socketAddress.getHost());
         setPort(socketAddress.getPort());
+
+        return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    std::string ConfigAddress<ConfigAddressType>::getHost() {
+    std::string ConfigAddress<ConfigAddressType>::getHost() const {
         return hostOpt->as<std::string>();
     }
 
@@ -93,7 +85,7 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    uint16_t ConfigAddress<ConfigAddressType>::getPort() {
+    uint16_t ConfigAddress<ConfigAddressType>::getPort() const {
         return portOpt->as<uint16_t>();
     }
 
@@ -116,15 +108,44 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiSocktype(int aiSocktype) {
-        this->aiSocktype = aiSocktype;
+    int ConfigAddress<ConfigAddressType>::getAiFlags() const {
+        return aiFlags;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiSockType(int aiSockType) {
+        this->aiSockType = aiSockType;
 
         return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
+    int ConfigAddress<ConfigAddressType>::getAiSockType() const {
+        return aiSockType;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiProtocol(int aiProtocol) {
         this->aiProtocol = aiProtocol;
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    int ConfigAddress<ConfigAddressType>::getAiProtocol() const {
+        return aiProtocol;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setHostRequired(int required) {
+        Super::required(hostOpt, required);
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPortRequired(int required) {
+        Super::required(portOpt, required);
 
         return *this;
     }

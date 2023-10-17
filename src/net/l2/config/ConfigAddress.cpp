@@ -48,29 +48,16 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::btAddressRequired(bool required) {
-        Super::required(btAddressOpt, required);
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::psmRequired(bool required) {
-        Super::required(psmOpt, required);
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
         return new SocketAddress(btAddressOpt->as<std::string>(), psmOpt->as<uint16_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
-        setBtAddress(socketAddress.address());
-        setPsm(socketAddress.psm());
-    }
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
+        setBtAddress(socketAddress.getAddress());
+        setPsm(socketAddress.getPsm());
 
-    template <template <typename SocketAddress> typename ConfigAddressType>
-    std::string ConfigAddress<ConfigAddressType>::getBtAddress() {
-        return btAddressOpt->as<std::string>();
+        return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -85,8 +72,8 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    uint16_t ConfigAddress<ConfigAddressType>::getPsm() {
-        return psmOpt->as<uint16_t>();
+    std::string ConfigAddress<ConfigAddressType>::getBtAddress() const {
+        return btAddressOpt->as<std::string>();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -96,6 +83,25 @@ namespace net::l2::config {
         psmOpt //
             ->default_val(psm);
         Super::required(psmOpt, false);
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    uint16_t ConfigAddress<ConfigAddressType>::getPsm() const {
+        return psmOpt->as<uint16_t>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddressRequired(bool required) {
+        Super::required(btAddressOpt, required);
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPsmRequired(bool required) {
+        Super::required(psmOpt, required);
 
         return *this;
     }

@@ -46,23 +46,15 @@ namespace net::un::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::sunPathRequired(bool required) {
-        Super::required(sunPathOpt, required);
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
         return new SocketAddress(sunPathOpt->as<std::string>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
-        setSunPath(socketAddress.address());
-    }
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
+        setSunPath(socketAddress.getAddress());
 
-    template <template <typename SocketAddress> typename ConfigAddressType>
-    std::string ConfigAddress<ConfigAddressType>::getSunPath() {
-        return sunPathOpt->as<std::string>();
+        return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -72,6 +64,18 @@ namespace net::un::config {
         sunPathOpt //
             ->default_val(sunPath);
         Super::required(sunPathOpt, false);
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    std::string ConfigAddress<ConfigAddressType>::getSunPath() const {
+        return sunPathOpt->as<std::string>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::sunPathRequired(bool required) {
+        Super::required(sunPathOpt, required);
 
         return *this;
     }

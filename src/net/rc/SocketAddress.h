@@ -46,9 +46,9 @@ namespace net::rc {
         SocketAddress setBtAddress(const std::string& btAddress);
         SocketAddress setChannel(uint8_t channel);
 
-        uint8_t channel() const;
+        uint8_t getChannel() const;
 
-        std::string address() const override;
+        std::string getAddress() const override;
         std::string toString() const override;
     };
 

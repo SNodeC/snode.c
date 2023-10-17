@@ -55,17 +55,17 @@ namespace net::rc::config {
         SocketAddress* init() final;
 
     public:
-        void setSocketAddress(const SocketAddress& socketAddress) final;
+        ConfigAddress& setSocketAddress(const SocketAddress& socketAddress) final;
 
-        std::string getBtAddress();
         ConfigAddress& setBtAddress(const std::string& btAddress);
+        std::string getBtAddress() const;
 
-        uint8_t getChannel();
         ConfigAddress& setChannel(uint8_t channel);
+        uint8_t getChannel() const;
 
     protected:
-        void btAddressRequired(bool required = true);
-        void channelRequired(bool required = true);
+        ConfigAddress& setBtAddressRequired(bool required = true);
+        ConfigAddress& setChannelRequired(bool required = true);
 
         CLI::Option* btAddressOpt = nullptr;
         CLI::Option* channelOpt = nullptr;

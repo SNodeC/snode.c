@@ -145,9 +145,9 @@ namespace tls {
             [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().getAddress() + ") " +
                                socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().getAddress() + ") " +
                                socketConnection->getLocalAddress().toString();
 
                 /* Enable automatic hostname checks */
@@ -271,9 +271,9 @@ namespace legacy {
             [](SocketConnection* socketConnection) -> void { // OnConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().getAddress() + ") " +
                                socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().getAddress() + ") " +
                                socketConnection->getLocalAddress().toString();
             },
             [](SocketConnection* socketConnection) -> void { // onConnected
@@ -284,9 +284,9 @@ namespace legacy {
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().getAddress() + ") " +
                                socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().getAddress() + ") " +
                                socketConnection->getLocalAddress().toString();
             });
 

@@ -55,17 +55,17 @@ namespace net::l2::config {
         SocketAddress* init() final;
 
     public:
-        void setSocketAddress(const SocketAddress& socketAddress) final;
+        ConfigAddress& setSocketAddress(const SocketAddress& socketAddress) final;
 
-        std::string getBtAddress();
         ConfigAddress& setBtAddress(const std::string& btAddress);
+        std::string getBtAddress() const;
 
-        uint16_t getPsm();
         ConfigAddress& setPsm(uint16_t psm);
+        uint16_t getPsm() const;
 
     protected:
-        void btAddressRequired(bool required = true);
-        void psmRequired(bool required = true);
+        ConfigAddress& setBtAddressRequired(bool required = true);
+        ConfigAddress& setPsmRequired(bool required = true);
 
         CLI::Option* btAddressOpt = nullptr;
         CLI::Option* psmOpt = nullptr;

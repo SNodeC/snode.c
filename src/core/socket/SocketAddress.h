@@ -53,7 +53,7 @@ namespace core::socket {
             return false;
         }
 
-        virtual std::string address() const = 0;
+        virtual std::string getAddress() const = 0;
         virtual std::string toString() const = 0;
     };
 

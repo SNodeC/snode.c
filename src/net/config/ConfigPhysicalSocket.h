@@ -54,31 +54,31 @@ namespace net::config {
         void removeSocketOption(int optName);
 
         void setReuseAddress(bool reuseAddress = true);
-        bool getReuseAddress();
+        bool getReuseAddress() const;
 
-        bool getReconnect();
         void setReconnect(bool reconnect = true);
+        bool getReconnect() const;
 
-        double getReconnectTime();
         void setReconnectTime(double time);
+        double getReconnectTime() const;
 
         void setRetry(bool retry = true);
-        bool getRetry();
+        bool getRetry() const;
 
         void setRetryTimeout(double sec);
-        double getRetryTimeout();
+        double getRetryTimeout() const;
 
         void setRetryTries(unsigned int tries = 0); // 0 ... unlimmit
-        unsigned int getRetryTries();
+        unsigned int getRetryTries() const;
 
         void setRetryBase(double base);
-        double getRetryBase();
+        double getRetryBase() const;
 
         void setRetryLimit(unsigned int limit);
-        unsigned int getRetryLimit();
+        unsigned int getRetryLimit() const;
 
         void setRetryJitter(double percent);
-        double getRetryJitter();
+        double getRetryJitter() const;
 
     protected:
         CLI::Option* add_socket_option(CLI::Option*& opt,

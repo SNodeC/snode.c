@@ -80,9 +80,9 @@ namespace apps::http::tls {
         webApp.setOnConnect([&webApp](SocketConnection* socketConnection) -> void { // onConnect
             LOG(INFO) << "OnConnect " << webApp.getConfig().getInstanceName();
 
-            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
                              socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
                              socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
@@ -166,9 +166,9 @@ namespace apps::http::tls {
         webApp.setOnDisconnect([&webApp](SocketConnection* socketConnection) -> void { // onDisconnect
             LOG(INFO) << "OnDisconnect " << webApp.getConfig().getInstanceName();
 
-            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
                              socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
                              socketConnection->getRemoteAddress().toString();
         });
 

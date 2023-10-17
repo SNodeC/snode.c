@@ -45,7 +45,7 @@ namespace net::rc::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress>(instance) {
-        net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelRequired();
+        net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::setChannelRequired();
 
         net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelOpt //
             ->check(CLI::Range(1, 30));

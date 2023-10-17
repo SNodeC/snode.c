@@ -60,7 +60,7 @@ namespace net::un {
         return *this;
     }
 
-    std::string SocketAddress::address() const {
+    std::string SocketAddress::getAddress() const {
         return sockAddr.sun_path;
     }
 

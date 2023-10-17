@@ -54,13 +54,13 @@ namespace net::un::config {
         SocketAddress* init() final;
 
     public:
-        void setSocketAddress(const SocketAddress& socketAddress) final;
+        ConfigAddress& setSocketAddress(const SocketAddress& socketAddress) final;
 
-        std::string getSunPath();
         ConfigAddress& setSunPath(const std::string& sunPath);
+        std::string getSunPath() const;
 
     protected:
-        void sunPathRequired(bool required = true);
+        ConfigAddress& sunPathRequired(bool required = true);
 
     private:
         CLI::Option* sunPathOpt = nullptr;

@@ -43,7 +43,7 @@ namespace net::in::stream::config {
         ~ConfigSocketServer() override;
 
         void setReusePort(bool reusePort = true);
-        bool getReusePort();
+        bool getReusePort() const;
 
     private:
         CLI::Option* reusePortOpt = nullptr;

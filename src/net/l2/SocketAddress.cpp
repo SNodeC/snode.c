@@ -58,11 +58,11 @@ namespace net::l2 {
         return *this;
     }
 
-    uint16_t SocketAddress::psm() const {
+    uint16_t SocketAddress::getPsm() const {
         return btohs(sockAddr.l2_psm);
     }
 
-    std::string SocketAddress::address() const {
+    std::string SocketAddress::getAddress() const {
         char address[256];
         ba2str(&sockAddr.l2_bdaddr, address);
 
@@ -70,7 +70,7 @@ namespace net::l2 {
     }
 
     std::string SocketAddress::toString() const {
-        return address() + ":" + std::to_string(psm());
+        return getAddress() + ":" + std::to_string(getPsm());
     }
 
 } // namespace net::l2

@@ -94,7 +94,9 @@ namespace net::in6 {
 
         int aiErrCode = 0;
 
-        if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) != 0) {
+        if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) == 0) {
+            sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
+        } else {
             core::socket::State state = core::socket::STATE_OK;
             switch (aiErrCode) {
                 case EAI_AGAIN:
@@ -119,6 +121,10 @@ namespace net::in6 {
         return *this;
     }
 
+    std::string SocketAddress::getHost() const {
+        return host;
+    }
+
     SocketAddress& SocketAddress::setPort(uint16_t port) {
         this->port = port;
         return *this;
@@ -128,11 +134,37 @@ namespace net::in6 {
         return port;
     }
 
-    std::string SocketAddress::getHost() const {
-        return host;
+    SocketAddress& SocketAddress::setAiSockType(int aiSocktype) {
+        this->aiSocktype = aiSocktype;
+
+        return *this;
     }
 
-    std::string SocketAddress::address() const {
+    int SocketAddress::getAiSockType() const {
+        return aiSocktype;
+    }
+
+    SocketAddress& SocketAddress::setAiProtocol(int aiProtocol) {
+        this->aiProtocol = aiProtocol;
+
+        return *this;
+    }
+
+    int SocketAddress::getAiProtocol() const {
+        return aiProtocol;
+    }
+
+    SocketAddress& SocketAddress::setAiFlags(int aiFlags) {
+        this->aiFlags = aiFlags;
+
+        return *this;
+    }
+
+    int SocketAddress::getAiFlags() const {
+        return aiFlags;
+    }
+
+    std::string SocketAddress::getAddress() const {
         utils::PreserveErrno preserveErrno;
 
         char ip[NI_MAXHOST];
@@ -142,46 +174,18 @@ namespace net::in6 {
         return ret >= 0 ? ip : gai_strerror(ret);
     }
 
-    std::string SocketAddress::getServ() const {
-        utils::PreserveErrno preserveErrno;
-
-        char serv[NI_MAXSERV];
-        int ret =
-            core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, NI_MAXSERV, 0);
-
-        return ret >= 0 ? serv : gai_strerror(ret);
-    }
-
     std::string SocketAddress::toString() const {
         return getHost() + ":" + std::to_string(getPort());
     }
 
-    SocketAddress& SocketAddress::setAiFlags(int aiFlags) {
-        this->aiFlags = aiFlags;
-
-        return *this;
-    }
-
-    SocketAddress& SocketAddress::setAiSocktype(int aiSocktype) {
-        this->aiSocktype = aiSocktype;
-
-        return *this;
-    }
-
-    SocketAddress& SocketAddress::setAiProtocol(int aiProtocol) {
-        this->aiProtocol = aiProtocol;
-
-        return *this;
-    }
-
-    const sockaddr& SocketAddress::getSockAddr() {
-        sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
-
-        return reinterpret_cast<const sockaddr&>(sockAddr);
-    }
-
     bool SocketAddress::useNext() {
-        return socketAddrInfo->useNext();
+        bool useNext = socketAddrInfo->useNext();
+
+        if (useNext) {
+            sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
+        }
+
+        return useNext;
     }
 
 } // namespace net::in6

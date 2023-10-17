@@ -44,11 +44,11 @@ namespace net::l2 {
         explicit SocketAddress(uint16_t psm);
 
         SocketAddress setBtAddress(const std::string& btAddress);
+
         SocketAddress setPsm(uint16_t psm);
+        uint16_t getPsm() const;
 
-        uint16_t psm() const;
-
-        std::string address() const override;
+        std::string getAddress() const override;
         std::string toString() const override;
     };
 

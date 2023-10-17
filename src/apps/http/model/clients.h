@@ -140,9 +140,9 @@ namespace apps::http::tls {
         client.setOnConnect([&client](SocketConnection* socketConnection) -> void { // onConnect
             LOG(INFO) << "OnConnect " << client.getConfig().getInstanceName();
 
-            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
                              socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
                              socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
@@ -226,9 +226,9 @@ namespace apps::http::tls {
         client.setOnDisconnect([&client](SocketConnection* socketConnection) -> void { // onDisconnect
             LOG(INFO) << "OnDisconnect " << client.getConfig().getInstanceName();
 
-            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
                              socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
                              socketConnection->getRemoteAddress().toString();
         });
 

@@ -45,12 +45,11 @@ namespace net::rc::stream::config {
 
     ConfigSocketClient::ConfigSocketClient(net::config::ConfigInstance* instance)
         : net::config::stream::ConfigSocketClient<net::rc::config::ConfigAddress>(instance) {
-        net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::btAddressRequired();
-        net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::channelRequired();
+        net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::setBtAddressRequired();
+        net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::setChannelRequired();
 
         net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::channelOpt //
             ->check(CLI::Range(1, 30));
-
         net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelOpt //
             ->default_val(0)
             ->check(CLI::Range(0, 30));

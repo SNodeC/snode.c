@@ -54,34 +54,34 @@ namespace net::in6 {
     }
 
     bool SocketAddrInfo::useNext() {
-        currentAddrInfo = currentAddrInfo->ai_next;
+        if (currentAddrInfo != nullptr) {
+            currentAddrInfo = currentAddrInfo->ai_next;
+        }
 
         return currentAddrInfo != nullptr;
     }
 
     const sockaddr* SocketAddrInfo::getSockAddr() {
-        SocketAddrInfo::logAddressInfo(currentAddrInfo);
-
         return currentAddrInfo != nullptr ? currentAddrInfo->ai_addr : nullptr;
     }
 
-    void SocketAddrInfo::logAddressInfo(const addrinfo* addrInfo) {
-        if (addrInfo != nullptr) {
+    void SocketAddrInfo::logAddressInfo() {
+        if (currentAddrInfo != nullptr) {
             el::Logger* defaultLogger = el::Loggers::getLogger("default");
             static char hostBfr[NI_MAXHOST];
             static char servBfr[NI_MAXSERV];
             std::memset(hostBfr, 0, NI_MAXHOST);
             std::memset(servBfr, 0, NI_MAXSERV);
 
-            getnameinfo(addrInfo->ai_addr,
-                        addrInfo->ai_addrlen,
+            getnameinfo(currentAddrInfo->ai_addr,
+                        currentAddrInfo->ai_addrlen,
                         hostBfr,
                         sizeof(hostBfr),
                         servBfr,
                         sizeof(servBfr),
                         NI_NUMERICHOST | NI_NUMERICSERV);
 
-            struct sockaddr_in* aiAddr = reinterpret_cast<sockaddr_in*>(addrInfo->ai_addr);
+            struct sockaddr_in* aiAddr = reinterpret_cast<sockaddr_in*>(currentAddrInfo->ai_addr);
 
             std::string format = "AddressInfo:\n"
                                  "   ai_next      = %v\n"
@@ -97,18 +97,18 @@ namespace net::in6 {
                                  "                  sin_port:     %v";
 
             defaultLogger->trace(format.c_str(),
-                                 addrInfo->ai_next,
-                                 addrInfo->ai_flags,
-                                 addrInfo->ai_family,
+                                 currentAddrInfo->ai_next,
+                                 currentAddrInfo->ai_flags,
+                                 currentAddrInfo->ai_family,
                                  PF_INET,
                                  PF_INET6,
-                                 addrInfo->ai_socktype,
+                                 currentAddrInfo->ai_socktype,
                                  SOCK_STREAM,
                                  SOCK_DGRAM,
-                                 addrInfo->ai_protocol,
+                                 currentAddrInfo->ai_protocol,
                                  IPPROTO_TCP,
                                  IPPROTO_UDP,
-                                 addrInfo->ai_addrlen,
+                                 currentAddrInfo->ai_addrlen,
                                  sizeof(struct sockaddr_in),
                                  sizeof(struct sockaddr_in6),
                                  aiAddr->sin_family,

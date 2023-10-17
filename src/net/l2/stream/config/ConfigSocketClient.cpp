@@ -48,12 +48,11 @@ namespace net::l2::stream::config {
 
     ConfigSocketClient::ConfigSocketClient(net::config::ConfigInstance* instance)
         : net::config::stream::ConfigSocketClient<net::l2::config::ConfigAddress>(instance) {
-        net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::btAddressRequired();
-        net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::psmRequired();
+        net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::setBtAddressRequired();
+        net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::setPsmRequired();
 
         net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::psmOpt //
             ->check(CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
-
         net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmOpt //
             ->default_val(0)
             ->check(CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));

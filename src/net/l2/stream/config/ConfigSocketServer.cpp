@@ -48,7 +48,7 @@ namespace net::l2::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::config::stream::ConfigSocketServer<net::l2::config::ConfigAddress>(instance) {
-        net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmRequired();
+        net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::setPsmRequired();
 
         net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmOpt //
             ->default_val(0)

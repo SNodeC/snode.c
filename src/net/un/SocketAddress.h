@@ -44,7 +44,7 @@ namespace net::un {
 
         SocketAddress setSunPath(const std::string& sunPath);
 
-        std::string address() const override;
+        std::string getAddress() const override;
         std::string toString() const override;
     };
 

@@ -39,6 +39,9 @@ namespace net::in6 {
 namespace net::in6 {
 
     class SocketAddress final : public net::SocketAddress<sockaddr_in6> {
+    private:
+        using Super = net::SocketAddress<sockaddr_in6>;
+
     public:
         using net::SocketAddress<sockaddr_in6>::SocketAddress;
 
@@ -52,20 +55,22 @@ namespace net::in6 {
         SocketAddress& init();
 
         SocketAddress& setHost(const std::string& ipOrHostname);
-        SocketAddress& setPort(uint16_t port);
-
-        uint16_t getPort() const;
         std::string getHost() const;
-        std::string getServ() const;
 
-        std::string address() const override;
-        std::string toString() const override;
+        SocketAddress& setPort(uint16_t port);
+        uint16_t getPort() const;
+
+        SocketAddress& setAiSockType(int aiSocktype);
+        int getAiSockType() const;
+
+        SocketAddress& setAiProtocol(int aiProtocol);
+        int getAiProtocol() const;
 
         SocketAddress& setAiFlags(int aiFlags);
-        SocketAddress& setAiSocktype(int aiSocktype);
-        SocketAddress& setAiProtocol(int aiProtocol);
+        int getAiFlags() const;
 
-        const sockaddr& getSockAddr() override;
+        std::string getAddress() const override;
+        std::string toString() const override;
 
         bool useNext() override;
 
@@ -77,7 +82,6 @@ namespace net::in6 {
 
         std::string host = "";
         uint16_t port = 0;
-        std::string serv = "";
     };
 
 } // namespace net::in6

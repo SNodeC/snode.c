@@ -51,9 +51,10 @@ namespace net::in6::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress>(instance) {
-        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::portRequired();
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setPortRequired();
+
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE)
-            .setAiSocktype(SOCK_STREAM)
+            .setAiSockType(SOCK_STREAM)
             .setAiProtocol(IPPROTO_TCP);
 
         net::config::ConfigPhysicalSocket::add_socket_option(reusePortOpt,
@@ -91,7 +92,7 @@ namespace net::in6::stream::config {
             ->clear();
     }
 
-    bool ConfigSocketServer::getReusePort() {
+    bool ConfigSocketServer::getReusePort() const {
         return reusePortOpt->as<bool>();
     }
 
@@ -108,7 +109,7 @@ namespace net::in6::stream::config {
             ->clear();
     }
 
-    bool ConfigSocketServer::getIPv6Only() {
+    bool ConfigSocketServer::getIPv6Only() const {
         return iPv6OnlyOpt->as<bool>();
     }
 

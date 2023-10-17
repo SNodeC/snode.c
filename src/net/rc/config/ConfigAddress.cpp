@@ -49,29 +49,16 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::btAddressRequired(bool required) {
-        Super::required(btAddressOpt, required);
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::channelRequired(bool required) {
-        Super::required(channelOpt, required);
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
         return new SocketAddress(btAddressOpt->as<std::string>(), channelOpt->as<uint8_t>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    void ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
-        setBtAddress(socketAddress.address());
-        setChannel(socketAddress.channel());
-    }
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
+        setBtAddress(socketAddress.getAddress());
+        setChannel(socketAddress.getChannel());
 
-    template <template <typename SocketAddress> typename ConfigAddressType>
-    std::string ConfigAddress<ConfigAddressType>::getBtAddress() {
-        return btAddressOpt->as<std::string>();
+        return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -86,8 +73,8 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    uint8_t ConfigAddress<ConfigAddressType>::getChannel() {
-        return channelOpt->as<uint8_t>();
+    std::string ConfigAddress<ConfigAddressType>::getBtAddress() const {
+        return btAddressOpt->as<std::string>();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -97,6 +84,25 @@ namespace net::rc::config {
         channelOpt //
             ->default_val<int>(channel);
         Super::required(channelOpt, false);
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    uint8_t ConfigAddress<ConfigAddressType>::getChannel() const {
+        return channelOpt->as<uint8_t>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddressRequired(bool required) {
+        Super::required(btAddressOpt, required);
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setChannelRequired(bool required) {
+        Super::required(channelOpt, required);
 
         return *this;
     }

@@ -55,25 +55,29 @@ namespace net::in6::config {
         SocketAddress* init() final;
 
     public:
-        void setSocketAddress(const SocketAddress& socketAddress) final;
+        ConfigAddress& setSocketAddress(const SocketAddress& socketAddress) final;
 
-        std::string getHost();
         ConfigAddress& setHost(const std::string& ipOrHostname);
+        std::string getHost() const;
 
-        uint16_t getPort();
         ConfigAddress& setPort(uint16_t port);
+        uint16_t getPort() const;
 
-        bool getIpv4Mapped();
+        ConfigAddress& setIpv4Mapped(bool ipv4Mapped = true);
+        bool getIpv4Mapped() const;
+
+        ConfigAddress& setAiFlags(int aiFlags);
+        int getAiFlags() const;
+
+        ConfigAddress& setAiSockType(int aiSocktype);
+        int getAiSockType() const;
+
+        ConfigAddress& setAiProtocol(int aiProtocol);
+        int getAiProtocol() const;
 
     protected:
-        void hostRequired(int required = true);
-        void portRequired(int required = true);
-
-    public:
-        ConfigAddress& setAiFlags(int aiFlags);
-        ConfigAddress& setAiSocktype(int aiSocktype);
-        ConfigAddress& setAiProtocol(int aiProtocol);
-        ConfigAddress& setIpv4Mapped(bool ipv4Mapped = true);
+        ConfigAddress& setHostRequired(int required = true);
+        ConfigAddress& setPortRequired(int required = true);
 
     private:
         CLI::Option* hostOpt = nullptr;
@@ -81,7 +85,7 @@ namespace net::in6::config {
         CLI::Option* ipv4MappedOpt = nullptr;
 
         int aiFlags = 0;
-        int aiSocktype = 0;
+        int aiSockType = 0;
         int aiProtocol = 0;
     };
 

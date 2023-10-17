@@ -49,7 +49,7 @@ namespace net::config {
         void reset();
 
     private:
-        virtual void setSocketAddress(const SocketAddress& address) = 0;
+        virtual ConfigAddress& setSocketAddress(const SocketAddress& address) = 0;
 
     private:
         virtual SocketAddress* init() = 0;

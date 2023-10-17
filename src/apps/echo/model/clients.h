@@ -69,8 +69,8 @@ namespace apps::echo::model::tls {
         client.setOnConnect([&client](SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect " << client.getConfig().getInstanceName();
 
-            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
                            socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
@@ -154,8 +154,8 @@ namespace apps::echo::model::tls {
         client.setOnDisconnect([&client](SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect " << client.getConfig().getInstanceName();
 
-            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
                            socketConnection->getRemoteAddress().toString();
         });
 

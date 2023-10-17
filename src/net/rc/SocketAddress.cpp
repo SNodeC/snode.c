@@ -58,11 +58,11 @@ namespace net::rc {
         return *this;
     }
 
-    uint8_t SocketAddress::channel() const {
+    uint8_t SocketAddress::getChannel() const {
         return sockAddr.rc_channel;
     }
 
-    std::string SocketAddress::address() const {
+    std::string SocketAddress::getAddress() const {
         char address[256];
         ba2str(&sockAddr.rc_bdaddr, address);
 
@@ -70,7 +70,7 @@ namespace net::rc {
     }
 
     std::string SocketAddress::toString() const {
-        return address() + ":" + std::to_string(channel());
+        return getAddress() + ":" + std::to_string(getChannel());
     }
 
 } // namespace net::rc

@@ -43,10 +43,10 @@ namespace net::in6::stream::config {
         ~ConfigSocketServer() override;
 
         void setReusePort(bool reusePort = true);
-        bool getReusePort();
+        bool getReusePort() const;
 
         void setIPv6Only(bool iPv6Only = true);
-        bool getIPv6Only();
+        bool getIPv6Only() const;
 
     private:
         CLI::Option* reusePortOpt = nullptr;

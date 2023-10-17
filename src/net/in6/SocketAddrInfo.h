@@ -39,9 +39,9 @@ namespace net::in6 {
         bool useNext();
         const sockaddr* getSockAddr();
 
-    private:
-        static void logAddressInfo(const addrinfo* addrInfo);
+        void logAddressInfo();
 
+    private:
         struct addrinfo* addrInfo = nullptr;
         struct addrinfo* currentAddrInfo = nullptr;
 

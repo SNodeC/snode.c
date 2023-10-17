@@ -181,11 +181,11 @@ namespace net::config {
             ->clear();
     }
 
-    bool ConfigPhysicalSocket::getReuseAddress() {
+    bool ConfigPhysicalSocket::getReuseAddress() const {
         return reuseAddressOpt->as<bool>();
     }
 
-    bool ConfigPhysicalSocket::getReconnect() {
+    bool ConfigPhysicalSocket::getReconnect() const {
         return reconnectOpt->as<bool>();
     }
 
@@ -195,7 +195,7 @@ namespace net::config {
             ->clear();
     }
 
-    double ConfigPhysicalSocket::getReconnectTime() {
+    double ConfigPhysicalSocket::getReconnectTime() const {
         return reconnectTimeOpt->as<double>();
     }
 
@@ -211,7 +211,7 @@ namespace net::config {
             ->clear();
     }
 
-    bool ConfigPhysicalSocket::getRetry() {
+    bool ConfigPhysicalSocket::getRetry() const {
         return retryOpt->as<bool>();
     }
 
@@ -221,7 +221,7 @@ namespace net::config {
             ->clear();
     }
 
-    double ConfigPhysicalSocket::getRetryTimeout() {
+    double ConfigPhysicalSocket::getRetryTimeout() const {
         return retryTimeoutOpt->as<double>();
     }
 
@@ -231,7 +231,7 @@ namespace net::config {
             ->clear();
     }
 
-    unsigned int ConfigPhysicalSocket::getRetryTries() {
+    unsigned int ConfigPhysicalSocket::getRetryTries() const {
         return retryTriesOpt->as<unsigned int>();
     }
 
@@ -241,7 +241,7 @@ namespace net::config {
             ->clear();
     }
 
-    double ConfigPhysicalSocket::getRetryBase() {
+    double ConfigPhysicalSocket::getRetryBase() const {
         return retryBaseOpt->as<double>();
     }
 
@@ -251,7 +251,7 @@ namespace net::config {
             ->clear();
     }
 
-    unsigned int ConfigPhysicalSocket::getRetryLimit() {
+    unsigned int ConfigPhysicalSocket::getRetryLimit() const {
         return retryLimitOpt->as<unsigned int>();
     }
 
@@ -261,7 +261,7 @@ namespace net::config {
             ->clear();
     }
 
-    double ConfigPhysicalSocket::getRetryJitter() {
+    double ConfigPhysicalSocket::getRetryJitter() const {
         return retryJitterOpt->as<double>();
     }
 
