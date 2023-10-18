@@ -275,22 +275,30 @@ namespace core::socket::stream::tls {
             if (x509 != nullptr) {
                 GENERAL_NAMES* subjectAltNames =
                     static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(x509, NID_subject_alt_name, nullptr, nullptr));
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wused-but-marked-unused"
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#ifdef __has_warning
+#if __has_warning("-Wused-but-marked-unused")
+#pragma GCC diagnostic ignored "-Wused-but-marked-unused"
+#endif
+#endif
 #endif
                 int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
-#ifdef __clang__
-#pragma clang diagnostic pop
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
 #endif
                 for (int32_t i = 0; i < altNameCount; ++i) {
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wused-but-marked-unused"
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#ifdef __has_warning
+#if __has_warning("-Wused-but-marked-unused")
+#pragma GCC diagnostic ignored "-Wused-but-marked-unused"
+#endif
+#endif
 #endif
                     GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
-#ifdef __clang__
-#pragma clang diagnostic pop
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
 #endif
                     if (generalName->type == GEN_DNS || generalName->type == GEN_URI || generalName->type == GEN_EMAIL) {
                         std::string subjectAltName =
@@ -299,13 +307,17 @@ namespace core::socket::stream::tls {
                         sans.insert(subjectAltName);
                     }
                 }
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wused-but-marked-unused"
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#ifdef __has_warning
+#if __has_warning("-Wused-but-marked-unused")
+#pragma GCC diagnostic ignored "-Wused-but-marked-unused"
+#endif
+#endif
 #endif
                 sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
-#ifdef __clang__
-#pragma clang diagnostic pop
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
 #endif
             }
         }
@@ -315,7 +327,7 @@ namespace core::socket::stream::tls {
 
     // From: https://www.bit-hive.com/documents/openssl-tutorial/
     std::string ssl_get_servername_from_client_hello(SSL* ssl) {
-        const unsigned char* ext;
+        const unsigned char* ext = nullptr;
         size_t ext_len;
         size_t p = 0;
         size_t server_name_list_len;

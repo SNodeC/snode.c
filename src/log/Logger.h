@@ -21,13 +21,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#ifdef __has_warning
+#if __has_warning("-Wdocumentation-unknown-command")
+#pragma GCC diagnostic ignored "-Wdocumentation-unknown-command"
+#endif
+#endif
 #endif
 #include <easylogging++.h> // IWYU pragma: export
-#ifdef __clang__
-#pragma clang diagnostic pop
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
 #endif
 
 #include <string>
