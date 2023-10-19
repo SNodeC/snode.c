@@ -57,14 +57,7 @@ namespace web::websocket::server {
             web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory,
             web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory);
 
-    protected:
         ~SocketContextUpgrade() override;
-
-    public:
-        static SocketContextUpgrade*
-        create(web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory,
-               core::socket::stream::SocketConnection* socketConnection,
-               const std::string& subProtocolName);
     };
 
 } // namespace web::websocket::server

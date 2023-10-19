@@ -20,6 +20,7 @@
 
 #include "web/http/client/Request.h"
 #include "web/http/client/Response.h"
+#include "web/websocket/client/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -51,7 +52,19 @@ namespace web::websocket::client {
         if (response->header("sec-websocket-accept") == base64::serverWebSocketKey(request->header("Sec-WebSocket-Key"))) {
             std::string subProtocolName = response->header("sec-websocket-protocol");
 
-            socketContext = SocketContextUpgrade::create(this, socketConnection, subProtocolName);
+            web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
+                SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
+
+            if (subProtocolFactory != nullptr) {
+                socketContext = new SocketContextUpgrade(socketConnection, this, subProtocolFactory);
+
+                if (socketContext->subProtocol == nullptr) {
+                    delete socketContext;
+                    socketContext = nullptr;
+                }
+            } else {
+                checkRefCount();
+            }
         }
 
         return socketContext;

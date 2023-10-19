@@ -21,6 +21,7 @@
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
+#include "web/websocket/server/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -47,12 +48,27 @@ namespace web::websocket::server {
             LOG(DEBUG) << "Subprotocol request for '" << subProtocolNames << "'";
 
             std::string subProtocolName;
+            web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;
             do {
                 std::tie(subProtocolName, subProtocolNames) = httputils::str_split(subProtocolNames, ',');
                 httputils::str_trimm(subProtocolName);
 
-                socketContext = SocketContextUpgrade::create(this, socketConnection, subProtocolName);
-            } while (subProtocolNames.length() > 0 && socketContext == nullptr);
+                subProtocolFactory =
+                    SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::SERVER);
+
+                if (subProtocolFactory != nullptr) {
+                    socketContext = new SocketContextUpgrade(socketConnection, this, subProtocolFactory);
+
+                    if (socketContext->subProtocol == nullptr) {
+                        delete socketContext;
+                        socketContext = nullptr;
+                    }
+                }
+            } while (socketContext == nullptr && subProtocolNames.length() > 0);
+
+            if (subProtocolFactory == nullptr) {
+                checkRefCount();
+            }
 
             if (socketContext != nullptr) {
                 response->set("Upgrade", "websocket");

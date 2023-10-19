@@ -36,27 +36,6 @@ namespace web::websocket::server {
               socketConnection, socketContextUpgradeFactory, subProtocolFactory, Role::SERVER) {
     }
 
-    SocketContextUpgrade* SocketContextUpgrade::create(
-        web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory,
-        core::socket::stream::SocketConnection* socketConnection,
-        const std::string& subProtocolName) {
-        SocketContextUpgrade* socketContextUpgrade = nullptr;
-
-        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
-            SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::SERVER);
-
-        if (subProtocolFactory != nullptr) {
-            socketContextUpgrade = new SocketContextUpgrade(socketConnection, socketContextUpgradeFactory, subProtocolFactory);
-
-            if (socketContextUpgrade->subProtocol == nullptr) {
-                delete socketContextUpgrade;
-                socketContextUpgrade = nullptr;
-            }
-        }
-
-        return socketContextUpgrade;
-    }
-
     SocketContextUpgrade::~SocketContextUpgrade() {
         if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
             SubProtocolFactorySelector::instance()->unload(subProtocolFactory);

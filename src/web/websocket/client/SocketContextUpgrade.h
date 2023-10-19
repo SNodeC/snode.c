@@ -56,14 +56,7 @@ namespace web::websocket::client {
             web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory,
             web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory);
 
-    protected:
         ~SocketContextUpgrade() override;
-
-    public:
-        static SocketContextUpgrade*
-        create(web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory,
-               core::socket::stream::SocketConnection* socketConnection,
-               const std::string& subProtocolName);
     };
 
 } // namespace web::websocket::client

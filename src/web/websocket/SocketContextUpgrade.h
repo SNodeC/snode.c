@@ -87,6 +87,7 @@ namespace web::websocket {
             , subProtocol(subProtocolFactory->createSubProtocol(this)) {
         }
 
+    public:
         ~SocketContextUpgrade() override = default;
 
     private:
@@ -282,6 +283,8 @@ namespace web::websocket {
 
     protected:
         web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;
+
+    public:
         SubProtocol* subProtocol = nullptr;
 
     private:
