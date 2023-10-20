@@ -135,6 +135,8 @@ namespace core::socket::stream {
         using Super::sendToPeer;
         void sendToPeer(const char* junk, std::size_t junkLen) final;
 
+        bool getExitProcessed();
+
     private:
         void onReceivedFromPeer(std::size_t available) final;
 

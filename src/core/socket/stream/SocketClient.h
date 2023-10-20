@@ -160,7 +160,7 @@ namespace core::socket::stream {
                     [client = *this, onStatus](SocketConnection* socketConnection) -> void {
                         client.onDisconnect(socketConnection);
 
-                        if (client.getConfig().getReconnect()) {
+                        if (client.getConfig().getReconnect() && !socketConnection->getExitProcessed()) {
                             double relativeReconnectTimeout = client.getConfig().getReconnectTime();
 
                             LOG(INFO) << "Reconnecting in " << relativeReconnectTimeout << " seconds";

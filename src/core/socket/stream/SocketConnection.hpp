@@ -187,6 +187,15 @@ namespace core::socket::stream {
               typename SocketReader,
               template <typename PhysicalSocketT>
               typename SocketWriter>
+    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getExitProcessed() {
+        return exitProcessed;
+    }
+
+    template <typename PhysicalSocket,
+              template <typename PhysicalSocketT>
+              typename SocketReader,
+              template <typename PhysicalSocketT>
+              typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReceivedFromPeer(std::size_t available) {
         std::size_t consumed = socketContext->onReceivedFromPeer();
 
