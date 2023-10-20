@@ -30,7 +30,7 @@
 namespace core {
 
     std::map<void*, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
-    std::set<void*> DynamicLoader::closeHandles;
+    std::list<void*> DynamicLoader::closeHandles;
 
     void* DynamicLoader::dlRegisterHandle(void* handle, const std::string& libFile) {
         if (handle != nullptr) {
@@ -39,7 +39,7 @@ namespace core {
                 dlOpenedLibraries[handle].handle = handle;
             }
             dlOpenedLibraries[handle].refCount++;
-            LOG(TRACE) << "dlOpen: '" << libFile << "' success: handle=0x" << std::hex << handle;
+            LOG(TRACE) << "dlOpen: " << libFile << " success: handle=0x" << std::hex << handle;
         } else {
             LOG(TRACE) << "dlOpen: " << DynamicLoader::dlError();
         }
@@ -53,7 +53,7 @@ namespace core {
                 if (std::find(closeHandles.begin(), closeHandles.end(), handle) == closeHandles.end()) {
                     LOG(TRACE) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName << ": registered";
 
-                    closeHandles.insert(handle);
+                    closeHandles.push_back(handle);
                 } else {
                     LOG(TRACE) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName
                                << ": already registered for dlCloseDelayed";
@@ -70,7 +70,7 @@ namespace core {
         int ret = 0;
 
         if (handle != nullptr) {
-            if (!closeHandles.contains(handle)) {
+            if (std::find(closeHandles.begin(), closeHandles.end(), handle) != closeHandles.end()) {
                 if (dlOpenedLibraries.contains(handle)) {
                     LOG(TRACE) << "dlClose file = " << dlOpenedLibraries[handle].fileName << ": registered";
                     ret = dlClose(dlOpenedLibraries[handle]);
