@@ -54,7 +54,7 @@ namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>
     class SocketContextUpgrade
         : public web::http::SocketContextUpgrade<RequestT, ResponseT>
-        , private web::websocket::SubProtocolContext {
+        , public web::websocket::SubProtocolContext {
     public:
         SocketContextUpgrade() = delete;
         SocketContextUpgrade(const SocketContextUpgrade&) = delete;
@@ -79,12 +79,9 @@ namespace web::websocket {
 
         SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
-                             web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory,
                              Role role)
             : Super(socketConnection, socketContextUpgradeFactory)
-            , web::websocket::SubProtocolContext(role == Role::CLIENT)
-            , subProtocolFactory(subProtocolFactory)
-            , subProtocol(subProtocolFactory->createSubProtocol(this)) {
+            , web::websocket::SubProtocolContext(role == Role::CLIENT) {
         }
 
     public:
@@ -280,9 +277,6 @@ namespace web::websocket {
         std::size_t onReceivedFromPeer() override {
             return Receiver::receive();
         }
-
-    protected:
-        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;
 
     public:
         SubProtocol* subProtocol = nullptr;

@@ -44,44 +44,46 @@ namespace web::websocket::server {
         SocketContextUpgrade* socketContext = nullptr;
 
         if (request->get("Sec-WebSocket-Version") == "13") {
-            std::string subProtocolNames = request->get("sec-websocket-protocol");
-            LOG(DEBUG) << "Subprotocol request for '" << subProtocolNames << "'";
+            std::string requestedSubProtocolNames = request->get("sec-websocket-protocol");
+            LOG(DEBUG) << "Subprotocol request for '" << requestedSubProtocolNames << "'";
 
-            std::string subProtocolName;
-            web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;
+            std::list<std::string> subProtocolNamesList;
             do {
-                std::tie(subProtocolName, subProtocolNames) = httputils::str_split(subProtocolNames, ',');
+                std::string subProtocolName;
+                std::tie(subProtocolName, requestedSubProtocolNames) = httputils::str_split(requestedSubProtocolNames, ',');
                 httputils::str_trimm(subProtocolName);
+                subProtocolNamesList.push_back(subProtocolName);
+            } while (!requestedSubProtocolNames.empty());
 
-                subProtocolFactory =
-                    SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::SERVER);
+            if (!subProtocolNamesList.empty()) {
+                std::string selectedSubProtocolName;
 
-                if (subProtocolFactory != nullptr) {
-                    socketContext = new SocketContextUpgrade(socketConnection, this, subProtocolFactory);
+                socketContext = new SocketContextUpgrade(socketConnection, this);
+                selectedSubProtocolName = socketContext->loadSubProtocol(subProtocolNamesList);
 
-                    if (socketContext->subProtocol == nullptr) {
-                        delete socketContext;
-                        socketContext = nullptr;
-                    }
+                if (!selectedSubProtocolName.empty()) {
+                    response->set("Upgrade", "websocket");
+                    response->set("Connection", "Upgrade");
+                    response->set("Sec-WebSocket-Protocol", selectedSubProtocolName);
+                    response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->get("sec-websocket-key")));
+
+                    response->status(101).end(); // Switch Protocol
+                } else {
+                    delete socketContext;
+                    socketContext = nullptr;
+
+                    response->set("Connection", "close");
+                    response->status(400).end();
                 }
-            } while (socketContext == nullptr && subProtocolNames.length() > 0);
-
-            if (subProtocolFactory == nullptr) {
-                checkRefCount();
-            }
-
-            if (socketContext != nullptr) {
-                response->set("Upgrade", "websocket");
-                response->set("Connection", "Upgrade");
-                response->set("Sec-WebSocket-Protocol", subProtocolName);
-                response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->get("sec-websocket-key")));
-
-                response->status(101).end(); // Switch Protocol
             } else {
+                checkRefCount();
+
                 response->set("Connection", "close");
                 response->status(400).end();
             }
         } else {
+            checkRefCount();
+
             response->set("Sec-WebSocket-Version", "13");
             response->set("Connection", "close");
             response->status(426).end();

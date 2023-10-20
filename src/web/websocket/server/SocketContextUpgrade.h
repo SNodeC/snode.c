@@ -43,6 +43,7 @@ namespace web {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -54,10 +55,14 @@ namespace web::websocket::server {
     public:
         SocketContextUpgrade(
             core::socket::stream::SocketConnection* socketConnection,
-            web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory,
-            web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory);
+            web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory);
+
+        std::string loadSubProtocol(const std::list<std::string>& subProtocolNames);
 
         ~SocketContextUpgrade() override;
+
+    private:
+        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;
     };
 
 } // namespace web::websocket::server

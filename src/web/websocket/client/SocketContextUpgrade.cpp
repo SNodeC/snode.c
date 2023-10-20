@@ -30,14 +30,26 @@ namespace web::websocket::client {
 
     SocketContextUpgrade::SocketContextUpgrade(
         core::socket::stream::SocketConnection* socketConnection,
-        web::http::SocketContextUpgradeFactory<http::client::Request, http::client::Response>* socketContextUpgradeFactory,
-        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory)
+        web::http::SocketContextUpgradeFactory<http::client::Request, http::client::Response>* socketContextUpgradeFactory)
         : web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response>(
-              socketConnection, socketContextUpgradeFactory, subProtocolFactory, Role::CLIENT) {
+              socketConnection, socketContextUpgradeFactory, Role::CLIENT) {
+    }
+
+    std::string SocketContextUpgrade::loadSubProtocol(const std::string& subProtocolName) {
+        std::string selectedSubProtocolName;
+
+        subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
+
+        if (subProtocolFactory != nullptr) {
+            subProtocol = subProtocolFactory->createSubProtocol(this);
+            selectedSubProtocolName = subProtocol != nullptr ? subProtocolName : "";
+        }
+
+        return selectedSubProtocolName;
     }
 
     SocketContextUpgrade::~SocketContextUpgrade() {
-        if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
+        if (subProtocolFactory != nullptr && subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
             SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
     }

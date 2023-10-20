@@ -28,16 +28,33 @@
 
 namespace web::websocket::server {
 
-    SocketContextUpgrade::SocketContextUpgrade(
-        core::socket::stream::SocketConnection* socketConnection,
-        web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory,
-        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory)
+    SocketContextUpgrade::SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
+        web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory)
         : web::websocket::SocketContextUpgrade<SubProtocol, web::http::server::Request, web::http::server::Response>(
-              socketConnection, socketContextUpgradeFactory, subProtocolFactory, Role::SERVER) {
+              socketConnection, socketContextUpgradeFactory, Role::SERVER) {
+    }
+
+    std::string SocketContextUpgrade::loadSubProtocol(const std::list<std::string>& subProtocolNames) {
+        std::string selectedSubProtocolName;
+
+        for (const std::string& subProtocolName : subProtocolNames) {
+            subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::SERVER);
+
+            if (subProtocolFactory != nullptr) {
+                subProtocol = subProtocolFactory->createSubProtocol(this);
+                selectedSubProtocolName = subProtocol != nullptr ? subProtocolName : "";
+            }
+
+            if (!selectedSubProtocolName.empty()) {
+                break;
+            }
+        }
+
+        return selectedSubProtocolName;
     }
 
     SocketContextUpgrade::~SocketContextUpgrade() {
-        if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
+        if (subProtocolFactory != nullptr && subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
             SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
     }

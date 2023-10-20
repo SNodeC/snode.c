@@ -52,19 +52,15 @@ namespace web::websocket::client {
         if (response->header("sec-websocket-accept") == base64::serverWebSocketKey(request->header("Sec-WebSocket-Key"))) {
             std::string subProtocolName = response->header("sec-websocket-protocol");
 
-            web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
-                SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
+            socketContext = new SocketContextUpgrade(socketConnection, this);
+            std::string selectedSubProtocolName = socketContext->loadSubProtocol(subProtocolName);
 
-            if (subProtocolFactory != nullptr) {
-                socketContext = new SocketContextUpgrade(socketConnection, this, subProtocolFactory);
-
-                if (socketContext->subProtocol == nullptr) {
-                    delete socketContext;
-                    socketContext = nullptr;
-                }
-            } else {
-                checkRefCount();
+            if (selectedSubProtocolName.empty()) {
+                delete socketContext;
+                socketContext = nullptr;
             }
+        } else {
+            checkRefCount();
         }
 
         return socketContext;
