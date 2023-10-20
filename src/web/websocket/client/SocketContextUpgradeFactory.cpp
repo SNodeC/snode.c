@@ -20,7 +20,6 @@
 
 #include "web/http/client/Request.h"
 #include "web/http/client/Response.h"
-#include "web/websocket/client/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

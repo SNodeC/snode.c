@@ -62,7 +62,6 @@ namespace web::http::server {
         return &socketContextUpgradeFactorySelector;
     }
 
-    /* do not remove */
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 

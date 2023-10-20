@@ -57,9 +57,9 @@ namespace web::websocket::server {
             core::socket::stream::SocketConnection* socketConnection,
             web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory);
 
-        std::string loadSubProtocol(const std::list<std::string>& subProtocolNames);
-
         ~SocketContextUpgrade() override;
+
+        std::string loadSubProtocol(const std::list<std::string>& subProtocolNames);
 
     private:
         web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;

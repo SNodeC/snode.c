@@ -35,6 +35,12 @@ namespace web::websocket::client {
               socketConnection, socketContextUpgradeFactory, Role::CLIENT) {
     }
 
+    SocketContextUpgrade::~SocketContextUpgrade() {
+        if (subProtocolFactory != nullptr && subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
+            SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
+        }
+    }
+
     std::string SocketContextUpgrade::loadSubProtocol(const std::string& subProtocolName) {
         std::string selectedSubProtocolName;
 
@@ -46,12 +52,6 @@ namespace web::websocket::client {
         }
 
         return selectedSubProtocolName;
-    }
-
-    SocketContextUpgrade::~SocketContextUpgrade() {
-        if (subProtocolFactory != nullptr && subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
-            SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
-        }
     }
 
 } // namespace web::websocket::client

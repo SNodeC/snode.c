@@ -21,13 +21,12 @@
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
-#include "web/websocket/server/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/base64.h"
 
+#include <list>
 #include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -45,7 +44,6 @@ namespace web::websocket::server {
 
         if (request->get("Sec-WebSocket-Version") == "13") {
             std::string requestedSubProtocolNames = request->get("sec-websocket-protocol");
-            LOG(DEBUG) << "Subprotocol request for '" << requestedSubProtocolNames << "'";
 
             std::list<std::string> subProtocolNamesList;
             do {
