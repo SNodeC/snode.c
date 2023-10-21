@@ -119,9 +119,9 @@ namespace database::mariadb {
 
     void MariaDBConnection::commandStart(const utils::Timeval& currentTime) {
         if (!commandSequenceQueue.empty()) {
-            LOG(DEBUG) << "MariaDB: Start: " << currentCommand->commandInfo();
-
             currentCommand = commandSequenceQueue.front().nextCommand();
+
+            LOG(DEBUG) << "MariaDB: Start: " << currentCommand->commandInfo();
 
             currentCommand->setMariaDBConnection(this);
             checkStatus(currentCommand->commandStart(mysql, currentTime));
