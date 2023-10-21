@@ -55,7 +55,7 @@ namespace core::socket::stream::tls {
         memset(u, 0, ::strlen(static_cast<char*>(u))); // garble Password
         free(u);
 
-        return static_cast<int>(::strlen(buf));
+        return static_cast<int>(std::strlen(buf));
     }
 
     static int verify_callback(int preverify_ok, X509_STORE_CTX* ctx) {
@@ -142,34 +142,35 @@ namespace core::socket::stream::tls {
                 if (SSL_CTX_load_verify_locations(ctx,
                                                   !sslConfig.caFile.empty() ? sslConfig.caFile.c_str() : nullptr,
                                                   !sslConfig.caDir.empty() ? sslConfig.caDir.c_str() : nullptr) == 0) {
-                    ssl_log_error("Can not load CA certificate or non default CA directory: ca-cert-file '" + sslConfig.caFile +
-                                  "' : ca-cert-dir '" + sslConfig.caDir + "'");
+                    ssl_log_error("CA certificate error loading: ca-cert-file '" + sslConfig.caFile + "' : ca-cert-dir '" +
+                                  sslConfig.caDir + "'");
                     sslErr = true;
                 } else {
-                    LOG(TRACE) << "CA certificate loaded: ca-cert-file '" << sslConfig.caFile << "' : ca-cert-dir '"
-                               << sslConfig.caDir + "'";
+                    LOG(TRACE) << "CA certificate loaded: ca-cert-file '" << sslConfig.caFile;
+                    LOG(TRACE) << "CA certificates load from: ca-cert-dir '" << sslConfig.caDir + "'";
                 }
             } else {
                 LOG(TRACE) << "Neither using ca-cert-file nor ca-cert-dir";
             }
             if (!sslErr && sslConfig.useDefaultCaDir) {
                 if (SSL_CTX_set_default_verify_paths(ctx) == 0) {
-                    ssl_log_error("Can not load default CA directory");
+                    ssl_log_error("CA certificates error load from: Default openssl CA directory");
                     sslErr = true;
                 } else {
-                    ssl_log_info("Using default CA directory");
+                    LOG(TRACE) << "CA certificates enabled load from: Default openssl CA directory";
                 }
             } else {
-                LOG(TRACE) << "Not using default CA directory";
+                LOG(TRACE) << "CA certificates disabled load from: Default openssl CA directory";
             }
             if (!sslErr) {
                 if (sslConfig.useDefaultCaDir || !sslConfig.caFile.empty() || !sslConfig.caDir.empty()) {
                     SSL_CTX_set_verify_depth(ctx, 5);
                     SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
+                    LOG(TRACE) << "CA certificate requested verify";
                 }
                 if (!sslConfig.certChain.empty()) {
                     if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.certChain.c_str()) == 0) {
-                        ssl_log_error("Can not load certificate chain: " + sslConfig.certChain);
+                        ssl_log_error("Cert chain error loading '" + sslConfig.certChain);
                         sslErr = true;
                     } else if (!sslConfig.certChainKey.empty()) {
                         if (!sslConfig.password.empty()) {
@@ -177,17 +178,17 @@ namespace core::socket::stream::tls {
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(sslConfig.password.c_str()));
                         }
                         if (SSL_CTX_use_PrivateKey_file(ctx, sslConfig.certChainKey.c_str(), SSL_FILETYPE_PEM) == 0) {
-                            ssl_log_error("Can not load private key: " + sslConfig.certChainKey);
+                            ssl_log_error("Cert chain key error loading '" + sslConfig.certChainKey);
                             sslErr = true;
                         } else if (!SSL_CTX_check_private_key(ctx)) {
-                            ssl_log_error("Private key not consistent with CA files: " + sslConfig.certChainKey);
+                            ssl_log_error("Cert chain key error not consistent with cert chain '" + sslConfig.certChainKey + "'");
                             sslErr = true;
                         } else {
-                            LOG(TRACE) << "Private key loaded: " << sslConfig.certChainKey;
+                            LOG(TRACE) << "Cert chain key loaded '" << sslConfig.certChainKey << "'";
                         }
                     }
                     if (!sslErr) {
-                        LOG(TRACE) << "Certificate chain loaded: " << sslConfig.certChain;
+                        LOG(TRACE) << "Cert chain loaded: '" << sslConfig.certChain << "'";
                     }
                 }
             }
@@ -198,8 +199,9 @@ namespace core::socket::stream::tls {
                 if (!sslConfig.cipherList.empty()) {
                     SSL_CTX_set_cipher_list(ctx, sslConfig.cipherList.c_str());
                 }
-            }
-            if (sslErr) {
+
+                ssl_log_error("SSL CTX created");
+            } else {
                 SSL_CTX_free(ctx);
                 ctx = nullptr;
             }
