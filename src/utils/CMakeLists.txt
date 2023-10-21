@@ -50,8 +50,8 @@ set(UTILS_H
 )
 
 append_source_file_config(
-    Config.cpp GROUP_NAME
-    "Group name of group used for config file management" snodec
+    Config.cpp GROUP_NAME "Group name of group used for config file management"
+    snodec
 )
 
 add_library(utils SHARED ${UTILS_CPP} ${UTILS_H})

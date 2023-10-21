@@ -37,7 +37,8 @@ namespace net::un::phy {
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
-        if (!doNotRemove && !Super::getBindAddress().getAddress().empty() && std::remove(Super::getBindAddress().getAddress().data()) != 0) {
+        if (!doNotRemove && !Super::getBindAddress().getAddress().empty() &&
+            std::remove(Super::getBindAddress().getAddress().data()) != 0) {
             PLOG(ERROR) << "remove: sunPath: " << Super::getBindAddress().getAddress();
         }
     }
