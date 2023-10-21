@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 
                 request.set("Sec-WebSocket-Protocol", "test, echo");
 
-                request.upgrade("/ws/", "websocket");
+                request.upgrade("/ws/", "hui, websocket");
             },
             [](web::http::client::Request& request, web::http::client::Response& response) -> void {
                 VLOG(1) << "OnResponse";
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
 
                 request.set("Sec-WebSocket-Protocol", "test, echo");
 
-                request.upgrade("/ws/", "websocket");
+                request.upgrade("/ws/", "hui, websocket");
             },
             [](web::http::client::Request& request, web::http::client::Response& response) -> void {
                 VLOG(1) << "OnResponse";
