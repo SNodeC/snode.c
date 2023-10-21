@@ -19,12 +19,15 @@
 #include "ConfigPhysicalSocketClient.h"
 
 #include "net/config/ConfigSection.hpp"
+#include "utils/ResetToDefault.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h"
 
+#include <cstdint>
 #include <memory>
+#include <stdexcept>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -49,12 +52,54 @@ namespace net::config {
 
     ConfigPhysicalSocketClient::ConfigPhysicalSocketClient(ConfigInstance* instance)
         : net::config::ConfigPhysicalSocket(instance) {
+        Super::add_flag_function(
+            reconnectOpt, //
+            "--reconnect",
+            [this](int64_t) -> void {
+                if (!this->reconnectOpt->as<bool>()) {
+                    this->reconnectTimeOpt->clear();
+                }
+                utils::ResetToDefault(this->reconnectOpt)(this->reconnectOpt->as<bool>());
+            },
+            "Automatically retry listen|connect",
+            "bool",
+            RECONNECT,
+            CLI::IsMember({"true", "false"}));
+
+        Super::add_option(reconnectTimeOpt, //
+                          "--reconnect-time",
+                          "Duration after disconnect bevore reconnect",
+                          "sec",
+                          RECONNECT_TIME,
+                          CLI::NonNegativeNumber);
+        reconnectTimeOpt->needs(reconnectOpt);
+
         Super::add_option(connectTimeoutOpt, //
                           "--connect-timeout",
                           "Connect timeout",
                           "timeout",
                           CONNECT_TIMEOUT,
                           CLI::NonNegativeNumber);
+    }
+
+    bool ConfigPhysicalSocketClient::getReconnect() const {
+        return reconnectOpt->as<bool>();
+    }
+
+    void ConfigPhysicalSocketClient::setReconnect(bool reconnect) {
+        reconnectOpt //
+            ->default_val(reconnect)
+            ->clear();
+    }
+
+    double ConfigPhysicalSocketClient::getReconnectTime() const {
+        return reconnectTimeOpt->as<double>();
+    }
+
+    void ConfigPhysicalSocketClient::setReconnectTime(double time) {
+        reconnectTimeOpt //
+            ->default_val(time)
+            ->clear();
     }
 
     void ConfigPhysicalSocketClient::setConnectTimeout(const utils::Timeval& connectTimeout) {

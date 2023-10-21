@@ -44,28 +44,6 @@ namespace net::config {
                           REUSE_ADDRESS,
                           CLI::IsMember({"true", "false"}));
         add_flag_function(
-            reconnectOpt, //
-            "--reconnect",
-            [this](int64_t) -> void {
-                if (!this->reconnectOpt->as<bool>()) {
-                    this->reconnectTimeOpt->clear();
-                }
-                utils::ResetToDefault(this->reconnectOpt)(this->reconnectOpt->as<bool>());
-            },
-            "Automatically retry listen|connect",
-            "bool",
-            RECONNECT,
-            CLI::IsMember({"true", "false"}));
-
-        add_option(reconnectTimeOpt, //
-                   "--reconnect-time",
-                   "Duration after disconnect bevore reconnect",
-                   "sec",
-                   RECONNECT_TIME,
-                   CLI::NonNegativeNumber);
-        reconnectTimeOpt->needs(reconnectOpt);
-
-        add_flag_function(
             retryOpt, //
             "--retry",
             [this](int64_t) -> void {
@@ -183,26 +161,6 @@ namespace net::config {
 
     bool ConfigPhysicalSocket::getReuseAddress() const {
         return reuseAddressOpt->as<bool>();
-    }
-
-    bool ConfigPhysicalSocket::getReconnect() const {
-        return reconnectOpt->as<bool>();
-    }
-
-    void ConfigPhysicalSocket::setReconnect(bool reconnect) {
-        reconnectOpt //
-            ->default_val(reconnect)
-            ->clear();
-    }
-
-    double ConfigPhysicalSocket::getReconnectTime() const {
-        return reconnectTimeOpt->as<double>();
-    }
-
-    void ConfigPhysicalSocket::setReconnectTime(double time) {
-        reconnectTimeOpt //
-            ->default_val(time)
-            ->clear();
     }
 
     void ConfigPhysicalSocket::setRetry(bool retry) {

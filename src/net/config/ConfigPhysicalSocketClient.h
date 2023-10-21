@@ -49,10 +49,19 @@ namespace net::config {
 
         ConfigPhysicalSocketClient& operator=(const ConfigPhysicalSocketClient&) = delete;
 
+        void setReconnect(bool reconnect = true);
+        bool getReconnect() const;
+
+        void setReconnectTime(double time);
+        double getReconnectTime() const;
+
         void setConnectTimeout(const utils::Timeval& connectTimeout);
         utils::Timeval getConnectTimeout() const;
 
     private:
+        CLI::Option* reconnectOpt = nullptr;
+        CLI::Option* reconnectTimeOpt = nullptr;
+
         CLI::Option* connectTimeoutOpt = nullptr;
     };
 

@@ -107,11 +107,11 @@ append_source_file_config(
     \"true\"
 )
 append_source_file_config(
-    config/ConfigPhysicalSocket.cpp RECONNECT "Reconnect after disconnect"
+    config/ConfigPhysicalSocketClient.cpp RECONNECT "Reconnect after disconnect"
     \"false\" \"true\"
 )
 append_source_file_config(
-    config/ConfigPhysicalSocket.cpp RECONNECT_TIME "Reconnect time in seconds"
+    config/ConfigPhysicalSocketClient.cpp RECONNECT_TIME "Reconnect time in seconds"
     1
 )
 append_source_file_config(
