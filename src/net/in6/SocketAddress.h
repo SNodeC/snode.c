@@ -21,9 +21,21 @@
 
 #include "net/SocketAddress.h" // IWYU pragma: export
 
+namespace net::config {
+    template <typename SocketAddressT>
+    class ConfigAddressLocal; // IWYU pragma: keep
+    template <typename SocketAddressT>
+    class ConfigAddressRemote; // IWYU pragma: keep
+} // namespace net::config
+
 namespace net::in6 {
     class SocketAddrInfo;
-}
+
+    namespace config {
+        template <template <typename SocketAddressT> typename SocketAddressTypeT>
+        class ConfigAddress;
+    }
+} // namespace net::in6
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 
@@ -60,6 +72,12 @@ namespace net::in6 {
         SocketAddress& setPort(uint16_t port);
         uint16_t getPort() const;
 
+        std::string getAddress() const override;
+        std::string toString() const override;
+
+        bool useNext() override;
+
+    private:
         SocketAddress& setAiSockType(int aiSocktype);
         int getAiSockType() const;
 
@@ -69,12 +87,6 @@ namespace net::in6 {
         SocketAddress& setAiFlags(int aiFlags);
         int getAiFlags() const;
 
-        std::string getAddress() const override;
-        std::string toString() const override;
-
-        bool useNext() override;
-
-    private:
         std::shared_ptr<SocketAddrInfo> socketAddrInfo;
         int aiFlags = 0;
         int aiSocktype = 0;
@@ -82,6 +94,9 @@ namespace net::in6 {
 
         std::string host = "";
         uint16_t port = 0;
+
+        friend class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
+        friend class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;
     };
 
 } // namespace net::in6

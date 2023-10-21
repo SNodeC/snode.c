@@ -53,9 +53,9 @@ namespace net::in6::stream::config {
         : net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress>(instance) {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setPortRequired();
 
-        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE)
-            .setAiSockType(SOCK_STREAM)
-            .setAiProtocol(IPPROTO_TCP);
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
+        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
 
         net::config::ConfigPhysicalSocket::add_socket_option(reusePortOpt,
                                                              "--reuse-port",

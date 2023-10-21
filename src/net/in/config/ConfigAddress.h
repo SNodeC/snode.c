@@ -63,6 +63,7 @@ namespace net::in::config {
         uint16_t getPort() const;
         ConfigAddress& setPort(uint16_t port);
 
+    protected:
         ConfigAddress& setAiFlags(int aiFlags);
         int getAiFlags() const;
 
@@ -72,7 +73,6 @@ namespace net::in::config {
         ConfigAddress& setAiProtocol(int aiProtocol);
         int getAiProtocol() const;
 
-    protected:
         ConfigAddress& setHostRequired(int required = true);
         ConfigAddress& setPortRequired(int required = true);
 

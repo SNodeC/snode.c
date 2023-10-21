@@ -63,6 +63,7 @@ namespace net::in6::config {
         ConfigAddress& setPort(uint16_t port);
         uint16_t getPort() const;
 
+    protected:
         ConfigAddress& setIpv4Mapped(bool ipv4Mapped = true);
         bool getIpv4Mapped() const;
 
@@ -75,7 +76,6 @@ namespace net::in6::config {
         ConfigAddress& setAiProtocol(int aiProtocol);
         int getAiProtocol() const;
 
-    protected:
         ConfigAddress& setHostRequired(int required = true);
         ConfigAddress& setPortRequired(int required = true);
 

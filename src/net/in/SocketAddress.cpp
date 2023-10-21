@@ -134,6 +134,32 @@ namespace net::in {
         return port;
     }
 
+    std::string SocketAddress::getAddress() const {
+        utils::PreserveErrno preserveErrno;
+
+        char ip[NI_MAXHOST];
+        std::memset(ip, 0, NI_MAXHOST);
+
+        int ret = core::system::getnameinfo(
+            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
+
+        return ret >= 0 ? ip : gai_strerror(ret);
+    }
+
+    std::string SocketAddress::toString() const {
+        return getHost() + ":" + std::to_string(getPort());
+    }
+
+    bool SocketAddress::useNext() {
+        bool useNext = socketAddrInfo->useNext();
+
+        if (useNext) {
+            sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
+        }
+
+        return useNext;
+    }
+
     SocketAddress& SocketAddress::setAiSockType(int aiSocktype) {
         this->aiSocktype = aiSocktype;
 
@@ -162,32 +188,6 @@ namespace net::in {
 
     int SocketAddress::getAiFlags() const {
         return aiFlags;
-    }
-
-    std::string SocketAddress::getAddress() const {
-        utils::PreserveErrno preserveErrno;
-
-        char ip[NI_MAXHOST];
-        std::memset(ip, 0, NI_MAXHOST);
-
-        int ret = core::system::getnameinfo(
-            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
-
-        return ret >= 0 ? ip : gai_strerror(ret);
-    }
-
-    std::string SocketAddress::toString() const {
-        return getHost() + ":" + std::to_string(getPort());
-    }
-
-    bool SocketAddress::useNext() {
-        bool useNext = socketAddrInfo->useNext();
-
-        if (useNext) {
-            sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
-        }
-
-        return useNext;
     }
 
 } // namespace net::in
