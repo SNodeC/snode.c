@@ -38,9 +38,9 @@ namespace iot::mqtt::server::broker {
     }
 
     void Session::sendPublish(Message& message, uint8_t qoS, bool retain) {
-        LOG(DEBUG) << "  TopicName: " << message.getTopic();
-        LOG(DEBUG) << "  Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
-        LOG(DEBUG) << "  QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
+        LOG(DEBUG) << "MQTT Broker:   TopicName: " << message.getTopic();
+        LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+        LOG(DEBUG) << "MQTT Broker:   QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
             mqtt->sendPublish(message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), retain);
@@ -55,11 +55,11 @@ namespace iot::mqtt::server::broker {
     }
 
     void Session::publishQueued() {
-        LOG(DEBUG) << "    send queued messages ...";
+        LOG(DEBUG) << "MQTT Broker:     send queued messages ...";
         for (iot::mqtt::server::broker::Message& message : messageQueue) {
             sendPublish(message, message.getQoS(), false);
         }
-        LOG(DEBUG) << "    ... done";
+        LOG(DEBUG) << "MQTT Broker:     ... done";
 
         messageQueue.clear();
     }

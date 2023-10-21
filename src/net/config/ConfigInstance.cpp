@@ -78,8 +78,8 @@ namespace net::config {
         utils::Config::remove_instance(instanceSc);
     }
 
-    std::string ConfigInstance::getInstanceName() const {
-        return name.empty() ? "<anonymous>" : name;
+    const std::string& ConfigInstance::getInstanceName() const {
+        return name.empty() ? nameAnonymous : name;
     }
 
     CLI::App* ConfigInstance::add_section(const std::string& name, const std::string& description) {

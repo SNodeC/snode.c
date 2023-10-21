@@ -45,21 +45,21 @@ namespace express::middleware {
                     }
                     next();
                 } else {
-                    LOG(INFO) << "express static middleware: Wrong method " << req.method;
+                    LOG(INFO) << "Express StaticMiddleware: Wrong method " << req.method;
                     res.set("Connection", "Close");
                     res.sendStatus(400);
                 }
             },
             [] MIDDLEWARE(req, res, next) {
                 if (req.url == "/") {
-                    LOG(INFO) << "express static middleware: REDIRECTING to" + req.url + " -> " + "/index.html";
+                    LOG(INFO) << "Express StaticMiddleware: REDIRECTING to" + req.url + " -> " + "/index.html";
                     res.redirect(308, "/index.html");
                 } else {
                     next();
                 }
             },
             [&root = this->root] APPLICATION(req, res) {
-                LOG(INFO) << "express static middleware: GET " + req.url + " -> " + root + req.url;
+                LOG(INFO) << "Express StaticMiddleware:: GET " + req.url + " -> " + root + req.url;
                 res.sendFile(root + req.url, [&req, &res](int ret) -> void {
                     if (ret != 0) {
                         PLOG(INFO) << req.url;

@@ -66,11 +66,11 @@ namespace core::socket::stream::tls {
         X509_NAME_oneline(X509_get_subject_name(curr_cert), buf, 256);
 
         if (preverify_ok) {
-            LOG(TRACE) << "SSL/TLS verify ok at depth=" << depth << ": " << buf;
+            LOG(TRACE) << "SSL/TLS: Verify ok at depth=" << depth << ": " << buf;
         } else {
             int err = X509_STORE_CTX_get_error(ctx);
 
-            LOG(TRACE) << "SSL/TLS verify error at depth=" << depth << ": verifyErr=" << err << ", " << X509_verify_cert_error_string(err);
+            LOG(TRACE) << "SSL/TLS: Verify error at depth=" << depth << ": verifyErr=" << err << ", " << X509_verify_cert_error_string(err);
 
             /*
              * At this point, err contains the last verification error. We can use
@@ -80,7 +80,7 @@ namespace core::socket::stream::tls {
             switch (err) {
                 case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
                     X509_NAME_oneline(X509_get_issuer_name(curr_cert), buf, 256);
-                    LOG(TRACE) << "no issuer certificate for issuer= " << buf;
+                    LOG(TRACE) << "SSL/TLS: No issuer certificate for issuer= " << buf;
                     break;
                 default:
                     break;
@@ -146,31 +146,41 @@ namespace core::socket::stream::tls {
                                   sslConfig.caDir + "'");
                     sslErr = true;
                 } else {
-                    LOG(TRACE) << "CA certificate loaded: ca-cert-file '" << sslConfig.caFile;
-                    LOG(TRACE) << "CA certificates load from: ca-cert-dir '" << sslConfig.caDir + "'";
+                    if (!sslConfig.caFile.empty()) {
+                        LOG(TRACE) << "SSL/TLS: CA certificate loaded:";
+                        LOG(TRACE) << "         " << sslConfig.caFile;
+                    } else {
+                        LOG(TRACE) << "SSL/TLS: CA certificate not loaded from a file";
+                    }
+                    if (!sslConfig.caDir.empty()) {
+                        LOG(TRACE) << "SSL/TLS: CA certificates load from:";
+                        LOG(TRACE) << "         " << sslConfig.caDir;
+                    } else {
+                        LOG(TRACE) << "SSL/TLS: Ca certificates not loaded from a directory";
+                    }
                 }
             } else {
-                LOG(TRACE) << "Neither using ca-cert-file nor ca-cert-dir";
+                LOG(TRACE) << "SSL/TLS: Neither using ca-cert-file nor ca-cert-dir";
             }
             if (!sslErr && sslConfig.useDefaultCaDir) {
                 if (SSL_CTX_set_default_verify_paths(ctx) == 0) {
-                    ssl_log_error("CA certificates error load from: Default openssl CA directory");
+                    ssl_log_error("CA certificates error load from default openssl CA directory");
                     sslErr = true;
                 } else {
-                    LOG(TRACE) << "CA certificates enabled load from: Default openssl CA directory";
+                    LOG(TRACE) << "SSL/TLS: CA certificates enabled load from default openssl CA directory";
                 }
             } else {
-                LOG(TRACE) << "CA certificates disabled load from: Default openssl CA directory";
+                LOG(TRACE) << "SSL/TLS: CA certificates not loaded from default openssl CA directory";
             }
             if (!sslErr) {
                 if (sslConfig.useDefaultCaDir || !sslConfig.caFile.empty() || !sslConfig.caDir.empty()) {
                     SSL_CTX_set_verify_depth(ctx, 5);
                     SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
-                    LOG(TRACE) << "CA certificate requested verify";
+                    LOG(TRACE) << "SSL/TLS: CA requested verify";
                 }
                 if (!sslConfig.certChain.empty()) {
                     if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.certChain.c_str()) == 0) {
-                        ssl_log_error("Cert chain error loading '" + sslConfig.certChain);
+                        ssl_log_error("Cert chain error loading " + sslConfig.certChain);
                         sslErr = true;
                     } else if (!sslConfig.certChainKey.empty()) {
                         if (!sslConfig.password.empty()) {
@@ -178,17 +188,19 @@ namespace core::socket::stream::tls {
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(sslConfig.password.c_str()));
                         }
                         if (SSL_CTX_use_PrivateKey_file(ctx, sslConfig.certChainKey.c_str(), SSL_FILETYPE_PEM) == 0) {
-                            ssl_log_error("Cert chain key error loading '" + sslConfig.certChainKey);
+                            ssl_log_error("Cert chain key error loading: " + sslConfig.certChainKey);
                             sslErr = true;
                         } else if (!SSL_CTX_check_private_key(ctx)) {
-                            ssl_log_error("Cert chain key error not consistent with cert chain '" + sslConfig.certChainKey + "'");
+                            ssl_log_error("Cert chain key load error");
                             sslErr = true;
                         } else {
-                            LOG(TRACE) << "Cert chain key loaded '" << sslConfig.certChainKey << "'";
+                            LOG(TRACE) << "SSL/TLS: Cert chain key loaded:";
+                            LOG(TRACE) << "         " << sslConfig.certChainKey;
                         }
                     }
                     if (!sslErr) {
-                        LOG(TRACE) << "Cert chain loaded: '" << sslConfig.certChain << "'";
+                        LOG(TRACE) << "SSL/TLS: Cert chain loaded:";
+                        LOG(TRACE) << "         " << sslConfig.certChain;
                     }
                 }
             }
@@ -200,7 +212,7 @@ namespace core::socket::stream::tls {
                     SSL_CTX_set_cipher_list(ctx, sslConfig.cipherList.c_str());
                 }
 
-                ssl_log_error("SSL CTX created");
+                LOG(TRACE) << "SSL/TLS: SSL CTX created";
             } else {
                 SSL_CTX_free(ctx);
                 ctx = nullptr;
@@ -263,9 +275,9 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void ssl_set_sni(SSL* ssl, const std::shared_ptr<net::config::ConfigTlsClient>& configTls) {
-        if (!configTls->getSni().empty()) {
-            SSL_set_tlsext_host_name(ssl, configTls->getSni().data());
+    void ssl_set_sni(SSL* ssl, const std::string& sni) {
+        if (!sni.empty()) {
+            SSL_set_tlsext_host_name(ssl, sni.data());
         }
     }
 
@@ -394,11 +406,11 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log_error(const std::string& message) {
-        PLOG(TRACE) << message;
+        PLOG(TRACE) << "SSL/TLS: " << message;
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(TRACE) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+            LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
     }
 
@@ -407,7 +419,7 @@ namespace core::socket::stream::tls {
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(TRACE) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+            LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
     }
 
@@ -416,7 +428,7 @@ namespace core::socket::stream::tls {
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(TRACE) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+            LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
     }
 

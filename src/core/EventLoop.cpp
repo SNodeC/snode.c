@@ -127,7 +127,7 @@ namespace core {
         } else {
             EventLoop::instance().eventMultiplexer.clear();
 
-            PLOG(FATAL) << "SNodeC not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().";
+            PLOG(FATAL) << "Core: not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().";
         }
 
         return tickStatus;
@@ -135,7 +135,7 @@ namespace core {
 
     int EventLoop::start(const utils::Timeval& timeOut) {
         if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
-            LOG(TRACE) << "Eventloop: started";
+            LOG(TRACE) << "Core::Eventloop: started";
 
             struct sigaction sact;
             sigemptyset(&sact.sa_mask);
@@ -170,13 +170,13 @@ namespace core {
                 case TickStatus::SUCCESS:
                     [[fallthrough]];
                 case TickStatus::INTERRUPTED:
-                    LOG(TRACE) << "EventLoop interrupted";
+                    LOG(TRACE) << "Core::EventLoop: Interrupted";
                     break;
                 case TickStatus::NOOBSERVER:
-                    LOG(TRACE) << "EventLoop: No Observer";
+                    LOG(TRACE) << "Core::EventLoop: No Observer";
                     break;
                 case TickStatus::TRACE:
-                    PLOG(FATAL) << "EventLoop::instance()._tick()";
+                    PLOG(FATAL) << "Core::EventLoop: _tick()";
                     break;
             }
 
@@ -186,7 +186,7 @@ namespace core {
             sigaction(SIGALRM, &oldAlarmAct, nullptr);
             sigaction(SIGHUP, &oldHupAct, nullptr);
         } else {
-            LOG(FATAL) << "Eventloop not started SNode.C not initialized or bootstraping failed";
+            LOG(FATAL) << "Core::Eventloop not started SNode.C not initialized or bootstraping failed";
 
             EventLoop::instance().eventMultiplexer.clear();
         }
@@ -207,7 +207,7 @@ namespace core {
             signal = std::to_string(stopsig);
         }
 
-        LOG(TRACE) << "Sending 'onExit(" << signal << ")' to all DescriptorEventReceivers";
+        LOG(TRACE) << "Core: Sending 'onExit(" << signal << ")' to all DescriptorEventReceivers";
 
         eventLoopState = State::STOPING;
 
@@ -219,7 +219,7 @@ namespace core {
 
         core::TickStatus tickStatus = TickStatus::SUCCESS;
         do {
-            LOG(TRACE) << "Stopping all DescriptorEventReceivers";
+            LOG(TRACE) << "Core: Stopping all DescriptorEventReceivers";
 
             auto t1 = std::chrono::system_clock::now();
 
@@ -235,15 +235,15 @@ namespace core {
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED));
 
-        LOG(TRACE) << "Closing all libraries opened during runntime";
+        LOG(TRACE) << "Core: Closing all libraries opened during runntime";
 
         DynamicLoader::execDlCloseAll();
 
-        LOG(TRACE) << "Terminating SNode.C";
+        LOG(TRACE) << "Core:: Terminating SNode.C";
 
         utils::Config::terminate();
 
-        LOG(TRACE) << "All resources released ... BYE";
+        LOG(TRACE) << "Core:: All resources released ... BYE";
     }
 
     State EventLoop::state() {
@@ -251,7 +251,7 @@ namespace core {
     }
 
     void EventLoop::stoponsig(int sig) {
-        LOG(INFO) << "Received signal '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
+        LOG(INFO) << "Core: Received signal '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
         stopsig = sig;
         stop();
     }

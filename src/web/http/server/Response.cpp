@@ -241,11 +241,11 @@ namespace web::http::server {
     }
 
     void Response::eof() {
-        LOG(DEBUG) << "Stream EOF";
+        LOG(DEBUG) << "HTTP: Stream EOF";
     }
 
     void Response::error([[maybe_unused]] int errnum) {
-        PLOG(DEBUG) << "Stream error: ";
+        PLOG(DEBUG) << "HTTP: Error";
         requestContext->close();
     }
 

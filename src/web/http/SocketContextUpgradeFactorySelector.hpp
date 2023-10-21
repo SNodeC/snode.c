@@ -74,19 +74,19 @@ namespace web::http {
 
                 if (socketContextUpgradeFactory != nullptr) {
                     if (add(socketContextUpgradeFactory, handle)) {
-                        LOG(DEBUG) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeName;
+                        LOG(DEBUG) << "HTTP: SocketContextUpgradeFactory created successfull: " << socketContextUpgradeName;
                     } else {
-                        LOG(DEBUG) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeName;
+                        LOG(DEBUG) << "HTTP: UpgradeSocketContext already existing. Not using: " << socketContextUpgradeName;
                         delete socketContextUpgradeFactory;
                         socketContextUpgradeFactory = nullptr;
                         core::DynamicLoader::dlClose(handle);
                     }
                 } else {
-                    LOG(DEBUG) << "SocketContextUpgradeFactory not created: " << socketContextUpgradeName;
+                    LOG(DEBUG) << "HTTP: SocketContextUpgradeFactory not created: " << socketContextUpgradeName;
                     core::DynamicLoader::dlClose(handle);
                 }
             } else {
-                LOG(DEBUG) << "Optaining function \"" << socketContextUpgradeFactoryFunctionName
+                LOG(DEBUG) << "HTTP: Optaining function \"" << socketContextUpgradeFactoryFunctionName
                            << "\" in plugin failed: " << core::DynamicLoader::dlError();
                 core::DynamicLoader::dlClose(handle);
             }

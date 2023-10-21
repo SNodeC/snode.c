@@ -163,7 +163,9 @@ namespace core::socket::stream {
                         if (client.getConfig().getReconnect() && !socketConnection->getExitProcessed()) {
                             double relativeReconnectTimeout = client.getConfig().getReconnectTime();
 
-                            LOG(INFO) << "Reconnecting in " << relativeReconnectTimeout << " seconds";
+                            LOG(INFO) << "OnStatus: " << client.getConfig().getInstanceName();
+                            LOG(INFO) << "  "
+                                      << "  reconnecting in " << relativeReconnectTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
                                 [client, onStatus]() mutable -> void {
@@ -192,7 +194,9 @@ namespace core::socket::stream {
                                                                                       client.getConfig().getRetryJitter()) *
                                                             relativeRetryTimeout / 100.;
 
-                                    LOG(INFO) << "Retrying in " << relativeRetryTimeout << " seconds";
+                                    LOG(INFO) << "OnStatus: " << client.getConfig().getInstanceName();
+                                    LOG(INFO) << "  "
+                                              << " retrying in " << relativeRetryTimeout << " seconds";
 
                                     core::timer::Timer::singleshotTimer(
                                         [client, onStatus, tries, retryTimeoutScale]() mutable -> void {

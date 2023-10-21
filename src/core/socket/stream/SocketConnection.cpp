@@ -37,7 +37,7 @@ namespace core::socket::stream {
         newSocketContext = socketContextFactory->create(this);
 
         if (newSocketContext == nullptr) {
-            LOG(TRACE) << "Socket context switch unsuccessull: socket context not created";
+            LOG(TRACE) << "SocketConnection: Socket context switch unsuccessull: socket context not created";
         }
 
         return newSocketContext;
@@ -48,7 +48,7 @@ namespace core::socket::stream {
         socketContext = socketContextFactory->create(this);
 
         if (socketContext == nullptr) {
-            LOG(TRACE) << "Set socket context unsuccessull: new socket context not created";
+            LOG(TRACE) << "SocketConnection: Set socket context unsuccessull: new socket context not created";
         }
 
         return socketContext;

@@ -86,7 +86,7 @@ namespace web::websocket {
             } else {
                 parserState = ParserState::ERROR;
                 errorState = 1002;
-                LOG(DEBUG) << "Error opcode in continuation frame";
+                LOG(DEBUG) << "WebSocket: Error opcode in continuation frame";
             }
             continuation = !fin;
         }

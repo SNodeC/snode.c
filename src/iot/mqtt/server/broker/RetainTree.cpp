@@ -84,10 +84,10 @@ namespace iot::mqtt::server::broker {
     bool RetainTree::TopicLevel::retain(const Message& message, std::string topic, bool appeared) {
         if (appeared) {
             if (!message.getTopic().empty()) {
-                LOG(DEBUG) << "Retaining:";
-                LOG(DEBUG) << "  Topic: " << message.getTopic();
-                LOG(DEBUG) << "  Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
-                LOG(DEBUG) << "    QoS: " << message.getQoS();
+                LOG(DEBUG) << "MQTT Broker: Retaining:";
+                LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();
+                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+                LOG(DEBUG) << "MQTT Broker:     QoS: " << message.getQoS();
                 this->message = message;
             }
         } else {
@@ -113,15 +113,15 @@ namespace iot::mqtt::server::broker {
     void RetainTree::TopicLevel::appear(const std::string& clientId, std::string topic, uint8_t qoS, bool appeared) {
         if (appeared) {
             if (!message.getTopic().empty()) {
-                LOG(DEBUG) << "Retained Topic found:";
-                LOG(DEBUG) << "  Topic: " << message.getTopic();
-                LOG(DEBUG) << "  Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
-                LOG(DEBUG) << "    QoS: " << static_cast<uint16_t>(message.getQoS());
-                LOG(DEBUG) << "  Client:";
-                LOG(DEBUG) << "    QoS: " << static_cast<uint16_t>(qoS);
-                LOG(DEBUG) << "  distributing message ...";
+                LOG(DEBUG) << "MQTT Broker: Retained Topic found:";
+                LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();
+                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+                LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
+                LOG(DEBUG) << "MQTT Broker:   Client:";
+                LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(qoS);
+                LOG(DEBUG) << "MQTT Broker:   distributing message ...";
                 broker->sendPublish(clientId, message, std::min(message.getQoS(), qoS), true);
-                LOG(DEBUG) << "  ... completed!";
+                LOG(DEBUG) << "MQTT Broker:   ... completed!";
             }
         } else {
             std::string::size_type slashPosition = topic.find('/');
@@ -146,15 +146,15 @@ namespace iot::mqtt::server::broker {
 
     void RetainTree::TopicLevel::appear(const std::string& clientId, uint8_t clientQoS) {
         if (!message.getTopic().empty()) {
-            LOG(DEBUG) << "Retained Topic found:";
-            LOG(DEBUG) << "  Topic: " << message.getTopic();
-            LOG(DEBUG) << "  Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
-            LOG(DEBUG) << "    QoS: " << static_cast<uint16_t>(message.getQoS());
-            LOG(DEBUG) << "  Client:";
-            LOG(DEBUG) << "    QoS: " << static_cast<uint16_t>(clientQoS);
-            LOG(DEBUG) << "  distributing message ...";
+            LOG(DEBUG) << "MQTT Broker: Retained Topic found:";
+            LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();
+            LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+            LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
+            LOG(DEBUG) << "MQTT Broker:   Client:";
+            LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(clientQoS);
+            LOG(DEBUG) << "MQTT Broker:   distributing message ...";
             broker->sendPublish(clientId, message, std::min(message.getQoS(), clientQoS), true);
-            LOG(DEBUG) << "  ... completed!";
+            LOG(DEBUG) << "MQTT Broker:   ... completed!";
         }
 
         for (auto& [topicLevel, topicTree] : subTopicLevels) {

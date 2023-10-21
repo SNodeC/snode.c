@@ -47,16 +47,16 @@ namespace core::socket::stream::tls {
                 case SSL_ERROR_WANT_WRITE: {
                     utils::PreserveErrno preserveErrno;
 
-                    LOG(TRACE) << "SSL/TLS start renegotiation on read";
+                    LOG(TRACE) << "SSL/TLS: Start renegotiation on read";
                     doSSLHandshake(
                         []() -> void {
-                            LOG(TRACE) << "SSL/TLS renegotiation on read success";
+                            LOG(TRACE) << "SSL/TLS: Renegotiation on read success";
                         },
                         []() -> void {
-                            LOG(TRACE) << "SSL/TLS renegotiation on read timed out";
+                            LOG(TRACE) << "SSL/TLS: Renegotiation on read timed out";
                         },
                         [](int ssl_err) -> void {
-                            ssl_log("SSL/TLS renegotiation", ssl_err);
+                            ssl_log("SSL/TLS: Renegotiation", ssl_err);
                         });
                 }
                     ret = -1;
@@ -77,7 +77,7 @@ namespace core::socket::stream::tls {
                     ret = -1;
                     break;
                 default:
-                    ssl_log("SSL/TLS error read failed", ssl_err);
+                    ssl_log("SSL/TLS: Error read failed", ssl_err);
                     errno = EIO;
                     ret = -1;
                     break;

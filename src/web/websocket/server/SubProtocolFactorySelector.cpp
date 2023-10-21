@@ -53,7 +53,7 @@ namespace web::websocket::server {
 
 #if !defined(NDEBUG)
         if (const char* websocketSubprotocolInstallLibdirEnv = std::getenv("WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR")) {
-            LOG(WARNING) << "Overriding websocket subprotocol library dir";
+            LOG(WARNING) << "WebSocket: Overriding websocket subprotocol library dir";
             websocketSubprotocolInstallLibdir = std::string(websocketSubprotocolInstallLibdirEnv);
         }
 #endif

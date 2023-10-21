@@ -92,17 +92,17 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onConnected() {
-        LOG(INFO) << "WSMQTT connected:";
+        LOG(INFO) << "WSMQTT: connected:";
         iot::mqtt::MqttContext::onConnected();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
         if (opCode == web::websocket::SubProtocolContext::OpCode::TEXT) {
-            LOG(DEBUG) << "WebSocket: Wrong Opcode: " << opCode;
+            LOG(DEBUG) << "WSMQTT: Wrong Opcode: " << opCode;
             this->end(true);
         } else {
-            LOG(TRACE) << "WebSocket: Message START: " << opCode;
+            LOG(TRACE) << "WSMQTT: Message START: " << opCode;
         }
     }
 
@@ -112,24 +112,23 @@ namespace iot::mqtt {
 
         std::stringstream ss;
 
-        ss << "WebSocket: Frame data: ";
         unsigned long i = 0;
         for (char ch : std::string(junk, junkLen)) {
             if (i != 0 && i % 8 == 0 && i != data.size()) {
                 ss << std::endl;
-                ss << "                                                                ";
+                ss << "                                                    ";
             }
             ++i;
-            ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
-               << " "; // << " | ";
+            ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch)) << " ";
         }
 
-        LOG(TRACE) << ss.str();
+        LOG(TRACE) << "WebSocket: Frame Data:\n"
+                   << "                                                    " << ss.str();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageEnd() {
-        LOG(TRACE) << "WebSocket: Message END";
+        LOG(TRACE) << "WSMQTT: Message END";
 
         buffer.insert(buffer.end(), data.begin(), data.end());
         size += data.size();
@@ -142,19 +141,18 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) {
-        LOG(DEBUG) << "WebSocket: Message error: " << errnum;
+        LOG(DEBUG) << "WSMQTT: Message error: " << errnum;
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onDisconnected() {
-        LOG(INFO) << "WSMQTT disconnected:";
+        LOG(INFO) << "WSMQTT: disconnected:";
         iot::mqtt::MqttContext::onDisconnected();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onExit(int sig) {
-        LOG(INFO) << "WebSocket: SubProtocol 'mqtt' exit doe to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig)
-                  << " = " << sig << ")";
+        LOG(INFO) << "WSMQTT: exit doe to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
 
         iot::mqtt::MqttContext::onExit(sig);
         this->sendClose();

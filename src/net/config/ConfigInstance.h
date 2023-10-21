@@ -45,7 +45,7 @@ namespace net::config {
 
         virtual ~ConfigInstance();
 
-        std::string getInstanceName() const;
+        const std::string &getInstanceName() const;
 
         bool getDisabled() const;
         void setDisabled(bool disabled = true);
@@ -60,6 +60,7 @@ namespace net::config {
         uint8_t requiredCount = 0;
 
         const std::string name;
+        const std::string nameAnonymous = "<anonymous>";
 
         CLI::App* instanceSc = nullptr;
         CLI::Option* disableOpt = nullptr;

@@ -57,7 +57,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::initAcceptEvent() {
         if (!config->getDisabled()) {
-            LOG(TRACE) << config->getInstanceName() << ": listening";
+            LOG(TRACE) << config->getInstanceName() << ": starting";
 
             core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
 

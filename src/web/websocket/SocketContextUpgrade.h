@@ -129,7 +129,7 @@ namespace web::websocket {
 
         void sendClose(const char* message, std::size_t messageLength) override {
             if (!closeSent) {
-                LOG(DEBUG) << "Sending close to peer";
+                LOG(DEBUG) << "WebSocket: Sending close to peer";
 
                 sendMessage(8, message, messageLength);
                 shutdownWrite();
@@ -188,9 +188,9 @@ namespace web::websocket {
                 case SubProtocolContext::OpCode::CLOSE:
                     if (closeSent) { // active close
                         closeSent = false;
-                        LOG(DEBUG) << "Close confirmed from peer";
+                        LOG(DEBUG) << "WebSocket: Close confirmed from peer";
                     } else { // passive close
-                        LOG(DEBUG) << "Close request received - replying with close";
+                        LOG(DEBUG) << "WebSocket: Close request received - replying with close";
                         sendClose(pongCloseData.data(), pongCloseData.length());
                         pongCloseData.clear();
                     }
@@ -219,13 +219,13 @@ namespace web::websocket {
 
         /* Callbacks (API) socketConnection -> WSProtocol */
         void onConnected() override {
-            LOG(INFO) << "Websocket connected";
+            LOG(INFO) << "WebSocket: connected";
             subProtocol->onConnected();
         }
 
         void onDisconnected() override {
             subProtocol->onDisconnected();
-            LOG(INFO) << "Websocket disconnected";
+            LOG(INFO) << "WebSocket: disconnected";
         }
 
         void onExit(int sig) override {
@@ -292,7 +292,7 @@ namespace web::websocket {
                              << static_cast<unsigned int>(static_cast<unsigned char>(frame[i])) << " ";
 
                 if ((i + 1) % modul == 0 || i == frameLength) {
-                    LOG(TRACE) << "Frame: " << stringStream.str();
+                    LOG(TRACE) << "WebSocket: Frame = " << stringStream.str();
                     stringStream.str("");
                 }
             }

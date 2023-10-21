@@ -83,12 +83,12 @@ namespace iot::mqtt {
                     fixedHeader.reset();
 
                     if (controlPacketDeserializer == nullptr) {
-                        LOG(DEBUG) << "Received packet-type is unavailable ... closing connection";
+                        LOG(DEBUG) << "MQTT: Received packet-type is unavailable ... closing connection";
 
                         mqttContext->end(true);
                         break;
                     } else if (controlPacketDeserializer->isError()) {
-                        LOG(DEBUG) << "Fixed header has error ... closing connection";
+                        LOG(DEBUG) << "MQTT: Fixed header has error ... closing connection";
 
                         delete controlPacketDeserializer;
                         controlPacketDeserializer = nullptr;
@@ -104,7 +104,7 @@ namespace iot::mqtt {
                 consumed += controlPacketDeserializer->deserialize(mqttContext);
 
                 if (controlPacketDeserializer->isError()) {
-                    LOG(DEBUG) << "Control packet has error ... closing connection";
+                    LOG(DEBUG) << "MQTT: Control packet has error ... closing connection";
                     mqttContext->end(true);
 
                     delete controlPacketDeserializer;
@@ -132,7 +132,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::onExit(int sig) {
-        LOG(INFO) << "MQTT exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
+        LOG(INFO) << "MQTT: Exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
     }
 
     core::socket::stream::SocketConnection* Mqtt::getSocketConnection() {
@@ -143,13 +143,13 @@ namespace iot::mqtt {
         this->session = session;
 
         for (auto& [packetIdentifier, publish] : session->publishMap) {
-            LOG(DEBUG) << "PUBLISH Resend";
+            LOG(DEBUG) << "MQTT: PUBLISH Resend";
 
             send(publish);
         }
 
         for (uint16_t packetIdentifier : session->pubrelPacketIdentifierSet) {
-            LOG(DEBUG) << "PUBREL Resend";
+            LOG(DEBUG) << "MQTT: PUBREL Resend";
 
             send(iot::mqtt::packets::Pubrel(packetIdentifier));
         }
@@ -157,7 +157,7 @@ namespace iot::mqtt {
         if (keepAlive > 0) {
             keepAliveTimer = core::timer::Timer::singleshotTimer(
                 [this, keepAlive]() -> void {
-                    LOG(DEBUG) << "Keep-alive timer expired. Interval was: " << keepAlive;
+                    LOG(DEBUG) << "MQTT: Keep-alive timer expired. Interval was: " << keepAlive;
                     mqttContext->close();
                 },
                 keepAlive);
@@ -167,14 +167,13 @@ namespace iot::mqtt {
     }
 
     void Mqtt::send(const ControlPacket& controlPacket) const {
-        LOG(DEBUG) << "======================================================";
-        LOG(INFO) << controlPacket.getName() << " send: " << clientId;
+        LOG(INFO) << "MQTT: " << controlPacket.getName() << " send: " << clientId;
 
         send(controlPacket.serialize());
     }
 
     void Mqtt::send(const std::vector<char>& data) const {
-        LOG(TRACE) << "Send data:\n" << dataToHexString(data);
+        LOG(TRACE) << "MQTT: Send data:\n" << dataToHexString(data);
 
         mqttContext->send(data.data(), data.size());
     }
@@ -225,19 +224,19 @@ namespace iot::mqtt {
     bool Mqtt::_onPublish(const packets::Publish& publish) {
         bool deliver = true;
 
-        LOG(DEBUG) << "  Topic: " << publish.getTopic();
-        LOG(DEBUG) << "  Message:\n" << stringToHexString(publish.getMessage());
-        LOG(DEBUG) << "  QoS: " << static_cast<uint16_t>(publish.getQoS());
-        LOG(DEBUG) << "  PacketIdentifier: " << publish.getPacketIdentifier();
-        LOG(DEBUG) << "  DUP: " << publish.getDup();
-        LOG(DEBUG) << "  Retain: " << publish.getRetain();
+        LOG(DEBUG) << "MQTT:   Topic: " << publish.getTopic();
+        LOG(DEBUG) << "MQTT:   Message:\n" << stringToHexString(publish.getMessage());
+        LOG(DEBUG) << "MQTT:   QoS: " << static_cast<uint16_t>(publish.getQoS());
+        LOG(DEBUG) << "MQTT:   PacketIdentifier: " << publish.getPacketIdentifier();
+        LOG(DEBUG) << "MQTT:   DUP: " << publish.getDup();
+        LOG(DEBUG) << "MQTT:   Retain: " << publish.getRetain();
 
         if (publish.getQoS() > 2) {
-            LOG(DEBUG) << "  Received invalid QoS: " << publish.getQoS();
+            LOG(DEBUG) << "MQTT:   Received invalid QoS: " << publish.getQoS();
             mqttContext->end(true);
             deliver = false;
         } else if (publish.getPacketIdentifier() == 0 && publish.getQoS() > 0) {
-            LOG(DEBUG) << "  Received QoS > 0 but no PackageIdentifier present";
+            LOG(DEBUG) << "MQTT:   Received QoS > 0 but no PackageIdentifier present";
             mqttContext->end(true);
             deliver = false;
         } else {
@@ -264,10 +263,10 @@ namespace iot::mqtt {
 
     void Mqtt::_onPuback(const iot::mqtt::packets::Puback& puback) {
         if (puback.getPacketIdentifier() == 0) {
-            LOG(DEBUG) << "  PackageIdentifier missing";
+            LOG(DEBUG) << "MQTT:   PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            LOG(DEBUG) << "  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << puback.getPacketIdentifier();
+            LOG(DEBUG) << "MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << puback.getPacketIdentifier();
         }
 
         onPuback(puback);
@@ -275,10 +274,10 @@ namespace iot::mqtt {
 
     void Mqtt::_onPubrec(const iot::mqtt::packets::Pubrec& pubrec) {
         if (pubrec.getPacketIdentifier() == 0) {
-            LOG(DEBUG) << "  PackageIdentifier missing";
+            LOG(DEBUG) << "MQTT:   PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            LOG(DEBUG) << "  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrec.getPacketIdentifier();
+            LOG(DEBUG) << "MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrec.getPacketIdentifier();
 
             session->publishMap.erase(pubrec.getPacketIdentifier());
             session->pubrelPacketIdentifierSet.insert(pubrec.getPacketIdentifier());
@@ -291,10 +290,10 @@ namespace iot::mqtt {
 
     void Mqtt::_onPubrel(const iot::mqtt::packets::Pubrel& pubrel) {
         if (pubrel.getPacketIdentifier() == 0) {
-            LOG(DEBUG) << "  PackageIdentifier missing";
+            LOG(DEBUG) << "MQTT:   PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            LOG(DEBUG) << "  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrel.getPacketIdentifier();
+            LOG(DEBUG) << "MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrel.getPacketIdentifier();
 
             session->publishPacketIdentifierSet.erase(pubrel.getPacketIdentifier());
 
@@ -306,10 +305,10 @@ namespace iot::mqtt {
 
     void Mqtt::_onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) {
         if (pubcomp.getPacketIdentifier() == 0) {
-            LOG(DEBUG) << "  PackageIdentifier missing";
+            LOG(DEBUG) << "MQTT:   PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            LOG(DEBUG) << "  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubcomp.getPacketIdentifier();
+            LOG(DEBUG) << "MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubcomp.getPacketIdentifier();
 
             session->publishMap.erase(pubcomp.getPacketIdentifier());
             session->pubrelPacketIdentifierSet.erase(pubcomp.getPacketIdentifier());
@@ -319,21 +318,21 @@ namespace iot::mqtt {
     }
 
     void Mqtt::printVP(const iot::mqtt::ControlPacket& packet) {
-        LOG(TRACE) << "Received data (variable header and payload):\n" << dataToHexString(packet.serializeVP());
+        LOG(TRACE) << "MQTT: Received data (variable header and payload):\n" << dataToHexString(packet.serializeVP());
 
-        LOG(INFO) << packet.getName() << " received: " << clientId;
+        LOG(INFO) << "MQTT: " << packet.getName() << " received: " << clientId;
     }
 
     void Mqtt::printFixedHeader(const FixedHeader& fixedHeader) {
-        LOG(DEBUG) << "======================================================";
+        LOG(DEBUG) << "MQTT: ======================================================";
 
-        LOG(TRACE) << "Received data (fixed header):\n" << dataToHexString(fixedHeader.serialize());
+        LOG(TRACE) << "MQTT: Received data (fixed header):\n" << dataToHexString(fixedHeader.serialize());
 
-        LOG(DEBUG) << "Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
+        LOG(DEBUG) << "MQTT: Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
                    << static_cast<uint16_t>(fixedHeader.getType()) << " (" << iot::mqtt::mqttPackageName[fixedHeader.getType()] << ")";
-        LOG(DEBUG) << "              PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
+        LOG(DEBUG) << "MQTT:   PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
                    << static_cast<uint16_t>(fixedHeader.getFlags()) << std::dec;
-        LOG(DEBUG) << "              RemainingLength: " << fixedHeader.getRemainingLength();
+        LOG(DEBUG) << "MQTT:   RemainingLength: " << fixedHeader.getRemainingLength();
     }
 
     std::string Mqtt::dataToHexString(const std::vector<char>& data) {

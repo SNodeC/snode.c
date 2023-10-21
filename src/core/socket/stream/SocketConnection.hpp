@@ -112,7 +112,7 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
         SocketWriter::shutdown([forceClose, this](int errnum) -> void {
             if (errnum != 0) {
-                PLOG(TRACE) << "SocketWriter::doWriteShutdown";
+                PLOG(TRACE) << "SocketConnection: SocketWriter::doWriteShutdown";
             }
             if (forceClose) {
                 close();
@@ -163,7 +163,7 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             ret = SocketReader::readFromPeer(junk, junkLen);
         } else {
-            LOG(TRACE) << "ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
+            LOG(TRACE) << "SocketConnection: ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
         }
 
         return ret;
@@ -178,7 +178,7 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             SocketWriter::sendToPeer(junk, junkLen);
         } else {
-            LOG(TRACE) << "SendToPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
+            LOG(TRACE) << "SocketConnection: SendToPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
         }
     }
 

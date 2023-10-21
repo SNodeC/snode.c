@@ -103,10 +103,10 @@ namespace iot::mqtt::server::broker {
 
     void SubscribtionTree::TopicLevel::publish(Message& message, std::string topic, bool leafFound) {
         if (leafFound) {
-            LOG(DEBUG) << "Found match:";
-            LOG(DEBUG) << "  Topic: '" << message.getTopic() << "';";
-            LOG(DEBUG) << "  Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
-            LOG(DEBUG) << "Distribute Publish for match ...";
+            LOG(DEBUG) << "MQTT Broker: Found match:";
+            LOG(DEBUG) << "MQTT Broker:   Topic: '" << message.getTopic() << "';";
+            LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+            LOG(DEBUG) << "MQTT Broker: Distribute Publish for match ...";
 
             for (auto& [clientId, clientQoS] : clientIds) {
                 broker->sendPublish(clientId, message, clientQoS, false);
@@ -116,16 +116,16 @@ namespace iot::mqtt::server::broker {
 
             auto nextHashLevel = topicLevels.find("#");
             if (nextHashLevel != topicLevels.end()) {
-                LOG(DEBUG) << "Found parent match:";
-                LOG(DEBUG) << "  Topic: '" << message.getTopic() << "'";
-                LOG(DEBUG) << "  Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
-                LOG(DEBUG) << "Distribute Publish for match ...";
+                LOG(DEBUG) << "MQTT Broker: Found parent match:";
+                LOG(DEBUG) << "MQTT Broker:   Topic: '" << message.getTopic() << "'";
+                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+                LOG(DEBUG) << "MQTT Broker: Distribute Publish for match ...";
 
                 for (auto& [clientId, clientQoS] : nextHashLevel->second.clientIds) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
 
-                LOG(DEBUG) << "... completed!";
+                LOG(DEBUG) << "MQTT Broker: ... completed!";
             }
         } else {
             std::string::size_type slashPosition = topic.find('/');
@@ -147,16 +147,16 @@ namespace iot::mqtt::server::broker {
 
             foundNode = topicLevels.find("#");
             if (foundNode != topicLevels.end()) {
-                LOG(DEBUG) << "Found match:";
-                LOG(DEBUG) << "  Topic: '" << message.getTopic() << "';";
-                LOG(DEBUG) << "  Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
-                LOG(DEBUG) << "Distribute Publish for match ...";
+                LOG(DEBUG) << "MQTT: Found match:";
+                LOG(DEBUG) << "MQTT Broker:   Topic: '" << message.getTopic() << "';";
+                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+                LOG(DEBUG) << "MQTT Broker: Distribute Publish for match ...";
 
                 for (auto& [clientId, clientQoS] : foundNode->second.clientIds) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
 
-                LOG(DEBUG) << "... completed!";
+                LOG(DEBUG) << "MQTT Broker: ... completed!";
             }
         }
     }

@@ -171,17 +171,17 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocket>
     void SocketConnection<PhysicalSocket>::doSSLShutdown() {
         if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-            LOG(TRACE) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
+            LOG(TRACE) << "SSL/TLS: SSL_Shutdown COMPLETED: Close_notify sent and received";
             if (SocketWriter::isEnabled()) {
                 SocketWriter::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
                     if (errno != 0) {
-                        PLOG(TRACE) << "SocketWriter::doWriteShutdown";
+                        PLOG(TRACE) << "SSL/TLS: SocketWriter::doWriteShutdown";
                     }
                     SocketWriter::disable();
                 });
             }
         } else {
-            LOG(TRACE) << "SSL_Shutdown WAITING: Close_notify received but not send";
+            LOG(TRACE) << "SSL/TLS: SSL_Shutdown WAITING: Close_notify received but not send";
         }
     }
 
@@ -191,17 +191,17 @@ namespace core::socket::stream::tls {
             doSSLShutdown(
                 [this, &onShutdown]() -> void { // thus send one
                     if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-                        LOG(TRACE) << "SSL_Shutdown COMPLETED: Close_notify sent and received";
+                        LOG(TRACE) << "SSL/TLS: SSL_Shutdown COMPLETED: Close_notify sent and received";
                         SocketWriter::doWriteShutdown(onShutdown);
                     } else {
-                        LOG(TRACE) << "SSL_Shutdown WAITING: Close_notify sent but not received";
+                        LOG(TRACE) << "SSL/TLS: SSL_Shutdown WAITING: Close_notify sent but not received";
                     }
                 },
                 [this]() -> void {
-                    LOG(TRACE) << "SSL_shutdown: Handshake timed out";
+                    LOG(TRACE) << "SSL/TLS: SSL_shutdown: Handshake timed out";
                     SocketWriter::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
                         if (errno != 0) {
-                            PLOG(TRACE) << "SocketWriter::doWriteShutdown";
+                            PLOG(TRACE) << "SSL/TLS: SocketWriter::doWriteShutdown";
                         }
                         SocketConnection::close();
                     });
@@ -210,7 +210,7 @@ namespace core::socket::stream::tls {
                     ssl_log("SSL_shutdown: Handshake failed", sslErr);
                     SocketWriter::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
                         if (errno != 0) {
-                            PLOG(TRACE) << "SocketWriter::doWriteShutdown";
+                            PLOG(TRACE) << "SSL/TLS: SocketWriter::doWriteShutdown";
                         }
                         SocketConnection::close();
                     });

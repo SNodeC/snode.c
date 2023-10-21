@@ -122,8 +122,8 @@ namespace iot::mqtt::server {
 
     void Mqtt::initSession(const utils::Timeval& keepAlive) {
         if (broker->hasActiveSession(clientId)) {
-            LOG(DEBUG) << "Existing session found for ClientId = " << clientId;
-            LOG(DEBUG) << "  closing";
+            LOG(DEBUG) << "MQTT Broker: Existing session found for ClientId = " << clientId;
+            LOG(DEBUG) << "MQTT Broker:   closing";
 
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
 
@@ -133,21 +133,21 @@ namespace iot::mqtt::server {
         } else if (broker->hasRetainedSession(clientId)) {
             sendConnack(MQTT_CONNACK_ACCEPT, cleanSession ? MQTT_SESSION_NEW : MQTT_SESSION_PRESENT);
 
-            LOG(DEBUG) << "Retained session found for ClientId = " << clientId;
+            LOG(DEBUG) << "MQTT Broker: Retained session found for ClientId = " << clientId;
             if (cleanSession) {
-                LOG(DEBUG) << "  clean SessionId = " << this;
+                LOG(DEBUG) << "MQTT Broker:   Clean SessionId = " << this;
                 broker->unsubscribe(clientId);
                 initSession(broker->newSession(clientId, this), keepAlive);
             } else {
-                LOG(DEBUG) << "  renew SessionId = " << this;
+                LOG(DEBUG) << "MQTT Broker:   Renew SessionId = " << this;
                 initSession(broker->renewSession(clientId, this), keepAlive);
                 broker->restartSession(clientId);
             }
         } else {
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
 
-            LOG(DEBUG) << "No session found for ClientId = " << clientId;
-            LOG(DEBUG) << "  new SessionId = " << this;
+            LOG(DEBUG) << "MQTT Broker: No session found for ClientId = " << clientId;
+            LOG(DEBUG) << "MQTT Broker:   new SessionId = " << this;
 
             initSession(broker->newSession(clientId, this), keepAlive);
         }
@@ -156,12 +156,12 @@ namespace iot::mqtt::server {
     void Mqtt::releaseSession() {
         if (broker->isActiveSession(clientId, this)) {
             if (cleanSession) {
-                LOG(DEBUG) << "Delete session for ClientId = " << clientId;
-                LOG(DEBUG) << "  SessionId = " << this;
+                LOG(DEBUG) << "MQTT Broker: Delete session for ClientId = " << clientId;
+                LOG(DEBUG) << "MQTT Broker:   SessionId = " << this;
                 broker->deleteSession(clientId);
             } else {
-                LOG(DEBUG) << "Retain session for ClientId = " << clientId;
-                LOG(DEBUG) << "  SessionId = " << this;
+                LOG(DEBUG) << "MQTT Broker: Retain session for ClientId = " << clientId;
+                LOG(DEBUG) << "MQTT Broker:   SessionId = " << this;
                 broker->retainSession(clientId);
             }
         }
@@ -183,37 +183,37 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::_onConnect(const iot::mqtt::server::packets::Connect& connect) {
-        LOG(DEBUG) << "  Protocol: " << connect.getProtocol();
-        LOG(DEBUG) << "  Version: " << static_cast<uint16_t>(connect.getLevel());
-        LOG(DEBUG) << "  ConnectFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
+        LOG(DEBUG) << "MQTT Broker:   Protocol: " << connect.getProtocol();
+        LOG(DEBUG) << "MQTT Broker:   Version: " << static_cast<uint16_t>(connect.getLevel());
+        LOG(DEBUG) << "MQTT Broker:   ConnectFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
                    << static_cast<uint16_t>(connect.getConnectFlags()) << std::dec << std::setw(0);
-        LOG(DEBUG) << "  KeepAlive: " << connect.getKeepAlive();
-        LOG(DEBUG) << "  ClientID: " << connect.getClientId();
-        LOG(DEBUG) << "  CleanSession: " << connect.getCleanSession();
+        LOG(DEBUG) << "MQTT Broker:   KeepAlive: " << connect.getKeepAlive();
+        LOG(DEBUG) << "MQTT Broker:   ClientID: " << connect.getClientId();
+        LOG(DEBUG) << "MQTT Broker:   CleanSession: " << connect.getCleanSession();
 
         if (connect.getWillFlag()) {
-            LOG(DEBUG) << "  WillTopic: " << connect.getWillTopic();
-            LOG(DEBUG) << "  WillMessage: " << connect.getWillMessage();
-            LOG(DEBUG) << "  WillQoS: " << static_cast<uint16_t>(connect.getWillQoS());
-            LOG(DEBUG) << "  WillRetain: " << connect.getWillRetain();
+            LOG(DEBUG) << "MQTT Broker:   WillTopic: " << connect.getWillTopic();
+            LOG(DEBUG) << "MQTT Broker:   WillMessage: " << connect.getWillMessage();
+            LOG(DEBUG) << "MQTT Broker:   WillQoS: " << static_cast<uint16_t>(connect.getWillQoS());
+            LOG(DEBUG) << "MQTT Broker:   WillRetain: " << connect.getWillRetain();
         }
         if (connect.getUsernameFlag()) {
-            LOG(DEBUG) << "  Username: " << connect.getUsername();
+            LOG(DEBUG) << "MQTT Broker:   Username: " << connect.getUsername();
         }
         if (connect.getPasswordFlag()) {
-            LOG(DEBUG) << "  Password: " << connect.getPassword();
+            LOG(DEBUG) << "MQTT Broker:   Password: " << connect.getPassword();
         }
 
         if (connect.getProtocol() != "MQTT") {
-            LOG(DEBUG) << "  Wrong Protocol: " << connect.getProtocol();
+            LOG(DEBUG) << "MQTT Broker:   Wrong Protocol: " << connect.getProtocol();
             mqttContext->end(true);
         } else if (connect.getLevel() != MQTT_VERSION_3_1_1) {
-            LOG(DEBUG) << "  Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
+            LOG(DEBUG) << "MQTT Broker:   Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
             mqttContext->end(true);
         } else if (connect.isFakedClientId() && !connect.getCleanSession()) {
-            LOG(DEBUG) << "  Resume session but no ClientId present";
+            LOG(DEBUG) << "MQTT Broker:   Resume session but no ClientId present";
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
 
             mqttContext->end(true);
@@ -255,13 +255,14 @@ namespace iot::mqtt::server {
 
     void Mqtt::_onSubscribe(const iot::mqtt::server::packets::Subscribe& subscribe) {
         if (subscribe.getPacketIdentifier() == 0) {
-            LOG(DEBUG) << "  PackageIdentifier missing";
+            LOG(DEBUG) << "MQTT Broker:   PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            LOG(DEBUG) << "  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << subscribe.getPacketIdentifier();
+            LOG(DEBUG) << "MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
+                       << subscribe.getPacketIdentifier();
 
             for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                LOG(DEBUG) << "  Topic filter: '" << topic.getName() << "', QoS: " << static_cast<uint16_t>(topic.getQoS());
+                LOG(DEBUG) << "MQTT Broker:   Topic filter: '" << topic.getName() << "', QoS: " << static_cast<uint16_t>(topic.getQoS());
             }
 
             std::list<uint8_t> returnCodes;
@@ -278,13 +279,14 @@ namespace iot::mqtt::server {
 
     void Mqtt::_onUnsubscribe(const iot::mqtt::server::packets::Unsubscribe& unsubscribe) {
         if (unsubscribe.getPacketIdentifier() == 0) {
-            LOG(DEBUG) << "  PackageIdentifier missing";
+            LOG(DEBUG) << "MQTT Broker:   PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            LOG(DEBUG) << "  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << unsubscribe.getPacketIdentifier();
+            LOG(DEBUG) << "MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
+                       << unsubscribe.getPacketIdentifier();
 
             for (const std::string& topic : unsubscribe.getTopics()) {
-                LOG(DEBUG) << "  Topic: " << topic;
+                LOG(DEBUG) << "MQTT Broker:   Topic: " << topic;
             }
 
             for (const std::string& topic : unsubscribe.getTopics()) {

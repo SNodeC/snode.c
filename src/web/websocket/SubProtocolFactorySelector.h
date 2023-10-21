@@ -64,13 +64,13 @@ namespace web::websocket {
                     subProtocolFactory = getSubProtocolFactory();
                     if (subProtocolFactory != nullptr) {
                         subProtocolFactory->setHandle(handle);
-                        LOG(DEBUG) << "SubProtocolFactory created successfull: " << subProtocolName;
+                        LOG(DEBUG) << "WebSocket: SubProtocolFactory created successfull: " << subProtocolName;
                     } else {
-                        LOG(DEBUG) << "SubProtocolFactory not created: " << subProtocolName;
+                        LOG(DEBUG) << "WebSocket: SubProtocolFactory not created: " << subProtocolName;
                         core::DynamicLoader::dlClose(handle);
                     }
                 } else {
-                    LOG(DEBUG) << "Optaining function \"" << subProtocolFactoryFunctionName
+                    LOG(DEBUG) << "WebSocket: Optaining function \"" << subProtocolFactoryFunctionName
                                << "\" in plugin failed: " << core::DynamicLoader::dlError();
                     core::DynamicLoader::dlClose(handle);
                 }

@@ -95,7 +95,7 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onConnected() {
-        LOG(INFO) << "HTTP connected";
+        LOG(INFO) << "HTTP: connected";
 
         request.setHost(getSocketConnection()->getRemoteAddress().toString());
 
@@ -104,7 +104,7 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
-        LOG(INFO) << "HTTP disconnected";
+        LOG(INFO) << "HTTP: disconnected";
     }
 
 } // namespace web::http::client

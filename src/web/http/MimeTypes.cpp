@@ -225,7 +225,7 @@ namespace web::http {
         MimeTypes::magic = magic_open(MAGIC_MIME);
 
         if (magic_load(magic, nullptr) != 0) {
-            LOG(DEBUG) << "cannot load magic database - " + std::string(magic_error(magic));
+            LOG(DEBUG) << "HTTP: Cannot load magic database - " + std::string(magic_error(magic));
             magic_close(magic);
             magic = nullptr;
         }
