@@ -57,11 +57,11 @@ namespace net::in::config {
     public:
         ConfigAddress& setSocketAddress(const SocketAddress& socketAddress) final;
 
-        std::string getHost() const;
         ConfigAddress& setHost(const std::string& ipOrHostname);
+        std::string getHost() const;
 
-        uint16_t getPort() const;
         ConfigAddress& setPort(uint16_t port);
+        uint16_t getPort() const;
 
     protected:
         ConfigAddress& setAiFlags(int aiFlags);
@@ -87,11 +87,10 @@ namespace net::in::config {
 
 } // namespace net::in::config
 
-extern template class net::in::config::ConfigAddress<net::config::ConfigAddressLocal>;
-extern template class net::in::config::ConfigAddress<net::config::ConfigAddressRemote>;
-
 extern template class net::config::ConfigAddress<net::in::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::in::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::in::SocketAddress>;
+extern template class net::in::config::ConfigAddress<net::config::ConfigAddressLocal>;
+extern template class net::in::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
 #endif // NET_IN_CONFIG_CONFIGADDRESS_H

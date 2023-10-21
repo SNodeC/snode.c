@@ -80,7 +80,8 @@ namespace net::in6::config {
         utils::PreserveErrno preserveErrno;
 
         hostOpt //
-            ->default_val(ipOrHostname);
+            ->default_val(ipOrHostname)
+            ->clear();
         Super::required(hostOpt, false);
 
         return *this;
@@ -96,7 +97,8 @@ namespace net::in6::config {
         utils::PreserveErrno preserveErrno;
 
         portOpt //
-            ->default_val(port);
+            ->default_val(port)
+            ->clear();
         Super::required(portOpt, false);
 
         return *this;
@@ -108,18 +110,19 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    bool ConfigAddress<ConfigAddressType>::getIpv4Mapped() const {
-        return ipv4MappedOpt->as<bool>();
-    }
-
-    template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setIpv4Mapped(bool ipv4Mapped) {
         utils::PreserveErrno preserveErrno;
 
         ipv4MappedOpt //
-            ->default_val(ipv4Mapped);
+            ->default_val(ipv4Mapped)
+            ->clear();
 
         return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    bool ConfigAddress<ConfigAddressType>::getIpv4Mapped() const {
+        return ipv4MappedOpt->as<bool>();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -174,9 +177,8 @@ namespace net::in6::config {
 
 } // namespace net::in6::config
 
-template class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
-template class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;
-
 template class net::config::ConfigAddress<net::in6::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::in6::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::in6::SocketAddress>;
+template class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
+template class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;

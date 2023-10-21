@@ -66,7 +66,8 @@ namespace net::rc::config {
         utils::PreserveErrno preserveErrno;
 
         btAddressOpt //
-            ->default_val(btAddress);
+            ->default_val(btAddress)
+            ->clear();
         Super::required(btAddressOpt, false);
 
         return *this;
@@ -82,7 +83,8 @@ namespace net::rc::config {
         utils::PreserveErrno preserveErrno;
 
         channelOpt //
-            ->default_val<int>(channel);
+            ->default_val<int>(channel)
+            ->clear();
         Super::required(channelOpt, false);
 
         return *this;
@@ -109,9 +111,8 @@ namespace net::rc::config {
 
 } // namespace net::rc::config
 
-template class net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>;
-template class net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>;
-
 template class net::config::ConfigAddress<net::rc::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::rc::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::rc::SocketAddress>;
+template class net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>;
+template class net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>;

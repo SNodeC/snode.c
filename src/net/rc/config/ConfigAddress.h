@@ -73,11 +73,10 @@ namespace net::rc::config {
 
 } // namespace net::rc::config
 
-extern template class net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>;
-extern template class net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>;
-
 extern template class net::config::ConfigAddress<net::rc::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::rc::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::rc::SocketAddress>;
+extern template class net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>;
+extern template class net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>;
 
 #endif // NET_RC_CONFIG_CONFIGADDRESS_H

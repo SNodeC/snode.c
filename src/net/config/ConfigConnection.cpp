@@ -38,24 +38,28 @@ namespace net::config {
                    "timeout",
                    READ_TIMEOUT,
                    CLI::PositiveNumber);
+
         add_option(writeTimeoutOpt, //
                    "--write-timeout",
                    "Write timeout in seconds",
                    "timeout",
                    WRITE_TIMEOUT,
                    CLI::PositiveNumber);
+
         add_option(readBlockSizeOpt, //
                    "--read-block-size",
                    "Read block size",
                    "size",
                    READ_BLOCKSIZE,
                    CLI::PositiveNumber);
+
         add_option(writeBlockSizeOpt, //
                    "--write-block-size",
                    "Write block size",
                    "size",
                    WRITE_BLOCKSIZE,
                    CLI::PositiveNumber);
+
         add_option(terminateTimeoutOpt, //
                    "--terminate-timeout",
                    "Terminate timeout",

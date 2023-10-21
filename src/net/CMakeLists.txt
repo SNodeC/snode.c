@@ -107,14 +107,6 @@ append_source_file_config(
     \"true\"
 )
 append_source_file_config(
-    config/ConfigPhysicalSocketClient.cpp RECONNECT "Reconnect after disconnect"
-    \"false\" \"true\"
-)
-append_source_file_config(
-    config/ConfigPhysicalSocketClient.cpp RECONNECT_TIME "Reconnect time in seconds"
-    1
-)
-append_source_file_config(
     config/ConfigPhysicalSocket.cpp RETRY "Retry listen and connect" \"false\"
     \"true\"
 )
@@ -140,6 +132,15 @@ append_source_file_config(
 append_source_file_config(
     config/ConfigPhysicalSocketServer.cpp ACCEPT_TIMEOUT
     "Accept inactivity timeout in seconds" 0
+)
+
+append_source_file_config(
+    config/ConfigPhysicalSocketClient.cpp RECONNECT "Reconnect after disconnect"
+    \"false\" \"true\"
+)
+append_source_file_config(
+    config/ConfigPhysicalSocketClient.cpp RECONNECT_TIME "Reconnect time in seconds"
+    1
 )
 append_source_file_config(
     config/ConfigPhysicalSocketClient.cpp CONNECT_TIMEOUT

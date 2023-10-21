@@ -31,14 +31,14 @@ namespace net::config {
         sniOpt = add_option(sniOpt, "--sni", "Server Name Indication", "sni", "", CLI::TypeValidator<std::string>());
     }
 
-    std::string ConfigTlsClient::getSni() const {
-        return sniOpt->as<std::string>();
-    }
-
     void ConfigTlsClient::setSni(const std::string& sni) {
         sniOpt //
             ->default_val(sni)
             ->clear();
+    }
+
+    std::string ConfigTlsClient::getSni() const {
+        return sniOpt->as<std::string>();
     }
 
 } // namespace net::config

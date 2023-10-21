@@ -36,43 +36,60 @@ namespace net::config {
                    "Certificate chain file",
                    "filename",
                    "");
+
         add_option(certKeyOpt, //
                    "--cert-key",
                    "Certificate key file",
                    "filename",
                    "");
+
         add_option(certKeyPasswordOpt,
                    "--cert-key-password",
                    "Password for the certificate key file",
                    "password",
                    "",
                    CLI::TypeValidator<std::string>());
-        add_option(caCertFileOpt, "--ca-cert-file", "CA-certificate file", "filename", "");
-        add_option(caCertDirOpt, "--ca-cert-dir", "CA-certificate directory", "directory", "");
+
+        add_option(caCertFileOpt, //
+                   "--ca-cert-file",
+                   "CA-certificate file",
+                   "filename",
+                   "");
+
+        add_option(caCertDirOpt, //
+                   "--ca-cert-dir",
+                   "CA-certificate directory",
+                   "directory",
+                   "");
+
         add_flag(useDefaultCaCertDirOpt,
                  "--ca-use-default-cert-dir",
                  "Use default CA-certificate directory",
                  "bool",
                  "false",
                  CLI::IsMember({"true", "false"}));
+
         add_option(cipherListOpt, //
                    "--cipher-list",
                    "Cipher list (openssl syntax)",
                    "cipher_list",
                    "",
                    CLI::TypeValidator<std::string>("CHIPHER"));
+
         add_option(tlsOptionsOpt, //
                    "--tls-options",
                    "OR combined SSL/TLS options (openssl values)",
                    "options",
                    0,
                    CLI::TypeValidator<ssl_option_t>());
+
         add_option(initTimeoutOpt, //
                    "--init-timeout",
                    "SSL/TLS initialization timeout in seconds",
                    "timeout",
                    TLS_INIT_TIMEOUT,
                    CLI::PositiveNumber);
+
         add_option(shutdownTimeoutOpt, //
                    "--shutdown-timeout",
                    "SSL/TLS shutdown timeout in seconds",
@@ -81,26 +98,24 @@ namespace net::config {
                    CLI::PositiveNumber);
     }
 
+    void ConfigTls::setCertChain(const std::string& newCertChain) {
+        certChainOpt //
+            ->default_str(newCertChain)
+            ->clear();
+    }
+
     std::string ConfigTls::getCertChain() const {
         return certChainOpt->as<std::string>();
     }
 
-    void ConfigTls::setCertChain(const std::string& newCertChain) {
-        certChainOpt //
-            ->default_str(newCertChain);
+    void ConfigTls::setCertKey(const std::string& newCertKey) {
+        certKeyOpt //
+            ->default_str(newCertKey)
+            ->clear();
     }
 
     std::string ConfigTls::getCertKey() const {
         return certKeyOpt->as<std::string>();
-    }
-
-    void ConfigTls::setCertKey(const std::string& newCertKey) {
-        certKeyOpt //
-            ->default_str(newCertKey);
-    }
-
-    std::string ConfigTls::getCertKeyPassword() const {
-        return certKeyPasswordOpt->as<std::string>();
     }
 
     void ConfigTls::setCertKeyPassword(const std::string& newCertKeyPassword) {
@@ -109,8 +124,8 @@ namespace net::config {
             ->clear();
     }
 
-    std::string ConfigTls::getCaCertFile() const {
-        return caCertFileOpt->as<std::string>();
+    std::string ConfigTls::getCertKeyPassword() const {
+        return certKeyPasswordOpt->as<std::string>();
     }
 
     void ConfigTls::setCaCertFile(const std::string& newCaCertFile) {
@@ -119,8 +134,8 @@ namespace net::config {
             ->clear();
     }
 
-    std::string ConfigTls::getCaCertDir() const {
-        return caCertDirOpt->as<std::string>();
+    std::string ConfigTls::getCaCertFile() const {
+        return caCertFileOpt->as<std::string>();
     }
 
     void ConfigTls::setCaCertDir(const std::string& newCaCertDir) {
@@ -129,8 +144,8 @@ namespace net::config {
             ->clear();
     }
 
-    bool ConfigTls::getUseDefaultCaCertDir() const {
-        return useDefaultCaCertDirOpt->as<bool>();
+    std::string ConfigTls::getCaCertDir() const {
+        return caCertDirOpt->as<std::string>();
     }
 
     void ConfigTls::setUseDefaultCaCertDir(bool set) {
@@ -139,8 +154,8 @@ namespace net::config {
             ->clear();
     }
 
-    std::string ConfigTls::getCipherList() const {
-        return cipherListOpt->as<std::string>();
+    bool ConfigTls::getUseDefaultCaCertDir() const {
+        return useDefaultCaCertDirOpt->as<bool>();
     }
 
     void ConfigTls::setCipherList(const std::string& newCipherList) {
@@ -149,8 +164,8 @@ namespace net::config {
             ->clear();
     }
 
-    ssl_option_t ConfigTls::getSslTlsOptions() const {
-        return tlsOptionsOpt->as<ssl_option_t>();
+    std::string ConfigTls::getCipherList() const {
+        return cipherListOpt->as<std::string>();
     }
 
     void ConfigTls::setSslTlsOptions(ssl_option_t newSslTlsOptions) {
@@ -159,8 +174,8 @@ namespace net::config {
             ->clear();
     }
 
-    utils::Timeval ConfigTls::getInitTimeout() const {
-        return initTimeoutOpt->as<utils::Timeval>();
+    ssl_option_t ConfigTls::getSslTlsOptions() const {
+        return tlsOptionsOpt->as<ssl_option_t>();
     }
 
     void ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeout) {
@@ -169,15 +184,19 @@ namespace net::config {
             ->clear();
     }
 
-    utils::Timeval ConfigTls::getShutdownTimeout() const {
-        return shutdownTimeoutOpt //
-            ->as<utils::Timeval>();
+    utils::Timeval ConfigTls::getInitTimeout() const {
+        return initTimeoutOpt->as<utils::Timeval>();
     }
 
     void ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeout) {
         shutdownTimeoutOpt //
             ->default_val(newShutdownTimeout)
             ->clear();
+    }
+
+    utils::Timeval ConfigTls::getShutdownTimeout() const {
+        return shutdownTimeoutOpt //
+            ->as<utils::Timeval>();
     }
 
 } // namespace net::config

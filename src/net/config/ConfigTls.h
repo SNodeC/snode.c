@@ -45,35 +45,35 @@ namespace net::config {
     public:
         explicit ConfigTls(ConfigInstance* instance);
 
-        utils::Timeval getInitTimeout() const;
         void setInitTimeout(const utils::Timeval& newInitTimeout);
+        utils::Timeval getInitTimeout() const;
 
-        utils::Timeval getShutdownTimeout() const;
         void setShutdownTimeout(const utils::Timeval& newShutdownTimeout);
+        utils::Timeval getShutdownTimeout() const;
 
-        std::string getCertChain() const;
         void setCertChain(const std::string& newCertChain);
+        std::string getCertChain() const;
 
-        std::string getCertKey() const;
         void setCertKey(const std::string& newCertKey);
+        std::string getCertKey() const;
 
-        std::string getCertKeyPassword() const;
         void setCertKeyPassword(const std::string& newCertKeyPassword);
+        std::string getCertKeyPassword() const;
 
-        std::string getCaCertFile() const;
         void setCaCertFile(const std::string& newCaCertFile);
+        std::string getCaCertFile() const;
 
-        std::string getCaCertDir() const;
         void setCaCertDir(const std::string& newCaCertDir);
+        std::string getCaCertDir() const;
 
-        bool getUseDefaultCaCertDir() const;
         void setUseDefaultCaCertDir(bool set = true);
+        bool getUseDefaultCaCertDir() const;
 
-        std::string getCipherList() const;
         void setCipherList(const std::string& newCipherList);
+        std::string getCipherList() const;
 
-        ssl_option_t getSslTlsOptions() const;
         void setSslTlsOptions(ssl_option_t newSslTlsOptions);
+        ssl_option_t getSslTlsOptions() const;
 
     private:
         CLI::Option* certChainOpt = nullptr;

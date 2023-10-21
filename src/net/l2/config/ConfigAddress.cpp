@@ -65,7 +65,8 @@ namespace net::l2::config {
         utils::PreserveErrno preserveErrno;
 
         btAddressOpt //
-            ->default_val(btAddress);
+            ->default_val(btAddress)
+            ->clear();
         Super::required(btAddressOpt, false);
 
         return *this;
@@ -81,7 +82,8 @@ namespace net::l2::config {
         utils::PreserveErrno preserveErrno;
 
         psmOpt //
-            ->default_val(psm);
+            ->default_val(psm)
+            ->clear();
         Super::required(psmOpt, false);
 
         return *this;
@@ -108,9 +110,8 @@ namespace net::l2::config {
 
 } // namespace net::l2::config
 
-template class net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>;
-template class net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>;
-
 template class net::config::ConfigAddress<net::l2::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::l2::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::l2::SocketAddress>;
+template class net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>;
+template class net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>;

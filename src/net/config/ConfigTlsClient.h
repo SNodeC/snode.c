@@ -41,8 +41,8 @@ namespace net::config {
     public:
         explicit ConfigTlsClient(ConfigInstance* instance);
 
-        std::string getSni() const;
         void setSni(const std::string& sni);
+        std::string getSni() const;
 
     private:
         CLI::Option* sniOpt = nullptr;

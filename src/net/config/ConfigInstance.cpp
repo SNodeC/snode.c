@@ -149,7 +149,6 @@ namespace net::config {
     void ConfigInstance::setDisabled(bool disabled) {
         disableOpt //
             ->default_val(disabled ? "true" : "false")
-            ->take_all()
             ->clear();
     }
 

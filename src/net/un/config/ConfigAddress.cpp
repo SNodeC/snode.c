@@ -62,7 +62,8 @@ namespace net::un::config {
         utils::PreserveErrno preserveErrno;
 
         sunPathOpt //
-            ->default_val(sunPath);
+            ->default_val(sunPath)
+            ->clear();
         Super::required(sunPathOpt, false);
 
         return *this;
@@ -82,9 +83,8 @@ namespace net::un::config {
 
 } // namespace net::un::config
 
-template class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
-template class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
-
 template class net::config::ConfigAddress<net::un::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::un::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::un::SocketAddress>;
+template class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
+template class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
