@@ -61,7 +61,7 @@ namespace web::http::client {
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
 
-        void upgrade(const std::string& url, const std::string& protocol);
+        void upgrade(const std::string& url, const std::string& protocols);
 
         void sendHeader();
 

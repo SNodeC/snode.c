@@ -20,7 +20,6 @@
 
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/client/Response.h" // IWYU pragma: keep
-#include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,6 +28,10 @@
 
 #include <cstdlib>
 #endif
+
+#include "web/http/http_utils.h"
+
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -59,8 +62,23 @@ namespace web::http::client {
         return &socketContextUpgradeFactorySelector;
     }
 
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = select(upgradeContextName);
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& protocols, Request& req) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
+        std::string upgradeContextNames = protocols;
+
+        while (!upgradeContextNames.empty() && socketContextUpgradeFactory == nullptr) {
+            std::string upgradeContextName;
+            std::string upgradeContextVersion;
+
+            std::tie(upgradeContextName, upgradeContextNames) = httputils::str_split(upgradeContextNames, ',');
+            std::tie(upgradeContextName, upgradeContextVersion) = httputils::str_split(upgradeContextName, '/');
+
+            httputils::str_trimm(upgradeContextName);
+            httputils::to_lower(upgradeContextName);
+
+            socketContextUpgradeFactory = select(upgradeContextName);
+        }
 
         if (socketContextUpgradeFactory != nullptr) {
             socketContextUpgradeFactory->prepare(req); // Fill in the missing header fields into the request object

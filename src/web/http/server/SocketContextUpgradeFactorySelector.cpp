@@ -19,7 +19,6 @@
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
-#include "web/http/http_utils.h"
 #include "web/http/server/Request.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,6 +28,7 @@
 
 #include <cstdlib>
 #endif
+#include "web/http/http_utils.h"
 
 #include <string>
 #include <tuple>
@@ -67,20 +67,21 @@ namespace web::http::server {
 
         std::string upgradeContextNames = req.get("upgrade");
 
-        if (!upgradeContextNames.empty()) {
+        while (!upgradeContextNames.empty() && socketContextUpgradeFactory == nullptr) {
             std::string upgradeContextName;
-            std::string upgradeContextPriority;
+            std::string upgradeContextVersion;
 
             std::tie(upgradeContextName, upgradeContextNames) = httputils::str_split(upgradeContextNames, ',');
-            std::tie(upgradeContextName, upgradeContextPriority) = httputils::str_split(upgradeContextName, '/');
+            std::tie(upgradeContextName, upgradeContextVersion) = httputils::str_split(upgradeContextName, '/');
 
+            httputils::str_trimm(upgradeContextName);
             httputils::to_lower(upgradeContextName);
 
             socketContextUpgradeFactory = select(upgradeContextName);
+        }
 
-            if (socketContextUpgradeFactory != nullptr) {
-                socketContextUpgradeFactory->prepare(req, res);
-            }
+        if (socketContextUpgradeFactory != nullptr) {
+            socketContextUpgradeFactory->prepare(req, res);
         }
 
         return socketContextUpgradeFactory;
