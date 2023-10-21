@@ -319,7 +319,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::printVP(const iot::mqtt::ControlPacket& packet) {
-        LOG(TRACE) << "Received data (full):\n" << dataToHexString(packet.serialize());
+        LOG(TRACE) << "Received data (variable header and payload):\n" << dataToHexString(packet.serializeVP());
 
         LOG(INFO) << packet.getName() << " received: " << clientId;
     }
@@ -330,7 +330,7 @@ namespace iot::mqtt {
         LOG(TRACE) << "Received data (fixed header):\n" << dataToHexString(fixedHeader.serialize());
 
         LOG(DEBUG) << "Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
-                   << static_cast<uint16_t>(fixedHeader.getType());
+                   << static_cast<uint16_t>(fixedHeader.getType()) << " (" << iot::mqtt::mqttPackageName[fixedHeader.getType()] << ")";
         LOG(DEBUG) << "              PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
                    << static_cast<uint16_t>(fixedHeader.getFlags()) << std::dec;
         LOG(DEBUG) << "              RemainingLength: " << fixedHeader.getRemainingLength();
@@ -341,15 +341,19 @@ namespace iot::mqtt {
 
         ss << "                                               ";
 
-        unsigned long i = 0;
-        for (char ch : data) {
-            if (i != 0 && i % 8 == 0 && i != data.size()) {
-                ss << std::endl;
-                ss << "                                               ";
+        if (!data.empty()) {
+            unsigned long i = 0;
+            for (char ch : data) {
+                if (i != 0 && i % 8 == 0 && i != data.size()) {
+                    ss << std::endl;
+                    ss << "                                               ";
+                }
+                ++i;
+                ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
+                   << " "; // << " | ";
             }
-            ++i;
-            ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
-               << " "; // << " | ";
+        } else {
+            ss << "<EMPTY>";
         }
 
         return ss.str();

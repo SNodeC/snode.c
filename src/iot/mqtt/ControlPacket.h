@@ -27,6 +27,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
+#define MQTT_RESERVED_00 0x00
 #define MQTT_CONNECT 0x01
 #define MQTT_CONNACK 0x02
 #define MQTT_PUBLISH 0x03
@@ -41,7 +42,9 @@
 #define MQTT_PINGREQ 0x0C
 #define MQTT_PINGRESP 0x0D
 #define MQTT_DISCONNECT 0x0E
+#define MQTT_RESERVED_0F 0x0F
 
+// no flags for MQTT_RESERVED_00
 #define MQTT_CONNECT_FLAGS 0x00
 #define MQTT_CONNACK_FLAGS 0x00
 // no flags for MQTT_PUBLISH_FLAGS
@@ -56,8 +59,11 @@
 #define MQTT_PINGREQ_FLAGS 0x00
 #define MQTT_PINGRESP_FLAGS 0x00
 #define MQTT_DISCONNECT_FLAGS 0x00
+// no flags for MQTT_RESERVED_0F
 
 namespace iot::mqtt {
+
+    extern std::vector<std::string> mqttPackageName;
 
     class ControlPacket {
     public:
@@ -68,10 +74,8 @@ namespace iot::mqtt {
 
         ControlPacket& operator=(const ControlPacket&) = default;
 
-    private:
-        virtual std::vector<char> serializeVP() const = 0;
-
     public:
+        virtual std::vector<char> serializeVP() const = 0;
         std::vector<char> serialize() const;
 
         const std::string& getName() const;

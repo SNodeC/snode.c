@@ -26,6 +26,24 @@
 
 namespace iot::mqtt {
 
+    std::vector<std::string> mqttPackageName = { //
+        "Reserved",
+        "CONNECT",
+        "CONNACK",
+        "PUBLISH",
+        "PUBACK",
+        "PUBREC",
+        "PUBREL",
+        "PUBCOMP",
+        "SUBSCRIBE",
+        "SUBACK",
+        "UNSUBSCRIBE",
+        "UNSUBACK",
+        "PINGREQ",
+        "PINGRESP",
+        "DISCONNECT",
+        "Reserved"};
+
     ControlPacket::ControlPacket(uint8_t type, const std::string& name)
         : name(name)
         , type(type) {
