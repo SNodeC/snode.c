@@ -21,20 +21,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-
 #include <openssl/opensslv.h> // IWYU pragma: export
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/types.h> // IWYU pragma: export
+using ssl_option_t = uint64_t;
 #elif OPENSSL_VERSION_NUMBER >= 0x10100000L
 #include <openssl/ossl_typ.h> // IWYU pragma: export
-#endif
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-using ssl_option_t = uint64_t;
-#else
 using ssl_option_t = uint32_t;
 #endif
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // CORE_SOCKET_STREAM_TLS_SSL_VERSION_H
