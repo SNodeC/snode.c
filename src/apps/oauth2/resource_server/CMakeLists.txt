@@ -23,7 +23,7 @@ add_executable(resource_server ResourceServer.cpp)
 
 target_link_libraries(
     resource_server PRIVATE http-server-express http-client
-                            net-in-stream-legacy snodec::db-mariadb
+                            net-in-stream-legacy db-mariadb
 )
 
 if(SNODEC_INTREE_BUILD)

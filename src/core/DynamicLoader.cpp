@@ -23,7 +23,6 @@
 #include "log/Logger.h"
 
 #include <algorithm>
-#include <ios>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

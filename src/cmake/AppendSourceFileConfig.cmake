@@ -16,14 +16,14 @@
 
 function(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT_VALUE)
     if ("${${CONFIG_OPTION}}" STREQUAL "")
-        set(VALUE ${DEFAULT_VALUE})
+        set(VALUE "${DEFAULT_VALUE}")
     elseif("${ARGN}" STREQUAL "")
-        set(VALUE ${${CONFIG_OPTION}})
+        set(VALUE "${${CONFIG_OPTION}}")
     else()
-        set(VALUE ${ARGN})
+        set(VALUE "${ARGN}")
     endif()
     set(SNODEC_${CONFIG_OPTION}
-        ${VALUE}
+        "${VALUE}"
         CACHE STRING "${DESCRIPTION}"
     )
     message(STATUS "Adding compile definition '" ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}} "' for '${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}'")

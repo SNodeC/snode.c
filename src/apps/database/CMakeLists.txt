@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.18)
 if(LIBMARIADB_FOUND)
 
     add_executable(testmariadb testmariadb.cpp)
-    target_link_libraries(testmariadb PRIVATE snodec::db-mariadb)
+    target_link_libraries(testmariadb PRIVATE db-mariadb)
     target_include_directories(
         testmariadb
         PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${MARIADB_INCLUDE_DIRS}

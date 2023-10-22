@@ -94,7 +94,7 @@ if(LIBMARIADB_FOUND)
     add_executable(testregex testregex.cpp)
     target_link_libraries(
         testregex PRIVATE http-server-express net-in-stream-legacy
-                          net-in-stream-tls snodec::db-mariadb
+                          net-in-stream-tls db-mariadb
     )
     set_target_properties(
         testregex PROPERTIES INSTALL_RPATH
