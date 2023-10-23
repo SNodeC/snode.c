@@ -47,6 +47,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define XSTR(s) STR(s)
+#define STR(s) #s
+
 namespace net::in6::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
@@ -63,7 +66,7 @@ namespace net::in6::stream::config {
                                                              SO_REUSEPORT,
                                                              "Reuse socket address",
                                                              "bool",
-                                                             REUSE_PORT,
+                                                             XSTR(REUSE_PORT),
                                                              CLI::IsMember({"true", "false"}));
 
         net::config::ConfigPhysicalSocket::add_socket_option(iPv6OnlyOpt,
@@ -72,7 +75,7 @@ namespace net::in6::stream::config {
                                                              IPV6_V6ONLY,
                                                              "Turn of IPv6 dual stack mode",
                                                              "bool",
-                                                             IPV6_ONLY,
+                                                             XSTR(IPV6_ONLY),
                                                              CLI::IsMember({"true", "false"}));
     }
 

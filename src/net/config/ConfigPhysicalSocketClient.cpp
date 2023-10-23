@@ -48,6 +48,9 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
+#define XSTR(s) STR(s)
+#define STR(s) #s
+
 namespace net::config {
 
     ConfigPhysicalSocketClient::ConfigPhysicalSocketClient(ConfigInstance* instance)
@@ -63,7 +66,7 @@ namespace net::config {
             },
             "Automatically retry listen|connect",
             "bool",
-            RECONNECT,
+            XSTR(RECONNECT),
             CLI::IsMember({"true", "false"}));
 
         Super::add_option(reconnectTimeOpt, //

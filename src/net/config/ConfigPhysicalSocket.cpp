@@ -31,6 +31,9 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
+#define XSTR(s) STR(s)
+#define STR(s) #s
+
 namespace net::config {
 
     ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
@@ -41,7 +44,7 @@ namespace net::config {
                           SO_REUSEADDR,
                           "Reuse socket address",
                           "bool",
-                          REUSE_ADDRESS,
+                          XSTR(REUSE_ADDRESS),
                           CLI::IsMember({"true", "false"}));
         add_flag_function(
             retryOpt, //
@@ -57,7 +60,7 @@ namespace net::config {
             },
             "Automatically retry listen|connect",
             "bool",
-            RETRY,
+            XSTR(RETRY),
             CLI::IsMember({"true", "false"}));
 
         add_option(retryTimeoutOpt, //

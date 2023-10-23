@@ -25,11 +25,11 @@ set(NET-IN6-STREAM_H SocketClient.h SocketServer.h config/ConfigSocketClient.h
 )
 
 append_source_file_config(
-    config/ConfigSocketServer.cpp REUSE_PORT "Reuse port (IPv4/IPv6)" \"false\"
-    \"true\"
+    config/ConfigSocketServer.cpp REUSE_PORT "Reuse port (IPv4/IPv6)" false
+    true
 )
 append_source_file_config(
-    config/ConfigSocketServer.cpp IPV6_ONLY "IPv6 only" \"false\" \"true\"
+    config/ConfigSocketServer.cpp IPV6_ONLY "IPv6 only" false true
 )
 
 add_library(net-in6-stream SHARED ${NET-IN6-STREAM_CPP} ${NET-IN6-STREAM_H})

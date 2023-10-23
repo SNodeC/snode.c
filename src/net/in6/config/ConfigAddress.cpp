@@ -33,6 +33,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define XSTR(s) STR(s)
+#define STR(s) #s
+
 namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -54,7 +57,7 @@ namespace net::in6::config {
                         "--ipv4-mapped",
                         "Resolve IPv4-mapped IPv6 addresses also",
                         "bool",
-                        IPV4_MAPPED,
+                        XSTR(IPV4_MAPPED),
                         CLI::IsMember({"true", "false"}));
     }
 

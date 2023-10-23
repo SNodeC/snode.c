@@ -47,6 +47,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define XSTR(s) STR(s)
+#define STR(s) #s
+
 namespace net::in::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
@@ -62,7 +65,7 @@ namespace net::in::stream::config {
                                                              SO_REUSEPORT,
                                                              "Reuse port number",
                                                              "bool",
-                                                             REUSE_PORT,
+                                                             XSTR(REUSE_PORT),
                                                              CLI::IsMember({"true", "false"}));
     }
 

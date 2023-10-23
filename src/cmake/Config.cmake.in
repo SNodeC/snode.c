@@ -82,7 +82,10 @@ set(_supported_components
 
 foreach(_comp ${snodec_FIND_COMPONENTS})
     if(NOT _comp IN_LIST _supported_components)
-        message(WARNING Direct request for component ${_comp} not in list of supported components)
+        message(
+            WARNING
+                "Direct request for component ${_comp} not in list of supported components"
+        )
         set(snodec_NOT_FOUND)
     else()
         load_component_with_dependencies(${_comp} "" "  ")
