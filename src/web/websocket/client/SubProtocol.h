@@ -21,7 +21,7 @@
 
 #include "web/websocket/SubProtocol.h"
 
-namespace web::websocket ::client {
+namespace web::websocket::client {
     class SocketContextUpgrade;
 } // namespace web::websocket::client
 
