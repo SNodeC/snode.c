@@ -22,10 +22,12 @@ function(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT
     else()
         set(VALUE "${ARGN}")
     endif()
+
     set(SNODEC_${CONFIG_OPTION}
         "${VALUE}"
         CACHE STRING "${DESCRIPTION}"
     )
+
     message(STATUS "Adding compile definition '" ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}} "' for '${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}'")
     set_property(
       SOURCE ${SOURCE_FILE}
