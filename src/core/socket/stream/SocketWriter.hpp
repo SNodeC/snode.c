@@ -99,7 +99,7 @@ namespace core::socket::stream {
     void SocketWriter<PhysicalSocket>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
         errno = 0;
 
-        LOG(TRACE) << "SocketWriter: Core::socket::stream: Do syscall shutdonw(WR)";
+        LOG(TRACE) << "SocketWriter: Do syscall shutdonw (WR)";
 
         PhysicalSocket::shutdown(PhysicalSocket::SHUT::WR);
 

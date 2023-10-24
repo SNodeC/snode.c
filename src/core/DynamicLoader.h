@@ -59,8 +59,7 @@ namespace core {
     private:
         static int dlClose(Library& library);
 
-        static int execDlClose(void* handle);
-        static int execDlClose(Library& library);
+        static int realExecDlClose(Library& library);
         static void execDlCloseDeleyed();
         static void execDlCloseAll();
 

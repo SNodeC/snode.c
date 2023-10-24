@@ -38,10 +38,11 @@ namespace core {
                 dlOpenedLibraries[handle].handle = handle;
             }
             dlOpenedLibraries[handle].refCount++;
-            LOG(TRACE) << "DynLoader: dlOpen file:";
-            LOG(TRACE) << "           " << libFile << " success";
+            LOG(TRACE) << "DynLoader: dlOpen: success";
+            LOG(TRACE) << "           " << libFile;
         } else {
             LOG(TRACE) << "DynLoader: dlOpen: " << DynamicLoader::dlError();
+            LOG(TRACE) << "           " << libFile;
         }
 
         return handle;
@@ -51,19 +52,20 @@ namespace core {
         if (handle != nullptr) {
             if (dlOpenedLibraries.contains(handle)) {
                 if (std::find(closeHandles.begin(), closeHandles.end(), handle) == closeHandles.end()) {
-                    LOG(TRACE) << "DynLoader: dlCloseDelayed file:";
-                    LOG(TRACE) << "           " << dlOpenedLibraries[handle].fileName << ": registered";
+                    LOG(TRACE) << "DynLoader: dlCloseDelayed: Registered";
+                    LOG(TRACE) << "           " << dlOpenedLibraries[handle].fileName;
 
                     closeHandles.push_back(handle);
                 } else {
-                    LOG(TRACE) << "DynLoader: dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName
-                               << ": already registered for dlCloseDelayed";
+                    LOG(TRACE) << "DynLoader: dlCloseDelayed: Already registered";
+                    LOG(TRACE) << "           " << dlOpenedLibraries[handle].fileName;
                 }
             } else {
-                LOG(TRACE) << "DynLoader: dlCloseDelayed handle = " << handle << ": not opened using dlOpen";
+                LOG(TRACE) << "DynLoader: dlCloseDelayed: Not opened using dlOpen";
+                LOG(TRACE) << "           " << handle;
             }
         } else {
-            LOG(TRACE) << "DynLoader: dlCloseDelayed handle: nullptr";
+            LOG(TRACE) << "DynLoader: dlCloseDelayed: Handle is nullptr";
         }
     }
 
@@ -71,39 +73,16 @@ namespace core {
         int ret = 0;
 
         if (handle != nullptr) {
-            if (std::find(closeHandles.begin(), closeHandles.end(), handle) != closeHandles.end()) {
-                if (dlOpenedLibraries.contains(handle)) {
-                    LOG(TRACE) << "DynLoader: dlClose file:";
-                    LOG(TRACE) << "           " << dlOpenedLibraries[handle].fileName << ": registered";
-                    ret = dlClose(dlOpenedLibraries[handle]);
+            if (dlOpenedLibraries.contains(handle)) {
+                ret = dlClose(dlOpenedLibraries[handle]);
 
-                    dlOpenedLibraries.erase(handle);
-                } else {
-                    LOG(TRACE) << "DynLoader: dlCloseDelayed handle = " << handle << ": not opened using dlOpen";
-                }
+                dlOpenedLibraries.erase(handle);
             } else {
-                LOG(TRACE) << "DynLoader: dlClose file = " << dlOpenedLibraries[handle].fileName
-                           << ": already registered for dlCloseDelayed";
+                LOG(TRACE) << "DynLoader: dlCloseDelayed: Not opened using dlOpen";
+                LOG(TRACE) << "           " << handle;
             }
         } else {
             LOG(TRACE) << "DynLoader: dlClose handle: nullptr";
-        }
-
-        return ret;
-    }
-
-    int DynamicLoader::dlClose(Library& library) {
-        int ret = 0;
-
-        LOG(TRACE) << "DynLoader: dlClose file:";
-        while (library.refCount-- > 0 && ret == 0) {
-            ret = execDlClose(library);
-
-            if (ret != 0) {
-                LOG(TRACE) << "           " << library.fileName << ": " << DynamicLoader::dlError();
-            } else {
-                LOG(TRACE) << "           " << library.fileName << ": closed";
-            }
         }
 
         return ret;
@@ -117,46 +96,53 @@ namespace core {
         return core::system::dlerror();
     }
 
-    int DynamicLoader::execDlClose(void* handle) {
-        return core::system::dlclose(handle);
+    int DynamicLoader::realExecDlClose(Library& library) {
+        return core::system::dlclose(library.handle);
     }
 
-    int DynamicLoader::execDlClose(Library& library) {
-        return execDlClose(library.handle);
+    int DynamicLoader::dlClose(Library& library) {
+        int ret = 0;
+
+        while (library.refCount-- > 0 && ret == 0) {
+            ret = realExecDlClose(library);
+
+            if (ret != 0) {
+                LOG(TRACE) << "DynLoader: dlClose library: " << DynamicLoader::dlError();
+            } else {
+                LOG(TRACE) << "DynLoader: dlClose library";
+            }
+            LOG(TRACE) << "           " << library.fileName;
+        }
+
+        return ret;
     }
 
     void DynamicLoader::execDlCloseDeleyed() {
-        for (void* handle : closeHandles) {
-            Library& library = dlOpenedLibraries[handle];
+        if (!closeHandles.empty()) {
+            LOG(TRACE) << "DynLoader: execDlCloseDeleyed ...";
 
-            LOG(TRACE) << "DynLoader: execDlCloseDeleyed file:";
-            if (execDlClose(library) != 0) {
-                LOG(TRACE) << "           " << library.fileName << ": " << DynamicLoader::dlError();
-            } else {
-                LOG(TRACE) << "           " << library.fileName << ": closed";
+            for (void* handle : closeHandles) {
+                dlClose(dlOpenedLibraries[handle]);
+                dlOpenedLibraries.erase(handle);
             }
 
-            dlOpenedLibraries.erase(handle);
-        }
+            closeHandles.clear();
 
-        closeHandles.clear();
+            LOG(TRACE) << "DynLoader: execDlCloseDeleyed done";
+        }
     }
 
     void DynamicLoader::execDlCloseAll() {
-        execDlCloseDeleyed();
+        LOG(TRACE) << "DynLoader: execDlCloseAll ...";
 
-        LOG(TRACE) << "DynLoader: execDlCloseAll file:";
         for (auto& [handle, library] : dlOpenedLibraries) {
-            int ret = dlClose(library);
-
-            if (ret != 0) {
-                LOG(TRACE) << "           " << library.fileName << ": " << DynamicLoader::dlError();
-            } else {
-                LOG(TRACE) << "           " << library.fileName << ": closed";
-            }
+            dlClose(library);
         }
 
         dlOpenedLibraries.clear();
+        closeHandles.clear();
+
+        LOG(TRACE) << "DynLoader: execDlCloseAll done";
     }
 
 } // namespace core

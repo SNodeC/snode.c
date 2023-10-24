@@ -216,6 +216,8 @@ namespace core::socket::stream::tls {
                     });
                 },
                 sslShutdownTimeout);
+        } else {
+            LOG(TRACE) << "SSL/TLS: SocketWriter::doWriteShutdown: Close_notify already send";
         }
     }
 

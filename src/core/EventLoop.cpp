@@ -80,6 +80,8 @@ namespace core {
 
         if (utils::Config::init(argc, argv)) {
             eventLoopState = State::INITIALIZED;
+
+            LOG(TRACE) << "SNode.C: Starting ... HELLO";
         }
 
         return eventLoopState == State::INITIALIZED;
@@ -239,11 +241,13 @@ namespace core {
 
         DynamicLoader::execDlCloseAll();
 
-        LOG(TRACE) << "Core:: Terminating SNode.C";
+        LOG(TRACE) << "Core:: Cleaning up filesystem";
 
         utils::Config::terminate();
 
-        LOG(TRACE) << "Core:: All resources released ... BYE";
+        LOG(TRACE) << "Core:: All resources released";
+
+        LOG(TRACE) << "SNode.C: Terminating ... BYE";
     }
 
     State EventLoop::state() {

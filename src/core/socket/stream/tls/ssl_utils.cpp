@@ -147,20 +147,21 @@ namespace core::socket::stream::tls {
                     sslErr = true;
                 } else {
                     if (!sslConfig.caFile.empty()) {
-                        LOG(TRACE) << "SSL/TLS: CA certificate loaded:";
+                        LOG(TRACE) << "SSL/TLS: CA certificate loaded";
                         LOG(TRACE) << "         " << sslConfig.caFile;
                     } else {
                         LOG(TRACE) << "SSL/TLS: CA certificate not loaded from a file";
                     }
                     if (!sslConfig.caDir.empty()) {
-                        LOG(TRACE) << "SSL/TLS: CA certificates load from:";
+                        LOG(TRACE) << "SSL/TLS: CA certificates load from";
                         LOG(TRACE) << "         " << sslConfig.caDir;
                     } else {
-                        LOG(TRACE) << "SSL/TLS: Ca certificates not loaded from a directory";
+                        LOG(TRACE) << "SSL/TLS: CA certificates not loaded from a directory";
                     }
                 }
             } else {
-                LOG(TRACE) << "SSL/TLS: Neither using ca-cert-file nor ca-cert-dir";
+                LOG(TRACE) << "SSL/TLS: CA certificate not loaded from a file";
+                LOG(TRACE) << "SSL/TLS: CA certificates not loaded from a directory";
             }
             if (!sslErr && sslConfig.useDefaultCaDir) {
                 if (SSL_CTX_set_default_verify_paths(ctx) == 0) {
@@ -192,15 +193,18 @@ namespace core::socket::stream::tls {
                             sslErr = true;
                         } else if (!SSL_CTX_check_private_key(ctx)) {
                             ssl_log_error("Cert chain key load error");
+                            LOG(TRACE) << "SSL/TLS: Cert chain not loaded";
+                            LOG(TRACE) << "         " << sslConfig.certChain;
                             sslErr = true;
                         } else {
-                            LOG(TRACE) << "SSL/TLS: Cert chain key loaded:";
+                            LOG(TRACE) << "SSL/TLS: Cert chain key loaded";
                             LOG(TRACE) << "         " << sslConfig.certChainKey;
+
+                            LOG(TRACE) << "SSL/TLS: Cert chain loaded";
+                            LOG(TRACE) << "         " << sslConfig.certChain;
                         }
                     }
                     if (!sslErr) {
-                        LOG(TRACE) << "SSL/TLS: Cert chain loaded:";
-                        LOG(TRACE) << "         " << sslConfig.certChain;
                     }
                 }
             }
