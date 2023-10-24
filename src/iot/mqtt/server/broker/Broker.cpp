@@ -107,6 +107,8 @@ namespace iot::mqtt::server::broker {
                 }
 
                 sessionStoreFile.close();
+
+                LOG(DEBUG) << "MQTT Broker: Session store written '" << sessionStoreFileName << "'";
             } else {
                 PLOG(DEBUG) << "MQTT Broker: Could not write session store '" << sessionStoreFileName << "'";
             }
