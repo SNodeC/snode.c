@@ -171,7 +171,7 @@ namespace core::socket::stream {
                                                                                       server.getConfig().getRetryJitter()) *
                                                             relativeRetryTimeout / 100.;
 
-                                    LOG(INFO) << "OnStatus: " << server.getConfig().getInstanceName();
+                                    LOG(INFO) << "Server OnStatus: " << server.getConfig().getInstanceName();
                                     LOG(INFO) << "  retrying in " << relativeRetryTimeout << " seconds";
 
                                     core::timer::Timer::singleshotTimer(
