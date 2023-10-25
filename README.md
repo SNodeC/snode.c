@@ -751,7 +751,7 @@ To parallelize the compilation use the switch `-j<thread-count>`  of make where 
 
 ### Deploy SNode.C
 
-After preparation for the deployment, which needs do be done only once, SNode.C can be deployed in a very similar way.
+After cross compilation, SNode.C can be deployed.
 
 The **snodec\_\<version\>\_\<architecture\>.ipk** package must be downloaded to and installed by executing
 
