@@ -136,8 +136,7 @@ namespace web::websocket {
         std::size_t ret = readFrameData(elengthJunk, elengthNumBytesLeft);
 
         for (std::size_t i = 0; i < ret; i++) {
-            payLoadNumBytes |= static_cast<uint64_t>(*reinterpret_cast<unsigned char*>(elengthJunk + i))
-                               << (elengthNumBytes - elengthNumBytesLeft) * 8;
+            payLoadNumBytes |= *reinterpret_cast<uint64_t*>(elengthJunk + i) << (elengthNumBytes - elengthNumBytesLeft) * 8;
 
             elengthNumBytesLeft--;
         }
