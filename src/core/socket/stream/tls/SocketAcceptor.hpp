@@ -78,8 +78,6 @@ namespace core::socket::stream::tls {
                   }
               },
               [onDisconnect, instanceName = config->getInstanceName()](SocketConnection* socketConnection) -> void { // onDisconnect
-                  LOG(TRACE) << "SSL/TLS: " << instanceName << ": SSL/TLS connection destroyed";
-
                   socketConnection->stopSSL();
                   onDisconnect(socketConnection);
               },
@@ -123,7 +121,7 @@ namespace core::socket::stream::tls {
                 }
 
                 for (const auto& [domain, sniCertConf] : config->getSniCerts()) {
-                    if (!sniCertConf.empty()) {
+                    if (!domain.empty()) {
                         SSL_CTX* sniSslCtx = ssl_ctx_new(sniCertConf);
 
                         if (sniSslCtx != nullptr) {
