@@ -49,8 +49,7 @@ namespace net::config {
                                        "          \"UseDefaultCaDir\" -> value:BOOLEAN [false],\n"
                                        "          \"SslOptions\" -> value:UINT\n"
                                        "        }") //
-                          ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}")
-                          ->default_val("\"\" \"\" \"\" \"\"");
+                          ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}");
         if (sniCertsOpt->get_configurable()) {
             sniCertsOpt->group(section->get_formatter()->get_label("Persistent Options"));
         }
