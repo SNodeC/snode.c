@@ -121,30 +121,28 @@ namespace core::socket::stream::tls {
                 }
 
                 for (const auto& [domain, sniCertConf] : config->getSniCerts()) {
-                    if (!domain.empty()) {
-                        SSL_CTX* sniSslCtx = ssl_ctx_new(sniCertConf);
+                    SSL_CTX* sniSslCtx = ssl_ctx_new(sniCertConf);
 
-                        if (sniSslCtx != nullptr) {
-                            if (!domain.empty()) {
-                                if (sniSslCtxs.contains(domain)) {
-                                    ssl_ctx_free(sniSslCtxs[domain]);
-                                }
-                                sniSslCtxs.insert_or_assign(domain, sniSslCtx);
-
-                                LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": SSL_CTX (E) sni for '" << domain
-                                           << "' explicitly installed";
+                    if (sniSslCtx != nullptr) {
+                        if (!domain.empty()) {
+                            if (sniSslCtxs.contains(domain)) {
+                                ssl_ctx_free(sniSslCtxs[domain]);
                             }
+                            sniSslCtxs.insert_or_assign(domain, sniSslCtx);
 
-                            for (const std::string& san : ssl_get_sans(sniSslCtx)) {
-                                sniSslCtxs.insert({san, sniSslCtx});
-
-                                LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": SSL_CTX (S) sni for '" << san
-                                           << "' from SAN installed";
-                            }
-                        } else {
-                            LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": Can not create SNI_SSL_CTX for domain '" << domain
-                                       << "'";
+                            LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": SSL_CTX (E) sni for '" << domain
+                                       << "' explicitly installed";
                         }
+
+                        for (const std::string& san : ssl_get_sans(sniSslCtx)) {
+                            sniSslCtxs.insert({san, sniSslCtx});
+
+                            LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": SSL_CTX (S) sni for '" << san
+                                       << "' from SAN installed";
+                        }
+                    } else {
+                        LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": Can not create SNI_SSL_CTX for domain '" << domain
+                                   << "'";
                     }
                 }
                 forceSni = config->getForceSni();
