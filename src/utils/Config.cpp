@@ -355,7 +355,7 @@ namespace utils {
             app.set_config( //
                    "-c,--config-file",
                    configDirectory + "/" + applicationName + ".conf",
-                   "Read an config file",
+                   "Read a config file",
                    false) //
                 ->take_all()
                 ->type_name("configfile")
@@ -703,7 +703,7 @@ namespace utils {
             } catch (const CLI::CallForCommandline& e) {
                 std::cout << e.what();
                 if (e.getMode() == CLI::CallForCommandline::Mode::REQUIRED) {
-                    std::cout << "* Required options show eigher their configured value or <REQUIRED>" << std::endl;
+                    std::cout << "* Required options show either their configured value or <REQUIRED>" << std::endl;
                 } else if (e.getMode() == CLI::CallForCommandline::Mode::CONFIGURED) {
                     std::cout << "* Required but not yet configured options show <REQUIRED> as value" << std::endl;
                     std::cout << "* Configured options show their configured value" << std::endl;
@@ -711,7 +711,7 @@ namespace utils {
                     std::cout << "* Required but not yet configured options show <REQUIRED> as value " << std::endl;
                     std::cout << "* Remaining options show either their default or configured value" << std::endl;
                 }
-                std::cout << "* Options marked as <REQUIRED> need to be configured for a successfull bootstrap" << std::endl;
+                std::cout << "* Options marked as <REQUIRED> need to be configured for a successful bootstrap" << std::endl;
                 std::cout << std::endl
                           << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE << "~/> "
                           << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl;
