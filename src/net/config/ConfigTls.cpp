@@ -100,7 +100,7 @@ namespace net::config {
 
     void ConfigTls::setCertChain(const std::string& newCertChain) {
         certChainOpt //
-            ->default_str(newCertChain)
+            ->default_val(newCertChain)
             ->clear();
     }
 
@@ -110,7 +110,7 @@ namespace net::config {
 
     void ConfigTls::setCertKey(const std::string& newCertKey) {
         certKeyOpt //
-            ->default_str(newCertKey)
+            ->default_val(newCertKey)
             ->clear();
     }
 
@@ -130,7 +130,7 @@ namespace net::config {
 
     void ConfigTls::setCaCertFile(const std::string& newCaCertFile) {
         caCertFileOpt //
-            ->default_str(newCaCertFile)
+            ->default_val(newCaCertFile)
             ->clear();
     }
 
@@ -140,7 +140,7 @@ namespace net::config {
 
     void ConfigTls::setCaCertDir(const std::string& newCaCertDir) {
         caCertDirOpt //
-            ->default_str(newCaCertDir)
+            ->default_val(newCaCertDir)
             ->clear();
     }
 

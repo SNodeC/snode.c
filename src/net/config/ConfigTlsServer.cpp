@@ -54,8 +54,42 @@ namespace net::config {
             sniCertsOpt->group(section->get_formatter()->get_label("Persistent Options"));
         }
 
+        sniCertsOpt->default_function([&sniCerts = this->sniCerts]() -> std::string {
+            std::string defaultValue;
+
+            for (const auto& [domain, sniCertConf] : sniCerts) {
+                defaultValue += (!defaultValue.empty() ? "%% " : "") + domain + " ";
+
+                for (const auto& [key, value] : sniCertConf) {
+                    defaultValue += key + " ";
+
+                    if (key == "CertChain") {
+                        defaultValue += std::get<std::string>(value) + " ";
+                    } else if (key == "CertKey") {
+                        defaultValue += std::get<std::string>(value) + " ";
+                    } else if (key == "CertKeyPassword") {
+                        defaultValue += std::get<std::string>(value) + " ";
+                    } else if (key == "CaCertFile") {
+                        defaultValue += std::get<std::string>(value) + " ";
+                    } else if (key == "CaCertDir") {
+                        defaultValue += std::get<std::string>(value) + " ";
+                    } else if (key == "UseDefaultCaDir") {
+                        defaultValue += std::get<bool>(value) ? "true " : "false ";
+                    } else if (key == "CipherList") {
+                        defaultValue += std::get<std::string>(value) + " ";
+                    } else if (key == "SslOptions") {
+                        defaultValue += std::to_string(std::get<ssl_option_t>(value)) + " ";
+                    }
+                }
+            }
+
+            defaultValue.pop_back();
+
+            return defaultValue;
+        });
+
         add_flag(
-            forceSniOpt, "--force-sni,", "Force using of the Server Name Indication", "bool", "false", CLI::IsMember({"true", "false"}));
+            forceSniOpt, "--force-sni", "Force using of the Server Name Indication", "bool", "false", CLI::IsMember({"true", "false"}));
 
         section->final_callback([this](void) -> void {
             std::list<std::string> vaultyDomainConfigs;
@@ -96,11 +130,15 @@ namespace net::config {
     void ConfigTlsServer::addSniCerts(
         const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCerts) {
         this->sniCerts.insert(sniCerts.begin(), sniCerts.end());
+
+        sniCertsOpt->capture_default_str();
     }
 
     void ConfigTlsServer::addSniCert(const std::string& domain,
-                                     const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& newSniCert) {
-        this->sniCerts[domain] = newSniCert;
+                                     const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert) {
+        this->sniCerts[domain] = sniCert;
+
+        sniCertsOpt->capture_default_str();
     }
 
     std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& ConfigTlsServer::getSniCerts() {
