@@ -98,7 +98,7 @@ namespace core {
         releaseExpiredResources(utils::Timeval::currentTime());
     }
 
-    void EventMultiplexer::clear() {
+    void EventMultiplexer::clearEventQueue() {
         eventQueue.clear();
     }
 

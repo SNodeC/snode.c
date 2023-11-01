@@ -127,7 +127,8 @@ namespace core {
 
             sigaction(SIGPIPE, &oldPipeAct, nullptr);
         } else {
-            EventLoop::instance().eventMultiplexer.clear();
+            EventLoop::instance().eventMultiplexer.clearEventQueue();
+            free();
 
             PLOG(FATAL) << "Core: not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().";
         }
@@ -188,9 +189,7 @@ namespace core {
             sigaction(SIGALRM, &oldAlarmAct, nullptr);
             sigaction(SIGHUP, &oldHupAct, nullptr);
         } else {
-            LOG(FATAL) << "Core::Eventloop not started SNode.C not initialized or bootstraping failed";
-
-            EventLoop::instance().eventMultiplexer.clear();
+            EventLoop::instance().eventMultiplexer.clearEventQueue();
         }
 
         free();

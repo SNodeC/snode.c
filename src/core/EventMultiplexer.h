@@ -90,7 +90,7 @@ namespace core {
 
         void sigExit(int sigNum);
         void stop();
-        void clear();
+        void clearEventQueue();
 
         TickStatus tick(const utils::Timeval& tickTimeOut, const sigset_t& sigMask);
 
