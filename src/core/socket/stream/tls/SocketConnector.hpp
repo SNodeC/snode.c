@@ -80,8 +80,6 @@ namespace core::socket::stream::tls {
                   }
               },
               [onDisconnect, instanceName = config->getInstanceName()](SocketConnection* socketConnection) -> void { // onDisconnect
-                  LOG(TRACE) << "SSL/TLS: " << instanceName << ": connection destroyed";
-
                   socketConnection->stopSSL();
                   onDisconnect(socketConnection);
               },
