@@ -331,21 +331,14 @@ namespace utils {
                 ->disable_flag_override()
                 ->trigger_on_parse();
 
-            app.add_flag_callback( //
+            app.add_flag( //
                    "-s,--show-config",
-                   []() {
-                       throw CLI::CallForShowConfig();
-                   },
                    "Show current configuration and exit") //
                 ->configurable(false)
                 ->disable_flag_override();
 
-            app.add_option_function<std::string>(
-                   "-w,--write-config",
-                   [](const std::string& configFile) -> void {
-                       throw CLI::CallForWriteConfig(configFile);
-                   },
-                   "Write config file and exit") //
+            app.add_option("-w,--write-config",
+                           "Write config file and exit") //
                 ->configurable(false)
                 ->default_val(configDirectory + "/" + applicationName + ".conf")
                 ->type_name("[configfile]")
@@ -512,9 +505,9 @@ namespace utils {
         prefixMap.clear();
 
         app.final_callback([](void) -> void {
-            if (daemonizeOpt->as<bool>() && app["--write-config"]->count() == 0 && app["--commandline"]->count() == 0 &&
-                app["--commandline-configured"]->count() == 0 && app["--commandline-full"]->count() == 0 &&
-                app["--show-config"]->count() == 0) {
+            if (daemonizeOpt->as<bool>() && app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 &&
+                app["--commandline"]->count() == 0 && app["--commandline-configured"]->count() == 0 &&
+                app["--commandline-full"]->count() == 0) {
                 std::cout << "Running as daemon" << std::endl;
 
                 try {
@@ -688,12 +681,21 @@ namespace utils {
     }
 
     bool Config::parse2() {
-        bool ret = false;
+        bool completed = false;
 
         try {
             try {
                 app.parse(argc, argv);
-                ret = true;
+
+                if (app["--show-config"]->count() > 0) {
+                    throw CLI::CallForShowConfig();
+                }
+
+                if (app["--write-config"]->count() > 0) {
+                    throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
+                }
+
+                completed = true;
             } catch (const CLI::CallForHelp&) {
                 std::cout << app.help() << std::endl;
             } catch (const CLI::CallForAllHelp&) {
@@ -720,15 +722,20 @@ namespace utils {
                 try {
                     std::cout << app.config_to_str(true, true);
                 } catch (const CLI::ParseError& e1) {
-                    std::cout << "Error parsing config file: " << e1.get_name() << " " << e1.what() << std::endl;
+                    std::cout << "Error showing config file: " << e1.get_name() << " " << e1.what() << std::endl;
                     throw;
                 }
             } catch (const CLI::CallForWriteConfig& e) {
                 std::cout << e.what() << std::endl;
                 std::ofstream confFile(e.getConfigFile());
                 if (confFile.is_open()) {
-                    confFile << app.config_to_str(true, true);
-                    confFile.close();
+                    try {
+                        confFile << app.config_to_str(true, true);
+                        confFile.close();
+                    } catch (const CLI::ParseError& e1) {
+                        std::cout << "Error writing config file: " << e1.get_name() << " " << e1.what() << std::endl;
+                        throw;
+                    }
                 } else {
                     std::cout << "Error writing config file: " << std::strerror(errno) << std::endl;
                 }
@@ -740,7 +747,6 @@ namespace utils {
                 throw;
             } catch (const CLI::ConfigError& e) {
                 std::cout << "Config file (INI) parse error: " << e.get_name() << e.what() << std::endl;
-                std::cout << "Hint: Rewrite the config file by appending -w [config file] to your command line." << std::endl;
                 throw;
             } catch (const CLI::ParseError& e) {
                 std::string what = e.what();
@@ -759,7 +765,7 @@ namespace utils {
             std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
         }
 
-        return ret;
+        return completed;
     }
 
     void Config::terminate() {
