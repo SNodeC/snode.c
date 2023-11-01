@@ -686,15 +686,12 @@ namespace utils {
         try {
             try {
                 app.parse(argc, argv);
-
                 if (app["--show-config"]->count() > 0) {
                     throw CLI::CallForShowConfig();
                 }
-
                 if (app["--write-config"]->count() > 0) {
                     throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
                 }
-
                 completed = true;
             } catch (const CLI::CallForHelp&) {
                 std::cout << app.help() << std::endl;
