@@ -358,7 +358,7 @@ namespace iot::mqtt {
         return ss.str();
     }
 
-    std::string Mqtt::stringToHexString(const std::string data) {
+    std::string Mqtt::stringToHexString(const std::string& data) {
         return dataToHexString(std::vector<char>(data.begin(), data.end()));
     }
 
