@@ -56,16 +56,16 @@ namespace iot::mqtt {
 
         virtual ~Mqtt();
 
-        void setMqttContext(MqttContext* mqttContext);
-
         virtual void onConnected();
-        std::size_t onProcess();
         virtual void onDisconnected();
         virtual void onExit(int sig);
 
         core::socket::stream::SocketConnection* getSocketConnection();
 
     private:
+        std::size_t onReceivedFromPeer();
+        void setMqttContext(MqttContext* mqttContext);
+
         virtual iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& staticHeader) = 0;
         virtual void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
 
@@ -124,6 +124,8 @@ namespace iot::mqtt {
 
     protected:
         MqttContext* mqttContext = nullptr;
+
+        friend class MqttContext;
     };
 
 } // namespace iot::mqtt

@@ -63,7 +63,7 @@ namespace iot::mqtt {
     void Mqtt::onConnected() {
     }
 
-    std::size_t Mqtt::onProcess() {
+    std::size_t Mqtt::onReceivedFromPeer() {
         std::size_t consumed = 0;
 
         switch (state) {

@@ -46,14 +46,14 @@ namespace iot::mqtt::server {
 
 namespace iot::mqtt {
 
-    class OnDataEvent : public core::EventReceiver {
+    class OnReceivedFromPeerEvent : public core::EventReceiver {
     public:
-        explicit OnDataEvent(const std::function<void(const utils::Timeval& currentTime)>& event);
+        explicit OnReceivedFromPeerEvent(const std::function<void(const utils::Timeval& currentTime)>& onReceivedFromPeer);
 
     private:
         void onEvent(const utils::Timeval& currentTime) override;
 
-        std::function<void(const utils::Timeval& currentTime)> event;
+        std::function<void(const utils::Timeval& currentTime)> onReceivedFromPeer;
     };
 
     template <typename WSSubProtocolRoleT>
@@ -84,7 +84,7 @@ namespace iot::mqtt {
 
         core::socket::stream::SocketConnection* getSocketConnection() override;
 
-        OnDataEvent onData;
+        OnReceivedFromPeerEvent onReceivedFromPeerEvent;
 
         std::string data;
         std::vector<char> buffer;

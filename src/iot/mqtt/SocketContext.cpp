@@ -46,7 +46,7 @@ namespace iot::mqtt {
     }
 
     std::size_t SocketContext::onReceivedFromPeer() {
-        return iot::mqtt::MqttContext::onData();
+        return iot::mqtt::MqttContext::onReceivedFromPeer();
     }
 
     std::size_t SocketContext::recv(char* junk, std::size_t junklen) {

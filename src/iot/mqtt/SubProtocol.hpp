@@ -35,13 +35,13 @@
 
 namespace iot::mqtt {
 
-    OnDataEvent::OnDataEvent(const std::function<void(const utils::Timeval&)>& event)
+    OnReceivedFromPeerEvent::OnReceivedFromPeerEvent(const std::function<void(const utils::Timeval&)>& onReceivedFromPeer)
         : core::EventReceiver("WS-OnData")
-        , event(event) {
+        , onReceivedFromPeer(onReceivedFromPeer) {
     }
 
-    void OnDataEvent::onEvent(const utils::Timeval& currentTime) {
-        event(currentTime);
+    void OnReceivedFromPeerEvent::onEvent(const utils::Timeval& currentTime) {
+        onReceivedFromPeer(currentTime);
     }
 
     template <typename WSSubProtocolRole>
@@ -50,11 +50,11 @@ namespace iot::mqtt {
                                                 iot::mqtt::Mqtt* mqtt)
         : WSSubProtocolRole(subProtocolContext, name, PING_INTERVAL)
         , iot::mqtt::MqttContext(mqtt)
-        , onData([this]([[maybe_unused]] const utils::Timeval& currentTime) -> void {
-            iot::mqtt::MqttContext::onData();
+        , onReceivedFromPeerEvent([this]([[maybe_unused]] const utils::Timeval& currentTime) -> void {
+            iot::mqtt::MqttContext::onReceivedFromPeer();
 
             if (size > 0) {
-                onData.span();
+                onReceivedFromPeerEvent.span();
             } else {
                 buffer.clear();
                 cursor = 0;
@@ -135,7 +135,7 @@ namespace iot::mqtt {
         data.clear();
 
         if (buffer.size() > 0) {
-            onData.span();
+            onReceivedFromPeerEvent.span();
         }
     }
 

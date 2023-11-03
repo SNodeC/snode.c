@@ -53,7 +53,7 @@ namespace iot::mqtt {
         virtual void close() = 0;
 
         void onConnected();
-        std::size_t onData();
+        std::size_t onReceivedFromPeer();
         void onDisconnected();
         void onExit(int sig);
 
