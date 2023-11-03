@@ -141,7 +141,7 @@ namespace web::websocket {
         }
 
         core::socket::stream::SocketConnection* getSocketConnection() override {
-            return Super::getSocketConnection();
+            return web::http::SocketContextUpgrade<RequestT, ResponseT>::getSocketConnection();
         }
 
         /* WSReceiver */
