@@ -80,6 +80,7 @@ namespace web::websocket {
 
     public:
         const std::string& getName();
+        core::socket::stream::SocketConnection* getSocketConnection();
 
     private:
         const std::string name;

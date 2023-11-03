@@ -54,7 +54,7 @@ namespace web::websocket {
                 pingInterval);
         }
 
-        subProtocolContext->getSocketConnection()->setTimeout(0);
+        getSocketConnection()->setTimeout(0);
     }
 
     template <typename SocketContextUpgradeT>
@@ -121,6 +121,11 @@ namespace web::websocket {
     template <typename SocketContextUpgradeT>
     const std::string& SubProtocol<SocketContextUpgradeT>::getName() {
         return name;
+    }
+
+    template <typename SocketContextUpgradeT>
+    core::socket::stream::SocketConnection* SubProtocol<SocketContextUpgradeT>::getSocketConnection() {
+        return subProtocolContext->getSocketConnection();
     }
 
 } // namespace web::websocket
