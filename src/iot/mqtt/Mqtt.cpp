@@ -61,6 +61,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::onConnected() {
+        LOG(INFO) << "MQTT: Connected";
     }
 
     std::size_t Mqtt::onReceivedFromPeer() {
@@ -129,6 +130,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::onDisconnected() {
+        LOG(INFO) << "MQTT: Disconnected";
     }
 
     void Mqtt::onExit(int sig) {
