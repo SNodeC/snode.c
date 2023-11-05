@@ -87,7 +87,7 @@ namespace iot::mqtt::server::broker {
                 LOG(DEBUG) << "MQTT Broker: Retaining:";
                 LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();
                 LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
-                LOG(DEBUG) << "MQTT Broker:     QoS: " << message.getQoS();
+                LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
                 this->message = message;
             }
         } else {
