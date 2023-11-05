@@ -35,12 +35,7 @@ namespace iot::mqtt::packets {
     class Publish : public iot::mqtt::ControlPacket {
     public:
         Publish();
-        Publish(uint16_t packetIdentifier,
-                const std::string& topic,
-                const std::string& message,
-                uint8_t qoS = 0,
-                bool dup = false,
-                bool retain = false);
+        Publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message, uint8_t qoS, bool dup, bool retain);
 
     private:
         std::vector<char> serializeVP() const override;
