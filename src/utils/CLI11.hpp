@@ -8927,8 +8927,8 @@ public:                                                                         
         }
 
         // now process the requirements for subcommands if needed
-        for (App_p& sub : subcommands_) {
-            if (sub->disabled_)
+        for (const auto& sub : subcommands_) {
+            if (sub->disabled_ || !sub->required_)
                 continue;
             if (sub->name_.empty() && sub->required_ == false) {
                 if (sub->count_all() == 0) {

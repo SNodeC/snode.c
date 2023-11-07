@@ -57,7 +57,6 @@ namespace net::config {
                          ->add_flag_function(
                              "--disable",
                              [this]([[maybe_unused]] int64_t count) -> void {
-                                 instanceSc->disabled(disableOpt->as<bool>());
                                  instanceSc->required(!disableOpt->as<bool>());
                                  utils::Config::needs_instance(instanceSc);
                              },
@@ -131,10 +130,14 @@ namespace net::config {
                 ->remove_needs(section);
         }
 
-        instanceSc //
-            ->required(requiredCount > 0);
+        if (!disableOpt->as<bool>()) {
+            instanceSc //
+                ->required(requiredCount > 0);
 
-        utils::Config::needs_instance(instanceSc);
+            if ((req && requiredCount == 1) || (!req && requiredCount == 0)) {
+                utils::Config::needs_instance(instanceSc);
+            }
+        }
     }
 
     bool ConfigInstance::getRequired() const {
@@ -150,6 +153,9 @@ namespace net::config {
         disableOpt //
             ->default_val(disabled ? "true" : "false")
             ->clear();
+
+        instanceSc->required(!disabled);
+        utils::Config::needs_instance(instanceSc);
     }
 
 } // namespace net::config
