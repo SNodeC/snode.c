@@ -34,9 +34,6 @@ namespace web::http {
 
     template <typename RequestT, typename ResponseT>
     class SocketContextUpgrade : public core::socket::stream::SocketContext {
-    public:
-        enum class Role { SERVER, CLIENT };
-
     protected:
         using Request = RequestT;
         using Response = ResponseT;

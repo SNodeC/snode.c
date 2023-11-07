@@ -53,10 +53,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "httpserver: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "httpserver: non critical error occurred";
+                VLOG(1) << "httpserver: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "httpserver: critical error occurred";
+                VLOG(1) << "httpserver: fatal error occurred";
                 break;
         }
     });
@@ -82,12 +82,13 @@ int main(int argc, char* argv[]) {
     // TITAN: A4:B1:C1:2C:82:37
     // USB: 44:01:BB:A3:63:32
 
-    // webApp.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void { //
-titan webApp.listen("10:3D:1C:AC:BA:9C", 0x1023, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void { //
-titan #elif (NET_TYPE == RC) // rf
-    // webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void { // titan
-        webApp.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void { //
-titan #elif (NET_TYPE == UN) // un webApp.listen("/tmp/testme", 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state)
+    // webApp.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) ->
+void { // titan webApp.listen("10:3D:1C:AC:BA:9C", 0x1023, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State&
+state) -> void { // titan #elif (NET_TYPE == RC) // rf
+    // webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
+// titan webApp.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
+// titan #elif (NET_TYPE == UN) // un webApp.listen("/tmp/testme", 5, [](const WebApp::SocketAddress& socketAddress, const
+core::socket::State& state)
 -> void { // titan #endif if (errnum != 0) { PLOG(FATAL) << "listen"; } else { VLOG(0) << "snode.c listening on " <<
 socketAddress.toString();
         }

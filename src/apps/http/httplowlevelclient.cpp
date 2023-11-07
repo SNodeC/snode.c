@@ -258,10 +258,10 @@ namespace tls {
                     VLOG(1) << "httpclient: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "httpclient: non critical error occurred";
+                    VLOG(1) << "httpclient: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "httpclient: critical error occurred";
+                    VLOG(1) << "httpclient: fatal error occurred";
                     break;
             }
         });
@@ -313,10 +313,10 @@ namespace legacy {
                     VLOG(1) << "httpclient: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "httpclient: non critical error occurred";
+                    VLOG(1) << "httpclient: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "httpclient: critical error occurred";
+                    VLOG(1) << "httpclient: fatal error occurred";
                     break;
             }
         });
@@ -345,10 +345,10 @@ int main(int argc, char* argv[]) {
                                          VLOG(1) << "legacyClient: disabled";
                                          break;
                                      case core::socket::State::ERROR:
-                                         VLOG(1) << "legacyClient: non critical error occurred";
+                                         VLOG(1) << "legacyClient: error occurred";
                                          break;
                                      case core::socket::State::FATAL:
-                                         VLOG(1) << "legacyClient: critical error occurred";
+                                         VLOG(1) << "legacyClient: fatal error occurred";
                                          break;
                                  }
                              });
@@ -366,10 +366,10 @@ int main(int argc, char* argv[]) {
                     VLOG(1) << "legacy: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "legacy: non critical error occurred";
+                    VLOG(1) << "legacy: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "legacy: critical error occurred";
+                    VLOG(1) << "legacy: fatal error occurred";
                     break;
             }
         });

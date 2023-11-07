@@ -41,10 +41,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "OAuth2Client: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "OAuth2Client: non critical error occurred";
+                VLOG(1) << "OAuth2Client: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "OAuth2Client: critical error occurred";
+                VLOG(1) << "OAuth2Client: fatal error occurred";
                 break;
         }
     });

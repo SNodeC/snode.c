@@ -244,10 +244,10 @@ int main(int argc, char* argv[]) {
                     VLOG(1) << "legacy-testregex: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "legacy-testregex: non critical error occurred";
+                    VLOG(1) << "legacy-testregex: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "legacy-testregex: critical error occurred";
+                    VLOG(1) << "legacy-testregex: fatal error occurred";
                     break;
             }
         });
@@ -279,10 +279,10 @@ int main(int argc, char* argv[]) {
                     VLOG(1) << "tls-testregex: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "tls-testregex: non critical error occurred";
+                    VLOG(1) << "tls-testregex: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "tls-testregex: critical error occurred";
+                    VLOG(1) << "tls-testregex: fatal error occurred";
                     break;
             }
         });

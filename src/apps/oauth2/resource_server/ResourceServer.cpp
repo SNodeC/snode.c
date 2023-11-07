@@ -86,10 +86,10 @@ int main(int argc, char* argv[]) {
                         VLOG(1) << "OAuth2ResourceServer: disabled";
                         break;
                     case core::socket::State::ERROR:
-                        VLOG(1) << "OAuth2ResourceServer: non critical error occurred";
+                        VLOG(1) << "OAuth2ResourceServer: error occurred";
                         break;
                     case core::socket::State::FATAL:
-                        VLOG(1) << "OAuth2ResourceServer: critical error occurred";
+                        VLOG(1) << "OAuth2ResourceServer: fatal error occurred";
                         break;
                 }
             });
@@ -104,10 +104,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "app: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "app: non critical error occurred";
+                VLOG(1) << "app: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "app: critical error occurred";
+                VLOG(1) << "app: fatal error occurred";
                 break;
         }
     });

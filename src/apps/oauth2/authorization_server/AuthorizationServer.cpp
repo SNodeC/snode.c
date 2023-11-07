@@ -540,10 +540,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "OAuth2AuthorizationServer: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "OAuth2AuthorizationServer: non critical error occurred";
+                VLOG(1) << "OAuth2AuthorizationServer: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "OAuth2AuthorizationServer: critical error occurred";
+                VLOG(1) << "OAuth2AuthorizationServer: fatal error occurred";
                 break;
         }
     });

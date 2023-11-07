@@ -41,10 +41,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "httpclient: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "httpclient: non critical error occurred";
+                VLOG(1) << "httpclient: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "httpclient: critical error occurred";
+                VLOG(1) << "httpclient: fatal error occurred";
                 break;
         }
     });

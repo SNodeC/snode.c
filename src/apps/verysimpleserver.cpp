@@ -48,10 +48,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "legacyApp: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "legacyApp: non critical error occurred";
+                VLOG(1) << "legacyApp: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "legacyApp: critical error occurred";
+                VLOG(1) << "legacyApp: fatal error occurred";
                 break;
         }
     });
@@ -77,10 +77,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "tlsApp: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "tlsApp: non critical error occurred";
+                VLOG(1) << "tlsApp: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "tlsApp: critical error occurred";
+                VLOG(1) << "tlsApp: fatal error occurred";
                 break;
         }
     });

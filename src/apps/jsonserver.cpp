@@ -51,10 +51,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "legacy-jsonserver: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "legacy-jsonserver: non critical error occurred";
+                VLOG(1) << "legacy-jsonserver: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "legacy-jsonserver: critical error occurred";
+                VLOG(1) << "legacy-jsonserver: fatal error occurred";
                 break;
         }
     });

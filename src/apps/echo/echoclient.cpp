@@ -40,10 +40,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "echoclient: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "echoclient: non critical error occurred";
+                VLOG(1) << "echoclient: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "echoclient: critical error occurred";
+                VLOG(1) << "echoclient: fatal error occurred";
                 break;
         }
     });
@@ -57,10 +57,10 @@ int main(int argc, char* argv[]) {
                     VLOG(1) << "echoclient: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "echoclientt: non critical error occurred";
+                    VLOG(1) << "echoclientt: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "echoclient: critical error occurred";
+                    VLOG(1) << "echoclient: fatal error occurred";
                     break;
             }
         });

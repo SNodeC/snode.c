@@ -57,10 +57,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "echoserver: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "echoserver: non critical error occurred";
+                VLOG(1) << "echoserver: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "echoserver: critical error occurred";
+                VLOG(1) << "echoserver: fatal error occurred";
                 break;
         }
     });

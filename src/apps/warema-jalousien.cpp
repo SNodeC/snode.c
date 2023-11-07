@@ -64,10 +64,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "werema: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "werema: non critical error occurred";
+                VLOG(1) << "werema: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "werema: critical error occurred";
+                VLOG(1) << "werema: fatal error occurred";
                 break;
         }
     });
