@@ -8949,7 +8949,7 @@ public:                                                                         
             }
 
             if (sub->required_ && sub->count_all() == 0) {
-                throw(CLI::RequiredError(sub->get_display_name()));
+                throw(CLI::RequiresError(get_display_name(), sub->get_display_name()));
             }
         }
     }
