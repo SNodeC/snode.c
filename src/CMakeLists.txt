@@ -42,7 +42,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
     endif()
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(AppendSourceFileConfig)
 include(GetAllTargetsDependencies)
 
