@@ -183,12 +183,13 @@ namespace iot::mqtt {
     void Mqtt::sendPublish(const std::string& topic, const std::string& message, uint8_t qoS,
                            bool retain) { // Server & Client
 
-        uint16_t pId = qoS != 0 ? getPacketIdentifier() : 0;
+        uint16_t packageIdentifier = qoS != 0 ? getPacketIdentifier() : 0;
 
-        send(iot::mqtt::packets::Publish(pId, topic, message, qoS, false, retain));
+        send(iot::mqtt::packets::Publish(packageIdentifier, topic, message, qoS, false, retain));
 
         if (qoS == 2) {
-            session->publishMap.emplace(pId, iot::mqtt::packets::Publish(pId, topic, message, qoS, true, retain));
+            session->publishMap.emplace(packageIdentifier,
+                                        iot::mqtt::packets::Publish(packageIdentifier, topic, message, qoS, true, retain));
         }
     }
 
