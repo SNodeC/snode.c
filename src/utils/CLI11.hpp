@@ -8858,17 +8858,6 @@ public:                                                                         
                 return;
             }
         }
-        for (const auto& subc : need_subcommands_) {
-            if (subc->count_all() == 0) {
-                if (count_all() > 0) {
-                    throw RequiresError(get_display_name(), subc->get_display_name());
-                }
-                // if we missing something but didn't have any options, just return
-                return;
-            } else {
-                subc->_process_requirements();
-            }
-        }
 
         std::size_t used_options = 0;
         for (const Option_p& opt : options_) {
@@ -8926,30 +8915,43 @@ public:                                                                         
             throw RequiredError::Option(require_option_min_, require_option_max_, used_options, option_list);
         }
 
+        // check needs
+        for (const auto& subc : need_subcommands_) {
+            if (subc->count_all() == 0) {
+                if (count_all() > 0) {
+                    throw RequiresError(get_display_name(), subc->get_display_name());
+                }
+                // if we missing something but didn't have any options, just return
+                return;
+            } else {
+                subc->_process_requirements();
+            }
+        }
+
         // now process the requirements for subcommands if needed
         for (const auto& sub : subcommands_) {
             if (sub->disabled_ || !sub->required_)
                 continue;
-            if (sub->name_.empty() && sub->required_ == false) {
-                if (sub->count_all() == 0) {
-                    if (require_option_min_ > 0 && require_option_min_ <= used_options) {
-                        continue;
-                        // if we have met the requirement and there is nothing in this option group skip checking
-                        // requirements
-                    }
-                    if (require_option_max_ > 0 && used_options >= require_option_min_) {
-                        continue;
-                        // if we have met the requirement and there is nothing in this option group skip checking
-                        // requirements
-                    }
+
+            if (sub->name_.empty() && sub->required_ == false && sub->count_all() == 0) {
+                if (require_option_min_ > 0 && require_option_min_ <= used_options) {
+                    continue;
+                    // if we have met the requirement and there is nothing in this option group skip checking
+                    // requirements
+                }
+                if (require_option_max_ > 0 && used_options >= require_option_min_) {
+                    continue;
+                    // if we have met the requirement and there is nothing in this option group skip checking
+                    // requirements
                 }
             }
-            if (sub->count() > 0 || sub->name_.empty()) {
+
+            if (!need_subcommands_.contains(sub.get()) && (sub->count() > 0 || sub->name_.empty())) {
                 sub->_process_requirements();
             }
 
             if (sub->required_ && sub->count_all() == 0) {
-                throw(CLI::RequiresError(get_display_name(), sub->get_display_name()));
+                throw(CLI::RequiredError(sub->get_display_name()));
             }
         }
     }

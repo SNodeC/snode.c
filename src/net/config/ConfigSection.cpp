@@ -59,7 +59,7 @@ namespace net::config {
     }
 
     void ConfigSection::required(CLI::Option* opt, bool req) {
-        if (req && !opt->get_required()) {
+        if (req) {
             ++requiredCount;
             opt //
                 ->default_str("")
@@ -67,7 +67,7 @@ namespace net::config {
                 ->clear();
             section //
                 ->needs(opt);
-        } else if (opt->get_required()) {
+        } else {
             --requiredCount;
             opt //
                 ->required(false)
