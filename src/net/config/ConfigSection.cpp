@@ -79,7 +79,7 @@ namespace net::config {
         section //
             ->required(requiredCount > 0);
 
-        instance->required(section, req);
+        instance->required(section, requiredCount > 0);
     }
 
     bool ConfigSection::required() const {
