@@ -8933,25 +8933,27 @@ public:                                                                         
             if (sub->disabled_ || !sub->required_)
                 continue;
 
-            if (sub->name_.empty() && sub->required_ == false && sub->count_all() == 0) {
-                if (require_option_min_ > 0 && require_option_min_ <= used_options) {
-                    continue;
-                    // if we have met the requirement and there is nothing in this option group skip checking
-                    // requirements
-                }
-                if (require_option_max_ > 0 && used_options >= require_option_min_) {
-                    continue;
-                    // if we have met the requirement and there is nothing in this option group skip checking
-                    // requirements
+            if (sub->count_all() == 0) {
+                if (!sub->required_) {
+                    if (sub->name_.empty()) {
+                        if (require_option_min_ > 0 && require_option_min_ <= used_options) {
+                            continue;
+                            // if we have met the requirement and there is nothing in this option group skip checking
+                            // requirements
+                        }
+                        if (require_option_max_ > 0 && used_options >= require_option_min_) {
+                            continue;
+                            // if we have met the requirement and there is nothing in this option group skip checking
+                            // requirements
+                        }
+                    }
+                } else {
+                    throw(CLI::RequiredError(sub->get_display_name()));
                 }
             }
 
             if (!need_subcommands_.contains(sub.get()) && (sub->count() > 0 || sub->name_.empty())) {
                 sub->_process_requirements();
-            }
-
-            if (sub->required_ && sub->count_all() == 0) {
-                throw(CLI::RequiredError(sub->get_display_name()));
             }
         }
     }
