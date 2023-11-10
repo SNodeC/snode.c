@@ -57,8 +57,7 @@ namespace net::config {
                          ->add_flag_function(
                              "--disabled",
                              [this]([[maybe_unused]] int64_t count) -> void {
-                                 instanceSc->required(!disableOpt->as<bool>());
-                                 utils::Config::needs_instance(instanceSc);
+                                 utils::Config::required(instanceSc, !disableOpt->as<bool>());
                              },
                              "Disable this instance")
                          ->trigger_on_parse()
@@ -118,24 +117,19 @@ namespace net::config {
     }
 
     void ConfigInstance::required(CLI::App* section, bool req) {
-        if (req) {
-            ++requiredCount;
-            instanceSc //
-                ->needs(section);
-        } else {
-            if (requiredCount > 0) {
+        if (req != section->get_required()) {
+            if (req) {
+                ++requiredCount;
+                instanceSc->needs(section);
+            } else {
                 --requiredCount;
+                instanceSc->remove_needs(section);
             }
-            instanceSc //
-                ->remove_needs(section);
-        }
 
-        if (!disableOpt->as<bool>()) {
-            instanceSc //
-                ->required(requiredCount > 0);
+            section->required(req);
 
-            if ((req && requiredCount == 1) || (!req && requiredCount == 0)) {
-                utils::Config::needs_instance(instanceSc);
+            if (!disableOpt->as<bool>()) {
+                utils::Config::required(instanceSc, requiredCount > 0);
             }
         }
     }
@@ -154,8 +148,7 @@ namespace net::config {
             ->default_val(disabled ? "true" : "false")
             ->clear();
 
-        instanceSc->required(!disabled);
-        utils::Config::needs_instance(instanceSc);
+        utils::Config::required(instanceSc, !disabled);
     }
 
 } // namespace net::config

@@ -864,18 +864,18 @@ namespace utils {
         return instance;
     }
 
-    void Config::needs_instance(CLI::App* instance) {
-        if (instance->get_required()) {
+    void Config::required(CLI::App* instance, bool req) {
+        if (req) {
             app.needs(instance);
         } else {
             app.remove_needs(instance);
         }
+
+        instance->required(req);
     }
 
     bool Config::remove_instance(CLI::App* instance) {
-        instance->required(false);
-
-        Config::needs_instance(instance);
+        Config::required(instance, false);
 
         return app.remove_subcommand(instance);
     }
@@ -888,6 +888,8 @@ namespace utils {
                                        ->configurable()
                                        ->required()
                                        ->group("Application Options");
+
+        app.needs(applicationOptions[name]);
     }
 
     void Config::add_string_option(const std::string& name,
@@ -899,6 +901,8 @@ namespace utils {
         applicationOptions[name] //
             ->required(false)
             ->default_val(defaultValue);
+
+        app.remove_needs(applicationOptions[name]);
     }
 
     void Config::add_string_option(

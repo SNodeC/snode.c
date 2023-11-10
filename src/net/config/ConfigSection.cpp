@@ -59,27 +59,20 @@ namespace net::config {
     }
 
     void ConfigSection::required(CLI::Option* opt, bool req) {
-        if (req) {
-            ++requiredCount;
-            opt //
-                ->default_str("")
-                ->required()
-                ->clear();
-            section //
-                ->needs(opt);
-        } else {
-            --requiredCount;
-            opt //
-                ->required(false)
-                ->clear();
-            section //
-                ->remove_needs(opt);
+        if (req != opt->get_required()) {
+            if (req) {
+                ++requiredCount;
+                section->needs(opt);
+                opt->default_str("");
+            } else {
+                --requiredCount;
+                section->remove_needs(opt);
+            }
+
+            opt->required(req);
+
+            instance->required(section, requiredCount > 0);
         }
-
-        section //
-            ->required(requiredCount > 0);
-
-        instance->required(section, requiredCount > 0);
     }
 
     bool ConfigSection::required() const {
