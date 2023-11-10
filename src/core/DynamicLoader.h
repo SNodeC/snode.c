@@ -23,7 +23,6 @@
 
 #include "core/system/dlfcn.h" // IWYU pragma: keep
 
-#include <cstddef>
 #include <list>
 #include <map>
 #include <string>
@@ -36,7 +35,6 @@ namespace core {
     private:
         struct Library {
             std::string fileName = "";
-            std::size_t refCount = 0;
             void* handle = nullptr;
         };
 
@@ -44,16 +42,12 @@ namespace core {
         DynamicLoader() = delete;
         ~DynamicLoader() = delete;
 
-#define dlOpen(libFile, flags) core::DynamicLoader::dlRegisterHandle(::dlopen((libFile).c_str(), flags), libFile)
+#define dlOpen(libFile, flags) dlRegisterHandle(::dlopen((libFile).c_str(), flags), libFile)
 
         static void* dlRegisterHandle(void* handle, const std::string& libFile);
-
         static void dlCloseDelayed(void* handle);
-
         static int dlClose(void* handle);
-
         static void* dlSym(void* handle, const std::string& symbol);
-
         static char* dlError();
 
     private:

@@ -37,7 +37,6 @@ namespace core {
                 dlOpenedLibraries[handle].fileName = libFile;
                 dlOpenedLibraries[handle].handle = handle;
             }
-            dlOpenedLibraries[handle].refCount++;
             LOG(TRACE) << "DynLoader: dlOpen: success";
             LOG(TRACE) << "           " << libFile;
         } else {
@@ -102,17 +101,14 @@ namespace core {
 
     int DynamicLoader::dlClose(Library& library) {
         int ret = 0;
+        ret = realExecDlClose(library);
 
-        while (library.refCount-- > 0 && ret == 0) {
-            ret = realExecDlClose(library);
-
-            if (ret != 0) {
-                LOG(TRACE) << "DynLoader: dlClose library: " << DynamicLoader::dlError();
-            } else {
-                LOG(TRACE) << "DynLoader: dlClose library";
-            }
-            LOG(TRACE) << "           " << library.fileName;
+        if (ret != 0) {
+            LOG(TRACE) << "DynLoader: dlClose library: " << DynamicLoader::dlError();
+        } else {
+            LOG(TRACE) << "DynLoader: dlClose library";
         }
+        LOG(TRACE) << "           " << library.fileName;
 
         return ret;
     }
