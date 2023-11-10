@@ -139,14 +139,14 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setHostRequired(int required) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setHostRequired(bool required) {
         Super::required(hostOpt, required);
 
         return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPortRequired(int required) {
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPortRequired(bool required) {
         Super::required(portOpt, required);
 
         return *this;

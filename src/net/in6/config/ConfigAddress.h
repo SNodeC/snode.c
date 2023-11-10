@@ -76,8 +76,8 @@ namespace net::in6::config {
         ConfigAddress& setAiProtocol(int aiProtocol);
         int getAiProtocol() const;
 
-        ConfigAddress& setHostRequired(int required = true);
-        ConfigAddress& setPortRequired(int required = true);
+        ConfigAddress& setHostRequired(bool required = true);
+        ConfigAddress& setPortRequired(bool required = true);
 
     private:
         CLI::Option* hostOpt = nullptr;
