@@ -84,9 +84,10 @@ namespace net::config {
         CLI::App* sectionSc = instanceSc //
                                   ->add_subcommand(name, description)
                                   ->configurable(false)
-                                  ->group(this->name.empty() ? "" : "Sections")
-                                  ->disabled(this->name.empty())
-                                  ->silent(this->name.empty());
+                                  ->allow_extras(false)
+                                  ->group("Sections")
+                                  ->disabled(this->name.empty());
+
         sectionSc //
             ->option_defaults()
             ->configurable(!this->name.empty());

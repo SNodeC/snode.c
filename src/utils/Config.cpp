@@ -786,12 +786,12 @@ namespace utils {
 
     CLI::App* Config::add_instance(const std::string& name, const std::string& description) {
         CLI::App* instance = app.add_subcommand(name, description) //
+                                 ->group("Instances")
+                                 ->fallthrough()
+                                 ->formatter(sectionFormatter)
                                  ->configurable(false)
                                  ->allow_extras(false)
-                                 ->formatter(sectionFormatter)
-                                 ->fallthrough()
-                                 ->group(name.empty() ? "" : "Instances")
-                                 ->silent(name.empty());
+                                 ->disabled(name.empty());
         instance //
             ->option_defaults()
             ->configurable(!name.empty());
