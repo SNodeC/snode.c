@@ -29,10 +29,15 @@
 
 namespace iot::mqtt::server::broker {
 
-    Message::Message(const std::string& topic, const std::string& message, uint8_t qoS)
-        : topic(topic)
+    Message::Message(const std::string& originClientId, const std::string& topic, const std::string& message, uint8_t qoS)
+        : originClientId(originClientId)
+        , topic(topic)
         , message(message)
         , qoS(qoS) {
+    }
+
+    const std::string& Message::getOriginClientId() const {
+        return originClientId;
     }
 
     const std::string& Message::getTopic() const {
@@ -62,6 +67,7 @@ namespace iot::mqtt::server::broker {
     nlohmann::json Message::toJson() const {
         nlohmann::json json;
 
+        json["origin_client_id"] = originClientId;
         json["topic"] = topic;
         json["message"] = message;
         json["qos"] = qoS;
@@ -71,6 +77,7 @@ namespace iot::mqtt::server::broker {
 
     Message& Message::fromJson(const nlohmann::json& json) {
         if (!json.empty()) {
+            originClientId = json["origin_client_id"];
             topic = json["topic"];
             message = json["message"];
             qoS = json["qos"];

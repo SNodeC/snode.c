@@ -54,7 +54,7 @@ namespace iot::mqtt::server::broker {
         void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
         void unsubscribe(const std::string& clientId);
 
-        void publish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
+        void publish(const std::string& originClientId, const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
         uint8_t subscribe(const std::string& clientId, const std::string& topic, uint8_t qoS);
         void unsubscribe(const std::string& clientId, const std::string& topic);
 

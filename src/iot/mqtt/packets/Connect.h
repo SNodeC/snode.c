@@ -45,7 +45,8 @@ namespace iot::mqtt::packets {
                          uint8_t willQoS,
                          bool willRetain,
                          const std::string& username,
-                         const std::string& password);
+                         const std::string& password,
+                         bool reflect);
 
     private:
         std::vector<char> serializeVP() const override;
@@ -64,6 +65,7 @@ namespace iot::mqtt::packets {
         uint8_t getWillQoS() const;
         bool getWillFlag() const;
         bool getCleanSession() const;
+        bool getReflect() const;
 
         std::string getWillTopic() const;
         std::string getWillMessage() const;
@@ -87,6 +89,7 @@ namespace iot::mqtt::packets {
         uint8_t willQoS = 0;
         bool willFlag = false;
         bool cleanSession = false;
+        bool reflect = true;
         bool reserved = false;
     };
 

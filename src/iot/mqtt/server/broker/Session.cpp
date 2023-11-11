@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <nlohmann/json.hpp>
+#include <string>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
 
@@ -43,7 +44,9 @@ namespace iot::mqtt::server::broker {
         LOG(DEBUG) << "MQTT Broker:   QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
-            mqtt->sendPublish(message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), retain);
+            if ((mqtt->getReflect() || mqtt->getClientId() != message.getOriginClientId())) {
+                mqtt->sendPublish(message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), retain);
+            }
         } else {
             if (message.getQoS() == 0) {
                 messageQueue.clear();

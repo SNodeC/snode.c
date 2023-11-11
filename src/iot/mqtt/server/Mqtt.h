@@ -117,6 +117,7 @@ namespace iot::mqtt::server {
         uint8_t getWillQoS() const;
         bool getWillFlag() const;
         bool getCleanSession() const;
+        bool getReflect() const;
 
     protected:
         std::string protocol;
@@ -135,6 +136,7 @@ namespace iot::mqtt::server {
         uint8_t willQoS = 0;
         bool willFlag = false;
         bool cleanSession = false;
+        bool reflect = true;
 
         std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
 

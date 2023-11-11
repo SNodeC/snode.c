@@ -238,13 +238,14 @@ namespace iot::mqtt::client {
                            uint8_t willQoS,
                            bool willRetain,
                            const std::string& username,
-                           const std::string& password) { // Client
+                           const std::string& password,
+                           bool reflect) { // Client
         this->clientId = clientId.empty() ? "<unnamed>" : clientId;
 
         LOG(DEBUG) << "MQTT Client: CONNECT send: " << clientId;
 
         send(iot::mqtt::packets::Connect(
-            clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password));
+            clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password, reflect));
 
         this->keepAlive = keepAlive;
     }

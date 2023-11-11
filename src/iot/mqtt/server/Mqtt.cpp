@@ -55,7 +55,7 @@ namespace iot::mqtt::server {
         releaseSession();
 
         if (willFlag) {
-            broker->publish(willTopic, willMessage, willQoS, willRetain);
+            broker->publish(clientId, willTopic, willMessage, willQoS, willRetain);
         }
     }
 
@@ -207,7 +207,7 @@ namespace iot::mqtt::server {
         if (connect.getProtocol() != "MQTT") {
             LOG(DEBUG) << "MQTT Broker:   Wrong Protocol: " << connect.getProtocol();
             mqttContext->end(true);
-        } else if (connect.getLevel() != MQTT_VERSION_3_1_1) {
+        } else if ((connect.getLevel()) != MQTT_VERSION_3_1_1) {
             LOG(DEBUG) << "MQTT Broker:   Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
@@ -221,6 +221,7 @@ namespace iot::mqtt::server {
             // V-Header
             protocol = connect.getProtocol();
             level = connect.getLevel();
+            reflect = connect.getReflect();
             connectFlags = connect.getConnectFlags();
             keepAlive = connect.getKeepAlive();
 
@@ -247,7 +248,7 @@ namespace iot::mqtt::server {
 
     void Mqtt::_onPublish(const iot::mqtt::server::packets::Publish& publish) {
         if (Super::_onPublish(publish)) {
-            broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
+            broker->publish(clientId, publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
 
             onPublish(publish);
         }
@@ -389,6 +390,10 @@ namespace iot::mqtt::server {
 
     bool Mqtt::getCleanSession() const {
         return cleanSession;
+    }
+
+    bool Mqtt::getReflect() const {
+        return reflect;
     }
 
 } // namespace iot::mqtt::server
