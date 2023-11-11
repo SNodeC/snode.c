@@ -32,7 +32,7 @@
 #include <cerrno>
 #include <cstddef>
 #include <functional> // IWYU pragma: export
-#include <memory>
+#include <memory>     // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
