@@ -45,7 +45,7 @@ namespace web::http {
         virtual ~SocketContextUpgradeFactorySelector() = default;
 
     private:
-        using SocketContextPlugin = struct SocketContextPlugin {
+        struct SocketContextPlugin {
             SocketContextUpgradeFactory* socketContextUpgradeFactory;
             void* handle = nullptr;
         };
