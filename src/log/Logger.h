@@ -59,7 +59,7 @@ namespace logger {
         static void setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver);
 
     protected:
-        static el::Configurations conf;
+        //        static el::Configurations conf;
     };
 
 } // namespace logger

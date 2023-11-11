@@ -28,9 +28,9 @@ INITIALIZE_EASYLOGGINGPP
 
 namespace logger {
 
-    el::Configurations Logger::conf;
-
     void Logger::init() {
+        el::Configurations conf = *el::Loggers::defaultConfigurations();
+
         conf.setGlobally(el::ConfigurationType::Enabled, "true");
         conf.setGlobally(el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %level %msg");
         conf.setGlobally(el::ConfigurationType::ToFile, "false");
@@ -44,18 +44,9 @@ namespace logger {
         el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
         el::Loggers::addFlag(el::LoggingFlag::DisablePerformanceTrackingCheckpointComparison);
         el::Loggers::addFlag(el::LoggingFlag::ColoredTerminalOutput);
-
         el::Loggers::removeFlag(el::LoggingFlag::AllowVerboseIfModuleNotSpecified);
 
-        el::Loggers::reconfigureLogger("default", conf);
-
-        el::Logger* logger = el::Loggers::getLogger("default");
-        std::string logFilename = logger->typedConfigurations()->filename(el::Level::Verbose).c_str();
-
-        if (logFilename != "/dev/null") {
-            conf.setGlobally(el::ConfigurationType::ToFile, "true");
-            el::Loggers::reconfigureLogger("default", conf);
-        }
+        el::Loggers::setDefaultConfigurations(conf, true);
 
         setVerboseLevel(0);
         setLogLevel(0);
@@ -68,6 +59,8 @@ namespace logger {
     // Application logging should be done with VLOG(loglevel)
     // Framework logging should use one of the following levels
     void Logger::setLogLevel(int level) {
+        el::Configurations conf = *el::Loggers::defaultConfigurations();
+
         conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");   // trace method/function calling
         conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");   // typical assert messages - but we can go on
         conf.set(el::Level::Info, el::ConfigurationType::Enabled, "false");    // additional infos - what 's going on
@@ -99,7 +92,7 @@ namespace logger {
             default:;
         }
 
-        el::Loggers::reconfigureLogger("default", conf);
+        el::Loggers::setDefaultConfigurations(conf, true);
     }
 
     void Logger::setVerboseLevel(int level) {
@@ -109,16 +102,20 @@ namespace logger {
     }
 
     void Logger::logToFile(const std::string& logFile) {
+        el::Configurations conf = *el::Loggers::defaultConfigurations();
+
         conf.setGlobally(el::ConfigurationType::Filename, logFile);
         conf.setGlobally(el::ConfigurationType::ToFile, "true");
 
-        el::Loggers::reconfigureLogger("default", conf);
+        el::Loggers::setDefaultConfigurations(conf, true);
     }
 
     void Logger::quiet() {
+        el::Configurations conf = *el::Loggers::defaultConfigurations();
+
         conf.setGlobally(el::ConfigurationType::ToStandardOutput, "false");
 
-        el::Loggers::reconfigureLogger("default", conf);
+        el::Loggers::setDefaultConfigurations(conf, true);
     }
 
 } // namespace logger
