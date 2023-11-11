@@ -128,15 +128,14 @@ namespace web::http {
         std::string upgradeContextNames = socketContextUpgradeFactory->name();
 
         if (socketContextUpgradePlugins.contains(upgradeContextNames)) {
-            SocketContextPlugin& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
+            SocketContextPlugin socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
+            socketContextUpgradePlugins.erase(upgradeContextNames);
 
             delete socketContextUpgradeFactory;
 
             if (socketContextPlugin.handle != nullptr) {
                 core::DynamicLoader::dlCloseDelayed(socketContextPlugin.handle);
             }
-
-            socketContextUpgradePlugins.erase(upgradeContextNames);
         }
     }
 

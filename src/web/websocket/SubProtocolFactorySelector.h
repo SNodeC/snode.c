@@ -113,14 +113,14 @@ namespace web::websocket {
             std::string name = subProtocolFactory->getName();
 
             if (subProtocolFactories.contains(name)) {
+                subProtocolFactories.erase(name);
+
                 void* handle = subProtocolFactory->getHandle();
                 delete subProtocolFactory;
 
                 if (handle != nullptr) {
-                    core::DynamicLoader::dlCloseDelayed(handle);
+                    core::DynamicLoader::dlClose(handle);
                 }
-
-                subProtocolFactories.erase(name);
             }
         }
 
