@@ -133,10 +133,10 @@ namespace iot::mqtt::server::broker {
 
     void
     Broker::publish(const std::string& originClientId, const std::string& topic, const std::string& message, uint8_t qoS, bool retain) {
-        subscribtionTree.publish(Message(originClientId, topic, message, qoS));
+        subscribtionTree.publish(Message(originClientId, topic, message, qoS, retain));
 
         if (retain) {
-            retainTree.retain(Message(originClientId, topic, message, qoS));
+            retainTree.retain(Message(originClientId, topic, message, qoS, retain));
         }
     }
 

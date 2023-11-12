@@ -45,7 +45,10 @@ namespace iot::mqtt::server::broker {
 
         if (isActive()) {
             if ((mqtt->getReflect() || mqtt->getClientId() != message.getOriginClientId())) {
-                mqtt->sendPublish(message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), retain);
+                mqtt->sendPublish(message.getTopic(),
+                                  message.getMessage(),
+                                  std::min(message.getQoS(), qoS),
+                                  !mqtt->getReflect() ? message.getOriginRetain() || retain : retain);
             }
         } else {
             if (message.getQoS() == 0) {

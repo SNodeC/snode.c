@@ -32,7 +32,7 @@ namespace iot::mqtt::server::broker {
     class Message {
     public:
         Message() = default;
-        Message(const std::string& originClientId, const std::string& topic, const std::string& message, uint8_t qoS);
+        Message(const std::string& originClientId, const std::string& topic, const std::string& message, uint8_t qoS, bool originRetain);
         Message(const Message& message) = default;
 
         Message& operator=(const Message&) = default;
@@ -48,6 +48,8 @@ namespace iot::mqtt::server::broker {
         uint8_t getQoS() const;
         void setQoS(uint8_t qoS);
 
+        bool getOriginRetain() const;
+
         nlohmann::json toJson() const;
         Message& fromJson(const nlohmann::json& json);
 
@@ -56,6 +58,7 @@ namespace iot::mqtt::server::broker {
         std::string topic;
         std::string message;
         uint8_t qoS = 0;
+        bool originRetain = false;
     };
 
 } // namespace iot::mqtt::server::broker
