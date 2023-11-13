@@ -22,6 +22,7 @@
 #include "core/SNodeC.h"
 #include "core/socket/Socket.h" // IWYU pragma: export
 #include "core/socket/State.h"  // IWYU pragma: export
+#include "core/socket/stream/SocketContextFactory.h"
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -38,7 +39,9 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketConnectorT, typename SocketContextFactoryT>
+    template <typename SocketConnectorT,
+              typename SocketContextFactoryT,
+              typename = std::enable_if_t<std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>>>
     class SocketClient : public core::socket::Socket<typename SocketConnectorT::Config> {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml

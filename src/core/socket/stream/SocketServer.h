@@ -22,6 +22,7 @@
 #include "core/SNodeC.h"
 #include "core/socket/Socket.h" // IWYU pragma: export
 #include "core/socket/State.h"  // IWYU pragma: export
+#include "core/socket/stream/SocketContextFactory.h"
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,7 +40,9 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketAcceptorT, typename SocketContextFactoryT>
+    template <typename SocketAcceptorT, /* NOLINT */
+              typename SocketContextFactoryT,
+              typename = std::enable_if_t<std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>>>
     class SocketServer : public core::socket::Socket<typename SocketAcceptorT::Config> {
     private:
         using SocketAcceptor = SocketAcceptorT;
