@@ -240,7 +240,7 @@ namespace iot::mqtt::client {
                            const std::string& username,
                            const std::string& password,
                            bool reflect) { // Client
-        this->clientId = clientId.empty() ? "<unnamed>" : clientId;
+        this->clientId = clientId;
 
         LOG(DEBUG) << "MQTT Client: CONNECT send: " << clientId;
 
