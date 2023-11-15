@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_LEGACY_SOCKETSERVER_H
-#define NET_L2_STREAM_LEGACY_SOCKETSERVER_H
+#ifndef NET_L2_STREAM_TLS_SOCKETSERVER_H
+#define NET_L2_STREAM_TLS_SOCKETSERVER_H
 
 #include "core/socket/stream/tls/SocketAcceptor.h"       // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnection.h"     // IWYU pragma: export
@@ -50,4 +50,4 @@ extern template class core::socket::stream::SocketConnectionT<net::l2::phy::stre
                                                               core::socket::stream::tls::SocketReader,
                                                               core::socket::stream::tls::SocketWriter>;
 
-#endif // NET_L2_STREAM_LEGACY_SOCKETSERVER_H
+#endif // NET_L2_STREAM_TLS_SOCKETSERVER_H
