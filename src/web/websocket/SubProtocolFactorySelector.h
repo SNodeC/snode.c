@@ -119,7 +119,7 @@ namespace web::websocket {
                 delete subProtocolFactory;
 
                 if (handle != nullptr) {
-                    core::DynamicLoader::dlClose(handle);
+                    core::DynamicLoader::dlCloseDelayed(handle);
                 }
             }
         }
