@@ -22,7 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -49,7 +48,7 @@ namespace net::config {
                                        "          \"UseDefaultCaDir\" -> value:BOOLEAN [false],\n"
                                        "          \"SslOptions\" -> value:UINT\n"
                                        "        }") //
-                          ->type_name("sni <key> value {<key> value} ... {%% sni <key> value {<key> value} ...}");
+                          ->type_name("sni <key> value [<key> value] ... [%% sni <key> value [<key> value] ...]");
         if (sniCertsOpt->get_configurable()) {
             sniCertsOpt->group(section->get_formatter()->get_label("Persistent Options"));
         }
@@ -92,7 +91,6 @@ namespace net::config {
             forceSniOpt, "--force-sni", "Force using of the Server Name Indication", "bool", "false", CLI::IsMember({"true", "false"}));
 
         section->final_callback([this](void) -> void {
-            std::list<std::string> vaultyDomainConfigs;
             for (auto& [domain, sniMap] : sniCerts) {
                 if (sniMap.begin()->first.empty()) {
                     sniCertsOpt //
@@ -102,17 +100,12 @@ namespace net::config {
                     for (auto& [key, value] : sniMap) {
                         if (key != "CertChain" && key != "CertKey" && key != "CertKeyPassword" && key != "CaCertFile" &&
                             key != "CaCertDir" && key != "UseDefaultCaDir" && key != "CipherList" && key != "SslOptions") {
-                            vaultyDomainConfigs.push_back(key);
                             throw CLI::ConversionError("'" + key + "' of option '--" + section->get_parent()->get_name() + "." +
                                                            section->get_name() + ".sni-cert'",
                                                        "<key>");
                         }
                     }
                 }
-            }
-
-            for (const std::string& domain : vaultyDomainConfigs) {
-                sniCerts.erase(domain);
             }
         });
     }
