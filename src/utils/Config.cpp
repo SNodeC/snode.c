@@ -147,7 +147,7 @@ namespace utils {
     CLI::Option* Config::quietOpt = nullptr;
 
     std::shared_ptr<CLI::Formatter> Config::sectionFormatter;
-    std::map<std::string, std::string> Config::prefixMap;
+    std::map<std::string, std::string> Config::aliases;
     std::map<std::string, CLI::Option*> Config::applicationOptions;
 
     // Declare some used functions
@@ -311,40 +311,6 @@ namespace utils {
                        "(C) 2019-2023 Volker Christian\n"
                        "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
 
-            app.add_flag_callback( //
-                   "-h,--help",
-                   []() {
-                       throw CLI::CallForHelp();
-                   },
-                   "Print this help message and exit") //
-                ->configurable(false)
-                ->disable_flag_override()
-                ->trigger_on_parse();
-
-            app.add_flag_callback( //
-                   "-a,--help-all",
-                   []() {
-                       throw CLI::CallForAllHelp();
-                   },
-                   "Print this help message, expand instances and exit")
-                ->configurable(false)
-                ->disable_flag_override()
-                ->trigger_on_parse();
-
-            app.add_flag( //
-                   "-s,--show-config",
-                   "Show current configuration and exit") //
-                ->configurable(false)
-                ->disable_flag_override();
-
-            app.add_option("-w,--write-config",
-                           "Write config file and exit") //
-                ->configurable(false)
-                ->default_val(configDirectory + "/" + applicationName + ".conf")
-                ->type_name("[configfile]")
-                ->check(!CLI::ExistingDirectory)
-                ->expected(0, 1);
-
             app.set_config( //
                    "-c,--config-file",
                    configDirectory + "/" + applicationName + ".conf",
@@ -354,23 +320,17 @@ namespace utils {
                 ->type_name("configfile")
                 ->check(!CLI::ExistingDirectory);
 
-            app.add_option( //
-                   "-i,--instance-map",
-                   "Instance name mapping used to make an instance known under an alias name also in a config file")
+            app.add_option("-w,--write-config",
+                           "Write config file and exit") //
                 ->configurable(false)
-                ->type_name("name=mapped_name")
-                ->each([](const std::string& item) -> void {
-                    const auto it = item.find('=');
-                    if (it != item.npos) {
-                        prefixMap[item.substr(0, it)] = item.substr(it + 1);
-                    } else {
-                        throw CLI::ConversionError("Can not convert '" + item + "' to a 'name=mapped_name' pair");
-                    }
-                });
+                ->default_val(configDirectory + "/" + applicationName + ".conf")
+                ->type_name("[configfile]")
+                ->check(!CLI::ExistingDirectory)
+                ->expected(0, 1);
 
             app.add_flag( //
-                   "-k,--kill",
-                   "Kill running daemon") //
+                   "-s,--show-config",
+                   "Show current configuration and exit") //
                 ->configurable(false)
                 ->disable_flag_override();
 
@@ -379,7 +339,7 @@ namespace utils {
                    []() {
                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::REQUIRED);
                    },
-                   "Print a template command line showing required options only and exit")
+                   "Print a template command line showing required options only")
                 ->configurable(false)
                 ->disable_flag_override();
 
@@ -388,7 +348,7 @@ namespace utils {
                    []() {
                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::ALL);
                    },
-                   "Print a template command line showing all possible options and exit")
+                   "Print a template command line showing all possible options")
                 ->configurable(false)
                 ->disable_flag_override();
 
@@ -397,9 +357,29 @@ namespace utils {
                    []() {
                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::CONFIGURED);
                    },
-                   "Print a template command line showing all required and configured options and exit") //
+                   "Print a template command line showing all required and configured options") //
                 ->configurable(false)
                 ->disable_flag_override();
+
+            app.add_flag( //
+                   "-k,--kill",
+                   "Kill running daemon") //
+                ->configurable(false)
+                ->disable_flag_override();
+
+            app.add_option( //
+                   "-i,--instance-alias",
+                   "Make an instance also known as an alias in configuration files")
+                ->configurable(false)
+                ->type_name("instance=instance_alias [instance=instance_alias [...]]")
+                ->each([](const std::string& item) -> void {
+                    const auto it = item.find('=');
+                    if (it != item.npos) {
+                        aliases[item.substr(0, it)] = item.substr(it + 1);
+                    } else {
+                        throw CLI::ConversionError("Can not convert '" + item + "' to a 'instance=instance_alias' pair");
+                    }
+                });
 
             app.set_version_flag( //
                 "--version",
@@ -502,7 +482,7 @@ namespace utils {
     }
 
     bool Config::bootstrap() {
-        prefixMap.clear();
+        aliases.clear();
 
         app.final_callback([](void) -> void {
             if (daemonizeOpt->as<bool>() && app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 &&
@@ -678,6 +658,26 @@ namespace utils {
         }
 
         app.allow_extras(false);
+
+        app.add_flag_callback( //
+               "-h,--help",
+               []() {
+                   throw CLI::CallForHelp();
+               },
+               "Print this help message") //
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse();
+
+        app.add_flag_callback( //
+               "-a,--help-all",
+               []() {
+                   throw CLI::CallForAllHelp();
+               },
+               "Print this help message, expand instances")
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse();
     }
 
     bool Config::parse2() {
@@ -796,12 +796,10 @@ namespace utils {
             ->option_defaults()
             ->configurable(!name.empty());
 
-        instance->set_help_flag();
-
-        if (!prefixMap.empty()) {
-            if (prefixMap.contains(name)) {
+        if (!aliases.empty()) {
+            if (aliases.contains(name)) {
                 instance //
-                    ->alias(prefixMap[name]);
+                    ->alias(aliases[name]);
             } else {
                 instance //
                     ->option_defaults()
@@ -811,11 +809,43 @@ namespace utils {
 
         instance //
             ->add_flag_callback(
+                "--commandline",
+                [instance]() {
+                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::REQUIRED);
+                },
+                "Print a template command line showing required options only")
+            ->configurable(false)
+            ->disable_flag_override();
+
+        instance //
+            ->add_flag_callback(
+                "--commandline-full",
+                [instance]() {
+                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::ALL);
+                },
+                "Print a template command line showing all possible options")
+            ->configurable(false)
+            ->disable_flag_override();
+
+        instance //
+            ->add_flag_callback(
+                "--commandline-configured",
+                [instance]() {
+                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::CONFIGURED);
+                },
+                "Print a template command line showing all required and configured options") //
+            ->configurable(false)
+            ->disable_flag_override();
+
+        instance->set_help_flag();
+
+        instance //
+            ->add_flag_callback(
                 "-h,--help",
                 []() {
                     throw CLI::CallForHelp();
                 },
-                "Print this help message and exit")
+                "Print this help message")
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
@@ -826,40 +856,10 @@ namespace utils {
                 []() {
                     throw CLI::CallForAllHelp();
                 },
-                "Print this help message, expand sections and exit")
+                "Print this help message, expand sections")
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
-
-        instance //
-            ->add_flag_callback(
-                "--commandline",
-                [instance]() {
-                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::REQUIRED);
-                },
-                "Print a template command line showing required options only and exit")
-            ->configurable(false)
-            ->disable_flag_override();
-
-        instance //
-            ->add_flag_callback(
-                "--commandline-full",
-                [instance]() {
-                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::ALL);
-                },
-                "Print a template command line showing all possible options and exit")
-            ->configurable(false)
-            ->disable_flag_override();
-
-        instance //
-            ->add_flag_callback(
-                "--commandline-configured",
-                [instance]() {
-                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::CONFIGURED);
-                },
-                "Print a template command line showing all required and configured options and exit") //
-            ->configurable(false)
-            ->disable_flag_override();
 
         return instance;
     }
