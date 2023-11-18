@@ -29,11 +29,7 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(PhysicalSocket& physicalSocket,
                                                                                      const SocketAddress& localAddress,
                                                                                      const SocketAddress& remoteAddress,
@@ -66,28 +62,16 @@ namespace core::socket::stream {
         SocketWriter::suspend();
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::~SocketConnectionT() {
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     int SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getFd() const {
         return PhysicalSocket::getFd();
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::close() {
         if (SocketWriter::isEnabled()) {
             SocketWriter::disable();
@@ -97,20 +81,12 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
         shutdown();
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdown() {
         if (!shutdownTriggered) {
             PhysicalSocket::shutdown(PhysicalSocket::SHUT::RD);
@@ -118,11 +94,7 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
         errno = 0;
 
@@ -133,11 +105,7 @@ namespace core::socket::stream {
         onShutdown(errno);
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdown(const std::function<void(int)>& onShutdown) {
         if (!shutdownInProgress) {
             this->onShutdown = onShutdown;
@@ -151,11 +119,7 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
         shutdown([forceClose, this](int errnum) -> void {
             if (errnum != 0) {
@@ -169,41 +133,25 @@ namespace core::socket::stream {
         });
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::setTimeout(const utils::Timeval& timeout) {
         SocketReader::setTimeout(timeout);
         SocketWriter::setTimeout(timeout);
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     const typename SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketAddress&
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getLocalAddress() const {
         return localAddress;
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     const typename SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketAddress&
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getRemoteAddress() const {
         return remoteAddress;
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readFromPeer(char* junk, std::size_t junkLen) {
         std::size_t ret = 0;
 
@@ -216,11 +164,7 @@ namespace core::socket::stream {
         return ret;
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::sendToPeer(const char* junk, std::size_t junkLen) {
         if (newSocketContext == nullptr) {
             if (!shutdownInProgress && !SocketWriter::markShutdown) {
@@ -231,20 +175,12 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getExitProcessed() {
         return exitProcessed;
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReceivedFromPeer(std::size_t available) {
         std::size_t consumed = socketContext->onReceivedFromPeer();
 
@@ -260,29 +196,17 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onWriteError(int errnum) {
         socketContext->onWriteError(errnum);
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReadError(int errnum) {
         socketContext->onReadError(errnum);
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onExit(int sig) {
         if (!exitProcessed) {
             socketContext->onExit(sig);
@@ -290,29 +214,17 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readTimeout() {
         close();
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::writeTimeout() {
         close();
     }
 
-    template <typename PhysicalSocket,
-              template <typename PhysicalSocketT>
-              typename SocketReader,
-              template <typename PhysicalSocketT>
-              typename SocketWriter>
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::unobservedEvent() {
         disconnected();
         onDisconnect();

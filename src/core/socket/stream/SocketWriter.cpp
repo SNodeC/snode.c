@@ -26,24 +26,21 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalSocket>
-    SocketWriter<PhysicalSocket>::SocketWriter(const std::function<void(int)>& onStatus,
-                                               const utils::Timeval& timeout,
-                                               std::size_t blockSize,
-                                               const utils::Timeval& terminateTimeout)
+    SocketWriter::SocketWriter(const std::function<void(int)>& onStatus,
+                               const utils::Timeval& timeout,
+                               std::size_t blockSize,
+                               const utils::Timeval& terminateTimeout)
         : core::eventreceiver::WriteEventReceiver("SocketWriter", timeout)
         , onStatus(onStatus)
         , terminateTimeout(terminateTimeout) {
         setBlockSize(blockSize);
     }
 
-    template <typename PhysicalSocket>
-    void SocketWriter<PhysicalSocket>::writeEvent() {
+    void SocketWriter::writeEvent() {
         doWrite();
     }
 
-    template <typename PhysicalSocket>
-    void SocketWriter<PhysicalSocket>::doWrite() {
+    void SocketWriter::doWrite() {
         if (!writeBuffer.empty()) {
             std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
             ssize_t retWrite = write(writeBuffer.data(), writeLen);
@@ -79,13 +76,11 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalSocket>
-    void SocketWriter<PhysicalSocket>::setBlockSize(std::size_t writeBlockSize) {
+    void SocketWriter::setBlockSize(std::size_t writeBlockSize) {
         this->blockSize = writeBlockSize;
     }
 
-    template <typename PhysicalSocket>
-    void SocketWriter<PhysicalSocket>::sendToPeer(const char* junk, std::size_t junkLen) {
+    void SocketWriter::sendToPeer(const char* junk, std::size_t junkLen) {
         if (isEnabled()) {
             if (writeBuffer.empty()) {
                 resume();
@@ -95,8 +90,7 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalSocket>
-    void SocketWriter<PhysicalSocket>::terminate() {
+    void SocketWriter::terminate() {
         if (!terminateInProgress) {
             setTimeout(terminateTimeout);
             shutdown([this]([[maybe_unused]] int errnum) -> void {

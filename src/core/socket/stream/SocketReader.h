@@ -23,7 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
+#include "utils/Timeval.h"
+
 #include <cstddef>
 #include <functional>
 #include <sys/types.h>
@@ -33,14 +34,11 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalSocketT>
     class SocketReader : public core::eventreceiver::ReadEventReceiver {
     public:
         SocketReader() = delete;
 
     protected:
-        using PhysicalSocket = PhysicalSocketT;
-
         explicit SocketReader(const std::function<void(int)>& onStatus,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
@@ -73,8 +71,6 @@ namespace core::socket::stream {
         bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;
-
-        int haveBeenRead = 0;
     };
 
 } // namespace core::socket::stream

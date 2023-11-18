@@ -85,22 +85,18 @@ namespace core::socket::stream {
         bool socketContextConnected = false;
     };
 
-    template <typename PhysicalSocketT,
-              template <typename PhysicalSocket>
-              typename SocketReaderT,
-              template <typename PhysicalSocket>
-              typename SocketWriterT>
+    template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT>
     class SocketConnectionT
         : public SocketConnection
         , public PhysicalSocketT
-        , protected SocketReaderT<PhysicalSocketT>
-        , protected SocketWriterT<PhysicalSocketT> {
+        , protected SocketReaderT
+        , protected SocketWriterT {
     protected:
         using Super = core::socket::stream::SocketConnection;
 
         using PhysicalSocket = PhysicalSocketT;
-        using SocketReader = SocketReaderT<PhysicalSocket>;
-        using SocketWriter = SocketWriterT<PhysicalSocket>;
+        using SocketReader = SocketReaderT;
+        using SocketWriter = SocketWriterT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
     public:

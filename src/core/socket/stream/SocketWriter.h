@@ -33,14 +33,11 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalSocketT>
     class SocketWriter : public core::eventreceiver::WriteEventReceiver {
     public:
         SocketWriter() = delete;
 
     protected:
-        using PhysicalSocket = PhysicalSocketT;
-
         explicit SocketWriter(const std::function<void(int)>& onStatus,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,

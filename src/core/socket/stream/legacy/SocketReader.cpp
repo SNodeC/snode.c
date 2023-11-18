@@ -16,8 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/SocketWriter.hpp" // IWYU pragma: export
-#include "core/socket/stream/legacy/SocketWriter.h"
+#include "core/socket/stream/legacy/SocketReader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,9 +26,8 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename PhysicalSocket>
-    ssize_t SocketWriter<PhysicalSocket>::write(const char* junk, std::size_t junkLen) {
-        return core::system::send(this->getRegisteredFd(), junk, junkLen, MSG_NOSIGNAL);
+    ssize_t SocketReader::read(char* junk, std::size_t junkLen) {
+        return core::system::recv(this->getRegisteredFd(), junk, junkLen, 0);
     }
 
 } // namespace core::socket::stream::legacy

@@ -20,23 +20,25 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
+#include <cerrno>
+#include <functional>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
 
-    template <typename PhysicalSocket>
-    SocketReader<PhysicalSocket>::SocketReader(const std::function<void(int)>& onStatus,
-                                               const utils::Timeval& timeout,
-                                               std::size_t blockSize,
-                                               const utils::Timeval& terminateTimeout)
+    SocketReader::SocketReader(const std::function<void(int)>& onStatus,
+                               const utils::Timeval& timeout,
+                               std::size_t blockSize,
+                               const utils::Timeval& terminateTimeout)
         : core::eventreceiver::ReadEventReceiver("SocketReader", timeout)
         , onStatus(onStatus)
         , terminateTimeout(terminateTimeout) {
         setBlockSize(blockSize);
     }
 
-    template <typename PhysicalSocket>
-    void SocketReader<PhysicalSocket>::readEvent() {
+    void SocketReader::readEvent() {
         std::size_t available = doRead();
 
         if (available > 0) {
@@ -44,8 +46,7 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalSocket>
-    std::size_t SocketReader<PhysicalSocket>::doRead() {
+    std::size_t SocketReader::doRead() {
         errno = 0;
 
         if (size == 0) {
@@ -76,14 +77,12 @@ namespace core::socket::stream {
         return size;
     }
 
-    template <typename PhysicalSocket>
-    void SocketReader<PhysicalSocket>::setBlockSize(std::size_t readBlockSize) {
+    void SocketReader::setBlockSize(std::size_t readBlockSize) {
         readBuffer.resize(readBlockSize);
         this->blockSize = readBlockSize;
     }
 
-    template <typename PhysicalSocket>
-    std::size_t SocketReader<PhysicalSocket>::readFromPeer(char* junk, std::size_t junkLen) {
+    std::size_t SocketReader::readFromPeer(char* junk, std::size_t junkLen) {
         std::size_t maxReturn = std::min(junkLen, size);
 
         std::copy(readBuffer.data() + cursor, readBuffer.data() + cursor + maxReturn, junk);
@@ -94,8 +93,7 @@ namespace core::socket::stream {
         return maxReturn;
     }
 
-    template <typename PhysicalSocket>
-    void SocketReader<PhysicalSocket>::terminate() {
+    void SocketReader::terminate() {
         if (!terminateInProgress) {
             setTimeout(terminateTimeout);
             // shutdown();

@@ -18,6 +18,7 @@ cmake_minimum_required(VERSION 3.18)
 
 set(CORE_SOCKET_STREAM_CPP SocketContext.cpp SocketContextFactory.cpp
                            SocketConnection.cpp
+                           SocketReader.cpp SocketWriter.cpp
 )
 
 set(CORE_SOCKET_STREAM_H
@@ -33,10 +34,8 @@ set(CORE_SOCKET_STREAM_H
     SocketContext.h
     SocketContextFactory.h
     SocketReader.h
-    SocketReader.hpp
     SocketServer.h
     SocketWriter.h
-    SocketWriter.hpp
 )
 
 add_library(
