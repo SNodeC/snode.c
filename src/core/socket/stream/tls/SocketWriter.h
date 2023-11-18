@@ -20,12 +20,11 @@
 #define CORE_SOCKET_STREAM_TLS_SOCKETWRITER_H
 
 #include "core/socket/stream/SocketWriter.h"
-#include "core/socket/stream/tls/TLSHandshake.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+#include <functional>
+#include <openssl/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

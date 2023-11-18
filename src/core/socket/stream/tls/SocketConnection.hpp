@@ -18,12 +18,15 @@
 
 #include "core/socket/stream/SocketConnection.hpp" // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnection.h"
+#include "core/socket/stream/tls/TLSHandshake.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
+
+#include <openssl/ssl.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

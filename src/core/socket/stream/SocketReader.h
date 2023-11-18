@@ -25,7 +25,7 @@
 
 #include "utils/Timeval.h"
 
-#include <cstddef>
+#include <cstdio> // IWYU pragma: export
 #include <functional>
 #include <sys/types.h>
 #include <vector>

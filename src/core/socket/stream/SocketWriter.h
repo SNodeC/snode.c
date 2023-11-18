@@ -23,8 +23,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-#include <cstddef>
+#include "utils/Timeval.h"
+
+#include <cstdio> // IWYU pragma: export
 #include <functional>
 #include <sys/types.h>
 #include <vector>
