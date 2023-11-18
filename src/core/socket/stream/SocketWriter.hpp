@@ -86,37 +86,12 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket>
     void SocketWriter<PhysicalSocket>::sendToPeer(const char* junk, std::size_t junkLen) {
-        if (!shutdownInProgress && !markShutdown && isEnabled()) {
+        if (isEnabled()) {
             if (writeBuffer.empty()) {
                 resume();
             }
 
             writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
-        }
-    }
-
-    template <typename PhysicalSocket>
-    void SocketWriter<PhysicalSocket>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
-        errno = 0;
-
-        LOG(TRACE) << "SocketWriter: Do syscall shutdonw (WR)";
-
-        PhysicalSocket::shutdown(PhysicalSocket::SHUT::WR);
-
-        onShutdown(errno);
-    }
-
-    template <typename PhysicalSocket>
-    void SocketWriter<PhysicalSocket>::shutdown(const std::function<void(int)>& onShutdown) {
-        if (!shutdownInProgress) {
-            this->onShutdown = onShutdown;
-            if (writeBuffer.empty()) {
-                shutdownInProgress = true;
-                LOG(TRACE) << "SocketWriter: Initiating shutdown process";
-                doWriteShutdown(onShutdown);
-            } else {
-                markShutdown = true;
-            }
         }
     }
 

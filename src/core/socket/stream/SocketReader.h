@@ -34,9 +34,7 @@
 namespace core::socket::stream {
 
     template <typename PhysicalSocketT>
-    class SocketReader
-        : public core::eventreceiver::ReadEventReceiver
-        , virtual public PhysicalSocketT {
+    class SocketReader : public core::eventreceiver::ReadEventReceiver {
     public:
         SocketReader() = delete;
 
@@ -62,8 +60,6 @@ namespace core::socket::stream {
 
         std::size_t readFromPeer(char* junk, std::size_t junkLen);
 
-        void shutdown();
-
         void terminate() final;
 
     private:
@@ -74,8 +70,6 @@ namespace core::socket::stream {
 
         std::size_t size = 0;
         std::size_t cursor = 0;
-
-        bool shutdownTriggered = false;
         bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;

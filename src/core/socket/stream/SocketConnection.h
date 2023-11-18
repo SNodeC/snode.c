@@ -92,6 +92,7 @@ namespace core::socket::stream {
               typename SocketWriterT>
     class SocketConnectionT
         : public SocketConnection
+        , public PhysicalSocketT
         , protected SocketReaderT<PhysicalSocketT>
         , protected SocketWriterT<PhysicalSocketT> {
     protected:
@@ -106,7 +107,8 @@ namespace core::socket::stream {
         SocketConnectionT() = delete;
 
     protected:
-        SocketConnectionT(const SocketAddress& localAddress,
+        SocketConnectionT(PhysicalSocket& physicalSocket,
+                          const SocketAddress& localAddress,
                           const SocketAddress& remoteAddress,
                           const std::function<void()>& onDisconnect,
                           const utils::Timeval& readTimeout,
@@ -144,8 +146,14 @@ namespace core::socket::stream {
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
+        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown);
+
+        void shutdown(const std::function<void(int)>& onShutdown) override;
+
     private:
         void onExit(int sig) final;
+
+        void shutdown();
 
         void readTimeout() final;
         void writeTimeout() final;
@@ -159,6 +167,10 @@ namespace core::socket::stream {
         std::function<void()> onDisconnect;
 
         bool exitProcessed = false;
+
+    private:
+        bool shutdownTriggered = false;
+        bool shutdownInProgress = false;
     };
 
 } // namespace core::socket::stream

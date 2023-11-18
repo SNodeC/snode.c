@@ -95,14 +95,6 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket>
-    void SocketReader<PhysicalSocket>::shutdown() {
-        if (!shutdownTriggered) {
-            PhysicalSocket::shutdown(PhysicalSocket::SHUT::RD);
-            shutdownTriggered = true;
-        }
-    }
-
-    template <typename PhysicalSocket>
     void SocketReader<PhysicalSocket>::terminate() {
         if (!terminateInProgress) {
             setTimeout(terminateTimeout);

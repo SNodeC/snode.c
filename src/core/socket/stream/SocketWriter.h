@@ -34,9 +34,7 @@
 namespace core::socket::stream {
 
     template <typename PhysicalSocketT>
-    class SocketWriter
-        : public core::eventreceiver::WriteEventReceiver
-        , virtual public PhysicalSocketT {
+    class SocketWriter : public core::eventreceiver::WriteEventReceiver {
     public:
         SocketWriter() = delete;
 
@@ -61,22 +59,23 @@ namespace core::socket::stream {
         void setBlockSize(std::size_t writeBlockSize);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
-
-        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown);
-
-        void shutdown(const std::function<void(int)>& onShutdown);
+        virtual void shutdown(const std::function<void(int)>& onShutdown) = 0;
 
         void terminate() final;
 
+        bool markShutdown = false;
+
     private:
         std::function<void(int)> onStatus;
+
+    protected:
         std::function<void(int)> onShutdown;
 
         std::vector<char> writeBuffer;
+
+    private:
         std::size_t blockSize = 0;
 
-        bool markShutdown = false;
-        bool shutdownInProgress = false;
         bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;

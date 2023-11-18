@@ -29,7 +29,7 @@ namespace core::socket::stream::legacy {
 
     template <typename PhysicalSocket>
     ssize_t SocketWriter<PhysicalSocket>::write(const char* junk, std::size_t junkLen) {
-        return core::system::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
+        return core::system::send(this->getRegisteredFd(), junk, junkLen, MSG_NOSIGNAL);
     }
 
 } // namespace core::socket::stream::legacy

@@ -34,7 +34,8 @@ namespace core::socket::stream {
               typename SocketReader,
               template <typename PhysicalSocketT>
               typename SocketWriter>
-    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(const SocketAddress& localAddress,
+    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(PhysicalSocket& physicalSocket,
+                                                                                     const SocketAddress& localAddress,
                                                                                      const SocketAddress& remoteAddress,
                                                                                      const std::function<void()>& onDisconnect,
                                                                                      const utils::Timeval& readTimeout,
@@ -42,7 +43,8 @@ namespace core::socket::stream {
                                                                                      std::size_t readBlockSize,
                                                                                      std::size_t writeBlockSize,
                                                                                      const utils::Timeval& terminateTimeout)
-        : SocketReader(
+        : PhysicalSocket(physicalSocket)
+        , SocketReader(
               [this](int errnum) -> void {
                   onReadError(errnum);
               },
@@ -101,7 +103,52 @@ namespace core::socket::stream {
               template <typename PhysicalSocketT>
               typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
-        SocketReader::shutdown();
+        shutdown();
+    }
+
+    template <typename PhysicalSocket,
+              template <typename PhysicalSocketT>
+              typename SocketReader,
+              template <typename PhysicalSocketT>
+              typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdown() {
+        if (!shutdownTriggered) {
+            PhysicalSocket::shutdown(PhysicalSocket::SHUT::RD);
+            shutdownTriggered = true;
+        }
+    }
+
+    template <typename PhysicalSocket,
+              template <typename PhysicalSocketT>
+              typename SocketReader,
+              template <typename PhysicalSocketT>
+              typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
+        errno = 0;
+
+        LOG(TRACE) << "SocketWriter: Do syscall shutdonw (WR)";
+
+        PhysicalSocket::shutdown(PhysicalSocket::SHUT::WR);
+
+        onShutdown(errno);
+    }
+
+    template <typename PhysicalSocket,
+              template <typename PhysicalSocketT>
+              typename SocketReader,
+              template <typename PhysicalSocketT>
+              typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdown(const std::function<void(int)>& onShutdown) {
+        if (!shutdownInProgress) {
+            this->onShutdown = onShutdown;
+            if (SocketWriter::writeBuffer.empty()) {
+                shutdownInProgress = true;
+                LOG(TRACE) << "SocketWriter: Initiating shutdown process";
+                doWriteShutdown(onShutdown);
+            } else {
+                SocketWriter::markShutdown = true;
+            }
+        }
     }
 
     template <typename PhysicalSocket,
@@ -110,7 +157,7 @@ namespace core::socket::stream {
               template <typename PhysicalSocketT>
               typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
-        SocketWriter::shutdown([forceClose, this](int errnum) -> void {
+        shutdown([forceClose, this](int errnum) -> void {
             if (errnum != 0) {
                 PLOG(TRACE) << "SocketConnection: SocketWriter::doWriteShutdown";
             }
@@ -176,7 +223,9 @@ namespace core::socket::stream {
               typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::sendToPeer(const char* junk, std::size_t junkLen) {
         if (newSocketContext == nullptr) {
-            SocketWriter::sendToPeer(junk, junkLen);
+            if (!shutdownInProgress && !SocketWriter::markShutdown) {
+                SocketWriter::sendToPeer(junk, junkLen);
+            }
         } else {
             LOG(TRACE) << "SocketConnection: SendToPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
         }
