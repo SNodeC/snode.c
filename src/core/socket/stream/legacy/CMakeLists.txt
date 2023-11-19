@@ -16,8 +16,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(CORE-SOCKET-STREAM-LEGACY_CPP
-    SocketReader.cpp SocketWriter.cpp)
+set(CORE-SOCKET-STREAM-LEGACY_CPP SocketReader.cpp SocketWriter.cpp)
 
 set(CORE-SOCKET-STREAM-LEGACY_H
     SocketAcceptor.h
@@ -30,8 +29,10 @@ set(CORE-SOCKET-STREAM-LEGACY_H
     SocketWriter.h
 )
 
-add_library(core-socket-stream-legacy SHARED ${CORE-SOCKET-STREAM-LEGACY_CPP}
-    ${CORE-SOCKET-STREAM-LEGACY_H})
+add_library(
+    core-socket-stream-legacy SHARED ${CORE-SOCKET-STREAM-LEGACY_CPP}
+                                     ${CORE-SOCKET-STREAM-LEGACY_H}
+)
 add_library(snodec::core-socket-stream-legacy ALIAS core-socket-stream-legacy)
 
 target_include_directories(

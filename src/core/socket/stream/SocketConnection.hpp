@@ -54,9 +54,9 @@ namespace core::socket::stream {
               writeTimeout,
               writeBlockSize,
               terminateTimeout)
+        , onDisconnect(onDisconnect)
         , localAddress(localAddress)
-        , remoteAddress(remoteAddress)
-        , onDisconnect(onDisconnect) {
+        , remoteAddress(remoteAddress) {
         SocketReader::enable(getFd());
         SocketWriter::enable(getFd());
         SocketWriter::suspend();
@@ -67,76 +67,14 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    int SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getFd() const {
-        return PhysicalSocket::getFd();
-    }
-
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::close() {
-        if (SocketWriter::isEnabled()) {
-            SocketWriter::disable();
-        }
-        if (SocketReader::isEnabled()) {
-            SocketReader::disable();
-        }
-    }
-
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
-        shutdown();
-    }
-
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdown() {
-        if (!shutdownTriggered) {
-            PhysicalSocket::shutdown(PhysicalSocket::SHUT::RD);
-            shutdownTriggered = true;
-        }
-    }
-
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
-        errno = 0;
-
-        LOG(TRACE) << "SocketWriter: Do syscall shutdonw (WR)";
-
-        PhysicalSocket::shutdown(PhysicalSocket::SHUT::WR);
-
-        onShutdown(errno);
-    }
-
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdown(const std::function<void(int)>& onShutdown) {
-        if (!shutdownInProgress) {
-            this->onShutdown = onShutdown;
-            if (SocketWriter::writeBuffer.empty()) {
-                shutdownInProgress = true;
-                LOG(TRACE) << "SocketWriter: Initiating shutdown process";
-                doWriteShutdown(onShutdown);
-            } else {
-                SocketWriter::markShutdown = true;
-            }
-        }
-    }
-
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
-        shutdown([forceClose, this](int errnum) -> void {
-            if (errnum != 0) {
-                PLOG(TRACE) << "SocketConnection: SocketWriter::doWriteShutdown";
-            }
-            if (forceClose) {
-                close();
-            } else if (SocketWriter::isEnabled()) {
-                SocketWriter::disable();
-            }
-        });
-    }
-
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::setTimeout(const utils::Timeval& timeout) {
         SocketReader::setTimeout(timeout);
         SocketWriter::setTimeout(timeout);
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    int SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getFd() const {
+        return PhysicalSocket::getFd();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
@@ -176,8 +114,51 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
+        if (!shutdownTriggered) {
+            PhysicalSocket::shutdown(PhysicalSocket::SHUT::RD);
+            shutdownTriggered = true;
+        }
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
+        shutdownWrite([forceClose, this](int errnum) -> void {
+            if (errnum != 0) {
+                PLOG(TRACE) << "SocketConnection: SocketWriter::doWriteShutdown";
+            }
+            if (forceClose) {
+                close();
+            } else if (SocketWriter::isEnabled()) {
+                SocketWriter::disable();
+            }
+        });
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::close() {
+        if (SocketWriter::isEnabled()) {
+            SocketWriter::disable();
+        }
+        if (SocketReader::isEnabled()) {
+            SocketReader::disable();
+        }
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getExitProcessed() {
         return exitProcessed;
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
+        errno = 0;
+
+        LOG(TRACE) << "SocketWriter: Do syscall shutdonw (WR)";
+
+        PhysicalSocket::shutdown(PhysicalSocket::SHUT::WR);
+
+        onShutdown(errno);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
@@ -204,6 +185,20 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReadError(int errnum) {
         socketContext->onReadError(errnum);
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(const std::function<void(int)>& onShutdown) {
+        if (!shutdownInProgress) {
+            SocketWriter::onShutdown = onShutdown;
+            if (SocketWriter::writeBuffer.empty()) {
+                shutdownInProgress = true;
+                LOG(TRACE) << "SocketWriter: Initiating shutdown process";
+                doWriteShutdown(onShutdown);
+            } else {
+                SocketWriter::markShutdown = true;
+            }
+        }
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>

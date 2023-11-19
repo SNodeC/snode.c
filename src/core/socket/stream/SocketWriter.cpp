@@ -62,7 +62,7 @@ namespace core::socket::stream {
                     writeBuffer.shrink_to_fit();
 
                     if (markShutdown) {
-                        shutdown(onShutdown);
+                        shutdownWrite(onShutdown);
                     }
                 }
             } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
@@ -95,7 +95,7 @@ namespace core::socket::stream {
     void SocketWriter::terminate() {
         if (!terminateInProgress) {
             setTimeout(terminateTimeout);
-            shutdown([this]([[maybe_unused]] int errnum) -> void {
+            shutdownWrite([this](int errnum) -> void {
                 if (errnum != 0) {
                     PLOG(TRACE) << "SocketWriter: SocketWriter::doWriteShutdown";
                 }

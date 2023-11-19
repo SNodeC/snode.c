@@ -118,11 +118,6 @@ namespace core::socket::stream {
     public:
         int getFd() const;
 
-        void close() final;
-
-        void shutdownRead() final;
-        void shutdownWrite(bool forceClose) final;
-
         void setTimeout(const utils::Timeval& timeout) final;
 
         const SocketAddress& getLocalAddress() const final;
@@ -133,40 +128,39 @@ namespace core::socket::stream {
         using Super::sendToPeer;
         void sendToPeer(const char* junk, std::size_t junkLen) final;
 
+        void shutdownRead() final;
+        void shutdownWrite(bool forceClose) final;
+
+        void close() final;
+
         bool getExitProcessed();
+
+    private:
+        void shutdownWrite(const std::function<void(int)>& onShutdown) override;
+
+    protected:
+        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown);
 
     private:
         void onReceivedFromPeer(std::size_t available) final;
 
-    protected:
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
-        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown);
-
-        void shutdown(const std::function<void(int)>& onShutdown) override;
-
-    private:
         void onExit(int sig) final;
-
-        void shutdown();
 
         void readTimeout() final;
         void writeTimeout() final;
-
         void unobservedEvent() final;
-
-    protected: // must be callable from subclasses
-        SocketAddress localAddress{};
-        SocketAddress remoteAddress{};
 
         std::function<void()> onDisconnect;
 
-        bool exitProcessed = false;
+        SocketAddress localAddress{};
+        SocketAddress remoteAddress{};
 
-    private:
         bool shutdownTriggered = false;
         bool shutdownInProgress = false;
+        bool exitProcessed = false;
     };
 
 } // namespace core::socket::stream
