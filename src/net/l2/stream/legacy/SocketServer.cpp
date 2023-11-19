@@ -21,8 +21,6 @@
 #include "core/socket/Socket.hpp"                         // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketAcceptor.hpp"   // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketConnection.hpp" // IWYU pragma: keep
-#include "core/socket/stream/legacy/SocketReader.hpp"     // IWYU pragma: keep
-#include "core/socket/stream/legacy/SocketWriter.hpp"     // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

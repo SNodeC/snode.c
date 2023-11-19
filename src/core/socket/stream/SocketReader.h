@@ -23,8 +23,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-#include <cstddef>
+#include "utils/Timeval.h"
+
+#include <cstdio> // IWYU pragma: export
 #include <functional>
 #include <sys/types.h>
 #include <vector>
@@ -33,16 +34,11 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalSocketT>
-    class SocketReader
-        : public core::eventreceiver::ReadEventReceiver
-        , virtual public PhysicalSocketT {
+    class SocketReader : public core::eventreceiver::ReadEventReceiver {
     public:
         SocketReader() = delete;
 
     protected:
-        using PhysicalSocket = PhysicalSocketT;
-
         explicit SocketReader(const std::function<void(int)>& onStatus,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
@@ -62,8 +58,6 @@ namespace core::socket::stream {
 
         std::size_t readFromPeer(char* junk, std::size_t junkLen);
 
-        void shutdown();
-
         void terminate() final;
 
     private:
@@ -74,13 +68,9 @@ namespace core::socket::stream {
 
         std::size_t size = 0;
         std::size_t cursor = 0;
-
-        bool shutdownTriggered = false;
         bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;
-
-        int haveBeenRead = 0;
     };
 
 } // namespace core::socket::stream

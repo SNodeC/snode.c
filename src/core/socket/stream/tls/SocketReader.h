@@ -20,21 +20,19 @@
 #define CORE_SOCKET_STREAM_TLS_SOCKETREADER_H
 
 #include "core/socket/stream/SocketReader.h"
-#include "core/socket/stream/tls/TLSHandshake.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+#include <functional>
+#include <openssl/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalSocketT>
-    class SocketReader : public core::socket::stream::SocketReader<PhysicalSocketT> {
+    class SocketReader : public core::socket::stream::SocketReader {
     private:
-        using Super = core::socket::stream::SocketReader<PhysicalSocketT>;
+        using Super = core::socket::stream::SocketReader;
         using Super::Super;
 
         ssize_t read(char* junk, std::size_t junkLen) override;

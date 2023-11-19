@@ -16,8 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/SocketReader.hpp" // IWYU pragma: export
-#include "core/socket/stream/tls/SocketReader.h"
+#include "core/socket/stream/tls/SocketWriter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,15 +24,18 @@
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
+#include <cerrno>
+#include <memory>
+#include <openssl/ssl.h> // IWYU pragma: keep
+
+// IWYU pragma: no_include <openssl/ssl3.h>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalSocket>
-    ssize_t SocketReader<PhysicalSocket>::read(char* junk, std::size_t junkLen) {
-        int sslShutdownState = SSL_get_shutdown(ssl);
-
-        int ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
+    ssize_t SocketWriter::write(const char* junk, std::size_t junkLen) {
+        int ret = SSL_write(ssl, junk, static_cast<int>(junkLen));
 
         if (ret <= 0) {
             int ssl_err = SSL_get_error(ssl, ret);
@@ -41,19 +43,16 @@ namespace core::socket::stream::tls {
             switch (ssl_err) {
                 case SSL_ERROR_NONE:
                     break;
-                case SSL_ERROR_WANT_READ:
-                    ret = -1;
-                    break;
-                case SSL_ERROR_WANT_WRITE: {
+                case SSL_ERROR_WANT_READ: {
                     utils::PreserveErrno preserveErrno;
 
-                    LOG(TRACE) << "SSL/TLS: Start renegotiation on read";
+                    LOG(TRACE) << "SSL/TLS: Start renegotiation on write";
                     doSSLHandshake(
                         []() -> void {
-                            LOG(TRACE) << "SSL/TLS: Renegotiation on read success";
+                            LOG(TRACE) << "SSL/TLS: Renegotiation on write success";
                         },
                         []() -> void {
-                            LOG(TRACE) << "SSL/TLS: Renegotiation on read timed out";
+                            LOG(TRACE) << "SSL/TLS: Renegotiation on write timed out";
                         },
                         [](int ssl_err) -> void {
                             ssl_log("SSL/TLS: Renegotiation", ssl_err);
@@ -61,23 +60,18 @@ namespace core::socket::stream::tls {
                 }
                     ret = -1;
                     break;
-                case SSL_ERROR_ZERO_RETURN: // received close_notify
-                    SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | sslShutdownState);
-                    doSSLShutdown();
-                    errno = 0;
-                    ret = 0;
+                case SSL_ERROR_WANT_WRITE:
+                    ret = -1;
                     break;
-                case SSL_ERROR_SYSCALL: {
-                    utils::PreserveErrno preserveErrno;
-
-                    SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
-                    VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
-                    doSSLShutdown();
-                }
+                case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
+                    errno = EPIPE;
+                    ret = -1; // on the write side this means a TCP broken pipe
+                    break;
+                case SSL_ERROR_SYSCALL:
                     ret = -1;
                     break;
                 default:
-                    ssl_log("SSL/TLS: Error read failed", ssl_err);
+                    ssl_log("SSL/TLS: Write failed", ssl_err);
                     errno = EIO;
                     ret = -1;
                     break;

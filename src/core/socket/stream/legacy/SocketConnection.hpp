@@ -37,8 +37,8 @@ namespace core::socket::stream::legacy {
                                                        std::size_t readBlockSize,
                                                        std::size_t writeBlockSize,
                                                        const utils::Timeval& terminateTimeout)
-        : PhysicalSocket(physicalSocket)
-        , Super(
+        : Super(
+              physicalSocket,
               localAddress,
               remoteAddress,
               [onDisconnect, this]() -> void {

@@ -16,7 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/SocketReader.hpp" // IWYU pragma: export
 #include "core/socket/stream/legacy/SocketReader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -27,9 +26,8 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename PhysicalSocket>
-    ssize_t SocketReader<PhysicalSocket>::read(char* junk, std::size_t junkLen) {
-        return core::system::recv(this->getFd(), junk, junkLen, 0);
+    ssize_t SocketReader::read(char* junk, std::size_t junkLen) {
+        return core::system::recv(this->getRegisteredFd(), junk, junkLen, 0);
     }
 
 } // namespace core::socket::stream::legacy

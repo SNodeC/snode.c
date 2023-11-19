@@ -85,28 +85,26 @@ namespace core::socket::stream {
         bool socketContextConnected = false;
     };
 
-    template <typename PhysicalSocketT,
-              template <typename PhysicalSocket>
-              typename SocketReaderT,
-              template <typename PhysicalSocket>
-              typename SocketWriterT>
+    template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT>
     class SocketConnectionT
         : public SocketConnection
-        , protected SocketReaderT<PhysicalSocketT>
-        , protected SocketWriterT<PhysicalSocketT> {
+        , public PhysicalSocketT
+        , protected SocketReaderT
+        , protected SocketWriterT {
     protected:
         using Super = core::socket::stream::SocketConnection;
 
         using PhysicalSocket = PhysicalSocketT;
-        using SocketReader = SocketReaderT<PhysicalSocket>;
-        using SocketWriter = SocketWriterT<PhysicalSocket>;
+        using SocketReader = SocketReaderT;
+        using SocketWriter = SocketWriterT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
     public:
         SocketConnectionT() = delete;
 
     protected:
-        SocketConnectionT(const SocketAddress& localAddress,
+        SocketConnectionT(PhysicalSocket& physicalSocket,
+                          const SocketAddress& localAddress,
                           const SocketAddress& remoteAddress,
                           const std::function<void()>& onDisconnect,
                           const utils::Timeval& readTimeout,
@@ -120,11 +118,6 @@ namespace core::socket::stream {
     public:
         int getFd() const;
 
-        void close() final;
-
-        void shutdownRead() final;
-        void shutdownWrite(bool forceClose) final;
-
         void setTimeout(const utils::Timeval& timeout) final;
 
         const SocketAddress& getLocalAddress() const final;
@@ -135,29 +128,38 @@ namespace core::socket::stream {
         using Super::sendToPeer;
         void sendToPeer(const char* junk, std::size_t junkLen) final;
 
+        void shutdownRead() final;
+        void shutdownWrite(bool forceClose) final;
+
+        void close() final;
+
         bool getExitProcessed();
+
+    private:
+        void shutdownWrite(const std::function<void(int)>& onShutdown) override;
+
+    protected:
+        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown);
 
     private:
         void onReceivedFromPeer(std::size_t available) final;
 
-    protected:
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
-    private:
         void onExit(int sig) final;
 
         void readTimeout() final;
         void writeTimeout() final;
-
         void unobservedEvent() final;
-
-    protected: // must be callable from subclasses
-        SocketAddress localAddress{};
-        SocketAddress remoteAddress{};
 
         std::function<void()> onDisconnect;
 
+        SocketAddress localAddress{};
+        SocketAddress remoteAddress{};
+
+        bool shutdownTriggered = false;
+        bool shutdownInProgress = false;
         bool exitProcessed = false;
     };
 

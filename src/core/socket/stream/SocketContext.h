@@ -70,11 +70,7 @@ namespace core::socket::stream {
 
         core::socket::stream::SocketConnection* socketConnection;
 
-        template <typename PhysicalSocketT,
-                  template <typename PhysicalSocket>
-                  class SocketReaderT,
-                  template <typename PhysicalSocket>
-                  class SocketWriterT>
+        template <typename PhysicalSocketT, class SocketReaderT, class SocketWriterT>
         friend class SocketConnectionT;
         friend class SocketConnection;
     };

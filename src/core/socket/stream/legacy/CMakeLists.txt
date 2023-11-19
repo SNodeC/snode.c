@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(CORE-SOCKET-STREAM-LEGACY_CPP)
+set(CORE-SOCKET-STREAM-LEGACY_CPP SocketReader.cpp SocketWriter.cpp)
 
 set(CORE-SOCKET-STREAM-LEGACY_H
     SocketAcceptor.h
@@ -26,12 +26,13 @@ set(CORE-SOCKET-STREAM-LEGACY_H
     SocketConnector.h
     SocketConnector.hpp
     SocketReader.h
-    SocketReader.hpp
     SocketWriter.h
-    SocketWriter.hpp
 )
 
-add_library(core-socket-stream-legacy INTERFACE)
+add_library(
+    core-socket-stream-legacy SHARED ${CORE-SOCKET-STREAM-LEGACY_CPP}
+                                     ${CORE-SOCKET-STREAM-LEGACY_H}
+)
 add_library(snodec::core-socket-stream-legacy ALIAS core-socket-stream-legacy)
 
 target_include_directories(
@@ -41,7 +42,13 @@ target_include_directories(
               "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(core-socket-stream-legacy INTERFACE core-socket-stream)
+target_link_libraries(core-socket-stream-legacy PUBLIC core-socket-stream)
+
+set_target_properties(
+    core-socket-stream-legacy
+    PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
+                                             snodec-core-socket-stream-legacy
+)
 
 install(
     TARGETS core-socket-stream-legacy

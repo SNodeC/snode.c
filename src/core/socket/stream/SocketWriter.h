@@ -23,8 +23,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-#include <cstddef>
+#include "utils/Timeval.h"
+
+#include <cstdio> // IWYU pragma: export
 #include <functional>
 #include <sys/types.h>
 #include <vector>
@@ -33,16 +34,11 @@
 
 namespace core::socket::stream {
 
-    template <typename PhysicalSocketT>
-    class SocketWriter
-        : public core::eventreceiver::WriteEventReceiver
-        , virtual public PhysicalSocketT {
+    class SocketWriter : public core::eventreceiver::WriteEventReceiver {
     public:
         SocketWriter() = delete;
 
     protected:
-        using PhysicalSocket = PhysicalSocketT;
-
         explicit SocketWriter(const std::function<void(int)>& onStatus,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
@@ -61,22 +57,23 @@ namespace core::socket::stream {
         void setBlockSize(std::size_t writeBlockSize);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
-
-        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown);
-
-        void shutdown(const std::function<void(int)>& onShutdown);
+        virtual void shutdownWrite(const std::function<void(int)>& onShutdown) = 0;
 
         void terminate() final;
 
+        bool markShutdown = false;
+
     private:
         std::function<void(int)> onStatus;
+
+    protected:
         std::function<void(int)> onShutdown;
 
         std::vector<char> writeBuffer;
+
+    private:
         std::size_t blockSize = 0;
 
-        bool markShutdown = false;
-        bool shutdownInProgress = false;
         bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;

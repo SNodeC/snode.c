@@ -20,21 +20,19 @@
 #define CORE_SOCKET_STREAM_TLS_SOCKETWRITER_H
 
 #include "core/socket/stream/SocketWriter.h"
-#include "core/socket/stream/tls/TLSHandshake.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+#include <functional>
+#include <openssl/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalSocketT>
-    class SocketWriter : public core::socket::stream::SocketWriter<PhysicalSocketT> {
+    class SocketWriter : public core::socket::stream::SocketWriter {
     private:
-        using Super = core::socket::stream::SocketWriter<PhysicalSocketT>;
+        using Super = core::socket::stream::SocketWriter;
         using Super::Super;
 
         ssize_t write(const char* junk, std::size_t junkLen) override;
