@@ -4,10 +4,11 @@
 
 The development of the  framework started during the summer semester 2020 in the context of the course **Network and Distributed Systems** of the masters program [**Interactive Media**](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [**Informatics, Communications and Media**](https://www.fh-ooe.at/en/hagenberg-campus/) at the [**University of Applied Sciences Upper Austria, Campus Hagenberg**](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network and web frameworks.
 
-Main focus (but not only) of the framework is "Machine to Machine" (M2M) communication and here especially the field of "Internet of Things" (IoT).
+Main focus (but not only) of the framework is *Machine to Machine* (M2M) communication and here especially the field of *Internet of Things* (IoT).
 
 # Table of Content
 <!--ts-->
+
 * [Simple NODE in C++ (SNode.C)](#simple-node-in-c-snodec)
 * [Table of Content](#table-of-content)
 * [License](#license)
@@ -181,7 +182,7 @@ Let\'s have a look at how these three components are related to each other by im
 
 Imagine we want to create a very basic TCP (**stream**)/IPv4 (**in**) server/client pair which sends some plain text data unencrypted (**legacy**) to each other in a ping-pong way.
 
-The client shall start sending text data to the server and the server shall reflect that data back to the client. The client receives this reflected data and sends it back again to the server. This data ping-pong shall last infinitely long.
+The client shall start sending text data to the server and the server shall reflect that data back to the client. The client receives the reflected data and sends it back to the server again. This data ping-pong shall last infinitely long.
 
 The code of this demo application can be found on [github](https://github.com/SNodeC/echo).
 
@@ -193,7 +194,7 @@ For the server role we just need to create an object of type
 net::in::stream::legacy::SocketServer<SocketContextFactory>
 ```
 
-called a [*server instance*](#SocketServer-Classes) and for the client role an object of type
+called [*server instance*](#SocketServer-Classes) and for the client role an object of type
 
 ``` c++
 net::in::stream::legacy::SocketClient<SocketContextFactory>
@@ -201,29 +202,29 @@ net::in::stream::legacy::SocketClient<SocketContextFactory>
 
 called [*client instance*](#SocketClient-Classes) is needed.
 
-A class *SocketContextFactory* is used for both instances as template argument. Such a *SocketContextFactory* **needs to be provided by the user** and is used internally by the *SocketServer* and the *SocketClient* instances to create a concrete *SocketContext* object for each established connection. This *SocketContext* **also needs to be provided by the user** and represents a **concrete application protocol**.
+A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` needs to be provided by the user and is used internally by the `SocketServer` and the `SocketClient` instances to create a concrete `SocketContext` object for each established connection. This `SocketContext` also needs to be provided by the user and represents a concrete application protocol.
 
-Both, *SocketServer* and *SocketClient* classes have, among others, a **default constructor** and a **constructor expecting an instance name** as argument. 
+Both, `SocketServer` and `SocketClient` classes have, among others, a default constructor and a constructor expecting an instance name as argument. 
 
-- When the default constructor is used to create the instance object this instance is called an **anonymous instance**.
-- In contrast to a **named instance** if the constructors expecting a `std::string` is used for instance creation. 
-- For ***named instances*** **command line arguments and configuration file entries are automatically created**.
+- When the default constructor is used to create the instance it is called an anonymous instance.
+- In contrast to a named instance if the constructors expecting a `std::string` is used for instance creation. 
+- For named instances command line arguments and configuration file entries are created automatically.
 
-Therefore, for our echo application, we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (stream) application protocols and factories derived from `core::socket::stream::SocketContextFactory`.
+Therefore, for our echo application, we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (**stream**) application protocols and factories derived from `core::socket::stream::SocketContextFactory`.
 
 ### SocketContextFactories
 
-Let\'s focus on the *SocketContextFactories* for our server and client first.
+Let\'s focus on the SocketContextFactories for our server and client first.
 
-All what needs to be done is to implement a pure virtual method *create* witch expects a pointer to a `core::socket::stream::SocketConnection` object as argument and returns a pointer to a concrete application *SocketContext*.
+All what needs to be done is to implement a pure virtual method `create()` witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a pointer to a concrete `SocketContext`.
 
-The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the **logical connection** between the server and a client. Such a `core::socket::stream::SocketConnection` is needed by the `core::socket::stream::SocketContext` to **handle the data transfer** between server and client.
+The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the logical connection between a server and a client. It is used for handling the data transfer between server and client.
 
-#### Echo-Server *SocketContextFactory*
+#### Echo-Server SocketContextFactory
 
 The `create()` method of our `EchoServerContextFactory` returns a pointer to the `EchoServerContext` whose implementation is presented in the [SocketContexts](#SocketContexts) section below.
 
-Note, that the pointer to the  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
+Note, that a pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
 ``` c++
 #include "EchoServerContext.h"
@@ -237,11 +238,11 @@ private:
 };
 ```
 
-#### Echo-Client *SocketContextFactory*
+#### Echo-Client SocketContextFactory
 
 The `create()` method of our `EchoClientContextFactory` returns a pointer to the `EchoClientContext` whose implementation is also presented in the [SocketContexts](#SocketContexts) section below.
 
-Note, that the pointer to the  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
+Note, that a pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
 ``` c++
 #include "EchoClientContext.h"
@@ -259,30 +260,29 @@ That\'s easy, isn\'t it?
 
 ### SocketContexts
 
-It is also not difficult to implement the *SocketContext* classes for the server and the client.
+It is also not difficult to implement the `SocketContext` classes for the server and the client.
 
 -   Remember, the required functionality: 
-    -   The client shall start sending data to the server
-    -   The server shall reflect the received data back to the client
-    -   Also, the client shall reflect the received data back to the server
+    -   The client shall start sending data to the server.
+    -   The server shall reflect the received data back to the client.
+    -   Also, the client shall reflect the received data back to the server.
 
 -   Also remember: 
-    -   We need to derive the `EchoServerContext` and `EchoClientContext` from the base class `core::socket::stream::SocketContext`
+    -   We need to derive the `EchoServerContext` and `EchoClientContext` from the base class `core::socket::stream::SocketContext`.
 
 -   And at last remember:
-    -    The base class  `core::socket::stream::SocketContext` needs the `core::socket::stream::SocketConnection`  to handle the physical data exchange
-    -   Thus, we have to pass the pointer to the `core::socket::stream::SocketConnection` to the constructor of the base class `core::socket::stream::SocketContext`
+    -    The base class  `core::socket::stream::SocketContext` needs a `core::socket::stream::SocketConnection`  to handle the physical data exchange. Thus, we have to pass the pointer to the `core::socket::stream::SocketConnection` to the constructor of the base class `core::socket::stream::SocketContext`.
 
 
 The base class `core::socket::stream::SocketContext` provides *some virtual methods* which can be overridden in an concrete *SocketContext* class. These methods will be *called by the framework automatically*.
 
-#### Echo-Server *SocketContext*
+#### Echo-Server SocketContext
 
-For our echo server application it would be sufficient to override the *onReceivedFromPeer* method only. This method is called by the framework in case some data have already been received from the client. Nevertheless, for more information of what is going on in behind the methods *onConnected* and *onDisconnected* are overridden also.
+For our echo server application it would be sufficient to override the `onReceivedFromPeer()` method only. This method is called by the framework in case some data have already been received from the client. Nevertheless, for more information of what is going on in behind the methods `onConnected()` and `onDisconnected()` are overridden also.
 
-In the *onReceivedFromPeer* method, which is called by the framework in case data have already been received, we can retrieve that data using the *readFromPeer* method provided by the `core::socket::stream::SocketContext` class.
+In the `onReceivedFromPeer()` method, which is called by the framework in case data have already been received, we can retrieve that data using the `readFromPeer()` method provided by the `core::socket::stream::SocketContext` class.
 
-Sending data to the client is done using the method *sendToPeer*, which is also provided by the `core::socket::stream::SocketContext` class.
+Sending data to the client is done using the method `sendToPeer()`, which is also provided by the `core::socket::stream::SocketContext` class.
 
 ``` c++
 #include <core/socket/SocketAddress.h>
@@ -327,11 +327,11 @@ private:
 };
 ```
 
-#### Echo-Client *SocketContext*
+#### Echo-Client SocketContext
 
-The echo client *SocketContext*, unlike the server *SocketContext*, *needs* an overridden *onConnected* method to *initiate* the ping-pong data exchange.
+The `EchoClientContext`, unlike the `EchoServerContext`, *needs* an overridden `onConnected()` method to *initiate* the ping-pong data exchange.
 
-Like in the `EchoServerContext`, *readFromPeer* and *sendToPeer* is used in the *onReceivedFromPeer* method. In addition *sendToPeer* is also used in the *onConnected* method to initiate the ping-pong data exchange.
+Like in the `EchoServerContext`, `readFromPeer()` and `sendToPeer()` is used in the `onReceivedFromPeer()` method. In addition `sendToPeer()` is also used in the `onConnected()` method to initiate the ping-pong data exchange.
 
 ``` c++
 #include <core/socket/SocketAddress.h>
@@ -381,7 +381,7 @@ private:
 
 ### Main Applications for Server and Client
 
-Now we can put everything together and implement the main server and client applications. Here *anonymous instances* are used. Thus, we will not get command line arguments automatically.
+Now we can put everything together and implement the main server and client applications. Here *anonymous instances* are used. We therefore will not get command line arguments automatically.
 
 Note the use of our previously implemented `EchoServerContextFactory` and `EchoClientContextFactory` as template arguments.
 
