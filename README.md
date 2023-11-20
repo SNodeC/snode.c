@@ -8,7 +8,6 @@ Main focus (but not only) of the framework is *Machine to Machine* (M2M) communi
 
 # Table of Content
 <!--ts-->
-
 * [Simple NODE in C++ (SNode.C)](#simple-node-in-c-snodec)
 * [Table of Content](#table-of-content)
 * [License](#license)
@@ -17,11 +16,11 @@ Main focus (but not only) of the framework is *Machine to Machine* (M2M) communi
    * [An "Echo" Application](#an-echo-application)
       * [SocketServer and SocketClient Instances](#socketserver-and-socketclient-instances)
       * [SocketContextFactories](#socketcontextfactories)
-         * [Echo-Server <em>SocketContextFactory</em>](#echo-server-socketcontextfactory)
-         * [Echo-Client <em>SocketContextFactory</em>](#echo-client-socketcontextfactory)
+         * [Echo-Server SocketContextFactory](#echo-server-socketcontextfactory)
+         * [Echo-Client SocketContextFactory](#echo-client-socketcontextfactory)
       * [SocketContexts](#socketcontexts)
-         * [Echo-Server <em>SocketContext</em>](#echo-server-socketcontext)
-         * [Echo-Client <em>SocketContext</em>](#echo-client-socketcontext)
+         * [Echo-Server SocketContext](#echo-server-socketcontext)
+         * [Echo-Client SocketContext](#echo-client-socketcontext)
       * [Main Applications for Server and Client](#main-applications-for-server-and-client)
          * [Echo-Server Main Application](#echo-server-main-application)
          * [Echo-Client Main Application](#echo-client-main-application)
@@ -126,7 +125,7 @@ Main focus (but not only) of the framework is *Machine to Machine* (M2M) communi
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: runner, at: Wed Oct 25 17:12:38 UTC 2023 -->
+<!-- Added by: runner, at: Mon Nov 20 07:40:26 UTC 2023 -->
 
 <!--te-->
 
