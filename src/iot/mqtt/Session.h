@@ -48,7 +48,7 @@ namespace iot::mqtt {
         bool isCleanSession() const;
 
         virtual nlohmann::json toJson() const;
-        virtual void fromJson(const nlohmann::json& json);
+        void fromJson(const nlohmann::json& json);
 
         void clear();
 

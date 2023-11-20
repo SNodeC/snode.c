@@ -75,7 +75,7 @@ namespace core {
             observedEventReceiversDirty = false;
 
             for (auto& [fd, observedEventReceiverList] : observedEventReceivers) {
-                DescriptorEventReceiver* beforeFirst = observedEventReceiverList.front();
+                const DescriptorEventReceiver* beforeFirst = observedEventReceiverList.front();
                 if (std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
                         bool isDisabled = !descriptorEventReceiver->isEnabled();
                         if (isDisabled) {

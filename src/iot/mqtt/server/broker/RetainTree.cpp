@@ -94,11 +94,11 @@ namespace iot::mqtt::server::broker {
             std::string::size_type slashPosition = topic.find('/');
 
             std::string topicLevel = topic.substr(0, slashPosition);
-            bool appeared = slashPosition == std::string::npos;
 
             topic.erase(0, topicLevel.size() + 1);
 
-            if (subTopicLevels.insert({topicLevel, TopicLevel(broker)}).first->second.retain(message, topic, appeared)) {
+            if (subTopicLevels.insert({topicLevel, TopicLevel(broker)})
+                    .first->second.retain(message, topic, slashPosition == std::string::npos)) {
                 subTopicLevels.erase(topicLevel);
             }
         }

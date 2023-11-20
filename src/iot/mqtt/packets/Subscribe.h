@@ -47,8 +47,6 @@ namespace iot::mqtt::packets {
 
     protected:
         iot::mqtt::types::UInt16 packetIdentifier;
-        iot::mqtt::types::String topic;
-        iot::mqtt::types::UInt8 qoS;
 
         std::list<iot::mqtt::Topic> topics;
     };

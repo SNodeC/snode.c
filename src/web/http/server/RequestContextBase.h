@@ -42,7 +42,7 @@ namespace web::http::server {
 
     class RequestContextBase {
     public:
-        RequestContextBase(web::http::SocketContext* socketContext);
+        explicit RequestContextBase(web::http::SocketContext* socketContext);
 
         virtual ~RequestContextBase();
 

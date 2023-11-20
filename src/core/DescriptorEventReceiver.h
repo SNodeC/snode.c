@@ -40,7 +40,7 @@ namespace core {
         Observer() = default;
         virtual ~Observer();
 
-        bool isObserved() {
+        bool isObserved() const {
             return observationCounter > 0;
         }
 
@@ -50,10 +50,6 @@ namespace core {
 
         void unObserved() {
             observationCounter--;
-        }
-
-        int getObservationCounter() {
-            return observationCounter;
         }
 
         virtual void unobservedEvent() = 0;

@@ -50,9 +50,9 @@ namespace web::websocket {
 
         virtual SubProtocolFactory* load(const std::string& subProtocolName) = 0;
 
-        SubProtocolFactory* load(const std::string& subProtocolName,
-                                 const std::string& subProtocolLibraryFile,
-                                 const std::string& subProtocolFactoryFunctionName) {
+        static SubProtocolFactory* load(const std::string& subProtocolName,
+                                        const std::string& subProtocolLibraryFile,
+                                        const std::string& subProtocolFactoryFunctionName) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
             void* handle = core::DynamicLoader::dlOpen(subProtocolLibraryFile, RTLD_LAZY | RTLD_GLOBAL);

@@ -34,7 +34,7 @@ namespace iot::mqtt_fast::packets {
         putInt16(this->packetIdentifier);
 
         // Payload
-        for (std::string& topic : this->topics) {
+        for (const std::string& topic : this->topics) {
             putString(topic);
         }
     }

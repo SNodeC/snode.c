@@ -75,7 +75,7 @@ namespace web::websocket::server {
         GroupsManager::instance()->sendBroadcastEnd(group, message.data(), message.length(), excludeSelf ? this : nullptr);
     }
 
-    void SubProtocol::forEachClient(const std::function<void(SubProtocol*)>& sendToClient, bool excludeSelf) {
+    void SubProtocol::forEachClient(const std::function<void(const SubProtocol*)>& sendToClient, bool excludeSelf) {
         GroupsManager::instance()->forEachClient(group, sendToClient, excludeSelf ? this : nullptr);
     }
 

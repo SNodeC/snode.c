@@ -98,12 +98,14 @@ namespace utils {
     }
 
     Timeval Timeval::operator-() const {
-        Timeval timeVal;
+        //        Timeval timeVal;
 
-        timeVal.timeVal.tv_sec = -this->timeVal.tv_sec;
-        timeVal.timeVal.tv_usec = -this->timeVal.tv_usec;
+        //        timeVal.timeVal.tv_sec = -this->timeVal.tv_sec;
+        //        timeVal.timeVal.tv_usec = -this->timeVal.tv_usec;
 
-        return timeVal.normalize();
+        return Timeval({-this->timeVal.tv_sec, -this->timeVal.tv_usec}).normalize();
+
+        //        return timeVal.normalize();
     }
 
     bool Timeval::operator<(const Timeval& timeVal) const {

@@ -152,7 +152,7 @@ namespace core {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
         if (eventQueue.empty()) {
-            for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
+            for (const DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
                 nextTimeout = std::min(descriptorEventPublisher->getNextTimeout(currentTime), nextTimeout);
             }
             nextTimeout = std::min(timerEventPublisher->getNextTimeout(currentTime), nextTimeout);
@@ -168,7 +168,7 @@ namespace core {
         return std::accumulate(descriptorEventPublishers.begin(),
                                descriptorEventPublishers.end(),
                                0,
-                               [](int count, DescriptorEventPublisher* descriptorEventPublisher) -> int {
+                               [](int count, const DescriptorEventPublisher* descriptorEventPublisher) -> int {
                                    return count + descriptorEventPublisher->getObservedEventReceiverCount();
                                });
     }
@@ -177,7 +177,7 @@ namespace core {
         return std::accumulate(descriptorEventPublishers.begin(),
                                descriptorEventPublishers.end(),
                                -1,
-                               [](int count, DescriptorEventPublisher* descriptorEventPublisher) -> int {
+                               [](int count, const DescriptorEventPublisher* descriptorEventPublisher) -> int {
                                    return std::max(descriptorEventPublisher->maxFd(), count);
                                });
     }
@@ -217,7 +217,7 @@ namespace core {
     void EventMultiplexer::EventQueue::clear() {
         std::swap(executeQueue, publishQueue);
 
-        for (Event* event : *executeQueue) {
+        for (const Event* event : *executeQueue) {
             event->getEventReceiver()->destruct();
         }
 

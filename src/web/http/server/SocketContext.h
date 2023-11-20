@@ -48,7 +48,7 @@ namespace web::http::server {
 
         class RequestContext : public RequestContextBase {
         public:
-            RequestContext(SocketContext* serverContext)
+            explicit RequestContext(SocketContext* serverContext)
                 : RequestContextBase(serverContext)
                 , response(this)
                 , ready(false)

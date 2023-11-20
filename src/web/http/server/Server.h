@@ -66,7 +66,7 @@ namespace web::http::server {
             Super::getSocketContextFactory()->setOnRequestReady(onRequestReady);
         }
 
-        Server(const std::function<void(Request&, Response&)>& onRequestReady)
+        explicit Server(const std::function<void(Request&, Response&)>& onRequestReady)
             : Server("", onRequestReady) {
         }
     };

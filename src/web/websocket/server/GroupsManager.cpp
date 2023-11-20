@@ -72,7 +72,7 @@ namespace web::websocket::server {
                                       std::size_t messageLength,
                                       const SubProtocol* excludedClient) {
         if (groups.contains(channel)) {
-            for (SubProtocol* client : groups[channel]) {
+            for (const SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     client->sendMessage(message, messageLength);
                 }
@@ -82,7 +82,7 @@ namespace web::websocket::server {
 
     void GroupsManager::sendBroadcast(const std::string& channel, const std::string& message, const SubProtocol* excludedClient) {
         if (groups.contains(channel)) {
-            for (SubProtocol* client : groups[channel]) {
+            for (const SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     client->sendMessage(message);
                 }
@@ -95,7 +95,7 @@ namespace web::websocket::server {
                                            std::size_t messageLength,
                                            const SubProtocol* excludedClient) {
         if (groups.contains(channel)) {
-            for (SubProtocol* client : groups[channel]) {
+            for (const SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     client->sendMessageStart(message, messageLength);
                 }
@@ -112,7 +112,7 @@ namespace web::websocket::server {
                                            std::size_t messageLength,
                                            const SubProtocol* excludedClient) {
         if (groups.contains(channel)) {
-            for (SubProtocol* client : groups[channel]) {
+            for (const SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     client->sendMessageFrame(message, messageLength);
                 }
@@ -129,7 +129,7 @@ namespace web::websocket::server {
                                          std::size_t messageLength,
                                          const SubProtocol* excludedClient) {
         if (groups.contains(channel)) {
-            for (SubProtocol* client : groups[channel]) {
+            for (const SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     client->sendMessageEnd(message, messageLength);
                 }
@@ -142,10 +142,10 @@ namespace web::websocket::server {
     }
 
     void GroupsManager::forEachClient(const std::string& channel,
-                                      const std::function<void(SubProtocol*)>& sendToClient,
+                                      const std::function<void(const SubProtocol*)>& sendToClient,
                                       const SubProtocol* excludedClient) {
         if (groups.contains(channel)) {
-            for (SubProtocol* client : groups[channel]) {
+            for (const SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     sendToClient(client);
                 }

@@ -63,8 +63,6 @@ namespace core {
 
         void setTimer(Timer* timer);
 
-        void updateTimeout();
-
         TimerEventPublisher& timerEventPublisher;
 
         Timer* timer = nullptr;

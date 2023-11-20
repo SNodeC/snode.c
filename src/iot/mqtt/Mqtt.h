@@ -105,7 +105,7 @@ namespace iot::mqtt {
         void send(const std::vector<char>& data) const;
 
     protected:
-        void printVP(const iot::mqtt::ControlPacket& packet);
+        void printVP(const iot::mqtt::ControlPacket& packet) const;
         static void printFixedHeader(const iot::mqtt::FixedHeader& fixedHeader);
 
         std::string clientId;

@@ -116,7 +116,7 @@ namespace web::websocket {
             std::size_t closePayloadLength = reasonLength + 2;
             char* closePayload = new char[closePayloadLength];
 
-            *reinterpret_cast<uint16_t*>(closePayload) = htobe16(statusCode);
+            *reinterpret_cast<uint16_t*>(closePayload) = htobe16(statusCode); // cppcheck-suppress uninitdata
 
             if (reasonLength > 0) {
                 memcpy(closePayload + 2, reason, reasonLength);
@@ -291,7 +291,7 @@ namespace web::websocket {
                 stringStream << std::setfill('0') << std::setw(2) << std::hex
                              << static_cast<unsigned int>(static_cast<unsigned char>(frame[i])) << " ";
 
-                if ((i + 1) % modul == 0 || i == frameLength) {
+                if ((i + 1) % modul == 0 || i == frameLength) { // cppcheck-suppress knownConditionTrueFalse
                     LOG(TRACE) << "WebSocket: Frame = " << stringStream.str();
                     stringStream.str("");
                 }

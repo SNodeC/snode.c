@@ -116,19 +116,6 @@ namespace httputils {
         return split;
     }
 
-    std::string str_substr_char(const std::string& string, char c, std::string::size_type* pos) {
-        std::string::size_type rpos = string.find_first_of(c, *pos);
-
-        std::string result{};
-
-        if (rpos != std::string::npos) {
-            result = string.substr(*pos, rpos - *pos);
-            *pos = rpos + 1;
-        }
-
-        return result;
-    }
-
     std::string to_http_date(struct tm* tm) {
         char buf[100];
 
@@ -169,12 +156,6 @@ namespace httputils {
 
     std::string::iterator to_lower(std::string& string) {
         return std::transform(string.begin(), string.end(), string.begin(), ::tolower);
-    }
-
-    bool ci_comp(const std::string& str1, const std::string& str2) {
-        return str1.size() == str2.size() && std::equal(str1.begin(), str1.end(), str2.begin(), [](auto a, auto b) {
-                   return std::tolower(a) == std::tolower(b);
-               });
     }
 
     bool ci_contains(const std::string& str1, const std::string& str2) {

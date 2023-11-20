@@ -58,10 +58,6 @@ namespace core {
         return absoluteTimeout > currentTime ? absoluteTimeout - currentTime : 0;
     }
 
-    void TimerEventReceiver::updateTimeout() {
-        update();
-    }
-
     void TimerEventReceiver::enable() {
         timerEventPublisher.insert(this);
     }

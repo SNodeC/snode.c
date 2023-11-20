@@ -47,7 +47,7 @@ namespace iot::mqtt_fast::types {
     private:
         std::size_t length = 1;
         std::size_t needed = 1;
-        char buffer[1];
+        char buffer[1] = {'\0'};
     };
 
 } // namespace iot::mqtt_fast::types

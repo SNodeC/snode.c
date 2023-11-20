@@ -40,8 +40,6 @@ namespace httputils {
 
     std::pair<std::string, std::string> str_split_last(const std::string& base, char c_middle);
 
-    std::string str_substr_char(const std::string& string, char c, std::string::size_type* pos);
-
     std::string to_http_date(struct tm* tm = nullptr);
 
     struct tm from_http_date(const std::string& http_date);
@@ -49,8 +47,6 @@ namespace httputils {
     std::string file_mod_http_date(const std::string& filePath);
 
     std::string::iterator to_lower(std::string& string);
-
-    bool ci_comp(const std::string& str1, const std::string& str2);
 
     bool ci_contains(const std::string& str1, const std::string& str2);
 

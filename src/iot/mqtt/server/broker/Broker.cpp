@@ -171,7 +171,7 @@ namespace iot::mqtt::server::broker {
         return hasSession(clientId) && !sessionStore[clientId].isActive();
     }
 
-    bool Broker::isActiveSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt) {
+    bool Broker::isActiveSession(const std::string& clientId, const iot::mqtt::server::Mqtt* mqtt) {
         return hasSession(clientId) && sessionStore[clientId].isOwnedBy(mqtt);
     }
 

@@ -40,8 +40,11 @@ namespace iot::mqtt_fast::packets {
 
     class Connect : public iot::mqtt_fast::ControlPacket {
     public:
-        explicit Connect(
-            std::string clientId, std::string protocol = "MQTT", uint8_t version = 4, uint8_t flags = 0, uint16_t keepAlive = 0x003C);
+        explicit Connect(const std::string& clientId,
+                         const std::string& protocol = "MQTT",
+                         uint8_t version = 4,
+                         uint8_t flags = 0,
+                         uint16_t keepAlive = 0x003C);
         explicit Connect(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
 
         std::string getProtocol() const;

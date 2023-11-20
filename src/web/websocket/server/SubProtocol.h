@@ -69,7 +69,7 @@ namespace web::websocket::server {
         void sendBroadcastEnd(const char* message, std::size_t messageLength, bool excludeSelf = false);
         void sendBroadcastEnd(const std::string& message, bool excludeSelf = false);
 
-        void forEachClient(const std::function<void(SubProtocol*)>& sendToClient, bool excludeSelf = false);
+        void forEachClient(const std::function<void(const SubProtocol*)>& sendToClient, bool excludeSelf = false);
 
     private:
         std::string group;

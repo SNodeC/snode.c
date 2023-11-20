@@ -24,7 +24,7 @@
 
 namespace iot::mqtt_fast::packets {
 
-    Connect::Connect(std::string clientId, std::string protocol, uint8_t version, uint8_t flags, uint16_t keepAlive)
+    Connect::Connect(const std::string &clientId, const std::string &protocol, uint8_t version, uint8_t flags, uint16_t keepAlive)
         : iot::mqtt_fast::ControlPacket(MQTT_CONNECT)
         , protocol(protocol)
         , level(version)

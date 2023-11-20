@@ -61,9 +61,6 @@ namespace iot::mqtt::types {
     }
 
     std::vector<char> String::serialize() const {
-        UInt16 stringLength;
-        stringLength = static_cast<uint16_t>(value.size());
-
         std::vector<char> returnVector = stringLength.serialize();
         returnVector.insert(returnVector.end(), value.begin(), value.end());
 
@@ -72,6 +69,8 @@ namespace iot::mqtt::types {
 
     std::string String::operator=(const std::string& newValue) {
         value = std::vector<char>(newValue.begin(), newValue.end());
+        stringLength = static_cast<uint16_t>(value.size());
+
         return *this;
     }
 

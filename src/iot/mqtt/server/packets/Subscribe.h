@@ -46,6 +46,9 @@ namespace iot::mqtt::server::packets {
         void deliverPacket(iot::mqtt::server::Mqtt* mqtt) override;
 
     private:
+        iot::mqtt::types::String topic;
+        iot::mqtt::types::UInt8 qoS;
+
         int state = 0;
     };
 

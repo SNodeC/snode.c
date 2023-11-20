@@ -65,8 +65,9 @@ namespace web::websocket::server {
         void sendBroadcastEnd(const std::string& group, const char* message, std::size_t messageLength, const SubProtocol* excludedClient);
         void sendBroadcastEnd(const std::string& group, const std::string& message, const SubProtocol* excludedClient);
 
-        void
-        forEachClient(const std::string& group, const std::function<void(SubProtocol*)>& sendToClient, const SubProtocol* excludedClient);
+        void forEachClient(const std::string& group,
+                           const std::function<void(const SubProtocol*)>& sendToClient,
+                           const SubProtocol* excludedClient);
 
         static GroupsManager* groupsManager;
 

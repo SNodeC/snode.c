@@ -86,7 +86,6 @@ namespace iot::mqtt::server::broker {
             std::string::size_type slashPosition = topic.find('/');
 
             std::string topicLevel = topic.substr(0, slashPosition);
-            bool leafFound = slashPosition == std::string::npos;
 
             if ((topicLevel == "#" && !topic.ends_with('#'))) {
                 success = false;
@@ -94,7 +93,7 @@ namespace iot::mqtt::server::broker {
                 topic.erase(0, topicLevel.size() + 1);
 
                 success = topicLevels.insert({topicLevel, SubscribtionTree::TopicLevel(broker)})
-                              .first->second.subscribe(clientId, qoS, topic, leafFound);
+                              .first->second.subscribe(clientId, qoS, topic, slashPosition == std::string::npos);
             }
         }
 

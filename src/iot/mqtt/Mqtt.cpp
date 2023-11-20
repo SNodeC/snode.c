@@ -320,7 +320,7 @@ namespace iot::mqtt {
         onPubcomp(pubcomp);
     }
 
-    void Mqtt::printVP(const iot::mqtt::ControlPacket& packet) {
+    void Mqtt::printVP(const iot::mqtt::ControlPacket& packet) const {
         LOG(TRACE) << "MQTT: Received data (variable header and payload):\n" << dataToHexString(packet.serializeVP());
 
         LOG(INFO) << "MQTT: " << packet.getName() << " received: " << clientId;

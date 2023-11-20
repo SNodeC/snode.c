@@ -95,7 +95,7 @@ namespace core {
         return core::system::dlerror();
     }
 
-    int DynamicLoader::realExecDlClose(Library& library) {
+    int DynamicLoader::realExecDlClose(const Library& library) {
         return core::system::dlclose(library.handle);
     }
 
