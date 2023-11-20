@@ -11,3 +11,5 @@
 /.vscode/
 /.cache/
 /softwipe_build/
+/test1-cppcheck-build-dir/
+/test1.cppcheck
