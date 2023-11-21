@@ -29,6 +29,10 @@
 
 namespace core::socket::stream {
 
+    SocketConnection::SocketConnection(const std::string &instanceName)
+        : instanceName(instanceName) {
+    }
+
     SocketConnection::~SocketConnection() {
     }
 
@@ -64,6 +68,10 @@ namespace core::socket::stream {
 
     void SocketConnection::sentToPeer(const std::vector<char>& data) {
         sendToPeer(data.data(), data.size());
+    }
+
+    const std::string &SocketConnection::getInstanceName() const {
+        return instanceName;
     }
 
     void SocketConnection::connected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory) {

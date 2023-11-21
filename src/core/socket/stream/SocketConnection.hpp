@@ -30,7 +30,8 @@
 namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(PhysicalSocket& physicalSocket,
+    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(const std::string& instanceName,
+                                                                                     PhysicalSocket& physicalSocket,
                                                                                      const SocketAddress& localAddress,
                                                                                      const SocketAddress& remoteAddress,
                                                                                      const std::function<void()>& onDisconnect,
@@ -39,7 +40,8 @@ namespace core::socket::stream {
                                                                                      std::size_t readBlockSize,
                                                                                      std::size_t writeBlockSize,
                                                                                      const utils::Timeval& terminateTimeout)
-        : PhysicalSocket(physicalSocket)
+        : SocketConnection(instanceName)
+        , PhysicalSocket(physicalSocket)
         , SocketReader(
               [this](int errnum) -> void {
                   onReadError(errnum);

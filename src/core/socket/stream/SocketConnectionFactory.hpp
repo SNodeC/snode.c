@@ -51,7 +51,8 @@ namespace core::socket::stream {
                 physicalSocket.getPeername(remoteSockAddr, remoteSockAddrLen) == 0) {
                 physicalSocket.setDontClose();
 
-                socketConnection = new SocketConnection(physicalSocket,
+                socketConnection = new SocketConnection(config->getInstanceName(),
+                                                        physicalSocket,
                                                         SocketAddress(localSockAddr, localSockAddrLen),
                                                         SocketAddress(remoteSockAddr, remoteSockAddrLen),
                                                         onDisconnect,

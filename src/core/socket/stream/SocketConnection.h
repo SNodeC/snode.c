@@ -47,7 +47,7 @@ namespace core::socket::stream {
 
     class SocketConnection {
     public:
-        SocketConnection() = default;
+        SocketConnection(const std::string& instanceName);
 
     protected:
         virtual ~SocketConnection();
@@ -64,6 +64,8 @@ namespace core::socket::stream {
 
         virtual void shutdownRead() = 0;
         virtual void shutdownWrite(bool forceClose) = 0;
+
+        const std::string& getInstanceName() const;
 
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
         virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
@@ -83,6 +85,8 @@ namespace core::socket::stream {
         core::socket::stream::SocketContext* socketContext = nullptr;
         core::socket::stream::SocketContext* newSocketContext = nullptr;
         bool socketContextConnected = false;
+
+        std::string instanceName;
     };
 
     template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT>
@@ -103,7 +107,8 @@ namespace core::socket::stream {
         SocketConnectionT() = delete;
 
     protected:
-        SocketConnectionT(PhysicalSocket& physicalSocket,
+        SocketConnectionT(const std::string& instanceName,
+                          PhysicalSocket& physicalSocket,
                           const SocketAddress& localAddress,
                           const SocketAddress& remoteAddress,
                           const std::function<void()>& onDisconnect,
