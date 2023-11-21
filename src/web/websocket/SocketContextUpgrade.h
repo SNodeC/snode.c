@@ -88,27 +88,27 @@ namespace web::websocket {
         ~SocketContextUpgrade() override = default;
 
     private:
-        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) const override {
+        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) override {
             Transmitter::sendMessage(opCode, message, messageLength);
         }
 
-        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) const override {
+        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) override {
             Transmitter::sendMessageStart(opCode, message, messageLength);
         }
 
-        void sendMessageFrame(const char* message, std::size_t messageLength) const override {
+        void sendMessageFrame(const char* message, std::size_t messageLength) override {
             Transmitter::sendMessageFrame(message, messageLength);
         }
 
-        void sendMessageEnd(const char* message, std::size_t messageLength) const override {
+        void sendMessageEnd(const char* message, std::size_t messageLength) override {
             Transmitter::sendMessageEnd(message, messageLength);
         }
 
-        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0) const override {
+        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0) override {
             sendMessage(9, reason, reasonLength);
         }
 
-        void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0) const override {
+        void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0) override {
             sendMessage(10, reason, reasonLength);
         }
 

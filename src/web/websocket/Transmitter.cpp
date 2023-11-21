@@ -21,16 +21,12 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <endian.h>
-#include <random>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define WSMAXFRAMEPAYLOADLENGTH 1024
 
 namespace web::websocket {
-
-    static std::random_device randomDevice;
-    static std::uniform_int_distribution<uint32_t> distribution{0, UINT32_MAX};
 
     Transmitter::Transmitter(bool masking)
         : masking(masking) {
@@ -39,23 +35,23 @@ namespace web::websocket {
     Transmitter::~Transmitter() {
     }
 
-    void Transmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) const {
+    void Transmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
         send(true, opCode, message, messageLength);
     }
 
-    void Transmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) const {
+    void Transmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
         send(false, opCode, message, messageLength);
     }
 
-    void Transmitter::sendMessageFrame(const char* message, std::size_t messageLength) const {
+    void Transmitter::sendMessageFrame(const char* message, std::size_t messageLength) {
         send(false, 0, message, messageLength);
     }
 
-    void Transmitter::sendMessageEnd(const char* message, std::size_t messageLength) const {
+    void Transmitter::sendMessageEnd(const char* message, std::size_t messageLength) {
         send(true, 0, message, messageLength);
     }
 
-    void Transmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) const {
+    void Transmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) {
         std::size_t messageOffset = 0;
 
         do {
@@ -72,7 +68,7 @@ namespace web::websocket {
         } while (messageLength - messageOffset > 0);
     }
 
-    void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) const {
+    void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
         uint64_t length = 0;
 
         if (payloadLength < 126) {

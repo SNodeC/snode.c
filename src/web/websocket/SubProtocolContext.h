@@ -46,13 +46,13 @@ namespace web::websocket {
 
         SubProtocolContext& operator=(const SubProtocolContext&) = delete;
 
-        virtual void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) const = 0;
-        virtual void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) const = 0;
+        virtual void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) = 0;
+        virtual void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) = 0;
 
-        virtual void sendMessageFrame(const char* message, std::size_t messageLength) const = 0;
-        virtual void sendMessageEnd(const char* message, std::size_t messageLength) const = 0;
-        virtual void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0) const = 0;
-        virtual void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0) const = 0;
+        virtual void sendMessageFrame(const char* message, std::size_t messageLength) = 0;
+        virtual void sendMessageEnd(const char* message, std::size_t messageLength) = 0;
+        virtual void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0) = 0;
+        virtual void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0) = 0;
         virtual void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) = 0;
 
         virtual core::socket::stream::SocketConnection* getSocketConnection() = 0;

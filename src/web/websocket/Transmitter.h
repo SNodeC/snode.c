@@ -23,6 +23,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <random>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -30,7 +31,7 @@ namespace web::websocket {
 
     class Transmitter {
     public:
-        Transmitter() = default;
+        Transmitter() = delete;
 
         Transmitter(const Transmitter&) = delete;
         Transmitter& operator=(const Transmitter&) = delete;
@@ -40,22 +41,25 @@ namespace web::websocket {
     protected:
         Transmitter(bool masking);
 
-        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) const;
+        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
 
-        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) const;
-        void sendMessageFrame(const char* message, std::size_t messageLength) const;
-        void sendMessageEnd(const char* message, std::size_t messageLength) const;
+        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
+        void sendMessageFrame(const char* message, std::size_t messageLength);
+        void sendMessageEnd(const char* message, std::size_t messageLength);
 
     private:
-        void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) const;
+        void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength);
 
-        void sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) const;
+        void sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength);
 
         virtual void sendFrameData(uint8_t data) const = 0;
         virtual void sendFrameData(uint16_t data) const = 0;
         virtual void sendFrameData(uint32_t data) const = 0;
         virtual void sendFrameData(uint64_t data) const = 0;
         virtual void sendFrameData(const char* frame, uint64_t frameLength) const = 0;
+
+        std::random_device randomDevice;
+        std::uniform_int_distribution<uint32_t> distribution{0, UINT32_MAX};
 
         bool masking = false;
     };

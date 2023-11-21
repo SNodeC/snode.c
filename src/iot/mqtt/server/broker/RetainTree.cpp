@@ -91,9 +91,8 @@ namespace iot::mqtt::server::broker {
                 this->message = message;
             }
         } else {
-            std::string::size_type slashPosition = topic.find('/');
-
-            std::string topicLevel = topic.substr(0, slashPosition);
+            const std::string::size_type slashPosition = topic.find('/');
+            const std::string topicLevel = topic.substr(0, slashPosition);
 
             topic.erase(0, topicLevel.size() + 1);
 
@@ -124,10 +123,9 @@ namespace iot::mqtt::server::broker {
                 LOG(DEBUG) << "MQTT Broker:   ... completed!";
             }
         } else {
-            std::string::size_type slashPosition = topic.find('/');
-
-            std::string topicLevel = topic.substr(0, slashPosition);
-            bool leafFound = slashPosition == std::string::npos;
+            const std::string::size_type slashPosition = topic.find('/');
+            const std::string topicLevel = topic.substr(0, slashPosition);
+            const bool leafFound = slashPosition == std::string::npos;
 
             topic.erase(0, topicLevel.size() + 1);
 
@@ -169,7 +167,7 @@ namespace iot::mqtt::server::broker {
             json["message"] = message.toJson();
         }
 
-        for (auto& [topicLevel, topicLevelValue] : subTopicLevels) {
+        for (const auto& [topicLevel, topicLevelValue] : subTopicLevels) {
             json["topic_level"][topicLevel] = topicLevelValue.toJson();
         }
 

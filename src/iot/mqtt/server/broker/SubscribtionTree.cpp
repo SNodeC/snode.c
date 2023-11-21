@@ -83,9 +83,8 @@ namespace iot::mqtt::server::broker {
         if (leafFound) {
             clientIds[clientId] = qoS;
         } else {
-            std::string::size_type slashPosition = topic.find('/');
-
-            std::string topicLevel = topic.substr(0, slashPosition);
+            const std::string::size_type slashPosition = topic.find('/');
+            const std::string topicLevel = topic.substr(0, slashPosition);
 
             if ((topicLevel == "#" && !topic.ends_with('#'))) {
                 success = false;
@@ -113,7 +112,7 @@ namespace iot::mqtt::server::broker {
 
             LOG(DEBUG) << "... completed!";
 
-            auto nextHashLevel = topicLevels.find("#");
+            const auto nextHashLevel = topicLevels.find("#");
             if (nextHashLevel != topicLevels.end()) {
                 LOG(DEBUG) << "MQTT Broker: Found parent match:";
                 LOG(DEBUG) << "MQTT Broker:   Topic: '" << message.getTopic() << "'";
@@ -127,9 +126,8 @@ namespace iot::mqtt::server::broker {
                 LOG(DEBUG) << "MQTT Broker: ... completed!";
             }
         } else {
-            std::string::size_type slashPosition = topic.find('/');
-
-            std::string topicLevel = topic.substr(0, slashPosition);
+            const std::string::size_type slashPosition = topic.find('/');
+            const std::string topicLevel = topic.substr(0, slashPosition);
 
             topic.erase(0, topicLevel.size() + 1);
 
@@ -163,9 +161,8 @@ namespace iot::mqtt::server::broker {
         if (leafFound) {
             clientIds.erase(clientId);
         } else {
-            std::string::size_type slashPosition = topic.find('/');
-
-            std::string topicLevel = topic.substr(0, slashPosition);
+            const std::string::size_type slashPosition = topic.find('/');
+            const std::string topicLevel = topic.substr(0, slashPosition);
 
             topic.erase(0, topicLevel.size() + 1);
 

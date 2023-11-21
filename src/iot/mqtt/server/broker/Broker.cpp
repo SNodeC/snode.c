@@ -51,7 +51,7 @@ namespace iot::mqtt::server::broker {
 
                     sessionStoreFile >> sessionStoreJson;
 
-                    for (auto& [clientId, sessionJson] : sessionStoreJson["session_store"].items()) {
+                    for (const auto& [clientId, sessionJson] : sessionStoreJson["session_store"].items()) {
                         sessionStore[clientId].fromJson(sessionJson);
                     }
                     retainTree.fromJson(sessionStoreJson["retain_tree"]);

@@ -33,7 +33,7 @@ namespace core::system {
 
     void freeaddrinfo(struct addrinfo* res) {
         errno = 0;
-        return ::freeaddrinfo(res);
+        ::freeaddrinfo(res);
     }
 
     int getnameinfo(const sockaddr* addr, socklen_t addrlen, char* host, socklen_t hostlen, char* serv, socklen_t servlen, int flags) {
