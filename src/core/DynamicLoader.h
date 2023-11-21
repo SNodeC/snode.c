@@ -51,9 +51,9 @@ namespace core {
         static char* dlError();
 
     private:
-        static int dlClose(Library& library);
+        static int dlClose(const Library& library);
 
-        static int realExecDlClose(const Library &library);
+        static int realExecDlClose(const Library& library);
         static void execDlCloseDeleyed();
         static void execDlCloseAll();
 

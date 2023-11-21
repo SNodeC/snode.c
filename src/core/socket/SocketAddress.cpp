@@ -27,7 +27,7 @@ namespace core::socket {
     SocketAddress::~SocketAddress() {
     }
 
-    SocketAddress::BadSocketAddress::BadSocketAddress(const State state, const std::string& errorMessage, int errnum)
+    SocketAddress::BadSocketAddress::BadSocketAddress(const State& state, const std::string& errorMessage, int errnum)
         : runtime_error(errorMessage)
         , state(state)
         , errnum(errnum) {

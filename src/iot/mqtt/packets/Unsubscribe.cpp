@@ -28,7 +28,7 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_UNSUBSCRIBE, "UNSUBSCRIBE") {
     }
 
-    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, std::list<std::string>& topics)
+    Unsubscribe::Unsubscribe(uint16_t packetIdentifier, const std::list<std::string>& topics)
         : Unsubscribe() {
         this->packetIdentifier = packetIdentifier;
         this->topics = topics;

@@ -130,18 +130,17 @@ namespace iot::mqtt::server::broker {
             std::string::size_type slashPosition = topic.find('/');
 
             std::string topicLevel = topic.substr(0, slashPosition);
-            bool leafFound = slashPosition == std::string::npos;
 
             topic.erase(0, topicLevel.size() + 1);
 
             auto foundNode = topicLevels.find(topicLevel);
             if (foundNode != topicLevels.end()) {
-                foundNode->second.publish(message, topic, leafFound);
+                foundNode->second.publish(message, topic, slashPosition == std::string::npos);
             }
 
             foundNode = topicLevels.find("+");
             if (foundNode != topicLevels.end()) {
-                foundNode->second.publish(message, topic, leafFound);
+                foundNode->second.publish(message, topic, slashPosition == std::string::npos);
             }
 
             foundNode = topicLevels.find("#");
@@ -167,11 +166,11 @@ namespace iot::mqtt::server::broker {
             std::string::size_type slashPosition = topic.find('/');
 
             std::string topicLevel = topic.substr(0, slashPosition);
-            bool leafFound = slashPosition == std::string::npos;
 
             topic.erase(0, topicLevel.size() + 1);
 
-            if (topicLevels.contains(topicLevel) && topicLevels.find(topicLevel)->second.unsubscribe(clientId, topic, leafFound)) {
+            if (topicLevels.contains(topicLevel) &&
+                topicLevels.find(topicLevel)->second.unsubscribe(clientId, topic, slashPosition == std::string::npos)) {
                 topicLevels.erase(topicLevel);
             }
         }
