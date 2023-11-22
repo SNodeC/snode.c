@@ -58,18 +58,17 @@ namespace iot::mqtt::server::packets {
 
                 if (!qoS.isComplete()) {
                     break;
-                } else {
-                    topics.push_back(Topic(topic, qoS));
-                    topic.reset();
-                    qoS.reset();
+                }
+                topics.emplace_back(topic, qoS);
+                topic.reset();
+                qoS.reset();
 
-                    if (getConsumed() + consumed < this->getRemainingLength()) {
-                        state = 1;
-                        break;
-                    }
+                if (getConsumed() + consumed < this->getRemainingLength()) {
+                    state = 1;
                 }
 
-                complete = true;
+                complete = getConsumed() + consumed >= this->getRemainingLength();
+
                 break;
         }
 

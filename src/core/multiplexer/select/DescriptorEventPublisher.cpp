@@ -89,7 +89,7 @@ namespace core::select {
         int count = 0;
 
         for (auto& [fd, eventReceivers] : observedEventReceivers) {
-            if (fdSet.isSet(fd)) {
+            if (fdSet.isSet(fd) != 0) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;
                 eventReceiver->span();

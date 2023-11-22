@@ -44,7 +44,6 @@ namespace apps::echo::model {
 
         std::size_t onReceivedFromPeer() override;
 
-    private:
         Role role;
     };
 

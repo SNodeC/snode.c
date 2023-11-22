@@ -192,7 +192,7 @@ namespace iot::mqtt::server::broker {
     nlohmann::json SubscribtionTree::TopicLevel::toJson() const {
         nlohmann::json json;
 
-        for (auto& [topicLevelName, topicLevel] : topicLevels) {
+        for (const auto& [topicLevelName, topicLevel] : topicLevels) {
             json["topic_filter"][topicLevelName] = topicLevel.toJson();
         }
 

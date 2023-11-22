@@ -69,7 +69,7 @@ namespace core::epoll {
         }
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const {
         utils::PreserveErrno preserveErrno;
 
         epoll_event ePollEvent{};

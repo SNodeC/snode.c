@@ -48,16 +48,13 @@ namespace iot::mqtt::server::packets {
 
                 if (!topic.isComplete()) {
                     break;
-                } else {
-                    topics.push_back(topic);
-                    topic.reset();
-
-                    if (getConsumed() + consumed < this->getRemainingLength()) {
-                        break;
-                    }
                 }
 
-                complete = true;
+                topics.push_back(topic);
+                topic.reset();
+
+                complete = getConsumed() + consumed >= this->getRemainingLength();
+
                 break;
         }
 

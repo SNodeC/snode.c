@@ -73,7 +73,6 @@ namespace core::poll {
         int monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) override;
         void spanActiveEvents(int activeDescriptorCount) override;
 
-    private:
         PollFdsManager pollFdsManager;
     };
 

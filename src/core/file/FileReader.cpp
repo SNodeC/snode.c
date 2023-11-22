@@ -88,7 +88,7 @@ namespace core::file {
         span();
     }
 
-    bool FileReader::isSuspended() {
+    bool FileReader::isSuspended() const {
         return suspended;
     }
 

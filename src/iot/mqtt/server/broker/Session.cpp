@@ -92,6 +92,8 @@ namespace iot::mqtt::server::broker {
         nlohmann::json json = iot::mqtt::Session::toJson();
 
         std::vector<nlohmann::json> messageVector;
+        messageVector.reserve(messageQueue.size());
+
         for (const Message& message : messageQueue) {
             messageVector.emplace_back(message.toJson());
         }

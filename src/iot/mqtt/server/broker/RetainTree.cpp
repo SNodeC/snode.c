@@ -81,8 +81,8 @@ namespace iot::mqtt::server::broker {
         head.clear();
     }
 
-    bool RetainTree::TopicLevel::retain(const Message& message, std::string topic, bool appeared) {
-        if (appeared) {
+    bool RetainTree::TopicLevel::retain(const Message& message, std::string topic, bool leafFound) {
+        if (leafFound) {
             if (!message.getTopic().empty()) {
                 LOG(DEBUG) << "MQTT Broker: Retaining:";
                 LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();

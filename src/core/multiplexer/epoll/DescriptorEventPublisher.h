@@ -44,7 +44,7 @@ namespace core::epoll {
             explicit EPollEvents(int& epfd, uint32_t event);
 
         private:
-            void muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver);
+            void muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const;
 
         public:
             void muxAdd(core::DescriptorEventReceiver* eventReceiver);
@@ -76,7 +76,6 @@ namespace core::epoll {
 
         int spanActiveEvents() override;
 
-    private:
         EPollEvents ePollEvents;
         uint32_t revents;
     };
