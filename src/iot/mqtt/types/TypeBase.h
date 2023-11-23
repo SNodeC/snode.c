@@ -45,7 +45,7 @@ namespace iot::mqtt::types {
 
         TypeBase& operator=(const TypeBase&) = default;
 
-        virtual ValueType operator=(const ValueType& value) = 0;
+        virtual TypeBase& operator=(const ValueType& value) = 0;
         virtual operator ValueType() const = 0;
 
         virtual std::size_t deserialize(iot::mqtt::MqttContext* mqttContext);

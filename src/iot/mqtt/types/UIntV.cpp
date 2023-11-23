@@ -35,7 +35,7 @@ namespace iot::mqtt::types {
         std::size_t consumed = 0;
 
         do {
-            char byte;
+            char byte = 0;
             consumed = mqttContext->recv(&byte, 1);
 
             if (consumed > 0) {
@@ -52,7 +52,7 @@ namespace iot::mqtt::types {
         return consumed;
     }
 
-    uint32_t UIntV::operator=(const uint32_t& newValue) {
+    UIntV& UIntV::operator=(const uint32_t& newValue) {
         uint32_t remainingValue = newValue;
         value.resize(0);
 
@@ -67,7 +67,7 @@ namespace iot::mqtt::types {
             value.push_back(static_cast<char>(encodedByte));
         } while (remainingValue > 0);
 
-        return newValue;
+        return *this;
     }
 
     UIntV::operator uint32_t() const {

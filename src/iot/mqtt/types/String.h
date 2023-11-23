@@ -43,7 +43,7 @@ namespace iot::mqtt::types {
         std::size_t deserialize(iot::mqtt::MqttContext* mqttContext) override;
         std::vector<char> serialize() const override;
 
-        std::string operator=(const std::string& newValue) override;
+        String& operator=(const std::string& newValue) override;
         operator std::string() const override;
 
         bool operator==(const std::string& rhsValue) const;

@@ -28,8 +28,10 @@
 
 namespace iot::mqtt::types {
 
-    uint16_t UInt16::operator=(const uint16_t& newValue) {
-        return *reinterpret_cast<uint16_t*>(value.data()) = htobe16(newValue);
+    UInt16& UInt16::operator=(const uint16_t& newValue) {
+        *reinterpret_cast<uint16_t*>(value.data()) = htobe16(newValue);
+
+        return *this;
     }
 
     UInt16::operator uint16_t() const {

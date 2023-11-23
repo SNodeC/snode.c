@@ -33,7 +33,7 @@ namespace iot::mqtt::types {
 
     class UInt16 : public TypeBase<uint16_t> {
     public:
-        uint16_t operator=(const uint16_t& newValue) override;
+        UInt16& operator=(const uint16_t& newValue) override;
         operator uint16_t() const override;
     };
 

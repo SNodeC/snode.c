@@ -33,7 +33,7 @@ namespace iot::mqtt::types {
 
     class UInt8 : public TypeBase<uint8_t> {
     public:
-        uint8_t operator=(const uint8_t& newValue) override;
+        UInt8& operator=(const uint8_t& newValue) override;
         operator uint8_t() const override;
     };
 

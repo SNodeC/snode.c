@@ -35,7 +35,7 @@ namespace iot::mqtt::types {
     public:
         StringRaw();
 
-        std::string operator=(const std::string& newValue) override;
+        StringRaw& operator=(const std::string& newValue) override;
         operator std::string() const override;
 
         bool operator==(const std::string& rhsValue) const;

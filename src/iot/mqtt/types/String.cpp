@@ -67,7 +67,7 @@ namespace iot::mqtt::types {
         return returnVector;
     }
 
-    std::string String::operator=(const std::string& newValue) {
+    String& String::operator=(const std::string& newValue) {
         value = std::vector<char>(newValue.begin(), newValue.end());
         stringLength = static_cast<uint16_t>(value.size());
 
