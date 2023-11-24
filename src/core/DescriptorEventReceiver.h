@@ -76,7 +76,7 @@ namespace core {
                                 DescriptorEventPublisher& descriptorEventPublisher,
                                 const utils::Timeval& timeout = TIMEOUT::DISABLE);
 
-        int getRegisteredFd();
+        int getRegisteredFd() const;
 
         void enable(int fd);
         void disable();

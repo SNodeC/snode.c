@@ -33,14 +33,13 @@ namespace core {
 
     protected:
         explicit Descriptor(int fd);
+        virtual ~Descriptor();
 
+    public:
         Descriptor& operator=(int fd);
         Descriptor& operator=(const Descriptor& descriptor) = delete;
         Descriptor& operator=(Descriptor&& descriptor) = delete;
 
-        virtual ~Descriptor();
-
-    public:
         int getFd() const;
 
         void setDontClose(bool dontClose = true);

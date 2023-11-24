@@ -40,7 +40,7 @@ namespace iot::mqtt_fast::types {
 
         std::size_t construct() override;
 
-        uint32_t getValue();
+        uint32_t getValue() const;
 
         void reset() override;
 

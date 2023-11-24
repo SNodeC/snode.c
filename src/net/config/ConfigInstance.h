@@ -36,7 +36,7 @@ namespace net::config {
     class ConfigInstance {
     public:
         ConfigInstance() = default;
-        explicit ConfigInstance(const std::string& name, const std::string& description);
+        explicit ConfigInstance(const std::string& name, const std::string& role);
         ConfigInstance(const ConfigInstance&) = delete;
         ConfigInstance(ConfigInstance&&) = delete;
 

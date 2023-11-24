@@ -16,33 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_PACKETS_PUBCOMP_H
-#define IOT_MQTT_PACKETS_PUBCOMP_H
-
-#include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
-#include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
+#include "iot/mqtt/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace iot::mqtt::packets {
+namespace iot::mqtt {
 
-    class Pubcomp : public iot::mqtt::ControlPacket {
-    public:
-        Pubcomp();
-        explicit Pubcomp(uint16_t packetIdentifier);
+    OnReceivedFromPeerEvent::OnReceivedFromPeerEvent(const std::function<void(const utils::Timeval&)>& onReceivedFromPeer)
+        : core::EventReceiver("WS-OnData")
+        , onReceivedFromPeer(onReceivedFromPeer) {
+    }
 
-    private:
-        std::vector<char> serializeVP() const override;
+    void OnReceivedFromPeerEvent::onEvent(const utils::Timeval& currentTime) {
+        onReceivedFromPeer(currentTime);
+    }
 
-    public:
-        uint16_t getPacketIdentifier() const;
-
-    protected:
-        iot::mqtt::types::UInt16 packetIdentifier;
-    };
-
-} // namespace iot::mqtt::packets
-
-#endif // IOT_MQTT_PACKETS_PUBREC_H
+} // namespace iot::mqtt

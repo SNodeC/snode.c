@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt_fast::packets {
@@ -29,7 +27,7 @@ namespace iot::mqtt_fast::packets {
     Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
         : iot::mqtt_fast::ControlPacket(MQTT_SUBACK)
         , packetIdentifier(packetIdentifier)
-        , returnCodes(std::move(returnCodes)) {
+        , returnCodes(returnCodes) {
         // V-Header
         putInt16(this->packetIdentifier);
 

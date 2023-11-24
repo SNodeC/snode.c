@@ -374,7 +374,7 @@ namespace utils {
                 ->type_name("instance=instance_alias [instance=instance_alias [...]]")
                 ->each([](const std::string& item) -> void {
                     const auto it = item.find('=');
-                    if (it != item.npos) {
+                    if (it != std::string::npos) {
                         aliases[item.substr(0, it)] = item.substr(it + 1);
                     } else {
                         throw CLI::ConversionError("Can not convert '" + item + "' to a 'instance=instance_alias' pair");
@@ -525,8 +525,8 @@ namespace utils {
             if (option->get_configurable()) {
                 std::string value;
 
-                if (option->reduced_results().size() > 0 && ((option->get_required() || mode == CLI::CallForCommandline::Mode::ALL) ||
-                                                             mode == CLI::CallForCommandline::Mode::CONFIGURED)) {
+                if (!option->reduced_results().empty() && ((option->get_required() || mode == CLI::CallForCommandline::Mode::ALL) ||
+                                                           mode == CLI::CallForCommandline::Mode::CONFIGURED)) {
                     value = option->reduced_results()[0];
                 } else if (!option->get_default_str().empty()) {
                     value = (mode == CLI::CallForCommandline::Mode::ALL || option->get_required()) ? option->get_default_str() : "";
@@ -598,7 +598,10 @@ namespace utils {
         while (app->get_parent() != nullptr) {
             app = app->get_parent();
             const std::string parentOptions = createCommandLineOptions(app, mode);
-            outString = app->get_name() + " " + (!parentOptions.empty() ? parentOptions + " " : "") + outString;
+            outString = std::string(app->get_name())
+                            .append(" ")
+                            .append(!parentOptions.empty() ? std::string(parentOptions).append(" ") : "")
+                            .append(outString);
         }
 
         if (outString.empty()) {
@@ -779,8 +782,9 @@ namespace utils {
             }
         } else if (fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) >= 0) {
             char buf[1024];
-            while (read(STDIN_FILENO, buf, 1024) > 0)
+            while (read(STDIN_FILENO, buf, 1024) > 0) {
                 ;
+            }
         }
     }
 

@@ -73,7 +73,7 @@ namespace iot::mqtt::server::broker {
         }
 
         for (auto& [topicLevel, subscribtion] : topicLevels) {
-            subscribtion.appear(clientId, topic + (topic.empty() ? "" : "/") + topicLevel);
+            subscribtion.appear(clientId, std::string(topic).append(topic.empty() ? "" : "/").append(topicLevel));
         }
     }
 

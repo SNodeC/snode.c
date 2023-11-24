@@ -37,7 +37,7 @@ namespace iot::mqtt {
         nlohmann::json json;
 
         std::vector<nlohmann::json> publishJsonVector;
-        for (auto& [packetIdentifier, publish] : publishMap) {
+        for (const auto& [packetIdentifier, publish] : publishMap) {
             nlohmann::json publishJson;
 
             publishJson["packet_identifier"] = packetIdentifier;
@@ -73,7 +73,7 @@ namespace iot::mqtt {
             }
 
             if (json.contains("publish_map")) {
-                for (auto& publishJson : json["publish_map"]) {
+                for (const auto& publishJson : json["publish_map"]) {
                     if (publishJson.contains("packet_identifer")) {
                         publishMap[publishJson["packet_identifier"]] = iot::mqtt::packets::Publish(publishJson["packet_identifier"],
                                                                                                    publishJson["topic"],

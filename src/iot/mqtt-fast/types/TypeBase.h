@@ -45,8 +45,8 @@ namespace iot::mqtt_fast::types {
 
         virtual std::size_t construct() = 0;
 
-        bool isCompleted();
-        bool isError();
+        bool isCompleted() const;
+        bool isError() const;
 
     protected:
         std::size_t read(char* buf, std::size_t count);

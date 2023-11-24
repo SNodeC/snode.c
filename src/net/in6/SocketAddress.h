@@ -92,7 +92,7 @@ namespace net::in6 {
         int aiSocktype = 0;
         int aiProtocol = 0;
 
-        std::string host = "";
+        std::string host;
         uint16_t port = 0;
 
         friend class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;

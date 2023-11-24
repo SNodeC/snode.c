@@ -31,7 +31,7 @@ namespace iot::mqtt::packets {
     class Pubrec : public ControlPacket {
     public:
         Pubrec();
-        explicit Pubrec(const uint16_t packetIdentifier);
+        explicit Pubrec(uint16_t packetIdentifier);
 
     private:
         std::vector<char> serializeVP() const override;

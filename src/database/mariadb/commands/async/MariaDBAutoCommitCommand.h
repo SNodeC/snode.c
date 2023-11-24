@@ -44,7 +44,7 @@ namespace database::mariadb::commands::async {
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
         std::string commandInfo() override;
 
-        my_bool ret = false;
+        my_bool ret = 0;
         my_bool autoCommit;
 
         const std::function<void(void)> onAutoCommit;

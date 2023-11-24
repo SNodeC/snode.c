@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define WSMAXFRAMEPAYLOADLENGTH 1024
+constexpr int WSMAXFRAMEPAYLOADLENGTH = 1024;
 
 namespace web::websocket {
 

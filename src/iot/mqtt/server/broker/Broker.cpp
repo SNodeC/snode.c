@@ -118,7 +118,7 @@ namespace iot::mqtt::server::broker {
     }
 
     std::shared_ptr<Broker> Broker::instance(uint8_t maxQoS) {
-        static std::shared_ptr<Broker> broker = std::make_shared<Broker>(maxQoS);
+        static const std::shared_ptr<Broker> broker = std::make_shared<Broker>(maxQoS);
 
         return broker;
     }

@@ -37,16 +37,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-/* Must be implemented in every variant of a multiplexer api */
-core::EventMultiplexer& EventMultiplexer();
-
 namespace core {
 
     int EventLoop::stopsig = 0;
     unsigned long EventLoop::tickCounter = 0;
     core::State EventLoop::eventLoopState = State::LOADED;
 
-    static std::string getTickCounterAsString(const el::LogMessage*) {
+    static std::string getTickCounterAsString([[maybe_unused]] const el::LogMessage* logMessage) {
         std::string tick = std::to_string(EventLoop::getTickCounter());
 
         if (tick.length() < 13) {

@@ -193,8 +193,9 @@ namespace CLI {
         const std::vector<const Option*> non_pos_options = app->get_options([](const Option* opt) {
             return opt->nonpositional();
         });
-        if (!non_pos_options.empty())
+        if (!non_pos_options.empty()) {
             out << " [" << get_label("OPTIONS") << "]";
+        }
 
         // Positionals need to be listed here
         std::vector<const Option*> positionals = app->get_options([](const Option* opt) {
@@ -250,10 +251,12 @@ namespace CLI {
                 continue;
             }
             std::string group_key = com->get_group();
-            if (!group_key.empty() && std::find_if(subcmd_groups_seen.begin(), subcmd_groups_seen.end(), [&group_key](std::string a) {
-                                          return detail::to_lower(a) == detail::to_lower(group_key);
-                                      }) == subcmd_groups_seen.end())
+            if (!group_key.empty() &&
+                std::find_if(subcmd_groups_seen.begin(), subcmd_groups_seen.end(), [&group_key](const std::string& a) {
+                    return detail::to_lower(a) == detail::to_lower(group_key);
+                }) == subcmd_groups_seen.end()) {
                 subcmd_groups_seen.push_back(group_key);
+            }
         }
 
         // For each group, filter out and print subcommands
@@ -263,8 +266,9 @@ namespace CLI {
                 return detail::to_lower(sub_app->get_group()) == detail::to_lower(group);
             });
             for (const App* new_com : subcommands_group) {
-                if (new_com->get_name().empty())
+                if (new_com->get_name().empty()) {
                     continue;
+                }
                 if (mode != AppFormatMode::All) {
                     out << make_subcommand(new_com);
                 } else {
@@ -324,34 +328,40 @@ namespace CLI {
             out << " " << opt->get_option_text();
         } else {
             if (opt->get_type_size() != 0) {
-                if (!opt->get_type_name().empty())
+                if (!opt->get_type_name().empty()) {
                     // ########## Next line changed
                     out << ((opt->get_items_expected_max() == 0) ? "=" : " ") << get_label(opt->get_type_name()) << " ";
-                if (!opt->get_default_str().empty())
+                }
+                if (!opt->get_default_str().empty()) {
                     out << "[" << opt->get_default_str() << "] ";
-                if (opt->get_expected_max() == detail::expected_max_vector_size)
+                }
+                if (opt->get_expected_max() == detail::expected_max_vector_size) {
                     out << "... ";
-                else if (opt->get_expected_min() > 1)
+                } else if (opt->get_expected_min() > 1) {
                     out << "x " << opt->get_expected() << " ";
-
-                if (opt->get_required() && !get_label("REQUIRED").empty())
+                }
+                if (opt->get_required() && !get_label("REQUIRED").empty()) {
                     out << " " << get_label("REQUIRED") << " ";
+                }
                 if (opt->get_configurable() && !get_label("PERSISTENT").empty()) {
                     out << " " << get_label("PERSISTENT") << " ";
                 }
             }
-            if (!opt->get_envname().empty())
+            if (!opt->get_envname().empty()) {
                 out << " (" << get_label("Env") << ":" << opt->get_envname() << ") ";
+            }
             if (!opt->get_needs().empty()) {
                 out << " " << get_label("Needs") << ":";
-                for (const Option* op : opt->get_needs())
+                for (const Option* op : opt->get_needs()) {
                     out << " " << op->get_name();
+                }
                 out << " ";
             }
             if (!opt->get_excludes().empty()) {
                 out << " " << get_label("Excludes") << ":";
-                for (const Option* op : opt->get_excludes())
+                for (const Option* op : opt->get_excludes()) {
                     out << " " << op->get_name();
+                }
                 out << " ";
             }
         }

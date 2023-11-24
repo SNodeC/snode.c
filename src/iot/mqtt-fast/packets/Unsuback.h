@@ -37,7 +37,7 @@ namespace iot::mqtt_fast::packets {
 
     class Unsuback : public iot::mqtt_fast::ControlPacket {
     public:
-        explicit Unsuback(const uint16_t packetIdentifier);
+        explicit Unsuback(uint16_t packetIdentifier);
         explicit Unsuback(iot::mqtt_fast::ControlPacketFactory& controlPacketFactory);
 
         uint16_t getPacketIdentifier() const;

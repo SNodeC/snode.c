@@ -126,7 +126,7 @@ namespace core {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
         if (!observedEventReceiversDirty) {
-            for (auto& [fd, eventReceivers] : observedEventReceivers) {
+            for (const auto& [fd, eventReceivers] : observedEventReceivers) {
                 nextTimeout = std::min(eventReceivers.front()->getTimeout(currentTime), nextTimeout);
             }
         } else {

@@ -37,6 +37,7 @@ if(NLOHMANN_JSON_FOUND)
         MqttContext.cpp
         Session.cpp
         SocketContext.cpp
+        SubProtocol.cpp
         Topic.cpp
     )
 

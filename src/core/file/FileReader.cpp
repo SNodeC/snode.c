@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-enum { MF_READSIZE = 16384 };
+constexpr int MF_READSIZE = 16384;
 
 namespace core::file {
 

@@ -55,7 +55,7 @@ namespace web::http {
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
-        void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
+        void link(const std::string& socketContextUpgradeName, SocketContextUpgradeFactory* (*linkedPlugin)());
 
         void allowDlOpen();
 

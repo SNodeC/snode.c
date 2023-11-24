@@ -37,7 +37,7 @@
 namespace httputils {
 
     static int from_hex(int ch) {
-        return isdigit(ch) ? ch - '0' : tolower(ch) - 'a' + 10;
+        return isdigit(ch) != 0 ? ch - '0' : tolower(ch) - 'a' + 10;
     }
 
     std::string url_decode(const std::string& text) {
@@ -47,7 +47,7 @@ namespace httputils {
             const std::string::value_type c = (*i);
 
             if (c == '%') {
-                if (i[1] && i[2]) {
+                if ((i[1] != 0) && (i[2] != 0)) {
                     escaped += static_cast<char>(from_hex(i[1]) << 4 | from_hex(i[2]));
                     i += 2;
                 }
@@ -66,10 +66,8 @@ namespace httputils {
         escaped.fill('0');
         escaped << std::hex;
 
-        for (std::string::const_iterator i = text.begin(), n = text.end(); i != n; ++i) {
-            std::string::value_type c = (*i);
-
-            if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+        for (const char c : text) {
+            if ((isalnum(c) != 0) || c == '-' || c == '_' || c == '.' || c == '~') {
                 escaped << c;
             } else {
                 escaped << std::uppercase;

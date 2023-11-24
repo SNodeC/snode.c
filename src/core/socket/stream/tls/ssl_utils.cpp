@@ -48,7 +48,7 @@ namespace core::socket::stream::tls {
 
 #define SSL_VERIFY_FLAGS (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE)
 
-    static int password_callback(char* buf, int size, int, void* u) {
+    static int password_callback(char* buf, int size, [[maybe_unused]] int a, void* u) {
         strncpy(buf, static_cast<char*>(u), static_cast<std::size_t>(size));
         buf[size - 1] = '\0';
 
@@ -239,7 +239,7 @@ namespace core::socket::stream::tls {
     SSL_CTX* ssl_ctx_new(const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert) {
         SslConfig sslConfig(true);
 
-        for (auto& [key, value] : sniCert) {
+        for (const auto& [key, value] : sniCert) {
             if (key == "CertChain") {
                 sslConfig.certChain = std::get<std::string>(value);
             } else if (key == "CertKey") {
@@ -438,31 +438,37 @@ namespace core::socket::stream::tls {
 
     bool match(const char* first, const char* second) {
         // If we reach at the end of both strings, we are done
-        if (*first == '\0' && *second == '\0')
+        if (*first == '\0' && *second == '\0') {
             return true;
+        }
 
         // Make sure to eliminate consecutive '*'
         if (*first == '*') {
-            while (*(first + 1) == '*')
+            while (*(first + 1) == '*') {
                 first++;
+            }
         }
 
         // Make sure that the characters after '*' are present
         // in second string. This function assumes that the
         // first string will not contain two consecutive '*'
-        if (*first == '*' && *(first + 1) != '\0' && *second == '\0')
+        if (*first == '*' && *(first + 1) != '\0' && *second == '\0') {
             return false;
+        }
 
         // If the first string contains '?', or current
         // characters of both strings match
-        if (*first == '?' || *first == *second)
+        if (*first == '?' || *first == *second) {
             return match(first + 1, second + 1);
+        }
 
         // If there is *, then there are two possibilities
         // a) We consider current character of second string
         // b) We ignore current character of second string.
-        if (*first == '*')
+        if (*first == '*') {
             return match(first + 1, second) || match(first, second + 1);
+        }
+
         return false;
     }
 

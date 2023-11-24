@@ -62,7 +62,7 @@ namespace net::config {
                 if (!this->reconnectOpt->as<bool>()) {
                     this->reconnectTimeOpt->clear();
                 }
-                utils::ResetToDefault(this->reconnectOpt)(this->reconnectOpt->as<bool>());
+                utils::ResetToDefault(this->reconnectOpt)(static_cast<int64_t>(this->reconnectOpt->as<bool>()));
             },
             "Automatically retry listen|connect",
             "bool",

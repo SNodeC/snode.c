@@ -50,8 +50,8 @@ namespace web::http::client {
               },
               [&response = this->response](const std::map<std::string, std::string>& headers,
                                            const std::map<std::string, web::http::CookieOptions>& cookies) -> void {
-                  response.headers = std::move(headers);
-                  response.cookies = std::move(cookies);
+                  response.headers = headers;
+                  response.cookies = cookies;
               },
               [&response = this->response](std::vector<uint8_t>& content) -> void {
                   response.body = std::move(content);

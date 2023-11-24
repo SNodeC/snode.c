@@ -126,7 +126,7 @@ namespace web::http {
                         }
                     }
                 } else if (EOL) {
-                    if (std::isblank(ch)) {
+                    if (std::isblank(ch) != 0) {
                         if ((hTTPCompliance & HTTPCompliance::RFC7230) == HTTPCompliance::RFC7230) {
                             parserState = parsingError(400, "Header Folding");
                         } else {
@@ -158,7 +158,7 @@ namespace web::http {
 
             if (headerFieldName.empty()) {
                 parserState = parsingError(400, "Header-field empty");
-            } else if (std::isblank(headerFieldName.back()) || std::isblank(headerFieldName.front())) {
+            } else if ((std::isblank(headerFieldName.back()) != 0) || (std::isblank(headerFieldName.front()) != 0)) {
                 parserState = parsingError(400, "White space before or after header-field");
             } else if (headerFieldValue.empty()) {
                 parserState = parsingError(400, "Header-value of field \"" + headerFieldName + "\" empty");

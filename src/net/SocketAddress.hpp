@@ -28,8 +28,7 @@ namespace net {
 
     template <typename SockAddr>
     SocketAddress<SockAddr>::SocketAddress(socklen_t sockAddrLen)
-        : sockAddr{}
-        , sockAddrLen(sockAddrLen) {
+        : sockAddrLen(sockAddrLen) {
         std::memset(&sockAddr, 0, sizeof(sockAddr));
     }
 

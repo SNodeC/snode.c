@@ -51,7 +51,7 @@ namespace iot::mqtt_fast::types {
         return consumed;
     }
 
-    uint32_t Int_V::getValue() {
+    uint32_t Int_V::getValue() const {
         return value;
     }
 

@@ -44,13 +44,14 @@ namespace net::phy {
     protected:
         using SocketAddress = SocketAddressT;
 
-        PhysicalSocket() = delete;
         PhysicalSocket(int domain, int type, int protocol);
         PhysicalSocket(const PhysicalSocket& physicalSocket);
 
         ~PhysicalSocket() override;
 
     public:
+        PhysicalSocket() = delete;
+
         explicit PhysicalSocket(int fd);
 
         int open(const std::map<int, const PhysicalSocketOption>& socketOptions, Flags flags);

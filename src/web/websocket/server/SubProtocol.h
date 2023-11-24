@@ -55,7 +55,7 @@ namespace web::websocket::server {
 
         using Super::sendClose;
 
-        void subscribe(const std::string& channel);
+        void subscribe(const std::string& group);
 
         void sendBroadcast(const char* message, std::size_t messageLength, bool excludeSelf = false);
         void sendBroadcast(const std::string& message, bool excludeSelf = false);

@@ -31,7 +31,7 @@ namespace base64 {
     std::string serverWebSocketKey(const std::string& clientWebSocketKey);
 
     std::string base64_encode(const unsigned char*, std::size_t len);
-    std::string base64_decode(const std::string& s);
+    std::string base64_decode(const std::string& encoded_string);
 } // namespace base64
 
 #endif // UTILS_BASE64_H

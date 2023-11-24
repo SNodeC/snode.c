@@ -86,7 +86,7 @@ namespace web::http::client {
         std::map<std::string, std::string> headers;
         std::map<std::string, std::string> cookies;
 
-        std::string nullstr = "";
+        std::string nullstr;
 
         template <typename Request, typename Response>
         friend class SocketContext;

@@ -56,9 +56,11 @@ namespace utils {
         return currentTime;
     }
 
-    Timeval& Timeval::operator=(const Timeval& timeVal) {
-        this->timeVal.tv_sec = timeVal.timeVal.tv_sec;
-        this->timeVal.tv_usec = timeVal.timeVal.tv_usec;
+    Timeval& Timeval::operator=(const Timeval& timeVal) { // NOLINT
+        if (&this->timeVal != &timeVal) {
+            this->timeVal.tv_sec = timeVal.timeVal.tv_sec;
+            this->timeVal.tv_usec = timeVal.timeVal.tv_usec;
+        }
 
         return *this;
     }

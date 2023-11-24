@@ -47,7 +47,7 @@ namespace net {
         virtual const socklen_t& getSockAddrLen() const;
 
     protected:
-        SockAddr sockAddr{0};
+        SockAddr sockAddr{};
         socklen_t sockAddrLen = 0;
     };
 

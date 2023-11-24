@@ -68,11 +68,11 @@ namespace iot::mqtt_fast {
         return consumed;
     }
 
-    bool ControlPacketFactory::isComplete() {
+    bool ControlPacketFactory::isComplete() const {
         return completed;
     }
 
-    bool ControlPacketFactory::isError() {
+    bool ControlPacketFactory::isError() const {
         return error;
     }
 

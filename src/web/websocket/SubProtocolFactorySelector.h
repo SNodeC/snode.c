@@ -90,7 +90,7 @@ namespace web::websocket {
             return subProtocolFactory;
         }
 
-        SubProtocolFactory* select(const std::string& subProtocolName, Role) {
+        SubProtocolFactory* select(const std::string& subProtocolName, [[maybe_unused]] Role role) {
             SubProtocolFactory* subProtocolFactory = select(subProtocolName);
 
             if (subProtocolFactory == nullptr) {

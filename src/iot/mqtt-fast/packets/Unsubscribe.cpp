@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt_fast::packets {
@@ -29,7 +27,7 @@ namespace iot::mqtt_fast::packets {
     Unsubscribe::Unsubscribe(uint16_t packetIdentifier, const std::list<std::string>& topics)
         : iot::mqtt_fast::ControlPacket(MQTT_UNSUBSCRIBE, 0x02)
         , packetIdentifier(packetIdentifier)
-        , topics(std::move(topics)) {
+        , topics(topics) {
         // V-Header
         putInt16(this->packetIdentifier);
 

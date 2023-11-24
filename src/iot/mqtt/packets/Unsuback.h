@@ -31,7 +31,7 @@ namespace iot::mqtt::packets {
     class Unsuback : public iot::mqtt::ControlPacket {
     public:
         Unsuback();
-        explicit Unsuback(const uint16_t packetIdentifier);
+        explicit Unsuback(uint16_t packetIdentifier);
 
     private:
         std::vector<char> serializeVP() const override;

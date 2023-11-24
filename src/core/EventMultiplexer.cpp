@@ -36,9 +36,9 @@
 
 namespace core {
 
-    core::EventMultiplexer::EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventPublisher,
-                                             DescriptorEventPublisher* const writeDescriptorEventPublisher,
-                                             DescriptorEventPublisher* const exceptionDescriptorEventPublisher)
+    core::EventMultiplexer::EventMultiplexer(DescriptorEventPublisher* readDescriptorEventPublisher,
+                                             DescriptorEventPublisher* writeDescriptorEventPublisher,
+                                             DescriptorEventPublisher* exceptionDescriptorEventPublisher)
         : descriptorEventPublishers{readDescriptorEventPublisher, writeDescriptorEventPublisher, exceptionDescriptorEventPublisher}
         , timerEventPublisher(new core::TimerEventPublisher()) {
     }
@@ -83,9 +83,9 @@ namespace core {
         return tickStatus;
     }
 
-    void EventMultiplexer::sigExit(int stopsig) {
+    void EventMultiplexer::sigExit(int sigNum) {
         for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-            descriptorEventPublisher->sigExit(stopsig);
+            descriptorEventPublisher->sigExit(sigNum);
         }
     }
 
@@ -196,8 +196,8 @@ namespace core {
         publishQueue->push_back(event); // do not allow two or more same events in one tick
     }
 
-    void EventMultiplexer::EventQueue::remove(Event* event) { // cppcheck-suppress constParameterPointer
-        publishQueue->remove(event);                          // in case of erase remove the event from the published queue
+    void EventMultiplexer::EventQueue::remove(Event* event) {
+        publishQueue->remove(event); // in case of erase remove the event from the published queue
     }
 
     void EventMultiplexer::EventQueue::execute(const utils::Timeval& currentTime) {

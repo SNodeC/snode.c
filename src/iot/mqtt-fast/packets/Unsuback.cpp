@@ -24,7 +24,7 @@
 
 namespace iot::mqtt_fast::packets {
 
-    Unsuback::Unsuback(const uint16_t packetIdentifier)
+    Unsuback::Unsuback(uint16_t packetIdentifier)
         : iot::mqtt_fast::ControlPacket(MQTT_UNSUBACK)
         , packetIdentifier(packetIdentifier) {
         // V-Header

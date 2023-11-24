@@ -19,6 +19,10 @@
 #ifndef IOT_MQTT_MQTTSUBPROTOCOL_H
 #define IOT_MQTT_MQTTSUBPROTOCOL_H
 
+namespace core::socket::stream {
+    class SocketConnection;
+}
+
 namespace web::websocket {
     class SubProtocolContext;
 }
@@ -27,17 +31,17 @@ namespace utils {
     class Timeval;
 }
 
-namespace iot::mqtt::server {
+namespace iot::mqtt {
     class Mqtt;
 }
 
 #include "core/EventReceiver.h"
-#include "core/socket/stream/SocketConnection.h"
 #include "iot/mqtt/MqttContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
+#include <cstddef> // IWYU pragma: export
+#include <cstdint>
 #include <functional>
 #include <string> // IWYU pragma: export
 #include <vector>

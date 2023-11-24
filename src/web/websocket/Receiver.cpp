@@ -151,7 +151,7 @@ namespace web::websocket {
                     break;
             }
 
-            if (payLoadNumBytes & static_cast<uint64_t>(0x01) << 63) {
+            if ((payLoadNumBytes & static_cast<uint64_t>(0x01) << 63) != 0) {
                 parserState = ParserState::ERROR;
                 errorState = 1004;
             } else if (masked) {

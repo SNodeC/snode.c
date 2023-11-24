@@ -75,33 +75,35 @@ namespace iot::mqtt {
 
                 if (!fixedHeader.isComplete()) {
                     break;
-                } else if (fixedHeader.isError()) {
+                }
+                if (fixedHeader.isError()) {
                     mqttContext->close();
                     break;
-                } else {
-                    printFixedHeader(fixedHeader);
-
-                    controlPacketDeserializer = createControlPacketDeserializer(fixedHeader);
-
-                    fixedHeader.reset();
-
-                    if (controlPacketDeserializer == nullptr) {
-                        LOG(DEBUG) << "MQTT: Received packet-type is unavailable ... closing connection";
-
-                        mqttContext->end(true);
-                        break;
-                    } else if (controlPacketDeserializer->isError()) {
-                        LOG(DEBUG) << "MQTT: Fixed header has error ... closing connection";
-
-                        delete controlPacketDeserializer;
-                        controlPacketDeserializer = nullptr;
-
-                        mqttContext->end(true);
-                        break;
-                    }
-
-                    state++;
                 }
+                printFixedHeader(fixedHeader);
+
+                controlPacketDeserializer = createControlPacketDeserializer(fixedHeader);
+
+                fixedHeader.reset();
+
+                if (controlPacketDeserializer == nullptr) {
+                    LOG(DEBUG) << "MQTT: Received packet-type is unavailable ... closing connection";
+
+                    mqttContext->end(true);
+                    break;
+                }
+                if (controlPacketDeserializer->isError()) {
+                    LOG(DEBUG) << "MQTT: Fixed header has error ... closing connection";
+
+                    delete controlPacketDeserializer;
+                    controlPacketDeserializer = nullptr;
+
+                    mqttContext->end(true);
+                    break;
+                }
+
+                state++;
+
                 [[fallthrough]];
             case 1:
                 consumed += controlPacketDeserializer->deserialize(mqttContext);

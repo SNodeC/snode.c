@@ -62,7 +62,6 @@ namespace core::socket::stream {
                        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                        const std::shared_ptr<Config>& config);
 
-    public:
         ~SocketAcceptor() override;
 
     protected:

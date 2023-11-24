@@ -41,8 +41,8 @@ namespace iot::mqtt_fast {
         explicit ControlPacketFactory(core::socket::SocketContext* socketContext);
 
         std::size_t construct();
-        bool isComplete();
-        bool isError();
+        bool isComplete() const;
+        bool isError() const;
         iot::mqtt_fast::types::Binary& getPacket();
         uint8_t getPacketType();
         uint8_t getPacketFlags();

@@ -33,8 +33,9 @@ namespace utils {
     struct fixed_string {
         char buf[N + 1]{};
         constexpr fixed_string(char const* s) { // cppcheck-suppress noExplicitConstructor
-            for (unsigned i = 0; i != N; ++i)
+            for (unsigned i = 0; i != N; ++i) {
                 buf[i] = s[i];
+            }
         }
 
         constexpr operator char const*() const {

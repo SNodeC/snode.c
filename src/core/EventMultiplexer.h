@@ -45,9 +45,9 @@ namespace core {
 
     class EventMultiplexer {
     public:
-        EventMultiplexer(DescriptorEventPublisher* const readDescriptorEventPublisher,
-                         DescriptorEventPublisher* const writeDescriptorEventPublisher,
-                         DescriptorEventPublisher* const exceptionDescriptorEventPublisher);
+        EventMultiplexer(DescriptorEventPublisher* readDescriptorEventPublisher,
+                         DescriptorEventPublisher* writeDescriptorEventPublisher,
+                         DescriptorEventPublisher* exceptionDescriptorEventPublisher);
         virtual ~EventMultiplexer();
 
         EventMultiplexer(const EventMultiplexer&) = delete;

@@ -31,7 +31,7 @@ namespace iot::mqtt::packets {
     class Puback : public iot::mqtt::ControlPacket {
     public:
         Puback();
-        explicit Puback(const uint16_t packetIdentifier);
+        explicit Puback(uint16_t packetIdentifier);
 
     private:
         std::vector<char> serializeVP() const override;

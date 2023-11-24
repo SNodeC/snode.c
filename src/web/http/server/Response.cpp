@@ -80,7 +80,7 @@ namespace web::http::server {
     }
 
     void Response::send(const std::string& junk) {
-        if (junk.size() > 0) {
+        if (!junk.empty()) {
             set("Content-Type", "text/html; charset=utf-8", false);
         }
         send(junk.data(), junk.size());
@@ -109,7 +109,7 @@ namespace web::http::server {
     }
 
     Response& Response::set(const std::map<std::string, std::string>& headers, bool overwrite) {
-        for (auto& [field, value] : headers) {
+        for (const auto& [field, value] : headers) {
             set(field, value, overwrite);
         }
 
@@ -213,7 +213,7 @@ namespace web::http::server {
         set({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
         for (auto& [field, value] : headers) {
-            enqueue(field + ": " + value + "\r\n");
+            enqueue(std::string(field).append(": ").append(value).append("\r\n"));
         }
 
         for (auto& [cookie, cookieValue] : cookies) {

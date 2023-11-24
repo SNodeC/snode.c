@@ -43,7 +43,7 @@ namespace core {
         , initialTimeout(timeout) {
     }
 
-    int DescriptorEventReceiver::getRegisteredFd() {
+    int DescriptorEventReceiver::getRegisteredFd() const {
         return observedFd;
     }
 

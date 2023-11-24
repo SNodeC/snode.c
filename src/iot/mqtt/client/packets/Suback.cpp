@@ -49,13 +49,12 @@ namespace iot::mqtt::client::packets {
 
                 if (!returnCode.isComplete()) {
                     break;
-                } else {
-                    returnCodes.push_back(returnCode);
-                    returnCode.reset();
+                }
+                returnCodes.push_back(returnCode);
+                returnCode.reset();
 
-                    if (getConsumed() + consumed < this->getRemainingLength()) {
-                        break;
-                    }
+                if (getConsumed() + consumed < this->getRemainingLength()) {
+                    break;
                 }
 
                 complete = true;

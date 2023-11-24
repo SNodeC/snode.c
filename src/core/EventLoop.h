@@ -69,7 +69,6 @@ namespace core {
 
         core::EventMultiplexer& eventMultiplexer;
 
-    private:
         static int stopsig;
 
         static unsigned long tickCounter;

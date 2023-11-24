@@ -36,9 +36,10 @@ namespace utils {
         const bool dash[] = {false, false, false, false, true, false, true, false, true, false, true, false, false, false, false, false};
 
         std::string res;
-        for (bool isDash : dash) {
-            if (isDash)
+        for (const bool isDash : dash) {
+            if (isDash) {
                 res += "-";
+            }
             res += v[dist(rng)];
             res += v[dist(rng)];
         }

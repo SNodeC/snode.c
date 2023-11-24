@@ -56,7 +56,7 @@ namespace net::config {
                     this->retryBaseOpt->clear();
                     this->retryLimitOpt->clear();
                 }
-                utils::ResetToDefault(this->retryOpt)(this->retryOpt->as<bool>());
+                utils::ResetToDefault(this->retryOpt)(static_cast<int64_t>(this->retryOpt->as<bool>()));
             },
             "Automatically retry listen|connect",
             "bool",

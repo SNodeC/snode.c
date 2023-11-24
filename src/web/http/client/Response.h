@@ -69,7 +69,7 @@ namespace web::http::client {
         friend class SocketContext;
 
     private:
-        std::string nullstr = "";
+        std::string nullstr;
     };
 
 } // namespace web::http::client

@@ -86,7 +86,7 @@ namespace iot::mqtt::client {
 
     Mqtt::~Mqtt() {
         if (!sessionStoreFileName.empty()) {
-            nlohmann::json sessionJson = session.toJson();
+            const nlohmann::json sessionJson = session.toJson();
 
             std::ofstream sessionStoreFile(sessionStoreFileName);
 
@@ -146,7 +146,7 @@ namespace iot::mqtt::client {
     }
 
     void Mqtt::deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) {
-        static_cast<iot::mqtt::client::ControlPacketDeserializer*>(controlPacketDeserializer)->deliverPacket(this);
+        static_cast<iot::mqtt::client::ControlPacketDeserializer*>(controlPacketDeserializer)->deliverPacket(this); // NOLINT
     }
 
     void Mqtt::onConnack([[maybe_unused]] const mqtt::packets::Connack& connack) {
@@ -199,7 +199,7 @@ namespace iot::mqtt::client {
             std::stringstream ss;
             std::list<uint8_t>::size_type i = 0;
 
-            for (uint8_t returnCode : suback.getReturnCodes()) {
+            for (const uint8_t returnCode : suback.getReturnCodes()) {
                 if (i != 0 && i % 8 == 0 && i != suback.getReturnCodes().size()) {
                     ss << std::endl;
                     ss << "                                                       ";

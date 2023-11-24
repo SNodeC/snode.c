@@ -51,7 +51,6 @@ namespace net::config {
     private:
         virtual ConfigAddress& setSocketAddress(const SocketAddress& address) = 0;
 
-    private:
         virtual SocketAddress* init() = 0;
 
         SocketAddress* socketAddress = nullptr;

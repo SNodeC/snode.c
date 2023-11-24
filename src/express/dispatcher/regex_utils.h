@@ -33,13 +33,13 @@ namespace express {
 
 namespace express::dispatcher {
 
-    const std::string path_concat(const std::vector<std::string>& stringvec);
+    std::string path_concat(const std::vector<std::string>& stringvec);
 
-    const std::vector<std::string> explode(const std::string& s, char delim);
+    std::vector<std::string> explode(const std::string& s, char delim);
 
     const std::regex& pathRegex();
 
-    const std::smatch matchResult(const std::string& cpath);
+    std::smatch matchResult(const std::string& cpath);
 
     bool hasResult(const std::string& cpath);
 

@@ -68,12 +68,12 @@ namespace database::mariadb {
 
     MariaDBCommandSequence& MariaDBClientASyncAPI::startTransactions(const std::function<void()>& onAutoCommit,
                                                                      const std::function<void(const std::string&, unsigned int)>& onError) {
-        return execute_async(new database::mariadb::commands::async::MariaDBAutoCommitCommand(false, onAutoCommit, onError));
+        return execute_async(new database::mariadb::commands::async::MariaDBAutoCommitCommand(0, onAutoCommit, onError));
     }
 
     MariaDBCommandSequence& MariaDBClientASyncAPI::endTransactions(const std::function<void()>& onAutoCommit,
                                                                    const std::function<void(const std::string&, unsigned int)>& onError) {
-        return execute_async(new database::mariadb::commands::async::MariaDBAutoCommitCommand(true, onAutoCommit, onError));
+        return execute_async(new database::mariadb::commands::async::MariaDBAutoCommitCommand(1, onAutoCommit, onError));
     }
 
     MariaDBCommandSequence& MariaDBClientASyncAPI::commit(const std::function<void()>& onCommit,

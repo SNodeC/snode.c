@@ -33,7 +33,7 @@
 
 namespace express::dispatcher {
 
-    const std::string path_concat(const std::vector<std::string>& stringvec) {
+    std::string path_concat(const std::vector<std::string>& stringvec) {
         std::string s;
 
         for (std::vector<std::string>::size_type i = 0; i < stringvec.size(); i++) {
@@ -45,7 +45,7 @@ namespace express::dispatcher {
         return s;
     }
 
-    const std::vector<std::string> explode(const std::string& s, char delim) {
+    std::vector<std::string> explode(const std::string& s, char delim) {
         std::vector<std::string> result;
         std::istringstream iss(s);
 
@@ -63,7 +63,7 @@ namespace express::dispatcher {
         return pathregex;
     }
 
-    const std::smatch matchResult(const std::string& cpath) {
+    std::smatch matchResult(const std::string& cpath) {
         std::smatch smatch;
 
         std::regex_search(cpath, smatch, pathRegex());

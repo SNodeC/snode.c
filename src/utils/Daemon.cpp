@@ -56,81 +56,80 @@ namespace utils {
     void Daemon::startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName) {
         if (std::filesystem::exists(pidFileName)) {
             throw DaemonizeFailure("Pid file '" + pidFileName + "' exists. Daemon already running?");
-        } else {
-            errno = 0;
+        }
+        errno = 0;
 
-            /* Fork off the parent process */
-            pid_t pid = fork();
-            if (pid < 0) {
-                /* An error occurred */
-                throw DaemonizeError("First fork()");
-            } else if (pid > 0) {
-                waitpid(pid, nullptr, 0); // Wait for the first child to exit
-                /* Success: Let the parent terminate */
-                throw DaemonizeSuccess();
-            } else if (setsid() < 0) {
-                /* On success: The child process becomes session leader */
-                throw DaemonizeError("setsid()");
-            } else if (signal(SIGHUP, SIG_IGN) == SIG_ERR) {
-                /* Ignore signal sent from parent to child process */
-                throw DaemonizeError("signal()");
-            } else {
-                /* Fork off for the second time*/
-                pid = fork();
-                if (pid < 0) {
-                    /* An error occurred */
-                    throw DaemonizeError("Second fork()");
-                } else if (pid > 0) {
-                    /* Success: Let the second parent terminate */
-                    std::ofstream pidFile(pidFileName, std::ofstream::out);
+        /* Fork off the parent process */
+        pid_t pid = fork();
+        if (pid < 0) {
+            /* An error occurred */
+            throw DaemonizeError("First fork()");
+        }
+        if (pid > 0) {
+            waitpid(pid, nullptr, 0); // Wait for the first child to exit
+            /* Success: Let the parent terminate */
+            throw DaemonizeSuccess();
+        }
+        if (setsid() < 0) {
+            /* On success: The child process becomes session leader */
+            throw DaemonizeError("setsid()");
+        }
+        if (signal(SIGHUP, SIG_IGN) == SIG_ERR) {
+            /* Ignore signal sent from parent to child process */
+            throw DaemonizeError("signal()");
+        } /* Fork off for the second time*/
+        pid = fork();
+        if (pid < 0) {
+            /* An error occurred */
+            throw DaemonizeError("Second fork()");
+        }
+        if (pid > 0) {
+            /* Success: Let the second parent terminate */
+            std::ofstream pidFile(pidFileName, std::ofstream::out);
 
-                    if (!pidFile.good()) {
-                        kill(pid, SIGTERM);
-                        throw DaemonizeError("Writing pid file '" + pidFileName);
-                    } else {
-                        pidFile << pid << std::endl;
-                        pidFile.close();
-                    }
-                    throw DaemonizeSuccess();
-                } else {
-                    waitpid(getppid(), nullptr, 0); // Wait for the parent (first child) to exit
-                    struct passwd* pw = nullptr;
-                    struct group* gr = nullptr;
-
-                    if (((void) (errno = 0), gr = getgrnam(groupName.c_str())) == nullptr) {
-                        if (errno != 0) {
-                            throw DaemonizeError("getgrnam()");
-                        } else {
-                            throw DaemonizeFailure("getgrname() group not existing");
-                        }
-                    } else if (setegid(gr->gr_gid) != 0) {
-                        throw DaemonizeError("setegid()");
-                    } else if (((void) (errno = 0), (pw = getpwnam(userName.c_str())) == nullptr)) {
-                        if (errno != 0) {
-                            throw DaemonizeError("getpwnam()");
-                        } else {
-                            throw DaemonizeFailure("getpwnam() user not existing");
-                        }
-                    } else if (seteuid(pw->pw_uid) != 0) {
-                        throw DaemonizeError("seteuid()");
-                    } else {
-                        /* Set new file permissions */
-                        umask(0);
-                        chdir("/");
-
-                        close(STDIN_FILENO);
-                        close(STDOUT_FILENO);
-                        close(STDERR_FILENO);
-
-                        if (std::freopen("/dev/null", "r", stdin) == nullptr) {
-                        }
-                        if (std::freopen("/dev/null", "w+", stdout) == nullptr) {
-                        }
-                        if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
-                        }
-                    }
-                }
+            if (!pidFile.good()) {
+                kill(pid, SIGTERM);
+                throw DaemonizeError("Writing pid file '" + pidFileName);
             }
+            pidFile << pid << std::endl;
+            pidFile.close();
+
+            throw DaemonizeSuccess();
+        }
+        waitpid(getppid(), nullptr, 0); // Wait for the parent (first child) to exit
+        struct passwd* pw = nullptr;
+        struct group* gr = nullptr;
+
+        if (((void) (errno = 0), gr = getgrnam(groupName.c_str())) == nullptr) {
+            if (errno != 0) {
+                throw DaemonizeError("getgrnam()");
+            }
+            throw DaemonizeFailure("getgrname() group not existing");
+        }
+        if (setegid(gr->gr_gid) != 0) {
+            throw DaemonizeError("setegid()");
+        }
+        if (((void) (errno = 0), (pw = getpwnam(userName.c_str())) == nullptr)) {
+            if (errno != 0) {
+                throw DaemonizeError("getpwnam()");
+            }
+            throw DaemonizeFailure("getpwnam() user not existing");
+        }
+        if (seteuid(pw->pw_uid) != 0) {
+            throw DaemonizeError("seteuid()");
+        } /* Set new file permissions */
+        umask(0);
+        chdir("/");
+
+        close(STDIN_FILENO);
+        close(STDOUT_FILENO);
+        close(STDERR_FILENO);
+
+        if (std::freopen("/dev/null", "r", stdin) == nullptr) {
+        }
+        if (std::freopen("/dev/null", "w+", stdout) == nullptr) {
+        }
+        if (std::freopen("/dev/null", "w+", stderr) == nullptr) {
         }
     }
 

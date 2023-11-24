@@ -40,7 +40,6 @@ namespace net::config {
     public:
         explicit ConfigConnection(ConfigInstance* instance);
 
-    public:
         utils::Timeval getReadTimeout() const;
         void setReadTimeout(const utils::Timeval& newReadTimeoutSet);
 

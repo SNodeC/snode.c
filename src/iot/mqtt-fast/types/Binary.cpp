@@ -136,7 +136,7 @@ namespace iot::mqtt_fast::types {
     }
 
     std::string Binary::getString() {
-        std::string string = "";
+        std::string string;
 
         if (!error && pointer + sizeof(uint16_t) <= length) {
             const uint16_t stringLen = getInt16();
@@ -156,7 +156,7 @@ namespace iot::mqtt_fast::types {
     }
 
     std::string Binary::getStringRaw() {
-        std::string string = "";
+        std::string string;
 
         if (!error && length - pointer > 0) {
             string = std::string(binary.data() + pointer, length - pointer);

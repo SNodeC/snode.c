@@ -55,7 +55,7 @@ namespace web::http::client {
     }
 
     Request& Request::set(const std::map<std::string, std::string>& headers, bool overwrite) {
-        for (auto& [field, value] : headers) {
+        for (const auto& [field, value] : headers) {
             set(field, value, overwrite);
         }
 
@@ -87,7 +87,7 @@ namespace web::http::client {
     }
 
     Request& Request::cookie(const std::map<std::string, std::string>& cookies) {
-        for (auto& [name, value] : cookies) {
+        for (const auto& [name, value] : cookies) {
             cookie(name, value);
         }
         return *this;
@@ -143,8 +143,8 @@ namespace web::http::client {
     void Request::sendHeader() {
         const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
-        std::string queryString = "";
-        if (queries.size() > 0) {
+        std::string queryString;
+        if (!queries.empty()) {
             queryString += "?";
             for (auto& [key, value] : queries) {
                 queryString += httputils::url_encode(key) + "=" + httputils::url_encode(value) + "&";
@@ -162,15 +162,15 @@ namespace web::http::client {
         headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
         for (const auto& [field, value] : headers) {
-            enqueue(field + ":" + value + "\r\n");
+            enqueue(std::string(field).append(":").append(value).append("\r\n"));
         }
 
         if (contentLength != 0) {
-            enqueue("Content-Length: " + std::to_string(contentLength) + "\r\n");
+            enqueue(std::string("Content-Length: ").append(std::to_string(contentLength)).append("\r\n"));
         }
 
         for (const auto& [name, value] : cookies) {
-            enqueue("Cookie:" + name + "=" + value + "\r\n");
+            enqueue(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
         }
 
         enqueue("\r\n");
@@ -192,7 +192,7 @@ namespace web::http::client {
     }
 
     void Request::send(const std::string& junk) {
-        if (junk.size() > 0) {
+        if (!junk.empty()) {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
         send(junk.data(), junk.size());

@@ -31,24 +31,13 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-enum { PING_INTERVAL = 0 };
-
 namespace iot::mqtt {
-
-    OnReceivedFromPeerEvent::OnReceivedFromPeerEvent(const std::function<void(const utils::Timeval&)>& onReceivedFromPeer)
-        : core::EventReceiver("WS-OnData")
-        , onReceivedFromPeer(onReceivedFromPeer) {
-    }
-
-    void OnReceivedFromPeerEvent::onEvent(const utils::Timeval& currentTime) {
-        onReceivedFromPeer(currentTime);
-    }
 
     template <typename WSSubProtocolRole>
     SubProtocol<WSSubProtocolRole>::SubProtocol(web::websocket::SubProtocolContext* subProtocolContext,
                                                 const std::string& name,
                                                 iot::mqtt::Mqtt* mqtt)
-        : WSSubProtocolRole(subProtocolContext, name, PING_INTERVAL)
+        : WSSubProtocolRole(subProtocolContext, name, 0)
         , iot::mqtt::MqttContext(mqtt)
         , onReceivedFromPeerEvent([this]([[maybe_unused]] const utils::Timeval& currentTime) -> void {
             iot::mqtt::MqttContext::onReceivedFromPeer();
@@ -134,7 +123,7 @@ namespace iot::mqtt {
         size += data.size();
         data.clear();
 
-        if (buffer.size() > 0) {
+        if (!buffer.empty()) {
             onReceivedFromPeerEvent.span();
         }
     }
