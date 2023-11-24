@@ -484,7 +484,7 @@ namespace utils {
     bool Config::bootstrap() {
         aliases.clear();
 
-        app.final_callback([](void) -> void {
+        app.final_callback([]() -> void {
             if (daemonizeOpt->as<bool>() && app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 &&
                 app["--commandline"]->count() == 0 && app["--commandline-configured"]->count() == 0 &&
                 app["--commandline-full"]->count() == 0) {
