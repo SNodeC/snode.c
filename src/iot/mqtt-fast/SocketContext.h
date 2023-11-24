@@ -91,12 +91,12 @@ namespace iot::mqtt_fast {
         virtual void onPingresp(const iot::mqtt_fast::packets::Pingresp& pingresp) = 0;
         virtual void onDisconnect(const iot::mqtt_fast::packets::Disconnect& disconnect) = 0;
 
-        virtual std::size_t onReceivedFromPeer() final;
+        std::size_t onReceivedFromPeer() final;
 
         void send(iot::mqtt_fast::ControlPacket&& controlPacket) const;
         void send(iot::mqtt_fast::ControlPacket& controlPacket) const;
         void send(std::vector<char>&& data) const;
-        void printData(const std::vector<char>& data) const;
+        static void printData(const std::vector<char>& data);
 
         uint16_t getPacketIdentifier() {
             ++_packetIdentifier;
