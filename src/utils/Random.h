@@ -22,7 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace std {
-    class random_device; // IWYU pragma: keep
+    class random_device; // IWYU pragma: keep // NOLINT
 } // namespace std
 
 // IWYU pragma: no_include <random>

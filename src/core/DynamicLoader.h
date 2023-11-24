@@ -34,7 +34,7 @@ namespace core {
     class DynamicLoader {
     private:
         struct Library {
-            std::string fileName = "";
+            std::string fileName;
             void* handle = nullptr;
         };
 

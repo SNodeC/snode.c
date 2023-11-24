@@ -73,9 +73,9 @@ namespace iot::mqtt::client {
                 }
 
                 sessionStoreFile.close();
-                std::remove(sessionStoreFileName.data());
+                std::remove(sessionStoreFileName.data()); // NOLINT
 
-                LOG(INFO) << "MQTT Client: Restoring safed session done";
+                LOG(INFO) << "MQTT Client: Restoring saved session done";
             } else {
                 PLOG(INFO) << "MQTT Client:   ... Could not read session store '" << sessionStoreFileName << "'";
             }

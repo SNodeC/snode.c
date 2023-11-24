@@ -57,7 +57,7 @@ namespace iot::mqtt::server::broker {
                     retainTree.fromJson(sessionStoreJson["retain_tree"]);
                     subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
 
-                    LOG(DEBUG) << "MQTT Broker: Persistent session data loaded successfull";
+                    LOG(DEBUG) << "MQTT Broker: Persistent session data loaded successful";
                 } catch (const nlohmann::json::exception&) {
                     LOG(DEBUG) << "MQTT Broker: Starting with empty session: Session store '" << sessionStoreFileName
                                << "' empty or corrupted";
@@ -68,9 +68,9 @@ namespace iot::mqtt::server::broker {
                 }
 
                 sessionStoreFile.close();
-                std::remove(sessionStoreFileName.data());
+                std::remove(sessionStoreFileName.data()); // NOLINT
 
-                LOG(INFO) << "MQTT Broker: Restoring safed session done";
+                LOG(INFO) << "MQTT Broker: Restoring saved session done";
             } else {
                 PLOG(INFO) << "MQTT Broker: Could not read session store '" << sessionStoreFileName << "'";
             }
