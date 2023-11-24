@@ -29,7 +29,7 @@
 
 namespace core::socket::stream {
 
-    SocketConnection::SocketConnection(const std::string &instanceName)
+    SocketConnection::SocketConnection(const std::string& instanceName)
         : instanceName(instanceName) {
     }
 
@@ -70,7 +70,7 @@ namespace core::socket::stream {
         sendToPeer(data.data(), data.size());
     }
 
-    const std::string &SocketConnection::getInstanceName() const {
+    const std::string& SocketConnection::getInstanceName() const {
         return instanceName;
     }
 

@@ -115,7 +115,7 @@ namespace core {
         TickStatus tickStatus = TickStatus::TRACE;
 
         if (eventLoopState == State::INITIALIZED) {
-            struct sigaction sact;
+            struct sigaction sact {};
             sigemptyset(&sact.sa_mask);
             sact.sa_flags = 0;
             sact.sa_handler = SIG_IGN;
@@ -140,7 +140,7 @@ namespace core {
         if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
             LOG(TRACE) << "Core::Eventloop: started";
 
-            struct sigaction sact;
+            struct sigaction sact {};
             sigemptyset(&sact.sa_mask);
             sact.sa_flags = 0;
             sact.sa_handler = SIG_IGN;

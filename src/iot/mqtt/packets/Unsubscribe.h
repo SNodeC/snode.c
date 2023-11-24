@@ -34,7 +34,7 @@ namespace iot::mqtt::packets {
     class Unsubscribe : public iot::mqtt::ControlPacket {
     public:
         Unsubscribe();
-        Unsubscribe(uint16_t packetIdentifier, const std::list<std::string> &topics);
+        Unsubscribe(uint16_t packetIdentifier, const std::list<std::string>& topics);
 
     private:
         std::vector<char> serializeVP() const override;
