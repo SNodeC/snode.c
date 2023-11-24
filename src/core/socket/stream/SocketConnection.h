@@ -78,7 +78,7 @@ namespace core::socket::stream {
         core::socket::stream::SocketContext* setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
         void connected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory);
-        void connected(core::socket::stream::SocketContext* socketContext);
+        static void connected(core::socket::stream::SocketContext* socketContext);
 
         void disconnected();
 

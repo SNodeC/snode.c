@@ -217,7 +217,7 @@ namespace iot::mqtt_fast {
         sendToPeer(data.data(), data.size());
     }
 
-    void SocketContext::printData(const std::vector<char>& data) const {
+    void SocketContext::printData(const std::vector<char>& data) {
         std::stringstream ss;
 
         ss << "Data: ";
