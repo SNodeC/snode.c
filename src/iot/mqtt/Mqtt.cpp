@@ -37,7 +37,9 @@
 #include <iomanip>
 #include <ostream>
 #include <set>
-#include <utility>
+#include <utility> // IWYU pragma: keep
+
+// IWYU pragma: no_include <bits/utility.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -144,13 +146,13 @@ namespace iot::mqtt {
     void Mqtt::initSession(Session* session, const utils::Timeval& keepAlive) {
         this->session = session;
 
-        for (auto& [packetIdentifier, publish] : session->publishMap) {
+        for (const auto& [packetIdentifier, publish] : session->publishMap) {
             LOG(DEBUG) << "MQTT: PUBLISH Resend";
 
             send(publish);
         }
 
-        for (uint16_t packetIdentifier : session->pubrelPacketIdentifierSet) {
+        for (const uint16_t packetIdentifier : session->pubrelPacketIdentifierSet) {
             LOG(DEBUG) << "MQTT: PUBREL Resend";
 
             send(iot::mqtt::packets::Pubrel(packetIdentifier));

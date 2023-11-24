@@ -42,9 +42,9 @@ private:
     static const unsigned int BLOCK_INTS = 16; /* number of 32bit integers per SHA1 block */
     static const unsigned int BLOCK_BYTES = BLOCK_INTS * 4;
 
-    uint32_t digest[DIGEST_INTS];
+    uint32_t digest[DIGEST_INTS]{};
     std::string buffer;
-    uint64_t transforms;
+    uint64_t transforms = 0;
 
     void reset();
     void transform(uint32_t block[BLOCK_BYTES]);

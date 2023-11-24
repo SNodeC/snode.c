@@ -109,7 +109,7 @@ namespace iot::mqtt::client {
         friend class iot::mqtt::client::packets::Pubrel;
 
     private:
-        uint16_t keepAlive;
+        uint16_t keepAlive = 0;
 
         std::string sessionStoreFileName;
         iot::mqtt::Session session;
