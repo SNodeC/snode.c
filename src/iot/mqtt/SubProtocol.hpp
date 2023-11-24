@@ -31,7 +31,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#define PING_INTERVAL 0
+enum { PING_INTERVAL = 0 };
 
 namespace iot::mqtt {
 
