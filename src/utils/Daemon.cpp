@@ -137,45 +137,42 @@ namespace utils {
     void Daemon::stopDaemon(const std::string& pidFileName) {
         if (pidFileName.empty()) {
             throw DaemonizeFailure("No pid file given");
-        } else {
-            /* Try to read PID of daemon to from lockfile and kill the daemon */
-            std::ifstream pidFile(pidFileName, std::ifstream::in);
+        } /* Try to read PID of daemon to from lockfile and kill the daemon */
+        std::ifstream pidFile(pidFileName, std::ifstream::in);
 
-            if (!pidFile.good()) {
-                pidFile.close();
-                throw DaemonizeError("Reading pid file '" + pidFileName + "'");
-            } else {
-                int pid = 0;
-                pidFile >> pid;
-                pidFile.close();
-
-                int pidfd = static_cast<int>(syscall(SYS_pidfd_open, pid, 0));
-
-                if (pidfd == -1) {
-                    erasePidFile(pidFileName);
-                    throw DaemonizeFailure("Daemon not running");
-                } else if (kill(pid, SIGTERM) != 0) {
-                    throw DaemonizeError("kill()");
-                } else {
-                    struct pollfd pollfd {};
-                    pollfd.fd = pidfd;
-                    pollfd.events = POLLIN;
-
-                    int ready = poll(&pollfd, 1, 5000);
-                    close(pidfd);
-
-                    if (ready == -1) {
-                        throw DaemonizeError("poll()");
-                    } else if (ready == 0) {
-                        kill(pid, SIGKILL);
-                        erasePidFile(pidFileName);
-                        throw DaemonizeFailure("Daemon not responding - killed");
-                    } else {
-                        throw DaemonizeSuccess();
-                    }
-                }
-            }
+        if (!pidFile.good()) {
+            pidFile.close();
+            throw DaemonizeError("Reading pid file '" + pidFileName + "'");
         }
+        int pid = 0;
+        pidFile >> pid;
+        pidFile.close();
+
+        const int pidfd = static_cast<int>(syscall(SYS_pidfd_open, pid, 0)); // NOLINT
+
+        if (pidfd == -1) {
+            erasePidFile(pidFileName);
+            throw DaemonizeFailure("Daemon not running");
+        }
+        if (kill(pid, SIGTERM) != 0) {
+            throw DaemonizeError("kill()");
+        }
+        struct pollfd pollfd {};
+        pollfd.fd = pidfd;
+        pollfd.events = POLLIN;
+
+        const int ready = poll(&pollfd, 1, 5000);
+        close(pidfd);
+
+        if (ready == -1) {
+            throw DaemonizeError("poll()");
+        }
+        if (ready == 0) {
+            kill(pid, SIGKILL);
+            erasePidFile(pidFileName);
+            throw DaemonizeFailure("Daemon not responding - killed");
+        }
+        throw DaemonizeSuccess();
     }
 
     void Daemon::erasePidFile(const std::string& pidFileName) {
