@@ -33,11 +33,11 @@ namespace utils {
         std::uniform_int_distribution<int> dist(0, 15);
 
         const char* v = "0123456789abcdef";
-        const bool dash[] = {0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0};
+        const bool dash[] = {false, false, false, false, true, false, true, false, true, false, true, false, false, false, false, false};
 
         std::string res;
-        for (int i = 0; i < 16; i++) {
-            if (dash[i])
+        for (bool isDash : dash) {
+            if (isDash)
                 res += "-";
             res += v[dist(rng)];
             res += v[dist(rng)];
