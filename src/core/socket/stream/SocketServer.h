@@ -75,7 +75,7 @@ namespace core::socket::stream {
             : SocketServer(
                   name,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
-                      LOG(INFO) << "OnConnect - " << name;
+                      LOG(INFO) << "OnConnect " << name;
 
                       LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
                                        socketConnection->getLocalAddress().toString();
@@ -83,7 +83,7 @@ namespace core::socket::stream {
                                        socketConnection->getRemoteAddress().toString();
                   },
                   [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
-                      LOG(INFO) << "OnConnected - " << name;
+                      LOG(INFO) << "OnConnected " << name;
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
                       LOG(INFO) << "OnDisconnect " << name;
