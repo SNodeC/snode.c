@@ -128,8 +128,8 @@ namespace core::socket::stream::tls {
                                                          const std::function<void()>& onTimeout,
                                                          const std::function<void(int)>& onStatus,
                                                          const utils::Timeval& shutdownTimeout) {
-        int resumeSocketReader = false;
-        int resumeSocketWriter = false;
+        bool resumeSocketReader = false;
+        bool resumeSocketWriter = false;
 
         if (!SocketReader::isSuspended()) {
             SocketReader::suspend();

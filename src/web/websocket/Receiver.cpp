@@ -70,12 +70,12 @@ namespace web::websocket {
 
     std::size_t Receiver::readOpcode() {
         char byte = 0;
-        std::size_t ret = readFrameData(&byte, 1);
+        const std::size_t ret = readFrameData(&byte, 1);
 
         if (ret > 0) {
-            uint8_t opCodeByte = static_cast<uint8_t>(byte);
+            const uint8_t opCodeByte = static_cast<uint8_t>(byte);
 
-            fin = opCodeByte & 0b10000000;
+            fin = (opCodeByte & 0b10000000) != 0;
             opCode = opCodeByte & 0b00001111;
 
             if (!continuation) {
@@ -96,12 +96,12 @@ namespace web::websocket {
 
     std::size_t Receiver::readLength() {
         char byte = 0;
-        std::size_t ret = readFrameData(&byte, 1);
+        const std::size_t ret = readFrameData(&byte, 1);
 
         if (ret > 0) {
-            uint8_t lengthByte = static_cast<uint8_t>(byte);
+            const uint8_t lengthByte = static_cast<uint8_t>(byte);
 
-            masked = lengthByte & 0b10000000;
+            masked = (lengthByte & 0b10000000) != 0;
             payLoadNumBytes = payLoadNumBytesLeft = lengthByte & 0b01111111;
 
             if (payLoadNumBytes > 125) {
@@ -133,7 +133,7 @@ namespace web::websocket {
     }
 
     std::size_t Receiver::readELength() {
-        std::size_t ret = readFrameData(elengthJunk, elengthNumBytesLeft);
+        const std::size_t ret = readFrameData(elengthJunk, elengthNumBytesLeft);
 
         for (std::size_t i = 0; i < ret; i++) {
             payLoadNumBytes |= *reinterpret_cast<uint64_t*>(elengthJunk + i) << (elengthNumBytes - elengthNumBytesLeft) * 8;
@@ -165,7 +165,7 @@ namespace web::websocket {
     }
 
     std::size_t Receiver::readMaskingKey() {
-        std::size_t ret = readFrameData(maskingKeyJunk, maskingKeyNumBytesLeft);
+        const std::size_t ret = readFrameData(maskingKeyJunk, maskingKeyNumBytesLeft);
 
         for (std::size_t i = 0; i < ret; i++) {
             maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(maskingKeyJunk + i))
@@ -190,18 +190,18 @@ namespace web::websocket {
     }
 
     std::size_t Receiver::readPayload() {
-        std::size_t payloadJunkLeft = (MAX_PAYLOAD_JUNK_LEN <= payLoadNumBytesLeft) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
-                                                                                    : static_cast<std::size_t>(payLoadNumBytesLeft);
+        const std::size_t payloadJunkLeft = (MAX_PAYLOAD_JUNK_LEN <= payLoadNumBytesLeft) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
+                                                                                          : static_cast<std::size_t>(payLoadNumBytesLeft);
 
-        std::size_t ret = readFrameData(payloadJunk, payloadJunkLeft);
+        const std::size_t ret = readFrameData(payloadJunk, payloadJunkLeft);
 
         if (ret > 0) {
-            std::size_t payloadJunkLen = static_cast<std::size_t>(ret);
+            const std::size_t payloadJunkLen = static_cast<std::size_t>(ret);
 
             if (masked) {
                 for (std::size_t i = 0; i < payloadJunkLen; i++) {
                     *(payloadJunk + i) =
-                        *(payloadJunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + (payLoadNumBytes - payLoadNumBytesLeft)) % 4);
+                        *(payloadJunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payLoadNumBytes - payLoadNumBytesLeft) % 4);
                 }
             }
 

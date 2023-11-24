@@ -226,12 +226,12 @@ namespace core {
 
             EventLoop::instance().eventMultiplexer.stop();
 
-            utils::Timeval timeoutOp = timeout;
+            const utils::Timeval timeoutOp = timeout;
             tickStatus = EventLoop::instance()._tick(timeoutOp);
 
             auto t2 = std::chrono::system_clock::now();
 
-            std::chrono::duration<double> seconds = t2 - t1;
+            const std::chrono::duration<double> seconds = t2 - t1;
 
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED));

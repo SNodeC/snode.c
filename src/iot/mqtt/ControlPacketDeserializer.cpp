@@ -25,15 +25,15 @@
 namespace iot::mqtt {
 
     ControlPacketDeserializer::ControlPacketDeserializer(uint32_t remainingLength, uint8_t flags, uint8_t mustFlags)
-        : remainingLength(remainingLength) {
-        error = flags != mustFlags;
+        : error(flags != mustFlags)
+        , remainingLength(remainingLength) {
     }
 
     ControlPacketDeserializer::~ControlPacketDeserializer() {
     }
 
     std::size_t ControlPacketDeserializer::deserialize(iot::mqtt::MqttContext* mqttContext) {
-        std::size_t currentConsumed = deserializeVP(mqttContext);
+        const std::size_t currentConsumed = deserializeVP(mqttContext);
         consumed += currentConsumed;
 
         error = (complete && consumed != this->getRemainingLength()) || (!complete && consumed >= this->getRemainingLength());

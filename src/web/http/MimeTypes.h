@@ -50,8 +50,6 @@ namespace web::http {
         static magic_t magic;
 #endif
 
-        static MimeTypes mimeTypes;
-
         static std::map<std::string, std::string> mimeType;
     };
 

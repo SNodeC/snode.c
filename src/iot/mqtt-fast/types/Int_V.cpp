@@ -33,7 +33,7 @@ namespace iot::mqtt_fast::types {
         std::size_t ret = 0;
 
         do {
-            char byte;
+            char byte = 0;
             ret = read(&byte, 1);
 
             if (ret > 0) {

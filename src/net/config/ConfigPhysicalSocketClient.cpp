@@ -112,7 +112,7 @@ namespace net::config {
     }
 
     utils::Timeval ConfigPhysicalSocketClient::getConnectTimeout() const {
-        double connectTimeout = connectTimeoutOpt->as<double>();
+        const double connectTimeout = connectTimeoutOpt->as<double>();
         return utils::Timeval(connectTimeout);
     }
 

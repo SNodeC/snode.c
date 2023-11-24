@@ -83,18 +83,18 @@ namespace net::in6 {
 
             struct sockaddr_in* aiAddr = reinterpret_cast<sockaddr_in*>(currentAddrInfo->ai_addr);
 
-            std::string format = "AddressInfo:\n"
-                                 "   ai_next      = %v\n"
-                                 "   ai_flags     = %v\n"
-                                 "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
-                                 "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
-                                 "   ai_protocol  = %v (IPPROTO_TCP = %v, IPPROTO_UDP = %v)\n"
-                                 "   ai_addrlen   = %v (sockaddr_in = %v, "
-                                 "sockaddr_in6 = %v)\n"
-                                 "   ai_addr      = sin_family:   %v (AF_INET = %v, "
-                                 "AF_INET6 = %v)\n"
-                                 "                  sin_addr:     %v\n"
-                                 "                  sin_port:     %v";
+            const std::string format = "AddressInfo:\n"
+                                       "   ai_next      = %v\n"
+                                       "   ai_flags     = %v\n"
+                                       "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
+                                       "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
+                                       "   ai_protocol  = %v (IPPROTO_TCP = %v, IPPROTO_UDP = %v)\n"
+                                       "   ai_addrlen   = %v (sockaddr_in = %v, "
+                                       "sockaddr_in6 = %v)\n"
+                                       "   ai_addr      = sin_family:   %v (AF_INET = %v, "
+                                       "AF_INET6 = %v)\n"
+                                       "                  sin_addr:     %v\n"
+                                       "                  sin_port:     %v";
 
             defaultLogger->trace(format.c_str(),
                                  currentAddrInfo->ai_next,

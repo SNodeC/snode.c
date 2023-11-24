@@ -43,7 +43,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
-        int fd = descriptorEventReceiver->getRegisteredFd();
+        const int fd = descriptorEventReceiver->getRegisteredFd();
         descriptorEventReceiver->setEnabled(utils::Timeval::currentTime());
         observedEventReceivers[fd].push_front(descriptorEventReceiver);
         muxAdd(descriptorEventReceiver);
@@ -77,7 +77,7 @@ namespace core {
             for (auto& [fd, observedEventReceiverList] : observedEventReceivers) {
                 const DescriptorEventReceiver* beforeFirst = observedEventReceiverList.front();
                 if (std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
-                        bool isDisabled = !descriptorEventReceiver->isEnabled();
+                        const bool isDisabled = !descriptorEventReceiver->isEnabled();
                         if (isDisabled) {
                             descriptorEventReceiver->setDisabled();
                             if (!descriptorEventReceiver->isObserved()) {

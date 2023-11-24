@@ -29,8 +29,6 @@
 
 namespace web::http {
 
-    MimeTypes MimeTypes::mimeTypes;
-
 #ifdef HAS_LIBMAGIC
     magic_t MimeTypes::magic;
 #endif
@@ -239,7 +237,7 @@ namespace web::http {
     }
 
     std::string MimeTypes::contentType(const std::string& file) {
-        std::map<std::string, std::string>::iterator it = mimeType.find(std::filesystem::path(file).extension());
+        const std::map<std::string, std::string>::iterator it = mimeType.find(std::filesystem::path(file).extension());
 
         std::string type;
 

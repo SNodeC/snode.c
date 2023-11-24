@@ -63,7 +63,7 @@ namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
-        utils::PreserveErrno preserveErrno;
+        const utils::PreserveErrno preserveErrno;
 
         btAddressOpt //
             ->default_val(btAddress)
@@ -80,7 +80,7 @@ namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setChannel(uint8_t channel) {
-        utils::PreserveErrno preserveErrno;
+        const utils::PreserveErrno preserveErrno;
 
         channelOpt //
             ->default_val<int>(channel)

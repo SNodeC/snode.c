@@ -45,7 +45,7 @@ namespace net::un {
 
     SocketAddress SocketAddress::setSunPath(const std::string& sunPath) {
         if (sunPath.length() < sizeof(sockAddr.sun_path)) {
-            std::size_t len = sunPath.length();
+            const std::size_t len = sunPath.length();
             std::memcpy(sockAddr.sun_path, sunPath.data(), len);
             sockAddr.sun_path[len] = 0;
             sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + len + 1);

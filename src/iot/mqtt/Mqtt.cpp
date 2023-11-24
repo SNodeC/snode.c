@@ -347,7 +347,7 @@ namespace iot::mqtt {
 
         if (!data.empty()) {
             unsigned long i = 0;
-            for (char ch : data) {
+            for (const char ch : data) {
                 if (i != 0 && i % 8 == 0 && i != data.size()) {
                     ss << std::endl;
                     ss << "                                               ";

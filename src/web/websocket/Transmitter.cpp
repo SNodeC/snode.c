@@ -55,10 +55,10 @@ namespace web::websocket {
         std::size_t messageOffset = 0;
 
         do {
-            std::size_t sendFrameLength =
+            const std::size_t sendFrameLength =
                 (messageLength - messageOffset <= WSMAXFRAMEPAYLOADLENGTH) ? messageLength - messageOffset : WSMAXFRAMEPAYLOADLENGTH;
 
-            bool fin = (sendFrameLength == messageLength - messageOffset) && end; // cppcheck-suppress knownConditionTrueFalse
+            const bool fin = (sendFrameLength == messageLength - messageOffset) && end; // cppcheck-suppress knownConditionTrueFalse
 
             sendFrame(fin, opCode, message + messageOffset, sendFrameLength);
 
@@ -106,7 +106,7 @@ namespace web::websocket {
             sendFrameData(htobe32(maskingKeyAsArray.keyAsValue));
 
             for (uint64_t i = 0; i < payloadLength; i++) {
-                *(const_cast<char*>(payload) + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4);
+                *(const_cast<char*>(payload) + i) = static_cast<char>(*(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4));
             }
         }
 
@@ -114,7 +114,7 @@ namespace web::websocket {
 
         if (masking) {
             for (uint64_t i = 0; i < payloadLength; i++) {
-                *(const_cast<char*>(payload) + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4);
+                *(const_cast<char*>(payload) + i) = static_cast<char>(*(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4));
             }
         }
     }

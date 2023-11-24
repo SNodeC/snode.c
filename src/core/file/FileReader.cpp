@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MF_READSIZE 16384
+enum { MF_READSIZE = 16384 };
 
 namespace core::file {
 
@@ -44,7 +44,7 @@ namespace core::file {
 
         FileReader* fileReader = nullptr;
 
-        int fd = core::system::open(path.c_str(), O_RDONLY);
+        const int fd = core::system::open(path.c_str(), O_RDONLY);
 
         if (fd >= 0) {
             fileReader = new FileReader(fd, writeStream, "FileReader: " + path);
@@ -60,7 +60,7 @@ namespace core::file {
             // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
             static char junk[MF_READSIZE];
 
-            ssize_t ret = core::system::read(getFd(), junk, MF_READSIZE);
+            const ssize_t ret = core::system::read(getFd(), junk, MF_READSIZE);
 
             if (ret > 0) {
                 if (send(junk, static_cast<std::size_t>(ret)) >= 0) {

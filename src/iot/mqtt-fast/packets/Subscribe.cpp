@@ -48,7 +48,7 @@ namespace iot::mqtt_fast::packets {
 
         // Payload
         for (std::string name = getString(); !name.empty(); name = getString()) {
-            uint8_t requestedQoS = getInt8();
+            const uint8_t requestedQoS = getInt8();
             topics.push_back(iot::mqtt_fast::Topic(name, requestedQoS));
         }
 

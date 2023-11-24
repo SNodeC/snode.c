@@ -70,7 +70,7 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setHost(const std::string& ipOrHostname) {
-        utils::PreserveErrno preserveErrno;
+        const utils::PreserveErrno preserveErrno;
 
         hostOpt //
             ->default_val(ipOrHostname)
@@ -87,7 +87,7 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPort(uint16_t port) {
-        utils::PreserveErrno preserveErrno;
+        const utils::PreserveErrno preserveErrno;
 
         portOpt //
             ->default_val(port)

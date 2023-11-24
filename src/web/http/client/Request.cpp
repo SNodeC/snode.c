@@ -43,7 +43,7 @@ namespace web::http::client {
     }
 
     Request& Request::append(const std::string& field, const std::string& value) {
-        std::map<std::string, std::string>::iterator it = headers.find(field);
+        const std::map<std::string, std::string>::iterator it = headers.find(field);
 
         if (it != headers.end()) {
             it->second += ", " + value;
@@ -141,7 +141,7 @@ namespace web::http::client {
     }
 
     void Request::sendHeader() {
-        std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
+        const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
         std::string queryString = "";
         if (queries.size() > 0) {

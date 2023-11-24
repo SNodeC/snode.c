@@ -46,8 +46,8 @@ namespace web::websocket::client {
     }
 
     SubProtocolFactorySelector::SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
-        std::string websocketSubprotocolInstallLibraryFile = "/libsnodec-websocket-" + subProtocolName + "-client.so." SOVERSION;
-        std::string websocketSubprotocolInstallFunctionName = subProtocolName + "ClientSubProtocolFactory";
+        const std::string websocketSubprotocolInstallLibraryFile = "/libsnodec-websocket-" + subProtocolName + "-client.so." SOVERSION;
+        const std::string websocketSubprotocolInstallFunctionName = subProtocolName + "ClientSubProtocolFactory";
 
         std::string websocketSubprotocolInstallLibdir = WEBSOCKET_SUBPROTOCO_INSTALL_LIBDIR;
 

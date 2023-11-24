@@ -63,7 +63,7 @@
 
 namespace iot::mqtt {
 
-    extern std::vector<std::string> mqttPackageName;
+    extern const std::vector<std::string> mqttPackageName;
 
     class ControlPacket {
     public:

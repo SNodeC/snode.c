@@ -113,7 +113,7 @@ namespace iot::mqtt {
         std::stringstream ss;
 
         unsigned long i = 0;
-        for (char ch : std::string(junk, junkLen)) {
+        for (const char ch : std::string(junk, junkLen)) {
             if (i != 0 && i % 8 == 0 && i != data.size()) {
                 ss << std::endl;
                 ss << "                                                    ";

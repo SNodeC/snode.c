@@ -26,7 +26,7 @@
 
 namespace iot::mqtt {
 
-    std::vector<std::string> mqttPackageName = { //
+    const std::vector<std::string> mqttPackageName = { //
         "Reserved",
         "CONNECT",
         "CONNACK",
@@ -103,7 +103,7 @@ namespace iot::mqtt {
     std::vector<char> ControlPacket::serialize() const {
         std::vector<char> variablHeaderPayload = serializeVP();
 
-        iot::mqtt::FixedHeader fixedHeader(type, flags, static_cast<uint32_t>(variablHeaderPayload.size()));
+        const iot::mqtt::FixedHeader fixedHeader(type, flags, static_cast<uint32_t>(variablHeaderPayload.size()));
 
         std::vector<char> packet = fixedHeader.serialize();
         packet.insert(packet.end(), variablHeaderPayload.begin(), variablHeaderPayload.end());

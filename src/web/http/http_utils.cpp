@@ -44,7 +44,7 @@ namespace httputils {
         std::string escaped;
 
         for (std::string::const_iterator i = text.begin(), n = text.end(); i != n; ++i) {
-            std::string::value_type c = (*i);
+            const std::string::value_type c = (*i);
 
             if (c == '%') {
                 if (i[1] && i[2]) {
@@ -91,7 +91,7 @@ namespace httputils {
     std::pair<std::string, std::string> str_split(const std::string& base, char c_middle) {
         std::pair<std::string, std::string> split;
 
-        unsigned long middle = base.find_first_of(c_middle);
+        const unsigned long middle = base.find_first_of(c_middle);
 
         split.first = base.substr(0, middle);
 
@@ -105,7 +105,7 @@ namespace httputils {
     std::pair<std::string, std::string> str_split_last(const std::string& base, char c_middle) {
         std::pair<std::string, std::string> split;
 
-        unsigned long middle = base.find_last_of(c_middle);
+        const unsigned long middle = base.find_last_of(c_middle);
 
         split.first = base.substr(0, middle);
 
@@ -120,10 +120,10 @@ namespace httputils {
         char buf[100];
 
         if (tm == nullptr) {
-            time_t now = utils::system::time(nullptr);
+            const time_t now = utils::system::time(nullptr);
             tm = utils::system::gmtime(&now);
         } else {
-            time_t time = utils::system::mktime(tm);
+            const time_t time = utils::system::mktime(tm);
             tm = utils::system::gmtime(&time);
         }
 

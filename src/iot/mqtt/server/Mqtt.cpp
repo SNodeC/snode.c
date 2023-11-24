@@ -268,7 +268,7 @@ namespace iot::mqtt::server {
 
             std::list<uint8_t> returnCodes;
             for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                uint8_t returnCode = broker->subscribe(clientId, topic.getName(), topic.getQoS());
+                const uint8_t returnCode = broker->subscribe(clientId, topic.getName(), topic.getQoS());
                 returnCodes.push_back(returnCode);
             }
 

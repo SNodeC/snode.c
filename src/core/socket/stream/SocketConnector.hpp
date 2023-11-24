@@ -49,9 +49,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     SocketConnector<PhysicalSocketClient, Config, SocketConnection>::~SocketConnector() {
-        if (physicalClientSocket != nullptr) {
-            delete physicalClientSocket;
-        }
+        delete physicalClientSocket;
     }
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
@@ -161,10 +159,10 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectEvent() {
-        int cErrno;
+        int cErrno = 0;
 
         if (physicalClientSocket->getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed errno = cErrno;
-            utils::PreserveErrno pe(cErrno);
+            const utils::PreserveErrno pe(cErrno);
 
             core::socket::State state = core::socket::STATE_OK;
 

@@ -496,7 +496,7 @@ namespace CLI {
                     auto deleter = [](FILE* f) {
                         std::fclose(f);
                     };
-                    std::unique_ptr<FILE, decltype(deleter)> fp_unique(std::fopen("/proc/self/cmdline", "r"), deleter);
+                    std::unique_ptr<FILE, decltype(deleter)> const fp_unique(std::fopen("/proc/self/cmdline", "r"), deleter);
                     FILE* fp = fp_unique.get();
                     if (!fp) {
                         throw std::runtime_error("could not open /proc/self/cmdline for reading"); // LCOV_EXCL_LINE
@@ -516,7 +516,7 @@ namespace CLI {
                     return cmdline;
                 }();
 
-                std::size_t argc = static_cast<std::size_t>(std::count(static_cmdline.begin(), static_cmdline.end(), '\0'));
+                std::size_t const argc = static_cast<std::size_t>(std::count(static_cmdline.begin(), static_cmdline.end(), '\0'));
                 std::vector<const char*> static_args_result;
                 static_args_result.reserve(argc);
 
@@ -952,7 +952,7 @@ namespace CLI {
                 } else {
                     auto it = std::find_if(std::begin(str), std::end(str), find_ws);
                     if (it != std::end(str)) {
-                        std::string value = std::string(str.begin(), it);
+                        std::string const value = std::string(str.begin(), it);
                         output.push_back(value);
                         str = std::string(it + 1, str.end());
                     } else {
@@ -984,7 +984,7 @@ namespace CLI {
 
         CLI11_INLINE std::string& add_quotes_if_needed(std::string& str) {
             if ((str.front() != '"' && str.front() != '\'') || str.front() != str.back()) {
-                char quote = str.find('"') < str.find('\'') ? '\'' : '"';
+                char const quote = str.find('"') < str.find('\'') ? '\'' : '"';
                 if (str.find(' ') != std::string::npos) {
                     str.insert(0, 1, quote);
                     str.append(1, quote);
@@ -2232,7 +2232,7 @@ public:                                                                         
             }
             char* val = nullptr;
             errno = 0;
-            std::uint64_t output_ll = std::strtoull(input.c_str(), &val, 0);
+            std::uint64_t const output_ll = std::strtoull(input.c_str(), &val, 0);
             if (errno == ERANGE) {
                 return false;
             }
@@ -2241,7 +2241,7 @@ public:                                                                         
                 return true;
             }
             val = nullptr;
-            std::int64_t output_sll = std::strtoll(input.c_str(), &val, 0);
+            std::int64_t const output_sll = std::strtoll(input.c_str(), &val, 0);
             if (val == (input.c_str() + input.size())) {
                 output = (output_sll < 0) ? static_cast<T>(0) : static_cast<T>(output_sll);
                 return (static_cast<std::int64_t>(output) == output_sll);
@@ -2257,7 +2257,7 @@ public:                                                                         
             }
             char* val = nullptr;
             errno = 0;
-            std::int64_t output_ll = std::strtoll(input.c_str(), &val, 0);
+            std::int64_t const output_ll = std::strtoll(input.c_str(), &val, 0);
             if (errno == ERANGE) {
                 return false;
             }
@@ -2698,7 +2698,7 @@ public:                                                                         
             }
             for (const auto& elem : strings) {
                 typename AssignTo::value_type out;
-                bool retval = lexical_assign<typename AssignTo::value_type, typename ConvertTo::value_type>(elem, out);
+                bool const retval = lexical_assign<typename AssignTo::value_type, typename ConvertTo::value_type>(elem, out);
                 if (!retval) {
                     return false;
                 }
@@ -3585,7 +3585,7 @@ public:                                                                         
             func_ = [min_val, max_val](std::string& input) {
                 using CLI::detail::lexical_cast;
                 T val;
-                bool converted = lexical_cast(input, val);
+                bool const converted = lexical_cast(input, val);
                 if ((!converted) || (val < min_val || val > max_val)) {
                     std::stringstream out;
                     out << "Value " << input << " not in range [";
@@ -4114,12 +4114,12 @@ public:                                                                         
 
                 if (!input.empty()) {
                     using CLI::detail::lexical_cast;
-                    bool converted = lexical_cast(input, num);
+                    bool const converted = lexical_cast(input, num);
                     if (!converted) {
                         throw ValidationError(std::string("Value ") + input + " could not be converted to " + detail::type_name<Number>());
                     }
                     // perform safe multiplication
-                    bool ok = detail::checked_multiply(num, it->second);
+                    bool const ok = detail::checked_multiply(num, it->second);
                     if (!ok) {
                         throw ValidationError(detail::to_string(num) + " multiplied by " + unit +
                                               " factor would cause number overflow. Use smaller value.");
@@ -4253,8 +4253,8 @@ public:                                                                         
         const std::function<std::string(std::string & filename)>& f2 = other.func_;
 
         newval.func_ = [f1, f2](std::string& input) {
-            std::string s1 = f1(input);
-            std::string s2 = f2(input);
+            std::string const s1 = f1(input);
+            std::string const s2 = f2(input);
             if (!s1.empty() && !s2.empty())
                 return std::string("(") + s1 + ") AND (" + s2 + ")";
             return s1 + s2;
@@ -4275,8 +4275,8 @@ public:                                                                         
         const std::function<std::string(std::string&)>& f2 = other.func_;
 
         newval.func_ = [f1, f2](std::string& input) {
-            std::string s1 = f1(input);
-            std::string s2 = f2(input);
+            std::string const s1 = f1(input);
+            std::string const s2 = f2(input);
             if (s1.empty() || s2.empty())
                 return std::string();
 
@@ -4298,7 +4298,7 @@ public:                                                                         
         const std::function<std::string(std::string & res)>& f1 = func_;
 
         newval.func_ = [f1, dfunc1](std::string& test) -> std::string {
-            std::string s1 = f1(test);
+            std::string const s1 = f1(test);
             if (s1.empty()) {
                 return std::string("check ") + dfunc1() + " succeeded improperly";
             }
@@ -4314,8 +4314,8 @@ public:                                                                         
         const std::function<std::string()>& dfunc2 = val2.desc_function_;
 
         desc_function_ = [=]() {
-            std::string f1 = dfunc1();
-            std::string f2 = dfunc2();
+            std::string const f1 = dfunc1();
+            std::string const f2 = dfunc2();
             if ((f1.empty()) || (f2.empty())) {
                 return f1 + f2;
             }
@@ -4426,7 +4426,7 @@ public:                                                                         
                 int num = 0;
                 for (const auto& var : result) {
                     using CLI::detail::lexical_cast;
-                    bool retval = lexical_cast(var, num);
+                    bool const retval = lexical_cast(var, num);
                     if (!retval) {
                         return std::string("Failed parsing number (") + var + ')';
                     }
@@ -4475,12 +4475,12 @@ public:                                                                         
 
     CLI11_INLINE std::map<std::string, AsSizeValue::result_t> AsSizeValue::init_mapping(bool kb_is_1000) {
         std::map<std::string, result_t> m;
-        result_t k_factor = kb_is_1000 ? 1000 : 1024;
-        result_t ki_factor = 1024;
+        result_t const k_factor = kb_is_1000 ? 1000 : 1024;
+        result_t const ki_factor = 1024;
         result_t k = 1;
         result_t ki = 1;
         m["b"] = 1;
-        for (std::string p : {"k", "m", "g", "t", "p", "e"}) {
+        for (std::string const p : {"k", "m", "g", "t", "p", "e"}) {
             k *= k_factor;
             ki *= ki_factor;
             m[p] = k;
@@ -5881,7 +5881,7 @@ public:                                                                         
                 return;
             }
             const results_t& send_results = proc_results_.empty() ? results_ : proc_results_;
-            bool local_result = callback_(send_results);
+            bool const local_result = callback_(send_results);
 
             if (!local_result)
                 throw ConversionError(get_name(), results_);
@@ -6063,7 +6063,7 @@ public:                                                                         
         std::string full_type_name = type_name_();
         if (!validators_.empty()) {
             for (const auto& Validator : validators_) {
-                std::string vtype = Validator.get_description();
+                std::string const vtype = Validator.get_description();
                 if (!vtype.empty()) {
                     full_type_name += ":" + vtype;
                 }
@@ -6119,14 +6119,14 @@ public:                                                                         
                 break;
             case MultiOptionPolicy::TakeLast: {
                 // Allow multi-option sizes (including 0)
-                std::size_t trim_size =
+                std::size_t const trim_size =
                     std::min<std::size_t>(static_cast<std::size_t>(std::max<int>(get_items_expected_max(), 1)), original.size());
                 if (original.size() != trim_size) {
                     out.assign(original.end() - static_cast<results_t::difference_type>(trim_size), original.end());
                 }
             } break;
             case MultiOptionPolicy::TakeFirst: {
-                std::size_t trim_size =
+                std::size_t const trim_size =
                     std::min<std::size_t>(static_cast<std::size_t>(std::max<int>(get_items_expected_max(), 1)), original.size());
                 if (original.size() != trim_size) {
                     out.assign(original.begin(), original.begin() + static_cast<results_t::difference_type>(trim_size));
@@ -8060,7 +8060,7 @@ public:                                                                         
 
     CLI11_INLINE bool App::remove_subcommand(App* subcom) {
         // Make sure no links exist
-        for (App_p& sub : subcommands_) {
+        for (App_p const& sub : subcommands_) {
             sub->remove_excludes(subcom);
             sub->remove_needs(subcom);
         }
@@ -8717,7 +8717,7 @@ public:                                                                         
 
     CLI11_INLINE void App::_process_config_file() {
         if (config_ptr_ != nullptr) {
-            bool config_required = config_ptr_->get_required();
+            bool const config_required = config_ptr_->get_required();
             auto file_given = config_ptr_->count() > 0;
             auto config_files = config_ptr_->as<std::vector<std::string>>();
             if (config_files.empty() || config_files.front().empty()) {
@@ -8731,7 +8731,7 @@ public:                                                                         
                 auto path_result = detail::check_path(config_file.c_str());
                 if (path_result == detail::path_type::file) {
                     try {
-                        std::vector<ConfigItem> values = config_formatter_->from_file(config_file);
+                        std::vector<ConfigItem> const values = config_formatter_->from_file(config_file);
                         _parse_config(values);
                         if (!file_given) {
                             config_ptr_->add_result(config_file);
@@ -8773,14 +8773,14 @@ public:                                                                         
             }
         }
 
-        for (App_p& sub : subcommands_) {
+        for (App_p const& sub : subcommands_) {
             if (sub->get_name().empty() || !sub->parse_complete_callback_)
                 sub->_process_env();
         }
     }
 
     CLI11_INLINE void App::_process_callbacks() {
-        for (App_p& sub : subcommands_) {
+        for (App_p const& sub : subcommands_) {
             // process the priority option_groups first
             if (sub->get_name().empty() && sub->parse_complete_callback_) {
                 if (sub->count_all() > 0) {
@@ -8795,7 +8795,7 @@ public:                                                                         
                 opt->run_callback();
             }
         }
-        for (App_p& sub : subcommands_) {
+        for (App_p const& sub : subcommands_) {
             if (!sub->parse_complete_callback_) {
                 sub->_process_callbacks();
             }
@@ -8888,7 +8888,7 @@ public:                                                                         
 
         // run this loop to check how many unnamed subcommands were actually used since they are considered options
         // from the perspective of an App
-        for (App_p& sub : subcommands_) {
+        for (App_p const& sub : subcommands_) {
             if (sub->disabled_)
                 continue;
             if (sub->name_.empty() && sub->count_all() > 0) {
@@ -8982,13 +8982,13 @@ public:                                                                         
 
     CLI11_INLINE void App::_process_extras() {
         if (!(allow_extras_ || prefix_command_)) {
-            std::size_t num_left_over = remaining_size();
+            std::size_t const num_left_over = remaining_size();
             if (num_left_over > 0) {
                 throw ExtrasError(name_, remaining(false));
             }
         }
 
-        for (App_p& sub : subcommands_) {
+        for (App_p const& sub : subcommands_) {
             if (sub->count() > 0)
                 sub->_process_extras();
         }
@@ -8996,14 +8996,14 @@ public:                                                                         
 
     CLI11_INLINE void App::_process_extras(std::vector<std::string>& args) {
         if (!(allow_extras_ || prefix_command_)) {
-            std::size_t num_left_over = remaining_size();
+            std::size_t const num_left_over = remaining_size();
             if (num_left_over > 0) {
                 args = remaining(false);
                 throw ExtrasError(name_, args);
             }
         }
 
-        for (App_p& sub : subcommands_) {
+        for (App_p const& sub : subcommands_) {
             if (sub->count() > 0)
                 sub->_process_extras(args);
         }
@@ -9011,7 +9011,7 @@ public:                                                                         
 
     CLI11_INLINE void App::increment_parsed() {
         ++parsed_;
-        for (App_p& sub : subcommands_) {
+        for (App_p const& sub : subcommands_) {
             if (sub->get_name().empty())
                 sub->increment_parsed();
         }
@@ -9177,7 +9177,7 @@ public:                                                                         
 
     CLI11_INLINE bool App::_parse_single(std::vector<std::string>& args, bool& positional_only) {
         bool retval = true;
-        detail::Classifier classifier = positional_only ? detail::Classifier::NONE : _recognize(args.back());
+        detail::Classifier const classifier = positional_only ? detail::Classifier::NONE : _recognize(args.back());
         switch (classifier) {
             case detail::Classifier::POSITIONAL_MARK:
                 args.pop_back();
@@ -9419,7 +9419,7 @@ public:                                                                         
     }
 
     CLI11_INLINE bool App::_parse_arg(std::vector<std::string>& args, detail::Classifier current_type, bool local_processing_only) {
-        std::string current = args.back();
+        std::string const current = args.back();
 
         std::string arg_name;
         std::string value;
@@ -9544,7 +9544,7 @@ public:                                                                         
         if (op->get_trigger_on_parse() && op->current_option_state_ == Option::option_state::callback_run) {
             op->clear();
         }
-        int min_num = (std::min)(op->get_type_size_min(), op->get_items_expected_min());
+        int const min_num = (std::min)(op->get_type_size_min(), op->get_items_expected_min());
         int max_num = op->get_items_expected_max();
         // check container like options to limit the argument size to a single type if the allow_extra_flags argument is
         // set. 16 is somewhat arbitrary (needs to be at least 4)
@@ -9574,7 +9574,7 @@ public:                                                                         
 
         // gather the minimum number of arguments
         while (min_num > collected && !args.empty()) {
-            std::string current_ = args.back();
+            std::string const current_ = args.back();
             args.pop_back();
             op->add_result(current_, result_count);
             parse_order_.push_back(op.get());
@@ -10023,7 +10023,7 @@ public:                                                                         
             std::string estring;
             auto parents = detail::generate_parents(currentSection, estring, parentSeparator);
             if (!output.empty() && output.back().name == "--") {
-                std::size_t msize = (parents.size() > 1U) ? parents.size() : 2;
+                std::size_t const msize = (parents.size() > 1U) ? parents.size() : 2;
                 while (output.back().parents.size() >= msize) {
                     output.push_back(output.back());
                     output.back().parents.pop_back();
@@ -10031,7 +10031,7 @@ public:                                                                         
 
                 if (parents.size() > 1) {
                     std::size_t common = 0;
-                    std::size_t mpair = (std::min)(output.back().parents.size(), parents.size() - 1);
+                    std::size_t const mpair = (std::min)(output.back().parents.size(), parents.size() - 1);
                     for (std::size_t ii = 0; ii < mpair; ++ii) {
                         if (output.back().parents[ii] != parents[ii]) {
                             break;
@@ -10072,19 +10072,19 @@ public:                                                                         
         std::string currentSection = "default";
         std::string previousSection = "default";
         std::vector<ConfigItem> output;
-        bool isDefaultArray = (arrayStart == '[' && arrayEnd == ']' && arraySeparator == ',');
-        bool isINIArray = (arrayStart == '\0' || arrayStart == ' ') && arrayStart == arrayEnd;
+        bool const isDefaultArray = (arrayStart == '[' && arrayEnd == ']' && arraySeparator == ',');
+        bool const isINIArray = (arrayStart == '\0' || arrayStart == ' ') && arrayStart == arrayEnd;
         bool inSection{false};
-        char aStart = (isINIArray) ? '[' : arrayStart;
-        char aEnd = (isINIArray) ? ']' : arrayEnd;
-        char aSep = (isINIArray && arraySeparator == ' ') ? ',' : arraySeparator;
+        char const aStart = (isINIArray) ? '[' : arrayStart;
+        char const aEnd = (isINIArray) ? ']' : arrayEnd;
+        char const aSep = (isINIArray && arraySeparator == ' ') ? ',' : arraySeparator;
         int currentSectionIndex{0};
         while (getline(input, line)) {
             std::vector<std::string> items_buffer;
             std::string name;
 
             detail::trim(line);
-            std::size_t len = line.length();
+            std::size_t const len = line.length();
             // lines have to be at least 3 characters to have any meaning to CLI just skip the rest
             if (len < 3) {
                 continue;
@@ -10229,7 +10229,7 @@ public:                                                                         
                             continue;
                         }
                     }
-                    std::string name = prefix + opt->get_single_name();
+                    std::string const name = prefix + opt->get_single_name();
                     std::string value =
                         detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, characterQuote);
 
@@ -10302,7 +10302,7 @@ public:                                                                         
     }
 
     CLI11_INLINE std::string Formatter::make_positionals(const App* app) const {
-        std::vector<const Option*> opts = app->get_options([](const Option* opt) {
+        std::vector<const Option*> const opts = app->get_options([](const Option* opt) {
             return !opt->get_group().empty() && opt->get_positional();
         });
 
@@ -10318,7 +10318,7 @@ public:                                                                         
 
         // Options
         for (const std::string& group : groups) {
-            std::vector<const Option*> opts = app->get_options([app, mode, &group](const Option* opt) {
+            std::vector<const Option*> const opts = app->get_options([app, mode, &group](const Option* opt) {
                 return opt->get_group() == group                    // Must be in the right group
                        && opt->nonpositional()                      // Must not be a positional
                        && (mode != AppFormatMode::Sub               // If mode is Sub, then
@@ -10363,7 +10363,7 @@ public:                                                                         
     }
 
     CLI11_INLINE std::string Formatter::make_usage(const App* app, std::string name) const {
-        std::string usage = app->get_usage();
+        std::string const usage = app->get_usage();
         if (!usage.empty()) {
             return usage + "\n";
         }
@@ -10372,10 +10372,10 @@ public:                                                                         
 
         out << get_label("Usage") << ":" << (name.empty() ? "" : " ") << name;
 
-        std::vector<std::string> groups = app->get_groups();
+        std::vector<std::string> const groups = app->get_groups();
 
         // Print an Options badge if any options exist
-        std::vector<const Option*> non_pos_options = app->get_options([](const Option* opt) {
+        std::vector<const Option*> const non_pos_options = app->get_options([](const Option* opt) {
             return opt->nonpositional();
         });
         if (!non_pos_options.empty())
@@ -10413,7 +10413,7 @@ public:                                                                         
     }
 
     CLI11_INLINE std::string Formatter::make_footer(const App* app) const {
-        std::string footer = app->get_footer();
+        std::string const footer = app->get_footer();
         if (footer.empty()) {
             return std::string{};
         }
@@ -10446,7 +10446,7 @@ public:                                                                         
     CLI11_INLINE std::string Formatter::make_subcommands(const App* app, AppFormatMode mode) const {
         std::stringstream out;
 
-        std::vector<const App*> subcommands = app->get_subcommands({});
+        std::vector<const App*> const subcommands = app->get_subcommands({});
 
         // Make a list in definition order of the groups seen
         std::vector<std::string> subcmd_groups_seen;
@@ -10467,7 +10467,7 @@ public:                                                                         
         // For each group, filter out and print subcommands
         for (const std::string& group : subcmd_groups_seen) {
             out << "\n" << group << ":\n";
-            std::vector<const App*> subcommands_group = app->get_subcommands([&group](const App* sub_app) {
+            std::vector<const App*> const subcommands_group = app->get_subcommands([&group](const App* sub_app) {
                 return detail::to_lower(sub_app->get_group()) == detail::to_lower(group);
             });
             for (const App* new_com : subcommands_group) {

@@ -52,7 +52,7 @@ namespace core::socket::stream::tls {
         , onStatus(onStatus)
         , timeoutTriggered(false)
         , fd(SSL_get_fd(ssl)) {
-        int ret = SSL_shutdown(ssl);
+        const int ret = SSL_shutdown(ssl);
 
         int sslErr = SSL_ERROR_NONE;
         if (ret < 0) {
@@ -82,7 +82,7 @@ namespace core::socket::stream::tls {
     }
 
     void TLSShutdown::readEvent() {
-        int ret = SSL_shutdown(ssl);
+        const int ret = SSL_shutdown(ssl);
 
         int sslErr = SSL_ERROR_NONE;
         if (ret < 0) {
@@ -110,7 +110,7 @@ namespace core::socket::stream::tls {
     }
 
     void TLSShutdown::writeEvent() {
-        int ret = SSL_shutdown(ssl);
+        const int ret = SSL_shutdown(ssl);
 
         int sslErr = SSL_ERROR_NONE;
         if (ret < 0) {

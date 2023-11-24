@@ -64,7 +64,7 @@ namespace core::pipe {
     }
 
     void PipeSource::writeEvent() {
-        ssize_t ret = core::system::write(
+        const ssize_t ret = core::system::write(
             getRegisteredFd(), writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
         if (ret > 0) {

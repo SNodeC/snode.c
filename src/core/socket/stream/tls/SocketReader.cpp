@@ -35,12 +35,12 @@
 namespace core::socket::stream::tls {
 
     ssize_t SocketReader::read(char* junk, std::size_t junkLen) {
-        int sslShutdownState = SSL_get_shutdown(ssl);
+        const int sslShutdownState = SSL_get_shutdown(ssl);
 
         int ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
 
         if (ret <= 0) {
-            int ssl_err = SSL_get_error(ssl, ret);
+            const int ssl_err = SSL_get_error(ssl, ret);
 
             switch (ssl_err) {
                 case SSL_ERROR_NONE:
@@ -49,7 +49,7 @@ namespace core::socket::stream::tls {
                     ret = -1;
                     break;
                 case SSL_ERROR_WANT_WRITE: {
-                    utils::PreserveErrno preserveErrno;
+                    const utils::PreserveErrno preserveErrno;
 
                     LOG(TRACE) << "SSL/TLS: Start renegotiation on read";
                     doSSLHandshake(
@@ -72,7 +72,7 @@ namespace core::socket::stream::tls {
                     ret = 0;
                     break;
                 case SSL_ERROR_SYSCALL: {
-                    utils::PreserveErrno preserveErrno;
+                    const utils::PreserveErrno preserveErrno;
 
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
                     VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";

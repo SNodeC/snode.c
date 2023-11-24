@@ -37,7 +37,7 @@ namespace express::dispatcher {
         bool dispatched = false;
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
-            std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
+            const std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
             if (((controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0 ||
                   controller.getRequest()->url.rfind(absoluteMountPath, 0) == 0) &&

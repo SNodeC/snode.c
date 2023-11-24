@@ -49,10 +49,10 @@ namespace web::websocket::client {
         SocketContextUpgrade* socketContext = nullptr;
 
         if (response->header("sec-websocket-accept") == base64::serverWebSocketKey(request->header("Sec-WebSocket-Key"))) {
-            std::string subProtocolName = response->header("sec-websocket-protocol");
+            const std::string subProtocolName = response->header("sec-websocket-protocol");
 
             socketContext = new SocketContextUpgrade(socketConnection, this);
-            std::string selectedSubProtocolName = socketContext->loadSubProtocol(subProtocolName);
+            const std::string selectedSubProtocolName = socketContext->loadSubProtocol(subProtocolName);
 
             if (selectedSubProtocolName.empty()) {
                 delete socketContext;

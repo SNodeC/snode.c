@@ -58,7 +58,7 @@ namespace express::dispatcher {
 
 #define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+\\))?"
     const std::regex& pathRegex() {
-        static std::regex pathregex(PATH_REGEX);
+        static const std::regex pathregex(PATH_REGEX);
 
         return pathregex;
     }
@@ -82,7 +82,7 @@ namespace express::dispatcher {
 
         for (std::vector<std::string>::size_type i = 0; i < explodedString.size(); i++) {
             if (explodedString[i].front() == ':') {
-                std::smatch smatch = matchResult(explodedString[i]);
+                const std::smatch smatch = matchResult(explodedString[i]);
                 std::string regex = "(.*)";
 
                 if (smatch.size() > 1) {
@@ -95,7 +95,7 @@ namespace express::dispatcher {
             }
         }
 
-        std::string regexPath = path_concat(explodedString);
+        const std::string regexPath = path_concat(explodedString);
 
         return std::regex_match(reqpath, std::regex(regexPath));
     }
@@ -106,7 +106,7 @@ namespace express::dispatcher {
 
         for (std::vector<std::string>::size_type i = 0; i < explodedString.size() && i < explodedReqString.size(); i++) {
             if (explodedString[i].front() == ':') {
-                std::smatch smatch = matchResult(explodedString[i]);
+                const std::smatch smatch = matchResult(explodedString[i]);
                 std::string regex = "(.*)";
 
                 if (smatch.size() > 1) {

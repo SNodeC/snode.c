@@ -38,15 +38,15 @@ namespace database::mariadb::commands::async {
     }
 
     int MariaDBConnectCommand::commandStart() {
-        int status = mysql_real_connect_start(&ret,
-                                              mysql,
-                                              details.hostname.c_str(),
-                                              details.username.c_str(),
-                                              details.password.c_str(),
-                                              details.database.c_str(),
-                                              details.port,
-                                              details.socket.c_str(),
-                                              details.flags);
+        const int status = mysql_real_connect_start(&ret,
+                                                    mysql,
+                                                    details.hostname.c_str(),
+                                                    details.username.c_str(),
+                                                    details.password.c_str(),
+                                                    details.database.c_str(),
+                                                    details.port,
+                                                    details.socket.c_str(),
+                                                    details.flags);
 
         onConnecting();
 

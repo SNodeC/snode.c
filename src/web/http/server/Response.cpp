@@ -97,7 +97,7 @@ namespace web::http::server {
     }
 
     Response& Response::append(const std::string& field, const std::string& value) {
-        std::map<std::string, std::string>::iterator it = headers.find(field);
+        const std::map<std::string, std::string>::iterator it = headers.find(field);
 
         if (it != headers.end()) {
             it->second += ", " + value;
@@ -146,7 +146,7 @@ namespace web::http::server {
         std::map<std::string, std::string> opts = options;
 
         opts.erase("Max-Age");
-        time_t time = 0;
+        const time_t time = 0;
         opts["Expires"] = httputils::to_http_date(utils::system::gmtime(&time));
 
         return cookie(name, "", opts);
@@ -217,7 +217,7 @@ namespace web::http::server {
         }
 
         for (auto& [cookie, cookieValue] : cookies) {
-            std::string cookieString =
+            const std::string cookieString =
                 std::accumulate(cookieValue.getOptions().begin(),
                                 cookieValue.getOptions().end(),
                                 cookie + "=" + cookieValue.getValue(),

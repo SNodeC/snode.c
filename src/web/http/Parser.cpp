@@ -31,7 +31,7 @@
 namespace web::http {
 
     // HTTP/x.x
-    std::regex Parser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
+    const std::regex Parser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
 
     Parser::Parser(core::socket::stream::SocketContext* socketContext, const enum Parser::HTTPCompliance& compliance)
         : hTTPCompliance(compliance)
@@ -185,19 +185,19 @@ namespace web::http {
         if (httpMinor == 0 && contentLength == 0) {
             consumed = socketContext->readFromPeer(contentJunk, MAX_CONTENT_JUNK_LEN);
 
-            std::size_t contentJunkLen = static_cast<std::size_t>(consumed);
+            const std::size_t contentJunkLen = static_cast<std::size_t>(consumed);
             if (contentJunkLen > 0) {
                 content.insert(content.end(), contentJunk, contentJunk + contentJunkLen);
             } else {
                 parserState = parseContent(content);
             }
         } else if (httpMinor == 1) {
-            std::size_t contentJunkLenLeft =
+            const std::size_t contentJunkLenLeft =
                 (contentLength - contentRead < MAX_CONTENT_JUNK_LEN) ? contentLength - contentRead : MAX_CONTENT_JUNK_LEN;
 
             consumed = socketContext->readFromPeer(contentJunk, contentJunkLenLeft);
 
-            std::size_t contentJunkLen = static_cast<std::size_t>(consumed);
+            const std::size_t contentJunkLen = static_cast<std::size_t>(consumed);
             if (contentJunkLen > 0) {
                 if (contentRead + contentJunkLen <= contentLength) {
                     content.insert(content.end(), contentJunk, contentJunk + contentJunkLen);

@@ -116,7 +116,7 @@ namespace iot::mqtt_fast::types {
 
         do {
             if (!error && pointer + sizeof(uint8_t) <= length) {
-                uint8_t byte = *reinterpret_cast<uint8_t*>(binary.data() + pointer);
+                const uint8_t byte = *reinterpret_cast<uint8_t*>(binary.data() + pointer);
                 value += (byte & 0x7F) * multiplier;
 
                 if (multiplier > 0x80 * 0x80 * 0x80) {
@@ -139,7 +139,7 @@ namespace iot::mqtt_fast::types {
         std::string string = "";
 
         if (!error && pointer + sizeof(uint16_t) <= length) {
-            uint16_t stringLen = getInt16();
+            const uint16_t stringLen = getInt16();
 
             if (pointer + stringLen <= length) {
                 string = std::string(binary.data() + pointer, stringLen);
@@ -231,7 +231,7 @@ namespace iot::mqtt_fast::types {
     }
 
     void Binary::putString(const std::string& string) {
-        uint16_t stringLen = static_cast<uint16_t>(string.length());
+        const uint16_t stringLen = static_cast<uint16_t>(string.length());
         putInt16(stringLen);
 
         putStringRaw(string);
@@ -244,7 +244,7 @@ namespace iot::mqtt_fast::types {
     }
 
     void Binary::putUint8ListRaw(const std::list<uint8_t>& values) {
-        for (uint8_t value : values) {
+        for (const uint8_t value : values) {
             putInt8(value);
         }
     }

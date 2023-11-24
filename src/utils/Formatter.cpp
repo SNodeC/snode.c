@@ -63,7 +63,7 @@ namespace CLI {
                             continue;
                         }
                     }
-                    std::string name = prefix + opt->get_single_name();
+                    const std::string name = prefix + opt->get_single_name();
                     std::string value =
                         detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, characterQuote);
 
@@ -178,7 +178,7 @@ namespace CLI {
     }
 
     CLI11_INLINE std::string HelpFormatter::make_usage(const App* app, std::string name) const {
-        std::string usage = app->get_usage();
+        const std::string usage = app->get_usage();
         if (!usage.empty()) {
             return usage + "\n";
         }
@@ -187,10 +187,10 @@ namespace CLI {
 
         out << get_label("Usage") << ":" << (name.empty() ? "" : " ") << name;
 
-        std::vector<std::string> groups = app->get_groups();
+        const std::vector<std::string> groups = app->get_groups();
 
         // Print an Options badge if any options exist
-        std::vector<const Option*> non_pos_options = app->get_options([](const Option* opt) {
+        const std::vector<const Option*> non_pos_options = app->get_options([](const Option* opt) {
             return opt->nonpositional();
         });
         if (!non_pos_options.empty())
@@ -238,7 +238,7 @@ namespace CLI {
     CLI11_INLINE std::string HelpFormatter::make_subcommands(const App* app, AppFormatMode mode) const {
         std::stringstream out;
 
-        std::vector<const App*> subcommands = app->get_subcommands({});
+        const std::vector<const App*> subcommands = app->get_subcommands({});
 
         // Make a list in definition order of the groups seen
         std::vector<std::string> subcmd_groups_seen;
@@ -259,7 +259,7 @@ namespace CLI {
         // For each group, filter out and print subcommands
         for (const std::string& group : subcmd_groups_seen) {
             out << "\n" << group << ":\n";
-            std::vector<const App*> subcommands_group = app->get_subcommands([&group](const App* sub_app) {
+            const std::vector<const App*> subcommands_group = app->get_subcommands([&group](const App* sub_app) {
                 return detail::to_lower(sub_app->get_group()) == detail::to_lower(group);
             });
             for (const App* new_com : subcommands_group) {

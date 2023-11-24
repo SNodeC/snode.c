@@ -76,11 +76,11 @@ void SHA1::update(std::istream& is) {
 
 std::string SHA1::final() {
     /* Total number of hashed bits */
-    uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.size()) * 8;
+    const uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.size()) * 8;
 
     /* Padding */
     buffer += static_cast<std::string::value_type>(0x80);
-    std::size_t orig_size = buffer.size();
+    const std::size_t orig_size = buffer.size();
     while (buffer.size() < BLOCK_BYTES) {
         buffer += static_cast<char>(0x00);
     }

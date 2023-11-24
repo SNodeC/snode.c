@@ -135,10 +135,10 @@ namespace net::in6 {
     }
 
     std::string SocketAddress::getAddress() const {
-        utils::PreserveErrno preserveErrno;
+        const utils::PreserveErrno preserveErrno;
 
         char ip[NI_MAXHOST];
-        int ret = core::system::getnameinfo(
+        const int ret = core::system::getnameinfo(
             reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
 
         return ret >= 0 ? ip : gai_strerror(ret);
@@ -149,7 +149,7 @@ namespace net::in6 {
     }
 
     bool SocketAddress::useNext() {
-        bool useNext = socketAddrInfo->useNext();
+        const bool useNext = socketAddrInfo->useNext();
 
         if (useNext) {
             sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());

@@ -301,7 +301,7 @@ namespace utils {
             app.option_defaults()->take_last();
             app.option_defaults()->group(app.get_formatter()->get_label("None Persistent Options"));
 
-            std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
+            const std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
             app.config_formatter(std::static_pointer_cast<CLI::Config>(configFormatter));
 
             app.description("Configuration for Application '" + applicationName + "'");
@@ -505,12 +505,12 @@ namespace utils {
 
                 logger::Logger::quiet();
 
-                std::string logFile = logFileOpt->as<std::string>();
+                const std::string logFile = logFileOpt->as<std::string>();
                 if (!logFile.empty()) {
                     logger::Logger::logToFile(logFile);
                 }
             } else if (app["--enforce-log-file"]->as<bool>()) {
-                std::string logFile = logFileOpt->as<std::string>();
+                const std::string logFile = logFileOpt->as<std::string>();
                 std::cout << "Writing logs to file " << logFile << std::endl;
 
                 logger::Logger::logToFile(logFile);
@@ -597,7 +597,7 @@ namespace utils {
         std::string outString = out.str();
         while (app->get_parent() != nullptr) {
             app = app->get_parent();
-            std::string parentOptions = createCommandLineOptions(app, mode);
+            const std::string parentOptions = createCommandLineOptions(app, mode);
             outString = app->get_name() + " " + (!parentOptions.empty() ? parentOptions + " " : "") + outString;
         }
 
@@ -746,7 +746,7 @@ namespace utils {
                 std::cout << "Config file (INI) parse error: " << e.get_name() << e.what() << std::endl;
                 throw;
             } catch (const CLI::ParseError& e) {
-                std::string what = e.what();
+                const std::string what = e.what();
                 if (what.find("[Option Group: ]") != std::string::npos) { // If CLI11 throws that error it means for us there are
                                                                           // unconfigured anonymous instances
                     std::cout << "Bootstrap error: Anonymous instance(s) not configured in source code!" << std::endl;

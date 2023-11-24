@@ -39,7 +39,7 @@ namespace core::socket::stream {
     }
 
     void SocketReader::readEvent() {
-        std::size_t available = doRead();
+        const std::size_t available = doRead();
 
         if (available > 0) {
             onReceivedFromPeer(available);
@@ -52,8 +52,8 @@ namespace core::socket::stream {
         if (size == 0) {
             cursor = 0;
 
-            std::size_t readLen = blockSize - size;
-            ssize_t retRead = read(readBuffer.data() + size, readLen);
+            const std::size_t readLen = blockSize - size;
+            const ssize_t retRead = read(readBuffer.data() + size, readLen);
 
             if (retRead > 0) {
                 size += static_cast<std::size_t>(retRead);
@@ -83,7 +83,7 @@ namespace core::socket::stream {
     }
 
     std::size_t SocketReader::readFromPeer(char* junk, std::size_t junkLen) {
-        std::size_t maxReturn = std::min(junkLen, size);
+        const std::size_t maxReturn = std::min(junkLen, size);
 
         std::copy(readBuffer.data() + cursor, readBuffer.data() + cursor + maxReturn, junk);
 

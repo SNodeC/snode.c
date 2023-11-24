@@ -38,7 +38,7 @@ namespace core::epoll {
     }
 
     void DescriptorEventPublisher::EPollEvents::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
-        utils::PreserveErrno preserveErrno;
+        const utils::PreserveErrno preserveErrno;
 
         epoll_event ePollEvent{};
 
@@ -57,7 +57,7 @@ namespace core::epoll {
     }
 
     void DescriptorEventPublisher::EPollEvents::muxDel(int fd) {
-        utils::PreserveErrno preserveErrno;
+        const utils::PreserveErrno preserveErrno;
 
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, fd, nullptr) == 0 || errno == EBADF) {
             interestCount--;
@@ -70,7 +70,7 @@ namespace core::epoll {
     }
 
     void DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const {
-        utils::PreserveErrno preserveErrno;
+        const utils::PreserveErrno preserveErrno;
 
         epoll_event ePollEvent{};
 
@@ -123,10 +123,10 @@ namespace core::epoll {
     }
 
     int DescriptorEventPublisher::spanActiveEvents() {
-        int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
+        const int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {
-            epoll_event& ev = ePollEvents.getEvents()[i];
+            const epoll_event& ev = ePollEvents.getEvents()[i];
             core::DescriptorEventReceiver* eventReceiver = static_cast<core::DescriptorEventReceiver*>(ev.data.ptr);
             if (eventReceiver != nullptr && (ev.events & revents) != 0) {
                 eventCounter++;

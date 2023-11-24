@@ -41,7 +41,7 @@ namespace iot::mqtt::client::packets {
                     break;
                 }
 
-                sessionPresent = acknowledgeFlags & 0x01;
+                sessionPresent = (acknowledgeFlags & 0x01) != 0;
 
                 state++;
                 [[fallthrough]];

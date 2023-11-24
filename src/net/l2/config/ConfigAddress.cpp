@@ -62,7 +62,7 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
-        utils::PreserveErrno preserveErrno;
+        const utils::PreserveErrno preserveErrno;
 
         btAddressOpt //
             ->default_val(btAddress)
@@ -79,7 +79,7 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPsm(uint16_t psm) {
-        utils::PreserveErrno preserveErrno;
+        const utils::PreserveErrno preserveErrno;
 
         psmOpt //
             ->default_val(psm)

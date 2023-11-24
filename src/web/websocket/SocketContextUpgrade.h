@@ -283,7 +283,7 @@ namespace web::websocket {
 
     private:
         void dumpFrame(char* frame, uint64_t frameLength) {
-            unsigned int modul = 4;
+            const unsigned int modul = 4;
 
             std::stringstream stringStream;
 

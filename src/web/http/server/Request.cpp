@@ -49,7 +49,7 @@ namespace web::http::server {
     }
 
     const std::string& Request::cookie(const std::string& key) const {
-        std::map<std::string, std::string>::const_iterator it = cookies.find(key);
+        const std::map<std::string, std::string>::const_iterator it = cookies.find(key);
 
         if (it != cookies.end()) {
             return it->second;
@@ -59,7 +59,7 @@ namespace web::http::server {
     }
 
     const std::string& Request::query(const std::string& key) const {
-        std::map<std::string, std::string>::const_iterator it = queries.find(key);
+        const std::map<std::string, std::string>::const_iterator it = queries.find(key);
 
         if (it != queries.end()) {
             return it->second;

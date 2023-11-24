@@ -40,7 +40,7 @@ namespace express::middleware {
                 //                nlohmann::json json = nlohmann::json::parse(req.body, req.body + req.contentLength);
 
                 req.body.push_back(0);
-                nlohmann::json json = nlohmann::json::parse(req.body);
+                const nlohmann::json json = nlohmann::json::parse(req.body);
 
                 // set all the json data as attributes in the request object
                 req.setAttribute<nlohmann::json>(json);

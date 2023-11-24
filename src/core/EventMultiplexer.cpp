@@ -67,11 +67,11 @@ namespace core {
     }
 
     TickStatus EventMultiplexer::tick(const utils::Timeval& tickTimeOut, const sigset_t& sigMask) {
-        utils::Timeval currentTime = utils::Timeval::currentTime();
+        const utils::Timeval currentTime = utils::Timeval::currentTime();
 
         int activeDescriptorCount = 0;
 
-        TickStatus tickStatus = waitForEvents(tickTimeOut, currentTime, sigMask, activeDescriptorCount);
+        const TickStatus tickStatus = waitForEvents(tickTimeOut, currentTime, sigMask, activeDescriptorCount);
 
         if (tickStatus == TickStatus::SUCCESS) {
             spanActiveEvents(currentTime, activeDescriptorCount);

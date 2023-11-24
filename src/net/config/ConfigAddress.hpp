@@ -39,9 +39,7 @@ namespace net::config {
 
     template <typename SocketAddress>
     ConfigAddress<SocketAddress>::~ConfigAddress() {
-        if (socketAddress != nullptr) {
-            delete socketAddress;
-        }
+        delete socketAddress;
     }
 
     template <typename SocketAddress>

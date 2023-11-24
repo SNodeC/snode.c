@@ -29,8 +29,8 @@
 
 #include <cstddef>
 
-typedef struct ssl_ctx_st SSL_CTX;
-typedef struct ssl_st SSL;
+using SSL_CTX = struct ssl_ctx_st;
+using SSL = struct ssl_st;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

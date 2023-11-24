@@ -37,7 +37,7 @@ namespace express::dispatcher {
     RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
-        std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
+        const std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
         if ((controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0 &&
              (mountPoint.method == "use" || controller.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {

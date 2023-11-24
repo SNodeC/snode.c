@@ -60,15 +60,15 @@ namespace core::socket::stream::tls {
 
     static int verify_callback(int preverify_ok, X509_STORE_CTX* ctx) {
         X509* curr_cert = X509_STORE_CTX_get_current_cert(ctx);
-        int depth = X509_STORE_CTX_get_error_depth(ctx);
+        const int depth = X509_STORE_CTX_get_error_depth(ctx);
 
         char buf[256];
         X509_NAME_oneline(X509_get_subject_name(curr_cert), buf, 256);
 
-        if (preverify_ok) {
+        if (preverify_ok != 0) {
             LOG(TRACE) << "SSL/TLS: Verify ok at depth=" << depth << ": " << buf;
         } else {
-            int err = X509_STORE_CTX_get_error(ctx);
+            const int err = X509_STORE_CTX_get_error(ctx);
 
             LOG(TRACE) << "SSL/TLS: Verify error at depth=" << depth << ": verifyErr=" << err << ", " << X509_verify_cert_error_string(err);
 
@@ -191,7 +191,7 @@ namespace core::socket::stream::tls {
                         if (SSL_CTX_use_PrivateKey_file(ctx, sslConfig.certChainKey.c_str(), SSL_FILETYPE_PEM) == 0) {
                             ssl_log_error("Cert chain key error loading: " + sslConfig.certChainKey);
                             sslErr = true;
-                        } else if (!SSL_CTX_check_private_key(ctx)) {
+                        } else if (SSL_CTX_check_private_key(ctx) != 1) {
                             ssl_log_error("Cert chain key load error");
                             LOG(TRACE) << "SSL/TLS: Cert chain not loaded";
                             LOG(TRACE) << "         " << sslConfig.certChain;
@@ -301,7 +301,7 @@ namespace core::socket::stream::tls {
 #endif
 #endif
 #endif
-                int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
+                const int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
@@ -319,7 +319,7 @@ namespace core::socket::stream::tls {
 #pragma GCC diagnostic pop
 #endif
                     if (generalName->type == GEN_DNS || generalName->type == GEN_URI || generalName->type == GEN_EMAIL) {
-                        std::string subjectAltName =
+                        const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
                         sans.insert(subjectAltName);
@@ -346,12 +346,12 @@ namespace core::socket::stream::tls {
     // From: https://www.bit-hive.com/documents/openssl-tutorial/
     std::string ssl_get_servername_from_client_hello(SSL* ssl) {
         const unsigned char* ext = nullptr;
-        size_t ext_len;
+        size_t ext_len = 0;
         size_t p = 0;
-        size_t server_name_list_len;
-        size_t server_name_len;
+        size_t server_name_list_len = 0;
+        size_t server_name_len = 0;
 
-        if (!SSL_client_hello_get0_ext(ssl, TLSEXT_TYPE_server_name, &ext, &ext_len)) {
+        if (SSL_client_hello_get0_ext(ssl, TLSEXT_TYPE_server_name, &ext, &ext_len) == 0) {
             return "";
         }
 
@@ -388,7 +388,7 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log(const std::string& message, int sslErr) {
-        utils::PreserveErrno preserveErrno;
+        const utils::PreserveErrno preserveErrno;
 
         switch (sslErr) {
             case SSL_ERROR_NONE:

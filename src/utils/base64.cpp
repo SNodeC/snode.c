@@ -31,9 +31,9 @@
 namespace base64 {
 
     std::string serverWebSocketKey(const std::string& clientWebSocketKey) {
-        std::string GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+        const std::string GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-        std::string serverWebSocketKey(clientWebSocketKey + GUID);
+        const std::string serverWebSocketKey(clientWebSocketKey + GUID);
         std::vector<unsigned char> digest = sha1(serverWebSocketKey);
 
         return base64_encode(digest.data(), digest.size());

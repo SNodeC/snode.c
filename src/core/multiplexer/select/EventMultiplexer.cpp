@@ -42,7 +42,7 @@ namespace core::select {
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {
-        timespec timeSpec = tickTimeOut.getTimespec();
+        const timespec timeSpec = tickTimeOut.getTimespec();
 
         return core::system::pselect(maxFd() + 1,
                                      &fdSets[core::EventMultiplexer::DISP_TYPE::RD].get(),

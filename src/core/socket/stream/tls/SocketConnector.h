@@ -28,7 +28,7 @@ namespace core::socket::stream::tls {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-typedef struct ssl_ctx_st SSL_CTX;
+using SSL_CTX = struct ssl_ctx_st;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

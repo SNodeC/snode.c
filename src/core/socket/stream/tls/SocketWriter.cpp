@@ -38,13 +38,13 @@ namespace core::socket::stream::tls {
         int ret = SSL_write(ssl, junk, static_cast<int>(junkLen));
 
         if (ret <= 0) {
-            int ssl_err = SSL_get_error(ssl, ret);
+            const int ssl_err = SSL_get_error(ssl, ret);
 
             switch (ssl_err) {
                 case SSL_ERROR_NONE:
                     break;
                 case SSL_ERROR_WANT_READ: {
-                    utils::PreserveErrno preserveErrno;
+                    const utils::PreserveErrno preserveErrno;
 
                     LOG(TRACE) << "SSL/TLS: Start renegotiation on write";
                     doSSLHandshake(

@@ -5,7 +5,7 @@
 #include <string>
 #include <unistd.h>
 
-KeyboardReader::KeyboardReader(const std::function<void(long)> cb)
+KeyboardReader::KeyboardReader(const std::function<void(long)>& cb)
     : core::eventreceiver::ReadEventReceiver("KeyboardReader", 0)
     , callBack(cb) {
     enable(STDIN_FILENO);

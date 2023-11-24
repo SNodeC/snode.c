@@ -137,7 +137,7 @@ namespace iot::mqtt_fast {
     }
 
     std::size_t SocketContext::onReceivedFromPeer() {
-        std::size_t consumed = controlPacketFactory.construct();
+        const std::size_t consumed = controlPacketFactory.construct();
 
         if (controlPacketFactory.isError()) {
             LOG(ERROR) << "MQTT (fast): SocketContext: Error during ControlPacket construction";
@@ -222,7 +222,7 @@ namespace iot::mqtt_fast {
 
         ss << "Data: ";
         unsigned long i = 0;
-        for (char ch : data) {
+        for (char const ch : data) {
             if (i != 0 && i % 8 == 0 && i + 1 != data.size()) {
                 ss << std::endl;
                 ss << "                                            ";

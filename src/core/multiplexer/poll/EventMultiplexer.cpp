@@ -46,7 +46,7 @@ namespace core::poll {
     }
 
     void PollFdsManager::muxAdd(core::DescriptorEventReceiver* eventReceiver, short event) {
-        int fd = eventReceiver->getRegisteredFd();
+        const int fd = eventReceiver->getRegisteredFd();
 
         if (!pollFdIndices.contains(fd)) {
             pollfds[nextIndex].events = event;
@@ -70,7 +70,7 @@ namespace core::poll {
     }
 
     void PollFdsManager::muxDel(int fd, short event) {
-        std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
+        const std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
         PollFdIndex& pollFdIndex = itPollFdIndex->second;
 
@@ -88,7 +88,7 @@ namespace core::poll {
     }
 
     void PollFdsManager::muxOn(core::DescriptorEventReceiver* eventReceiver, short event) {
-        int fd = eventReceiver->getRegisteredFd();
+        const int fd = eventReceiver->getRegisteredFd();
 
         pollfds[pollFdIndices.find(fd)->second.index].events |= event;
     }
@@ -135,7 +135,7 @@ namespace core::poll {
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {
-        timespec timeSpec = tickTimeOut.getTimespec();
+        const timespec timeSpec = tickTimeOut.getTimespec();
 
         return core::system::ppoll(pollFdsManager.getEvents(), pollFdsManager.getCurrentSize(), &timeSpec, &sigMask);
     }

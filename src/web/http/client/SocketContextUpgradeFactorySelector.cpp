@@ -39,8 +39,8 @@ namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector::load(const std::string& socketContextUpgradeName) {
-        std::string socketContextUpgradeFactoryLibraryFile = socketContextUpgradeName + "-client.so." SOVERSION;
-        std::string socketContextUpgradeFactoryFunctionName = socketContextUpgradeName + "ClientContextUpgradeFactory";
+        const std::string socketContextUpgradeFactoryLibraryFile = socketContextUpgradeName + "-client.so." SOVERSION;
+        const std::string socketContextUpgradeFactoryFunctionName = socketContextUpgradeName + "ClientContextUpgradeFactory";
 
         std::string httpUpgradeInstallLibdir = HTTP_UPGRADE_INSTALL_LIBDIR;
 

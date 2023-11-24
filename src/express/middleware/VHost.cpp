@@ -42,7 +42,7 @@ namespace express::middleware {
         // Keep all created vhost middlewares alive
         static std::list<std::shared_ptr<class VHost>> vhostMiddlewares;
 
-        std::shared_ptr<VHost> vhost = std::shared_ptr<VHost>(new VHost(host));
+        const std::shared_ptr<VHost> vhost = std::shared_ptr<VHost>(new VHost(host));
         vhostMiddlewares.push_back(vhost);
 
         return *vhost;

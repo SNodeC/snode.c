@@ -52,7 +52,7 @@ namespace core::socket::stream::tls {
         , onStatus(onStatus)
         , timeoutTriggered(false)
         , fd(SSL_get_fd(ssl)) {
-        int ret = SSL_do_handshake(ssl);
+        const int ret = SSL_do_handshake(ssl);
 
         int sslErr = SSL_ERROR_NONE;
         if (ret < 1) {
@@ -84,7 +84,7 @@ namespace core::socket::stream::tls {
     }
 
     void TLSHandshake::readEvent() {
-        int ret = SSL_do_handshake(ssl);
+        const int ret = SSL_do_handshake(ssl);
 
         int sslErr = SSL_ERROR_NONE;
         if (ret < 1) {
@@ -112,7 +112,7 @@ namespace core::socket::stream::tls {
     }
 
     void TLSHandshake::writeEvent() {
-        int ret = SSL_do_handshake(ssl);
+        const int ret = SSL_do_handshake(ssl);
 
         int sslErr = SSL_ERROR_NONE;
         if (ret < 1) {

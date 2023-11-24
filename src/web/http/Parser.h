@@ -66,7 +66,7 @@ namespace web::http {
     protected:
         // Parser state
         enum struct ParserState { BEGIN, FIRSTLINE, HEADER, BODY, ERROR } parserState = ParserState::BEGIN;
-        static std::regex httpVersionRegex;
+        static const std::regex httpVersionRegex;
 
         virtual void reset();
 

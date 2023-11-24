@@ -42,7 +42,7 @@ namespace web::websocket::server {
         }
 
         if (subProtocol->group != channel) {
-            std::string newChannel = subProtocol->getName() + "/" + channel;
+            const std::string newChannel = subProtocol->getName() + "/" + channel;
 
             groups[newChannel].insert(subProtocol);
 

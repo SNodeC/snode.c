@@ -35,11 +35,11 @@ namespace express::middleware {
 
     BasicAuthentication::BasicAuthentication(const std::string& userName, const std::string& password, const std::string& realm) {
         std::string userNamePassword = userName + ":" + password;
-        std::string credentials =
+        const std::string credentials =
             base64::base64_encode(reinterpret_cast<unsigned char*>(userNamePassword.data()), userNamePassword.length());
 
         use([realm, credentials] MIDDLEWARE(req, res, next) {
-            std::string authCredentials = httputils::str_split(req.get("Authorization"), ' ').second;
+            const std::string authCredentials = httputils::str_split(req.get("Authorization"), ' ').second;
 
             if (authCredentials == credentials) {
                 next();

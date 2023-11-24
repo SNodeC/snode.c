@@ -50,7 +50,7 @@ namespace database::mariadb {
             connectionDetails,
             [this]() -> void {
                 if (mysql_errno(mysql) == 0) {
-                    int fd = mysql_get_socket(mysql);
+                    const int fd = mysql_get_socket(mysql);
 
                     LOG(DEBUG) << "MariaDB: Got valid descriptor: " << fd;
 
