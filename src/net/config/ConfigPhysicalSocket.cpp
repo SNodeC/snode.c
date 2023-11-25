@@ -168,7 +168,7 @@ namespace net::config {
 
     void ConfigPhysicalSocket::setRetry(bool retry) {
         retryOpt //
-            ->default_val(retry)
+            ->default_val(retry ? "true" : "false")
             ->clear();
     }
 

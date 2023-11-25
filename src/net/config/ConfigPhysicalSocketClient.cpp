@@ -87,7 +87,7 @@ namespace net::config {
 
     void ConfigPhysicalSocketClient::setReconnect(bool reconnect) {
         reconnectOpt //
-            ->default_val(reconnect)
+            ->default_val(reconnect ? "true" : "false")
             ->clear();
     }
 
