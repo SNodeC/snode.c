@@ -34,13 +34,13 @@ namespace net::config {
         add_option(certChainOpt, //
                    "--cert-chain",
                    "Certificate chain file",
-                   "filename",
+                   "filename:PEM-FILE",
                    "");
 
         add_option(certKeyOpt, //
                    "--cert-key",
                    "Certificate key file",
-                   "filename",
+                   "filename:PEM-FILE",
                    "");
 
         add_option(certKeyPasswordOpt,
@@ -53,13 +53,13 @@ namespace net::config {
         add_option(caCertFileOpt, //
                    "--ca-cert-file",
                    "CA-certificate file",
-                   "filename",
+                   "filename:PEM-FILE",
                    "");
 
         add_option(caCertDirOpt, //
                    "--ca-cert-dir",
                    "CA-certificate directory",
-                   "directory",
+                   "directory:PEM-CONTAINER-DIR",
                    "");
 
         add_flag(useDefaultCaCertDirOpt,
@@ -74,7 +74,7 @@ namespace net::config {
                    "Cipher list (openssl syntax)",
                    "cipher_list",
                    "",
-                   CLI::TypeValidator<std::string>("CHIPHER"));
+                   CLI::TypeValidator<std::string>("CIPHER"));
 
         add_option(tlsOptionsOpt, //
                    "--tls-options",

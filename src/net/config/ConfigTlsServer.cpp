@@ -40,15 +40,17 @@ namespace net::config {
                                        "Server Name Indication (SNI) Certificates:\n"
                                        "sni = SNI of the virtual server\n"
                                        "<key> = {\n"
-                                       "          \"CertChain\" -> value:PEM-FILE,\n"
-                                       "          \"CertKey\" -> value:PEM-FILE,\n"
-                                       "          \"CertKeyPassword\" -> value:TEXT,\n"
-                                       "          \"CaCertFile\" -> value:PEM-FILE,\n"
-                                       "          \"CaCertDir\" -> value:PEM-CONTAINER:DIR,\n"
-                                       "          \"UseDefaultCaDir\" -> value:BOOLEAN [false],\n"
-                                       "          \"SslOptions\" -> value:UINT\n"
-                                       "        }") //
-                          ->type_name("sni <key> value [<key> value] ... [%% sni <key> value [<key> value] ...]");
+                                       "  \"CertChain\" -> value:PEM-FILE             ['']\n"
+                                       "  \"CertKey\" -> value:PEM-FILE               ['']\n"
+                                       "  \"CertKeyPassword\" -> value:TEXT           ['']\n"
+                                       "  \"CaCertFile\" -> value:PEM-FILE            ['']\n"
+                                       "  \"CaCertDir\" -> value:PEM-CONTAINER-DIR    ['']\n"
+                                       "  \"UseDefaultCaDir\" -> value:BOOLEAN     [false]\n"
+                                       "  \"CipherList\" -> value:CIPHER              ['']\n"
+                                       "  \"SslOptions\" -> value:UINT                 [0]\n"
+                                       "}") //
+                          ->type_name("sni <key> value [<key> value] ... [%% sni <key> value [<key> value] ...]")
+                          ->default_str("'' '' ''");
         if (sniCertsOpt->get_configurable()) {
             sniCertsOpt->group(section->get_formatter()->get_label("Persistent Options"));
         }
@@ -92,9 +94,10 @@ namespace net::config {
 
         section->final_callback([this]() -> void {
             for (auto& [domain, sniMap] : sniCerts) {
-                if (sniMap.begin()->first.empty()) {
+                if (domain.empty()) {
                     sniCertsOpt //
                         ->clear();
+                    sniMap.clear();
                     break;
                 }
                 for (auto& [key, value] : sniMap) {
