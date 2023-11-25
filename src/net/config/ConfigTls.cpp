@@ -71,14 +71,14 @@ namespace net::config {
 
         add_option(cipherListOpt, //
                    "--cipher-list",
-                   "Cipher list (openssl syntax)",
+                   "Cipher list (OpenSSL syntax)",
                    "cipher_list",
                    "",
                    CLI::TypeValidator<std::string>("CIPHER"));
 
         add_option(tlsOptionsOpt, //
                    "--tls-options",
-                   "OR combined SSL/TLS options (openssl values)",
+                   "OR combined SSL/TLS options (OpenSSL values)",
                    "options",
                    0,
                    CLI::TypeValidator<ssl_option_t>());

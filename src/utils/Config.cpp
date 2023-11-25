@@ -68,7 +68,7 @@ namespace CLI {
         enum class Mode { REQUIRED, CONFIGURED, ALL };
 
         CallForCommandline(CLI::App* app, Mode mode)
-            : CLI::Success("CallForCommandline", "A template command line is showen below:\n", CLI::ExitCodes::Success)
+            : CLI::Success("CallForCommandline", "A template command line is shown below:\n", CLI::ExitCodes::Success)
             , app(app)
             , mode(mode) {
         }
@@ -286,7 +286,6 @@ namespace utils {
 
             app.configurable(false);
             app.set_help_flag();
-            app.allow_config_extras();
 
             app.formatter(std::make_shared<CLI::HelpFormatter>());
             app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
@@ -335,7 +334,7 @@ namespace utils {
                 ->disable_flag_override();
 
             app.add_flag_callback(
-                   "--commandline",
+                   "--command-line",
                    []() {
                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::REQUIRED);
                    },
@@ -344,7 +343,7 @@ namespace utils {
                 ->disable_flag_override();
 
             app.add_flag_callback(
-                   "--commandline-full",
+                   "--command-line-full",
                    []() {
                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::ALL);
                    },
@@ -353,7 +352,7 @@ namespace utils {
                 ->disable_flag_override();
 
             app.add_flag_callback(
-                   "--commandline-configured",
+                   "--command-line-configured",
                    []() {
                        throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::CONFIGURED);
                    },
@@ -486,8 +485,8 @@ namespace utils {
 
         app.final_callback([]() -> void {
             if (daemonizeOpt->as<bool>() && app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 &&
-                app["--commandline"]->count() == 0 && app["--commandline-configured"]->count() == 0 &&
-                app["--commandline-full"]->count() == 0) {
+                app["--command-line"]->count() == 0 && app["--command-line-configured"]->count() == 0 &&
+                app["--command-line-full"]->count() == 0) {
                 std::cout << "Running as daemon" << std::endl;
 
                 try {
@@ -646,6 +645,7 @@ namespace utils {
 
     void Config::parse1() {
         app.allow_extras();
+        app.allow_config_extras();
 
         try {
             app.parse(argc, argv);
@@ -659,8 +659,6 @@ namespace utils {
         } catch (const CLI::ParseError&) {
             // Do not process ParseError here but on second parse pass
         }
-
-        app.allow_extras(false);
 
         app.add_flag_callback( //
                "-h,--help",
@@ -681,6 +679,12 @@ namespace utils {
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
+
+        if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0 &&
+            app["--command-line-configured"]->count() == 0 && app["--command-line-full"]->count() == 0) {
+            app.allow_extras(false);
+            app.allow_config_extras(false);
+        }
     }
 
     bool Config::parse2() {
@@ -688,7 +692,9 @@ namespace utils {
 
         try {
             try {
+                //                try {
                 app.parse(argc, argv);
+
                 if (app["--show-config"]->count() > 0) {
                     throw CLI::CallForShowConfig();
                 }
@@ -696,6 +702,23 @@ namespace utils {
                     throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
                 }
                 completed = true;
+                /*
+            } catch (const CLI::ValidationError&) {
+                std::size_t showConfigCount = app["--show-config"]->count();
+                std::size_t writeConfigCount = app["--write-config"]->count();
+
+                if (showConfigCount > 0) {
+                    app.clear();
+                    throw CLI::CallForShowConfig();
+                }
+                if (writeConfigCount > 0) {
+                    app.clear();
+                    throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
+                }
+
+                throw;
+            }
+*/
             } catch (const CLI::CallForHelp&) {
                 std::cout << app.help() << std::endl;
             } catch (const CLI::CallForAllHelp&) {
@@ -705,18 +728,20 @@ namespace utils {
             } catch (const CLI::CallForCommandline& e) {
                 std::cout << e.what();
                 if (e.getMode() == CLI::CallForCommandline::Mode::REQUIRED) {
+                    std::cout << "* Mandatory options for a successful bootstrap" << std::endl;
                     std::cout << "* Required options show either their configured value or <REQUIRED>" << std::endl;
                 } else if (e.getMode() == CLI::CallForCommandline::Mode::CONFIGURED) {
-                    std::cout << "* Required but not yet configured options show <REQUIRED> as value" << std::endl;
                     std::cout << "* Configured options show their configured value" << std::endl;
+                    std::cout << "* Required but not yet configured options show <REQUIRED> as value" << std::endl;
                 } else if (e.getMode() == CLI::CallForCommandline::Mode::ALL) {
+                    std::cout << "* Complete set of options showing either their default or configured value" << std::endl;
                     std::cout << "* Required but not yet configured options show <REQUIRED> as value " << std::endl;
-                    std::cout << "* Remaining options show either their default or configured value" << std::endl;
                 }
                 std::cout << "* Options marked as <REQUIRED> need to be configured for a successful bootstrap" << std::endl;
                 std::cout << std::endl
                           << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE << "~/> "
-                          << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl;
+                          << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl
+                          << std::endl;
             } catch (const CLI::CallForShowConfig& e) {
                 std::cout << e.what() << std::endl;
                 try {
@@ -740,26 +765,28 @@ namespace utils {
                     std::cout << "Error writing config file: " << std::strerror(errno) << std::endl;
                 }
             } catch (const CLI::ConversionError& e) {
-                std::cout << "Command line conversion error: " << e.what() << std::endl;
+                std::cout << Color::Code::FG_RED << "[" << e.get_name() << "] " << Color::Code::FG_DEFAULT << e.what() << std::endl;
                 throw;
             } catch (const CLI::ArgumentMismatch& e) {
-                std::cout << "Command line error: Argument for " << e.what() << std::endl;
+                std::cout << Color::Code::FG_RED << "[" << e.get_name() << "] " << Color::Code::FG_DEFAULT << e.what() << std::endl;
                 throw;
             } catch (const CLI::ConfigError& e) {
-                std::cout << "Config file (INI) parse error: " << e.get_name() << e.what() << std::endl;
+                std::cout << Color::Code::FG_RED << "[" << e.get_name() << "] " << Color::Code::FG_DEFAULT << e.what() << std::endl;
+                std::cout << "              Adding '-w' on the command line may solve this problem" << std::endl;
                 throw;
             } catch (const CLI::ParseError& e) {
                 const std::string what = e.what();
-                if (what.find("[Option Group: ]") != std::string::npos) { // If CLI11 throws that error it means for us there are
-                                                                          // unconfigured anonymous instances
-                    std::cout << "Bootstrap error: Anonymous instance(s) not configured in source code!" << std::endl;
+                if (what.find("[Option Group: ") != std::string::npos) { // If CLI11 throws that error it means for us there are
+                                                                         // unconfigured anonymous instances
+                    std::cout << Color::Code::FG_RED << "[BootstrapError]" << Color::Code::FG_DEFAULT
+                              << " Anonymous instance(s) not configured in source code " << std::endl;
                 } else {
-                    std::cout << "Command line error: " << what << std::endl;
+                    std::cout << Color::Code::FG_RED << "[" << e.get_name() << "] " << Color::Code::FG_DEFAULT << what << std::endl;
                 }
                 throw;
             }
         } catch (const CLI::ParseError&) {
-            std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
+            std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
         } catch (const CLI::Error& e) {
             std::cout << "Error: " << e.get_name() << " " << e.what() << std::endl;
             std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
@@ -793,8 +820,9 @@ namespace utils {
                                  ->fallthrough()
                                  ->formatter(sectionFormatter)
                                  ->configurable(false)
-                                 ->allow_extras(false)
+                                 ->allow_extras(app.get_allow_extras())
                                  ->disabled(name.empty());
+
         instance //
             ->option_defaults()
             ->configurable(!name.empty());
@@ -812,7 +840,7 @@ namespace utils {
 
         instance //
             ->add_flag_callback(
-                "--commandline",
+                "--command-line",
                 [instance]() {
                     throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::REQUIRED);
                 },
@@ -822,7 +850,7 @@ namespace utils {
 
         instance //
             ->add_flag_callback(
-                "--commandline-full",
+                "--command-line-full",
                 [instance]() {
                     throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::ALL);
                 },
@@ -832,7 +860,7 @@ namespace utils {
 
         instance //
             ->add_flag_callback(
-                "--commandline-configured",
+                "--command-line-configured",
                 [instance]() {
                     throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::CONFIGURED);
                 },

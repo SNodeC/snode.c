@@ -83,8 +83,9 @@ namespace net::config {
     CLI::App* ConfigInstance::add_section(const std::string& name, const std::string& description) {
         CLI::App* sectionSc = instanceSc //
                                   ->add_subcommand(name, description)
+                                  ->fallthrough()
                                   ->configurable(false)
-                                  ->allow_extras(false)
+                                  ->allow_extras(instanceSc->get_allow_extras())
                                   ->group("Sections")
                                   ->disabled(this->name.empty());
 
