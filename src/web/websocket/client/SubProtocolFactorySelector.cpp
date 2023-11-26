@@ -18,6 +18,7 @@
 
 #include "web/websocket/client/SubProtocolFactorySelector.h"
 
+#include "utils/Config.h"
 #include "web/websocket/SubProtocolFactory.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -46,7 +47,7 @@ namespace web::websocket::client {
     }
 
     SubProtocolFactorySelector::SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
-        const std::string websocketSubprotocolInstallLibraryFile = "/libsnodec-websocket-" + subProtocolName + "-client.so." SOVERSION;
+        const std::string websocketSubprotocolInstallLibraryFile = "libsnodec-websocket-" + subProtocolName + "-client.so." SOVERSION;
         const std::string websocketSubprotocolInstallFunctionName = subProtocolName + "ClientSubProtocolFactory";
 
         std::string websocketSubprotocolInstallLibdir = WEBSOCKET_SUBPROTOCO_INSTALL_LIBDIR;
@@ -58,9 +59,18 @@ namespace web::websocket::client {
         }
 #endif
 
-        return Super::load(subProtocolName,
-                           websocketSubprotocolInstallLibdir + websocketSubprotocolInstallLibraryFile,
-                           websocketSubprotocolInstallFunctionName);
+        SubProtocolFactorySelector::SubProtocolFactory* subProtocolFactory = Super::load(
+            subProtocolName,
+            websocketSubprotocolInstallLibdir + "/" + utils::Config::getApplicationName() + "/" + websocketSubprotocolInstallLibraryFile,
+            websocketSubprotocolInstallFunctionName);
+
+        if (subProtocolFactory == nullptr) {
+            subProtocolFactory = Super::load(subProtocolName,
+                                             websocketSubprotocolInstallLibdir + "/" + websocketSubprotocolInstallLibraryFile,
+                                             websocketSubprotocolInstallFunctionName);
+        }
+
+        return subProtocolFactory;
     }
 
 } // namespace web::websocket::client
