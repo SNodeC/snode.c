@@ -203,7 +203,7 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool retain) {
-        LOG(DEBUG) << "MQTT Broker: Send retained Publish: " << clientId;
+        LOG(DEBUG) << "MQTT Broker: Send Publish: " << clientId;
         sessionStore[clientId].sendPublish(message, qoS, retain);
     }
 

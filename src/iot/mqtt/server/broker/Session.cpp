@@ -49,6 +49,9 @@ namespace iot::mqtt::server::broker {
                                   message.getMessage(),
                                   std::min(message.getQoS(), qoS),
                                   !mqtt->getReflect() ? message.getOriginRetain() || retain : retain);
+            } else {
+                LOG(DEBUG) << "MQTT Broker:   Suppress reflection to origin to avoid message looping";
+                LOG(DEBUG) << "               Origin: " << message.getOriginClientId();
             }
         } else {
             if (message.getQoS() == 0) {
