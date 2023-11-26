@@ -692,7 +692,6 @@ namespace utils {
 
         try {
             try {
-                //                try {
                 app.parse(argc, argv);
 
                 if (app["--show-config"]->count() > 0) {
@@ -702,23 +701,6 @@ namespace utils {
                     throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
                 }
                 completed = true;
-                /*
-            } catch (const CLI::ValidationError&) {
-                std::size_t showConfigCount = app["--show-config"]->count();
-                std::size_t writeConfigCount = app["--write-config"]->count();
-
-                if (showConfigCount > 0) {
-                    app.clear();
-                    throw CLI::CallForShowConfig();
-                }
-                if (writeConfigCount > 0) {
-                    app.clear();
-                    throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
-                }
-
-                throw;
-            }
-*/
             } catch (const CLI::CallForHelp&) {
                 std::cout << app.help() << std::endl;
             } catch (const CLI::CallForAllHelp&) {
