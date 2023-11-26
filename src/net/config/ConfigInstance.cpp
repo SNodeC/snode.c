@@ -49,9 +49,11 @@
 
 namespace net::config {
 
-    ConfigInstance::ConfigInstance(const std::string& name, const std::string& role)
-        : name(name) {
-        instanceSc = utils::Config::add_instance(name, "Configuration for " + role + " instance '" + name + "'");
+    const std::string ConfigInstance::nameAnonymous = "<anonymous>";
+
+    ConfigInstance::ConfigInstance(const std::string& instanceName, const std::string& role)
+        : instanceName(instanceName) {
+        instanceSc = utils::Config::add_instance(instanceName, "Configuration for " + role + " instance '" + instanceName + "'");
 
         disableOpt = instanceSc
                          ->add_flag_function(
@@ -77,7 +79,11 @@ namespace net::config {
     }
 
     const std::string& ConfigInstance::getInstanceName() const {
-        return name.empty() ? nameAnonymous : name;
+        return instanceName.empty() ? nameAnonymous : instanceName;
+    }
+
+    void ConfigInstance::setInstanceName(const std::string &instanceName) {
+        this->instanceName = instanceName;
     }
 
     CLI::App* ConfigInstance::add_section(const std::string& name, const std::string& description) {
@@ -87,11 +93,11 @@ namespace net::config {
                                   ->configurable(false)
                                   ->allow_extras(instanceSc->get_allow_extras())
                                   ->group("Sections")
-                                  ->disabled(this->name.empty());
+                                  ->disabled(this->instanceName.empty());
 
         sectionSc //
             ->option_defaults()
-            ->configurable(!this->name.empty());
+            ->configurable(!this->instanceName.empty());
 
         sectionSc //
             ->add_flag_callback(

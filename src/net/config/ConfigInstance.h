@@ -36,7 +36,7 @@ namespace net::config {
     class ConfigInstance {
     public:
         ConfigInstance() = default;
-        explicit ConfigInstance(const std::string& name, const std::string& role);
+        explicit ConfigInstance(const std::string& instanceName, const std::string& role);
         ConfigInstance(const ConfigInstance&) = delete;
         ConfigInstance(ConfigInstance&&) = delete;
 
@@ -46,6 +46,7 @@ namespace net::config {
         virtual ~ConfigInstance();
 
         const std::string& getInstanceName() const;
+        void setInstanceName(const std::string& instanceName);
 
         bool getDisabled() const;
         void setDisabled(bool disabled = true);
@@ -59,8 +60,8 @@ namespace net::config {
     private:
         uint8_t requiredCount = 0;
 
-        const std::string name;
-        const std::string nameAnonymous = "<anonymous>";
+        std::string instanceName;
+        static const std::string nameAnonymous;
 
         CLI::App* instanceSc = nullptr;
         CLI::Option* disableOpt = nullptr;
