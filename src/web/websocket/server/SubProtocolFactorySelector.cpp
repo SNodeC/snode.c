@@ -29,6 +29,8 @@
 #include <cstdlib>
 #endif
 
+#include <filesystem>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
@@ -59,12 +61,14 @@ namespace web::websocket::server {
         }
 #endif
 
-        SubProtocolFactorySelector::SubProtocolFactory* subProtocolFactory = Super::load(
-            subProtocolName,
-            websocketSubprotocolInstallLibdir + "/" + utils::Config::getApplicationName() + "/" + websocketSubprotocolInstallLibraryFile,
-            websocketSubprotocolInstallFunctionName);
+        SubProtocolFactorySelector::SubProtocolFactory* subProtocolFactory = nullptr;
 
-        if (subProtocolFactory == nullptr) {
+        if (std::filesystem::exists(websocketSubprotocolInstallLibdir + "/" + utils::Config::getApplicationName())) {
+            subProtocolFactory = Super::load(subProtocolName,
+                                             websocketSubprotocolInstallLibdir + "/" + utils::Config::getApplicationName() + "/" +
+                                                 websocketSubprotocolInstallLibraryFile,
+                                             websocketSubprotocolInstallFunctionName);
+        } else {
             subProtocolFactory = Super::load(subProtocolName,
                                              websocketSubprotocolInstallLibdir + "/" + websocketSubprotocolInstallLibraryFile,
                                              websocketSubprotocolInstallFunctionName);
