@@ -893,7 +893,7 @@ namespace utils {
         return app.remove_subcommand(instance);
     }
 
-    void Config::add_string_option(const std::string& name, const std::string& description, const std::string& typeName) {
+    CLI::Option* Config::add_string_option(const std::string& name, const std::string& description, const std::string& typeName) {
         applicationOptions[name] = app //
                                        .add_option_function<std::string>(name, utils::ResetToDefault(applicationOptions[name]), description)
                                        ->take_last()
@@ -903,12 +903,14 @@ namespace utils {
                                        ->group("Application Options");
 
         app.needs(applicationOptions[name]);
+
+        return applicationOptions[name];
     }
 
-    void Config::add_string_option(const std::string& name,
-                                   const std::string& description,
-                                   const std::string& typeName,
-                                   const std::string& defaultValue) {
+    CLI::Option* Config::add_string_option(const std::string& name,
+                                           const std::string& description,
+                                           const std::string& typeName,
+                                           const std::string& defaultValue) {
         add_string_option(name, description, typeName);
 
         applicationOptions[name] //
@@ -916,34 +918,36 @@ namespace utils {
             ->default_val(defaultValue);
 
         app.remove_needs(applicationOptions[name]);
+
+        return applicationOptions[name];
     }
 
-    void Config::add_string_option(
+    CLI::Option* Config::add_string_option(
         const std::string& name, const std::string& description, const std::string& typeName, const char* defaultValue, bool configurable) {
-        add_string_option(name, description, typeName, std::string(defaultValue), configurable);
+        return add_string_option(name, description, typeName, std::string(defaultValue), configurable);
     }
 
-    void Config::add_string_option(const std::string& name,
-                                   const std::string& description,
-                                   const std::string& typeName,
-                                   const char* defaultValue) {
-        add_string_option(name, description, typeName, std::string(defaultValue));
+    CLI::Option* Config::add_string_option(const std::string& name,
+                                           const std::string& description,
+                                           const std::string& typeName,
+                                           const char* defaultValue) {
+        return add_string_option(name, description, typeName, std::string(defaultValue));
     }
 
-    void
+    CLI::Option*
     Config::add_string_option(const std::string& name, const std::string& description, const std::string& typeName, bool configurable) {
         add_string_option(name, description, typeName);
-        applicationOptions[name] //
+        return applicationOptions[name] //
             ->configurable(configurable);
     }
 
-    void Config::add_string_option(const std::string& name,
-                                   const std::string& description,
-                                   const std::string& typeName,
-                                   const std::string& defaultValue,
-                                   bool configurable) {
+    CLI::Option* Config::add_string_option(const std::string& name,
+                                           const std::string& description,
+                                           const std::string& typeName,
+                                           const std::string& defaultValue,
+                                           bool configurable) {
         add_string_option(name, description, typeName, defaultValue);
-        applicationOptions[name] //
+        return applicationOptions[name] //
             ->configurable(configurable);
     }
 

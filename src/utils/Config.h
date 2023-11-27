@@ -63,29 +63,29 @@ namespace utils {
         static int getLogLevel();
         static int getVerboseLevel();
 
-        static void add_string_option(const std::string& name, const std::string& description, const std::string& typeName);
+        static CLI::Option* add_string_option(const std::string& name, const std::string& description, const std::string& typeName);
 
-        static void
+        static CLI::Option*
         add_string_option(const std::string& name, const std::string& description, const std::string& typeName, bool configurable);
 
-        static void add_string_option(const std::string& name,
-                                      const std::string& description,
-                                      const std::string& typeName,
-                                      const std::string& defaultValue,
-                                      bool configurable);
+        static CLI::Option* add_string_option(const std::string& name,
+                                              const std::string& description,
+                                              const std::string& typeName,
+                                              const std::string& defaultValue,
+                                              bool configurable);
 
-        static void add_string_option(const std::string& name,
-                                      const std::string& description,
-                                      const std::string& typeName,
-                                      const std::string& defaultValue);
+        static CLI::Option* add_string_option(const std::string& name,
+                                              const std::string& description,
+                                              const std::string& typeName,
+                                              const std::string& defaultValue);
 
-        static void add_string_option(const std::string& name,
-                                      const std::string& description,
-                                      const std::string& typeName,
-                                      const char* defaultValue,
-                                      bool configurable);
+        static CLI::Option* add_string_option(const std::string& name,
+                                              const std::string& description,
+                                              const std::string& typeName,
+                                              const char* defaultValue,
+                                              bool configurable);
 
-        static void
+        static CLI::Option*
         add_string_option(const std::string& name, const std::string& description, const std::string& typeName, const char* defaultValue);
 
         static std::string get_string_option_value(const std::string& name);
