@@ -82,7 +82,7 @@ namespace net::config {
         return instanceName.empty() ? nameAnonymous : instanceName;
     }
 
-    void ConfigInstance::setInstanceName(const std::string &instanceName) {
+    void ConfigInstance::setInstanceName(const std::string& instanceName) {
         this->instanceName = instanceName;
     }
 
