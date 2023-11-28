@@ -26,8 +26,8 @@
 
 namespace CLI {
 
-    CallForCommandline::CallForCommandline(CLI::App* app, Mode mode)
-        : CLI::Success("CallForCommandline", "A template command line is shown below:\n", CLI::ExitCodes::Success)
+    CallForCommandline::CallForCommandline(CLI::App* app, const std::string& description, Mode mode)
+        : CLI::Success("CallForCommandline", description, CLI::ExitCodes::Success)
         , app(app)
         , mode(mode) {
     }

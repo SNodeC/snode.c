@@ -93,33 +93,36 @@ namespace net::config {
             ->configurable(false)
             ->disable_flag_override();
 
-        sectionSc
+        sectionSc //
             ->add_flag_callback(
                 "--command-line",
                 [sectionSc]() {
-                    throw CLI::CallForCommandline(sectionSc, CLI::CallForCommandline::Mode::REQUIRED);
+                    throw CLI::CallForCommandline(
+                        sectionSc, "Below is a command line showing all non default options", CLI::CallForCommandline::Mode::NONDEFAULT);
+                },
+                "Print a command line showing all non default options") //
+            ->configurable(false)
+            ->disable_flag_override();
+
+        sectionSc //
+            ->add_flag_callback(
+                "--command-line-required",
+                [sectionSc]() {
+                    throw CLI::CallForCommandline(
+                        sectionSc, "Below is a command line showing required options only", CLI::CallForCommandline::Mode::REQUIRED);
                 },
                 "Print a template command line showing required options only")
             ->configurable(false)
             ->disable_flag_override();
 
-        sectionSc
+        sectionSc //
             ->add_flag_callback(
                 "--command-line-full",
                 [sectionSc]() {
-                    throw CLI::CallForCommandline(sectionSc, CLI::CallForCommandline::Mode::ALL);
+                    throw CLI::CallForCommandline(
+                        sectionSc, "Below is a command line showing all possible options", CLI::CallForCommandline::Mode::FULL);
                 },
                 "Print a template command line showing all possible options")
-            ->configurable(false)
-            ->disable_flag_override();
-
-        sectionSc
-            ->add_flag_callback(
-                "--command-line-configured",
-                [sectionSc]() {
-                    throw CLI::CallForCommandline(sectionSc, CLI::CallForCommandline::Mode::CONFIGURED);
-                },
-                "Print a template command line showing all required and configured options") //
             ->configurable(false)
             ->disable_flag_override();
 

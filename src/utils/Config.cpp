@@ -259,27 +259,30 @@ namespace utils {
             app.add_flag_callback(
                    "--command-line",
                    []() {
-                       throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::REQUIRED);
+                       throw CLI::CallForCommandline(
+                           &app, "Below is a command line showing all non default options", CLI::CallForCommandline::Mode::NONDEFAULT);
                    },
-                   "Print a template command line showing required options only")
+                   "Print a command line showing all non default options") //
+                ->configurable(false)
+                ->disable_flag_override();
+
+            app.add_flag_callback(
+                   "--command-line-required",
+                   []() {
+                       throw CLI::CallForCommandline(
+                           &app, "Below is a command line showing required options only", CLI::CallForCommandline::Mode::REQUIRED);
+                   },
+                   "Print a command line showing required options only")
                 ->configurable(false)
                 ->disable_flag_override();
 
             app.add_flag_callback(
                    "--command-line-full",
                    []() {
-                       throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::ALL);
+                       throw CLI::CallForCommandline(
+                           &app, "Below is a command line showing all possible options", CLI::CallForCommandline::Mode::FULL);
                    },
-                   "Print a template command line showing all possible options")
-                ->configurable(false)
-                ->disable_flag_override();
-
-            app.add_flag_callback(
-                   "--command-line-configured",
-                   []() {
-                       throw CLI::CallForCommandline(&app, CLI::CallForCommandline::Mode::CONFIGURED);
-                   },
-                   "Print a template command line showing all required and configured options") //
+                   "Print a command line showing all possible options")
                 ->configurable(false)
                 ->disable_flag_override();
 
@@ -408,7 +411,7 @@ namespace utils {
 
         app.final_callback([]() -> void {
             if (daemonizeOpt->as<bool>() && app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 &&
-                app["--command-line"]->count() == 0 && app["--command-line-configured"]->count() == 0 &&
+                app["--command-line"]->count() == 0 && app["--command-line-required"]->count() == 0 &&
                 app["--command-line-full"]->count() == 0) {
                 std::cout << "Running as daemon" << std::endl;
 
@@ -447,19 +450,19 @@ namespace utils {
             if (option->get_configurable()) {
                 std::string value;
 
-                if (!option->reduced_results().empty() && ((option->get_required() || mode == CLI::CallForCommandline::Mode::ALL) ||
-                                                           mode == CLI::CallForCommandline::Mode::CONFIGURED)) {
+                if (!option->reduced_results().empty() && ((option->get_required() || mode == CLI::CallForCommandline::Mode::FULL) ||
+                                                           mode == CLI::CallForCommandline::Mode::NONDEFAULT)) {
                     value = option->reduced_results()[0];
                 } else if (!option->get_default_str().empty()) {
-                    value = (mode == CLI::CallForCommandline::Mode::ALL || option->get_required()) ? option->get_default_str() : "";
+                    value = (mode == CLI::CallForCommandline::Mode::FULL || option->get_required()) ? option->get_default_str() : "";
                 } else if (option->get_required()) {
                     value = "<REQUIRED>";
                 } else {
-                    value = mode == CLI::CallForCommandline::Mode::ALL ? "\"\"" : "";
+                    value = mode == CLI::CallForCommandline::Mode::FULL ? "\"\"" : "";
                 }
 
                 if (value.empty() && option->count() > 0 &&
-                    (mode == CLI::CallForCommandline::Mode::ALL || mode == CLI::CallForCommandline::Mode::CONFIGURED)) {
+                    (mode == CLI::CallForCommandline::Mode::FULL || mode == CLI::CallForCommandline::Mode::NONDEFAULT)) {
                     value = "\"\"";
                 }
 
@@ -489,8 +492,6 @@ namespace utils {
         for (CLI::App* subcommand : app->get_subcommands({})) {
             if (!subcommand->get_name().empty()) {
                 createCommandLineTemplate(out, subcommand, mode);
-            } else {
-                std::cout << subcommand->get_description() << std::endl;
             }
         }
 
@@ -604,7 +605,7 @@ namespace utils {
             ->trigger_on_parse();
 
         if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0 &&
-            app["--command-line-configured"]->count() == 0 && app["--command-line-full"]->count() == 0) {
+            app["--command-line-required"]->count() == 0 && app["--command-line-full"]->count() == 0) {
             app.allow_extras(false);
             app.allow_config_extras(false);
         }
@@ -628,22 +629,13 @@ namespace utils {
             } catch (const CLI::CallForVersion&) {
                 std::cout << "SNode.C-Version: " << app.version() << std::endl << std::endl;
             } catch (const CLI::CallForCommandline& e) {
-                std::cout << e.what();
-                if (e.getMode() == CLI::CallForCommandline::Mode::REQUIRED) {
-                    std::cout << "* Mandatory options for a successful bootstrap" << std::endl;
-                    std::cout << "* Required options show either their configured value or <REQUIRED>" << std::endl;
-                } else if (e.getMode() == CLI::CallForCommandline::Mode::CONFIGURED) {
-                    std::cout << "* Configured options show their configured value" << std::endl;
-                    std::cout << "* Required but not yet configured options show <REQUIRED> as value" << std::endl;
-                } else if (e.getMode() == CLI::CallForCommandline::Mode::ALL) {
-                    std::cout << "* Complete set of options showing either their default or configured value" << std::endl;
-                    std::cout << "* Required but not yet configured options show <REQUIRED> as value " << std::endl;
-                }
-                std::cout << "* Options marked as <REQUIRED> need to be configured for a successful bootstrap" << std::endl;
+                std::cout << e.what() << ":" << std::endl;
                 std::cout << std::endl
                           << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE << "~/> "
                           << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl
                           << std::endl;
+                std::cout << "* Required but not yet configured options show <REQUIRED> as value " << std::endl;
+                std::cout << "* Options marked as <REQUIRED> need to be configured for a successful bootstrap" << std::endl;
             } catch (const CLI::CallForShowConfig& e) {
                 try {
                     std::cout << e.getApp()->config_to_str(true, true);
@@ -753,9 +745,21 @@ namespace utils {
             ->add_flag_callback(
                 "--command-line",
                 [instance]() {
-                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::REQUIRED);
+                    throw CLI::CallForCommandline(
+                        instance, "Below is a command line showing all non default options", CLI::CallForCommandline::Mode::NONDEFAULT);
                 },
-                "Print a template command line showing required options only")
+                "Print a command line showing all non default options") //
+            ->configurable(false)
+            ->disable_flag_override();
+
+        instance //
+            ->add_flag_callback(
+                "--command-line-required",
+                [instance]() {
+                    throw CLI::CallForCommandline(
+                        instance, "Below is a command line showing required options only", CLI::CallForCommandline::Mode::REQUIRED);
+                },
+                "Print a command line showing required options only")
             ->configurable(false)
             ->disable_flag_override();
 
@@ -763,19 +767,10 @@ namespace utils {
             ->add_flag_callback(
                 "--command-line-full",
                 [instance]() {
-                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::ALL);
+                    throw CLI::CallForCommandline(
+                        instance, "Below is a command line showing all possible options", CLI::CallForCommandline::Mode::FULL);
                 },
-                "Print a template command line showing all possible options")
-            ->configurable(false)
-            ->disable_flag_override();
-
-        instance //
-            ->add_flag_callback(
-                "--command-line-configured",
-                [instance]() {
-                    throw CLI::CallForCommandline(instance, CLI::CallForCommandline::Mode::CONFIGURED);
-                },
-                "Print a template command line showing all required and configured options") //
+                "Print a command line showing all possible options")
             ->configurable(false)
             ->disable_flag_override();
 
