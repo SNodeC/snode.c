@@ -22,24 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#endif
-#include "utils/CLI11.hpp" // IWYU pragma: export
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
 #include "utils/Config.h"
+#include "utils/Exceptions.h"
 
 #include <cstdint>
 #include <memory>
@@ -98,6 +82,46 @@ namespace net::config {
         sectionSc //
             ->option_defaults()
             ->configurable(!this->instanceName.empty());
+
+        sectionSc
+            ->add_flag_callback( //
+                "-s,--show-config",
+                [sectionSc]() {
+                    throw CLI::CallForShowConfig(sectionSc);
+                },
+                "Show current configuration and exit") //
+            ->configurable(false)
+            ->disable_flag_override();
+
+        sectionSc
+            ->add_flag_callback(
+                "--command-line",
+                [sectionSc]() {
+                    throw CLI::CallForCommandline(sectionSc, CLI::CallForCommandline::Mode::REQUIRED);
+                },
+                "Print a template command line showing required options only")
+            ->configurable(false)
+            ->disable_flag_override();
+
+        sectionSc
+            ->add_flag_callback(
+                "--command-line-full",
+                [sectionSc]() {
+                    throw CLI::CallForCommandline(sectionSc, CLI::CallForCommandline::Mode::ALL);
+                },
+                "Print a template command line showing all possible options")
+            ->configurable(false)
+            ->disable_flag_override();
+
+        sectionSc
+            ->add_flag_callback(
+                "--command-line-configured",
+                [sectionSc]() {
+                    throw CLI::CallForCommandline(sectionSc, CLI::CallForCommandline::Mode::CONFIGURED);
+                },
+                "Print a template command line showing all required and configured options") //
+            ->configurable(false)
+            ->disable_flag_override();
 
         sectionSc //
             ->add_flag_callback(

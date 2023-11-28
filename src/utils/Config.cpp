@@ -24,24 +24,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#endif
-#include "utils/CLI11.hpp" // IWYU pragma: export
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
 #include "log/Logger.h"
+#include "utils/Exceptions.h"
 
 #include <cerrno>
 #include <cstdlib>
@@ -60,70 +44,6 @@
 
 #define XSTR(s) STR(s)
 #define STR(s) #s
-
-namespace CLI {
-
-    class CallForCommandline : public CLI::Success {
-    public:
-        enum class Mode { REQUIRED, CONFIGURED, ALL };
-
-        CallForCommandline(CLI::App* app, Mode mode)
-            : CLI::Success("CallForCommandline", "A template command line is shown below:\n", CLI::ExitCodes::Success)
-            , app(app)
-            , mode(mode) {
-        }
-
-        ~CallForCommandline() override;
-
-        CLI::App* getApp() const {
-            return app;
-        }
-
-        Mode getMode() const {
-            return mode;
-        }
-
-    private:
-        CLI::App* app;
-        Mode mode;
-    };
-
-    CallForCommandline::~CallForCommandline() {
-    }
-
-    class CallForShowConfig : public CLI::Success {
-    public:
-        CallForShowConfig()
-            : CLI::Success("CallForPrintConfig", "Show current configuration", CLI::ExitCodes::Success) {
-        }
-
-        ~CallForShowConfig() override;
-    };
-
-    CallForShowConfig::~CallForShowConfig() {
-    }
-
-    class CallForWriteConfig : public CLI::Success {
-    public:
-        explicit CallForWriteConfig(const std::string& configFile)
-            : CLI::Success("CallForWriteConfig", "Writing config file: " + configFile, CLI::ExitCodes::Success)
-            , configFile(configFile) {
-        }
-
-        ~CallForWriteConfig() override;
-
-        std::string getConfigFile() const {
-            return configFile;
-        }
-
-    private:
-        std::string configFile;
-    };
-
-    CallForWriteConfig::~CallForWriteConfig() {
-    }
-
-} // namespace CLI
 
 namespace utils {
 
@@ -327,8 +247,11 @@ namespace utils {
                 ->check(!CLI::ExistingDirectory)
                 ->expected(0, 1);
 
-            app.add_flag( //
+            app.add_flag_callback( //
                    "-s,--show-config",
+                   []() {
+                       throw CLI::CallForShowConfig(&app);
+                   },
                    "Show current configuration and exit") //
                 ->configurable(false)
                 ->disable_flag_override();
@@ -694,9 +617,6 @@ namespace utils {
             try {
                 app.parse(argc, argv);
 
-                if (app["--show-config"]->count() > 0) {
-                    throw CLI::CallForShowConfig();
-                }
                 if (app["--write-config"]->count() > 0) {
                     throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
                 }
@@ -725,11 +645,10 @@ namespace utils {
                           << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl
                           << std::endl;
             } catch (const CLI::CallForShowConfig& e) {
-                std::cout << e.what() << std::endl;
                 try {
-                    std::cout << app.config_to_str(true, true);
+                    std::cout << e.getApp()->config_to_str(true, true);
                 } catch (const CLI::ParseError& e1) {
-                    std::cout << "Error showing config file: " << e1.get_name() << " " << e1.what() << std::endl;
+                    std::cout << "Error showing config file: " << e.getApp() << " " << e1.get_name() << " " << e1.what() << std::endl;
                     throw;
                 }
             } catch (const CLI::CallForWriteConfig& e) {
@@ -820,6 +739,16 @@ namespace utils {
             }
         }
 
+        instance
+            ->add_flag_callback( //
+                "-s,--show-config",
+                [instance]() {
+                    throw CLI::CallForShowConfig(instance);
+                },
+                "Show current configuration and exit") //
+            ->configurable(false)
+            ->disable_flag_override();
+
         instance //
             ->add_flag_callback(
                 "--command-line",
@@ -873,6 +802,9 @@ namespace utils {
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
+
+        instance->final_callback([]() -> void {
+        });
 
         return instance;
     }
