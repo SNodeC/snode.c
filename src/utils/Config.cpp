@@ -269,8 +269,9 @@ namespace utils {
             app.add_flag_callback(
                    "--command-line-required",
                    []() {
-                       throw CLI::CallForCommandline(
-                           &app, "Below is a command line showing required options only", CLI::CallForCommandline::Mode::REQUIRED);
+                       throw CLI::CallForCommandline(&app,
+                                                     "Below is a command line showing required and not yet configured options only",
+                                                     CLI::CallForCommandline::Mode::REQUIRED);
                    },
                    "Print a command line showing required options only")
                 ->configurable(false)
