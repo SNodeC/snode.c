@@ -54,25 +54,26 @@ namespace web::http {
     public:
         virtual std::string name() = 0;
 
-        void prepare(Request& request, Response& response);
-
-        void incRefCount();
-
-        void decRefCount();
-
-        virtual void checkRefCount() = 0;
-
     protected:
         std::size_t refCount = 0;
 
-    private:
-        Request* request = nullptr;
-        Response* response = nullptr;
+        void prepare(Request& request, Response& response);
 
+    private:
         virtual SocketContextUpgrade<Request, Response>*
         create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
 
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
+
+        void incRefCount();
+        void decRefCount();
+
+        virtual void checkRefCount() = 0;
+
+        Request* request = nullptr;
+        Response* response = nullptr;
+
+        friend class SocketContextUpgrade<Request, Response>;
     };
 
 } // namespace web::http

@@ -48,6 +48,8 @@ namespace web::http::server {
         void checkRefCount() final;
 
         static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
+
+        friend class SocketContextUpgradeFactorySelector;
     };
 
 } // namespace web::http::server
