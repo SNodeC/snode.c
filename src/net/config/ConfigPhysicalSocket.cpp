@@ -73,7 +73,7 @@ namespace net::config {
 
         add_option(retryTriesOpt, //
                    "--retry-tries",
-                   "Number of retry attempts bevore giving up (0 = unlimited)",
+                   "Number of retry attempts before giving up (0 = unlimited)",
                    "tries",
                    RETRY_TRIES,
                    CLI::TypeValidator<unsigned int>());

@@ -64,14 +64,14 @@ namespace net::config {
                 }
                 utils::ResetToDefault(this->reconnectOpt)(static_cast<int64_t>(this->reconnectOpt->as<bool>()));
             },
-            "Automatically retry listen|connect",
+            "Auto-reconnection in the event of a connection interruption",
             "bool",
             XSTR(RECONNECT),
             CLI::IsMember({"true", "false"}));
 
         Super::add_option(reconnectTimeOpt, //
                           "--reconnect-time",
-                          "Duration after disconnect bevore reconnect",
+                          "Duration after disconnect before reconnect",
                           "sec",
                           RECONNECT_TIME,
                           CLI::NonNegativeNumber);
