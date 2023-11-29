@@ -543,30 +543,9 @@ namespace utils {
             // Do not process ParseError here but on second parse pass
         }
 
-        app.set_help_flag();
+        add_help_options(&app);
 
-        app.add_flag_callback( //
-               "-h,--help",
-               []() {
-                   throw CLI::CallForHelp();
-               },
-               "Print this help message") //
-            ->configurable(false)
-            ->disable_flag_override()
-            ->trigger_on_parse();
-
-        app.add_flag_callback( //
-               "-a,--help-all",
-               []() {
-                   throw CLI::CallForAllHelp();
-               },
-               "Print this help message, expand instances")
-            ->configurable(false)
-            ->disable_flag_override()
-            ->trigger_on_parse();
-
-        if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0 &&
-            app["--command-line-required"]->count() == 0 && app["--command-line-full"]->count() == 0) {
+        if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0) {
             app.allow_extras(false);
             app.allow_config_extras(false);
         }
@@ -693,11 +672,61 @@ namespace utils {
         }
 
         add_standard_options(instance);
+        add_help_options(instance);
 
-        instance //
+        if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0) {
+            app.allow_extras(false);
+            app.allow_config_extras(false);
+        }
+
+        return instance;
+    }
+
+    CLI::App* Config::add_standard_options(CLI::App* app) {
+        app->add_flag_callback( //
+               "-s,--show-config",
+               [app]() {
+                   throw CLI::CallForShowConfig(app);
+               },
+               "Show current configuration and exit") //
+            ->configurable(false)
+            ->disable_flag_override();
+
+        app //
+            ->add_flag_function(
+                "--command-line{std}",
+                [app]([[maybe_unused]] std::int64_t count) {
+                    const std::string& result = app->get_option("--command-line")->as<std::string>();
+                    if (result == "std") {
+                        throw CLI::CallForCommandline(
+                            app, "Below is a command line showing all non default options", CLI::CallForCommandline::Mode::NONDEFAULT);
+                    }
+                    if (result == "max") {
+                        throw CLI::CallForCommandline(
+                            app, "Below is a command line showing the full set of options", CLI::CallForCommandline::Mode::FULL);
+                    }
+                    if (result == "min") {
+                        throw CLI::CallForCommandline(
+                            app, "Below is a command line showing required options only", CLI::CallForCommandline::Mode::REQUIRED);
+                    }
+                },
+                "Print a command line\n"
+                "  std (default): Show all no default options\n"
+                "  min: Show required options only\n"
+                "  max: Show the full set of options")
+            ->take_last()
+            ->configurable(false)
+            ->type_name("[mode]")
+            ->check(CLI::IsMember({"std", "min", "max"}));
+
+        return app;
+    }
+
+    CLI::App* Config::add_help_options(CLI::App* app) {
+        app //
             ->set_help_flag();
 
-        instance                 //
+        app                      //
             ->add_flag_callback( //
                 "-h,--help",
                 []() {
@@ -708,7 +737,7 @@ namespace utils {
             ->disable_flag_override()
             ->trigger_on_parse();
 
-        instance                 //
+        app                      //
             ->add_flag_callback( //
                 "-a,--help-all",
                 []() {
@@ -719,60 +748,7 @@ namespace utils {
             ->disable_flag_override()
             ->trigger_on_parse();
 
-        if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0 &&
-            app["--command-line-required"]->count() == 0 && app["--command-line-full"]->count() == 0) {
-            app.allow_extras(false);
-            app.allow_config_extras(false);
-        }
-
-        return instance;
-    }
-
-    CLI::App* Config::add_standard_options(CLI::App* instance) {
-        instance
-            ->add_flag_callback( //
-                "-s,--show-config",
-                [instance]() {
-                    throw CLI::CallForShowConfig(instance);
-                },
-                "Show current configuration and exit") //
-            ->configurable(false)
-            ->disable_flag_override();
-
-        instance //
-            ->add_flag_callback(
-                "--command-line",
-                [instance]() {
-                    throw CLI::CallForCommandline(
-                        instance, "Below is a command line showing all non default options", CLI::CallForCommandline::Mode::NONDEFAULT);
-                },
-                "Print a command line showing all non default options") //
-            ->configurable(false)
-            ->disable_flag_override();
-
-        instance //
-            ->add_flag_callback(
-                "--command-line-required",
-                [instance]() {
-                    throw CLI::CallForCommandline(
-                        instance, "Below is a command line showing required options only", CLI::CallForCommandline::Mode::REQUIRED);
-                },
-                "Print a command line showing required options only")
-            ->configurable(false)
-            ->disable_flag_override();
-
-        instance //
-            ->add_flag_callback(
-                "--command-line-full",
-                [instance]() {
-                    throw CLI::CallForCommandline(
-                        instance, "Below is a command line showing the full set of options", CLI::CallForCommandline::Mode::FULL);
-                },
-                "Print a command line showing the full set of options")
-            ->configurable(false)
-            ->disable_flag_override();
-
-        return instance;
+        return app;
     }
 
     void Config::required(CLI::App* instance, bool req) {
