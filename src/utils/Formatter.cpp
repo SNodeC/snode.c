@@ -338,7 +338,7 @@ namespace CLI {
                 if (opt->get_expected_max() == detail::expected_max_vector_size) {
                     out << "... ";
                 } else if (opt->get_expected_min() > 1) {
-                    out << "x " << opt->get_expected() << " ";
+                    out << " " << opt->get_expected() << " ";
                 }
                 if (opt->get_required() && !get_label("REQUIRED").empty()) {
                     out << " " << get_label("REQUIRED") << " ";
