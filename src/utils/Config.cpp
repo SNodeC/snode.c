@@ -538,12 +538,6 @@ namespace utils {
         try {
             app.parse(argc, argv);
 
-            if (!quietOpt->as<bool>()) {
-                logger::Logger::setLogLevel(logLevelOpt->as<int>());
-                logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
-            } else {
-                logger::Logger::quiet();
-            }
         } catch (const CLI::ParseError&) {
             // Do not process ParseError here but on second parse pass
         }
@@ -566,6 +560,14 @@ namespace utils {
                 if (app["--write-config"]->count() > 0) {
                     throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
                 }
+
+                if (!quietOpt->as<bool>()) {
+                    logger::Logger::setLogLevel(logLevelOpt->as<int>());
+                    logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+                } else {
+                    logger::Logger::quiet();
+                }
+
                 completed = true;
             } catch (const CLI::CallForHelp&) {
                 std::cout << app.help() << std::endl;
