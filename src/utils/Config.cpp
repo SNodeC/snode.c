@@ -247,46 +247,6 @@ namespace utils {
                 ->check(!CLI::ExistingDirectory)
                 ->expected(0, 1);
 
-            app.add_flag_callback( //
-                   "-s,--show-config",
-                   []() {
-                       throw CLI::CallForShowConfig(&app);
-                   },
-                   "Show current configuration and exit") //
-                ->configurable(false)
-                ->disable_flag_override();
-
-            app.add_flag_callback(
-                   "--command-line",
-                   []() {
-                       throw CLI::CallForCommandline(
-                           &app, "Below is a command line showing all non default options", CLI::CallForCommandline::Mode::NONDEFAULT);
-                   },
-                   "Print a command line showing all non default options") //
-                ->configurable(false)
-                ->disable_flag_override();
-
-            app.add_flag_callback(
-                   "--command-line-required",
-                   []() {
-                       throw CLI::CallForCommandline(&app,
-                                                     "Below is a command line showing required and not yet configured options only",
-                                                     CLI::CallForCommandline::Mode::REQUIRED);
-                   },
-                   "Print a command line showing required options only")
-                ->configurable(false)
-                ->disable_flag_override();
-
-            app.add_flag_callback(
-                   "--command-line-full",
-                   []() {
-                       throw CLI::CallForCommandline(
-                           &app, "Below is a command line showing all possible options", CLI::CallForCommandline::Mode::FULL);
-                   },
-                   "Print a command line showing all possible options")
-                ->configurable(false)
-                ->disable_flag_override();
-
             app.add_flag( //
                    "-k,--kill",
                    "Kill running daemon") //
@@ -307,9 +267,7 @@ namespace utils {
                     }
                 });
 
-            app.set_version_flag( //
-                "--version",
-                "0.9.8");
+            add_standard_options(&app);
 
             logLevelOpt = app.add_option_function<std::string>( //
                                  "-l,--log-level",
@@ -585,6 +543,8 @@ namespace utils {
             // Do not process ParseError here but on second parse pass
         }
 
+        app.set_help_flag();
+
         app.add_flag_callback( //
                "-h,--help",
                []() {
@@ -732,6 +692,43 @@ namespace utils {
             }
         }
 
+        add_standard_options(instance);
+
+        instance //
+            ->set_help_flag();
+
+        instance                 //
+            ->add_flag_callback( //
+                "-h,--help",
+                []() {
+                    throw CLI::CallForHelp();
+                },
+                "Print this help message") //
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse();
+
+        instance                 //
+            ->add_flag_callback( //
+                "-a,--help-all",
+                []() {
+                    throw CLI::CallForAllHelp();
+                },
+                "Print this help message, expand instances")
+            ->configurable(false)
+            ->disable_flag_override()
+            ->trigger_on_parse();
+
+        if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0 &&
+            app["--command-line-required"]->count() == 0 && app["--command-line-full"]->count() == 0) {
+            app.allow_extras(false);
+            app.allow_config_extras(false);
+        }
+
+        return instance;
+    }
+
+    CLI::App* Config::add_standard_options(CLI::App* instance) {
         instance
             ->add_flag_callback( //
                 "-s,--show-config",
@@ -769,38 +766,11 @@ namespace utils {
                 "--command-line-full",
                 [instance]() {
                     throw CLI::CallForCommandline(
-                        instance, "Below is a command line showing all possible options", CLI::CallForCommandline::Mode::FULL);
+                        instance, "Below is a command line showing the full set of options", CLI::CallForCommandline::Mode::FULL);
                 },
-                "Print a command line showing all possible options")
+                "Print a command line showing the full set of options")
             ->configurable(false)
             ->disable_flag_override();
-
-        instance->set_help_flag();
-
-        instance //
-            ->add_flag_callback(
-                "-h,--help",
-                []() {
-                    throw CLI::CallForHelp();
-                },
-                "Print this help message")
-            ->configurable(false)
-            ->disable_flag_override()
-            ->trigger_on_parse();
-
-        instance //
-            ->add_flag_callback(
-                "-a,--help-all",
-                []() {
-                    throw CLI::CallForAllHelp();
-                },
-                "Print this help message, expand sections")
-            ->configurable(false)
-            ->disable_flag_override()
-            ->trigger_on_parse();
-
-        instance->final_callback([]() -> void {
-        });
 
         return instance;
     }
