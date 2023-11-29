@@ -28,6 +28,7 @@
 #include "utils/Exceptions.h"
 
 #include <cerrno>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
@@ -370,8 +371,7 @@ namespace utils {
 
         app.final_callback([]() -> void {
             if (daemonizeOpt->as<bool>() && app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 &&
-                app["--command-line"]->count() == 0 && app["--command-line-required"]->count() == 0 &&
-                app["--command-line-full"]->count() == 0) {
+                app["--command-line"]->count() == 0) {
                 std::cout << "Running as daemon" << std::endl;
 
                 try {
@@ -465,7 +465,12 @@ namespace utils {
             outString += " ";
         }
 
-        outString += createCommandLineSubcommands(app, mode);
+        CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
+        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::FULL ||
+            mode == CLI::CallForCommandline::Mode::REQUIRED) {
+            outString += createCommandLineSubcommands(app, mode);
+        }
+
         if (!outString.empty()) {
             out << app->get_name() << " " << outString;
         }
@@ -574,6 +579,7 @@ namespace utils {
                           << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE << "~/> "
                           << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl
                           << std::endl;
+                std::cout << "* Options show either their configured or default value" << std::endl;
                 std::cout << "* Required but not yet configured options show <REQUIRED> as value " << std::endl;
                 std::cout << "* Options marked as <REQUIRED> need to be configured for a successful bootstrap" << std::endl;
             } catch (const CLI::CallForShowConfig& e) {
@@ -701,23 +707,23 @@ namespace utils {
                         throw CLI::CallForCommandline(
                             app, "Below is a command line showing all non default options", CLI::CallForCommandline::Mode::NONDEFAULT);
                     }
-                    if (result == "max") {
-                        throw CLI::CallForCommandline(
-                            app, "Below is a command line showing the full set of options", CLI::CallForCommandline::Mode::FULL);
-                    }
-                    if (result == "min") {
+                    if (result == "req") {
                         throw CLI::CallForCommandline(
                             app, "Below is a command line showing required options only", CLI::CallForCommandline::Mode::REQUIRED);
                     }
+                    if (result == "cmp") {
+                        throw CLI::CallForCommandline(
+                            app, "Below is a command line showing the complete set of options", CLI::CallForCommandline::Mode::FULL);
+                    }
                 },
                 "Print a command line\n"
-                "  std (default): Show all no default options\n"
-                "  min: Show required options only\n"
-                "  max: Show the full set of options")
+                "  std [standard] (default): Show all no default options\n"
+                "  req [required]: Show required options only\n"
+                "  cmp [complete]: Show the complete set of options")
             ->take_last()
             ->configurable(false)
             ->type_name("[mode]")
-            ->check(CLI::IsMember({"std", "min", "max"}));
+            ->check(CLI::IsMember({"std", "req", "cmp"}));
 
         return app;
     }
