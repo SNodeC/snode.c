@@ -135,7 +135,7 @@ namespace core {
 
     int EventLoop::start(const utils::Timeval& timeOut) {
         if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
-            LOG(TRACE) << "Core::Eventloop: started";
+            LOG(TRACE) << "Core::EventLoop: started";
 
             struct sigaction sact {};
             sigemptyset(&sact.sa_mask);
