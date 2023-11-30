@@ -664,7 +664,7 @@ namespace utils {
                                  ->fallthrough()
                                  ->formatter(sectionFormatter)
                                  ->configurable(false)
-                                 ->allow_extras(app.get_allow_extras())
+                                 ->allow_extras(false)
                                  ->disabled(name.empty());
 
         instance //

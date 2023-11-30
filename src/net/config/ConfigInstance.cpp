@@ -75,7 +75,7 @@ namespace net::config {
                                   ->add_subcommand(name, description)
                                   ->fallthrough()
                                   ->configurable(false)
-                                  ->allow_extras(instanceSc->get_allow_extras())
+                                  ->allow_extras(false)
                                   ->group("Sections")
                                   ->disabled(this->instanceName.empty());
 
