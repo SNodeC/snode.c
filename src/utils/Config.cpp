@@ -466,8 +466,7 @@ namespace utils {
         }
 
         CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
-        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::FULL ||
-            mode == CLI::CallForCommandline::Mode::REQUIRED) {
+        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::FULL) {
             outString += createCommandLineSubcommands(app, mode);
         }
 
@@ -581,7 +580,7 @@ namespace utils {
                           << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl
                           << std::endl;
                 std::cout << "* Options show either their configured or default value" << std::endl;
-                std::cout << "* Required but not yet configured options show <REQUIRED> as value " << std::endl;
+                std::cout << "* Required but not yet configured options show <REQUIRED> as value" << std::endl;
                 std::cout << "* Options marked as <REQUIRED> need to be configured for a successful bootstrap" << std::endl;
             } catch (const CLI::CallForShowConfig& e) {
                 try {
@@ -709,8 +708,9 @@ namespace utils {
                 [app]([[maybe_unused]] std::int64_t count) {
                     const std::string& result = app->get_option("--command-line")->as<std::string>();
                     if (result == "std") {
-                        throw CLI::CallForCommandline(
-                            app, "Below is a command line showing all non default options", CLI::CallForCommandline::Mode::NONDEFAULT);
+                        throw CLI::CallForCommandline(app,
+                                                      "Below is a command line showing all non default and required options",
+                                                      CLI::CallForCommandline::Mode::NONDEFAULT);
                     }
                     if (result == "req") {
                         throw CLI::CallForCommandline(
@@ -722,7 +722,7 @@ namespace utils {
                     }
                 },
                 "Print a command line\n"
-                "  std [standard] (default): Show all no default options\n"
+                "  std [standard] (default): Show all no default and required options\n"
                 "  req [required]: Show required options only\n"
                 "  cmp [complete]: Show the complete set of options")
             ->take_last()
