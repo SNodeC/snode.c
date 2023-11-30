@@ -54,7 +54,7 @@ namespace logger {
 
         static void logToFile(const std::string& logFile);
 
-        static void quiet();
+        static void setQuiet(bool quiet = true);
 
         static void setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver);
 

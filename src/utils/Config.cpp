@@ -387,7 +387,7 @@ namespace utils {
                     std::exit(EXIT_SUCCESS);
                 }
 
-                logger::Logger::quiet();
+                logger::Logger::setQuiet();
 
                 const std::string logFile = logFileOpt->as<std::string>();
                 if (!logFile.empty()) {
@@ -548,6 +548,12 @@ namespace utils {
             app.allow_extras(false);
             app.allow_config_extras(false);
         }
+
+        if (!quietOpt->as<bool>()) {
+            logger::Logger::setLogLevel(logLevelOpt->as<int>());
+            logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+        }
+        logger::Logger::setQuiet(quietOpt->as<bool>());
     }
 
     bool Config::parse2() {

@@ -110,10 +110,10 @@ namespace logger {
         el::Loggers::setDefaultConfigurations(conf, true);
     }
 
-    void Logger::quiet() {
+    void Logger::setQuiet(bool quiet) {
         el::Configurations conf = *el::Loggers::defaultConfigurations();
 
-        conf.setGlobally(el::ConfigurationType::ToStandardOutput, "false");
+        conf.setGlobally(el::ConfigurationType::ToStandardOutput, quiet ? "false" : "true");
 
         el::Loggers::setDefaultConfigurations(conf, true);
     }
