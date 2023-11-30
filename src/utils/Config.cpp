@@ -627,10 +627,10 @@ namespace utils {
                 throw;
             }
         } catch (const CLI::ParseError&) {
-            std::cout << std::endl << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
+            std::cout << std::endl << "Append -h or --help  to your command line for more information." << std::endl;
         } catch (const CLI::Error& e) {
             std::cout << "Error: " << e.get_name() << " " << e.what() << std::endl;
-            std::cout << "Append -h, --help, or --help-all to your command line for more information." << std::endl;
+            std::cout << "Append -h or --help to your command line for more information." << std::endl;
         }
 
         return completed;
@@ -741,17 +741,6 @@ namespace utils {
                     throw CLI::CallForHelp();
                 },
                 "Print this help message") //
-            ->configurable(false)
-            ->disable_flag_override()
-            ->trigger_on_parse();
-
-        app                      //
-            ->add_flag_callback( //
-                "-a,--help-all",
-                []() {
-                    throw CLI::CallForAllHelp();
-                },
-                "Print this help message, expand instances")
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
