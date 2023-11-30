@@ -551,7 +551,7 @@ namespace utils {
     }
 
     bool Config::parse2() {
-        bool completed = false;
+        bool success = false;
 
         try {
             try {
@@ -561,14 +561,7 @@ namespace utils {
                     throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
                 }
 
-                if (!quietOpt->as<bool>()) {
-                    logger::Logger::setLogLevel(logLevelOpt->as<int>());
-                    logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
-                } else {
-                    logger::Logger::quiet();
-                }
-
-                completed = true;
+                success = true;
             } catch (const CLI::CallForHelp&) {
                 std::cout << app.help() << std::endl;
             } catch (const CLI::CallForAllHelp&) {
@@ -633,7 +626,11 @@ namespace utils {
             std::cout << "Append -h or --help to your command line for more information." << std::endl;
         }
 
-        return completed;
+        if (!success) { // cppcheck-suppress knownConditionTrueFalse
+            logger::Logger::setQuiet();
+        }
+
+        return success;
     }
 
     void Config::terminate() {
