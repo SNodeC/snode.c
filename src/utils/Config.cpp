@@ -405,54 +405,60 @@ namespace utils {
     }
 
     static void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
-        for (const CLI::Option* option : app->get_options()) {
-            if (option->get_configurable()) {
-                std::string value;
+        CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
+        const bool disabled = disabledOpt != nullptr ? disabledOpt->as<bool>() : false;
+        if (!disabled || mode == CLI::CallForCommandline::Mode::DEFAULT || mode == CLI::CallForCommandline::Mode::COMPLETE) {
+            for (const CLI::Option* option : app->get_options()) {
+                if (option->get_configurable()) {
+                    std::string value;
 
-                switch (mode) {
-                    case CLI::CallForCommandline::Mode::NONEDEFAULT:
-                        if (option->count() > 0) {
-                            value = option->as<std::string>();
-                        } else if (option->get_required()) {
-                            value = "<REUQUIRED>";
-                        }
-                        break;
-                    case CLI::CallForCommandline::Mode::REQUIRED:
-                        if (option->get_required()) {
+                    switch (mode) {
+                        case CLI::CallForCommandline::Mode::NONEDEFAULT:
                             if (option->count() > 0) {
                                 value = option->as<std::string>();
+                            } else if (option->get_required()) {
+                                value = "<REUQUIRED>";
+                            }
+                            break;
+                        case CLI::CallForCommandline::Mode::REQUIRED:
+                            if (option->get_required()) {
+                                if (option->count() > 0) {
+                                    value = option->as<std::string>();
+                                } else {
+                                    value = "<REQUIRED>";
+                                }
+                            }
+                            break;
+                        case CLI::CallForCommandline::Mode::COMPLETE:
+                            if (option->count() > 0) {
+                                value = option->as<std::string>();
+                            } else if (!option->get_default_str().empty()) {
+                                value = option->get_default_str();
+                            } else if (!option->get_required()) {
+                                value = "\"\"";
                             } else {
                                 value = "<REQUIRED>";
                             }
+                            break;
+                        case CLI::CallForCommandline::Mode::DEFAULT: {
+                            if (!option->get_default_str().empty()) {
+                                value = option->get_default_str();
+                            } else if (!option->get_required()) {
+                                value = "\"\"";
+                            } else {
+                                value = "<REQUIRED>";
+                            }
+                            break;
                         }
-                        break;
-                    case CLI::CallForCommandline::Mode::FULL:
-                        if (option->count() > 0) {
-                            value = option->as<std::string>();
-                        } else if (!option->get_default_str().empty()) {
-                            value = option->get_default_str();
-                        } else if (!option->get_required()) {
-                            value = "\"\"";
-                        } else {
-                            value = "<REQUIRED>";
-                        }
-                        break;
-                    case CLI::CallForCommandline::Mode::DEFAULT: {
-                        if (!option->get_default_str().empty()) {
-                            value = option->get_default_str();
-                        } else if (!option->get_required()) {
-                            value = "\"\"";
-                        } else {
-                            value = "<REQUIRED>";
-                        }
-                        break;
+                    }
+
+                    if (!value.empty()) {
+                        out << "--" << option->get_single_name() << ((option->get_items_expected_max() == 0) ? "=" : " ") << value << " ";
                     }
                 }
-
-                if (!value.empty()) {
-                    out << "--" << option->get_single_name() << ((option->get_items_expected_max() == 0) ? "=" : " ") << value << " ";
-                }
             }
+        } else if (disabledOpt->get_default_str() == "false") {
+            out << "--disabled=true ";
         }
     }
 
@@ -473,7 +479,8 @@ namespace utils {
         std::stringstream out;
 
         CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
-        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::FULL) {
+        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::DEFAULT ||
+            mode == CLI::CallForCommandline::Mode::COMPLETE) {
             for (CLI::App* subcommand : app->get_subcommands({})) {
                 if (!subcommand->get_name().empty()) {
                     createCommandLineTemplate(out, subcommand, mode);
@@ -742,7 +749,7 @@ namespace utils {
                     }
                     if (result == "complete") {
                         throw CLI::CallForCommandline(
-                            app, "Below is a command line showing the complete set of options", CLI::CallForCommandline::Mode::FULL);
+                            app, "Below is a command line showing the complete set of options", CLI::CallForCommandline::Mode::COMPLETE);
                     }
                     if (result == "default") {
                         throw CLI::CallForCommandline(

@@ -49,7 +49,7 @@ namespace CLI {
 
     class CallForCommandline : public CLI::Success {
     public:
-        enum class Mode { REQUIRED, NONEDEFAULT, FULL, DEFAULT };
+        enum class Mode { REQUIRED, NONEDEFAULT, COMPLETE, DEFAULT };
 
         CallForCommandline(CLI::App* app, const std::string& description, Mode mode);
         ~CallForCommandline() override;
