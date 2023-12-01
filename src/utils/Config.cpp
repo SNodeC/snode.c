@@ -409,20 +409,44 @@ namespace utils {
             if (option->get_configurable()) {
                 std::string value;
 
-                if (!option->reduced_results().empty() && ((option->get_required() || mode == CLI::CallForCommandline::Mode::FULL) ||
-                                                           mode == CLI::CallForCommandline::Mode::NONDEFAULT)) {
-                    value = option->reduced_results()[0];
-                } else if (!option->get_default_str().empty()) {
-                    value = (mode == CLI::CallForCommandline::Mode::FULL || option->get_required()) ? option->get_default_str() : "";
-                } else if (option->get_required()) {
-                    value = "<REQUIRED>";
-                } else {
-                    value = mode == CLI::CallForCommandline::Mode::FULL ? "\"\"" : "";
-                }
-
-                if (value.empty() && option->count() > 0 &&
-                    (mode == CLI::CallForCommandline::Mode::FULL || mode == CLI::CallForCommandline::Mode::NONDEFAULT)) {
-                    value = "\"\"";
+                switch (mode) {
+                    case CLI::CallForCommandline::Mode::NONEDEFAULT:
+                        if (option->count() > 0) {
+                            value = option->as<std::string>();
+                        } else if (option->get_required()) {
+                            value = "<REUQUIRED>";
+                        }
+                        break;
+                    case CLI::CallForCommandline::Mode::REQUIRED:
+                        if (option->get_required()) {
+                            if (option->count() > 0) {
+                                value = option->as<std::string>();
+                            } else {
+                                value = "<REQUIRED>";
+                            }
+                        }
+                        break;
+                    case CLI::CallForCommandline::Mode::FULL:
+                        if (option->count() > 0) {
+                            value = option->as<std::string>();
+                        } else if (!option->get_default_str().empty()) {
+                            value = option->get_default_str();
+                        } else if (!option->get_required()) {
+                            value = "\"\"";
+                        } else {
+                            value = "<REQUIRED>";
+                        }
+                        break;
+                    case CLI::CallForCommandline::Mode::DEFAULT: {
+                        if (!option->get_default_str().empty()) {
+                            value = option->get_default_str();
+                        } else if (!option->get_required()) {
+                            value = "\"\"";
+                        } else {
+                            value = "<REQUIRED>";
+                        }
+                        break;
+                    }
                 }
 
                 if (!value.empty()) {
@@ -704,31 +728,37 @@ namespace utils {
 
         app //
             ->add_flag_function(
-                "--command-line{std}",
+                "--command-line{standard}",
                 [app]([[maybe_unused]] std::int64_t count) {
                     const std::string& result = app->get_option("--command-line")->as<std::string>();
-                    if (result == "std") {
+                    if (result == "standard") {
                         throw CLI::CallForCommandline(app,
                                                       "Below is a command line showing all non default and required options",
-                                                      CLI::CallForCommandline::Mode::NONDEFAULT);
+                                                      CLI::CallForCommandline::Mode::NONEDEFAULT);
                     }
-                    if (result == "req") {
+                    if (result == "required") {
                         throw CLI::CallForCommandline(
                             app, "Below is a command line showing required options only", CLI::CallForCommandline::Mode::REQUIRED);
                     }
-                    if (result == "cmp") {
+                    if (result == "complete") {
                         throw CLI::CallForCommandline(
                             app, "Below is a command line showing the complete set of options", CLI::CallForCommandline::Mode::FULL);
                     }
+                    if (result == "default") {
+                        throw CLI::CallForCommandline(
+                            app, "Below is a command line showing default and required options", CLI::CallForCommandline::Mode::DEFAULT);
+                    }
                 },
                 "Print a command line\n"
-                "  std [standard] (default): Show all no default and required options\n"
-                "  req [required]: Show required options only\n"
-                "  cmp [complete]: Show the complete set of options")
+                "Mode:\n"
+                "  standard (default): Show all no default and required options\n"
+                "  required: Show required options only\n"
+                "  complete: Show the complete set of options\n"
+                "  default: Show all default and required options")
             ->take_last()
             ->configurable(false)
             ->type_name("[mode]")
-            ->check(CLI::IsMember({"std", "req", "cmp"}));
+            ->check(CLI::IsMember({"standard", "required", "complete", "default"}));
 
         return app;
     }
