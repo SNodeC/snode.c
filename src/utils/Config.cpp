@@ -448,9 +448,12 @@ namespace utils {
     static std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream out;
 
-        for (CLI::App* subcommand : app->get_subcommands({})) {
-            if (!subcommand->get_name().empty()) {
-                createCommandLineTemplate(out, subcommand, mode);
+        CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
+        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::FULL) {
+            for (CLI::App* subcommand : app->get_subcommands({})) {
+                if (!subcommand->get_name().empty()) {
+                    createCommandLineTemplate(out, subcommand, mode);
+                }
             }
         }
 
@@ -465,10 +468,7 @@ namespace utils {
             outString += " ";
         }
 
-        CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
-        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::FULL) {
-            outString += createCommandLineSubcommands(app, mode);
-        }
+        outString += createCommandLineSubcommands(app, mode);
 
         if (!outString.empty()) {
             out << app->get_name() << " " << outString;
