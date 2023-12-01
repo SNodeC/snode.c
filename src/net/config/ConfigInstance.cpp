@@ -41,7 +41,7 @@ namespace net::config {
 
         disableOpt = instanceSc
                          ->add_flag_function(
-                             "--disabled",
+                             "--disabled{true}",
                              [this]([[maybe_unused]] int64_t count) -> void {
                                  utils::Config::required(instanceSc, !disableOpt->as<bool>());
                              },

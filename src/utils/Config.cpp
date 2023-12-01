@@ -203,6 +203,7 @@ namespace utils {
             sectionFormatter->label("None Persistent Options", "Options (none persistent)");
             sectionFormatter->label("Usage", "\nUsage");
             sectionFormatter->label("bool:{true,false}", "{true,false}");
+            sectionFormatter->label("[mode]:{standard,required,full,default}", "{standard,required,full,default}");
             sectionFormatter->column_width(7);
 
             app.configurable(false);
@@ -216,6 +217,7 @@ namespace utils {
             app.get_formatter()->label("None Persistent Options", "Options (none persistent)");
             app.get_formatter()->label("Usage", "\nUsage");
             app.get_formatter()->label("bool:{true,false}", "{true,false}");
+            app.get_formatter()->label("[mode]:{standard,required,full,default}", "{standard,required,full,default}");
             app.get_formatter()->column_width(7);
 
             app.option_defaults()->take_last();
@@ -289,7 +291,7 @@ namespace utils {
                                   ->group(app.get_formatter()->get_label("Persistent Options"));
 
             quietOpt = app.add_flag_function( //
-                              "-q{true},!-u,--quiet",
+                              "-q{true},!-u,--quiet{true}",
                               utils::ResetToDefault(quietOpt),
                               "Quiet mode") //
                            ->take_last()
@@ -301,14 +303,14 @@ namespace utils {
             logFileOpt = app.add_option_function<std::string>( //
                                 "--log-file",
                                 utils::ResetToDefault(logFileOpt),
-                                "Logfile path") //
+                                "Log file path") //
                              ->default_val(logDirectory + "/" + applicationName + ".log")
                              ->type_name("logfile")
                              ->check(!CLI::ExistingDirectory)
                              ->group(app.get_formatter()->get_label("Persistent Options"));
 
             enforceLogFileOpt = app.add_flag_function( //
-                                       "-e{true},!-n,--enforce-log-file",
+                                       "-e{true},!-n,--enforce-log-file{true}",
                                        utils::ResetToDefault(enforceLogFileOpt),
                                        "Enforce writing of logs to file for foreground applications") //
                                     ->take_last()
@@ -318,7 +320,7 @@ namespace utils {
                                     ->group(app.get_formatter()->get_label("Persistent Options"));
 
             daemonizeOpt = app.add_flag_function( //
-                                  "-d{true},!-f,--daemonize",
+                                  "-d{true},!-f,--daemonize{true}",
                                   utils::ResetToDefault(daemonizeOpt),
                                   "Start application as daemon") //
                                ->take_last()
@@ -407,7 +409,7 @@ namespace utils {
     static void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
         CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
         const bool disabled = disabledOpt != nullptr ? disabledOpt->as<bool>() : false;
-        if (!disabled || mode == CLI::CallForCommandline::Mode::DEFAULT || mode == CLI::CallForCommandline::Mode::COMPLETE) {
+        if (!disabled || mode == CLI::CallForCommandline::Mode::DEFAULT || mode == CLI::CallForCommandline::Mode::FULL) {
             for (const CLI::Option* option : app->get_options()) {
                 if (option->get_configurable()) {
                     std::string value;
@@ -429,7 +431,7 @@ namespace utils {
                                 }
                             }
                             break;
-                        case CLI::CallForCommandline::Mode::COMPLETE:
+                        case CLI::CallForCommandline::Mode::FULL:
                             if (option->count() > 0) {
                                 value = option->as<std::string>();
                             } else if (!option->get_default_str().empty()) {
@@ -480,7 +482,7 @@ namespace utils {
 
         CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
         if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::DEFAULT ||
-            mode == CLI::CallForCommandline::Mode::COMPLETE) {
+            mode == CLI::CallForCommandline::Mode::FULL) {
             for (CLI::App* subcommand : app->get_subcommands({})) {
                 if (!subcommand->get_name().empty()) {
                     createCommandLineTemplate(out, subcommand, mode);
@@ -740,32 +742,34 @@ namespace utils {
                     const std::string& result = app->get_option("--command-line")->as<std::string>();
                     if (result == "standard") {
                         throw CLI::CallForCommandline(app,
-                                                      "Below is a command line showing all non default and required options",
+                                                      "Below is a command line viewing all non-default and required options",
                                                       CLI::CallForCommandline::Mode::NONEDEFAULT);
                     }
                     if (result == "required") {
                         throw CLI::CallForCommandline(
-                            app, "Below is a command line showing required options only", CLI::CallForCommandline::Mode::REQUIRED);
+                            app, "Below is a command line viewing required options only", CLI::CallForCommandline::Mode::REQUIRED);
                     }
-                    if (result == "complete") {
+                    if (result == "full") {
                         throw CLI::CallForCommandline(
-                            app, "Below is a command line showing the complete set of options", CLI::CallForCommandline::Mode::COMPLETE);
+                            app,
+                            "Below is a command line viewing the full set of options with their default or configured values",
+                            CLI::CallForCommandline::Mode::FULL);
                     }
                     if (result == "default") {
-                        throw CLI::CallForCommandline(
-                            app, "Below is a command line showing default and required options", CLI::CallForCommandline::Mode::DEFAULT);
+                        throw CLI::CallForCommandline(app,
+                                                      "Below is a command line viewing the full set of options with their default values",
+                                                      CLI::CallForCommandline::Mode::DEFAULT);
                     }
                 },
                 "Print a command line\n"
-                "Mode:\n"
-                "  standard (default): Show all no default and required options\n"
-                "  required: Show required options only\n"
-                "  complete: Show the complete set of options\n"
-                "  default: Show all default and required options")
+                "  standard (default): View all non-default and required options\n"
+                "  required: View required options only\n"
+                "  full: View the full set of options with their default or configured values\n"
+                "  default: View the full set of options with their default values")
             ->take_last()
             ->configurable(false)
             ->type_name("[mode]")
-            ->check(CLI::IsMember({"standard", "required", "complete", "default"}));
+            ->check(CLI::IsMember({"standard", "required", "full", "default"}));
 
         return app;
     }
