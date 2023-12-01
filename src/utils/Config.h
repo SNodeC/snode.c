@@ -48,8 +48,8 @@ namespace utils {
         static void terminate();
 
         static CLI::App* add_instance(const std::string& name, const std::string& description);
-        static CLI::App* add_standard_options(CLI::App* app);
-        static CLI::App* add_help_options(CLI::App* app);
+        static CLI::App* add_standard_flags(CLI::App* app);
+        static CLI::App* add_help_flags(CLI::App* app);
 
         static void required(CLI::App* instance, bool req);
 

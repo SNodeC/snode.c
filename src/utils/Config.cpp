@@ -268,7 +268,7 @@ namespace utils {
                     }
                 });
 
-            add_standard_options(&app);
+            add_standard_flags(&app);
 
             logLevelOpt = app.add_option_function<std::string>( //
                                  "-l,--log-level",
@@ -541,7 +541,7 @@ namespace utils {
             // Do not process ParseError here but on second parse pass
         }
 
-        add_help_options(&app);
+        add_help_flags(&app);
 
         if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0) {
             app.allow_extras(false);
@@ -681,8 +681,8 @@ namespace utils {
             }
         }
 
-        add_standard_options(instance);
-        add_help_options(instance);
+        add_standard_flags(instance);
+        add_help_flags(instance);
 
         if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0) {
             app.allow_extras(false);
@@ -692,7 +692,7 @@ namespace utils {
         return instance;
     }
 
-    CLI::App* Config::add_standard_options(CLI::App* app) {
+    CLI::App* Config::add_standard_flags(CLI::App* app) {
         app->add_flag_callback( //
                "-s,--show-config",
                [app]() {
@@ -733,7 +733,7 @@ namespace utils {
         return app;
     }
 
-    CLI::App* Config::add_help_options(CLI::App* app) {
+    CLI::App* Config::add_help_flags(CLI::App* app) {
         app //
             ->set_help_flag();
 

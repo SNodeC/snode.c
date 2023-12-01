@@ -83,8 +83,8 @@ namespace net::config {
             ->option_defaults()
             ->configurable(!this->instanceName.empty());
 
-        utils::Config::add_standard_options(sectionSc);
-        utils::Config::add_help_options(sectionSc);
+        utils::Config::add_standard_flags(sectionSc);
+        utils::Config::add_help_flags(sectionSc);
 
         return sectionSc;
     }
