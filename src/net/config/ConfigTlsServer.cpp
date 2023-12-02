@@ -89,8 +89,12 @@ namespace net::config {
             return defaultValue;
         });
 
-        add_flag(
-            forceSniOpt, "--force-sni", "Force using of the Server Name Indication", "bool", "false", CLI::IsMember({"true", "false"}));
+        add_flag(forceSniOpt,
+                 "--force-sni{true}",
+                 "Force using of the Server Name Indication",
+                 "bool",
+                 "false",
+                 CLI::IsMember({"true", "false"}));
 
         section->final_callback([this]() -> void {
             for (auto& [domain, sniMap] : sniCerts) {

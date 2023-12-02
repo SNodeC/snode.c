@@ -57,7 +57,7 @@ namespace net::config {
         : net::config::ConfigPhysicalSocket(instance) {
         Super::add_flag_function(
             reconnectOpt, //
-            "--reconnect",
+            "--reconnect{true}",
             [this](int64_t) -> void {
                 if (!this->reconnectOpt->as<bool>()) {
                     this->reconnectTimeOpt->clear();

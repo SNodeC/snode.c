@@ -63,7 +63,7 @@ namespace net::config {
                    "");
 
         add_flag(useDefaultCaCertDirOpt,
-                 "--ca-use-default-cert-dir",
+                 "--ca-use-default-cert-dir{true}",
                  "Use default CA-certificate directory",
                  "bool",
                  "false",

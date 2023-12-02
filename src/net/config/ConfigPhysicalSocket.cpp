@@ -39,7 +39,7 @@ namespace net::config {
     ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
         : ConfigSection(instance, "socket", "Configuration of socket behaviour for instance '" + instance->getInstanceName() + "'") {
         add_socket_option(reuseAddressOpt, //
-                          "--reuse-address",
+                          "--reuse-address{true}",
                           SOL_SOCKET,
                           SO_REUSEADDR,
                           "Reuse socket address",
@@ -48,7 +48,7 @@ namespace net::config {
                           CLI::IsMember({"true", "false"}));
         add_flag_function(
             retryOpt, //
-            "--retry",
+            "--retry{true}",
             [this](int64_t) -> void {
                 if (!this->retryOpt->as<bool>()) {
                     this->retryTimeoutOpt->clear();
