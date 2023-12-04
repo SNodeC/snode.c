@@ -36,10 +36,11 @@
 
 namespace net::un::stream::legacy {
 
-    template <typename SocketContextFactoryT>
+    template <typename SocketContextFactoryT, typename... Args>
     using SocketClient = net::un::stream::SocketClient<core::socket::stream::legacy::SocketConnector,
                                                        net::un::stream::legacy::config::ConfigSocketClient,
-                                                       SocketContextFactoryT>;
+                                                       SocketContextFactoryT,
+                                                       Args&&...>;
 
 } // namespace net::un::stream::legacy
 

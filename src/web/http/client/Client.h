@@ -32,7 +32,7 @@
 
 namespace web::http::client {
 
-    template <template <typename SocketContextFactoryT> typename SocketClientT, typename RequestT, typename ResponseT>
+    template <template <typename SocketContextFactoryT, typename... Args> typename SocketClientT, typename RequestT, typename ResponseT>
     class Client : public SocketClientT<web::http::client::SocketContextFactory<RequestT, ResponseT>> {
     public:
         using Request = RequestT;

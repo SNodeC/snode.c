@@ -40,9 +40,7 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketAcceptorT, /* NOLINT */
-              typename SocketContextFactoryT,
-              typename = std::enable_if_t<std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>>>
+    template <typename SocketAcceptorT, typename SocketContextFactoryT, typename... Args>
     class SocketServer : public core::socket::Socket<typename SocketAcceptorT::Config> {
     private:
         using SocketAcceptor = SocketAcceptorT;
@@ -57,9 +55,10 @@ namespace core::socket::stream {
         SocketServer(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect)
+                     const std::function<void(SocketConnection*)>& onDisconnect,
+                     Args&&... args)
             : Super(name)
-            , socketContextFactory(std::make_shared<SocketContextFactory>())
+            , socketContextFactory(std::make_shared<SocketContextFactory>(std::forward<Args>(args)...))
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect) {
@@ -67,11 +66,12 @@ namespace core::socket::stream {
 
         SocketServer(const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect)
-            : SocketServer("", onConnect, onConnected, onDisconnect) {
+                     const std::function<void(SocketConnection*)>& onDisconnect,
+                     Args&&... args)
+            : SocketServer("", onConnect, onConnected, onDisconnect, std::forward<Args>(args)...) {
         }
 
-        explicit SocketServer(const std::string& name)
+        SocketServer(const std::string& name, Args&&... args)
             : SocketServer(
                   name,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
@@ -92,11 +92,12 @@ namespace core::socket::stream {
                                        socketConnection->getLocalAddress().toString();
                       LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
                                        socketConnection->getRemoteAddress().toString();
-                  }) {
+                  },
+                  std::forward<Args>(args)...) {
         }
 
-        explicit SocketServer()
-            : SocketServer("") {
+        SocketServer(Args&&... args)
+            : SocketServer("", std::forward<Args>(args)...) {
         }
 
         SocketServer(const std::string& name,

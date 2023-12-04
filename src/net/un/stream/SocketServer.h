@@ -34,13 +34,16 @@ namespace net::un::stream {
 
     template <template <typename PhysicalSocketServer, typename ConfigSocketServer> typename SocketAcceptorT,
               typename ConfigSocketServerT,
-              typename SocketContextFactoryT>
+              typename SocketContextFactoryT,
+              typename... Args>
     class SocketServer
         : public core::socket::stream::SocketServer<SocketAcceptorT<net::un::phy::stream::PhysicalSocketServer, ConfigSocketServerT>,
-                                                    SocketContextFactoryT> {
+                                                    SocketContextFactoryT,
+                                                    Args&&...> {
     private:
         using Super = core::socket::stream::SocketServer<SocketAcceptorT<net::un::phy::stream::PhysicalSocketServer, ConfigSocketServerT>,
-                                                         SocketContextFactoryT>;
+                                                         SocketContextFactoryT,
+                                                         Args&&...>;
 
     public:
         using Super::Super;

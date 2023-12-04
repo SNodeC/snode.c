@@ -34,13 +34,16 @@ namespace net::in6::stream {
 
     template <template <typename PhysicalSocketClient, typename ConfigSocketClientT> typename SocketConnectorT,
               typename ConfigSocketClientT,
-              typename SocketContextFactoryT>
+              typename SocketContextFactoryT,
+              typename... Args>
     class SocketClient
         : public core::socket::stream::SocketClient<SocketConnectorT<net::in6::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
-                                                    SocketContextFactoryT> {
+                                                    SocketContextFactoryT,
+                                                    Args&&...> {
     private:
         using Super = core::socket::stream::SocketClient<SocketConnectorT<net::in6::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
-                                                         SocketContextFactoryT>;
+                                                         SocketContextFactoryT,
+                                                         Args&&...>;
 
     public:
         using Super::Super;

@@ -39,9 +39,7 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketConnectorT,
-              typename SocketContextFactoryT,
-              typename = std::enable_if_t<std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>>>
+    template <typename SocketConnectorT, typename SocketContextFactoryT, typename... Args>
     class SocketClient : public core::socket::Socket<typename SocketConnectorT::Config> {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml
@@ -61,9 +59,10 @@ namespace core::socket::stream {
         SocketClient(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect)
+                     const std::function<void(SocketConnection*)>& onDisconnect,
+                     Args&&... args)
             : Super(name)
-            , socketContextFactory(std::make_shared<SocketContextFactory>())
+            , socketContextFactory(std::make_shared<SocketContextFactory>(std::forward<Args>(args)...))
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect) {
@@ -71,11 +70,12 @@ namespace core::socket::stream {
 
         SocketClient(const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect)
-            : SocketClient("", onConnect, onConnected, onDisconnect) {
+                     const std::function<void(SocketConnection*)>& onDisconnect,
+                     Args&&... args)
+            : SocketClient("", onConnect, onConnected, onDisconnect, std::forward<Args>(args)...) {
         }
 
-        explicit SocketClient(const std::string& name)
+        SocketClient(const std::string& name, Args&&... args)
             : SocketClient(
                   name,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
@@ -96,11 +96,12 @@ namespace core::socket::stream {
                                        socketConnection->getLocalAddress().toString();
                       LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
                                        socketConnection->getRemoteAddress().toString();
-                  }) {
+                  },
+                  std::forward<Args>(args)...) {
         }
 
-        SocketClient()
-            : SocketClient("") {
+        SocketClient(Args&&... args)
+            : SocketClient("", std::forward<Args>(args)...) {
         }
 
         SocketClient(const std::string& name,

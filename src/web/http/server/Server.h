@@ -32,7 +32,7 @@
 
 namespace web::http::server {
 
-    template <template <typename SocketContextFactoryT> typename SocketServerT, typename RequestT, typename ResponseT>
+    template <template <typename SocketContextFactoryT, typename... Args> typename SocketServerT, typename RequestT, typename ResponseT>
     class Server : public SocketServerT<web::http::server::SocketContextFactory<RequestT, ResponseT>> {
     public:
         using Request = RequestT;
