@@ -63,7 +63,7 @@ namespace web::websocket::client {
 
         SubProtocolFactorySelector::SubProtocolFactory* subProtocolFactory = nullptr;
 
-        if (std::filesystem::exists(websocketSubprotocolInstallLibdir + "/" + utils::Config::getApplicationName())) {
+        if (std::filesystem::is_directory(websocketSubprotocolInstallLibdir + "/" + utils::Config::getApplicationName())) {
             subProtocolFactory = Super::load(subProtocolName,
                                              websocketSubprotocolInstallLibdir + "/" + utils::Config::getApplicationName() + "/" +
                                                  websocketSubprotocolInstallLibraryFile,
