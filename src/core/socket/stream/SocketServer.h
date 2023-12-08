@@ -41,6 +41,7 @@
 namespace core::socket::stream {
 
     template <typename SocketAcceptorT, typename SocketContextFactoryT, typename... Args>
+        requires std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
     class SocketServer : public core::socket::Socket<typename SocketAcceptorT::Config> {
     private:
         using SocketAcceptor = SocketAcceptorT;
