@@ -214,7 +214,9 @@ namespace core::socket::stream {
                                 }
                                 break;
                             case core::socket::State::OK:
+                                [[fallthrough]];
                             case core::socket::State::DISABLED:
+                                [[fallthrough]];
                             case core::socket::State::FATAL:
                                 break;
                         }

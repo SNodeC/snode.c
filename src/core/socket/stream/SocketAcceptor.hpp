@@ -114,20 +114,19 @@ namespace core::socket::stream {
                     onStatus(localAddress, state);
                 }
 
-                if (!isEnabled()) {
-                    destruct();
-                }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
                 onStatus(localAddress,
                          core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
-                destruct();
             }
         } else {
             LOG(TRACE) << config->getInstanceName() << ": disabled";
 
             onStatus(localAddress, core::socket::STATE_DISABLED);
+        }
+
+        if (!isEnabled()) {
             destruct();
         }
     }
