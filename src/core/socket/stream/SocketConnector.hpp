@@ -122,8 +122,9 @@ namespace core::socket::stream {
                     } else {
                         LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
-                        SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
                         onStatus(remoteAddress, state);
+
+                        SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
                     }
 
                     if (!isEnabled()) {
