@@ -30,6 +30,21 @@
 
 namespace core {
 
+    Observer::~Observer() {
+    }
+
+    void Observer::observed() {
+        observationCounter++;
+    }
+
+    void Observer::unObserved() {
+        observationCounter--;
+
+        if (observationCounter == 0) {
+            unobservedEvent();
+        }
+    }
+
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::DEFAULT = {-1, 0};
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::DISABLE = {0, 0};
     const utils::Timeval DescriptorEventReceiver::TIMEOUT::MAX = {LONG_MAX, 0};
@@ -150,9 +165,6 @@ namespace core {
         if (maxInactivity > 0 && currentTime - lastTriggered >= maxInactivity) {
             timeoutEvent();
         }
-    }
-
-    Observer::~Observer() {
     }
 
 } // namespace core
