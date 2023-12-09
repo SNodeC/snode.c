@@ -40,17 +40,9 @@ namespace core {
         Observer() = default;
         virtual ~Observer();
 
-        bool isObserved() const {
-            return observationCounter > 0;
-        }
-
-        void observed() {
-            observationCounter++;
-        }
-
-        void unObserved() {
-            observationCounter--;
-        }
+    protected:
+        void observed();
+        void unObserved();
 
         virtual void unobservedEvent() = 0;
 
@@ -78,12 +70,14 @@ namespace core {
 
         int getRegisteredFd() const;
 
+    protected:
         void enable(int fd);
         void disable();
 
         void suspend();
         void resume();
 
+    public:
         bool isEnabled() const;
         bool isSuspended() const;
 
