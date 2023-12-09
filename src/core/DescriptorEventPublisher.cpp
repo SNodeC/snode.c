@@ -29,7 +29,6 @@
 #include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
-// IWYU pragma: no_include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
