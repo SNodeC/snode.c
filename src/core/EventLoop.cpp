@@ -233,7 +233,7 @@ namespace core {
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED));
 
-        LOG(TRACE) << "Core: Closing all libraries opened during runntime";
+        LOG(TRACE) << "Core: Closing all libraries opened during runtime";
 
         DynamicLoader::execDlCloseAll();
 
