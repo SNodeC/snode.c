@@ -66,10 +66,6 @@ namespace core {
 
     void DescriptorEventReceiver::disable() {
         if (enabled) {
-            if (!isSuspended()) {
-                suspend();
-            }
-
             enabled = false;
             descriptorEventPublisher.disable(this);
         } else {
@@ -89,10 +85,7 @@ namespace core {
         if (enabled) {
             if (!suspended) {
                 suspended = true;
-
-                if (isObserved()) {
-                    descriptorEventPublisher.suspend(this);
-                }
+                descriptorEventPublisher.suspend(this);
             } else {
                 LOG(TRACE) << "EventReceiver: Double suspend: " << getName() << ": fd = " << observedFd;
             }
@@ -106,10 +99,7 @@ namespace core {
             if (suspended) {
                 suspended = false;
                 lastTriggered = utils::Timeval::currentTime();
-
-                if (isObserved()) {
-                    descriptorEventPublisher.resume(this);
-                }
+                descriptorEventPublisher.resume(this);
             } else {
                 LOG(TRACE) << "EventReceiver: Double resume: " << getName() << ": fd = " << observedFd;
             }
