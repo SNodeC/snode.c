@@ -79,9 +79,6 @@ namespace core {
                         const bool isDisabled = !descriptorEventReceiver->isEnabled();
                         if (isDisabled) {
                             descriptorEventReceiver->setDisabled();
-                            if (!descriptorEventReceiver->isObserved()) {
-                                descriptorEventReceiver->unobservedEvent();
-                            }
                         }
                         return isDisabled;
                     }) > 0) {
