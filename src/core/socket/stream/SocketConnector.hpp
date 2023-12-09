@@ -171,9 +171,10 @@ namespace core::socket::stream {
                 LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
                 onStatus(remoteAddress, state);
-                disable();
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
+
+                disable();
             } else if (physicalClientSocket->connectInProgress(errno)) {
                 LOG(TRACE) << config->getInstanceName() << ": connect still in progress '" << remoteAddress.toString() << "'";
             } else if (remoteAddress.useNext()) {

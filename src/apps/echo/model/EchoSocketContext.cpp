@@ -48,7 +48,7 @@ namespace apps::echo::model {
     std::size_t EchoSocketContext::onReceivedFromPeer() {
         char junk[4096];
 
-        std::size_t junklen = readFromPeer(junk, 4096);
+        const std::size_t junklen = readFromPeer(junk, 4096);
 
         if (junklen > 0) {
             VLOG(0) << "Data to reflect: " << std::string(junk, junklen);
