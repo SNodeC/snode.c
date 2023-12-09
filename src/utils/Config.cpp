@@ -719,7 +719,7 @@ namespace utils {
 
         if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0) {
             app.allow_extras(false);
-            app.allow_config_extras(false);
+            app.allow_config_extras(true);
         }
 
         return instance;
