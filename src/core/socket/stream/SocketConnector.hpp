@@ -122,9 +122,8 @@ namespace core::socket::stream {
                     } else {
                         LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
-                        onStatus(remoteAddress, state);
-
                         SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
+                        onStatus(remoteAddress, state);
                     }
 
                     if (!isEnabled()) {
@@ -133,26 +132,27 @@ namespace core::socket::stream {
                         } else {
                             onStatus(remoteAddress, state);
                         }
+
+                        destruct();
                     }
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                     LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
                     onStatus(remoteAddress,
                              core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
+                    destruct();
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
                 onStatus(remoteAddress,
                          core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
+                destruct();
             }
         } else {
             LOG(TRACE) << config->getInstanceName() << ": disabled";
 
             onStatus(remoteAddress, core::socket::STATE_DISABLED);
-        }
-
-        if (!isEnabled()) {
             destruct();
         }
     }
@@ -170,10 +170,9 @@ namespace core::socket::stream {
                 LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
                 onStatus(remoteAddress, state);
+                disable();
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
-
-                disable();
             } else if (physicalClientSocket->connectInProgress(errno)) {
                 LOG(TRACE) << config->getInstanceName() << ": connect still in progress '" << remoteAddress.toString() << "'";
             } else if (remoteAddress.useNext()) {
