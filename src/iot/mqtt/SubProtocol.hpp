@@ -17,7 +17,6 @@
  */
 
 #include "iot/mqtt/SubProtocol.h" // IWYU pragma: export
-#include "iot/mqtt/server/Mqtt.h"
 #include "log/Logger.h"
 #include "utils/system/signal.h"
 #include "web/websocket/SubProtocolContext.h"

@@ -24,7 +24,6 @@
 #include "iot/mqtt/packets/Suback.h"
 #include "iot/mqtt/packets/Unsuback.h"
 #include "iot/mqtt/server/broker/Broker.h"
-#include "iot/mqtt/server/broker/Session.h"
 #include "iot/mqtt/server/packets/Connect.h"
 #include "iot/mqtt/server/packets/Disconnect.h"
 #include "iot/mqtt/server/packets/Pingreq.h"

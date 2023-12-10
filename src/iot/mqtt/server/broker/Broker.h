@@ -20,7 +20,7 @@
 #define IOT_MQTT_SERVER_BROKER_BROKER_H
 
 #include "iot/mqtt/server/broker/RetainTree.h"
-#include "iot/mqtt/server/broker/Session.h"
+#include "iot/mqtt/server/broker/Session.h" // IWYU pragma: export
 #include "iot/mqtt/server/broker/SubscribtionTree.h"
 
 namespace iot::mqtt::server {
