@@ -26,6 +26,8 @@
 #include "log/Logger.h"
 #include "utils/Config.h"
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace express;

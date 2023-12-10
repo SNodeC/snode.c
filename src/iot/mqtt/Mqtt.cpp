@@ -35,6 +35,7 @@
 
 #include <cstring>
 #include <iomanip>
+#include <map>
 #include <ostream>
 #include <set>
 #include <utility> // IWYU pragma: keep

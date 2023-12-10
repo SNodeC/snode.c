@@ -5,7 +5,9 @@
 #include "web/http/client/Response.h" // for Response
 #include "web/http/legacy/in/Client.h"
 
+#include <map>
 #include <nlohmann/json.hpp> // IWYU pragma: keep
+#include <string>
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);

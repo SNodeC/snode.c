@@ -24,8 +24,10 @@
 #include "log/Logger.h"
 
 #include <iostream>
+#include <map>
 #include <openssl/ssl.h> // IWYU pragma: keep
 #include <openssl/x509v3.h>
+#include <string>
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <openssl/x509.h>

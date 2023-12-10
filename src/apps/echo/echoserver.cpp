@@ -25,6 +25,8 @@
 #if (STREAM_TYPE == TLS)
 #include "core/socket/stream/tls/ssl_version.h"
 
+#include <map>
+#include <string>
 #include <variant>
 #endif
 
@@ -34,7 +36,7 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     using SocketServer = apps::echo::model::STREAM::EchoSocketServer;
-    SocketServer server = apps::echo::model::STREAM::getServer();
+    const SocketServer server = apps::echo::model::STREAM::getServer();
 
 #if (STREAM_TYPE == TLS)
     std::string cert = "/home/voc/projects/snodec/snode.c/certs/snode.c_-_server.pem";

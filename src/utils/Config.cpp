@@ -419,7 +419,7 @@ namespace utils {
                             if (option->count() > 0) {
                                 value = option->as<std::string>();
                             } else if (option->get_required()) {
-                                value = "<REUQUIRED>";
+                                value = "<REQUIRED>";
                             }
                             break;
                         case CLI::CallForCommandline::Mode::REQUIRED:

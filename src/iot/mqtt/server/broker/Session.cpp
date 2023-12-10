@@ -25,6 +25,7 @@
 #include "log/Logger.h"
 
 #include <algorithm>
+#include <map>
 #include <nlohmann/json.hpp>
 #include <string>
 

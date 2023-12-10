@@ -28,9 +28,9 @@ namespace core::socket::stream::tls {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>    // IWYU pragma: export
-#include <set>    // IWYU pragma: export
-#include <string> // IWYU pragma: export
+#include <map>
+#include <set>
+#include <string>
 
 using SSL_CTX = struct ssl_ctx_st;
 using SSL = struct ssl_st;

@@ -23,10 +23,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <any>        // IWYU pragma: export
-#include <functional> // IWYU pragma: export
-#include <map>        // IWYU pragma: export
-#include <string>     // IWYU pragma: export
+#include <any>        // IWYU pra gma: export
+#include <functional> // IWYU pra gma: export
+#include <map>        // IWYU pra gma: export
+#include <string>     // IWYU pra gma: export
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

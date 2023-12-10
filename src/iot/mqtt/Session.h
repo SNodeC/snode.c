@@ -27,7 +27,7 @@ namespace iot::mqtt {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map> // IWYU pragma: export
+#include <map>
 #include <nlohmann/json_fwd.hpp>
 #include <set>
 

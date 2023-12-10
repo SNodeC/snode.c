@@ -26,6 +26,8 @@
 #include "web/http/client/Response.h"
 #include "web/http/legacy/in/Client.h"
 
+#include <map>
+#include <string>
 #include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>

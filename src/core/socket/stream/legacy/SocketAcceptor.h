@@ -28,7 +28,7 @@ namespace core::socket::stream::legacy {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // IWYU pragma: export
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

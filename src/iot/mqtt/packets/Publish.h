@@ -26,6 +26,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
 #include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

@@ -26,6 +26,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #define MQTT_VERSION_3_1_1 0x04

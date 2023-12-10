@@ -23,10 +23,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <any>        // IWYU pragma: export
-#include <functional> // IWYU pragma: export
-#include <map>        // IWYU pragma: export
-#include <string>     // IWYU pragma: export
+#include <functional>
+#include <map>
+#include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

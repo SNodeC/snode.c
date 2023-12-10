@@ -26,6 +26,8 @@
 
 #include "core/socket/stream/tls/ssl_version.h"
 
+#include <map>
+#include <string>
 #include <variant>
 
 #endif // (STREAM_TYPE == TLS)

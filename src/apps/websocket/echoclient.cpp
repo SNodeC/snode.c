@@ -26,6 +26,8 @@
 #include "web/http/tls/in/Client.h"
 
 #include <iostream>
+#include <map>
+#include <string>
 #include <utility>
 
 // IWYU pragma: no_include <bits/utility.h>
