@@ -27,11 +27,15 @@
 #include "web/http/CookieOptions.h"
 #include "web/http/client/ResponseParser.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <functional>
 #include <map>
 #include <openssl/ssl.h> // IWYU pragma: keep
 #include <openssl/x509v3.h>
 #include <string>
 #include <utility>
+#include <vector>
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <bits/utility.h>
@@ -47,7 +51,7 @@
 static web::http::client::ResponseParser* getResponseParser(core::socket::stream::SocketContext* socketContext) {
     web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
         socketContext,
-        [](void) -> void {
+        []() -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;

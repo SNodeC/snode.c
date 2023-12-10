@@ -52,7 +52,6 @@ namespace database::mariadb {
 #endif
 #endif
 #endif
-#include <mysql.h> // IWYU pragma: export
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif

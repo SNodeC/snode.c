@@ -26,11 +26,11 @@ namespace core::socket::stream {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <cstdint> // IWYU pragma: export
+#include <cstdint>
 #include <map>
 #include <regex>
 #include <string>
-#include <vector> // IWYU pragma: export
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

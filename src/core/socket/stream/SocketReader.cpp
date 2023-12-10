@@ -22,7 +22,6 @@
 
 #include <algorithm>
 #include <cerrno>
-#include <functional>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

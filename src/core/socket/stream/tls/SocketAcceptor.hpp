@@ -25,8 +25,8 @@
 #include "log/Logger.h"
 
 #include <algorithm>
-#include <openssl/ssl.h>    // IWYU pragma: export
-#include <openssl/x509v3.h> // IWYU pragma: export
+#include <openssl/ssl.h>
+#include <openssl/x509v3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

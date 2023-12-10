@@ -28,6 +28,7 @@
 #include <map>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <vector>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
 

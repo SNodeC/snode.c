@@ -23,6 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdio>
 #include <functional>
 #include <openssl/types.h>
 

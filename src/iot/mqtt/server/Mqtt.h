@@ -59,7 +59,6 @@ namespace iot::mqtt {
 #include <list>
 #include <memory>
 #include <string>
-#include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

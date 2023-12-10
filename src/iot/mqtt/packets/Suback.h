@@ -25,7 +25,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list> // IWYU pragma: export
+#include <cstdint>
+#include <list>
+#include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

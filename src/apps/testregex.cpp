@@ -23,8 +23,10 @@
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
 
+#include <cstddef>
 #include <iostream>
 #include <map>
+#include <mysql.h>
 #include <openssl/ssl.h> // IWYU pragma: keep
 #include <openssl/x509v3.h>
 #include <string>
@@ -142,25 +144,25 @@ Router router(database::mariadb::MariaDBClient& db) {
         VLOG(0) << "UserId: " << req.params["userId"];
         VLOG(0) << "UserName: " << req.params["userName"];
 
-        std::string response = "<html>"
-                               "  <head>"
-                               "    <title>Response from snode.c</title>"
-                               "  </head>"
-                               "  <body>"
-                               "    <h1>Regex return</h1>"
-                               "    <ul>"
-                               "      <li>UserId: " +
-                               req.params["userId"] +
-                               "      </li>"
-                               "      <li>UserName: " +
-                               req.params["userName"] +
-                               "      </li>"
-                               "    </ul>"
-                               "  </body>"
-                               "</html>";
+        const std::string response = "<html>"
+                                     "  <head>"
+                                     "    <title>Response from snode.c</title>"
+                                     "  </head>"
+                                     "  <body>"
+                                     "    <h1>Regex return</h1>"
+                                     "    <ul>"
+                                     "      <li>UserId: " +
+                                     req.params["userId"] +
+                                     "      </li>"
+                                     "      <li>UserName: " +
+                                     req.params["userName"] +
+                                     "      </li>"
+                                     "    </ul>"
+                                     "  </body>"
+                                     "</html>";
 
-        std::string userId = req.params["userId"];
-        std::string userName = req.params["userName"];
+        const std::string userId = req.params["userId"];
+        const std::string userName = req.params["userName"];
 
         db.exec(
             "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
@@ -178,22 +180,22 @@ Router router(database::mariadb::MariaDBClient& db) {
         VLOG(0) << "Regex1: " << req.params["testRegex1"];
         VLOG(0) << "Regex2: " << req.params["testRegex2"];
 
-        std::string response = "<html>"
-                               "  <head>"
-                               "    <title>Response from snode.c</title>"
-                               "  </head>"
-                               "  <body>"
-                               "    <h1>Regex return</h1>"
-                               "    <ul>"
-                               "      <li>Regex 1: " +
-                               req.params["testRegex1"] +
-                               "      </li>"
-                               "      <li>Regex 2: " +
-                               req.params["testRegex2"] +
-                               "      </li>"
-                               "    </ul>"
-                               "  </body>"
-                               "</html>";
+        const std::string response = "<html>"
+                                     "  <head>"
+                                     "    <title>Response from snode.c</title>"
+                                     "  </head>"
+                                     "  <body>"
+                                     "    <h1>Regex return</h1>"
+                                     "    <ul>"
+                                     "      <li>Regex 1: " +
+                                     req.params["testRegex1"] +
+                                     "      </li>"
+                                     "      <li>Regex 2: " +
+                                     req.params["testRegex2"] +
+                                     "      </li>"
+                                     "    </ul>"
+                                     "  </body>"
+                                     "</html>";
 
         res.send(response);
     });
@@ -214,7 +216,7 @@ Router router(database::mariadb::MariaDBClient& db) {
 int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
-    database::mariadb::MariaDBConnectionDetails details = {
+    const database::mariadb::MariaDBConnectionDetails details = {
         .hostname = "localhost",
         .username = "snodec",
         .password = "pentium5",
@@ -302,7 +304,7 @@ int main(int argc, char* argv[]) {
             X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
 
             if (client_cert != nullptr) {
-                long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
+                const long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
                 VLOG(0) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
@@ -326,7 +328,7 @@ int main(int argc, char* argv[]) {
 #endif
 #endif
 #endif
-                int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
+                const int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 #ifdef __GNUC_
 #pragma GCC diagnostic pop
 #endif
@@ -345,12 +347,12 @@ int main(int argc, char* argv[]) {
 #pragma GCC diagnostic pop
 #endif
                     if (generalName->type == GEN_URI) {
-                        std::string subjectAltName =
+                        const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
                         VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
-                        std::string subjectAltName =
+                        const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
                         VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;

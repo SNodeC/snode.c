@@ -25,10 +25,13 @@
 #include "web/http/legacy/in/Client.h"
 #include "web/http/tls/in/Client.h"
 
+#include <cstdint>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <string>
 #include <utility>
+#include <vector>
 
 // IWYU pragma: no_include <bits/utility.h>
 // IWYU pragma: no_include <openssl/ssl3.h>

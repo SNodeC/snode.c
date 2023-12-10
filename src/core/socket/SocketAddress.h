@@ -23,7 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <stdexcept> // IWYU pragma: export
+#include <stdexcept>
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

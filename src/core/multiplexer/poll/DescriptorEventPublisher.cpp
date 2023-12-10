@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
+#include <map>
 #include <unordered_map>
 #include <utility>
 

@@ -24,12 +24,13 @@
 #include "express/middleware/JsonMiddleware.h"
 #include "log/Logger.h"
 
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 // using namespace express;
-using json = nlohmann::json;
 
 int main(int argc, char* argv[]) {
     using WebApp = express::legacy::in::WebApp;
@@ -64,8 +65,8 @@ int main(int argc, char* argv[]) {
     legacyApp.post("/index.html", [] APPLICATION(req, res) {
         std::string jsonString = "";
 
-        req.getAttribute<json>(
-            [&jsonString](json& json) -> void {
+        req.getAttribute<nlohmann::json>(
+            [&jsonString](nlohmann::json& json) -> void {
                 jsonString = json.dump(4);
                 VLOG(0) << "Application received body: " << jsonString;
             },

@@ -25,6 +25,9 @@
 #include "log/Logger.h"
 #include "utils/Timeval.h"
 
+#include <array>
+#include <memory>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 core::EventMultiplexer& EventMultiplexer() {

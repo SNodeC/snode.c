@@ -26,6 +26,7 @@
 #include "utils/Timeval.h"
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <utility>

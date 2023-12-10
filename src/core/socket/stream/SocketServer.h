@@ -32,8 +32,8 @@
 
 #include <cerrno>
 #include <cstddef>
-#include <functional> // IWYU pragma: export
-#include <memory>     // IWYU pragma: export
+#include <functional>
+#include <memory>
 #include <random>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

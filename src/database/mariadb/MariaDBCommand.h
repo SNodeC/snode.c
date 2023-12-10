@@ -28,9 +28,9 @@ namespace database::mariadb {
 
 #include "utils/Timeval.h"
 
-#include <functional>
-#include <mysql.h> // IWYU pragma: export
-#include <string>
+#include <functional> // IWYU pragma: export
+#include <mysql.h>    // IWYU pragma: export
+#include <string>     // IWYU pragma: export
 
 // IWYU pragma: no_include "mysql.h"
 

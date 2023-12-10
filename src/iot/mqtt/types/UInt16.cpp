@@ -23,6 +23,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <endian.h>
+#include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

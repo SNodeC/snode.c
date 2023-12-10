@@ -38,7 +38,6 @@
 #include <map>
 #include <ostream>
 #include <set>
-#include <utility> // IWYU pragma: keep
 
 // IWYU pragma: no_include <bits/utility.h>
 

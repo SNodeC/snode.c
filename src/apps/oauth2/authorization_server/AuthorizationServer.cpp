@@ -6,10 +6,11 @@
 #include "log/Logger.h"
 #include "utils/sha1.h"
 
-#include <chrono> // IWYU pragma: keep
+#include <chrono>
 #include <ctime>
 #include <cxxabi.h>
 #include <iomanip>
+#include <nlohmann/json.hpp>
 
 // IWYU pragma: no_include <bits/chrono.h>
 

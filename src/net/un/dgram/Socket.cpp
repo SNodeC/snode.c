@@ -24,7 +24,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
-#include <sys/uio.h> // IWYU pragma: keep
 
 // IWYU pragma: no_include <bits/types/struct_iovec.h>
 

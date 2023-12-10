@@ -29,8 +29,8 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list> // IWYU pragma: export
-#include <map>  // IWYU pragma: export
+#include <list>
+#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

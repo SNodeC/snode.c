@@ -28,7 +28,7 @@
 #include "utils/Timeval.h"
 #include "utils/system/signal.h"
 
-#include <chrono> // IWYU pragma: keep
+#include <chrono>
 #include <cstdlib>
 #include <cstring>
 #include <string>

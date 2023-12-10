@@ -6,7 +6,8 @@
 #include "web/http/legacy/in/Client.h"
 
 #include <map>
-#include <nlohmann/json.hpp> // IWYU pragma: keep
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 int main(int argc, char* argv[]) {

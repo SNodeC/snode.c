@@ -23,10 +23,12 @@
 #include "web/http/client/ResponseParser.h"
 #include "web/http/server/RequestParser.h"
 
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <string>
 #include <utility>
+#include <vector>
 
 // IWYU pragma: no_include <bits/utility.h>
 

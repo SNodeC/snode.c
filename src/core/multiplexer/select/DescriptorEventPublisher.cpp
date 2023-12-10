@@ -22,6 +22,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
+#include <map>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::select {

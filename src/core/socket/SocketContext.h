@@ -25,7 +25,7 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // IWYU pragma: export
+#include <cstddef>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

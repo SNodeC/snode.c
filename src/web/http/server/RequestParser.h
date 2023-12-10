@@ -30,7 +30,9 @@ namespace core::socket::stream {
 #include <functional>
 #include <map>
 #include <set>
-#include <string> // for string, basic_string, operator<
+#include <stdint.h>
+#include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

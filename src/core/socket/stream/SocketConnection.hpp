@@ -23,7 +23,7 @@
 
 #include "log/Logger.h"
 
-#include <cstddef> // IWYU pragma: export
+#include <cstddef>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

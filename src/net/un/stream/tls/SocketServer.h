@@ -34,6 +34,7 @@
 
 // IWYU pragma: no_include <map>
 // IWYU pragma: no_include <set>
+// IWYU pragma: no_include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

@@ -28,8 +28,8 @@ namespace iot::mqtt_fast {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint> // IWYU pragma: export
-#include <list>    // IWYU pragma: export
+#include <cstdint>
+#include <list>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

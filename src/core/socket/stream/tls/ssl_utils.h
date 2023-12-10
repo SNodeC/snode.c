@@ -30,6 +30,7 @@ namespace net::config {
 
 #include <map>
 #include <memory>
+#include <openssl/types.h>
 #include <set>
 #include <string>
 #include <variant>

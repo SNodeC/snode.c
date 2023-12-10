@@ -20,14 +20,7 @@
 #define EXPRESS_ROUTER_HPP
 
 // IWYU pragma: no_include "express/RootRoute.h"
-
-namespace express {
-
-    class Next;
-    class Request;
-    class Response;
-
-} // namespace express
+// IWYU pragma: no_include "express/Router.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt::client::packets {

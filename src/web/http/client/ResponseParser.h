@@ -30,7 +30,9 @@ namespace core::socket::stream {
 
 #include <functional>
 #include <map>
+#include <stdint.h>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

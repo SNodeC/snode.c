@@ -29,6 +29,7 @@
 
 #include <cstdint>
 #include <limits>
+#include <stdexcept>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
