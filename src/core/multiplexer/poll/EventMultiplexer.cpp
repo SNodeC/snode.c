@@ -88,13 +88,11 @@ namespace core::poll {
         }
     }
 
-    void PollFdsManager::muxOn(core::DescriptorEventReceiver* eventReceiver, short event) {
-        const int fd = eventReceiver->getRegisteredFd();
-
-        pollfds[pollFdIndices.find(fd)->second.index].events |= event;
+    void PollFdsManager::muxOn(const DescriptorEventReceiver* eventReceiver, short event) {
+        pollfds[pollFdIndices.find(eventReceiver->getRegisteredFd())->second.index].events |= event;
     }
 
-    void PollFdsManager::muxOff(DescriptorEventReceiver* eventReceiver, short event) {
+    void PollFdsManager::muxOff(const DescriptorEventReceiver* eventReceiver, short event) {
         pollfds[pollFdIndices.find(eventReceiver->getRegisteredFd())->second.index].events &=
             static_cast<short>(~event); // Tilde promotes to int
     }

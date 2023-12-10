@@ -74,7 +74,6 @@ namespace core {
             observedEventReceiversDirty = false;
 
             for (auto& [fd, observedEventReceiverList] : observedEventReceivers) {
-                const DescriptorEventReceiver* beforeFirst = observedEventReceiverList.front();
                 if (std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
                         const bool isDisabled = !descriptorEventReceiver->isEnabled();
                         if (isDisabled) {
@@ -85,20 +84,18 @@ namespace core {
                     if (observedEventReceiverList.empty()) {
                         muxDel(fd);
                     } else {
-                        DescriptorEventReceiver* afterFirst = observedEventReceiverList.front();
-                        if (beforeFirst != afterFirst) {
-                            afterFirst->triggered(currentTime);
-                            if (!afterFirst->isSuspended()) {
-                                muxOn(afterFirst);
-                            } else {
-                                muxOff(afterFirst);
-                            }
+                        DescriptorEventReceiver* activeDescriptorEventReceiver = observedEventReceiverList.front();
+                        activeDescriptorEventReceiver->triggered(currentTime);
+                        if (!activeDescriptorEventReceiver->isSuspended()) {
+                            muxOn(activeDescriptorEventReceiver);
+                        } else {
+                            muxOff(activeDescriptorEventReceiver);
                         }
                     }
                 }
             }
 
-            std::erase_if(observedEventReceivers, [](auto& observedEventReceiversEntry) -> bool {
+            std::erase_if(observedEventReceivers, [](const auto& observedEventReceiversEntry) -> bool {
                 return observedEventReceiversEntry.second.empty();
             });
         }
