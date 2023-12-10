@@ -32,7 +32,12 @@ namespace express::middleware {
     StaticMiddleware::StaticMiddleware(const std::string& root)
         : root(root) {
         use(
-            [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &forceClose = this->forceClose] MIDDLEWARE(req, res, next) {
+            [&stdHeaders = this->stdHeaders,
+             &stdCookies = this->stdCookies,
+             &forceClose = this->forceClose] MIDDLEWARE( // cppcheck-suppress assignBoolToPointer
+                req,
+                res,
+                next) {
                 if (req.method == "GET") {
                     if (forceClose) {
                         res.set("Connection", "Close");
