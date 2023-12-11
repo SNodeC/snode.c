@@ -97,7 +97,7 @@ namespace core::socket::stream {
                   std::forward<Args>(args)...) {
         }
 
-        SocketServer(Args&&... args)
+        explicit SocketServer(Args&&... args)
             : SocketServer("", std::forward<Args>(args)...) {
         }
 
