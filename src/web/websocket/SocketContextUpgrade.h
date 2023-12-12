@@ -278,10 +278,16 @@ namespace web::websocket {
             return Receiver::receive();
         }
 
-    public:
+    protected:
         SubProtocol* subProtocol = nullptr;
 
     private:
+        bool closeSent = false;
+
+        int receivedOpCode = 0;
+
+        std::string pongCloseData;
+
         void dumpFrame(char* frame, uint64_t frameLength) {
             const unsigned int modul = 4;
 
@@ -297,12 +303,6 @@ namespace web::websocket {
                 }
             }
         }
-
-        bool closeSent = false;
-
-        int receivedOpCode = 0;
-
-        std::string pongCloseData;
     };
 
 } // namespace web::websocket
