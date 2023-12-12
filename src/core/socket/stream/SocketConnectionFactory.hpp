@@ -41,31 +41,29 @@ namespace core::socket::stream {
                                                                                    const std::shared_ptr<Config>& config) {
         SocketConnection* socketConnection = nullptr;
 
-        if (physicalSocket.isValid()) {
-            typename SocketAddress::SockAddr localSockAddr;
-            typename SocketAddress::SockAddr remoteSockAddr;
-            socklen_t localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
-            socklen_t remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+        typename SocketAddress::SockAddr localSockAddr;
+        typename SocketAddress::SockAddr remoteSockAddr;
+        socklen_t localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+        socklen_t remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
-            if (physicalSocket.getSockname(localSockAddr, localSockAddrLen) == 0 &&
-                physicalSocket.getPeername(remoteSockAddr, remoteSockAddrLen) == 0) {
-                physicalSocket.setDontClose();
+        if (physicalSocket.getSockname(localSockAddr, localSockAddrLen) == 0 &&
+            physicalSocket.getPeername(remoteSockAddr, remoteSockAddrLen) == 0) {
+            physicalSocket.setDontClose();
 
-                socketConnection = new SocketConnection(config->getInstanceName(),
-                                                        physicalSocket,
-                                                        SocketAddress(localSockAddr, localSockAddrLen),
-                                                        SocketAddress(remoteSockAddr, remoteSockAddrLen),
-                                                        onDisconnect,
-                                                        config->getReadTimeout(),
-                                                        config->getWriteTimeout(),
-                                                        config->getReadBlockSize(),
-                                                        config->getWriteBlockSize(),
-                                                        config->getTerminateTimeout());
-                onConnect(socketConnection);
-                onConnected(socketConnection);
-            } else {
-                PLOG(TRACE) << "syscall getsockname:";
-            }
+            socketConnection = new SocketConnection(config->getInstanceName(),
+                                                    physicalSocket,
+                                                    SocketAddress(localSockAddr, localSockAddrLen),
+                                                    SocketAddress(remoteSockAddr, remoteSockAddrLen),
+                                                    onDisconnect,
+                                                    config->getReadTimeout(),
+                                                    config->getWriteTimeout(),
+                                                    config->getReadBlockSize(),
+                                                    config->getWriteBlockSize(),
+                                                    config->getTerminateTimeout());
+            onConnect(socketConnection);
+            onConnected(socketConnection);
+        } else {
+            PLOG(TRACE) << "syscall getsockname:";
         }
 
         return socketConnection != nullptr;
