@@ -115,6 +115,12 @@ namespace core::socket::stream {
                                 state = core::socket::STATE_FATAL;
                                 break;
                         }
+
+                        if (remoteAddress.useNext()) {
+                            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
+                        } else {
+                            onStatus(remoteAddress, state);
+                        }
                     } else if (physicalClientSocket->connectInProgress(errno)) {
                         LOG(TRACE) << config->getInstanceName() << ": connect in progress '" << remoteAddress.toString() << "'";
 
@@ -126,34 +132,25 @@ namespace core::socket::stream {
 
                         SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
                     }
-
-                    if (!isEnabled()) {
-                        if (remoteAddress.useNext()) {
-                            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
-                        } else {
-                            onStatus(remoteAddress, state);
-                        }
-
-                        destruct();
-                    }
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                     LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
                     onStatus(remoteAddress,
                              core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
-                    destruct();
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
                 onStatus(remoteAddress,
                          core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
-                destruct();
             }
         } else {
             LOG(TRACE) << config->getInstanceName() << ": disabled";
 
             onStatus(remoteAddress, core::socket::STATE_DISABLED);
+        }
+
+        if (!isEnabled()) {
             destruct();
         }
     }
@@ -162,15 +159,13 @@ namespace core::socket::stream {
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectEvent() {
         int cErrno = 0;
 
-        if (physicalClientSocket->getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed errno = cErrno;
-            const utils::PreserveErrno pe(cErrno);
-
-            core::socket::State state = core::socket::STATE_OK;
+        if (physicalClientSocket->getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed
+            const utils::PreserveErrno pe(cErrno);             // errno = cErrno
 
             if (errno == 0) {
                 LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
-                onStatus(remoteAddress, state);
+                onStatus(remoteAddress, core::socket::STATE_OK);
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
 
@@ -186,6 +181,8 @@ namespace core::socket::stream {
 
                 disable();
             } else {
+                core::socket::State state = core::socket::STATE_OK;
+
                 switch (errno) {
                     case EADDRINUSE:
                     case EADDRNOTAVAIL:
