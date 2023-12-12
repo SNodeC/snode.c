@@ -21,24 +21,6 @@
 #include <string>
 #include <utility>
 
-void g(int&& b) {
-    int&& a = std::move(b);
-    std::cout << "RREF";
-    std::cout << "B = " << b << std::endl;
-    std::cout << "B A = " << a << std::endl;
-}
-
-void g(int& b) {
-    std::cout << "LREF";
-    std::cout << "B = " << b << std::endl;
-}
-
-void f(int&& a) {
-    std::cout << "A = " << a << std::endl;
-    g(std::move(a));
-    g(a);
-}
-
 class Member {
 public:
     Member()
@@ -53,9 +35,9 @@ public:
         std::cout << "Member(int a, int b)" << std::endl;
     }
 
-    Member(Member&& member)
-        : a(std::move(member.a))
-        , b(std::move(member.b)) {
+    Member(Member&& member) noexcept
+        : a(member.a)
+        , b(member.b) {
         std::cout << "Member(Member&&)" << std::endl;
         member.a = 0;
         member.b = 0;
@@ -67,10 +49,10 @@ public:
         std::cout << "Member(const Member&)" << std::endl;
     }
 
-    Member& operator=(Member&& member) {
-        std::cout << "Member& operator=(const Member&)" << std::endl;
-        a = std::move(member.a);
-        b = std::move(member.b);
+    Member& operator=(Member&& member) noexcept {
+        std::cout << "Member& operator=(Member&&)" << std::endl;
+        a = member.a;
+        b = member.b;
         member.a = 0;
         member.b = 0;
         return *this;
@@ -78,17 +60,19 @@ public:
 
     Member& operator=(const Member& member) {
         std::cout << "Member& operator=(const Member&)" << std::endl;
-        a = member.a;
-        b = member.b;
+        if (this != &member) {
+            a = member.a;
+            b = member.b;
+        }
         return *this;
     }
 
-    void print() {
+    void print() const {
         std::cout << "Test: a = " << a << std::endl;
         std::cout << "Test: b = " << b << std::endl;
     }
 
-private:
+    // private:
     int a;
     int b;
 };
@@ -96,6 +80,7 @@ private:
 class Test {
 public:
     Test() {
+        std::cout << "Test()" << std::endl;
     }
 
     Test(int a, int b)
@@ -103,7 +88,7 @@ public:
         std::cout << "Test(int a, int b)" << std::endl;
     }
 
-    Test(Test&& test)
+    Test(Test&& test) noexcept
         : member(std::move(test.member)) {
         std::cout << "Test(Test&& test)" << std::endl;
     }
@@ -113,7 +98,7 @@ public:
         std::cout << "Test(const Test& test)" << std::endl;
     }
 
-    Test& operator=(Test&& test) {
+    Test& operator=(Test&& test) noexcept {
         std::cout << "Test& operator=(Test&& test)" << std::endl;
         member = std::move(test.member);
         return *this;
@@ -121,17 +106,19 @@ public:
 
     Test& operator=(const Test& test) {
         std::cout << "Test& operator=(const Test& test)" << std::endl;
-        member = test.member;
+        if (this != &test) {
+            member = test.member;
+        }
         return *this;
     }
 
-    void print(const std::string& message) {
+    void print(const std::string& message) const {
         std::cout << "Message: " << message << std::endl;
         member.print();
-        std::cout << std::endl;
+        std::cout << "-----------------------------" << std::endl;
     }
 
-private:
+    // private:
     Member member;
 };
 
@@ -155,17 +142,23 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     Test test4(test3);
     test4.print("Test test4(test3)");
 
-    Test test5(std::move(test3));
+    [[maybe_unused]] const Test test5(std::move(test3));
     test4.print("Test test4(std::move(test3))");
 
     test3.print("Should be 0, 0");
 
-    bool cond = false;
+    Test test8;
+    test8 = std::move(test4);
+
+    const bool cond = false;
 
     Test test6;
-    test6 = cond ? getTest(7, 8) : Test(9, 10);
+
+    test6 = cond ? test6 : Test(9, 10);
 
     test6.print("test6 = cond ? getTest(7, 8) : Test(9, 10)");
+
+    [[maybe_unused]] Test&& test7(std::move(test6));
 
     return 0;
 }
