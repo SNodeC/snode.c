@@ -47,11 +47,11 @@ namespace utils {
         static bool bootstrap();
         static void terminate();
 
-        static CLI::App* add_instance(const std::string& name, const std::string& description);
+        static CLI::App* add_instance(const std::string& name, const std::string& description, const std::string& group);
         static CLI::App* add_standard_flags(CLI::App* app);
         static CLI::App* add_help_flags(CLI::App* app);
 
-        static void required(CLI::App* instance, bool req);
+        static void required(CLI::App* instance, bool req = true);
 
         static bool remove_instance(CLI::App* instance);
 
@@ -74,13 +74,16 @@ namespace utils {
         static CLI::Option* add_string_option(const std::string& name,
                                               const std::string& description,
                                               const std::string& typeName,
-                                              const std::string& defaultValue,
-                                              bool configurable);
+                                              const std::string& defaultValue);
 
         static CLI::Option* add_string_option(const std::string& name,
                                               const std::string& description,
                                               const std::string& typeName,
-                                              const std::string& defaultValue);
+                                              const std::string& defaultValue,
+                                              bool configurable);
+
+        static CLI::Option*
+        add_string_option(const std::string& name, const std::string& description, const std::string& typeName, const char* defaultValue);
 
         static CLI::Option* add_string_option(const std::string& name,
                                               const std::string& description,
@@ -88,23 +91,17 @@ namespace utils {
                                               const char* defaultValue,
                                               bool configurable);
 
-        static CLI::Option*
-        add_string_option(const std::string& name, const std::string& description, const std::string& typeName, const char* defaultValue);
-
         static std::string get_string_option_value(const std::string& name);
 
     private:
         static void parse1();
         static bool parse2();
 
-        static CLI::Option* add_option(const std::string& name, int& variable, const std::string& description);
-        static CLI::Option* add_option(const std::string& name, std::string& variable, const std::string& description);
-        static CLI::Option* add_flag(const std::string& name, const std::string& description = "");
         static CLI::Option* add_flag(const std::string& name, bool& variable, const std::string& description = "");
 
         static int argc;
         static char** argv;
-        static CLI::App app;
+        static std::shared_ptr<CLI::App> app;
         static std::string applicationName;
 
         static std::string configDirectory;
