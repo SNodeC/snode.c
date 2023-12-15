@@ -340,10 +340,10 @@ namespace CLI {
                 } else if (opt->get_expected_min() > 1) {
                     out << " x " << opt->get_expected() << " ";
                 }
-                if (opt->get_required() && !get_label("REQUIRED").empty()) {
+                if (opt->get_required()) {
                     out << " " << get_label("REQUIRED") << " ";
                 }
-                if (opt->get_configurable() && !get_label("PERSISTENT").empty()) {
+                if (opt->get_configurable()) {
                     out << " " << get_label("PERSISTENT") << " ";
                 }
             }
