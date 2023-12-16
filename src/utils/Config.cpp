@@ -754,12 +754,17 @@ namespace utils {
         app //
             ->add_flag_function(
                 "-h,--help",
-                []([[maybe_unused]] std::int64_t count) {
+                [app]([[maybe_unused]] std::int64_t count) {
+                    const std::string& result = app->get_option("--help")->as<std::string>();
+
+                    if (result != "1") {
+                        std::cout << "Help: Ignoring mode '" << result << "'" << std::endl;
+                    }
+
                     throw CLI::CallForHelp();
                 },
                 "Print help message")
             ->configurable(false)
-            ->disable_flag_override()
             ->trigger_on_parse();
 
         return app;
