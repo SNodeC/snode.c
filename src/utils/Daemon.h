@@ -45,7 +45,7 @@ namespace utils {
 
     class DaemonExited : public std::runtime_error {
     public:
-        explicit DaemonExited(pid_t pid);
+        explicit DaemonExited(const std::string& message, pid_t pid);
 
         ~DaemonExited() override;
 
@@ -61,7 +61,7 @@ namespace utils {
         ~Daemon() = delete;
 
         static void startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName);
-        [[noreturn]] static void stopDaemon(const std::string& pidFileName);
+        static pid_t stopDaemon(const std::string& pidFileName);
 
         static void erasePidFile(const std::string& pidFileName);
     };

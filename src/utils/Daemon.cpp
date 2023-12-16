@@ -66,18 +66,21 @@ namespace utils {
             throw DaemonError("First fork()");
         }
         if (pid > 0) {
-            waitpid(pid, nullptr, 0); // Wait for the first child to exit
             /* Success: Let the parent terminate */
-            throw DaemonExited(getpid());
+            throw DaemonExited("Lead new session", pid);
         }
+
         if (setsid() < 0) {
             /* On success: The child process becomes session leader */
             throw DaemonError("setsid()");
         }
+
         if (signal(SIGHUP, SIG_IGN) == SIG_ERR) {
             /* Ignore signal sent from parent to child process */
             throw DaemonError("signal()");
-        } /* Fork off for the second time*/
+        }
+
+        /* Fork off for the second time*/
         pid = fork();
         if (pid < 0) {
             /* An error occurred */
@@ -94,9 +97,9 @@ namespace utils {
             pidFile << pid << std::endl;
             pidFile.close();
 
-            throw DaemonExited(getpid());
+            throw DaemonExited("Drop session lead", pid);
         }
-        waitpid(getppid(), nullptr, 0); // Wait for the parent (first child) to exit
+
         struct passwd* pw = nullptr;
         struct group* gr = nullptr;
 
@@ -133,7 +136,7 @@ namespace utils {
         }
     }
 
-    void Daemon::stopDaemon(const std::string& pidFileName) {
+    pid_t Daemon::stopDaemon(const std::string& pidFileName) {
         if (pidFileName.empty()) {
             throw DaemonFailure("No pid file given");
         } /* Try to read PID of daemon to from lockfile and kill the daemon */
@@ -143,7 +146,7 @@ namespace utils {
             pidFile.close();
             throw DaemonError("Reading pid file '" + pidFileName + "'");
         }
-        int pid = 0;
+        pid_t pid = 0;
         pidFile >> pid;
         pidFile.close();
 
@@ -171,17 +174,18 @@ namespace utils {
             erasePidFile(pidFileName);
             throw DaemonFailure("Daemon not responding - killed");
         }
-        throw DaemonExited(pid);
+
+        return pid;
     }
 
     void Daemon::erasePidFile(const std::string& pidFileName) {
-        (void) seteuid(getuid());             // In case  we are here seteguid can not fail
+        (void) seteuid(getuid());             // In case we are here seteguid can not fail
         (void) setegid(getgid());             // In case we are here setegid can not fail
         std::filesystem::remove(pidFileName); // In case we are here std::Filesystem::remove can not fail
     }
 
-    DaemonExited::DaemonExited(pid_t pid)
-        : std::runtime_error("Pid")
+    DaemonExited::DaemonExited(const std::string& message, pid_t pid)
+        : std::runtime_error(message)
         , pid(pid) {
     }
 

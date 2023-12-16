@@ -366,13 +366,12 @@ namespace utils {
 
         if ((*app)["--kill"]->count() > 0) {
             try {
-                utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
+                const pid_t daemonPid = utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
+                std::cout << "Daemon terminated: Pid = " << daemonPid << std::endl;
             } catch (const DaemonError& e) {
                 std::cout << "DaemonError: " << e.what() << std::endl;
             } catch (const DaemonFailure& e) {
                 std::cout << "DaemonFailure: " << e.what() << std::endl;
-            } catch (const DaemonExited& e) {
-                std::cout << "Daemon terminated: " << e.what() << ": " << e.getPid() << std::endl;
             }
 
             proceed = false;
@@ -535,7 +534,7 @@ namespace utils {
             } catch (const DaemonFailure& e) {
                 std::cout << "Daemon failure: " << e.what() << " ... exiting" << std::endl;
             } catch (const DaemonExited& e) {
-                std::cout << "Parent finished: " << e.what() << ": " << e.getPid() << std::endl;
+                std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
             } catch (const CLI::CallForHelp&) {
                 std::cout << app->help() << std::endl;
             } catch (const CLI::CallForAllHelp&) {
@@ -574,13 +573,13 @@ namespace utils {
                     std::cout << "Error writing config file: " << std::strerror(errno) << std::endl;
                 }
             } catch (const CLI::ConversionError& e) {
-                std::cout << Color::Code::FG_RED << "[" << e.get_name() << "] " << Color::Code::FG_DEFAULT << e.what() << std::endl;
+                std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
                 throw;
             } catch (const CLI::ArgumentMismatch& e) {
-                std::cout << Color::Code::FG_RED << "[" << e.get_name() << "] " << Color::Code::FG_DEFAULT << e.what() << std::endl;
+                std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
                 throw;
             } catch (const CLI::ConfigError& e) {
-                std::cout << Color::Code::FG_RED << "[" << e.get_name() << "] " << Color::Code::FG_DEFAULT << e.what() << std::endl;
+                std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
                 std::cout << "              Adding '-w' on the command line may solve this problem" << std::endl;
                 throw;
             } catch (const CLI::ParseError& e) {
@@ -590,7 +589,7 @@ namespace utils {
                     std::cout << Color::Code::FG_RED << "[BootstrapError]" << Color::Code::FG_DEFAULT
                               << " Anonymous instance(s) not configured in source code " << std::endl;
                 } else {
-                    std::cout << Color::Code::FG_RED << "[" << e.get_name() << "] " << Color::Code::FG_DEFAULT << what << std::endl;
+                    std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << what << std::endl;
                 }
                 throw;
             }
