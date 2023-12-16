@@ -225,6 +225,7 @@ namespace CLI {
                                 }).size() <= 1
                                  ? "SUBCOMMAND"
                                  : "SUBCOMMANDS")
+                << " [--help]"
                 << "]";
         }
         if (app->get_required()) {

@@ -39,23 +39,23 @@
 
 namespace utils {
 
-    DaemonizeFailure::DaemonizeFailure(const std::string& failureMessage)
+    DaemonFailure::DaemonFailure(const std::string& failureMessage)
         : std::runtime_error(failureMessage) {
     }
 
-    DaemonizeFailure::~DaemonizeFailure() {
+    DaemonFailure::~DaemonFailure() {
     }
 
-    DaemonizeError::DaemonizeError(const std::string& errorMessage)
-        : DaemonizeFailure(errorMessage + ": " + std::strerror(errno)) {
+    DaemonError::DaemonError(const std::string& errorMessage)
+        : DaemonFailure(errorMessage + ": " + std::strerror(errno)) {
     }
 
-    DaemonizeError::~DaemonizeError() {
+    DaemonError::~DaemonError() {
     }
 
     void Daemon::startDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName) {
         if (std::filesystem::exists(pidFileName)) {
-            throw DaemonizeFailure("Pid file '" + pidFileName + "' exists. Daemon already running?");
+            throw DaemonFailure("Pid file '" + pidFileName + "' exists. Daemon already running?");
         }
         errno = 0;
 
@@ -63,25 +63,25 @@ namespace utils {
         pid_t pid = fork();
         if (pid < 0) {
             /* An error occurred */
-            throw DaemonizeError("First fork()");
+            throw DaemonError("First fork()");
         }
         if (pid > 0) {
             waitpid(pid, nullptr, 0); // Wait for the first child to exit
             /* Success: Let the parent terminate */
-            throw DaemonizeSuccess();
+            throw DaemonExited(getpid());
         }
         if (setsid() < 0) {
             /* On success: The child process becomes session leader */
-            throw DaemonizeError("setsid()");
+            throw DaemonError("setsid()");
         }
         if (signal(SIGHUP, SIG_IGN) == SIG_ERR) {
             /* Ignore signal sent from parent to child process */
-            throw DaemonizeError("signal()");
+            throw DaemonError("signal()");
         } /* Fork off for the second time*/
         pid = fork();
         if (pid < 0) {
             /* An error occurred */
-            throw DaemonizeError("Second fork()");
+            throw DaemonError("Second fork()");
         }
         if (pid > 0) {
             /* Success: Let the second parent terminate */
@@ -89,12 +89,12 @@ namespace utils {
 
             if (!pidFile.good()) {
                 kill(pid, SIGTERM);
-                throw DaemonizeError("Writing pid file '" + pidFileName);
+                throw DaemonError("Writing pid file '" + pidFileName);
             }
             pidFile << pid << std::endl;
             pidFile.close();
 
-            throw DaemonizeSuccess();
+            throw DaemonExited(getpid());
         }
         waitpid(getppid(), nullptr, 0); // Wait for the parent (first child) to exit
         struct passwd* pw = nullptr;
@@ -102,21 +102,21 @@ namespace utils {
 
         if (((void) (errno = 0), gr = getgrnam(groupName.c_str())) == nullptr) {
             if (errno != 0) {
-                throw DaemonizeError("getgrnam()");
+                throw DaemonError("getgrnam()");
             }
-            throw DaemonizeFailure("getgrname() group not existing");
+            throw DaemonFailure("getgrname() group not existing");
         }
         if (setegid(gr->gr_gid) != 0) {
-            throw DaemonizeError("setegid()");
+            throw DaemonError("setegid()");
         }
         if (((void) (errno = 0), (pw = getpwnam(userName.c_str())) == nullptr)) {
             if (errno != 0) {
-                throw DaemonizeError("getpwnam()");
+                throw DaemonError("getpwnam()");
             }
-            throw DaemonizeFailure("getpwnam() user not existing");
+            throw DaemonFailure("getpwnam() user not existing");
         }
         if (seteuid(pw->pw_uid) != 0) {
-            throw DaemonizeError("seteuid()");
+            throw DaemonError("seteuid()");
         } /* Set new file permissions */
         umask(0);
         chdir("/");
@@ -135,13 +135,13 @@ namespace utils {
 
     void Daemon::stopDaemon(const std::string& pidFileName) {
         if (pidFileName.empty()) {
-            throw DaemonizeFailure("No pid file given");
+            throw DaemonFailure("No pid file given");
         } /* Try to read PID of daemon to from lockfile and kill the daemon */
         std::ifstream pidFile(pidFileName, std::ifstream::in);
 
         if (!pidFile.good()) {
             pidFile.close();
-            throw DaemonizeError("Reading pid file '" + pidFileName + "'");
+            throw DaemonError("Reading pid file '" + pidFileName + "'");
         }
         int pid = 0;
         pidFile >> pid;
@@ -151,10 +151,10 @@ namespace utils {
 
         if (pidfd == -1) {
             erasePidFile(pidFileName);
-            throw DaemonizeFailure("Daemon not running");
+            throw DaemonFailure("Daemon not running");
         }
         if (kill(pid, SIGTERM) != 0) {
-            throw DaemonizeError("kill()");
+            throw DaemonError("kill()");
         }
         struct pollfd pollfd {};
         pollfd.fd = pidfd;
@@ -164,14 +164,14 @@ namespace utils {
         close(pidfd);
 
         if (ready == -1) {
-            throw DaemonizeError("poll()");
+            throw DaemonError("poll()");
         }
         if (ready == 0) {
             kill(pid, SIGKILL);
             erasePidFile(pidFileName);
-            throw DaemonizeFailure("Daemon not responding - killed");
+            throw DaemonFailure("Daemon not responding - killed");
         }
-        throw DaemonizeSuccess();
+        throw DaemonExited(pid);
     }
 
     void Daemon::erasePidFile(const std::string& pidFileName) {
@@ -180,7 +180,16 @@ namespace utils {
         std::filesystem::remove(pidFileName); // In case we are here std::Filesystem::remove can not fail
     }
 
-    DaemonizeSuccess::~DaemonizeSuccess() {
+    DaemonExited::DaemonExited(pid_t pid)
+        : std::runtime_error("Pid")
+        , pid(pid) {
+    }
+
+    DaemonExited::~DaemonExited() {
+    }
+
+    pid_t DaemonExited::getPid() const {
+        return pid;
     }
 
 } // namespace utils

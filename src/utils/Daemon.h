@@ -21,31 +21,38 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <exception>
 #include <stdexcept>
 #include <string>
+#include <sys/wait.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
 
-    class DaemonizeFailure : public std::runtime_error {
+    class DaemonFailure : public std::runtime_error {
     public:
-        explicit DaemonizeFailure(const std::string& failureMessage);
+        explicit DaemonFailure(const std::string& failureMessage);
 
-        ~DaemonizeFailure() override;
+        ~DaemonFailure() override;
     };
 
-    class DaemonizeError : public DaemonizeFailure {
+    class DaemonError : public DaemonFailure {
     public:
-        explicit DaemonizeError(const std::string& errorMessage);
+        explicit DaemonError(const std::string& errorMessage);
 
-        ~DaemonizeError() override;
+        ~DaemonError() override;
     };
 
-    class DaemonizeSuccess : public std::exception {
+    class DaemonExited : public std::runtime_error {
     public:
-        ~DaemonizeSuccess() override;
+        explicit DaemonExited(pid_t pid);
+
+        ~DaemonExited() override;
+
+        pid_t getPid() const;
+
+    private:
+        pid_t pid = 0;
     };
 
     class Daemon {

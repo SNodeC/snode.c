@@ -37,7 +37,11 @@ namespace net::config {
 
     ConfigInstance::ConfigInstance(const std::string& instanceName, const std::string& role)
         : instanceName(instanceName) {
-        instanceSc = utils::Config::add_instance(instanceName, "Configuration for " + role + " instance '" + instanceName + "'");
+        instanceSc =
+            utils::Config::add_instance(instanceName, "Configuration for " + role + " instance '" + instanceName + "'", "Instances");
+
+        utils::Config::add_standard_flags(instanceSc);
+        utils::Config::add_help_flags(instanceSc);
 
         disableOpt = instanceSc
                          ->add_flag_function(
@@ -84,7 +88,7 @@ namespace net::config {
             ->configurable(!this->instanceName.empty());
 
         utils::Config::add_standard_flags(sectionSc);
-        utils::Config::add_help_flags(sectionSc);
+        utils::Config::add_help_flag(sectionSc);
 
         return sectionSc;
     }

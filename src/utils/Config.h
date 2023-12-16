@@ -48,19 +48,13 @@ namespace utils {
         static void terminate();
 
         static CLI::App* add_instance(const std::string& name, const std::string& description, const std::string& group);
-        static CLI::App* add_standard_flags(CLI::App* app);
-        static CLI::App* add_help_flags(CLI::App* app);
+        static bool remove_instance(CLI::App* instance);
 
         static void required(CLI::App* instance, bool req = true);
 
-        static bool remove_instance(CLI::App* instance);
-
-        static void add_flag(const std::string& name,
-                             bool& variable,
-                             const std::string& description,
-                             bool required,
-                             bool configurable = true,
-                             const std::string& groupName = "Application specific settings");
+        static CLI::App* add_standard_flags(CLI::App* app);
+        static CLI::App* add_help_flag(CLI::App* app);
+        static CLI::App* add_help_flags(CLI::App* app);
 
         static std::string getApplicationName();
         static int getLogLevel();
@@ -93,15 +87,23 @@ namespace utils {
 
         static std::string get_string_option_value(const std::string& name);
 
+        static void add_flag(const std::string& name,
+                             bool& variable,
+                             const std::string& description,
+                             bool required,
+                             bool configurable = true,
+                             const std::string& groupName = "Application Options");
+
     private:
-        static void parse1();
+        static bool parse1();
         static bool parse2();
 
-        static CLI::Option* add_flag(const std::string& name, bool& variable, const std::string& description = "");
+        static std::shared_ptr<CLI::App> app;
+        static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
         static int argc;
         static char** argv;
-        static std::shared_ptr<CLI::App> app;
+
         static std::string applicationName;
 
         static std::string configDirectory;
@@ -116,8 +118,6 @@ namespace utils {
         static CLI::Option* logLevelOpt;
         static CLI::Option* verboseLevelOpt;
         static CLI::Option* quietOpt;
-
-        static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
         static std::map<std::string, std::string> aliases;             // from -> to
         static std::map<std::string, CLI::Option*> applicationOptions; // keep all user options in memory

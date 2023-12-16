@@ -48,52 +48,56 @@
 
 namespace utils {
 
-    int Config::argc = 0;
-    char** Config::argv = nullptr;
-    CLI::App Config::app;
+    static std::shared_ptr<CLI::App> makeApp() { // NO_LINT
+        std::shared_ptr<CLI::App> app = std::make_shared<CLI::App>();
 
-    std::string Config::applicationName;
+        app->configurable(false);
+        app->allow_extras();
+        app->allow_config_extras();
 
-    std::string Config::configDirectory;
-    std::string Config::logDirectory;
-    std::string Config::pidDirectory;
+        const std::shared_ptr<CLI::HelpFormatter> helpFormatter = std::make_shared<CLI::HelpFormatter>();
 
-    CLI::Option* Config::daemonizeOpt = nullptr;
-    CLI::Option* Config::logFileOpt = nullptr;
-    CLI::Option* Config::userNameOpt = nullptr;
-    CLI::Option* Config::groupNameOpt = nullptr;
-    CLI::Option* Config::enforceLogFileOpt = nullptr;
-    CLI::Option* Config::logLevelOpt = nullptr;
-    CLI::Option* Config::verboseLevelOpt = nullptr;
-    CLI::Option* Config::quietOpt = nullptr;
+        helpFormatter->label("SUBCOMMAND", "INSTANCE");
+        helpFormatter->label("SUBCOMMANDS", "INSTANCES");
+        helpFormatter->label("PERSISTENT", "");
+        helpFormatter->label("Persistent Options", "Options (persistent)");
+        helpFormatter->label("Nonpersistent Options", "Options (nonpersistent)");
+        helpFormatter->label("Usage", "\nUsage");
+        helpFormatter->label("bool:{true,false}", "{true,false}");
+        helpFormatter->label(":{standard,required,full,default}", "{standard,required,full,default}");
+        helpFormatter->label(":{standard,expanded}", "{standard,expanded}");
+        helpFormatter->column_width(7);
 
-    std::shared_ptr<CLI::Formatter> Config::sectionFormatter;
-    std::map<std::string, std::string> Config::aliases;
-    std::map<std::string, CLI::Option*> Config::applicationOptions;
+        app->formatter(helpFormatter);
 
-    // Declare some used functions
-    static std::string createCommandLineOptions(CLI::App* app, CLI::CallForCommandline::Mode mode);
-    static void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode);
-    static std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode);
-    static void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode);
-    static std::string createCommandLineTemplate(CLI::App* app, CLI::CallForCommandline::Mode mode);
+        app->config_formatter(std::make_shared<CLI::ConfigFormatter>());
+
+        app->option_defaults()->take_last();
+        app->option_defaults()->group(app->get_formatter()->get_label("Nonpersistent Options"));
+
+        logger::Logger::init();
+
+        return app;
+    }
+
+    std::shared_ptr<CLI::App> Config::app = makeApp();
 
     bool Config::init(int argc, char* argv[]) {
-        bool success = true;
+        bool proceed = true;
 
         Config::argc = argc;
         Config::argv = argv;
 
-        logger::Logger::init();
+        applicationName = std::filesystem::path(argv[0]).filename();
 
         uid_t euid = 0;
         struct passwd* pw = nullptr;
         struct group* gr = nullptr;
 
         if ((pw = getpwuid(getuid())) == nullptr) {
-            success = false;
+            proceed = false;
         } else if ((gr = getgrgid(pw->pw_gid)) == nullptr) {
-            success = false;
+            proceed = false;
         } else if ((euid = geteuid()) == 0) {
             configDirectory = "/etc/snode.c";
             logDirectory = "/var/log/snode.c";
@@ -111,13 +115,11 @@ namespace utils {
                 logDirectory = std::string(homedir) + "/.local/log/snode.c";
                 pidDirectory = std::string(homedir) + "/.local/run/snode.c";
             } else {
-                success = false;
+                proceed = false;
             }
         }
 
-        applicationName = std::filesystem::path(argv[0]).filename();
-
-        if (success && !std::filesystem::exists(configDirectory)) {
+        if (proceed && !std::filesystem::exists(configDirectory)) {
             if (std::filesystem::create_directories(configDirectory)) {
                 std::filesystem::permissions(
                     configDirectory,
@@ -134,16 +136,16 @@ namespace utils {
                         std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
                         std::cout << "       and add the current user to this group." << std::endl;
                         std::filesystem::remove(configDirectory);
-                        success = false;
+                        proceed = false;
                     }
                 }
             } else {
                 std::cout << "Error: Can not create directory '" << configDirectory << "'" << std::endl;
-                success = false;
+                proceed = false;
             }
         }
 
-        if (success && !std::filesystem::exists(logDirectory)) {
+        if (proceed && !std::filesystem::exists(logDirectory)) {
             if (std::filesystem::create_directories(logDirectory)) {
                 std::filesystem::permissions(logDirectory,
                                              (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
@@ -159,16 +161,16 @@ namespace utils {
                         std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
                         std::cout << "       and add the current user to this group." << std::endl;
                         std::filesystem::remove(configDirectory);
-                        success = false;
+                        proceed = false;
                     }
                 }
             } else {
                 std::cout << "Error: Can not create directory '" << logDirectory << "'" << std::endl;
-                success = false;
+                proceed = false;
             }
         }
 
-        if (success && !std::filesystem::exists(pidDirectory)) {
+        if (proceed && !std::filesystem::exists(pidDirectory)) {
             if (std::filesystem::create_directories(pidDirectory)) {
                 std::filesystem::permissions(pidDirectory,
                                              (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
@@ -184,56 +186,24 @@ namespace utils {
                         std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup." << std::endl;
                         std::cout << "       and add the current user to this group." << std::endl;
                         std::filesystem::remove(configDirectory);
-                        success = false;
+                        proceed = false;
                     }
                 }
             } else {
                 std::cout << "Error: Can not create directory '" << pidDirectory << "'" << std::endl;
-                success = false;
+                proceed = false;
             }
         }
 
-        if (success) {
-            sectionFormatter = std::make_shared<CLI::HelpFormatter>();
+        if (proceed) {
+            app->description("Configuration for Application '" + applicationName + "'");
 
-            sectionFormatter->label("SUBCOMMAND", "SECTION");
-            sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
-            sectionFormatter->label("PERSISTENT", "");
-            sectionFormatter->label("Persistent Options", "Options (persistent)");
-            sectionFormatter->label("None Persistent Options", "Options (none persistent)");
-            sectionFormatter->label("Usage", "\nUsage");
-            sectionFormatter->label("bool:{true,false}", "{true,false}");
-            sectionFormatter->label("[mode]:{standard,required,full,default}", "{standard,required,full,default}");
-            sectionFormatter->column_width(7);
+            app->footer("Application '" + applicationName +
+                        "' powered by SNode.C\n"
+                        "(C) 2019-2023 Volker Christian\n"
+                        "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
 
-            app.configurable(false);
-            app.set_help_flag();
-
-            app.formatter(std::make_shared<CLI::HelpFormatter>());
-            app.get_formatter()->label("SUBCOMMAND", "INSTANCE");
-            app.get_formatter()->label("SUBCOMMANDS", "INSTANCES");
-            app.get_formatter()->label("PERSISTENT", "");
-            app.get_formatter()->label("Persistent Options", "Options (persistent)");
-            app.get_formatter()->label("None Persistent Options", "Options (none persistent)");
-            app.get_formatter()->label("Usage", "\nUsage");
-            app.get_formatter()->label("bool:{true,false}", "{true,false}");
-            app.get_formatter()->label("[mode]:{standard,required,full,default}", "{standard,required,full,default}");
-            app.get_formatter()->column_width(7);
-
-            app.option_defaults()->take_last();
-            app.option_defaults()->group(app.get_formatter()->get_label("None Persistent Options"));
-
-            const std::shared_ptr<CLI::ConfigFormatter> configFormatter = std::make_shared<CLI::ConfigFormatter>();
-            app.config_formatter(std::static_pointer_cast<CLI::Config>(configFormatter));
-
-            app.description("Configuration for Application '" + applicationName + "'");
-
-            app.footer("Application '" + applicationName +
-                       "' powered by SNode.C\n"
-                       "(C) 2019-2023 Volker Christian\n"
-                       "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
-
-            app.set_config( //
+            app->set_config( //
                    "-c,--config-file",
                    configDirectory + "/" + applicationName + ".conf",
                    "Read a config file",
@@ -242,21 +212,21 @@ namespace utils {
                 ->type_name("configfile")
                 ->check(!CLI::ExistingDirectory);
 
-            app.add_option("-w,--write-config",
-                           "Write config file and exit") //
+            app->add_option("-w,--write-config",
+                            "Write config file and exit") //
                 ->configurable(false)
                 ->default_val(configDirectory + "/" + applicationName + ".conf")
                 ->type_name("[configfile]")
                 ->check(!CLI::ExistingDirectory)
                 ->expected(0, 1);
 
-            app.add_flag( //
+            app->add_flag( //
                    "-k,--kill",
                    "Kill running daemon") //
                 ->configurable(false)
                 ->disable_flag_override();
 
-            app.add_option( //
+            app->add_option( //
                    "-i,--instance-alias",
                    "Make an instance also known as an alias in configuration files")
                 ->configurable(false)
@@ -270,27 +240,27 @@ namespace utils {
                     }
                 });
 
-            add_standard_flags(&app);
+            add_standard_flags(app.get());
 
-            logLevelOpt = app.add_option_function<std::string>( //
+            logLevelOpt = app->add_option_function<std::string>( //
                                  "-l,--log-level",
                                  utils::ResetToDefault(logLevelOpt),
                                  "Log level") //
                               ->default_val(4)
                               ->type_name("level")
                               ->check(CLI::Range(0, 6))
-                              ->group(app.get_formatter()->get_label("Persistent Options"));
+                              ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            verboseLevelOpt = app.add_option_function<std::string>( //
+            verboseLevelOpt = app->add_option_function<std::string>( //
                                      "-v,--verbose-level",
                                      utils::ResetToDefault(verboseLevelOpt),
                                      "Verbose level") //
                                   ->default_val(1)
                                   ->type_name("level")
                                   ->check(CLI::Range(0, 10))
-                                  ->group(app.get_formatter()->get_label("Persistent Options"));
+                                  ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            quietOpt = app.add_flag_function( //
+            quietOpt = app->add_flag_function( //
                               "-q{true},!-u,--quiet{true}",
                               utils::ResetToDefault(quietOpt),
                               "Quiet mode") //
@@ -298,18 +268,18 @@ namespace utils {
                            ->default_val("false")
                            ->type_name("bool")
                            ->check(CLI::IsMember({"true", "false"}))
-                           ->group(app.get_formatter()->get_label("Persistent Options"));
+                           ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            logFileOpt = app.add_option_function<std::string>( //
+            logFileOpt = app->add_option_function<std::string>( //
                                 "--log-file",
                                 utils::ResetToDefault(logFileOpt),
                                 "Log file path") //
                              ->default_val(logDirectory + "/" + applicationName + ".log")
                              ->type_name("logfile")
                              ->check(!CLI::ExistingDirectory)
-                             ->group(app.get_formatter()->get_label("Persistent Options"));
+                             ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            enforceLogFileOpt = app.add_flag_function( //
+            enforceLogFileOpt = app->add_flag_function( //
                                        "-e{true},!-n,--enforce-log-file{true}",
                                        utils::ResetToDefault(enforceLogFileOpt),
                                        "Enforce writing of logs to file for foreground applications") //
@@ -317,9 +287,9 @@ namespace utils {
                                     ->default_val("false")
                                     ->type_name("bool")
                                     ->check(CLI::IsMember({"true", "false"}))
-                                    ->group(app.get_formatter()->get_label("Persistent Options"));
+                                    ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            daemonizeOpt = app.add_flag_function( //
+            daemonizeOpt = app->add_flag_function( //
                                   "-d{true},!-f,--daemonize{true}",
                                   utils::ResetToDefault(daemonizeOpt),
                                   "Start application as daemon") //
@@ -327,67 +297,44 @@ namespace utils {
                                ->default_val("false")
                                ->type_name("bool")
                                ->check(CLI::IsMember({"true", "false"}))
-                               ->group(app.get_formatter()->get_label("Persistent Options"));
+                               ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            userNameOpt = app.add_option_function<std::string>( //
+            userNameOpt = app->add_option_function<std::string>( //
                                  "--user-name",
                                  utils::ResetToDefault(userNameOpt),
                                  "Run daemon under specific user permissions") //
                               ->default_val(pw->pw_name)
                               ->type_name("username")
                               ->needs(daemonizeOpt)
-                              ->group(app.get_formatter()->get_label("Persistent Options"));
+                              ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            groupNameOpt = app.add_option_function<std::string>( //
+            groupNameOpt = app->add_option_function<std::string>( //
                                   "--group-name",
                                   utils::ResetToDefault(groupNameOpt),
                                   "Run daemon under specific group permissions")
                                ->default_val(gr->gr_name)
                                ->type_name("groupname")
                                ->needs(daemonizeOpt)
-                               ->group(app.get_formatter()->get_label("Persistent Options"));
+                               ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            parse1(); // for stopDaemon and pre init application options
+            proceed = parse1(); // for stopDaemon and pre init application options
 
-            if (app["--kill"]->count() > 0) {
-                try {
-                    utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
-                } catch (const DaemonizeError& e) {
-                    std::cout << "Daemonize error: " << e.what() << std::endl;
-                    std::exit(EXIT_FAILURE);
-                } catch (const DaemonizeFailure& e) {
-                    std::cout << "Daemonize failure: " << e.what() << std::endl;
-                    std::exit(EXIT_FAILURE);
-                } catch (const DaemonizeSuccess&) {
-                    std::cout << "Daemon stopped" << std::endl;
-                    std::exit(EXIT_SUCCESS);
-                }
-            }
+            add_help_flags(app.get());
         }
 
-        return success;
+        return proceed;
     }
 
     bool Config::bootstrap() {
         aliases.clear();
 
-        app.final_callback([]() -> void {
-            if (daemonizeOpt->as<bool>() && app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 &&
-                app["--command-line"]->count() == 0) {
-                std::cout << "Running as daemon" << std::endl;
+        app->final_callback([]() -> void {
+            if (daemonizeOpt->as<bool>() && (*app)["--show-config"]->count() == 0 && (*app)["--write-config"]->count() == 0 &&
+                (*app)["--command-line"]->count() == 0) {
+                std::cout << "Running as daemon (double fork)" << std::endl;
 
-                try {
-                    utils::Daemon::startDaemon(
-                        pidDirectory + "/" + applicationName + ".pid", userNameOpt->as<std::string>(), groupNameOpt->as<std::string>());
-                } catch (const DaemonizeError& e) {
-                    std::cout << "Daemonize error: " << e.what() << " ... exiting" << std::endl;
-                    std::exit(EXIT_FAILURE);
-                } catch (const DaemonizeFailure& e) {
-                    std::cout << "Daemonize failure: " << e.what() << " ... exiting" << std::endl;
-                    std::exit(EXIT_FAILURE);
-                } catch (const DaemonizeSuccess&) {
-                    std::exit(EXIT_SUCCESS);
-                }
+                utils::Daemon::startDaemon(
+                    pidDirectory + "/" + applicationName + ".pid", userNameOpt->as<std::string>(), groupNameOpt->as<std::string>());
 
                 logger::Logger::setQuiet();
 
@@ -395,15 +342,54 @@ namespace utils {
                 if (!logFile.empty()) {
                     logger::Logger::logToFile(logFile);
                 }
-            } else if (app["--enforce-log-file"]->as<bool>()) {
+            } else if ((*app)["--enforce-log-file"]->as<bool>()) {
                 const std::string logFile = logFileOpt->as<std::string>();
-                std::cout << "Writing logs to file " << logFile << std::endl;
+                if (!logFile.empty()) {
+                    std::cout << "Writing logs to file " << logFile << std::endl;
 
-                logger::Logger::logToFile(logFile);
+                    logger::Logger::logToFile(logFile);
+                }
             }
         });
 
         return parse2();
+    }
+
+    bool Config::parse1() {
+        bool proceed = true;
+
+        try {
+            app->parse(argc, argv);
+        } catch (const CLI::ParseError&) {
+            // Do not process ParseError here but on second parse pass
+        }
+
+        if ((*app)["--kill"]->count() > 0) {
+            try {
+                utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
+            } catch (const DaemonError& e) {
+                std::cout << "DaemonError: " << e.what() << std::endl;
+            } catch (const DaemonFailure& e) {
+                std::cout << "DaemonFailure: " << e.what() << std::endl;
+            } catch (const DaemonExited& e) {
+                std::cout << "Daemon terminated: " << e.what() << ": " << e.getPid() << std::endl;
+            }
+
+            proceed = false;
+        } else {
+            if ((*app)["--show-config"]->count() == 0 && (*app)["--write-config"]->count() == 0 && (*app)["--command-line"]->count() == 0) {
+                app->allow_extras(false);
+            }
+
+            if (!quietOpt->as<bool>()) {
+                logger::Logger::setLogLevel(logLevelOpt->as<int>());
+                logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+            }
+
+            logger::Logger::setQuiet(quietOpt->as<bool>());
+        }
+
+        return proceed;
     }
 
     static void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
@@ -477,6 +463,8 @@ namespace utils {
         return optionString;
     }
 
+    static void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode);
+
     static std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream out;
 
@@ -535,19 +523,25 @@ namespace utils {
 
         try {
             try {
-                app.parse(argc, argv);
+                app->parse(argc, argv);
 
-                if (app["--write-config"]->count() > 0) {
-                    throw CLI::CallForWriteConfig(app["--write-config"]->as<std::string>());
+                if ((*app)["--write-config"]->count() > 0) {
+                    throw CLI::CallForWriteConfig((*app)["--write-config"]->as<std::string>());
                 }
 
                 success = true;
+            } catch (const DaemonError& e) {
+                std::cout << "Daemon error: " << e.what() << " ... exiting" << std::endl;
+            } catch (const DaemonFailure& e) {
+                std::cout << "Daemon failure: " << e.what() << " ... exiting" << std::endl;
+            } catch (const DaemonExited& e) {
+                std::cout << "Parent finished: " << e.what() << ": " << e.getPid() << std::endl;
             } catch (const CLI::CallForHelp&) {
-                std::cout << app.help() << std::endl;
+                std::cout << app->help() << std::endl;
             } catch (const CLI::CallForAllHelp&) {
-                std::cout << app.help("", CLI::AppFormatMode::All) << std::endl;
+                std::cout << app->help("", CLI::AppFormatMode::All) << std::endl;
             } catch (const CLI::CallForVersion&) {
-                std::cout << "SNode.C-Version: " << app.version() << std::endl << std::endl;
+                std::cout << "SNode.C-Version: " << app->version() << std::endl << std::endl;
             } catch (const CLI::CallForCommandline& e) {
                 std::cout << e.what() << ":" << std::endl;
                 std::cout << std::endl
@@ -569,9 +563,10 @@ namespace utils {
                 std::ofstream confFile(e.getConfigFile());
                 if (confFile.is_open()) {
                     try {
-                        confFile << app.config_to_str(true, true);
+                        confFile << app->config_to_str(true, true);
                         confFile.close();
                     } catch (const CLI::ParseError& e1) {
+                        confFile.close();
                         std::cout << "Error writing config file: " << e1.get_name() << " " << e1.what() << std::endl;
                         throw;
                     }
@@ -614,7 +609,7 @@ namespace utils {
     }
 
     void Config::terminate() {
-        if (app["--daemonize"]->as<bool>()) {
+        if ((*app)["--daemonize"]->as<bool>()) {
             std::ifstream pidFile(pidDirectory + "/" + applicationName + ".pid", std::ifstream::in);
 
             if (pidFile.good()) {
@@ -632,9 +627,28 @@ namespace utils {
         }
     }
 
-    CLI::App* Config::add_instance(const std::string& name, const std::string& description) {
-        CLI::App* instance = app.add_subcommand(name, description) //
-                                 ->group("Instances")
+    static std::shared_ptr<CLI::HelpFormatter> makeSectionFormatter() {
+        std::shared_ptr<CLI::HelpFormatter> sectionFormatter = std::make_shared<CLI::HelpFormatter>();
+
+        sectionFormatter->label("SUBCOMMAND", "SECTION");
+        sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
+        sectionFormatter->label("PERSISTENT", "");
+        sectionFormatter->label("Persistent Options", "Options (persistent)");
+        sectionFormatter->label("Nonpersistent Options", "Options (nonpersistent)");
+        sectionFormatter->label("Usage", "\nUsage");
+        sectionFormatter->label("bool:{true,false}", "{true,false}");
+        sectionFormatter->label(":{standard,required,full,default}", "{standard,required,full,default}");
+        sectionFormatter->label(":{standard,expanded}", "{standard,expanded}");
+        sectionFormatter->column_width(7);
+
+        return sectionFormatter;
+    }
+
+    std::shared_ptr<CLI::Formatter> Config::sectionFormatter = makeSectionFormatter();
+
+    CLI::App* Config::add_instance(const std::string& name, const std::string& description, const std::string& group) {
+        CLI::App* instance = app->add_subcommand(name, description) //
+                                 ->group(group)
                                  ->fallthrough()
                                  ->formatter(sectionFormatter)
                                  ->configurable(false)
@@ -654,14 +668,6 @@ namespace utils {
                     ->option_defaults()
                     ->take_first();
             }
-        }
-
-        add_standard_flags(instance);
-        add_help_flags(instance);
-
-        if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0) {
-            app.allow_extras(false);
-            app.allow_config_extras(true);
         }
 
         return instance;
@@ -710,7 +716,6 @@ namespace utils {
                 "  default: View the full set of options with their default values")
             ->take_last()
             ->configurable(false)
-            ->type_name("[mode]")
             ->check(CLI::IsMember({"standard", "required", "full", "default"}));
 
         return app;
@@ -720,13 +725,39 @@ namespace utils {
         app //
             ->set_help_flag();
 
-        app                      //
-            ->add_flag_callback( //
+        app //
+            ->add_flag_function(
+                "-h{standard},--help{standard}",
+                [app]([[maybe_unused]] std::int64_t count) {
+                    const std::string& result = app->get_option("--help")->as<std::string>();
+
+                    if (result == "standard") {
+                        throw CLI::CallForHelp();
+                    }
+                    if (result == "expanded") {
+                        throw CLI::CallForAllHelp();
+                    }
+                },
+                "Print help message")
+            ->take_last()
+            ->configurable(false)
+            ->check(CLI::IsMember({"standard", "expanded"}))
+            ->trigger_on_parse();
+
+        return app;
+    }
+
+    CLI::App* Config::add_help_flag(CLI::App* app) {
+        app //
+            ->set_help_flag();
+
+        app //
+            ->add_flag_function(
                 "-h,--help",
-                []() {
+                []([[maybe_unused]] std::int64_t count) {
                     throw CLI::CallForHelp();
                 },
-                "Print this help message") //
+                "Print help message")
             ->configurable(false)
             ->disable_flag_override()
             ->trigger_on_parse();
@@ -736,9 +767,9 @@ namespace utils {
 
     void Config::required(CLI::App* instance, bool req) {
         if (req) {
-            app.needs(instance);
+            app->needs(instance);
         } else {
-            app.remove_needs(instance);
+            app->remove_needs(instance);
         }
 
         instance->required(req);
@@ -747,48 +778,22 @@ namespace utils {
     bool Config::remove_instance(CLI::App* instance) {
         Config::required(instance, false);
 
-        return app.remove_subcommand(instance);
+        return app->remove_subcommand(instance);
     }
 
     CLI::Option* Config::add_string_option(const std::string& name, const std::string& description, const std::string& typeName) {
-        applicationOptions[name] = app //
-                                       .add_option_function<std::string>(name, utils::ResetToDefault(applicationOptions[name]), description)
-                                       ->take_last()
-                                       ->type_name(typeName)
-                                       ->configurable()
-                                       ->required()
-                                       ->group("Application Options");
+        applicationOptions[name] =
+            app //
+                ->add_option_function<std::string>(name, utils::ResetToDefault(applicationOptions[name]), description)
+                ->take_last()
+                ->type_name(typeName)
+                ->configurable()
+                ->required()
+                ->group("Application Options");
 
-        app.needs(applicationOptions[name]);
-
-        return applicationOptions[name];
-    }
-
-    CLI::Option* Config::add_string_option(const std::string& name,
-                                           const std::string& description,
-                                           const std::string& typeName,
-                                           const std::string& defaultValue) {
-        add_string_option(name, description, typeName);
-
-        applicationOptions[name] //
-            ->required(false)
-            ->default_val(defaultValue);
-
-        app.remove_needs(applicationOptions[name]);
+        app->needs(applicationOptions[name]);
 
         return applicationOptions[name];
-    }
-
-    CLI::Option* Config::add_string_option(
-        const std::string& name, const std::string& description, const std::string& typeName, const char* defaultValue, bool configurable) {
-        return add_string_option(name, description, typeName, std::string(defaultValue), configurable);
-    }
-
-    CLI::Option* Config::add_string_option(const std::string& name,
-                                           const std::string& description,
-                                           const std::string& typeName,
-                                           const char* defaultValue) {
-        return add_string_option(name, description, typeName, std::string(defaultValue));
     }
 
     CLI::Option*
@@ -801,6 +806,21 @@ namespace utils {
     CLI::Option* Config::add_string_option(const std::string& name,
                                            const std::string& description,
                                            const std::string& typeName,
+                                           const std::string& defaultValue) {
+        add_string_option(name, description, typeName);
+
+        applicationOptions[name] //
+            ->required(false)
+            ->default_val(defaultValue);
+
+        app->remove_needs(applicationOptions[name]);
+
+        return applicationOptions[name];
+    }
+
+    CLI::Option* Config::add_string_option(const std::string& name,
+                                           const std::string& description,
+                                           const std::string& typeName,
                                            const std::string& defaultValue,
                                            bool configurable) {
         add_string_option(name, description, typeName, defaultValue);
@@ -808,12 +828,24 @@ namespace utils {
             ->configurable(configurable);
     }
 
+    CLI::Option* Config::add_string_option(const std::string& name,
+                                           const std::string& description,
+                                           const std::string& typeName,
+                                           const char* defaultValue) {
+        return add_string_option(name, description, typeName, std::string(defaultValue));
+    }
+
+    CLI::Option* Config::add_string_option(
+        const std::string& name, const std::string& description, const std::string& typeName, const char* defaultValue, bool configurable) {
+        return add_string_option(name, description, typeName, std::string(defaultValue), configurable);
+    }
+
     std::string Config::get_string_option_value(const std::string& name) {
-        if (app.get_option(name) == nullptr) {
+        if (app->get_option(name) == nullptr) {
             throw CLI::OptionNotFound(name);
         }
 
-        return app[name]->as<std::string>();
+        return (*app)[name]->as<std::string>();
     }
 
     void Config::add_flag(const std::string& name,
@@ -822,26 +854,10 @@ namespace utils {
                           bool required,
                           bool configurable,
                           const std::string& groupName) {
-        add_flag(name, variable, description) //
-            ->required(required)              //
-            ->configurable(configurable)      //
+        app->add_flag(name, variable, description) //
+            ->required(required)                   //
+            ->configurable(configurable)           //
             ->group(groupName);
-    }
-
-    CLI::Option* Config::add_option(const std::string& name, int& variable, const std::string& description) {
-        return app.add_option(name, variable, description);
-    }
-
-    CLI::Option* Config::add_option(const std::string& name, std::string& variable, const std::string& description) {
-        return app.add_option(name, variable, description);
-    }
-
-    CLI::Option* Config::add_flag(const std::string& name, const std::string& description) {
-        return app.add_flag(name, description);
-    }
-
-    CLI::Option* Config::add_flag(const std::string& name, bool& variable, const std::string& description) {
-        return app.add_flag(name, variable, description);
     }
 
     std::string Config::getApplicationName() {
@@ -855,5 +871,26 @@ namespace utils {
     int Config::getVerboseLevel() {
         return verboseLevelOpt->as<int>();
     }
+
+    int Config::argc = 0;
+    char** Config::argv = nullptr;
+
+    std::string Config::applicationName;
+
+    std::string Config::configDirectory;
+    std::string Config::logDirectory;
+    std::string Config::pidDirectory;
+
+    CLI::Option* Config::daemonizeOpt = nullptr;
+    CLI::Option* Config::logFileOpt = nullptr;
+    CLI::Option* Config::userNameOpt = nullptr;
+    CLI::Option* Config::groupNameOpt = nullptr;
+    CLI::Option* Config::enforceLogFileOpt = nullptr;
+    CLI::Option* Config::logLevelOpt = nullptr;
+    CLI::Option* Config::verboseLevelOpt = nullptr;
+    CLI::Option* Config::quietOpt = nullptr;
+
+    std::map<std::string, std::string> Config::aliases;
+    std::map<std::string, CLI::Option*> Config::applicationOptions;
 
 } // namespace utils
