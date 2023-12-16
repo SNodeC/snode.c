@@ -530,64 +530,6 @@ namespace utils {
         return outString;
     }
 
-    namespace Color {
-
-        enum class Code {
-            FG_DEFAULT = 39,
-            FG_BLACK = 30,
-            FG_RED = 31,
-            FG_GREEN = 32,
-            FG_YELLOW = 33,
-            FG_BLUE = 34,
-            FG_MAGENTA = 35,
-            FG_CYAN = 36,
-            FG_LIGHT_GRAY = 37,
-            FG_DARK_GRAY = 90,
-            FG_LIGHT_RED = 91,
-            FG_LIGHT_GREEN = 92,
-            FG_LIGHT_YELLOW = 93,
-            FG_LIGHT_BLUE = 94,
-            FG_LIGHT_MAGENTA = 95,
-            FG_LIGHT_CYAN = 96,
-            FG_WHITE = 97,
-            BG_RED = 41,
-            BG_GREEN = 42,
-            BG_BLUE = 44,
-            BG_DEFAULT = 49
-        };
-
-        std::ostream& operator<<(std::ostream& os, Color::Code code);
-        std::ostream& operator<<(std::ostream& os, Color::Code code) {
-            return os << "\033[" << static_cast<int>(code) << "m";
-        }
-
-    } // namespace Color
-
-    void Config::parse1() {
-        app.allow_extras();
-        app.allow_config_extras();
-
-        try {
-            app.parse(argc, argv);
-
-        } catch (const CLI::ParseError&) {
-            // Do not process ParseError here but on second parse pass
-        }
-
-        add_help_flags(&app);
-
-        if (app["--show-config"]->count() == 0 && app["--write-config"]->count() == 0 && app["--command-line"]->count() == 0) {
-            app.allow_extras(false);
-            app.allow_config_extras(false);
-        }
-
-        if (!quietOpt->as<bool>()) {
-            logger::Logger::setLogLevel(logLevelOpt->as<int>());
-            logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
-        }
-        logger::Logger::setQuiet(quietOpt->as<bool>());
-    }
-
     bool Config::parse2() {
         bool success = false;
 
