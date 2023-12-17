@@ -51,7 +51,7 @@ namespace net::un {
         std::string toString() const override;
 
     private:
-        int lockFd = -1;
+        mutable int lockFd = -1;
     };
 
 } // namespace net::un
