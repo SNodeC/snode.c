@@ -51,4 +51,8 @@ namespace core {
         autoClose = !dontClose;
     }
 
+    bool Descriptor::getDontClose() const {
+        return !autoClose;
+    }
+
 } // namespace core

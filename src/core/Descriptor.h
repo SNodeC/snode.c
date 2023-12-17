@@ -43,6 +43,7 @@ namespace core {
         int getFd() const;
 
         void setDontClose(bool dontClose = true);
+        bool getDontClose() const;
 
     private:
         int fd = -1;
