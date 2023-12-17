@@ -37,14 +37,16 @@ namespace net::un::phy {
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
-        if (locked && std::remove(Super::getBindAddress().getAddress().data()) != 0) {
-            PLOG(ERROR) << "net::un::stream::PhysicalSocket: Remove sunPath: " << Super::getBindAddress().getAddress();
+        if (locked && Super::getBindAddress().unlock()) {
+            if (std::remove(Super::getBindAddress().getAddress().data()) != 0) {
+                PLOG(ERROR) << "net::un::stream::PhysicalSocket: Remove sunPath: " << Super::getBindAddress().getAddress();
+            }
         }
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     int PhysicalSocket<PhysicalPeerSocket>::bind(SocketAddress& bindAddress) {
-        if (!bindAddress.getAddress().empty() && (locked = bindAddress.lock())) {
+        if ((locked = bindAddress.lock())) {
             std::remove(bindAddress.getAddress().data());
         }
 

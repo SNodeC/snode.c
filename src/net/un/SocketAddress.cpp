@@ -47,12 +47,6 @@ namespace net::un {
         setSunPath(sunPath);
     }
 
-    SocketAddress::~SocketAddress() {
-        if (lockFd >= 0 && flock(lockFd, LOCK_UN) == 0) {
-            std::remove(getAddress().append(".lock").data());
-        }
-    }
-
     SocketAddress SocketAddress::setSunPath(const std::string& sunPath) {
         if (sunPath.length() < sizeof(sockAddr.sun_path)) {
             const std::size_t len = sunPath.length();
@@ -85,6 +79,16 @@ namespace net::un {
         }
 
         return lockFd >= 0;
+    }
+
+    bool SocketAddress::unlock() const {
+        int ret = 0;
+
+        if (lockFd >= 0 && flock(lockFd, LOCK_UN) == 0) {
+            ret = std::remove(getAddress().append(".lock").data());
+        }
+
+        return ret == 0;
     }
 
     std::string SocketAddress::getAddress() const {
