@@ -49,10 +49,11 @@ namespace net::phy {
 
     template <typename SocketAddress>
     PhysicalSocket<SocketAddress>::PhysicalSocket(const PhysicalSocket& physicalSocket)
-        : Descriptor(physicalSocket.getFd()) {
-        domain = physicalSocket.domain;
-        type = physicalSocket.type;
-        protocol = physicalSocket.protocol;
+        : Descriptor(physicalSocket.getFd())
+        , bindAddress(physicalSocket.bindAddress)
+        , domain(physicalSocket.domain)
+        , type(physicalSocket.type)
+        , protocol(physicalSocket.protocol) {
     }
 
     template <typename SocketAddress>
