@@ -99,7 +99,7 @@ namespace core::socket::stream {
                                 state = core::socket::STATE_FATAL;
                                 break;
                         }
-                    } else if (physicalClientSocket->connect(remoteAddress) < 0 && !physicalClientSocket->connectInProgress(errno)) {
+                    } else if (physicalClientSocket->connect(remoteAddress) < 0 && !PhysicalClientSocket::connectInProgress(errno)) {
                         switch (errno) {
                             case EADDRINUSE:
                             case EADDRNOTAVAIL:
@@ -121,7 +121,7 @@ namespace core::socket::stream {
                         } else {
                             onStatus(remoteAddress, state);
                         }
-                    } else if (physicalClientSocket->connectInProgress(errno)) {
+                    } else if (PhysicalClientSocket::connectInProgress(errno)) {
                         LOG(TRACE) << config->getInstanceName() << ": connect in progress '" << remoteAddress.toString() << "'";
 
                         enable(physicalClientSocket->getFd());
@@ -170,7 +170,7 @@ namespace core::socket::stream {
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(*physicalClientSocket, config);
 
                 disable();
-            } else if (physicalClientSocket->connectInProgress(errno)) {
+            } else if (PhysicalClientSocket::connectInProgress(errno)) {
                 LOG(TRACE) << config->getInstanceName() << ": connect still in progress '" << remoteAddress.toString() << "'";
             } else if (remoteAddress.useNext()) {
                 PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";

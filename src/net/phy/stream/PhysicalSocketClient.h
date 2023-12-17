@@ -41,7 +41,7 @@ namespace net::phy::stream {
 
         int connect(SocketAddress& remoteAddress);
 
-        bool connectInProgress(int cErrno);
+        static bool connectInProgress(int cErrno);
     };
 
 } // namespace net::phy::stream
