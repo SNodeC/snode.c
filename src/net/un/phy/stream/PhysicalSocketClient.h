@@ -43,7 +43,7 @@ namespace net::un::phy::stream {
 
         using Super::operator=;
 
-        bool connectInProgress(int cErrno) override;
+        bool connectInProgress(int cErrno);
     };
 
 } // namespace net::un::phy::stream
