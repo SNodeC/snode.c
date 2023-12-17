@@ -82,10 +82,12 @@ namespace net::un {
     }
 
     bool SocketAddress::unlock() const {
-        int ret = 0;
+        int ret = -1;
 
         if (lockFd >= 0 && flock(lockFd, LOCK_UN) == 0) {
+            close(lockFd);
             ret = std::remove(getAddress().append(".lock").data());
+            lockFd = -1;
         }
 
         return ret == 0;
