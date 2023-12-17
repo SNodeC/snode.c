@@ -27,7 +27,11 @@
 
 #include <cerrno>
 #include <cstddef>
+#include <cstdio>
 #include <cstring>
+#include <fcntl.h>
+#include <sys/file.h>
+#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -41,6 +45,12 @@ namespace net::un {
     SocketAddress::SocketAddress(const std::string& sunPath)
         : SocketAddress() {
         setSunPath(sunPath);
+    }
+
+    SocketAddress::~SocketAddress() {
+        if (lockFd >= 0 && flock(lockFd, LOCK_UN) == 0) {
+            std::remove(getAddress().append(".lock").data());
+        }
     }
 
     SocketAddress SocketAddress::setSunPath(const std::string& sunPath) {
@@ -58,6 +68,23 @@ namespace net::un {
         }
 
         return *this;
+    }
+
+    bool SocketAddress::lock() {
+        if (!getAddress().empty()) {
+            lockFd = open(getAddress().append(".lock").data(), O_RDONLY | O_CREAT, 0600);
+
+            if (lockFd >= 0) {
+                if (flock(lockFd, LOCK_EX | LOCK_NB) == 0) {
+                    std::remove(getAddress().data());
+                } else {
+                    close(lockFd);
+                    lockFd = -1;
+                }
+            }
+        }
+
+        return lockFd >= 0;
     }
 
     std::string SocketAddress::getAddress() const {
