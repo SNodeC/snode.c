@@ -25,6 +25,7 @@
 #include <cerrno>
 #include <cstdio>
 #include <string>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -48,6 +49,14 @@ namespace net::un::phy {
     PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(PhysicalSocket&& physicalSocket) noexcept
         : Super(std::move(physicalSocket))
         , locked(std::exchange(physicalSocket.locked, false)) {
+    }
+
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>& PhysicalSocket<PhysicalPeerSocket>::operator=(PhysicalSocket&& physicalSocket) noexcept {
+        Super::operator=(std::move(physicalSocket));
+        locked = std::exchange(physicalSocket.locked, false);
+
+        return *this;
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>

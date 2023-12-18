@@ -36,12 +36,10 @@ namespace net::un::phy::stream {
 
     public:
         using Super::Super;
-        //        PhysicalSocketClient(PhysicalSocketClient&) = default;
+
         PhysicalSocketClient(PhysicalSocketClient&&) noexcept = default;
 
         ~PhysicalSocketClient() override;
-
-        using Super::operator=;
 
         static bool connectInProgress(int cErrno);
     };

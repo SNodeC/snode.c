@@ -36,7 +36,7 @@ namespace net::in6::phy::stream {
 
     public:
         using Super::Super;
-        //        PhysicalSocketServer(PhysicalSocketServer&) = default;
+
         PhysicalSocketServer(PhysicalSocketServer&&) noexcept = default;
 
         ~PhysicalSocketServer() override;

@@ -37,8 +37,9 @@ namespace net::un::phy {
         using Super::Super;
 
         PhysicalSocket(int type, int protocol);
-        //        PhysicalSocket(PhysicalSocket&) = default;
-        PhysicalSocket(PhysicalSocket&&) noexcept;
+        PhysicalSocket(PhysicalSocket&& physicalSocket) noexcept;
+
+        PhysicalSocket& operator=(PhysicalSocket&& physicalSocket) noexcept;
 
         ~PhysicalSocket() override;
 

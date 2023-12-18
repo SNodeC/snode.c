@@ -51,7 +51,7 @@ namespace core::socket::stream {
         if (physicalSocket.getSockname(localSockAddr, localSockAddrLen) == 0 &&
             physicalSocket.getPeername(remoteSockAddr, remoteSockAddrLen) == 0) {
             socketConnection = new SocketConnection(config->getInstanceName(),
-                                                    std::move(physicalSocket),
+                                                    physicalSocket,
                                                     SocketAddress(localSockAddr, localSockAddrLen),
                                                     SocketAddress(remoteSockAddr, remoteSockAddrLen),
                                                     onDisconnect,

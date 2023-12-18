@@ -29,30 +29,22 @@ namespace core {
     public:
         Descriptor() = delete;
         Descriptor(const Descriptor& d) = delete;
-        Descriptor(Descriptor&& d) = delete;
 
     protected:
         explicit Descriptor(int fd);
-
-        //        Descriptor(Descriptor&& descriptor) noexcept;
+        Descriptor(Descriptor&& descriptor) noexcept;
 
         virtual ~Descriptor();
 
     public:
         Descriptor& operator=(int fd);
         Descriptor& operator=(const Descriptor& descriptor) = delete;
-        Descriptor& operator=(Descriptor&& descriptor) = delete;
+        Descriptor& operator=(Descriptor&& descriptor) noexcept;
 
         int getFd() const;
 
-        //        void setAutoClose(bool autoClose = true);
-        //        bool getAutoClose() const;
-
-    protected:
-        int fd = -1;
-
     private:
-        //        bool autoClose = true;
+        int fd = -1;
     };
 
 } // namespace core

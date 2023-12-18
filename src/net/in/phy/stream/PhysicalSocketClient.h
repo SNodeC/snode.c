@@ -36,7 +36,7 @@ namespace net::in::phy::stream {
 
     public:
         using Super::Super;
-        //        PhysicalSocketClient(PhysicalSocketClient&) = default;
+
         PhysicalSocketClient(PhysicalSocketClient&&) noexcept = default;
 
         ~PhysicalSocketClient() override;

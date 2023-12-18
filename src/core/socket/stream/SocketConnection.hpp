@@ -32,7 +32,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(const std::string& instanceName,
-                                                                                     PhysicalSocket&& physicalSocket,
+                                                                                     PhysicalSocket& physicalSocket,
                                                                                      const SocketAddress& localAddress,
                                                                                      const SocketAddress& remoteAddress,
                                                                                      const std::function<void()>& onDisconnect,

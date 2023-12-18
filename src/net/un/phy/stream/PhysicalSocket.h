@@ -37,10 +37,7 @@ namespace net::un::phy::stream {
         using Super::Super;
 
         PhysicalSocket();
-        //        PhysicalSocket(PhysicalSocket&) = default;
         PhysicalSocket(PhysicalSocket&&) noexcept = default;
-
-        using Super::operator=;
 
         ~PhysicalSocket() override;
     };

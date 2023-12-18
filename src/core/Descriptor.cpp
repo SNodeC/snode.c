@@ -21,7 +21,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
-#include "log/Logger.h"
+
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -31,11 +32,15 @@ namespace core {
         : fd(fd) {
     }
 
-    /*
-        Descriptor::Descriptor(Descriptor&& descriptor) noexcept {
-            fd = std::exchange(descriptor.fd, -1);
-        }
-     */
+    Descriptor::Descriptor(Descriptor&& descriptor) noexcept {
+        fd = std::exchange(descriptor.fd, -1);
+    }
+
+    Descriptor& Descriptor::operator=(Descriptor&& descriptor) noexcept {
+        fd = std::exchange(descriptor.fd, -1);
+
+        return *this;
+    }
 
     Descriptor& Descriptor::operator=(int fd) {
         this->fd = fd;
@@ -44,9 +49,7 @@ namespace core {
     }
 
     Descriptor::~Descriptor() {
-        VLOG(0) << "1 Descriptor::~Descriptor(): " << fd;
-        if (/* autoClose && */ fd >= 0) {
-            VLOG(0) << "2 Descriptor::~Descriptor(): " << fd;
+        if (fd >= 0) {
             core::system::close(fd);
             fd = -1;
         }
@@ -55,13 +58,5 @@ namespace core {
     int Descriptor::getFd() const {
         return fd;
     }
-
-    //    void Descriptor::setAutoClose(bool autoClose) {
-    //        this->autoClose = autoClose;
-    //    }
-
-    //    bool Descriptor::getAutoClose() const {
-    //        return autoClose && fd >= 0;
-    //    }
 
 } // namespace core

@@ -52,7 +52,7 @@ namespace core::socket::stream::tls {
         using SocketAddress = typename Super::SocketAddress;
 
         SocketConnection(const std::string& instanceName,
-                         PhysicalSocket&& physicalSocket,
+                         PhysicalSocket& physicalSocket,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(SocketConnection*)>& onDisconnect,

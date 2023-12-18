@@ -45,7 +45,7 @@ namespace net::phy {
         using SocketAddress = SocketAddressT;
 
         PhysicalSocket(int domain, int type, int protocol);
-        PhysicalSocket(PhysicalSocket&& physicalSocket) noexcept;
+        PhysicalSocket(PhysicalSocket&& physicalSocket) noexcept = default;
 
         PhysicalSocket& operator=(PhysicalSocket&&) noexcept = default;
 
@@ -53,7 +53,7 @@ namespace net::phy {
 
     public:
         PhysicalSocket() = delete;
-        PhysicalSocket(PhysicalSocket& physicalSocket) = delete;
+        PhysicalSocket(PhysicalSocket&) = delete;
         PhysicalSocket& operator=(PhysicalSocket&) = delete;
 
         explicit PhysicalSocket(int fd);

@@ -49,26 +49,6 @@ namespace net::phy {
         optLen = sizeof(protocol);
         getSockopt(SOL_SOCKET, SO_PROTOCOL, &protocol, &optLen);
     }
-    /*
-        template <typename SocketAddress>
-        PhysicalSocket<SocketAddress>::PhysicalSocket(PhysicalSocket& physicalSocket)
-            : Descriptor(physicalSocket.getFd())
-            , bindAddress(physicalSocket.bindAddress)
-            , domain(physicalSocket.domain)
-            , type(physicalSocket.type)
-            , protocol(physicalSocket.protocol) {
-            VLOG(0) << "################ Copy";
-        }
-    */
-    template <typename SocketAddress>
-    PhysicalSocket<SocketAddress>::PhysicalSocket(PhysicalSocket&& physicalSocket) noexcept
-        : Descriptor(std::exchange(physicalSocket.fd, -1))
-        , bindAddress(std::exchange(physicalSocket.bindAddress, SocketAddress()))
-        , domain(std::exchange(physicalSocket.domain, 0))
-        , type(std::exchange(physicalSocket.type, 0))
-        , protocol(std::exchange(physicalSocket.protocol, 0)) {
-        VLOG(0) << "################ Move";
-    }
 
     template <typename SocketAddress>
     PhysicalSocket<SocketAddress>::~PhysicalSocket() {

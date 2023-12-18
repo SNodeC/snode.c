@@ -36,12 +36,10 @@ namespace net::un::phy::stream {
 
     public:
         using Super::Super;
-        PhysicalSocketServer(PhysicalSocketServer&) = delete;
+
         PhysicalSocketServer(PhysicalSocketServer&&) noexcept = default;
 
         ~PhysicalSocketServer() override;
-
-        using Super::operator=;
     };
 
 } // namespace net::un::phy::stream
