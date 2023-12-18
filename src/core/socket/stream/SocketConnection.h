@@ -92,7 +92,6 @@ namespace core::socket::stream {
     template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT>
     class SocketConnectionT
         : public SocketConnection
-        , public PhysicalSocketT
         , protected SocketReaderT
         , protected SocketWriterT {
     protected:
@@ -108,7 +107,7 @@ namespace core::socket::stream {
 
     protected:
         SocketConnectionT(const std::string& instanceName,
-                          PhysicalSocket& physicalSocket,
+                          PhysicalSocket&& physicalSocket,
                           const SocketAddress& localAddress,
                           const SocketAddress& remoteAddress,
                           const std::function<void()>& onDisconnect,
@@ -145,6 +144,8 @@ namespace core::socket::stream {
 
     protected:
         virtual void doWriteShutdown(const std::function<void(int)>& onShutdown);
+
+        PhysicalSocket physicalSocket;
 
     private:
         void onReceivedFromPeer(std::size_t available) final;

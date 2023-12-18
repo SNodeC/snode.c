@@ -77,7 +77,7 @@ namespace core::socket::stream {
         void unobservedEvent() final;
         void connectTimeout() final;
 
-        PhysicalClientSocket* physicalClientSocket = nullptr;
+        PhysicalClientSocket physicalClientSocket;
         SocketAddress remoteAddress;
 
     protected:

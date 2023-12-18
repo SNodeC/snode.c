@@ -34,7 +34,7 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalSocket>
     SocketConnection<PhysicalSocket>::SocketConnection(const std::string& instanceName,
-                                                       PhysicalSocket& physicalSocket,
+                                                       PhysicalSocket&& physicalSocket,
                                                        const SocketAddress& localAddress,
                                                        const SocketAddress& remoteAddress,
                                                        const std::function<void(SocketConnection*)>& onDisconnect,
@@ -45,7 +45,7 @@ namespace core::socket::stream::tls {
                                                        const utils::Timeval& terminateTimeout)
         : Super(
               instanceName,
-              physicalSocket,
+              std::move(physicalSocket),
               localAddress,
               remoteAddress,
               [onDisconnect, this]() -> void {
@@ -73,7 +73,7 @@ namespace core::socket::stream::tls {
             ssl = SSL_new(ctx);
 
             if (ssl != nullptr) {
-                if (SSL_set_fd(ssl, PhysicalSocket::getFd()) == 1) {
+                if (SSL_set_fd(ssl, Super::physicalSocket.getFd()) == 1) {
                     SocketReader::ssl = ssl;
                     SocketWriter::ssl = ssl;
                 } else {

@@ -76,7 +76,7 @@ namespace core::socket::stream {
     private:
         void unobservedEvent() final;
 
-        PhysicalServerSocket* physicalServerSocket = nullptr;
+        PhysicalServerSocket physicalServerSocket;
         SocketAddress localAddress;
 
     protected:

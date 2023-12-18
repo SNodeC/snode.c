@@ -37,7 +37,8 @@ namespace net::in::phy::stream {
         using Super::Super;
 
         PhysicalSocket();
-        PhysicalSocket(const PhysicalSocket&) = default;
+        //        PhysicalSocket(PhysicalSocket&) = default;
+        PhysicalSocket(PhysicalSocket&&) noexcept = default;
 
         ~PhysicalSocket() override;
     };

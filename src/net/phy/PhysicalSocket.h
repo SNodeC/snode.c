@@ -45,12 +45,16 @@ namespace net::phy {
         using SocketAddress = SocketAddressT;
 
         PhysicalSocket(int domain, int type, int protocol);
-        PhysicalSocket(const PhysicalSocket& physicalSocket);
+        PhysicalSocket(PhysicalSocket&& physicalSocket) noexcept;
+
+        PhysicalSocket& operator=(PhysicalSocket&&) noexcept = default;
 
         ~PhysicalSocket() override;
 
     public:
         PhysicalSocket() = delete;
+        PhysicalSocket(PhysicalSocket& physicalSocket) = delete;
+        PhysicalSocket& operator=(PhysicalSocket&) = delete;
 
         explicit PhysicalSocket(int fd);
 
@@ -65,6 +69,7 @@ namespace net::phy {
         int getSockname(typename SocketAddress::SockAddr& localSockAddr, socklen_t& localSockAddrLen);
         int getPeername(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen);
 
+        void setBindAddress(const SocketAddress& bindAddress);
         const SocketAddress& getBindAddress() const;
 
     private:

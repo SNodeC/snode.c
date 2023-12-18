@@ -37,11 +37,11 @@ namespace net::l2::phy::stream {
         using Super::Super;
 
         PhysicalSocket();
-        PhysicalSocket(const PhysicalSocket&) = default;
+        //        PhysicalSocket(PhysicalSocket&) = default;
+        PhysicalSocket(PhysicalSocket&&) noexcept = default;
 
         ~PhysicalSocket() override;
 
-    protected:
         void shutdown(typename Super::SHUT how); // shutdown L2CAP sockets must be handled differently
     };
 

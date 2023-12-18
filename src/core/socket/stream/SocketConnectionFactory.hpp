@@ -22,6 +22,8 @@
 
 #include "log/Logger.h"
 
+#include <utility>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
@@ -48,10 +50,8 @@ namespace core::socket::stream {
 
         if (physicalSocket.getSockname(localSockAddr, localSockAddrLen) == 0 &&
             physicalSocket.getPeername(remoteSockAddr, remoteSockAddrLen) == 0) {
-            physicalSocket.setDontClose();
-
             socketConnection = new SocketConnection(config->getInstanceName(),
-                                                    physicalSocket,
+                                                    std::move(physicalSocket),
                                                     SocketAddress(localSockAddr, localSockAddrLen),
                                                     SocketAddress(remoteSockAddr, remoteSockAddrLen),
                                                     onDisconnect,

@@ -24,6 +24,7 @@
 #include "log/Logger.h"
 
 #include <cstddef>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -31,7 +32,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(const std::string& instanceName,
-                                                                                     PhysicalSocket& physicalSocket,
+                                                                                     PhysicalSocket&& physicalSocket,
                                                                                      const SocketAddress& localAddress,
                                                                                      const SocketAddress& remoteAddress,
                                                                                      const std::function<void()>& onDisconnect,
@@ -41,7 +42,6 @@ namespace core::socket::stream {
                                                                                      std::size_t writeBlockSize,
                                                                                      const utils::Timeval& terminateTimeout)
         : SocketConnection(instanceName)
-        , PhysicalSocket(physicalSocket)
         , SocketReader(
               [this](int errnum) -> void {
                   onReadError(errnum);
@@ -56,11 +56,12 @@ namespace core::socket::stream {
               writeTimeout,
               writeBlockSize,
               terminateTimeout)
+        , physicalSocket(std::move(physicalSocket))
         , onDisconnect(onDisconnect)
         , localAddress(localAddress)
         , remoteAddress(remoteAddress) {
-        SocketReader::enable(getFd());
-        SocketWriter::enable(getFd());
+        SocketReader::enable(this->physicalSocket.getFd());
+        SocketWriter::enable(this->physicalSocket.getFd());
         SocketWriter::suspend();
     }
 
@@ -76,7 +77,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     int SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getFd() const {
-        return PhysicalSocket::getFd();
+        return physicalSocket.getFd();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
@@ -118,7 +119,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
         if (!shutdownTriggered) {
-            PhysicalSocket::shutdown(PhysicalSocket::SHUT::RD);
+            physicalSocket.shutdown(PhysicalSocket::SHUT::RD);
             shutdownTriggered = true;
         }
     }
@@ -158,7 +159,7 @@ namespace core::socket::stream {
 
         LOG(TRACE) << "SocketWriter: Do syscall shutdonw (WR)";
 
-        PhysicalSocket::shutdown(PhysicalSocket::SHUT::WR);
+        physicalSocket.shutdown(PhysicalSocket::SHUT::WR);
 
         onShutdown(errno);
     }

@@ -33,6 +33,9 @@ namespace core {
 
     protected:
         explicit Descriptor(int fd);
+
+        //        Descriptor(Descriptor&& descriptor) noexcept;
+
         virtual ~Descriptor();
 
     public:
@@ -42,12 +45,14 @@ namespace core {
 
         int getFd() const;
 
-        void setDontClose(bool dontClose = true);
-        bool getDontClose() const;
+        //        void setAutoClose(bool autoClose = true);
+        //        bool getAutoClose() const;
+
+    protected:
+        int fd = -1;
 
     private:
-        int fd = -1;
-        bool autoClose = true;
+        //        bool autoClose = true;
     };
 
 } // namespace core

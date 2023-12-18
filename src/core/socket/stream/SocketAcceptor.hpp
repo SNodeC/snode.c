@@ -49,7 +49,6 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::~SocketAcceptor() {
-        delete physicalServerSocket;
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
@@ -63,9 +62,8 @@ namespace core::socket::stream {
                 core::socket::State state = core::socket::STATE_OK;
 
                 localAddress = config->Local::getSocketAddress();
-                physicalServerSocket = new PhysicalServerSocket();
 
-                if (physicalServerSocket->open(config->getSocketOptions(), PhysicalServerSocket::Flags::NONBLOCK) < 0) {
+                if (physicalServerSocket.open(config->getSocketOptions(), PhysicalServerSocket::Flags::NONBLOCK) < 0) {
                     switch (errno) {
                         case EMFILE:
                         case ENFILE:
@@ -79,7 +77,7 @@ namespace core::socket::stream {
                             PLOG(TRACE) << config->getInstanceName() << ": open '" << localAddress.toString() << "'";
                             break;
                     }
-                } else if (physicalServerSocket->bind(localAddress) < 0) {
+                } else if (physicalServerSocket.bind(localAddress) < 0) {
                     switch (errno) {
                         case EADDRINUSE:
                             state = core::socket::STATE_ERROR;
@@ -90,7 +88,7 @@ namespace core::socket::stream {
                             PLOG(TRACE) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
                             break;
                     }
-                } else if (physicalServerSocket->listen(config->getBacklog()) < 0) {
+                } else if (physicalServerSocket.listen(config->getBacklog()) < 0) {
                     switch (errno) {
                         case EADDRINUSE:
                             state = core::socket::STATE_ERROR;
@@ -104,7 +102,7 @@ namespace core::socket::stream {
                 } else {
                     LOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "' success";
 
-                    enable(physicalServerSocket->getFd());
+                    enable(physicalServerSocket.getFd());
                 }
 
                 if (localAddress.useNext()) {
@@ -137,8 +135,9 @@ namespace core::socket::stream {
         int acceptsPerTick = config->getAcceptsPerTick();
 
         do {
-            PhysicalServerSocket physicalClientSocket(physicalServerSocket->accept4(PhysicalServerSocket::Flags::NONBLOCK));
+            PhysicalServerSocket physicalClientSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK));
             if (physicalClientSocket.isValid()) {
+                physicalClientSocket.setBindAddress(physicalServerSocket.getBindAddress());
                 LOG(TRACE) << config->getInstanceName() << ": accept success '" << localAddress.toString() << "'";
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(physicalClientSocket, config);

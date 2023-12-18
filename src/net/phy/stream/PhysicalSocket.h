@@ -39,7 +39,6 @@ namespace net::phy::stream {
 
         using Super::Super;
 
-    protected:
         enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
         void shutdown(SHUT how);

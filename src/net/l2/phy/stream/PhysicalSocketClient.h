@@ -36,8 +36,8 @@ namespace net::l2::phy::stream {
 
     public:
         using Super::Super;
-
-        PhysicalSocketClient(const PhysicalSocketClient&) = default;
+        //        PhysicalSocketClient(PhysicalSocketClient&) = default;
+        PhysicalSocketClient(PhysicalSocketClient&&) noexcept = default;
 
         ~PhysicalSocketClient() override;
     };
