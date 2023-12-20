@@ -43,7 +43,13 @@ namespace net::un {
         setSunPath(sunPath);
     }
 
-    SocketAddress SocketAddress::setSunPath(const std::string& sunPath) {
+    SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
+        : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen) {
+        Super::sockAddr.sun_family = AF_UNIX;
+        sunPath = sockAddr.sun_path;
+    }
+
+    SocketAddress& SocketAddress::init() {
         if (sunPath.length() < sizeof(sockAddr.sun_path)) {
             const std::size_t len = sunPath.length();
             std::memcpy(sockAddr.sun_path, sunPath.data(), len);
@@ -60,8 +66,14 @@ namespace net::un {
         return *this;
     }
 
+    SocketAddress SocketAddress::setSunPath(const std::string& sunPath) {
+        this->sunPath = sunPath;
+
+        return *this;
+    }
+
     std::string SocketAddress::getAddress() const {
-        return sockAddr.sun_path;
+        return sunPath;
     }
 
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER)

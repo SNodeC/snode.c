@@ -46,27 +46,41 @@ namespace net::l2 {
         setPsm(psm);
     }
 
-    SocketAddress SocketAddress::setBtAddress(const std::string& btAddress) {
+    SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
+        : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen) {
+        Super::sockAddr.l2_family = AF_BLUETOOTH;
+        psm = btohs(sockAddr.l2_psm);
+        char btAddressC[15];
+        ba2str(&sockAddr.l2_bdaddr, btAddressC);
+
+        btAddress = btAddressC;
+    }
+
+    SocketAddress& SocketAddress::init() {
+        sockAddr.l2_psm = htobs(psm);
         str2ba(btAddress.c_str(), &sockAddr.l2_bdaddr);
 
         return *this;
     }
 
+    SocketAddress SocketAddress::setBtAddress(const std::string& btAddress) {
+        this->btAddress = btAddress;
+
+        return *this;
+    }
+
     SocketAddress SocketAddress::setPsm(uint16_t psm) {
-        sockAddr.l2_psm = htobs(psm);
+        this->psm = psm;
 
         return *this;
     }
 
     uint16_t SocketAddress::getPsm() const {
-        return btohs(sockAddr.l2_psm);
+        return psm;
     }
 
     std::string SocketAddress::getAddress() const {
-        char address[256];
-        ba2str(&sockAddr.l2_bdaddr, address);
-
-        return address;
+        return btAddress;
     }
 
     std::string SocketAddress::toString() const {

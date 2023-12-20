@@ -21,6 +21,18 @@
 
 #include "net/SocketAddress.h" // IWYU pragma: export
 
+namespace net::config {
+    template <typename SocketAddressT>
+    class ConfigAddressLocal; // IWYU pragma: keep
+    template <typename SocketAddressT>
+    class ConfigAddressRemote; // IWYU pragma: keep
+} // namespace net::config
+
+namespace net::l2::config {
+    template <template <typename SocketAddressT> typename SocketAddressTypeT>
+    class ConfigAddress;
+} // namespace net::l2::config
+
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,6 +47,9 @@
 namespace net::l2 {
 
     class SocketAddress final : public net::SocketAddress<sockaddr_l2> {
+    private:
+        using Super = net::SocketAddress<sockaddr_l2>;
+
     public:
         using net::SocketAddress<sockaddr_l2>::SocketAddress;
 
@@ -43,6 +58,8 @@ namespace net::l2 {
         SocketAddress(const std::string& btAddress, uint16_t psm);
         explicit SocketAddress(uint16_t psm);
 
+        SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+
         SocketAddress setBtAddress(const std::string& btAddress);
 
         SocketAddress setPsm(uint16_t psm);
@@ -50,6 +67,15 @@ namespace net::l2 {
 
         std::string getAddress() const override;
         std::string toString() const override;
+
+    private:
+        SocketAddress& init();
+
+        std::string btAddress;
+        uint16_t psm = 0;
+
+        friend class net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>;
+        friend class net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>;
     };
 
 } // namespace net::l2

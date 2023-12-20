@@ -47,7 +47,7 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
-        return new SocketAddress(sunPathOpt->as<std::string>());
+        return &(new SocketAddress(sunPathOpt->as<std::string>()))->init();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

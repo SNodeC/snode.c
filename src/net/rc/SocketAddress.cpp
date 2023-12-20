@@ -46,27 +46,42 @@ namespace net::rc {
         setChannel(channel);
     }
 
-    SocketAddress SocketAddress::setBtAddress(const std::string& btAddress) {
+    SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
+        : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen) {
+        Super::sockAddr.rc_family = AF_BLUETOOTH;
+
+        channel = sockAddr.rc_channel;
+        char btAddressC[15];
+        ba2str(&sockAddr.rc_bdaddr, btAddressC);
+
+        btAddress = btAddressC;
+    }
+
+    SocketAddress& SocketAddress::init() {
+        sockAddr.rc_channel = channel;
         str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);
 
         return *this;
     }
 
+    SocketAddress SocketAddress::setBtAddress(const std::string& btAddress) {
+        this->btAddress = btAddress;
+
+        return *this;
+    }
+
     SocketAddress SocketAddress::setChannel(uint8_t channel) {
-        sockAddr.rc_channel = channel;
+        this->channel = channel;
 
         return *this;
     }
 
     uint8_t SocketAddress::getChannel() const {
-        return sockAddr.rc_channel;
+        return channel;
     }
 
     std::string SocketAddress::getAddress() const {
-        char address[256];
-        ba2str(&sockAddr.rc_bdaddr, address);
-
-        return address;
+        return btAddress;
     }
 
     std::string SocketAddress::toString() const {

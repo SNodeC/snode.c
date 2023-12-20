@@ -21,6 +21,18 @@
 
 #include "net/SocketAddress.h" // IWYU pragma: export
 
+namespace net::config {
+    template <typename SocketAddressT>
+    class ConfigAddressLocal; // IWYU pragma: keep
+    template <typename SocketAddressT>
+    class ConfigAddressRemote; // IWYU pragma: keep
+} // namespace net::config
+
+namespace net::un::config {
+    template <template <typename SocketAddressT> typename SocketAddressTypeT>
+    class ConfigAddress;
+} // namespace net::un::config
+
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -42,10 +54,20 @@ namespace net::un {
         SocketAddress();
         explicit SocketAddress(const std::string& sunPath);
 
+        SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+
         SocketAddress setSunPath(const std::string& sunPath);
 
         std::string getAddress() const override;
         std::string toString() const override;
+
+    private:
+        SocketAddress& init();
+
+        std::string sunPath;
+
+        friend class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
+        friend class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
     };
 
 } // namespace net::un
