@@ -59,6 +59,8 @@ namespace net::in {
     SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
         : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen)
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
+        Super::sockAddr.sin_family = AF_INET;
+
         char host[NI_MAXHOST];
         char serv[NI_MAXSERV];
         std::memset(host, 0, NI_MAXHOST);
@@ -77,7 +79,9 @@ namespace net::in {
         }
 
         if (ret == 0) {
-            this->port = static_cast<uint16_t>(std::stoul(serv));
+            if (serv[0] != '\0') {
+                this->port = static_cast<uint16_t>(std::stoul(serv));
+            }
             this->host = host;
         } else {
             this->host = gai_strerror(ret);
@@ -108,7 +112,7 @@ namespace net::in {
                     break;
             }
             throw core::socket::SocketAddress::BadSocketAddress(state,
-                                                                host + ": " +
+                                                                host + ":" + std::to_string(port) + " - " +
                                                                     (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
                                                                 (aiErrCode == EAI_SYSTEM ? errno : aiErrCode));
         }
