@@ -58,9 +58,15 @@ namespace net::un::phy {
             close(lockFd);
             lockFd = -1;
 
-            std::remove(Super::bindAddress.getAddress().append(".lock").data());
-            if (std::remove(Super::getBindAddress().getAddress().data()) != 0) {
-                PLOG(ERROR) << "net::un::stream::PhysicalSocket: Remove sunPath: " << Super::getBindAddress().getAddress();
+            if (std::remove(Super::bindAddress.getAddress().append(".lock").data()) == 0) {
+                LOG(ERROR) << "Remove lock file: " << Super::getBindAddress().getAddress().append(".lock");
+            } else {
+                PLOG(ERROR) << "Remove lock file: " << Super::getBindAddress().getAddress().append(".lock");
+            }
+            if (std::remove(Super::getBindAddress().getAddress().data()) == 0) {
+                LOG(ERROR) << "Remove sunPath: " << Super::getBindAddress().getAddress();
+            } else {
+                PLOG(ERROR) << "Remove sunPath: " << Super::getBindAddress().getAddress();
             }
         }
     }
@@ -71,12 +77,22 @@ namespace net::un::phy {
             lockFd = open(bindAddress.getAddress().append(".lock").data(), O_RDONLY | O_CREAT, 0600);
 
             if (lockFd >= 0) {
+                LOG(TRACE) << "Opening lock file " << bindAddress.getAddress().append(".lock").data();
                 if (flock(lockFd, LOCK_EX | LOCK_NB) == 0) {
-                    std::remove(bindAddress.getAddress().data());
+                    LOG(TRACE) << "Locking lock file " << bindAddress.getAddress().append(".lock").data();
+                    if (std::remove(bindAddress.getAddress().data()) == 0) {
+                        LOG(TRACE) << "Removed stalled lock file " << bindAddress.getAddress().append(".lock").data();
+                    } else {
+                        PLOG(TRACE) << "Removed stalled lock file " << bindAddress.getAddress().append(".lock").data();
+                    }
                 } else {
+                    PLOG(TRACE) << "Locking lock file " << bindAddress.getAddress().append(".lock").data();
+
                     close(lockFd);
                     lockFd = -1;
                 }
+            } else {
+                PLOG(TRACE) << "Opening lock file " << bindAddress.getAddress().append(".lock").data();
             }
         }
 

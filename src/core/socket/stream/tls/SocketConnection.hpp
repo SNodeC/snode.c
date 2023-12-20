@@ -27,6 +27,7 @@
 #include "log/Logger.h"
 
 #include <openssl/ssl.h>
+#include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

@@ -24,6 +24,8 @@
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
+#include <utility>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
