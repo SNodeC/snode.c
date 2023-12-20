@@ -34,16 +34,16 @@ int main(int argc, char* argv[]) {
     client.connect([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'";
+                VLOG(1) << "echoclient connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "echoclient: disabled";
+                VLOG(1) << "echoclient disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "echoclient: error occurred";
+                PLOG(ERROR) << "echoclient error occurred:";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "echoclient: fatal error occurred";
+                PLOG(FATAL) << "echoclient fatal error occurred:";
                 break;
         }
     });

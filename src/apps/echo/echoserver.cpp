@@ -53,16 +53,16 @@ int main(int argc, char* argv[]) {
     server.listen([](const SocketServer::SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "echoserver: listening on '" << socketAddress.toString() << "'";
+                VLOG(1) << "echoserver listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "echoserver: disabled";
+                VLOG(1) << "echoserver disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "echoserver: error occurred";
+                PLOG(ERROR) << "echoserver error occurred:";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "echoserver: fatal error occurred";
+                PLOG(FATAL) << "echoserver fatal error occurred:";
                 break;
         }
     });

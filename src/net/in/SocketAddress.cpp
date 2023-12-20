@@ -131,6 +131,7 @@ namespace net::in {
 
     SocketAddress& SocketAddress::setPort(uint16_t port) {
         this->port = port;
+
         return *this;
     }
 
