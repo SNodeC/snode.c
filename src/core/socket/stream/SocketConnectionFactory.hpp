@@ -39,7 +39,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename Config, typename SocketConnection>
-    bool SocketConnectionFactory<PhysicalSocket, Config, SocketConnection>::create(PhysicalSocket& physicalSocket,
+    bool SocketConnectionFactory<PhysicalSocket, Config, SocketConnection>::create(PhysicalSocket&& physicalSocket,
                                                                                    const std::shared_ptr<Config>& config) {
         SocketConnection* socketConnection = nullptr;
 
@@ -51,7 +51,7 @@ namespace core::socket::stream {
         if (physicalSocket.getSockname(localSockAddr, localSockAddrLen) == 0 &&
             physicalSocket.getPeername(remoteSockAddr, remoteSockAddrLen) == 0) {
             socketConnection = new SocketConnection(config->getInstanceName(),
-                                                    physicalSocket,
+                                                    std::move(physicalSocket),
                                                     SocketAddress(localSockAddr, localSockAddrLen),
                                                     SocketAddress(remoteSockAddr, remoteSockAddrLen),
                                                     onDisconnect,

@@ -46,7 +46,7 @@ namespace net::un::phy {
         int bind(SocketAddress& bindAddress);
 
     private:
-        bool locked = false;
+        int lockFd = -1;
     };
 
 } // namespace net::un::phy

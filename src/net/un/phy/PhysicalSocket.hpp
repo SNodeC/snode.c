@@ -24,7 +24,9 @@
 
 #include <cerrno>
 #include <cstdio>
+#include <fcntl.h>
 #include <string>
+#include <sys/file.h>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -37,8 +39,26 @@ namespace net::un::phy {
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(PhysicalSocket&& physicalSocket) noexcept
+        : Super(std::move(physicalSocket))
+        , lockFd(std::exchange(physicalSocket.lockFd, -1)) {
+    }
+
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>& PhysicalSocket<PhysicalPeerSocket>::operator=(PhysicalSocket&& physicalSocket) noexcept {
+        Super::operator=(std::move(physicalSocket));
+        lockFd = std::exchange(physicalSocket.lockFd, -1);
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
     PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
-        if (locked && Super::getBindAddress().unlock()) {
+        if (lockFd >= 0 && flock(lockFd, LOCK_UN) == 0) {
+            close(lockFd);
+            lockFd = -1;
+
+            std::remove(Super::bindAddress.getAddress().append(".lock").data());
             if (std::remove(Super::getBindAddress().getAddress().data()) != 0) {
                 PLOG(ERROR) << "net::un::stream::PhysicalSocket: Remove sunPath: " << Super::getBindAddress().getAddress();
             }
@@ -46,23 +66,18 @@ namespace net::un::phy {
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(PhysicalSocket&& physicalSocket) noexcept
-        : Super(std::move(physicalSocket))
-        , locked(std::exchange(physicalSocket.locked, false)) {
-    }
-
-    template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    PhysicalSocket<PhysicalPeerSocket>& PhysicalSocket<PhysicalPeerSocket>::operator=(PhysicalSocket&& physicalSocket) noexcept {
-        Super::operator=(std::move(physicalSocket));
-        locked = std::exchange(physicalSocket.locked, false);
-
-        return *this;
-    }
-
-    template <template <typename SocketAddress> typename PhysicalPeerSocket>
     int PhysicalSocket<PhysicalPeerSocket>::bind(SocketAddress& bindAddress) {
-        if ((locked = bindAddress.lock())) {
-            std::remove(bindAddress.getAddress().data());
+        if (!bindAddress.getAddress().empty()) {
+            lockFd = open(bindAddress.getAddress().append(".lock").data(), O_RDONLY | O_CREAT, 0600);
+
+            if (lockFd >= 0) {
+                if (flock(lockFd, LOCK_EX | LOCK_NB) == 0) {
+                    std::remove(bindAddress.getAddress().data());
+                } else {
+                    close(lockFd);
+                    lockFd = -1;
+                }
+            }
         }
 
         return Super::bind(bindAddress);

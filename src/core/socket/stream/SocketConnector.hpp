@@ -128,7 +128,7 @@ namespace core::socket::stream {
 
                         onStatus(remoteAddress, state);
 
-                        SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(physicalClientSocket, config);
+                        SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(std::move(physicalClientSocket), config);
                     }
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                     LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
@@ -165,7 +165,7 @@ namespace core::socket::stream {
 
                 onStatus(remoteAddress, core::socket::STATE_OK);
 
-                SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(physicalClientSocket, config);
+                SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(std::move(physicalClientSocket), config);
 
                 disable();
             } else if (PhysicalClientSocket::connectInProgress(errno)) {

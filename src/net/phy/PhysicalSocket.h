@@ -56,7 +56,7 @@ namespace net::phy {
         PhysicalSocket(PhysicalSocket&) = delete;
         PhysicalSocket& operator=(PhysicalSocket&) = delete;
 
-        explicit PhysicalSocket(int fd);
+        explicit PhysicalSocket(int fd, const SocketAddress& bindAddress);
 
         int open(const std::map<int, const PhysicalSocketOption>& socketOptions, Flags flags);
 
@@ -69,13 +69,13 @@ namespace net::phy {
         int getSockname(typename SocketAddress::SockAddr& localSockAddr, socklen_t& localSockAddrLen);
         int getPeername(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen);
 
-        void setBindAddress(const SocketAddress& bindAddress);
         const SocketAddress& getBindAddress() const;
 
     private:
         int setSockopt(int level, int optname, const void* optval, socklen_t optlen) const;
         int getSockopt(int level, int optname, void* optval, socklen_t* optlen) const;
 
+    protected:
         SocketAddress bindAddress{};
 
         int domain{};

@@ -29,7 +29,7 @@ namespace core::socket::stream::legacy {
 
     template <typename PhysicalSocket>
     SocketConnection<PhysicalSocket>::SocketConnection(const std::string& instanceName,
-                                                       PhysicalSocket& physicalSocket,
+                                                       PhysicalSocket&& physicalSocket,
                                                        const SocketAddress& localAddress,
                                                        const SocketAddress& remoteAddress,
                                                        const std::function<void(SocketConnection*)>& onDisconnect,
@@ -40,7 +40,7 @@ namespace core::socket::stream::legacy {
                                                        const utils::Timeval& terminateTimeout)
         : Super(
               instanceName,
-              physicalSocket,
+              std::move(physicalSocket),
               localAddress,
               remoteAddress,
               [onDisconnect, this]() -> void {

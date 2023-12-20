@@ -135,12 +135,12 @@ namespace core::socket::stream {
         int acceptsPerTick = config->getAcceptsPerTick();
 
         do {
-            PhysicalServerSocket physicalClientSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK));
+            PhysicalServerSocket physicalClientSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK),
+                                                      physicalServerSocket.getBindAddress());
             if (physicalClientSocket.isValid()) {
-                physicalClientSocket.setBindAddress(physicalServerSocket.getBindAddress());
                 LOG(TRACE) << config->getInstanceName() << ": accept success '" << localAddress.toString() << "'";
 
-                SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(physicalClientSocket, config);
+                SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(std::move(physicalClientSocket), config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                 PLOG(TRACE) << config->getInstanceName() << ": accept failed '" << localAddress.toString() << "'";
             }

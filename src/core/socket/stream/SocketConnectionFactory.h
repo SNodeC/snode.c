@@ -55,7 +55,7 @@ namespace core::socket::stream {
         using Config = ConfigT;
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
-        bool create(PhysicalSocket& physicalSocket, const std::shared_ptr<Config>& config);
+        bool create(PhysicalSocket&& physicalSocket, const std::shared_ptr<Config>& config);
 
     protected:
         std::function<void(SocketConnection*)> onConnect;

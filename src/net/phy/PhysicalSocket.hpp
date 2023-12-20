@@ -38,8 +38,9 @@ namespace net::phy {
     }
 
     template <typename SocketAddress>
-    PhysicalSocket<SocketAddress>::PhysicalSocket(int fd)
-        : Descriptor(fd) {
+    PhysicalSocket<SocketAddress>::PhysicalSocket(int fd, const SocketAddress& bindAddress)
+        : Descriptor(fd)
+        , bindAddress(bindAddress) {
         socklen_t optLen = sizeof(domain);
         getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
 
@@ -114,11 +115,6 @@ namespace net::phy {
     template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::getPeername(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen) {
         return core::system::getpeername(core::Descriptor::getFd(), reinterpret_cast<sockaddr*>(&remoteSockAddr), &remoteSockAddrLen);
-    }
-
-    template <typename SocketAddress>
-    void PhysicalSocket<SocketAddress>::setBindAddress(const SocketAddress& bindAddress) {
-        this->bindAddress = bindAddress;
     }
 
     template <typename SocketAddress>

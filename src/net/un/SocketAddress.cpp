@@ -27,11 +27,7 @@
 
 #include <cerrno>
 #include <cstddef>
-#include <cstdio>
 #include <cstring>
-#include <fcntl.h>
-#include <sys/file.h>
-#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -62,35 +58,6 @@ namespace net::un {
         }
 
         return *this;
-    }
-
-    bool SocketAddress::lock() {
-        if (!getAddress().empty()) {
-            lockFd = open(getAddress().append(".lock").data(), O_RDONLY | O_CREAT, 0600);
-
-            if (lockFd >= 0) {
-                if (flock(lockFd, LOCK_EX | LOCK_NB) == 0) {
-                    std::remove(getAddress().data());
-                } else {
-                    close(lockFd);
-                    lockFd = -1;
-                }
-            }
-        }
-
-        return lockFd >= 0;
-    }
-
-    bool SocketAddress::unlock() const {
-        int ret = -1;
-
-        if (lockFd >= 0 && flock(lockFd, LOCK_UN) == 0) {
-            close(lockFd);
-            ret = std::remove(getAddress().append(".lock").data());
-            lockFd = -1;
-        }
-
-        return ret == 0;
     }
 
     std::string SocketAddress::getAddress() const {
