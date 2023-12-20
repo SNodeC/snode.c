@@ -70,13 +70,13 @@ namespace core::socket::stream {
     private:
         void connectEvent() override;
 
+        void unobservedEvent() final;
+        void connectTimeout() final;
+
     protected:
         void destruct() final;
 
     private:
-        void unobservedEvent() final;
-        void connectTimeout() final;
-
         PhysicalClientSocket physicalClientSocket;
         SocketAddress remoteAddress;
 

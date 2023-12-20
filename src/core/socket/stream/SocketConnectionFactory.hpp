@@ -44,8 +44,9 @@ namespace core::socket::stream {
         SocketConnection* socketConnection = nullptr;
 
         typename SocketAddress::SockAddr localSockAddr;
-        typename SocketAddress::SockAddr remoteSockAddr;
         socklen_t localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+        typename SocketAddress::SockAddr remoteSockAddr;
         socklen_t remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
         if (physicalSocket.getSockname(localSockAddr, localSockAddrLen) == 0 &&

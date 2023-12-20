@@ -70,14 +70,13 @@ namespace core::socket::stream {
     private:
         void acceptEvent() override;
 
+        void unobservedEvent() final;
+
     protected:
         void destruct() final;
 
     private:
-        void unobservedEvent() final;
-
         PhysicalServerSocket physicalServerSocket;
-        SocketAddress localAddress;
 
     protected:
         std::shared_ptr<core::socket::stream::SocketContextFactory> socketContextFactory = nullptr;

@@ -55,20 +55,18 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::initConnectEvent() {
-        if (!config->getDisabled()) {
-            LOG(TRACE) << config->getInstanceName() << ": starting";
-
-            core::eventreceiver::ConnectEventReceiver::setTimeout(config->getConnectTimeout());
-
-            SocketAddress localAddress;
+        try {
+            SocketAddress localAddress = config->Local::getSocketAddress();
 
             try {
-                localAddress = config->Local::getSocketAddress();
+                remoteAddress = config->Remote::getSocketAddress();
 
-                try {
+                if (!config->getDisabled()) {
+                    LOG(TRACE) << config->getInstanceName() << ": starting";
+
+                    core::eventreceiver::ConnectEventReceiver::setTimeout(config->getConnectTimeout());
+
                     core::socket::State state = core::socket::STATE_OK;
-
-                    remoteAddress = config->Remote::getSocketAddress();
 
                     if (physicalClientSocket.open(config->getSocketOptions(), PhysicalClientSocket::Flags::NONBLOCK) < 0) {
                         switch (errno) {
@@ -117,6 +115,9 @@ namespace core::socket::stream {
                         }
 
                         if (remoteAddress.useNext()) {
+                            LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
+                                       << config->Remote::getSocketAddress().toString() << "'";
+
                             new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
                         } else {
                             onStatus(remoteAddress, state);
@@ -132,22 +133,21 @@ namespace core::socket::stream {
 
                         SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(std::move(physicalClientSocket), config);
                     }
-                } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                    LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                    onStatus(remoteAddress,
-                             core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
+                } else {
+                    LOG(TRACE) << config->getInstanceName() << ": disabled";
+
+                    onStatus(remoteAddress, core::socket::STATE_DISABLED);
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                onStatus(remoteAddress,
-                         core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
+                onStatus({}, core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
             }
-        } else {
-            LOG(TRACE) << config->getInstanceName() << ": disabled";
+        } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+            LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
-            onStatus(remoteAddress, core::socket::STATE_DISABLED);
+            onStatus({}, core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
         }
 
         if (!isEnabled()) {
@@ -158,7 +158,6 @@ namespace core::socket::stream {
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectEvent() {
         int cErrno = 0;
-
         if (physicalClientSocket.getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed
             const utils::PreserveErrno pe(cErrno);            // errno = cErrno
 
@@ -188,12 +187,12 @@ namespace core::socket::stream {
                     case EADDRNOTAVAIL:
                     case ECONNREFUSED:
                     case ENETUNREACH:
-                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+                        PLOG(TRACE) << config->getInstanceName() << ": con   nect failed '" << remoteAddress.toString() << "'";
 
                         state = core::socket::STATE_ERROR;
                         break;
                     default:
-                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+                        PLOG(TRACE) << config->getInstanceName() << ": con   nect failed '" << remoteAddress.toString() << "'";
 
                         state = core::socket::STATE_FATAL;
                         break;
@@ -208,11 +207,6 @@ namespace core::socket::stream {
             onStatus(remoteAddress, core::socket::STATE_FATAL);
             disable();
         }
-    }
-
-    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
-    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::destruct() {
-        delete this;
     }
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
@@ -236,6 +230,11 @@ namespace core::socket::stream {
         }
 
         disable();
+    }
+
+    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::destruct() {
+        delete this;
     }
 
 } // namespace core::socket::stream

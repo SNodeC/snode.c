@@ -55,15 +55,15 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::initAcceptEvent() {
-        if (!config->getDisabled()) {
-            LOG(TRACE) << config->getInstanceName() << ": starting";
+        try {
+            SocketAddress localAddress(config->Local::getSocketAddress());
 
-            core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
+            if (!config->getDisabled()) {
+                LOG(TRACE) << config->getInstanceName() << ": starting";
 
-            try {
+                core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
+
                 core::socket::State state = core::socket::STATE_OK;
-
-                localAddress = config->Local::getSocketAddress();
 
                 if (physicalServerSocket.open(config->getSocketOptions(), PhysicalServerSocket::Flags::NONBLOCK) < 0) {
                     switch (errno) {
@@ -101,6 +101,7 @@ namespace core::socket::stream {
                             PLOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
                             break;
                     }
+
                 } else {
                     LOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "' success";
 
@@ -110,21 +111,20 @@ namespace core::socket::stream {
                 if (localAddress.useNext()) {
                     LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
                                << config->Local::getSocketAddress().toString() << "'";
+
                     new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
                 } else {
                     onStatus(localAddress, state);
                 }
+            } else {
+                LOG(TRACE) << config->getInstanceName() << ": disabled";
 
-            } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
-
-                onStatus(localAddress,
-                         core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
+                onStatus(localAddress, core::socket::STATE_DISABLED);
             }
-        } else {
-            LOG(TRACE) << config->getInstanceName() << ": disabled";
+        } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+            LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
-            onStatus(localAddress, core::socket::STATE_DISABLED);
+            onStatus({}, core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
         }
 
         if (!isEnabled()) {
@@ -140,23 +140,23 @@ namespace core::socket::stream {
             PhysicalServerSocket physicalClientSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK),
                                                       physicalServerSocket.getBindAddress());
             if (physicalClientSocket.isValid()) {
-                LOG(TRACE) << config->getInstanceName() << ": accept success '" << localAddress.toString() << "'";
+                LOG(TRACE) << config->getInstanceName() << ": accept success '" << physicalServerSocket.getBindAddress().toString() << "'";
 
                 SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(std::move(physicalClientSocket), config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                PLOG(TRACE) << config->getInstanceName() << ": accept failed '" << localAddress.toString() << "'";
+                PLOG(TRACE) << config->getInstanceName() << ": accept failed '" << physicalServerSocket.getBindAddress().toString() << "'";
             }
         } while (--acceptsPerTick > 0);
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
-    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::destruct() {
-        delete this;
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::unobservedEvent() {
+        destruct();
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
-    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::unobservedEvent() {
-        destruct();
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::destruct() {
+        delete this;
     }
 
 } // namespace core::socket::stream

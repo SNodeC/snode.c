@@ -45,7 +45,8 @@ namespace net::un::phy {
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    PhysicalSocket<PhysicalPeerSocket>& PhysicalSocket<PhysicalPeerSocket>::operator=(PhysicalSocket&& physicalSocket) noexcept {
+    PhysicalSocket<PhysicalPeerSocket>&
+    PhysicalSocket<PhysicalPeerSocket>::operator=(PhysicalSocket&& physicalSocket) noexcept { // cppcheck-suppress operatorEqVarError
         Super::operator=(std::move(physicalSocket));
         lockFd = std::exchange(physicalSocket.lockFd, -1);
 
@@ -59,14 +60,14 @@ namespace net::un::phy {
             lockFd = -1;
 
             if (std::remove(Super::bindAddress.getAddress().append(".lock").data()) == 0) {
-                LOG(ERROR) << "Remove lock file: " << Super::getBindAddress().getAddress().append(".lock");
+                LOG(TRACE) << "Remove lock file: " << Super::getBindAddress().getAddress().append(".lock");
             } else {
-                PLOG(ERROR) << "Remove lock file: " << Super::getBindAddress().getAddress().append(".lock");
+                PLOG(TRACE) << "Remove lock file: " << Super::getBindAddress().getAddress().append(".lock");
             }
             if (std::remove(Super::getBindAddress().getAddress().data()) == 0) {
-                LOG(ERROR) << "Remove sunPath: " << Super::getBindAddress().getAddress();
+                LOG(TRACE) << "Remove sunPath: " << Super::getBindAddress().getAddress();
             } else {
-                PLOG(ERROR) << "Remove sunPath: " << Super::getBindAddress().getAddress();
+                PLOG(TRACE) << "Remove sunPath: " << Super::getBindAddress().getAddress();
             }
         }
     }
@@ -81,9 +82,9 @@ namespace net::un::phy {
                 if (flock(lockFd, LOCK_EX | LOCK_NB) == 0) {
                     LOG(TRACE) << "Locking lock file " << bindAddress.getAddress().append(".lock").data();
                     if (std::remove(bindAddress.getAddress().data()) == 0) {
-                        LOG(TRACE) << "Removed stalled lock file " << bindAddress.getAddress().append(".lock").data();
+                        LOG(TRACE) << "Removed possible stalled sun_path: " << bindAddress.getAddress().append(".lock").data();
                     } else {
-                        PLOG(TRACE) << "Removed stalled lock file " << bindAddress.getAddress().append(".lock").data();
+                        PLOG(TRACE) << "Removed possible stalled sun path: " << bindAddress.getAddress().append(".lock").data();
                     }
                 } else {
                     PLOG(TRACE) << "Locking lock file " << bindAddress.getAddress().append(".lock").data();
