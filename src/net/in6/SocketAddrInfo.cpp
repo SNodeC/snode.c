@@ -36,15 +36,15 @@ namespace net::in6 {
     }
 
     int SocketAddrInfo::resolve(const std::string& node, const std::string& service, const addrinfo& hints) {
-        int aiErrCode = 0;
-
-        this->node = node;
-        this->service = service;
-
         if (addrInfo != nullptr) {
             freeaddrinfo(addrInfo);
             addrInfo = nullptr;
         }
+
+        int aiErrCode = 0;
+
+        this->node = node;
+        this->service = service;
 
         if ((aiErrCode = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &addrInfo)) == 0) {
             currentAddrInfo = addrInfo;
@@ -67,7 +67,6 @@ namespace net::in6 {
 
     void SocketAddrInfo::logAddressInfo() {
         if (currentAddrInfo != nullptr) {
-            el::Logger* defaultLogger = el::Loggers::getLogger("default");
             static char hostBfr[NI_MAXHOST];
             static char servBfr[NI_MAXSERV];
             std::memset(hostBfr, 0, NI_MAXHOST);
@@ -96,26 +95,26 @@ namespace net::in6 {
                                        "                  sin_addr:     %v\n"
                                        "                  sin_port:     %v";
 
-            defaultLogger->trace(format.c_str(),
-                                 currentAddrInfo->ai_next,
-                                 currentAddrInfo->ai_flags,
-                                 currentAddrInfo->ai_family,
-                                 PF_INET,
-                                 PF_INET6,
-                                 currentAddrInfo->ai_socktype,
-                                 SOCK_STREAM,
-                                 SOCK_DGRAM,
-                                 currentAddrInfo->ai_protocol,
-                                 IPPROTO_TCP,
-                                 IPPROTO_UDP,
-                                 currentAddrInfo->ai_addrlen,
-                                 sizeof(struct sockaddr_in),
-                                 sizeof(struct sockaddr_in6),
-                                 aiAddr->sin_family,
-                                 AF_INET,
-                                 AF_INET6,
-                                 hostBfr,
-                                 servBfr);
+            el::Loggers::getLogger("default")->trace(format.c_str(),
+                                                     currentAddrInfo->ai_next,
+                                                     currentAddrInfo->ai_flags,
+                                                     currentAddrInfo->ai_family,
+                                                     PF_INET,
+                                                     PF_INET6,
+                                                     currentAddrInfo->ai_socktype,
+                                                     SOCK_STREAM,
+                                                     SOCK_DGRAM,
+                                                     currentAddrInfo->ai_protocol,
+                                                     IPPROTO_TCP,
+                                                     IPPROTO_UDP,
+                                                     currentAddrInfo->ai_addrlen,
+                                                     sizeof(struct sockaddr_in),
+                                                     sizeof(struct sockaddr_in6),
+                                                     aiAddr->sin_family,
+                                                     AF_INET,
+                                                     AF_INET6,
+                                                     hostBfr,
+                                                     servBfr);
         }
     }
 

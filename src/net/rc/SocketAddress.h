@@ -57,8 +57,9 @@ namespace net::rc {
         explicit SocketAddress(const std::string& btAddress);
         SocketAddress(const std::string& btAddress, uint8_t channel);
         explicit SocketAddress(uint8_t channel);
-
         SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+
+        SocketAddress& init();
 
         SocketAddress setBtAddress(const std::string& btAddress);
         SocketAddress setChannel(uint8_t channel);
@@ -69,8 +70,6 @@ namespace net::rc {
         std::string toString() const override;
 
     private:
-        SocketAddress& init();
-
         std::string btAddress;
         uint8_t channel = 0;
 

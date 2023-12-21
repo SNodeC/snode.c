@@ -57,8 +57,9 @@ namespace net::l2 {
         explicit SocketAddress(const std::string& btAddress);
         SocketAddress(const std::string& btAddress, uint16_t psm);
         explicit SocketAddress(uint16_t psm);
-
         SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+
+        SocketAddress& init();
 
         SocketAddress setBtAddress(const std::string& btAddress);
 
@@ -69,8 +70,6 @@ namespace net::l2 {
         std::string toString() const override;
 
     private:
-        SocketAddress& init();
-
         std::string btAddress;
         uint16_t psm = 0;
 

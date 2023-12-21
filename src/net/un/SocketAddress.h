@@ -53,8 +53,9 @@ namespace net::un {
 
         SocketAddress();
         explicit SocketAddress(const std::string& sunPath);
-
         SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+
+        SocketAddress& init();
 
         SocketAddress setSunPath(const std::string& sunPath);
 
@@ -62,8 +63,6 @@ namespace net::un {
         std::string toString() const override;
 
     private:
-        SocketAddress& init();
-
         std::string sunPath;
 
         friend class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;

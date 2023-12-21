@@ -61,8 +61,11 @@ namespace net::in {
         explicit SocketAddress(const std::string& ipOrHostname);
         SocketAddress(const std::string& ipOrHostname, uint16_t port);
         explicit SocketAddress(uint16_t port);
-
         SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+
+        SocketAddress& init();
+
+        bool useNext() override;
 
         SocketAddress& setHost(const std::string& ipOrHostname);
         std::string getHost() const;
@@ -73,12 +76,6 @@ namespace net::in {
         std::string getAddress() const override;
         std::string toString() const override;
 
-        bool useNext() override;
-
-    private:
-        SocketAddress& init();
-
-    public:
         SocketAddress& setAiSockType(int aiSocktype);
         int getAiSockType() const;
 
