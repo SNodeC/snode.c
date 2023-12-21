@@ -85,7 +85,7 @@ namespace net::rc {
     }
 
     std::string SocketAddress::toString() const {
-        return getAddress() + ":" + std::to_string(getChannel());
+        return btAddress + ":" + std::to_string(channel);
     }
 
 } // namespace net::rc

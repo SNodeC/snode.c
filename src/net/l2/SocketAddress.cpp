@@ -84,7 +84,7 @@ namespace net::l2 {
     }
 
     std::string SocketAddress::toString() const {
-        return getAddress() + ":" + std::to_string(getPsm());
+        return btAddress + ":" + std::to_string(psm);
     }
 
 } // namespace net::l2

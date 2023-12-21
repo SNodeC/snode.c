@@ -98,7 +98,7 @@ namespace net::in6 {
 
         int aiErrCode = 0;
 
-        if ((aiErrCode = socketAddrInfo->init(host, std::to_string(port), hints)) == 0) {
+        if ((aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), hints)) == 0) {
             sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
         } else {
             core::socket::State state = core::socket::STATE_OK;
@@ -149,7 +149,7 @@ namespace net::in6 {
     }
 
     std::string SocketAddress::toString() const {
-        return getHost() + ":" + std::to_string(getPort());
+        return host + ":" + std::to_string(port);
     }
 
     bool SocketAddress::useNext() {

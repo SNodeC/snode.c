@@ -34,7 +34,7 @@ namespace net::in {
         SocketAddrInfo() = default;
         ~SocketAddrInfo();
 
-        int init(const std::string& node, const std::string& service, const addrinfo& hints);
+        int resolve(const std::string& node, const std::string& service, const addrinfo& hints);
 
         bool useNext();
         void next();

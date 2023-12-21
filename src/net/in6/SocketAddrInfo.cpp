@@ -35,7 +35,7 @@ namespace net::in6 {
         }
     }
 
-    int SocketAddrInfo::init(const std::string& node, const std::string& service, const addrinfo& hints) {
+    int SocketAddrInfo::resolve(const std::string& node, const std::string& service, const addrinfo& hints) {
         int aiErrCode = 0;
 
         this->node = node;
