@@ -78,6 +78,7 @@ namespace net::in6 {
     private:
         SocketAddress& init();
 
+    public:
         SocketAddress& setAiSockType(int aiSocktype);
         int getAiSockType() const;
 
@@ -87,6 +88,7 @@ namespace net::in6 {
         SocketAddress& setAiFlags(int aiFlags);
         int getAiFlags() const;
 
+    private:
         std::shared_ptr<SocketAddrInfo> socketAddrInfo;
         int aiFlags = 0;
         int aiSocktype = 0;
