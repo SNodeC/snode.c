@@ -21,17 +21,18 @@
 
 #include "net/SocketAddress.h" // IWYU pragma: export
 
-namespace net::config {
-    template <typename SocketAddressT>
-    class ConfigAddressLocal; // IWYU pragma: keep
-    template <typename SocketAddressT>
-    class ConfigAddressRemote; // IWYU pragma: keep
-} // namespace net::config
-
-namespace net::rc::config {
-    template <template <typename SocketAddressT> typename SocketAddressTypeT>
-    class ConfigAddress;
-} // namespace net::rc::config
+namespace net {
+    namespace config {
+        template <typename SocketAddressT>
+        class ConfigAddressLocal; // IWYU pragma: keep
+        template <typename SocketAddressT>
+        class ConfigAddressRemote; // IWYU pragma: keep
+    }                              // namespace config
+    namespace rc::config {
+        template <template <typename SocketAddressT> typename SocketAddressTypeT>
+        class ConfigAddress;
+    } // namespace rc::config
+} // namespace net
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 

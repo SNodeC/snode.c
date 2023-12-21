@@ -21,21 +21,21 @@
 
 #include "net/SocketAddress.h" // IWYU pragma: export
 
-namespace net::config {
-    template <typename SocketAddressT>
-    class ConfigAddressLocal; // IWYU pragma: keep
-    template <typename SocketAddressT>
-    class ConfigAddressRemote; // IWYU pragma: keep
-} // namespace net::config
-
-namespace net::in {
-    class SocketAddrInfo;
-
+namespace net {
     namespace config {
-        template <template <typename SocketAddressT> typename SocketAddressTypeT>
-        class ConfigAddress;
-    }
-} // namespace net::in
+        template <typename SocketAddressT>
+        class ConfigAddressLocal; // IWYU pragma: keep
+        template <typename SocketAddressT>
+        class ConfigAddressRemote; // IWYU pragma: keep
+    }                              // namespace config
+    namespace in {
+        class SocketAddrInfo;
+        namespace config {
+            template <template <typename SocketAddressT> typename SocketAddressTypeT>
+            class ConfigAddress;
+        }
+    } // namespace in
+} // namespace net
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 
