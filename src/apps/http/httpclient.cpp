@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
                        const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "': " << state.what();
+                VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
                 VLOG(1) << instanceName << ": disabled";

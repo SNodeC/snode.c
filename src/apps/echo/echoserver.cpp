@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
         VLOG(1) << "AddressFamily: " << socketAddress.getAddressFamily();
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "': " << state.what();
+                VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
                 VLOG(1) << instanceName << ": disabled";

@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
                                                                          const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "': " << state.what();
+                VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
                 VLOG(1) << instanceName << ": disabled";
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
         client.connect([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'";
+                    VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'" << "'";
                     break;
                 case core::socket::State::DISABLED:
                     VLOG(1) << "echoclient: disabled";
