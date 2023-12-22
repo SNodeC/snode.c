@@ -21,19 +21,6 @@
 
 #include "net/SocketAddress.h" // IWYU pragma: export
 
-namespace net {
-    namespace config {
-        template <typename SocketAddressT>
-        class ConfigAddressLocal; // IWYU pragma: keep
-        template <typename SocketAddressT>
-        class ConfigAddressRemote; // IWYU pragma: keep
-    }                              // namespace config
-    namespace rc::config {
-        template <template <typename SocketAddressT> typename SocketAddressTypeT>
-        class ConfigAddress;
-    } // namespace rc::config
-} // namespace net
-
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -73,9 +60,6 @@ namespace net::rc {
     private:
         std::string btAddress;
         uint8_t channel = 0;
-
-        friend class net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>;
-        friend class net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>;
     };
 
 } // namespace net::rc

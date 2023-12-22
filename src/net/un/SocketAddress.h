@@ -21,19 +21,6 @@
 
 #include "net/SocketAddress.h" // IWYU pragma: export
 
-namespace net {
-    namespace config {
-        template <typename SocketAddressT>
-        class ConfigAddressLocal; // IWYU pragma: keep
-        template <typename SocketAddressT>
-        class ConfigAddressRemote; // IWYU pragma: keep
-    }                              // namespace config
-    namespace un::config {
-        template <template <typename SocketAddressT> typename SocketAddressTypeT>
-        class ConfigAddress;
-    } // namespace un::config
-} // namespace net
-
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -65,9 +52,6 @@ namespace net::un {
 
     private:
         std::string sunPath;
-
-        friend class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
-        friend class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
     };
 
 } // namespace net::un

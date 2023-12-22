@@ -21,21 +21,9 @@
 
 #include "net/SocketAddress.h" // IWYU pragma: export
 
-namespace net {
-    namespace config {
-        template <typename SocketAddressT>
-        class ConfigAddressLocal; // IWYU pragma: keep
-        template <typename SocketAddressT>
-        class ConfigAddressRemote; // IWYU pragma: keep
-    }                              // namespace config
-    namespace in6 {
-        class SocketAddrInfo;
-        namespace config {
-            template <template <typename SocketAddressT> typename SocketAddressTypeT>
-            class ConfigAddress;
-        }
-    } // namespace in6
-} // namespace net
+namespace net::in6 {
+    class SocketAddrInfo;
+} // namespace net::in6
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 
@@ -93,9 +81,6 @@ namespace net::in6 {
 
         std::string host;
         uint16_t port = 0;
-
-        friend class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
-        friend class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;
     };
 
 } // namespace net::in6
