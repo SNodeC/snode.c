@@ -46,7 +46,6 @@ namespace core::socket::stream {
         , onDisconnect(onDisconnect)
         , onStatus(onStatus)
         , config(config) {
-        InitConnectEventReceiver::span();
     }
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
