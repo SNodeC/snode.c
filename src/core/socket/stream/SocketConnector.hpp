@@ -56,18 +56,16 @@ namespace core::socket::stream {
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::initConnectEvent() {
         if (!config->getDisabled()) {
             try {
+                LOG(TRACE) << config->getInstanceName() << ": starting";
+
                 SocketAddress localAddress = config->Local::getSocketAddress();
 
                 try {
                     remoteAddress = config->Remote::getSocketAddress();
 
-                    LOG(TRACE) << config->getInstanceName() << ": starting";
-
-                    core::eventreceiver::ConnectEventReceiver::setTimeout(config->getConnectTimeout());
-
-                    core::socket::State state = core::socket::STATE_OK;
-
                     if (physicalClientSocket.open(config->getSocketOptions(), PhysicalClientSocket::Flags::NONBLOCK) < 0) {
+                        core::socket::State state = core::socket::STATE_OK;
+
                         switch (errno) {
                             case EMFILE:
                             case ENFILE:
@@ -83,7 +81,11 @@ namespace core::socket::stream {
                                 state = core::socket::STATE_FATAL;
                                 break;
                         }
+
+                        onStatus(remoteAddress, state);
                     } else if (physicalClientSocket.bind(localAddress) < 0) {
+                        core::socket::State state = core::socket::STATE_OK;
+
                         switch (errno) {
                             case EADDRINUSE:
                                 PLOG(TRACE) << config->getInstanceName() << ": bind '" << localAddress.toString() << "'";
@@ -96,7 +98,11 @@ namespace core::socket::stream {
                                 state = core::socket::STATE_FATAL;
                                 break;
                         }
+
+                        onStatus(remoteAddress, state);
                     } else if (physicalClientSocket.connect(remoteAddress) < 0 && !PhysicalClientSocket::connectInProgress(errno)) {
+                        core::socket::State state = core::socket::STATE_OK;
+
                         switch (errno) {
                             case EADDRINUSE:
                             case EADDRNOTAVAIL:
@@ -128,11 +134,10 @@ namespace core::socket::stream {
                     } else {
                         LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
-                        onStatus(remoteAddress, state);
+                        onStatus(remoteAddress, core::socket::STATE_OK);
 
                         SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(std::move(physicalClientSocket), config);
                     }
-
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                     LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
@@ -149,7 +154,9 @@ namespace core::socket::stream {
             onStatus({}, core::socket::STATE_DISABLED);
         }
 
-        if (!isEnabled()) {
+        if (isEnabled()) {
+            core::eventreceiver::ConnectEventReceiver::setTimeout(config->getConnectTimeout());
+        } else {
             destruct();
         }
     }

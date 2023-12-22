@@ -56,11 +56,9 @@ namespace core::socket::stream {
     void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::initAcceptEvent() {
         if (!config->getDisabled()) {
             try {
-                SocketAddress localAddress(config->Local::getSocketAddress());
-
                 LOG(TRACE) << config->getInstanceName() << ": starting";
 
-                core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
+                SocketAddress localAddress(config->Local::getSocketAddress());
 
                 core::socket::State state = core::socket::STATE_OK;
 
@@ -100,7 +98,6 @@ namespace core::socket::stream {
                             PLOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "'";
                             break;
                     }
-
                 } else {
                     LOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "' success";
 
@@ -127,7 +124,9 @@ namespace core::socket::stream {
             onStatus({}, core::socket::STATE_DISABLED);
         }
 
-        if (!isEnabled()) {
+        if (isEnabled()) {
+            core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
+        } else {
             destruct();
         }
     }
