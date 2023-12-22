@@ -49,12 +49,12 @@ namespace net::l2 {
 
         SocketAddress& init();
 
-        SocketAddress setBtAddress(const std::string& btAddress);
+        SocketAddress& setBtAddress(const std::string& btAddress);
+        std::string getBtAddress() const;
 
-        SocketAddress setPsm(uint16_t psm);
+        SocketAddress& setPsm(uint16_t psm);
         uint16_t getPsm() const;
 
-        std::string getAddress() const override;
         std::string toString() const override;
 
     private:

@@ -33,7 +33,7 @@ namespace core::socket {
         , file(file)
         , line(line)
         , errnum(errno)
-        , errstr(errnum != 0 ? std::string(": ") + std::strerror(errnum) + " [" + std::to_string(errnum) + "]" : "") {
+        , errstr(errnum != 0 ? std::string(std::strerror(errnum)).append(" [").append(std::to_string(errnum)).append("]") : "") {
     }
 
     State::State(const int& state, const std::string& file, const int& line, int errnum, const std::string& errstr)
@@ -41,7 +41,7 @@ namespace core::socket {
         , file(file)
         , line(line)
         , errnum(errnum)
-        , errstr(errnum != 0 ? std::string(": ") + errstr + " [" + std::to_string(errnum) + "]" : "") {
+        , errstr(errnum != 0 ? std::string(errstr).append(" [").append(std::to_string(errnum)).append("]") : "") {
     }
 
     State::operator int() const {
@@ -63,14 +63,17 @@ namespace core::socket {
                 stateString = "DISABLED";
                 break;
             case ERROR:
-                stateString = file + ":" + std::to_string(line) + errstr;
-                break;
+                [[fallthrough]];
             case FATAL:
-                stateString = file + ":" + std::to_string(line) + errstr;
+                stateString = errstr;
                 break;
         }
 
         return stateString;
+    }
+
+    std::string State::where() const {
+        return file + "(" + std::to_string(line) + ")";
     }
 
 } // namespace core::socket

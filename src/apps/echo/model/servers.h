@@ -69,10 +69,8 @@ namespace apps::echo::model::tls {
         server.setOnConnect([&server](SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect " << server.getConfig().getInstanceName();
 
-            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
-                           socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
-                           socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -167,10 +165,8 @@ namespace apps::echo::model::tls {
         server.setOnDisconnect([&server](SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect " << server.getConfig().getInstanceName();
 
-            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
-                           socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
-                           socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         return server;

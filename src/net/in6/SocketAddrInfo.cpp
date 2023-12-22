@@ -62,6 +62,10 @@ namespace net::in6 {
         return currentAddrInfo != nullptr ? *reinterpret_cast<sockaddr_in6*>(currentAddrInfo->ai_addr) : sockaddr_in6{};
     }
 
+    std::string SocketAddrInfo::getCanonName() {
+        return currentAddrInfo->ai_canonname;
+    }
+
     void SocketAddrInfo::logAddressInfo() {
         if (currentAddrInfo != nullptr) {
             static char hostBfr[NI_MAXHOST];

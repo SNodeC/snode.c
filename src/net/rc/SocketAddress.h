@@ -49,12 +49,12 @@ namespace net::rc {
 
         SocketAddress& init();
 
-        SocketAddress setBtAddress(const std::string& btAddress);
-        SocketAddress setChannel(uint8_t channel);
+        SocketAddress& setBtAddress(const std::string& btAddress);
+        std::string getBtAddress() const;
 
+        SocketAddress& setChannel(uint8_t channel);
         uint8_t getChannel() const;
 
-        std::string getAddress() const override;
         std::string toString() const override;
 
     private:

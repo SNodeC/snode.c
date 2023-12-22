@@ -61,7 +61,6 @@ namespace net::in6 {
         SocketAddress& setPort(uint16_t port);
         uint16_t getPort() const;
 
-        std::string getAddress() const override;
         std::string toString() const override;
 
         SocketAddress& setAiSockType(int aiSocktype);
@@ -76,6 +75,8 @@ namespace net::in6 {
     private:
         std::string host = "::";
         uint16_t port = 0;
+
+        std::string canonName;
 
         int aiFlags = 0;
         int aiSocktype = 0;

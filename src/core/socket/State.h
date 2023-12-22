@@ -53,6 +53,7 @@ namespace core::socket {
         bool operator==(const int& state) const;
 
         std::string what() const;
+        std::string where() const;
 
     private:
         int state;

@@ -64,13 +64,17 @@ namespace net::rc {
         return *this;
     }
 
-    SocketAddress SocketAddress::setBtAddress(const std::string& btAddress) {
+    SocketAddress& SocketAddress::setBtAddress(const std::string& btAddress) {
         this->btAddress = btAddress;
 
         return *this;
     }
 
-    SocketAddress SocketAddress::setChannel(uint8_t channel) {
+    std::string SocketAddress::getBtAddress() const {
+        return btAddress;
+    }
+
+    SocketAddress& SocketAddress::setChannel(uint8_t channel) {
         this->channel = channel;
 
         return *this;
@@ -80,12 +84,8 @@ namespace net::rc {
         return channel;
     }
 
-    std::string SocketAddress::getAddress() const {
-        return btAddress;
-    }
-
     std::string SocketAddress::toString() const {
-        return btAddress + ":" + std::to_string(channel);
+        return std::string(btAddress).append(":").append(std::to_string(channel));
     }
 
 } // namespace net::rc

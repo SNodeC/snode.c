@@ -66,13 +66,13 @@ namespace net::un {
         return *this;
     }
 
-    SocketAddress SocketAddress::setSunPath(const std::string& sunPath) {
+    SocketAddress& SocketAddress::setSunPath(const std::string& sunPath) {
         this->sunPath = sunPath;
 
         return *this;
     }
 
-    std::string SocketAddress::getAddress() const {
+    std::string SocketAddress::getSunPath() const {
         return sunPath;
     }
 
@@ -82,7 +82,7 @@ namespace net::un {
 // Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105329
 #endif
     std::string SocketAddress::toString() const {
-        return (sockAddr.sun_path[0] != '\0') ? std::string(sockAddr.sun_path) : "@" + std::string(sockAddr.sun_path + 1);
+        return sockAddr.sun_path[0] != '\0' ? std::string(sockAddr.sun_path) : std::string("@").append(std::string(sockAddr.sun_path + 1));
     }
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER)
 #pragma GCC diagnostic pop

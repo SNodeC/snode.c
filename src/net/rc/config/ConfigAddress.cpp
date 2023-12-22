@@ -55,7 +55,7 @@ namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
-        setBtAddress(socketAddress.getAddress());
+        setBtAddress(socketAddress.getBtAddress());
         setChannel(socketAddress.getChannel());
 
         return *this;

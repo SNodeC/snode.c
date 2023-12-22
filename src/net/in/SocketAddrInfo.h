@@ -39,8 +39,9 @@ namespace net::in {
         int resolve(const std::string& node, const std::string& service, const addrinfo& hints);
 
         bool useNext();
-        void next();
+
         sockaddr_in getSockAddr();
+        std::string getCanonName();
 
         void logAddressInfo();
 

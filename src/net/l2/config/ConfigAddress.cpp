@@ -54,7 +54,7 @@ namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
-        setBtAddress(socketAddress.getAddress());
+        setBtAddress(socketAddress.getBtAddress());
         setPsm(socketAddress.getPsm());
 
         return *this;

@@ -108,6 +108,8 @@ namespace core::socket::stream {
                             case EADDRNOTAVAIL:
                             case ECONNREFUSED:
                             case ENETUNREACH:
+                            case ENOENT:
+                            case EHOSTDOWN:
                                 PLOG(TRACE) << config->getInstanceName() << ": connect '" << remoteAddress.toString() << "'";
 
                                 state = core::socket::STATE_ERROR;

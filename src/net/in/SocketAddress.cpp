@@ -26,8 +26,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/PreserveErrno.h"
-
 #include <cerrno>
 #include <cstring>
 
@@ -83,6 +81,7 @@ namespace net::in {
                 this->port = static_cast<uint16_t>(std::stoul(serv));
             }
             this->host = host;
+            this->canonName = host;
         } else {
             this->host = gai_strerror(ret);
         }
@@ -94,12 +93,13 @@ namespace net::in {
         hints.ai_family = AF_INET;
         hints.ai_socktype = aiSocktype;
         hints.ai_protocol = aiProtocol;
-        hints.ai_flags = aiFlags | AI_ADDRCONFIG | AI_ALL;
+        hints.ai_flags = aiFlags | AI_CANONNAME | AI_ADDRCONFIG | AI_ALL;
 
         int aiErrCode = 0;
 
         if ((aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), hints)) == 0) {
             sockAddr = socketAddrInfo->getSockAddr();
+            canonName = socketAddrInfo->getCanonName();
         } else {
             core::socket::State state = core::socket::STATE_OK;
             switch (aiErrCode) {
@@ -140,20 +140,8 @@ namespace net::in {
         return port;
     }
 
-    std::string SocketAddress::getAddress() const {
-        const utils::PreserveErrno preserveErrno;
-
-        char ip[NI_MAXHOST];
-        std::memset(ip, 0, NI_MAXHOST);
-
-        const int ret = core::system::getnameinfo(
-            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
-
-        return ret >= 0 ? ip : gai_strerror(ret);
-    }
-
     std::string SocketAddress::toString() const {
-        return host + ":" + std::to_string(port);
+        return std::string(host).append(":").append(std::to_string(port)).append(" (").append(canonName).append(")");
     }
 
     bool SocketAddress::useNext() {

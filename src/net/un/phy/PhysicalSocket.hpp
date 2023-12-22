@@ -59,41 +59,41 @@ namespace net::un::phy {
             close(lockFd);
             lockFd = -1;
 
-            if (std::remove(Super::bindAddress.getAddress().append(".lock").data()) == 0) {
-                LOG(TRACE) << "Remove lock file: " << Super::getBindAddress().getAddress().append(".lock");
+            if (std::remove(Super::bindAddress.getSunPath().append(".lock").data()) == 0) {
+                LOG(TRACE) << "Remove lock file: " << Super::getBindAddress().getSunPath().append(".lock");
             } else {
-                PLOG(TRACE) << "Remove lock file: " << Super::getBindAddress().getAddress().append(".lock");
+                PLOG(TRACE) << "Remove lock file: " << Super::getBindAddress().getSunPath().append(".lock");
             }
-            if (std::remove(Super::getBindAddress().getAddress().data()) == 0) {
-                LOG(TRACE) << "Remove sunPath: " << Super::getBindAddress().getAddress();
+            if (std::remove(Super::getBindAddress().getSunPath().data()) == 0) {
+                LOG(TRACE) << "Remove sunPath: " << Super::getBindAddress().getSunPath();
             } else {
-                PLOG(TRACE) << "Remove sunPath: " << Super::getBindAddress().getAddress();
+                PLOG(TRACE) << "Remove sunPath: " << Super::getBindAddress().getSunPath();
             }
         }
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     int PhysicalSocket<PhysicalPeerSocket>::bind(SocketAddress& bindAddress) {
-        if (!bindAddress.getAddress().empty()) {
-            lockFd = open(bindAddress.getAddress().append(".lock").data(), O_RDONLY | O_CREAT, 0600);
+        if (!bindAddress.getSunPath().empty()) {
+            lockFd = open(bindAddress.getSunPath().append(".lock").data(), O_RDONLY | O_CREAT, 0600);
 
             if (lockFd >= 0) {
-                LOG(TRACE) << "Opening lock file " << bindAddress.getAddress().append(".lock").data();
+                LOG(TRACE) << "Opening lock file " << bindAddress.getSunPath().append(".lock").data();
                 if (flock(lockFd, LOCK_EX | LOCK_NB) == 0) {
-                    LOG(TRACE) << "Locking lock file " << bindAddress.getAddress().append(".lock").data();
-                    if (std::remove(bindAddress.getAddress().data()) == 0) {
-                        LOG(TRACE) << "Removed possible stalled sun_path: " << bindAddress.getAddress().append(".lock").data();
+                    LOG(TRACE) << "Locking lock file " << bindAddress.getSunPath().append(".lock").data();
+                    if (std::remove(bindAddress.getSunPath().data()) == 0) {
+                        LOG(TRACE) << "Removed possible stalled sun_path: " << bindAddress.getSunPath().append(".lock").data();
                     } else {
-                        PLOG(TRACE) << "Removed possible stalled sun path: " << bindAddress.getAddress().append(".lock").data();
+                        PLOG(TRACE) << "Removed possible stalled sun path: " << bindAddress.getSunPath().append(".lock").data();
                     }
                 } else {
-                    PLOG(TRACE) << "Locking lock file " << bindAddress.getAddress().append(".lock").data();
+                    PLOG(TRACE) << "Locking lock file " << bindAddress.getSunPath().append(".lock").data();
 
                     close(lockFd);
                     lockFd = -1;
                 }
             } else {
-                PLOG(TRACE) << "Opening lock file " << bindAddress.getAddress().append(".lock").data();
+                PLOG(TRACE) << "Opening lock file " << bindAddress.getSunPath().append(".lock").data();
             }
         }
 

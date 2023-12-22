@@ -140,10 +140,8 @@ namespace apps::http::tls {
         client.setOnConnect([&client](SocketConnection* socketConnection) -> void { // onConnect
             LOG(INFO) << "OnConnect " << client.getConfig().getInstanceName();
 
-            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
-                             socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
-                             socketConnection->getRemoteAddress().toString();
+            LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -238,10 +236,8 @@ namespace apps::http::tls {
         client.setOnDisconnect([&client](SocketConnection* socketConnection) -> void { // onDisconnect
             LOG(INFO) << "OnDisconnect " << client.getConfig().getInstanceName();
 
-            LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
-                             socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
-                             socketConnection->getRemoteAddress().toString();
+            LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         return client;

@@ -78,21 +78,20 @@ namespace core::socket::stream {
                   [name](SocketConnection* socketConnection) -> void { // onConnect
                       LOG(INFO) << "OnConnect " << name;
 
-                      LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
-                                       socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
-                                       socketConnection->getRemoteAddress().toString();
+                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                   },
                   [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
                       LOG(INFO) << "OnConnected " << name;
+
+                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
                       LOG(INFO) << "OnDisconnect " << name;
 
-                      LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
-                                       socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
-                                       socketConnection->getRemoteAddress().toString();
+                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                   },
                   std::forward<Args>(args)...) {
         }
@@ -126,21 +125,20 @@ namespace core::socket::stream {
                   [name](SocketConnection* socketConnection) -> void { // onConnect
                       LOG(INFO) << "OnConnect " << name;
 
-                      LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
-                                       socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
-                                       socketConnection->getRemoteAddress().toString();
+                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                   },
                   [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
                       LOG(INFO) << "OnConnected " << name;
+
+                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
                       LOG(INFO) << "OnDisconnect " << name;
 
-                      LOG(INFO) << "\tLocal: (" + socketConnection->getLocalAddress().getAddress() + ") " +
-                                       socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "\tPeer:  (" + socketConnection->getRemoteAddress().getAddress() + ") " +
-                                       socketConnection->getRemoteAddress().toString();
+                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                   },
                   socketContextFactory) {
         }

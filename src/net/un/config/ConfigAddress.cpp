@@ -52,7 +52,7 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
-        setSunPath(socketAddress.getAddress());
+        setSunPath(socketAddress.getSunPath());
 
         return *this;
     }

@@ -63,13 +63,17 @@ namespace net::l2 {
         return *this;
     }
 
-    SocketAddress SocketAddress::setBtAddress(const std::string& btAddress) {
+    SocketAddress& SocketAddress::setBtAddress(const std::string& btAddress) {
         this->btAddress = btAddress;
 
         return *this;
     }
 
-    SocketAddress SocketAddress::setPsm(uint16_t psm) {
+    std::string SocketAddress::getBtAddress() const {
+        return btAddress;
+    }
+
+    SocketAddress& SocketAddress::setPsm(uint16_t psm) {
         this->psm = psm;
 
         return *this;
@@ -79,12 +83,8 @@ namespace net::l2 {
         return psm;
     }
 
-    std::string SocketAddress::getAddress() const {
-        return btAddress;
-    }
-
     std::string SocketAddress::toString() const {
-        return btAddress + ":" + std::to_string(psm);
+        return std::string(btAddress).append(":").append(std::to_string(psm));
     }
 
 } // namespace net::l2

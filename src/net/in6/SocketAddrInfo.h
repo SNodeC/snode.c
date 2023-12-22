@@ -39,7 +39,9 @@ namespace net::in6 {
         int resolve(const std::string& node, const std::string& service, const addrinfo& hints);
 
         bool useNext();
+
         sockaddr_in6 getSockAddr();
+        std::string getCanonName();
 
         void logAddressInfo();
 

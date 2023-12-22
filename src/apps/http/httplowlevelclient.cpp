@@ -149,10 +149,8 @@ namespace tls {
             [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().getAddress() + ") " +
-                               socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().getAddress() + ") " +
-                               socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " << socketConnection->getLocalAddress().toString();
 
                 /* Enable automatic hostname checks */
                 // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -287,10 +285,8 @@ namespace legacy {
             [](SocketConnection* socketConnection) -> void { // OnConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().getAddress() + ") " +
-                               socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().getAddress() + ") " +
-                               socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " << socketConnection->getLocalAddress().toString();
             },
             [](SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
@@ -300,10 +296,8 @@ namespace legacy {
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().getAddress() + ") " +
-                               socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().getAddress() + ") " +
-                               socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " << socketConnection->getLocalAddress().toString();
             });
 
         SocketAddress remoteAddress("localhost", 8080);
@@ -334,7 +328,7 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     {
-        legacy::SocketAddress legacyRemoteAddress("localhost", 8080);
+        const legacy::SocketAddress legacyRemoteAddress("localhost", 8080);
 
         legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
@@ -357,7 +351,7 @@ int main(int argc, char* argv[]) {
                                  }
                              });
 
-        tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
+        const tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
 
         tls::SocketClient tlsClient = tls::getClient();
 
