@@ -39,16 +39,13 @@ namespace net::in6 {
         int resolve(const std::string& node, const std::string& service, const addrinfo& hints);
 
         bool useNext();
-        const sockaddr_in6* getSockAddr();
+        sockaddr_in6 getSockAddr();
 
         void logAddressInfo();
 
     private:
         struct addrinfo* addrInfo = nullptr;
         struct addrinfo* currentAddrInfo = nullptr;
-
-        std::string node;
-        std::string service;
     };
 
 } // namespace net::in6

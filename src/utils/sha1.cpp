@@ -23,7 +23,6 @@
 
 #include <cstdlib>
 #include <iomanip>
-#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -241,7 +240,7 @@ void SHA1::buffer_to_block(const std::string& buffer, uint32_t block[BLOCK_BYTES
 
 void SHA1::read(std::istream& is, std::string& s, std::size_t max) {
     char* sbuf = new char[max];
-    is.read(sbuf, static_cast<ssize_t>(max));
+    is.read(sbuf, static_cast<std::streamsize>(max));
     s.assign(sbuf, static_cast<unsigned long>(is.gcount()));
     delete[] sbuf;
 }

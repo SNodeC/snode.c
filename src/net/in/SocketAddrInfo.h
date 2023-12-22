@@ -40,16 +40,13 @@ namespace net::in {
 
         bool useNext();
         void next();
-        const sockaddr_in* getSockAddr();
+        sockaddr_in getSockAddr();
 
         void logAddressInfo();
 
     private:
         struct addrinfo* addrInfo = nullptr;
         struct addrinfo* currentAddrInfo = nullptr;
-
-        std::string node;
-        std::string service;
     };
 
 } // namespace net::in

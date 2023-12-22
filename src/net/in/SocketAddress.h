@@ -74,13 +74,14 @@ namespace net::in {
         int getAiFlags() const;
 
     private:
-        std::shared_ptr<SocketAddrInfo> socketAddrInfo;
+        std::string host = "0.0.0.0";
+        uint16_t port = 0;
+
         int aiFlags = 0;
         int aiSocktype = 0;
         int aiProtocol = 0;
 
-        std::string host;
-        uint16_t port = 0;
+        std::shared_ptr<SocketAddrInfo> socketAddrInfo;
     };
 
 } // namespace net::in

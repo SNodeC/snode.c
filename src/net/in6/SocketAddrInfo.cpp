@@ -43,9 +43,6 @@ namespace net::in6 {
 
         int aiErrCode = 0;
 
-        this->node = node;
-        this->service = service;
-
         if ((aiErrCode = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &addrInfo)) == 0) {
             currentAddrInfo = addrInfo;
         }
@@ -61,8 +58,8 @@ namespace net::in6 {
         return currentAddrInfo != nullptr;
     }
 
-    const sockaddr_in6* SocketAddrInfo::getSockAddr() {
-        return reinterpret_cast<sockaddr_in6*>(currentAddrInfo != nullptr ? currentAddrInfo->ai_addr : nullptr);
+    sockaddr_in6 SocketAddrInfo::getSockAddr() {
+        return currentAddrInfo != nullptr ? *reinterpret_cast<sockaddr_in6*>(currentAddrInfo->ai_addr) : sockaddr_in6{};
     }
 
     void SocketAddrInfo::logAddressInfo() {
