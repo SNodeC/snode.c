@@ -187,12 +187,12 @@ namespace core::socket::stream {
                     case EADDRNOTAVAIL:
                     case ECONNREFUSED:
                     case ENETUNREACH:
-                        PLOG(TRACE) << config->getInstanceName() << ": con   nect failed '" << remoteAddress.toString() << "'";
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
                         state = core::socket::STATE_ERROR;
                         break;
                     default:
-                        PLOG(TRACE) << config->getInstanceName() << ": con   nect failed '" << remoteAddress.toString() << "'";
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
                         state = core::socket::STATE_FATAL;
                         break;
