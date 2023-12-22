@@ -78,7 +78,7 @@ namespace core::socket::stream::tls {
 
         void doSSLShutdown() final;
 
-        void doWriteShutdown(const std::function<void(int)>& onShutdown) final;
+        void doWriteShutdown(const std::function<void()>& onShutdown) final;
 
         SSL* ssl = nullptr;
 

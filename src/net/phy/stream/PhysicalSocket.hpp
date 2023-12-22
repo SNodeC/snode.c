@@ -25,8 +25,8 @@
 namespace net::phy::stream {
 
     template <typename SocketAddress>
-    void PhysicalSocket<SocketAddress>::shutdown(SHUT how) {
-        core::system::shutdown(core::Descriptor::getFd(), how);
+    int PhysicalSocket<SocketAddress>::shutdown(SHUT how) {
+        return core::system::shutdown(core::Descriptor::getFd(), how);
     }
 
 } // namespace net::phy::stream

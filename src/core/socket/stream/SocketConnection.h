@@ -138,10 +138,10 @@ namespace core::socket::stream {
         bool getExitProcessed();
 
     private:
-        void shutdownWrite(const std::function<void(int)>& onShutdown) override;
+        void shutdownWrite(const std::function<void()>& onShutdown) override;
 
     protected:
-        virtual void doWriteShutdown(const std::function<void(int)>& onShutdown);
+        virtual void doWriteShutdown(const std::function<void()>& onShutdown);
 
         PhysicalSocket physicalSocket;
 

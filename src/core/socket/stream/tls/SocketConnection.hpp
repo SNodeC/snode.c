@@ -175,10 +175,7 @@ namespace core::socket::stream::tls {
         if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
             LOG(TRACE) << "SSL/TLS: SSL_Shutdown COMPLETED: Close_notify sent and received";
             if (SocketWriter::isEnabled()) {
-                Super::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
-                    if (errno != 0) {
-                        PLOG(TRACE) << "SSL/TLS: SocketWriter::doWriteShutdown";
-                    }
+                Super::doWriteShutdown([this]() -> void {
                     SocketWriter::disable();
                 });
             }
@@ -188,7 +185,7 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocket>
-    void SocketConnection<PhysicalSocket>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
+    void SocketConnection<PhysicalSocket>::doWriteShutdown(const std::function<void()>& onShutdown) {
         if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
             doSSLShutdown(
                 [this, &onShutdown]() -> void { // thus send one
@@ -201,19 +198,13 @@ namespace core::socket::stream::tls {
                 },
                 [this]() -> void {
                     LOG(TRACE) << "SSL/TLS: SSL_shutdown: Handshake timed out";
-                    Super::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
-                        if (errno != 0) {
-                            PLOG(TRACE) << "SSL/TLS: SocketWriter::doWriteShutdown";
-                        }
+                    Super::doWriteShutdown([this]() -> void {
                         SocketConnection::close();
                     });
                 },
                 [this](int sslErr) -> void {
                     ssl_log("SSL_shutdown: Handshake failed", sslErr);
-                    Super::doWriteShutdown([this]([[maybe_unused]] int errnum) -> void {
-                        if (errno != 0) {
-                            PLOG(TRACE) << "SSL/TLS: SocketWriter::doWriteShutdown";
-                        }
+                    Super::doWriteShutdown([this]() -> void {
                         SocketConnection::close();
                     });
                 },

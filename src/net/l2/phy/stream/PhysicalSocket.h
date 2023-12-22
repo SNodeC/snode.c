@@ -41,7 +41,7 @@ namespace net::l2::phy::stream {
 
         ~PhysicalSocket() override;
 
-        void shutdown(typename Super::SHUT how); // shutdown L2CAP sockets must be handled differently
+        int shutdown(typename Super::SHUT how); // shutdown L2CAP sockets must be handled differently
     };
 
 } // namespace net::l2::phy::stream

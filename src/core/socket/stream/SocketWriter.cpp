@@ -95,10 +95,7 @@ namespace core::socket::stream {
     void SocketWriter::terminate() {
         if (!terminateInProgress) {
             setTimeout(terminateTimeout);
-            shutdownWrite([this](int errnum) -> void {
-                if (errnum != 0) {
-                    PLOG(TRACE) << "SocketWriter: SocketWriter::doWriteShutdown";
-                }
+            shutdownWrite([this]() -> void {
                 disable();
             });
             terminateInProgress = true;

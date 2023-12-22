@@ -41,7 +41,7 @@ namespace net::phy::stream {
 
         enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
-        void shutdown(SHUT how);
+        int shutdown(SHUT how);
     };
 
 } // namespace net::phy::stream

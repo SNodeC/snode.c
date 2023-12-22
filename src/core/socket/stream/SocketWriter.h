@@ -56,7 +56,7 @@ namespace core::socket::stream {
         void setBlockSize(std::size_t writeBlockSize);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
-        virtual void shutdownWrite(const std::function<void(int)>& onShutdown) = 0;
+        virtual void shutdownWrite(const std::function<void()>& onShutdown) = 0;
 
         void terminate() final;
 
@@ -66,7 +66,7 @@ namespace core::socket::stream {
         std::function<void(int)> onStatus;
 
     protected:
-        std::function<void(int)> onShutdown;
+        std::function<void()> onShutdown;
 
         std::vector<char> writeBuffer;
 

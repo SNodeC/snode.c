@@ -136,12 +136,9 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
-        shutdownWrite([forceClose, this](int errnum) -> void {
-            if (errnum != 0) {
-                PLOG(TRACE) << "SocketConnection: SocketWriter::doWriteShutdown";
-            }
-            if (forceClose) {
-                close();
+        shutdownWrite([forceClose, this]() -> void {
+            if (forceClose && SocketReader::isEnabled()) {
+                SocketReader::disable();
             } else if (SocketWriter::isEnabled()) {
                 SocketWriter::disable();
             }
@@ -164,14 +161,16 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void()>& onShutdown) {
         errno = 0;
 
-        LOG(TRACE) << "SocketWriter: Do syscall shutdonw (WR)";
+        LOG(TRACE) << "SocketConnection: Do syscall shutdonw (WR)";
 
-        physicalSocket.shutdown(PhysicalSocket::SHUT::WR);
+        if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) != 0) {
+            PLOG(TRACE) << "SocketConnection: SocketWriter::doWriteShutdown";
+        }
 
-        onShutdown(errno);
+        onShutdown();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
@@ -201,7 +200,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(const std::function<void(int)>& onShutdown) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(const std::function<void()>& onShutdown) {
         if (!shutdownInProgress) {
             SocketWriter::onShutdown = onShutdown;
             if (SocketWriter::writeBuffer.empty()) {
