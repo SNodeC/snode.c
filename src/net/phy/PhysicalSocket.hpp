@@ -106,12 +106,12 @@ namespace net::phy {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::getSockname(typename SocketAddress::SockAddr& localSockAddr, socklen_t& localSockAddrLen) {
+    int PhysicalSocket<SocketAddress>::getSockName(typename SocketAddress::SockAddr& localSockAddr, socklen_t& localSockAddrLen) {
         return core::system::getsockname(core::Descriptor::getFd(), reinterpret_cast<sockaddr*>(&localSockAddr), &localSockAddrLen);
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::getPeername(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen) {
+    int PhysicalSocket<SocketAddress>::getPeerName(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen) {
         return core::system::getpeername(core::Descriptor::getFd(), reinterpret_cast<sockaddr*>(&remoteSockAddr), &remoteSockAddrLen);
     }
 

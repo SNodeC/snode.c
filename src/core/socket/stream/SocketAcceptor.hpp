@@ -17,7 +17,6 @@
  */
 
 #include "core/socket/stream/SocketAcceptor.h"
-#include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -136,12 +135,25 @@ namespace core::socket::stream {
         int acceptsPerTick = config->getAcceptsPerTick();
 
         do {
-            PhysicalServerSocket physicalClientSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK),
-                                                      physicalServerSocket.getBindAddress());
-            if (physicalClientSocket.isValid()) {
-                LOG(TRACE) << config->getInstanceName() << ": accept success '" << physicalServerSocket.getBindAddress().toString() << "'";
+            PhysicalServerSocket connectedPhysicalServerSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK),
+                                                               physicalServerSocket.getBindAddress());
+            if (connectedPhysicalServerSocket.isValid()) {
+                LOG(TRACE) << config->getInstanceName() << ": accept success '" << connectedPhysicalServerSocket.getBindAddress().toString()
+                           << "'";
 
-                SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(std::move(physicalClientSocket), config);
+                SocketConnection* socketConnection = nullptr;
+                socketConnection = new SocketConnection(config->getInstanceName(),
+                                                        std::move(connectedPhysicalServerSocket),
+                                                        onDisconnect,
+                                                        config->getReadTimeout(),
+                                                        config->getWriteTimeout(),
+                                                        config->getReadBlockSize(),
+                                                        config->getWriteBlockSize(),
+                                                        config->getTerminateTimeout());
+
+                onConnect(socketConnection);
+                onConnected(socketConnection);
+
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
                 PLOG(TRACE) << config->getInstanceName() << ": accept failed '" << physicalServerSocket.getBindAddress().toString() << "'";
             }

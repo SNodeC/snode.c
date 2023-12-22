@@ -16,7 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/SocketConnectionFactory.hpp" // IWYU pragma: export
 #include "core/socket/stream/SocketConnector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -138,7 +137,18 @@ namespace core::socket::stream {
 
                         onStatus(remoteAddress, core::socket::STATE_OK);
 
-                        SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(std::move(physicalClientSocket), config);
+                        SocketConnection* socketConnection = nullptr;
+                        socketConnection = new SocketConnection(config->getInstanceName(),
+                                                                std::move(physicalClientSocket),
+                                                                onDisconnect,
+                                                                config->getReadTimeout(),
+                                                                config->getWriteTimeout(),
+                                                                config->getReadBlockSize(),
+                                                                config->getWriteBlockSize(),
+                                                                config->getTerminateTimeout());
+
+                        onConnect(socketConnection);
+                        onConnected(socketConnection);
                     }
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                     LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
@@ -174,7 +184,18 @@ namespace core::socket::stream {
 
                 onStatus(remoteAddress, core::socket::STATE_OK);
 
-                SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(std::move(physicalClientSocket), config);
+                SocketConnection* socketConnection = nullptr;
+                socketConnection = new SocketConnection(config->getInstanceName(),
+                                                        std::move(physicalClientSocket),
+                                                        onDisconnect,
+                                                        config->getReadTimeout(),
+                                                        config->getWriteTimeout(),
+                                                        config->getReadBlockSize(),
+                                                        config->getWriteBlockSize(),
+                                                        config->getTerminateTimeout());
+
+                onConnect(socketConnection);
+                onConnected(socketConnection);
 
                 disable();
             } else if (PhysicalClientSocket::connectInProgress(errno)) {

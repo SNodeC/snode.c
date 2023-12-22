@@ -21,7 +21,7 @@
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
 #include "core/socket/State.h"
-#include "core/socket/stream/SocketConnectionFactory.h"
+#include "core/socket/stream/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,9 +43,6 @@ namespace core::socket::stream {
         using Config = ConfigT;
         using SocketAddress = typename PhysicalServerSocket::SocketAddress;
         using SocketConnection = SocketConnectionT<PhysicalServerSocket>;
-
-    private:
-        using SocketConnectionFactory = core::socket::stream::SocketConnectionFactory<PhysicalServerSocket, Config, SocketConnection>;
 
     public:
         SocketAcceptor() = delete;

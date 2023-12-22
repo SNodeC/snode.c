@@ -33,8 +33,6 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(const std::string& instanceName,
                                                                                      PhysicalSocket&& physicalSocket,
-                                                                                     const SocketAddress& localAddress,
-                                                                                     const SocketAddress& remoteAddress,
                                                                                      const std::function<void()>& onDisconnect,
                                                                                      const utils::Timeval& readTimeout,
                                                                                      const utils::Timeval& writeTimeout,
@@ -57,9 +55,21 @@ namespace core::socket::stream {
               writeBlockSize,
               terminateTimeout)
         , physicalSocket(std::move(physicalSocket))
-        , onDisconnect(onDisconnect)
-        , localAddress(localAddress)
-        , remoteAddress(remoteAddress) {
+        , onDisconnect(onDisconnect) {
+        typename SocketAddress::SockAddr localSockAddr;
+        socklen_t localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+        typename SocketAddress::SockAddr remoteSockAddr;
+        socklen_t remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+        if (this->physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
+            localAddress = {localSockAddr, localSockAddrLen};
+        }
+
+        if (this->physicalSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
+            remoteAddress = {remoteSockAddr, remoteSockAddrLen};
+        }
+
         SocketReader::enable(this->physicalSocket.getFd());
         SocketWriter::enable(this->physicalSocket.getFd());
         SocketWriter::suspend();

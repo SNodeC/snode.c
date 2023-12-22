@@ -66,8 +66,8 @@ namespace net::phy {
 
         int getSockError(int& cErrno) const;
 
-        int getSockname(typename SocketAddress::SockAddr& localSockAddr, socklen_t& localSockAddrLen);
-        int getPeername(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen);
+        int getSockName(typename SocketAddress::SockAddr& localSockAddr, socklen_t& localSockAddrLen);
+        int getPeerName(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen);
 
         const SocketAddress& getBindAddress() const;
 

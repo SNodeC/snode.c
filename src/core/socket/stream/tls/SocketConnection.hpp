@@ -36,8 +36,6 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocket>
     SocketConnection<PhysicalSocket>::SocketConnection(const std::string& instanceName,
                                                        PhysicalSocket&& physicalSocket,
-                                                       const SocketAddress& localAddress,
-                                                       const SocketAddress& remoteAddress,
                                                        const std::function<void(SocketConnection*)>& onDisconnect,
                                                        const utils::Timeval& readTimeout,
                                                        const utils::Timeval& writeTimeout,
@@ -47,8 +45,6 @@ namespace core::socket::stream::tls {
         : Super(
               instanceName,
               std::move(physicalSocket),
-              localAddress,
-              remoteAddress,
               [onDisconnect, this]() -> void {
                   onDisconnect(this);
               },
