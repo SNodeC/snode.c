@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     using Client = web::http::legacy::in::Client<Request, Response>;
     using SocketAddress = Client::SocketAddress;
 
-    Client jsonClient(
+    const Client jsonClient(
         "legacy",
         [](Request& request) -> void {
             VLOG(0) << "-- OnRequest";
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
             }
 
             VLOG(0) << "     Cookies:";
-            for (auto& [name, cookie] : response.cookies) {
+            for (const auto& [name, cookie] : response.cookies) {
                 VLOG(0) << "       " + name + " = " + cookie.getValue();
                 for (auto& [option, value] : cookie.getOptions()) {
                     VLOG(0) << "         " + option + " = " + value;
@@ -84,39 +84,47 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Reason: " << reason;
         });
 
-    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << "legacy (2): connected to '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << "legacy (2): disabled";
-                break;
-            case core::socket::State::ERROR:
-                VLOG(1) << "legacy (2): error occurred";
-                break;
-            case core::socket::State::FATAL:
-                VLOG(1) << "legacy (2): fatal error occurred";
-                break;
-        }
-    });
+    jsonClient.connect("localhost",
+                       8080,
+                       [instanceName = jsonClient.getConfig().getInstanceName()](
+                           const SocketAddress& socketAddress,
+                           const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                           switch (state) {
+                               case core::socket::State::OK:
+                                   VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                   break;
+                               case core::socket::State::DISABLED:
+                                   VLOG(1) << instanceName << ": disabled";
+                                   break;
+                               case core::socket::State::ERROR:
+                                   LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                   break;
+                               case core::socket::State::FATAL:
+                                   LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                   break;
+                           }
+                       });
 
-    jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << "legacy (2): connected to '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << "legacy (2): disabled";
-                break;
-            case core::socket::State::ERROR:
-                VLOG(1) << "legacy (2): error occurred";
-                break;
-            case core::socket::State::FATAL:
-                VLOG(1) << "legacy (2): fatal error occurred";
-                break;
-        }
-    });
+    jsonClient.connect("localhost",
+                       8080,
+                       [instanceName = jsonClient.getConfig().getInstanceName()](
+                           const SocketAddress& socketAddress,
+                           const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                           switch (state) {
+                               case core::socket::State::OK:
+                                   VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                   break;
+                               case core::socket::State::DISABLED:
+                                   VLOG(1) << instanceName << ": disabled";
+                                   break;
+                               case core::socket::State::ERROR:
+                                   LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                   break;
+                               case core::socket::State::FATAL:
+                                   LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                   break;
+                           }
+                       });
 
     /*
         jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) -> void {
