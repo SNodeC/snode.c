@@ -19,6 +19,8 @@
 #ifndef NET_IN6_SOCKETADDRINFO_H
 #define NET_IN6_SOCKETADDRINFO_H
 
+struct sockaddr_in6;
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/netdb.h" // IWYU pragma: export
@@ -37,7 +39,7 @@ namespace net::in6 {
         int resolve(const std::string& node, const std::string& service, const addrinfo& hints);
 
         bool useNext();
-        const sockaddr* getSockAddr();
+        const sockaddr_in6* getSockAddr();
 
         void logAddressInfo();
 

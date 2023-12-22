@@ -99,7 +99,13 @@ namespace net::in {
         int aiErrCode = 0;
 
         if ((aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), hints)) == 0) {
-            sockAddr = *reinterpret_cast<const SockAddr*>(socketAddrInfo->getSockAddr());
+            const SockAddr* sockAddrP = socketAddrInfo->getSockAddr();
+            if (sockAddrP != nullptr) {
+                sockAddr = *sockAddrP;
+            } else {
+                throw core::socket::SocketAddress::BadSocketAddress(
+                    core::socket::STATE_FATAL, host + ":" + std::to_string(port) + " - no sockaddr", EFAULT);
+            }
         } else {
             core::socket::State state = core::socket::STATE_OK;
             switch (aiErrCode) {
@@ -122,6 +128,7 @@ namespace net::in {
 
     SocketAddress& SocketAddress::setHost(const std::string& ipOrHostname) {
         this->host = ipOrHostname;
+
         return *this;
     }
 

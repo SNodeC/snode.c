@@ -61,8 +61,8 @@ namespace net::in {
         return currentAddrInfo != nullptr;
     }
 
-    const sockaddr* SocketAddrInfo::getSockAddr() {
-        return currentAddrInfo != nullptr ? currentAddrInfo->ai_addr : nullptr;
+    const sockaddr_in* SocketAddrInfo::getSockAddr() {
+        return reinterpret_cast<sockaddr_in*>(currentAddrInfo != nullptr ? currentAddrInfo->ai_addr : nullptr);
     }
 
     void SocketAddrInfo::logAddressInfo() {

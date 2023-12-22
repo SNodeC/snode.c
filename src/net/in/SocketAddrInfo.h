@@ -19,6 +19,8 @@
 #ifndef NET_IN_SOCKETADDRINFO_H
 #define NET_IN_SOCKETADDRINFO_H
 
+struct sockaddr_in;
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/netdb.h" // IWYU pragma: export
@@ -38,7 +40,7 @@ namespace net::in {
 
         bool useNext();
         void next();
-        const sockaddr* getSockAddr();
+        const sockaddr_in* getSockAddr();
 
         void logAddressInfo();
 
