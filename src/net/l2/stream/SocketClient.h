@@ -52,7 +52,7 @@ namespace net::l2::stream {
 
         void connect(const std::string& btAddress,
                      uint16_t psm,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
 
             connect(SocketAddress(btAddress, psm), onStatus);
@@ -61,7 +61,7 @@ namespace net::l2::stream {
         void connect(const std::string& btAddress,
                      uint16_t psm,
                      const std::string& bindBtAddress,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
             Super::getConfig().Local::setBtAddress(bindBtAddress);
 
@@ -71,7 +71,7 @@ namespace net::l2::stream {
         void connect(const std::string& btAddress,
                      uint16_t psm,
                      uint16_t bindPsm,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
             Super::getConfig().Local::setPsm(bindPsm);
 
@@ -82,7 +82,7 @@ namespace net::l2::stream {
                      uint16_t psm,
                      const std::string& bindBtAddress,
                      uint16_t bindPsm,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Remote::setBtAddress(btAddress).setPsm(psm);
             Super::getConfig().Local::setBtAddress(bindBtAddress).setPsm(bindPsm);
 

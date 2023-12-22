@@ -148,7 +148,7 @@ namespace core::socket::stream {
     private:
         void realConnect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                          unsigned int tries,
-                         double retryTimeoutScale) {
+                         double retryTimeoutScale) const {
             if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
                 new SocketConnector(
                     socketContextFactory,
@@ -218,11 +218,12 @@ namespace core::socket::stream {
         }
 
     public:
-        void connect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
+        void connect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             realConnect(onStatus, 0, 1);
         }
 
-        void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
+        void connect(const SocketAddress& remoteAddress,
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::config->Remote::setSocketAddress(remoteAddress);
 
             connect(onStatus);
@@ -230,7 +231,7 @@ namespace core::socket::stream {
 
         void connect(const SocketAddress& remoteAddress,
                      const SocketAddress& localAddress,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) {
+                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::config->Local::setSocketAddress(localAddress);
 
             connect(remoteAddress, onStatus);
