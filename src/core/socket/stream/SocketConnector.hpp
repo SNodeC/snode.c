@@ -55,13 +55,13 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::initConnectEvent() {
-        try {
-            SocketAddress localAddress = config->Local::getSocketAddress();
-
+        if (!config->getDisabled()) {
             try {
-                remoteAddress = config->Remote::getSocketAddress();
+                SocketAddress localAddress = config->Local::getSocketAddress();
 
-                if (!config->getDisabled()) {
+                try {
+                    remoteAddress = config->Remote::getSocketAddress();
+
                     LOG(TRACE) << config->getInstanceName() << ": starting";
 
                     core::eventreceiver::ConnectEventReceiver::setTimeout(config->getConnectTimeout());
@@ -134,20 +134,20 @@ namespace core::socket::stream {
                         SocketConnectionFactory(onConnect, onConnected, onDisconnect).create(std::move(physicalClientSocket), config);
                     }
 
-                } else {
-                    LOG(TRACE) << config->getInstanceName() << ": disabled";
+                } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                    LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                    onStatus(remoteAddress, core::socket::STATE_DISABLED);
+                    onStatus({}, core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
                 onStatus({}, core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
             }
-        } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-            LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
+        } else {
+            LOG(TRACE) << config->getInstanceName() << ": disabled";
 
-            onStatus({}, core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
+            onStatus({}, core::socket::STATE_DISABLED);
         }
 
         if (!isEnabled()) {

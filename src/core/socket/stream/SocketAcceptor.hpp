@@ -55,10 +55,10 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::initAcceptEvent() {
-        try {
-            SocketAddress localAddress(config->Local::getSocketAddress());
+        if (!config->getDisabled()) {
+            try {
+                SocketAddress localAddress(config->Local::getSocketAddress());
 
-            if (!config->getDisabled()) {
                 LOG(TRACE) << config->getInstanceName() << ": starting";
 
                 core::eventreceiver::AcceptEventReceiver::setTimeout(config->getAcceptTimeout());
@@ -116,15 +116,16 @@ namespace core::socket::stream {
                 } else {
                     onStatus(localAddress, state);
                 }
-            } else {
-                LOG(TRACE) << config->getInstanceName() << ": disabled";
 
-                onStatus(localAddress, core::socket::STATE_DISABLED);
+            } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
+
+                onStatus({}, core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
             }
-        } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-            LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
+        } else {
+            LOG(TRACE) << config->getInstanceName() << ": disabled";
 
-            onStatus({}, core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
+            onStatus({}, core::socket::STATE_DISABLED);
         }
 
         if (!isEnabled()) {
