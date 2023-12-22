@@ -35,6 +35,8 @@ int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
     using WebApp = apps::http::STREAM::WebApp;
+    using SocketAddress = WebApp::SocketAddress;
+
     WebApp webApp(apps::http::STREAM::getWebApp("httpserver", webRoot));
 
 #if (STREAM_TYPE == TLS)
@@ -46,19 +48,20 @@ int main(int argc, char* argv[]) {
     //    webApp.addSniCerts(sniCerts);
     //    webApp.forceSni();
 #endif
-    webApp.listen([](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
+    webApp.listen([instanceName = webApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
+                                                                        const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "httpserver: listening on '" << socketAddress.toString() << "'";
+                VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "': " << state.what();
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "httpserver: disabled";
+                VLOG(1) << instanceName << ": disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "httpserver: error occurred";
+                LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "httpserver: fatal error occurred";
+                LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });

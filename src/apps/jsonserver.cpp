@@ -45,25 +45,27 @@ int main(int argc, char* argv[]) {
 
     legacyApp.use(express::middleware::JsonMiddleware());
 
-    legacyApp.listen(8080, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << "legacy-jsonserver: listening on '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << "legacy-jsonserver: disabled";
-                break;
-            case core::socket::State::ERROR:
-                VLOG(1) << "legacy-jsonserver: error occurred";
-                break;
-            case core::socket::State::FATAL:
-                VLOG(1) << "legacy-jsonserver: fatal error occurred";
-                break;
-        }
-    });
+    legacyApp.listen(8080,
+                     [instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
+                                                                              const core::socket::State& state) -> void {
+                         switch (state) {
+                             case core::socket::State::OK:
+                                 VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "': " << state.what();
+                                 break;
+                             case core::socket::State::DISABLED:
+                                 VLOG(1) << instanceName << ": disabled";
+                                 break;
+                             case core::socket::State::ERROR:
+                                 LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                 break;
+                             case core::socket::State::FATAL:
+                                 LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                 break;
+                         }
+                     });
 
     legacyApp.post("/index.html", [] APPLICATION(req, res) {
-        std::string jsonString = "";
+        std::string jsonString;
 
         req.getAttribute<nlohmann::json>(
             [&jsonString](nlohmann::json& json) -> void {

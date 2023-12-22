@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
@@ -31,19 +33,20 @@ int main(int argc, char* argv[]) {
     using SocketAddress = SocketClient::SocketAddress;
     SocketClient client = apps::echo::model::STREAM::getClient();
 
-    client.connect([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+    client.connect([instanceName = client.getConfig().getInstanceName()](const SocketAddress& socketAddress,
+                                                                         const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "echoclient connected to '" << socketAddress.toString() << "'";
+                VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "': " << state.what();
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "echoclient disabled";
+                VLOG(1) << instanceName << ": disabled";
                 break;
             case core::socket::State::ERROR:
-                PLOG(ERROR) << "echoclient error occurred:";
+                LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                PLOG(FATAL) << "echoclient fatal error occurred:";
+                LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });

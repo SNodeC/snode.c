@@ -22,12 +22,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #if (STREAM_TYPE == TLS)
 #include "core/socket/stream/tls/ssl_version.h"
 
 #include <map>
-#include <string>
 #include <variant>
+
 #endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -50,19 +52,21 @@ int main(int argc, char* argv[]) {
     server.getConfig().addSniCerts(sniCerts);
 #endif
 
-    server.listen([](const SocketServer::SocketAddress& socketAddress, const core::socket::State& state) -> void {
+    server.listen([instanceName = server.getConfig().getInstanceName()](const SocketServer::SocketAddress& socketAddress,
+                                                                        const core::socket::State& state) -> void {
+        VLOG(1) << "AddressFamily: " << socketAddress.getAddressFamily();
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "echoserver listening on '" << socketAddress.toString() << "'";
+                VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "': " << state.what();
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "echoserver disabled";
+                VLOG(1) << instanceName << ": disabled";
                 break;
             case core::socket::State::ERROR:
-                PLOG(ERROR) << "echoserver error occurred:";
+                LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                PLOG(FATAL) << "echoserver fatal error occurred:";
+                LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });

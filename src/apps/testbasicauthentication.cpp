@@ -49,40 +49,42 @@ int main(int argc, char* argv[]) {
     {
         legacy::in6::WebApp legacyApp("legacy");
 
-        Router& router = middleware::VHost("localhost:8080");
+        Router& router1 = middleware::VHost("localhost:8080");
 
         Router& ba = middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password");
         ba.use(middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-        router.use(ba);
-        legacyApp.use(router);
+        router1.use(ba);
+        legacyApp.use(router1);
 
-        router = middleware::VHost("atlas.home.vchrist.at:8080");
-        router.get("/", [] APPLICATION(req, res) {
+        Router& router2 = middleware::VHost("atlas.home.vchrist.at:8080");
+        router2.get("/", [] APPLICATION(req, res) {
             res.send("Hello! I am VHOST atlas.home.vchrist.at.");
         });
-        legacyApp.use(router);
+        legacyApp.use(router2);
 
         legacyApp.use([] APPLICATION(req, res) {
             res.status(404).send("The requested resource is not found.");
         });
 
-        legacyApp.listen(8080, [](const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
-            switch (state) {
-                case core::socket::State::OK:
-                    VLOG(1) << "legacy: listening on '" << socketAddress.toString() << "'";
-                    break;
-                case core::socket::State::DISABLED:
-                    VLOG(1) << "legacy: disabled";
-                    break;
-                case core::socket::State::ERROR:
-                    VLOG(1) << "legacy: error occurred";
-                    break;
-                case core::socket::State::FATAL:
-                    VLOG(1) << "legacy: fatal error occurred";
-                    break;
-            }
-        });
+        legacyApp.listen(8080,
+                         [instanceName = legacyApp.getConfig().getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
+                                                                                  const core::socket::State& state) -> void {
+                             switch (state) {
+                                 case core::socket::State::OK:
+                                     VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "': " << state.what();
+                                     break;
+                                 case core::socket::State::DISABLED:
+                                     VLOG(1) << instanceName << ": disabled";
+                                     break;
+                                 case core::socket::State::ERROR:
+                                     LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                                 case core::socket::State::FATAL:
+                                     LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                             }
+                         });
 
         {
             express::tls::in6::WebApp tlsApp("tls");

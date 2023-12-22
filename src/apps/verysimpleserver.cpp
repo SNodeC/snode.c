@@ -24,6 +24,8 @@
 #include "log/Logger.h"
 #include "utils/Config.h"
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
@@ -39,22 +41,24 @@ int main(int argc, char* argv[]) {
 
     legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, const core::socket::State& state) {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << "legacyApp: listening on '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << "legacyApp: disabled";
-                break;
-            case core::socket::State::ERROR:
-                VLOG(1) << "legacyApp: error occurred";
-                break;
-            case core::socket::State::FATAL:
-                VLOG(1) << "legacyApp: fatal error occurred";
-                break;
-        }
-    });
+    legacyApp.listen(8080,
+                     [instanceName = legacyApp.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
+                                                                              const core::socket::State& state) -> void {
+                         switch (state) {
+                             case core::socket::State::OK:
+                                 VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "': " << state.what();
+                                 break;
+                             case core::socket::State::DISABLED:
+                                 VLOG(1) << instanceName << ": disabled";
+                                 break;
+                             case core::socket::State::ERROR:
+                                 LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                 break;
+                             case core::socket::State::FATAL:
+                                 LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                 break;
+                         }
+                     });
 
     using TLSWebApp = express::tls::in::WebApp;
     using TLSSocketAddress = TLSWebApp::SocketAddress;
@@ -68,22 +72,24 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
-    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, const core::socket::State& state) {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << "tlsApp: listening on '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << "tlsApp: disabled";
-                break;
-            case core::socket::State::ERROR:
-                VLOG(1) << "tlsApp: error occurred";
-                break;
-            case core::socket::State::FATAL:
-                VLOG(1) << "tlsApp: fatal error occurred";
-                break;
-        }
-    });
+    tlsApp.listen(8088,
+                  [instanceName = legacyApp.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress,
+                                                                           const core::socket::State& state) -> void {
+                      switch (state) {
+                          case core::socket::State::OK:
+                              VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "': " << state.what();
+                              break;
+                          case core::socket::State::DISABLED:
+                              VLOG(1) << instanceName << ": disabled";
+                              break;
+                          case core::socket::State::ERROR:
+                              LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                              break;
+                          case core::socket::State::FATAL:
+                              LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                              break;
+                      }
+                  });
 
     return express::WebApp::start();
 }

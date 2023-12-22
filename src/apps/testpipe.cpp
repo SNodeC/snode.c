@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     core::pipe::Pipe pipe(
         []([[maybe_unused]] core::pipe::PipeSource& pipeSource, [[maybe_unused]] core::pipe::PipeSink& pipeSink) -> void {
             pipeSink.setOnData([&pipeSource](const char* junk, std::size_t junkLen) -> void {
-                std::string string(junk, junkLen);
+                const std::string string(junk, junkLen);
                 VLOG(0) << "Pipe Data: " << string;
                 pipeSource.send(junk, junkLen);
                 // pipeSink.disable();

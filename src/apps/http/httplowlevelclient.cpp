@@ -251,23 +251,25 @@ namespace tls {
 
         SocketAddress remoteAddress("localhost", 8088);
 
-        tlsClient.connect(remoteAddress, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
-            switch (state) {
-                case core::socket::State::OK:
-                    VLOG(1) << "httpclient: connected to '" << socketAddress.toString() << "'";
-                    break;
-                case core::socket::State::DISABLED:
-                    VLOG(1) << "httpclient: disabled";
-                    break;
-                case core::socket::State::ERROR:
-                    VLOG(1) << "httpclient: error occurred";
-                    break;
-                case core::socket::State::FATAL:
-                    VLOG(1) << "httpclient: fatal error occurred";
-                    break;
-            }
-        });
-
+        tlsClient.connect(remoteAddress,
+                          [instanceName = tlsClient.getConfig().getInstanceName()](
+                              const SocketAddress& socketAddress,
+                              const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                              switch (state) {
+                                  case core::socket::State::OK:
+                                      VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "': " << state.what();
+                                      break;
+                                  case core::socket::State::DISABLED:
+                                      VLOG(1) << instanceName << ": disabled";
+                                      break;
+                                  case core::socket::State::ERROR:
+                                      LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                      break;
+                                  case core::socket::State::FATAL:
+                                      LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                      break;
+                              }
+                          });
         return tlsClient;
     }
 
@@ -302,22 +304,25 @@ namespace legacy {
 
         SocketAddress remoteAddress("localhost", 8080);
 
-        legacyClient.connect(remoteAddress, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
-            switch (state) {
-                case core::socket::State::OK:
-                    VLOG(1) << "httpclient: connected to '" << socketAddress.toString() << "'";
-                    break;
-                case core::socket::State::DISABLED:
-                    VLOG(1) << "httpclient: disabled";
-                    break;
-                case core::socket::State::ERROR:
-                    VLOG(1) << "httpclient: error occurred";
-                    break;
-                case core::socket::State::FATAL:
-                    VLOG(1) << "httpclient: fatal error occurred";
-                    break;
-            }
-        });
+        legacyClient.connect(remoteAddress,
+                             [instanceName = legacyClient.getConfig().getInstanceName()](
+                                 const tls::SocketAddress& socketAddress,
+                                 const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                                 switch (state) {
+                                     case core::socket::State::OK:
+                                         VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "': " << state.what();
+                                         break;
+                                     case core::socket::State::DISABLED:
+                                         VLOG(1) << instanceName << ": disabled";
+                                         break;
+                                     case core::socket::State::ERROR:
+                                         LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                         break;
+                                     case core::socket::State::FATAL:
+                                         LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                         break;
+                                 }
+                             });
 
         return legacyClient;
     }
@@ -333,20 +338,21 @@ int main(int argc, char* argv[]) {
         legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
         legacyClient.connect(legacyRemoteAddress,
-                             [](const tls::SocketAddress& socketAddress,
-                                const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                             [instanceName = legacyClient.getConfig().getInstanceName()](
+                                 const tls::SocketAddress& socketAddress,
+                                 const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
                                  switch (state) {
                                      case core::socket::State::OK:
-                                         VLOG(1) << "legacyClient: connected to '" << socketAddress.toString() << "'";
+                                         VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "': " << state.what();
                                          break;
                                      case core::socket::State::DISABLED:
-                                         VLOG(1) << "legacyClient: disabled";
+                                         VLOG(1) << instanceName << ": disabled";
                                          break;
                                      case core::socket::State::ERROR:
-                                         VLOG(1) << "legacyClient: error occurred";
+                                         LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                          break;
                                      case core::socket::State::FATAL:
-                                         VLOG(1) << "legacyClient: fatal error occurred";
+                                         LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                          break;
                                  }
                              });
@@ -355,22 +361,25 @@ int main(int argc, char* argv[]) {
 
         tls::SocketClient tlsClient = tls::getClient();
 
-        tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, const core::socket::State& state) -> void {
-            switch (state) {
-                case core::socket::State::OK:
-                    VLOG(1) << "legacy: connected to '" << socketAddress.toString() << "'";
-                    break;
-                case core::socket::State::DISABLED:
-                    VLOG(1) << "legacy: disabled";
-                    break;
-                case core::socket::State::ERROR:
-                    VLOG(1) << "legacy: error occurred";
-                    break;
-                case core::socket::State::FATAL:
-                    VLOG(1) << "legacy: fatal error occurred";
-                    break;
-            }
-        });
+        tlsClient.connect(tlsRemoteAddress,
+                          [instanceName = tlsClient.getConfig().getInstanceName()](
+                              const tls::SocketAddress& socketAddress,
+                              const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                              switch (state) {
+                                  case core::socket::State::OK:
+                                      VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "': " << state.what();
+                                      break;
+                                  case core::socket::State::DISABLED:
+                                      VLOG(1) << instanceName << ": disabled";
+                                      break;
+                                  case core::socket::State::ERROR:
+                                      LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                      break;
+                                  case core::socket::State::FATAL:
+                                      LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                      break;
+                              }
+                          });
     }
 
     return core::SNodeC::start();

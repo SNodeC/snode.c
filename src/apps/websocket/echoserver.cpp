@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
     legacy::in::WebApp legacyApp("legacy");
+    using SocketAddress = legacy::in::WebApp::SocketAddress;
 
     legacyApp.get("/", [] APPLICATION(req, res) {
         VLOG(1) << "HTTP GET on "
@@ -75,25 +76,28 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    legacyApp.listen([](const tls::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
+    legacyApp.listen([instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
+                                                                              const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "legacy: listening on '" << socketAddress.toString() << "'";
+                VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "': " << state.what();
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "legacy: disabled";
+                VLOG(1) << instanceName << ": disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "legacy: error occurred";
+                LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "legacy: fatal error occurred";
+                LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
 
     {
         tls::in::WebApp tlsApp("tls");
+
+        using SocketAddress = tls::in::WebApp::SocketAddress;
 
         tlsApp.get("/", [] APPLICATION(req, res) {
             if (req.url == "/" || req.url == "/index.html") {
@@ -132,19 +136,20 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.listen([](const tls::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
+        tlsApp.listen([instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
+                                                                               const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << "tls: listening on '" << socketAddress.toString() << "'";
+                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "': " << state.what();
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << "tls: disabled";
+                    VLOG(1) << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "tls: error occurred";
+                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "tls: fatal error occurred";
+                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         });

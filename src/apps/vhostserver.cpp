@@ -53,70 +53,74 @@ int main(int argc, char* argv[]) {
     {
         legacy::in6::WebApp legacyApp("legacy");
 
-        Router& router = middleware::VHost("localhost:8080");
-        router.use(middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
-        legacyApp.use(router);
+        Router& router1 = middleware::VHost("localhost:8080");
+        router1.use(middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+        legacyApp.use(router1);
 
-        router = middleware::VHost("atlas.home.vchrist.at:8080");
-        router.get("/", [] APPLICATION(req, res) {
+        Router& router2 = middleware::VHost("atlas.home.vchrist.at:8080");
+        router2.get("/", [] APPLICATION(req, res) {
             res.send("Hello! I am VHOST atlas.home.vchrist.at.");
         });
-        legacyApp.use(router);
+        legacyApp.use(router2);
 
         legacyApp.use([] APPLICATION(req, res) {
             res.status(404).send("The requested resource is not found.");
         });
 
-        legacyApp.listen(8080, [](const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
-            switch (state) {
-                case core::socket::State::OK:
-                    VLOG(1) << "legacy: connected to '" << socketAddress.toString() << "'";
-                    break;
-                case core::socket::State::DISABLED:
-                    VLOG(1) << "legacy: disabled";
-                    break;
-                case core::socket::State::ERROR:
-                    VLOG(1) << "legacy: error occurred";
-                    break;
-                case core::socket::State::FATAL:
-                    VLOG(1) << "legacy: fatal error occurred";
-                    break;
-            }
-        });
+        legacyApp.listen(8080,
+                         [instanceName = legacyApp.getConfig().getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
+                                                                                  const core::socket::State& state) -> void {
+                             switch (state) {
+                                 case core::socket::State::OK:
+                                     VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "': " << state.what();
+                                     break;
+                                 case core::socket::State::DISABLED:
+                                     VLOG(1) << instanceName << ": disabled";
+                                     break;
+                                 case core::socket::State::ERROR:
+                                     LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                                 case core::socket::State::FATAL:
+                                     LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                             }
+                         });
 
         {
             express::tls::in6::WebApp tlsApp("tls");
 
-            Router& vh = middleware::VHost("localhost:8088");
-            vh.use(getRouter(utils::Config::get_string_option_value("--web-root")));
-            tlsApp.use(vh);
+            Router& vh1 = middleware::VHost("localhost:8088");
+            vh1.use(getRouter(utils::Config::get_string_option_value("--web-root")));
+            tlsApp.use(vh1);
 
-            vh = middleware::VHost("atlas.home.vchrist.at:8088");
-            vh.get("/", [] APPLICATION(req, res) {
+            Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8088");
+            vh2.get("/", [] APPLICATION(req, res) {
                 res.send("Hello! I am VHOST atlas.home.vchrist.at.");
             });
-            tlsApp.use(vh);
+            tlsApp.use(vh2);
 
             tlsApp.use([] APPLICATION(req, res) {
                 res.status(404).send("The requested resource is not found.");
             });
 
-            tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
-                switch (state) {
-                    case core::socket::State::OK:
-                        VLOG(1) << "tls: connected to '" << socketAddress.toString() << "'";
-                        break;
-                    case core::socket::State::DISABLED:
-                        VLOG(1) << "tls: disabled";
-                        break;
-                    case core::socket::State::ERROR:
-                        VLOG(1) << "tls: error occurred";
-                        break;
-                    case core::socket::State::FATAL:
-                        VLOG(1) << "tls: fatal error occurred";
-                        break;
-                }
-            });
+            tlsApp.listen(8088,
+                          [instanceName = legacyApp.getConfig().getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
+                                                                                   const core::socket::State& state) -> void {
+                              switch (state) {
+                                  case core::socket::State::OK:
+                                      VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "': " << state.what();
+                                      break;
+                                  case core::socket::State::DISABLED:
+                                      VLOG(1) << instanceName << ": disabled";
+                                      break;
+                                  case core::socket::State::ERROR:
+                                      LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                      break;
+                                  case core::socket::State::FATAL:
+                                      LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                      break;
+                              }
+                          });
 
             //            tlsApp.getConfig().setCertChain("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
             //            tlsApp.getConfig().setCertKey(

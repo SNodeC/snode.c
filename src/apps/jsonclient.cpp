@@ -87,16 +87,16 @@ int main(int argc, char* argv[]) {
     jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "legacy (1): connected to '" << socketAddress.toString() << "'";
+                VLOG(1) << "legacy (2): connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "legacy (1): disabled";
+                VLOG(1) << "legacy (2): disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "legacy (1): error occurred";
+                VLOG(1) << "legacy (2): error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "legacy (1): fatal error occurred";
+                VLOG(1) << "legacy (2): fatal error occurred";
                 break;
         }
     });

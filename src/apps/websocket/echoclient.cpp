@@ -86,16 +86,16 @@ int main(int argc, char* argv[]) {
         legacyClient.connect([](const LegacySocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << "legacy: connected to '" << socketAddress.toString() << "'";
+                    VLOG(1) << "legacy (2): connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << "legacy: disabled";
+                    VLOG(1) << "legacy (2): disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "legacy: error occurred";
+                    VLOG(1) << "legacy (2): error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "legacy: fatal error occurred";
+                    VLOG(1) << "legacy (2): fatal error occurred";
                     break;
             }
         }); // Connection:keep-alive\r\n\r\n"
@@ -144,16 +144,16 @@ int main(int argc, char* argv[]) {
         tlsClient.connect([](const TLSSocketAddress& socketAddress, const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << "tls: connected to '" << socketAddress.toString() << "'";
+                    VLOG(1) << "legacy (2): connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << "tls: disabled";
+                    VLOG(1) << "legacy (2): disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "tls: error occurred";
+                    VLOG(1) << "legacy (2): error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "tls: fatal error occurred";
+                    VLOG(1) << "legacy (2): fatal error occurred";
                     break;
             }
         }); // Connection:keep-alive\r\n\r\n"

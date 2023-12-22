@@ -22,6 +22,8 @@
 #include "core/SNodeC.h"
 #include "log/Logger.h"
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
@@ -32,19 +34,21 @@ int main(int argc, char* argv[]) {
 
     Client client = apps::http::STREAM::getClient();
 
-    client.connect([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+    client.connect([instanceName = client.getConfig().getInstanceName()](
+                       const SocketAddress& socketAddress,
+                       const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "httpclient: connected to '" << socketAddress.toString() << "'";
+                VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "': " << state.what();
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "httpclient: disabled";
+                VLOG(1) << instanceName << ": disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "httpclient: error occurred";
+                LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "httpclient: fatal error occurred";
+                LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
