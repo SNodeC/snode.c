@@ -91,7 +91,7 @@ namespace net::in {
         hints.ai_family = AF_INET;
         hints.ai_socktype = aiSocktype;
         hints.ai_protocol = aiProtocol;
-        hints.ai_flags = aiFlags | AI_CANONNAME | AI_ADDRCONFIG | AI_ALL;
+        hints.ai_flags = aiFlags | AI_CANONNAME | AI_CANONIDN | AI_ALL;
 
         int aiErrCode = 0;
 
