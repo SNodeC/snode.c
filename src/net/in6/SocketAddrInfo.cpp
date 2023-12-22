@@ -59,7 +59,9 @@ namespace net::in6 {
     }
 
     sockaddr_in6 SocketAddrInfo::getSockAddr() {
-        return currentAddrInfo != nullptr ? *reinterpret_cast<sockaddr_in6*>(currentAddrInfo->ai_addr) : sockaddr_in6{};
+        return currentAddrInfo != nullptr
+                   ? *reinterpret_cast<sockaddr_in6*>(currentAddrInfo->ai_addr) // cppcheck-suppress internalAstError
+                   : sockaddr_in6{.sin6_family = AF_INET6, .sin6_port{}, .sin6_flowinfo{}, .sin6_addr{}, .sin6_scope_id{}};
     }
 
     std::string SocketAddrInfo::getCanonName() {

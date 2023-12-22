@@ -59,7 +59,8 @@ namespace net::in {
     }
 
     sockaddr_in SocketAddrInfo::getSockAddr() {
-        return currentAddrInfo != nullptr ? *reinterpret_cast<sockaddr_in*>(currentAddrInfo->ai_addr) : sockaddr_in{};
+        return currentAddrInfo != nullptr ? *reinterpret_cast<sockaddr_in*>(currentAddrInfo->ai_addr) // cppcheck-suppress internalAstError
+                                          : sockaddr_in{.sin_family = AF_INET, .sin_port{}, .sin_addr{}, .sin_zero{}};
     }
 
     std::string SocketAddrInfo::getCanonName() {
