@@ -26,8 +26,8 @@
 
 namespace net::l2 {
 
-    SocketAddress::SocketAddress() {
-        sockAddr.l2_family = AF_BLUETOOTH;
+    SocketAddress::SocketAddress()
+        : Super(AF_BLUETOOTH) {
     }
 
     SocketAddress::SocketAddress(const std::string& btAddress)
@@ -48,11 +48,10 @@ namespace net::l2 {
 
     SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
         : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen) {
-        Super::sockAddr.l2_family = AF_BLUETOOTH;
         psm = btohs(sockAddr.l2_psm);
+
         char btAddressC[15];
         ba2str(&sockAddr.l2_bdaddr, btAddressC);
-
         btAddress = btAddressC;
     }
 

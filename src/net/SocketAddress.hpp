@@ -27,9 +27,10 @@
 namespace net {
 
     template <typename SockAddr>
-    SocketAddress<SockAddr>::SocketAddress(socklen_t sockAddrLen)
+    SocketAddress<SockAddr>::SocketAddress(sa_family_t af, socklen_t sockAddrLen)
         : sockAddrLen(sockAddrLen) {
         std::memset(&sockAddr, 0, sizeof(sockAddr));
+        reinterpret_cast<sockaddr*>(&sockAddr)->sa_family = af;
     }
 
     template <typename SockAddr>
@@ -62,6 +63,11 @@ namespace net {
     template <typename SockAddr>
     const socklen_t& SocketAddress<SockAddr>::getSockAddrLen() const {
         return sockAddrLen;
+    }
+
+    template <typename SockAddr>
+    sa_family_t SocketAddress<SockAddr>::getAddressFamily() const {
+        return reinterpret_cast<const sockaddr*>(&sockAddr)->sa_family;
     }
 
 } // namespace net

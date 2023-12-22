@@ -35,7 +35,7 @@ namespace net {
     public:
         using SockAddr = SockAddrT;
 
-        explicit SocketAddress(socklen_t sockAddrLen = sizeof(SockAddr));
+        explicit SocketAddress(sa_family_t af, socklen_t sockAddrLen = sizeof(SockAddr));
 
         SocketAddress(const SocketAddress& socketAddress);
 
@@ -45,6 +45,8 @@ namespace net {
 
         virtual const sockaddr& getSockAddr();
         virtual const socklen_t& getSockAddrLen() const;
+
+        sa_family_t getAddressFamily() const;
 
     protected:
         SockAddr sockAddr{};

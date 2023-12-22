@@ -34,8 +34,8 @@
 namespace net::in6 {
 
     SocketAddress::SocketAddress()
-        : socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
-        sockAddr.sin6_family = AF_INET6;
+        : Super(AF_INET6)
+        , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
     }
 
     SocketAddress::SocketAddress(const std::string& ipOrHostname)
@@ -57,8 +57,6 @@ namespace net::in6 {
     SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
         : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen)
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
-        Super::sockAddr.sin6_family = AF_INET6;
-
         char host[NI_MAXHOST];
         char serv[NI_MAXSERV];
         std::memset(host, 0, NI_MAXHOST);

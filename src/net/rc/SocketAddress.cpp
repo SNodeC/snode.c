@@ -26,8 +26,8 @@
 
 namespace net::rc {
 
-    SocketAddress::SocketAddress() {
-        sockAddr.rc_family = AF_BLUETOOTH;
+    SocketAddress::SocketAddress()
+        : Super(AF_BLUETOOTH) {
     }
 
     SocketAddress::SocketAddress(const std::string& btAddress)
@@ -48,12 +48,10 @@ namespace net::rc {
 
     SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
         : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen) {
-        Super::sockAddr.rc_family = AF_BLUETOOTH;
-
         channel = sockAddr.rc_channel;
+
         char btAddressC[15];
         ba2str(&sockAddr.rc_bdaddr, btAddressC);
-
         btAddress = btAddressC;
     }
 
