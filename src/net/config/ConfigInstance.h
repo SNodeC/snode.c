@@ -37,10 +37,10 @@ namespace net::config {
     public:
         ConfigInstance() = default;
         explicit ConfigInstance(const std::string& instanceName, const std::string& role);
-        ConfigInstance(const ConfigInstance&) = default;
+        ConfigInstance(const ConfigInstance&) = delete;
         ConfigInstance(ConfigInstance&&) = delete;
 
-        ConfigInstance& operator=(const ConfigInstance&) = default;
+        ConfigInstance& operator=(const ConfigInstance&) = delete;
         ConfigInstance& operator=(ConfigInstance&&) = delete;
 
         virtual ~ConfigInstance();
