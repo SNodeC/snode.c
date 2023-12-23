@@ -54,6 +54,7 @@ namespace net::phy {
     public:
         PhysicalSocket() = delete;
         PhysicalSocket(PhysicalSocket&) = delete;
+
         PhysicalSocket& operator=(PhysicalSocket&) = delete;
 
         explicit PhysicalSocket(int fd, const SocketAddress& bindAddress);

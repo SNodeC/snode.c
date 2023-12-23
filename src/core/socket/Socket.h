@@ -36,9 +36,9 @@ namespace core::socket {
         explicit Socket(const std::string& name);
 
         Socket(const Socket&) = default;
-        Socket(Socket&&) noexcept = delete;
-
         Socket& operator=(const Socket&) = default;
+
+        Socket(Socket&&) noexcept = delete;
         Socket& operator=(Socket&&) noexcept = delete;
 
         virtual ~Socket();
