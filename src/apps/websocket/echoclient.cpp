@@ -83,19 +83,20 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "     Reason: " << reason;
             });
 
-        legacyClient.connect([](const LegacySocketAddress& socketAddress, const core::socket::State& state) -> void {
+        legacyClient.connect([instanceName = legacyClient.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
+                                                                                         const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << "legacy (2): connected to '" << socketAddress.toString() << "'";
+                    VLOG(1) << instanceName << " (1): connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << "legacy (2): disabled";
+                    VLOG(1) << instanceName << " (1): disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "legacy (2): error occurred";
+                    LOG(ERROR) << instanceName << " (1): " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "legacy (2): fatal error occurred";
+                    LOG(FATAL) << instanceName << " (1): " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         }); // Connection:keep-alive\r\n\r\n"
@@ -141,19 +142,20 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "     Reason: " << reason;
             });
 
-        tlsClient.connect([](const TLSSocketAddress& socketAddress, const core::socket::State& state) -> void {
+        tlsClient.connect([instanceName = tlsClient.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress,
+                                                                                   const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << "legacy (2): connected to '" << socketAddress.toString() << "'";
+                    VLOG(1) << instanceName << " (2): connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << "legacy (2): disabled";
+                    VLOG(1) << instanceName << " (2): disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "legacy (2): error occurred";
+                    LOG(ERROR) << instanceName << " (2): " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "legacy (2): fatal error occurred";
+                    LOG(FATAL) << instanceName << " (2): " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         }); // Connection:keep-alive\r\n\r\n"
