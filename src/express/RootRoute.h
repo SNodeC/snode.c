@@ -43,12 +43,13 @@ namespace express {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DECLARE_ROOTROUTE_REQUESTMETHOD(METHOD)                                                                                            \
-    Route& METHOD(const RootRoute& rootRoute);                                                                                             \
-    Route& METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute);                                                       \
-    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
-    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                 \
-    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda);                                          \
-    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next & next)>& lambda);
+    Route& METHOD(const RootRoute& rootRoute) const;                                                                                       \
+    Route& METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute) const;                                                 \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda) const;                                                 \
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) const;           \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda) const;                                    \
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next & next)>& lambda)     \
+        const;
 
 namespace express {
 
@@ -63,7 +64,7 @@ namespace express {
         void dispatch(Controller& controller);
 
         std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher() const;
-        std::list<Route>& routes();
+        std::list<Route>& routes() const;
 
     public:
         DECLARE_ROOTROUTE_REQUESTMETHOD(use)

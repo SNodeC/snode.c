@@ -335,7 +335,7 @@ int main(int argc, char* argv[]) {
     {
         const legacy::SocketAddress legacyRemoteAddress("localhost", 8080);
 
-        legacy::SocketClient legacyClient = legacy::getLegacyClient();
+        const legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
         legacyClient.connect(legacyRemoteAddress,
                              [instanceName = legacyClient.getConfig().getInstanceName()](
@@ -359,7 +359,7 @@ int main(int argc, char* argv[]) {
 
         const tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
 
-        tls::SocketClient tlsClient = tls::getClient();
+        const tls::SocketClient tlsClient = tls::getClient();
 
         tlsClient.connect(tlsRemoteAddress,
                           [instanceName = tlsClient.getConfig().getInstanceName()](

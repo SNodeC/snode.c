@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     {
         using LegacySocketAddress = web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress;
 
-        web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
+        const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
             "legacy",
             [](web::http::client::Request& request) -> void {
                 VLOG(1) << "OnRequestBegin";
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
                 }
 
                 VLOG(2) << "     Cookies:";
-                for (auto& [name, cookie] : response.cookies) {
+                for (const auto& [name, cookie] : response.cookies) {
                     VLOG(2) << "       " + name + " = " + cookie.getValue();
                     for (const auto& [option, value] : cookie.getOptions()) {
                         VLOG(2) << "         " + option + " = " + value;
@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
 
         using TLSSocketAddress = web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress;
 
-        web::http::tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
+        const web::http::tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
             "tls",
             [](web::http::client::Request& request) -> void {
                 VLOG(1) << "OnRequestBegin";
@@ -122,9 +122,9 @@ int main(int argc, char* argv[]) {
                 }
 
                 VLOG(2) << "     Cookies:";
-                for (auto& [name, cookie] : response.cookies) {
+                for (const auto& [name, cookie] : response.cookies) {
                     VLOG(2) << "       " + name + " = " + cookie.getValue();
-                    for (auto& [option, value] : cookie.getOptions()) {
+                    for (const auto& [option, value] : cookie.getOptions()) {
                         VLOG(2) << "         " + option + " = " + value;
                     }
                 }

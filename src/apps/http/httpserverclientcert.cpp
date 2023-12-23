@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
     using WebApp = apps::http::STREAM::WebApp;
     using SocketAddress = WebApp::SocketAddress;
 
-    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", webRoot));
+    const WebApp webApp(apps::http::STREAM::getWebApp("httpserver", webRoot));
 
 #if (STREAM_TYPE == TLS)
     //    std::map<std::string, std::map<std::string, std::any>> sniCerts = {

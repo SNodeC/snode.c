@@ -51,13 +51,13 @@ int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
     {
-        legacy::in6::WebApp legacyApp("legacy");
+        const legacy::in6::WebApp legacyApp("legacy");
 
-        Router& router1 = middleware::VHost("localhost:8080");
+        const Router& router1 = middleware::VHost("localhost:8080");
         router1.use(middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
         legacyApp.use(router1);
 
-        Router& router2 = middleware::VHost("atlas.home.vchrist.at:8080");
+        const Router& router2 = middleware::VHost("atlas.home.vchrist.at:8080");
         router2.get("/", [] APPLICATION(req, res) {
             res.send("Hello! I am VHOST atlas.home.vchrist.at.");
         });
@@ -87,13 +87,13 @@ int main(int argc, char* argv[]) {
                          });
 
         {
-            express::tls::in6::WebApp tlsApp("tls");
+            const express::tls::in6::WebApp tlsApp("tls");
 
-            Router& vh1 = middleware::VHost("localhost:8088");
+            const Router& vh1 = middleware::VHost("localhost:8088");
             vh1.use(getRouter(utils::Config::get_string_option_value("--web-root")));
             tlsApp.use(vh1);
 
-            Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8088");
+            const Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8088");
             vh2.get("/", [] APPLICATION(req, res) {
                 res.send("Hello! I am VHOST atlas.home.vchrist.at.");
             });

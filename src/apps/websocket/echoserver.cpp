@@ -32,7 +32,7 @@ using namespace express;
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
-    legacy::in::WebApp legacyApp("legacy");
+    const legacy::in::WebApp legacyApp("legacy");
     using SocketAddress = legacy::in::WebApp::SocketAddress;
 
     legacyApp.get("/", [] APPLICATION(req, res) {
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     legacyApp.get("/ws", [](Request& req, Response& res) -> void {
         VLOG(1) << "HTTP GET on  legacy /ws";
 
-        std::string uri = req.originalUrl;
+        const std::string uri = req.originalUrl;
 
         VLOG(2) << "OriginalUri: " << uri;
         VLOG(2) << "Uri: " << req.url;
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
     });
 
     {
-        tls::in::WebApp tlsApp("tls");
+        const tls::in::WebApp tlsApp("tls");
 
         using SocketAddress = tls::in::WebApp::SocketAddress;
 
@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
         tlsApp.get("/ws", [](Request& req, Response& res) -> void {
             VLOG(1) << "HTTP GET on  tls /ws";
 
-            std::string uri = req.originalUrl;
+            const std::string uri = req.originalUrl;
 
             VLOG(2) << "OriginalUri: " << uri;
             VLOG(2) << "Uri: " << req.url;

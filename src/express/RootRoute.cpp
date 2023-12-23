@@ -31,23 +31,24 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DEFINE_ROOTROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                \
-    Route& RootRoute::METHOD(const RootRoute& rootRoute) {                                                                                 \
+    Route& RootRoute::METHOD(const RootRoute& rootRoute) const {                                                                           \
         return routes().emplace_back(HTTP_METHOD, "/", rootRoute.getDispatcher());                                                         \
     }                                                                                                                                      \
-    Route& RootRoute::METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute) {                                           \
+    Route& RootRoute::METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute) const {                                     \
         return routes().emplace_back(HTTP_METHOD, relativeMountPath, rootRoute.getDispatcher());                                           \
     }                                                                                                                                      \
     Route& RootRoute::METHOD(const std::string& relativeMountPath,                                                                         \
-                             const std::function<void(Request & req, Response & res, Next & next)>& lambda) {                              \
+                             const std::function<void(Request & req, Response & res, Next & next)>& lambda) const {                        \
         return routes().emplace_back(HTTP_METHOD, relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda));          \
     }                                                                                                                                      \
-    Route& RootRoute::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda) {                              \
+    Route& RootRoute::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda) const {                        \
         return routes().emplace_back(HTTP_METHOD, "/", std::make_shared<dispatcher::MiddlewareDispatcher>(lambda));                        \
     }                                                                                                                                      \
-    Route& RootRoute::METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) {     \
+    Route& RootRoute::METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda)       \
+        const {                                                                                                                            \
         return routes().emplace_back(HTTP_METHOD, relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda));         \
     }                                                                                                                                      \
-    Route& RootRoute::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                           \
+    Route& RootRoute::METHOD(const std::function<void(Request & req, Response & res)>& lambda) const {                                     \
         return routes().emplace_back(HTTP_METHOD, "/", std::make_shared<dispatcher::ApplicationDispatcher>(lambda));                       \
     }
 
@@ -57,7 +58,7 @@ namespace express {
         return std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher);
     }
 
-    std::list<Route>& RootRoute::routes() {
+    std::list<Route>& RootRoute::routes() const {
         return std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getRoutes();
     }
 

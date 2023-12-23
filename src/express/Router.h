@@ -42,23 +42,24 @@ namespace express {
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
 #define DECLARE_ROUTER_REQUESTMETHOD(METHOD)                                                                                               \
-    Route& METHOD(const Router& router);                                                                                                   \
-    Route& METHOD(const std::string& relativeMountPath, const Router& router);                                                             \
-    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
-    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                 \
-    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda);                                          \
-    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next & next)>& lambda);    \
+    Route& METHOD(const Router& router) const;                                                                                             \
+    Route& METHOD(const std::string& relativeMountPath, const Router& router) const;                                                       \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda) const;                                                 \
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda) const;           \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda) const;                                    \
+    Route& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res, Next & next)>& lambda)     \
+        const;                                                                                                                             \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);                                   \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas) const;                             \
     template <typename... Lambdas>                                                                                                         \
     Route& METHOD(                                                                                                                         \
-        const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);       \
+        const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas) const; \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda, Lambdas... lambdas);                      \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda, Lambdas... lambdas) const;                \
     template <typename... Lambdas>                                                                                                         \
     Route& METHOD(const std::string& relativeMountPath,                                                                                    \
                   const std::function<void(Request & req, Response & res, Next & next)>& lambda,                                           \
-                  Lambdas... lambdas);
+                  Lambdas... lambdas) const;
 
 namespace express {
 

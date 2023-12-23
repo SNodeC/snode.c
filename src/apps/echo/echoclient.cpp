@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 
     using SocketClient = apps::echo::model::STREAM::EchoSocketClient;
     using SocketAddress = SocketClient::SocketAddress;
-    SocketClient client = apps::echo::model::STREAM::getClient();
+    const SocketClient client = apps::echo::model::STREAM::getClient();
 
     client.connect([instanceName = client.getConfig().getInstanceName()](const SocketAddress& socketAddress,
                                                                          const core::socket::State& state) -> void {

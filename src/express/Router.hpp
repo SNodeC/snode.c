@@ -33,20 +33,21 @@
     template <typename... Lambdas>                                                                                                         \
     Route& Router::METHOD(const std::string& relativeMountPath,                                                                            \
                           const std::function<void(Request & req, Response & res, Next & next)>& lambda,                                   \
-                          Lambdas... lambdas) {                                                                                            \
+                          Lambdas... lambdas) const {                                                                                      \
         return rootRoute->METHOD(relativeMountPath, lambda).METHOD(lambdas...);                                                            \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
-    Route& Router::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda, Lambdas... lambdas) {             \
+    Route& Router::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda, Lambdas... lambdas) const {       \
         return rootRoute->METHOD(lambda).METHOD(lambdas...);                                                                               \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
     Route& Router::METHOD(                                                                                                                 \
-        const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas) {      \
+        const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas)        \
+        const {                                                                                                                            \
         return rootRoute->METHOD(relativeMountPath, lambda).METHOD(lambdas...);                                                            \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
-    Route& Router::METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas) {                          \
+    Route& Router::METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas) const {                    \
         return rootRoute->METHOD(lambda).METHOD(lambdas...);                                                                               \
     }
 

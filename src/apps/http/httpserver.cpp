@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     using WebApp = apps::http::STREAM::WebApp;
     using SocketAddress = WebApp::SocketAddress;
 
-    WebApp webApp(apps::http::STREAM::getWebApp("httpserver", utils::Config::get_string_option_value("--web-root")));
+    const WebApp webApp(apps::http::STREAM::getWebApp("httpserver", utils::Config::get_string_option_value("--web-root")));
 
 #if (STREAM_TYPE == TLS)
     std::string cert = "/home/voc/projects/snodec/snode.c/certs/snode.c_-_server.pem";

@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
     using LegacyWebApp = express::legacy::in::WebApp;
     using LegacySocketAddress = LegacyWebApp::SocketAddress;
 
-    LegacyWebApp legacyApp;
+    const LegacyWebApp legacyApp;
     legacyApp.getConfig().setReuseAddress();
 
     legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     using TLSWebApp = express::tls::in::WebApp;
     using TLSSocketAddress = TLSWebApp::SocketAddress;
 
-    TLSWebApp tlsApp;
+    const TLSWebApp tlsApp;
     tlsApp.getConfig().setReuseAddress();
 
     tlsApp.getConfig().setCertChain("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");

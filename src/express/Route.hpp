@@ -36,11 +36,11 @@ namespace express {
 
 #define DEFINE_ROUTE_TEMPLATE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                           \
     template <typename... Lambdas>                                                                                                         \
-    Route& Route::METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas) {                           \
+    Route& Route::METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas) const {                     \
         return this->METHOD(lambda).METHOD(lambdas...);                                                                                    \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
-    Route& Route::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda, Lambdas... lambdas) {              \
+    Route& Route::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda, Lambdas... lambdas) const {        \
         return this->METHOD(lambda).METHOD(lambdas...);                                                                                    \
     }
 

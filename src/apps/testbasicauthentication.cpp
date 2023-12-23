@@ -47,17 +47,17 @@ int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
     {
-        legacy::in6::WebApp legacyApp("legacy");
+        const legacy::in6::WebApp legacyApp("legacy");
 
-        Router& router1 = middleware::VHost("localhost:8080");
+        const Router& router1 = middleware::VHost("localhost:8080");
 
-        Router& ba = middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password");
+        const Router& ba = middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password");
         ba.use(middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
         router1.use(ba);
         legacyApp.use(router1);
 
-        Router& router2 = middleware::VHost("atlas.home.vchrist.at:8080");
+        const Router& router2 = middleware::VHost("atlas.home.vchrist.at:8080");
         router2.get("/", [] APPLICATION(req, res) {
             res.send("Hello! I am VHOST atlas.home.vchrist.at.");
         });
@@ -87,18 +87,18 @@ int main(int argc, char* argv[]) {
                          });
 
         {
-            express::tls::in6::WebApp tlsApp("tls");
+            const express::tls::in6::WebApp tlsApp("tls");
 
-            Router& vh = middleware::VHost("localhost:8088");
-            vh.use(getRouter(utils::Config::get_string_option_value("--web-root")));
-            tlsApp.use(vh);
+            const Router& vh1 = middleware::VHost("localhost:8088");
+            vh1.use(getRouter(utils::Config::get_string_option_value("--web-root")));
+            tlsApp.use(vh1);
 
-            vh = middleware::VHost("atlas.home.vchrist.at:8088");
-            vh.get("/", [] APPLICATION(req, res) {
+            const Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8088");
+            vh2.get("/", [] APPLICATION(req, res) {
                 res.send("Hello! I am VHOST atlas.home.vchrist.at.");
             });
 
-            tlsApp.use(vh);
+            tlsApp.use(vh2);
 
             tlsApp.use([] APPLICATION(req, res) {
                 res.status(404).send("The requested resource is not found.");
@@ -107,7 +107,8 @@ int main(int argc, char* argv[]) {
             tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
                 switch (state) {
                     case core::socket::State::OK:
-                        VLOG(1) << "tls: listening on '" << socketAddress.toString() << "'" << "'";
+                        VLOG(1) << "tls: listening on '" << socketAddress.toString() << "'"
+                                << "'";
                         break;
                     case core::socket::State::DISABLED:
                         VLOG(1) << "tls: disabled";

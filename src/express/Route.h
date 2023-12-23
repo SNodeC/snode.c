@@ -43,12 +43,12 @@ namespace express {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DECLARE_ROUTE_REQUESTMETHOD(METHOD)                                                                                                \
-    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                       \
-    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda);                                          \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda) const;                                                 \
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda) const;                                    \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas);                                   \
+    Route& METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas) const;                             \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda, Lambdas... lambdas);
+    Route& METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda, Lambdas... lambdas) const;
 
 namespace express {
 

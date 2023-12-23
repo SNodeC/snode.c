@@ -41,7 +41,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     server::RequestParser requestParser(
         nullptr,
-        [](void) -> void {
+        []() -> void {
         },
         [](const std::string& method,
            const std::string& originalUrl,
@@ -76,17 +76,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
             VLOG(0) << "++    OnError: " << status << " : " << reason;
         });
 
-    std::string httpRequest = "GET /admin/new/index.html?hihihi=3343&query=2324#fragment HTTP/1.1\r\n"
-                              "Field1: Value1\r\n"
-                              "Field2: Field2\r\n"
-                              "Field2: Field3\r\n" // is allowed and must be combined with a comma as separator
-                              "Content-Length: 8\r\n"
-                              "Cookie: MyCookie1=MyValue1; MyCookie2=MyValue2\r\n"
-                              "Cookie: MyCookie3=MyValue3\r\n"
-                              "Cookie: MyCookie4=MyValue4\r\n"
-                              "Cookie: MyCookie5=MyValue5; MyCookie6=MyValue6\r\n"
-                              "\r\n"
-                              "juhuhuhu";
+    const std::string httpRequest = "GET /admin/new/index.html?hihihi=3343&query=2324#fragment HTTP/1.1\r\n"
+                                    "Field1: Value1\r\n"
+                                    "Field2: Field2\r\n"
+                                    "Field2: Field3\r\n" // is allowed and must be combined with a comma as separator
+                                    "Content-Length: 8\r\n"
+                                    "Cookie: MyCookie1=MyValue1; MyCookie2=MyValue2\r\n"
+                                    "Cookie: MyCookie3=MyValue3\r\n"
+                                    "Cookie: MyCookie4=MyValue4\r\n"
+                                    "Cookie: MyCookie5=MyValue5; MyCookie6=MyValue6\r\n"
+                                    "\r\n"
+                                    "juhuhuhu";
 
     VLOG(0) << "==================================";
     VLOG(0) << httpRequest;
@@ -104,7 +104,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     client::ResponseParser responseParser(
         nullptr,
-        [](void) -> void {
+        []() -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
@@ -116,9 +116,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
             }
 
             VLOG(0) << "++   Cookies:";
-            for (auto& [name, cookie] : cookies) {
+            for (const auto& [name, cookie] : cookies) {
                 VLOG(0) << "++     " + name + " = " + cookie.getValue();
-                for (auto& [option, value] : cookie.getOptions()) {
+                for (const auto& [option, value] : cookie.getOptions()) {
                     VLOG(0) << "++       " + option + " = " + value;
                 }
             }
@@ -135,13 +135,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
             VLOG(0) << "++   OnError: " + std::to_string(status) + " - " + reason;
         });
 
-    std::string httpResponse = "HTTP/1.1 200 OK\r\n"
-                               "Field: Value\r\n"
-                               "Set-Cookie: CookieName = CookieValue; OptionName = OptionValue\r\n"
-                               "Set-Cookie: CookieName1 = CookieValue1; OptionName1 = OptionValue1; OptionName2 = OptionValue2;\r\n"
-                               "Content-Length: 8\r\n"
-                               "\r\n"
-                               "juhuhuhu";
+    const std::string httpResponse = "HTTP/1.1 200 OK\r\n"
+                                     "Field: Value\r\n"
+                                     "Set-Cookie: CookieName = CookieValue; OptionName = OptionValue\r\n"
+                                     "Set-Cookie: CookieName1 = CookieValue1; OptionName1 = OptionValue1; OptionName2 = OptionValue2;\r\n"
+                                     "Content-Length: 8\r\n"
+                                     "\r\n"
+                                     "juhuhuhu";
 
     VLOG(0) << "==================================";
     VLOG(0) << httpResponse;
