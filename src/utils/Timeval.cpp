@@ -89,6 +89,15 @@ namespace utils {
         return help.normalize();
     }
 
+    Timeval Timeval::operator*(double mul) const {
+        utils::Timeval help;
+
+        help.timeVal.tv_sec = static_cast<time_t>(static_cast<double>(this->timeVal.tv_sec) * mul);
+        help.timeVal.tv_usec = static_cast<suseconds_t>(static_cast<double>(this->timeVal.tv_usec) * mul);
+
+        return help.normalize();
+    }
+
     Timeval& Timeval::operator+=(const Timeval& timeVal) {
         *this = (*this + timeVal).normalize();
         return *this;
@@ -99,15 +108,13 @@ namespace utils {
         return *this;
     }
 
+    Timeval& Timeval::operator*=(double mul) {
+        *this = (*this * mul).normalize();
+        return *this;
+    }
+
     Timeval Timeval::operator-() const {
-        //        Timeval timeVal;
-
-        //        timeVal.timeVal.tv_sec = -this->timeVal.tv_sec;
-        //        timeVal.timeVal.tv_usec = -this->timeVal.tv_usec;
-
         return Timeval({-this->timeVal.tv_sec, -this->timeVal.tv_usec}).normalize();
-
-        //        return timeVal.normalize();
     }
 
     bool Timeval::operator<(const Timeval& timeVal) const {
@@ -171,12 +178,14 @@ namespace utils {
     }
 
     const Timeval& Timeval::normalize() {
-        if (timeVal.tv_usec > 999'999) {
-            timeVal.tv_usec -= 1'000'000;
-            timeVal.tv_sec++;
-        } else if (timeVal.tv_usec < 0) {
-            timeVal.tv_usec += 1'000'000;
-            timeVal.tv_sec--;
+        while (timeVal.tv_usec > 999'999 || timeVal.tv_usec < 0) {
+            if (timeVal.tv_usec > 999'999) {
+                timeVal.tv_usec -= 1'000'000;
+                timeVal.tv_sec++;
+            } else if (timeVal.tv_usec < 0) {
+                timeVal.tv_usec += 1'000'000;
+                timeVal.tv_sec--;
+            }
         }
 
         return *this;
@@ -185,6 +194,15 @@ namespace utils {
     std::ostream& operator<<(std::ostream& ostream, const utils::Timeval& timeVal) {
         return ostream << std::string("{") + std::to_string(timeVal.timeVal.tv_sec) + std::string(":") +
                               std::to_string(timeVal.timeVal.tv_usec) + std::string("}");
+    }
+
+    Timeval operator*(double mul, const utils::Timeval& timeVal) {
+        utils::Timeval help;
+
+        help.timeVal.tv_sec = static_cast<time_t>(static_cast<double>(timeVal.timeVal.tv_sec) * mul);
+        help.timeVal.tv_usec = static_cast<suseconds_t>(static_cast<double>(timeVal.timeVal.tv_usec) * mul);
+
+        return help.normalize();
     }
 
 } // namespace utils

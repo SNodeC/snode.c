@@ -48,9 +48,11 @@ namespace utils {
 
         Timeval operator+(const Timeval& timeVal) const;
         Timeval operator-(const Timeval& timeVal) const;
+        Timeval operator*(double mul) const; // Corresponding commutated arguments operator is a friend function (see below)
 
         Timeval& operator+=(const Timeval& timeVal);
         Timeval& operator-=(const Timeval& timeVal);
+        Timeval& operator*=(double mul);
 
         Timeval operator-() const;
 
@@ -76,7 +78,10 @@ namespace utils {
 
     public:
         friend std::ostream& operator<<(std::ostream& ostream, const utils::Timeval& timeVal);
+        friend Timeval operator*(double mul, const Timeval& timeVal);
     };
+
+    //    Timeval operator*(double mul, const Timeval& timeVal);
 
 } // namespace utils
 
