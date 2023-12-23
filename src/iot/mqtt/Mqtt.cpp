@@ -145,7 +145,7 @@ namespace iot::mqtt {
         return mqttContext->getSocketConnection();
     }
 
-    void Mqtt::initSession(Session* session, const utils::Timeval& keepAlive) {
+    void Mqtt::initSession(Session* session, utils::Timeval keepAlive) {
         this->session = session;
 
         for (const auto& [packetIdentifier, publish] : session->publishMap) {
@@ -161,6 +161,10 @@ namespace iot::mqtt {
         }
 
         if (keepAlive > 0) {
+            keepAlive *= 1.5;
+
+            LOG(TRACE) << "MQTT: Keep alive initialized with: " << keepAlive;
+
             keepAliveTimer = core::timer::Timer::singleshotTimer(
                 [this, keepAlive]() -> void {
                     LOG(DEBUG) << "MQTT: Keep-alive timer expired. Interval was: " << keepAlive;

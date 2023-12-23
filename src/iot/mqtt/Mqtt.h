@@ -72,7 +72,7 @@ namespace iot::mqtt {
         virtual void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
 
     protected:
-        void initSession(Session* session, const utils::Timeval& keepAlive);
+        void initSession(Session* session, utils::Timeval keepAlive);
 
     public:
         void sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);

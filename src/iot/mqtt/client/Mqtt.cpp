@@ -170,7 +170,7 @@ namespace iot::mqtt::client {
             LOG(DEBUG) << "MQTT Client:   Negative ack received";
             mqttContext->end(true);
         } else {
-            initSession(&session, keepAlive * 2);
+            initSession(&session, keepAlive);
 
             pingTimer = core::timer::Timer::intervalTimer(
                 [this]() -> void {
