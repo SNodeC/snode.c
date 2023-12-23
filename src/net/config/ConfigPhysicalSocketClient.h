@@ -45,9 +45,6 @@ namespace net::config {
 
     public:
         explicit ConfigPhysicalSocketClient(ConfigInstance* instance);
-        ConfigPhysicalSocketClient(const ConfigPhysicalSocketClient&) = delete;
-
-        ConfigPhysicalSocketClient& operator=(const ConfigPhysicalSocketClient&) = delete;
 
         void setReconnect(bool reconnect = true);
         bool getReconnect() const;

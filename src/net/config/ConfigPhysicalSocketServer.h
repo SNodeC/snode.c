@@ -45,9 +45,6 @@ namespace net::config {
 
     public:
         explicit ConfigPhysicalSocketServer(ConfigInstance* instance);
-        ConfigPhysicalSocketServer(const ConfigPhysicalSocketServer&) = delete;
-
-        ConfigPhysicalSocketServer& operator=(const ConfigPhysicalSocketServer&) = delete;
 
         void setAcceptTimeout(const utils::Timeval& acceptTimeout);
         utils::Timeval getAcceptTimeout() const;
