@@ -59,6 +59,9 @@ namespace net::config {
         void setRetry(bool retry = true);
         bool getRetry() const;
 
+        void setRetryOnFatal(bool retry = true);
+        bool getRetryOnFatal() const;
+
         void setRetryTimeout(double sec);
         double getRetryTimeout() const;
 
@@ -86,6 +89,7 @@ namespace net::config {
 
         CLI::Option* reuseAddressOpt = nullptr;
         CLI::Option* retryOpt = nullptr;
+        CLI::Option* retryOnFatalOpt = nullptr;
         CLI::Option* retryTriesOpt = nullptr;
         CLI::Option* retryTimeoutOpt = nullptr;
         CLI::Option* retryBaseOpt = nullptr;

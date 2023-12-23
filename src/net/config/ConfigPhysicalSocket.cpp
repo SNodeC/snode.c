@@ -46,22 +46,33 @@ namespace net::config {
                           "bool",
                           XSTR(REUSE_ADDRESS),
                           CLI::IsMember({"true", "false"}));
+
         add_flag_function(
             retryOpt, //
             "--retry{true}",
             [this](int64_t) -> void {
                 if (!this->retryOpt->as<bool>()) {
+                    this->retryOnFatalOpt->clear();
                     this->retryTimeoutOpt->clear();
                     this->retryTriesOpt->clear();
                     this->retryBaseOpt->clear();
+                    this->retryJitterOpt->clear();
                     this->retryLimitOpt->clear();
                 }
-                utils::ResetToDefault(this->retryOpt)(static_cast<int64_t>(this->retryOpt->as<bool>()));
+                (utils::ResetToDefault(retryOpt))(retryOpt->as<std::string>());
             },
             "Automatically retry listen|connect",
             "bool",
             XSTR(RETRY),
             CLI::IsMember({"true", "false"}));
+
+        add_flag(retryOnFatalOpt, //
+                 "--retry-on-fatal{true}",
+                 "Retry also on fatal errors",
+                 "bool",
+                 XSTR(RETRY_ON_FATAL),
+                 CLI::IsMember({"true", "false"}));
+        retryOnFatalOpt->needs(retryOpt);
 
         add_option(retryTimeoutOpt, //
                    "--retry-timeout",
@@ -173,6 +184,16 @@ namespace net::config {
     }
 
     bool ConfigPhysicalSocket::getRetry() const {
+        return retryOpt->as<bool>();
+    }
+
+    void ConfigPhysicalSocket::setRetryOnFatal(bool retry) {
+        retryOnFatalOpt //
+            ->default_val(retry ? "true" : "false")
+            ->clear();
+    }
+
+    bool ConfigPhysicalSocket::getRetryOnFatal() const {
         return retryOpt->as<bool>();
     }
 
