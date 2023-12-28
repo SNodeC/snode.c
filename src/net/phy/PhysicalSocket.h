@@ -53,9 +53,9 @@ namespace net::phy {
 
     public:
         PhysicalSocket() = delete;
-        PhysicalSocket(PhysicalSocket&) = delete;
+        PhysicalSocket(PhysicalSocket&) = delete; // only move is allowed for PhysicalSocket
 
-        PhysicalSocket& operator=(PhysicalSocket&) = delete;
+        PhysicalSocket& operator=(PhysicalSocket&) = delete; // only move is allowed for PhysicalSocket
 
         explicit PhysicalSocket(int fd, const SocketAddress& bindAddress);
 
@@ -77,11 +77,11 @@ namespace net::phy {
         int getSockopt(int level, int optname, void* optval, socklen_t* optlen) const;
 
     protected:
-        SocketAddress bindAddress{};
+        SocketAddress bindAddress;
 
-        int domain{};
-        int type{};
-        int protocol{};
+        int domain = 0;
+        int type = 0;
+        int protocol = 0;
     };
 
 } // namespace net::phy
