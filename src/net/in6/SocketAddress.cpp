@@ -33,23 +33,26 @@
 
 namespace net::in6 {
 
-    SocketAddress::SocketAddress()
+    SocketAddress::SocketAddress(int aiFlags, int aiSockType, int aiProtocol)
         : Super(AF_INET6)
+        , aiSockType(aiSockType)
+        , aiProtocol(aiProtocol)
+        , aiFlags(aiFlags)
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
     }
 
-    SocketAddress::SocketAddress(const std::string& ipOrHostname)
-        : SocketAddress() {
+    SocketAddress::SocketAddress(const std::string& ipOrHostname, int aiFlags, int aiSockType, int aiProtocol)
+        : SocketAddress(aiFlags, aiSockType, aiProtocol) {
         setHost(ipOrHostname);
     }
 
-    SocketAddress::SocketAddress(uint16_t port)
-        : SocketAddress() {
+    SocketAddress::SocketAddress(uint16_t port, int aiFlags, int aiSockType, int aiProtocol)
+        : SocketAddress(aiFlags, aiSockType, aiProtocol) {
         setPort(port);
     }
 
-    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port)
-        : SocketAddress() {
+    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port, int aiFlags, int aiSockType, int aiProtocol)
+        : SocketAddress(aiFlags, aiSockType, aiProtocol) {
         setHost(ipOrHostname);
         setPort(port);
     }
@@ -88,10 +91,10 @@ namespace net::in6 {
     SocketAddress& SocketAddress::init() {
         addrinfo hints{};
 
-        hints.ai_family = AF_INET6;
-        hints.ai_socktype = aiSocktype;
+        hints.ai_family = Super::getAddressFamily();
+        hints.ai_socktype = aiSockType;
         hints.ai_protocol = aiProtocol;
-        hints.ai_flags = aiFlags | AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL; // AI_CANONIDN produces a still reachable memory leak
+        hints.ai_flags = aiFlags;
 
         int aiErrCode = 0;
 
@@ -110,7 +113,7 @@ namespace net::in6 {
                     break;
             }
             throw core::socket::SocketAddress::BadSocketAddress(state,
-                                                                host + ": " +
+                                                                host + ":" + std::to_string(port) + " - " +
                                                                     (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
                                                                 (aiErrCode == EAI_SYSTEM ? errno : aiErrCode));
         }
@@ -148,36 +151,6 @@ namespace net::in6 {
         sockAddr = socketAddrInfo->getSockAddr();
 
         return useNext;
-    }
-
-    SocketAddress& SocketAddress::setAiSockType(int aiSocktype) {
-        this->aiSocktype = aiSocktype;
-
-        return *this;
-    }
-
-    int SocketAddress::getAiSockType() const {
-        return aiSocktype;
-    }
-
-    SocketAddress& SocketAddress::setAiProtocol(int aiProtocol) {
-        this->aiProtocol = aiProtocol;
-
-        return *this;
-    }
-
-    int SocketAddress::getAiProtocol() const {
-        return aiProtocol;
-    }
-
-    SocketAddress& SocketAddress::setAiFlags(int aiFlags) {
-        this->aiFlags = aiFlags;
-
-        return *this;
-    }
-
-    int SocketAddress::getAiFlags() const {
-        return aiFlags;
     }
 
 } // namespace net::in6

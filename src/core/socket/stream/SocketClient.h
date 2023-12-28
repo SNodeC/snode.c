@@ -166,8 +166,8 @@ namespace core::socket::stream {
 
                             core::timer::Timer::singleshotTimer(
                                 [client, onStatus]() mutable -> void {
-                                    client.getConfig().Local::reset();
-                                    client.getConfig().Remote::reset();
+                                    client.getConfig().Local::renew();
+                                    client.getConfig().Remote::renew();
 
                                     client.realConnect(onStatus, 0, 1);
                                 },
@@ -208,8 +208,8 @@ namespace core::socket::stream {
 
                             core::timer::Timer::singleshotTimer(
                                 [client, onStatus, tries, retryTimeoutScale]() mutable -> void {
-                                    client.getConfig().Local::reset();
-                                    client.getConfig().Remote::reset();
+                                    client.getConfig().Local::renew();
+                                    client.getConfig().Remote::renew();
 
                                     client.realConnect(onStatus, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
                                 },

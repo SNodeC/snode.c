@@ -46,11 +46,9 @@ namespace net::config {
 
     public:
         SocketAddress& getSocketAddress();
-        void reset();
+        void renew();
 
     private:
-        virtual ConfigAddress& setSocketAddress(const SocketAddress& address) = 0;
-
         virtual SocketAddress* init() = 0;
 
         SocketAddress* socketAddress = nullptr;

@@ -190,7 +190,8 @@ namespace core::socket::stream {
 
                             core::timer::Timer::singleshotTimer(
                                 [server, onStatus, tries, retryTimeoutScale]() mutable -> void {
-                                    server.getConfig().Local::reset();
+                                    server.getConfig().Local::renew();
+
                                     server.realListen(onStatus, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
                                 },
                                 relativeRetryTimeout);

@@ -52,7 +52,7 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
-    void ConfigAddress<SocketAddress>::reset() {
+    void ConfigAddress<SocketAddress>::renew() {
         if (socketAddress != nullptr) {
             delete socketAddress;
             socketAddress = nullptr;

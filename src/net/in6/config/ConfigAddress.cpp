@@ -64,11 +64,13 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
-        return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
-                    ->setAiFlags(aiFlags | (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0))
-                    .setAiSockType(aiSockType)
-                    .setAiProtocol(aiProtocol)
-                    .init();
+        return &(new SocketAddress(hostOpt->as<std::string>(),
+                                   portOpt->as<uint16_t>(),
+                                   aiFlags | AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL |
+                                       (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0), // AI_CANONIDN produces a still reachable memory leak
+                                   aiSockType,
+                                   aiProtocol))
+                    ->init();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

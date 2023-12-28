@@ -55,7 +55,7 @@ namespace net::rc::config {
         SocketAddress* init() final;
 
     public:
-        ConfigAddress& setSocketAddress(const SocketAddress& socketAddress) final;
+        ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
 
         ConfigAddress& setBtAddress(const std::string& btAddress);
         std::string getBtAddress() const;

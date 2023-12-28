@@ -44,11 +44,10 @@ namespace net::in6 {
 
     public:
         using net::SocketAddress<sockaddr_in6>::SocketAddress;
-
-        SocketAddress();
-        explicit SocketAddress(const std::string& ipOrHostname);
-        explicit SocketAddress(uint16_t port);
-        SocketAddress(const std::string& ipOrHostname, uint16_t port);
+        SocketAddress(int aiFlags = 0, int aiSockType = 0, int aiProtocol = 0); // cppcheck-suppress noExplicitConstructor
+        explicit SocketAddress(const std::string& ipOrHostname, int aiFlags = 0, int aiSockType = 0, int aiProtocol = 0);
+        explicit SocketAddress(uint16_t port, int aiFlags = 0, int aiSockType = 0, int aiProtocol = 0);
+        SocketAddress(const std::string& ipOrHostname, uint16_t port, int aiFlags = 0, int aiSockType = 0, int aiProtocol = 0);
         SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
 
         SocketAddress& init();
@@ -63,24 +62,15 @@ namespace net::in6 {
 
         std::string toString() const override;
 
-        SocketAddress& setAiSockType(int aiSocktype);
-        int getAiSockType() const;
-
-        SocketAddress& setAiProtocol(int aiProtocol);
-        int getAiProtocol() const;
-
-        SocketAddress& setAiFlags(int aiFlags);
-        int getAiFlags() const;
-
     private:
-        std::string host = "::";
+        std::string host = "0.0.0.0";
         uint16_t port = 0;
 
         std::string canonName;
 
-        int aiFlags = 0;
-        int aiSocktype = 0;
+        int aiSockType = 0;
         int aiProtocol = 0;
+        int aiFlags = 0;
 
         std::shared_ptr<SocketAddrInfo> socketAddrInfo;
     };

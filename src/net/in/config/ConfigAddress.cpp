@@ -24,6 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/netdb.h"
 #include "utils/PreserveErrno.h"
 
 #include <cstdint>
@@ -53,11 +54,12 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
-        return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
-                    ->setAiFlags(aiFlags)
-                    .setAiSockType(aiSockType)
-                    .setAiProtocol(aiProtocol)
-                    .init();
+        return &(new SocketAddress(hostOpt->as<std::string>(),
+                                   portOpt->as<uint16_t>(),
+                                   aiFlags | AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL, // AI_CANONIDN produces a still reachable memory leak
+                                   aiSockType,
+                                   aiProtocol))
+                    ->init();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
