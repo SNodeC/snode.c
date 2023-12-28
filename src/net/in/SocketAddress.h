@@ -47,8 +47,8 @@ namespace net::in {
 
         SocketAddress();
         explicit SocketAddress(const std::string& ipOrHostname);
-        SocketAddress(const std::string& ipOrHostname, uint16_t port);
         explicit SocketAddress(uint16_t port);
+        SocketAddress(const std::string& ipOrHostname, uint16_t port);
         SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
 
         SocketAddress& init();

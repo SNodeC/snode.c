@@ -43,8 +43,8 @@ namespace net::l2 {
 
         SocketAddress();
         explicit SocketAddress(const std::string& btAddress);
-        SocketAddress(const std::string& btAddress, uint16_t psm);
         explicit SocketAddress(uint16_t psm);
+        SocketAddress(const std::string& btAddress, uint16_t psm);
         SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
 
         SocketAddress& init();

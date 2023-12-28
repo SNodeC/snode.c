@@ -43,14 +43,14 @@ namespace net::in {
         setHost(ipOrHostname);
     }
 
-    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port)
+    SocketAddress::SocketAddress(uint16_t port)
         : SocketAddress() {
-        setHost(ipOrHostname);
         setPort(port);
     }
 
-    SocketAddress::SocketAddress(uint16_t port)
+    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port)
         : SocketAddress() {
+        setHost(ipOrHostname);
         setPort(port);
     }
 
