@@ -43,6 +43,7 @@ namespace core::system {
     ssize_t write(int fd, const void* buf, std::size_t count);
     int close(int fd);
     int pipe2(int pipefd[2], int flags);
+    int flock(int lockFd, int operation);
 
 } // namespace core::system
 

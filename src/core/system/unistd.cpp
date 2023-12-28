@@ -21,6 +21,7 @@
 #include "core/system/unistd.h"
 
 #include <cerrno>
+#include <sys/file.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -49,6 +50,11 @@ namespace core::system {
     int pipe2(int pipefd[2], int flags) {
         errno = 0;
         return ::pipe2(pipefd, flags);
+    }
+
+    int flock(int lockFd, int operation) {
+        errno = 0;
+        return ::flock(lockFd, operation);
     }
 
 } // namespace core::system
