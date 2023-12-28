@@ -25,6 +25,7 @@
 
 #include <cstddef>
 #include <fcntl.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>

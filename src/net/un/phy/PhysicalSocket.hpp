@@ -25,7 +25,6 @@
 
 #include <cerrno>
 #include <cstdio>
-#include <fcntl.h>
 #include <string>
 #include <utility>
 

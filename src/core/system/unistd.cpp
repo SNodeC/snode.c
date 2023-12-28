@@ -21,7 +21,6 @@
 #include "core/system/unistd.h"
 
 #include <cerrno>
-#include <sys/file.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
