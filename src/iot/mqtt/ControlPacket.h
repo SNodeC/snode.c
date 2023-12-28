@@ -69,10 +69,12 @@ namespace iot::mqtt {
     public:
         ControlPacket(uint8_t type, const std::string& name);
         ControlPacket(const ControlPacket&) = default;
+        ControlPacket(ControlPacket&&) = default;
 
         virtual ~ControlPacket();
 
         ControlPacket& operator=(const ControlPacket&) = default;
+        ControlPacket& operator=(ControlPacket&&) = default;
 
         virtual std::vector<char> serializeVP() const = 0;
         std::vector<char> serialize() const;
