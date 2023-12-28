@@ -109,7 +109,8 @@ append_source_file_config(
     config/ConfigPhysicalSocket.cpp RETRY "Retry listen and connect" false true
 )
 append_source_file_config(
-    config/ConfigPhysicalSocket.cpp RETRY_ON_FATAL "Retry also on fatal errors" false true
+    config/ConfigPhysicalSocket.cpp RETRY_ON_FATAL "Retry also on fatal errors"
+    false true
 )
 append_source_file_config(
     config/ConfigPhysicalSocket.cpp RETRY_TIMEOUT "Retry interval in seconds" 1
