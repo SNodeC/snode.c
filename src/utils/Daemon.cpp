@@ -20,7 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/system/signal.h"
+#include "core/system/poll.h"
 
 #include <cerrno>
 #include <cstdio>
@@ -28,10 +28,8 @@
 #include <filesystem>
 #include <fstream>
 #include <grp.h>
-#include <poll.h>
 #include <pwd.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
 #include <syscall.h>
 #include <unistd.h>
 
@@ -163,7 +161,7 @@ namespace utils {
         pollfd.fd = pidfd;
         pollfd.events = POLLIN;
 
-        const int ready = poll(&pollfd, 1, 5000);
+        const int ready = core::system::poll(&pollfd, 1, 5000);
         close(pidfd);
 
         if (ready == -1) {
