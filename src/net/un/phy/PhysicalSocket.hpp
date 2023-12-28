@@ -20,13 +20,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/unistd.h"
 #include "log/Logger.h"
 
 #include <cerrno>
 #include <cstdio>
 #include <fcntl.h>
 #include <string>
-#include <sys/file.h>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -55,45 +55,50 @@ namespace net::un::phy {
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
-        if (lockFd >= 0 && flock(lockFd, LOCK_UN) == 0) {
-            close(lockFd);
-            lockFd = -1;
+        if (lockFd >= 0) {
+            if (std::remove(Super::getBindAddress().getSunPath().data()) == 0) {
+                LOG(TRACE) << "Remove sun path: " << Super::getBindAddress().getSunPath();
+            } else {
+                PLOG(TRACE) << "Remove sun path: " << Super::getBindAddress().getSunPath();
+            }
+
+            if (core::system::flock(lockFd, LOCK_UN) == 0) {
+                LOG(TRACE) << "Remove lock from file: " << Super::getBindAddress().getSunPath().append(".lock");
+            } else {
+                PLOG(TRACE) << "Remove lock from file: " << Super::getBindAddress().getSunPath().append(".lock");
+            }
 
             if (std::remove(Super::bindAddress.getSunPath().append(".lock").data()) == 0) {
                 LOG(TRACE) << "Remove lock file: " << Super::getBindAddress().getSunPath().append(".lock");
             } else {
                 PLOG(TRACE) << "Remove lock file: " << Super::getBindAddress().getSunPath().append(".lock");
             }
-            if (std::remove(Super::getBindAddress().getSunPath().data()) == 0) {
-                LOG(TRACE) << "Remove sunPath: " << Super::getBindAddress().getSunPath();
-            } else {
-                PLOG(TRACE) << "Remove sunPath: " << Super::getBindAddress().getSunPath();
-            }
+
+            core::system::close(lockFd);
+            lockFd = -1;
         }
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     int PhysicalSocket<PhysicalPeerSocket>::bind(SocketAddress& bindAddress) {
         if (!bindAddress.getSunPath().empty()) {
-            lockFd = open(bindAddress.getSunPath().append(".lock").data(), O_RDONLY | O_CREAT, 0600);
-
-            if (lockFd >= 0) {
-                LOG(TRACE) << "Opening lock file " << bindAddress.getSunPath().append(".lock").data();
-                if (flock(lockFd, LOCK_EX | LOCK_NB) == 0) {
-                    LOG(TRACE) << "Locking lock file " << bindAddress.getSunPath().append(".lock").data();
+            if ((lockFd = open(bindAddress.getSunPath().append(".lock").data(), O_RDONLY | O_CREAT, 0600)) >= 0) {
+                LOG(TRACE) << "Opening lock file: " << bindAddress.getSunPath().append(".lock").data();
+                if (core::system::flock(lockFd, LOCK_EX | LOCK_NB) == 0) {
+                    LOG(TRACE) << "Locking lock file: " << bindAddress.getSunPath().append(".lock").data();
                     if (std::remove(bindAddress.getSunPath().data()) == 0) {
-                        LOG(TRACE) << "Removed possible stalled sun_path: " << bindAddress.getSunPath().append(".lock").data();
+                        LOG(TRACE) << "Removed possible stalled sun_path: " << bindAddress.getSunPath().data();
                     } else {
-                        PLOG(TRACE) << "Removed possible stalled sun path: " << bindAddress.getSunPath().append(".lock").data();
+                        PLOG(TRACE) << "Removed possible stalled sun path: " << bindAddress.getSunPath().data();
                     }
                 } else {
                     PLOG(TRACE) << "Locking lock file " << bindAddress.getSunPath().append(".lock").data();
 
-                    close(lockFd);
+                    core::system::close(lockFd);
                     lockFd = -1;
                 }
             } else {
-                PLOG(TRACE) << "Opening lock file " << bindAddress.getSunPath().append(".lock").data();
+                PLOG(TRACE) << "Opening lock file: " << bindAddress.getSunPath().append(".lock").data();
             }
         }
 
