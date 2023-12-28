@@ -33,8 +33,8 @@ namespace iot::mqtt::types {
 
     class UInt32 : public TypeBase<uint32_t> {
     public:
-        UInt32& operator=(const uint32_t& newValue) override;
-        operator uint32_t() const override;
+        UInt32& operator=(const uint32_t& newValue);
+        operator uint32_t() const;
     };
 
     extern template class TypeBase<uint32_t>;

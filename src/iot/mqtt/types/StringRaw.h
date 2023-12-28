@@ -32,11 +32,14 @@
 namespace iot::mqtt::types {
 
     class StringRaw : public TypeBase<std::string> {
+    private:
+        using Super = TypeBase<std::string>;
+
     public:
         StringRaw();
 
-        StringRaw& operator=(const std::string& newValue) override;
-        operator std::string() const override;
+        StringRaw& operator=(const std::string& newValue);
+        operator std::string() const;
 
         bool operator==(const std::string& rhsValue) const;
         bool operator!=(const std::string& rhsValue) const;

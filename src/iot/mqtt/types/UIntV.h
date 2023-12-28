@@ -42,8 +42,8 @@ namespace iot::mqtt::types {
 
         std::size_t deserialize(iot::mqtt::MqttContext* mqttContext) override;
 
-        UIntV& operator=(const uint32_t& newValue) override;
-        operator uint32_t() const override;
+        UIntV& operator=(const uint32_t& newValue);
+        operator uint32_t() const;
 
         bool isError() const;
 

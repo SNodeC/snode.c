@@ -33,8 +33,8 @@ namespace iot::mqtt::types {
 
     class UInt64 : public TypeBase<uint64_t> {
     public:
-        UInt64& operator=(const uint64_t& newValue) override;
-        operator uint64_t() const override;
+        UInt64& operator=(const uint64_t& newValue);
+        operator uint64_t() const;
     };
 
     extern template class TypeBase<uint64_t>;

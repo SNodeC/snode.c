@@ -34,8 +34,8 @@ namespace iot::mqtt::types {
 
     class UInt8List : public TypeBase<std::list<uint8_t>> {
     public:
-        UInt8List& operator=(const std::list<uint8_t>& newValue) override;
-        operator std::list<uint8_t>() const override;
+        UInt8List& operator=(const std::list<uint8_t>& newValue);
+        operator std::list<uint8_t>() const;
 
         bool operator==(const std::list<uint8_t>& rhsValue) const;
         bool operator!=(const std::list<uint8_t>& rhsValue) const;

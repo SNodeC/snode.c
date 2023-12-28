@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(legacyApp);
 
-    tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, const core::socket::State& state) -> void {
+    tlsApp.listen("localhost", 8088, [](const TLSSocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "tlsApp: listening on '" << socketAddress.toString() << "'";
