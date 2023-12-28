@@ -37,7 +37,7 @@ namespace iot::mqtt::server {
 
         ~ControlPacketDeserializer() override;
 
-        virtual void deliverPacket(iot::mqtt::server::Mqtt* socketContext) = 0;
+        virtual void deliverPacket(iot::mqtt::server::Mqtt* mqtt) = 0;
     };
 
 } // namespace iot::mqtt::server
