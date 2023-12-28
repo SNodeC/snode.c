@@ -57,7 +57,7 @@ namespace net::phy {
 
         PhysicalSocket& operator=(PhysicalSocket&) = delete; // only move is allowed for PhysicalSocket
 
-        explicit PhysicalSocket(int fd, const SocketAddress& bindAddress);
+        PhysicalSocket(int fd, const SocketAddress& bindAddress);
 
         int open(const std::map<int, const PhysicalSocketOption>& socketOptions, Flags flags);
 
