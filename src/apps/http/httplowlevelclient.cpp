@@ -73,7 +73,7 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
         [](std::vector<uint8_t> content) -> void {
             content.push_back(0);
 
-            VLOG(0) << "++   OnContent: "; // << content.data();
+            VLOG(0) << "++   OnContent: " << content.data();
         },
         [](web::http::client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
