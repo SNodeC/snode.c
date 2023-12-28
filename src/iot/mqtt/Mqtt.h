@@ -56,6 +56,12 @@ namespace iot::mqtt {
         Mqtt() = default;
         explicit Mqtt(const std::string& clientId);
 
+        Mqtt(Mqtt&&) = delete;
+        Mqtt(const Mqtt&) = delete;
+
+        Mqtt& operator=(Mqtt&&) = delete;
+        Mqtt& operator=(const Mqtt&) = delete;
+
         virtual ~Mqtt();
 
         virtual void onConnected();
