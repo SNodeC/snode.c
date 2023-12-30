@@ -39,7 +39,7 @@ namespace net::phy {
     PhysicalSocket<SocketAddress>::PhysicalSocket(int fd, const SocketAddress& bindAddress)
         : Descriptor(fd)
         , bindAddress(bindAddress) {
-        socklen_t optLen = sizeof(domain);
+        typename SocketAddress::SockLen optLen = sizeof(domain);
         getSockopt(SOL_SOCKET, SO_DOMAIN, &domain, &optLen);
 
         optLen = sizeof(type);
@@ -91,27 +91,29 @@ namespace net::phy {
 
     template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::getSockError(int& cErrno) const {
-        socklen_t cErrnoLen = sizeof(cErrno);
+        typename SocketAddress::SockLen cErrnoLen = sizeof(cErrno);
         return getSockopt(SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::setSockopt(int level, int optname, const void* optval, socklen_t optlen) const {
+    int PhysicalSocket<SocketAddress>::setSockopt(int level, int optname, const void* optval, SocketAddress::SockLen optlen) const {
         return core::system::setsockopt(PhysicalSocket::getFd(), level, optname, optval, optlen);
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::getSockopt(int level, int optname, void* optval, socklen_t* optlen) const {
+    int PhysicalSocket<SocketAddress>::getSockopt(int level, int optname, void* optval, SocketAddress::SockLen* optlen) const {
         return core::system::getsockopt(PhysicalSocket::getFd(), level, optname, optval, optlen);
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::getSockName(typename SocketAddress::SockAddr& localSockAddr, socklen_t& localSockAddrLen) {
+    int PhysicalSocket<SocketAddress>::getSockName(typename SocketAddress::SockAddr& localSockAddr,
+                                                   SocketAddress::SockLen& localSockAddrLen) {
         return core::system::getsockname(core::Descriptor::getFd(), reinterpret_cast<sockaddr*>(&localSockAddr), &localSockAddrLen);
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::getPeerName(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen) {
+    int PhysicalSocket<SocketAddress>::getPeerName(typename SocketAddress::SockAddr& remoteSockAddr,
+                                                   SocketAddress::SockLen& remoteSockAddrLen) {
         return core::system::getpeername(core::Descriptor::getFd(), reinterpret_cast<sockaddr*>(&remoteSockAddr), &remoteSockAddrLen);
     }
 

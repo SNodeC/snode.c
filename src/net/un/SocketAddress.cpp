@@ -42,7 +42,7 @@ namespace net::un {
         setSunPath(sunPath);
     }
 
-    SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
+    SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen)
         : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen) {
         sunPath = sockAddr.sun_path;
     }
@@ -52,7 +52,7 @@ namespace net::un {
             const std::size_t len = sunPath.length();
             std::memcpy(sockAddr.sun_path, sunPath.data(), len);
             sockAddr.sun_path[len] = 0;
-            sockAddrLen = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + len + 1);
+            sockAddrLen = static_cast<SockLen>(offsetof(sockaddr_un, sun_path) + len + 1);
         } else {
             throw core::socket::SocketAddress::BadSocketAddress(
                 core::socket::STATE_FATAL,

@@ -53,7 +53,7 @@ namespace net::in {
         explicit SocketAddress(const std::string& ipOrHostname);
         explicit SocketAddress(uint16_t port);
         SocketAddress(const std::string& ipOrHostname, uint16_t port);
-        SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen);
+        SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen);
 
         SocketAddress& init(const Hints& hints = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0});
 

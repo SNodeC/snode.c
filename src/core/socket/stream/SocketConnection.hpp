@@ -57,10 +57,10 @@ namespace core::socket::stream {
         , physicalSocket(std::move(physicalSocket))
         , onDisconnect(onDisconnect) {
         typename SocketAddress::SockAddr localSockAddr;
-        socklen_t localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+        typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
         typename SocketAddress::SockAddr remoteSockAddr;
-        socklen_t remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+        typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
         if (this->physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
             localAddress = {localSockAddr, localSockAddrLen};

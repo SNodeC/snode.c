@@ -46,7 +46,7 @@ namespace net::rc {
         setChannel(channel);
     }
 
-    SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
+    SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen)
         : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen) {
         channel = sockAddr.rc_channel;
 

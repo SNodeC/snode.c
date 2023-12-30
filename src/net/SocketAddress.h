@@ -36,22 +36,22 @@ namespace net {
         using SockAddr = SockAddrT;
         using SockLen = socklen_t;
 
-        explicit SocketAddress(sa_family_t af, socklen_t sockAddrLen = sizeof(SockAddr));
+        explicit SocketAddress(sa_family_t af, SockLen sockAddrLen = sizeof(SockAddr));
 
         SocketAddress(const SocketAddress& socketAddress);
 
-        SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen);
+        SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen);
 
         SocketAddress& operator=(const SocketAddress& socketAddress);
 
         virtual const sockaddr& getSockAddr();
-        virtual const socklen_t& getSockAddrLen() const;
+        virtual const SockLen& getSockAddrLen() const;
 
         sa_family_t getAddressFamily() const;
 
     protected:
         SockAddr sockAddr{};
-        socklen_t sockAddrLen = 0;
+        SockLen sockAddrLen = 0;
     };
 
 } // namespace net

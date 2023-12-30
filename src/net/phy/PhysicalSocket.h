@@ -67,14 +67,14 @@ namespace net::phy {
 
         int getSockError(int& cErrno) const;
 
-        int getSockName(typename SocketAddress::SockAddr& localSockAddr, socklen_t& localSockAddrLen);
-        int getPeerName(typename SocketAddress::SockAddr& remoteSockAddr, socklen_t& remoteSockAddrLen);
+        int getSockName(typename SocketAddress::SockAddr& localSockAddr, SocketAddress::SockLen& localSockAddrLen);
+        int getPeerName(typename SocketAddress::SockAddr& remoteSockAddr, SocketAddress::SockLen& remoteSockAddrLen);
 
         const SocketAddress& getBindAddress() const;
 
     private:
-        int setSockopt(int level, int optname, const void* optval, socklen_t optlen) const;
-        int getSockopt(int level, int optname, void* optval, socklen_t* optlen) const;
+        int setSockopt(int level, int optname, const void* optval, SocketAddress::SockLen optlen) const;
+        int getSockopt(int level, int optname, void* optval, SocketAddress::SockLen* optlen) const;
 
     protected:
         SocketAddress bindAddress;

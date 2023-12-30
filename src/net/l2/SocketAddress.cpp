@@ -46,7 +46,7 @@ namespace net::l2 {
         setPsm(psm);
     }
 
-    SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
+    SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen)
         : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen) {
         psm = btohs(sockAddr.l2_psm);
 

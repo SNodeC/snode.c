@@ -54,7 +54,7 @@ namespace net::in6 {
         setPort(port);
     }
 
-    SocketAddress::SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen)
+    SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen)
         : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen)
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
         char host[NI_MAXHOST];
