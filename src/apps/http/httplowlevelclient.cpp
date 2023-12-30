@@ -24,7 +24,6 @@
 #include "log/Logger.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "net/in/stream/tls/SocketClient.h"
-#include "web/http/CookieOptions.h"
 #include "web/http/client/ResponseParser.h"
 
 #include <cstddef>
@@ -34,8 +33,11 @@
 #include <openssl/ssl.h> // IWYU pragma: keep
 #include <openssl/x509v3.h>
 #include <string>
-#include <utility>
 #include <vector>
+
+namespace web::http {
+    class CookieOptions;
+}
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <bits/utility.h>
@@ -56,16 +58,16 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
-        [](std::map<std::string, std::string>& headers, std::map<std::string, web::http::CookieOptions>& cookies) -> void {
+        [](const std::map<std::string, std::string>& headers, const std::map<std::string, web::http::CookieOptions>& cookies) -> void {
             VLOG(0) << "++   Headers:";
-            for (auto& [field, value] : headers) {
+            for (const auto& [field, value] : headers) {
                 VLOG(0) << "++       " << field + " = " + value;
             }
 
             VLOG(0) << "++   Cookies:";
-            for (auto& [name, cookie] : cookies) {
+            for (const auto& [name, cookie] : cookies) {
                 VLOG(0) << "++     " + name + " = " + cookie.getValue();
-                for (auto& [option, value] : cookie.getOptions()) {
+                for (const auto& [option, value] : cookie.getOptions()) {
                     VLOG(0) << "++       " + option + " = " + value;
                 }
             }
@@ -166,7 +168,7 @@ namespace tls {
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
-                    long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
+                    const long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
                     VLOG(0) << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
@@ -190,7 +192,7 @@ namespace tls {
 #endif
 #endif
 #endif
-                    int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
+                    const int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 #ifdef __GNUC_
 #pragma GCC diagnostic pop
 #endif
@@ -209,12 +211,12 @@ namespace tls {
 #pragma GCC diagnostic pop
 #endif
                         if (generalName->type == GEN_URI) {
-                            std::string subjectAltName =
+                            const std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
                             VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
                         } else if (generalName->type == GEN_DNS) {
-                            std::string subjectAltName =
+                            const std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
                             VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
@@ -249,7 +251,7 @@ namespace tls {
 
             });
 
-        SocketAddress remoteAddress("localhost", 8088);
+        const SocketAddress remoteAddress("localhost", 8088);
 
         tlsClient.connect(remoteAddress,
                           [instanceName = tlsClient.getConfig().getInstanceName()](
@@ -302,7 +304,7 @@ namespace legacy {
                 VLOG(0) << "\tClient: " << socketConnection->getLocalAddress().toString();
             });
 
-        SocketAddress remoteAddress("localhost", 8080);
+        const SocketAddress remoteAddress("localhost", 8080);
 
         legacyClient.connect(remoteAddress,
                              [instanceName = legacyClient.getConfig().getInstanceName()](
