@@ -51,15 +51,13 @@ namespace net::in {
 
         using Super::Super;
 
-        SocketAddress(const Hints& options = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0}); // cppcheck-suppress noExplicitConstructor
-        explicit SocketAddress(const std::string& ipOrHostname, const Hints& options = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0});
-        explicit SocketAddress(uint16_t port, const Hints& options = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0});
-        SocketAddress(const std::string& ipOrHostname, // cppcheck-suppress noExplicitConstructor // wrong positive
-                      uint16_t port,
-                      const Hints& options = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0});
+        SocketAddress();
+        explicit SocketAddress(const std::string& ipOrHostname);
+        explicit SocketAddress(uint16_t port);
+        SocketAddress(const std::string& ipOrHostname, uint16_t port);
         SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
 
-        SocketAddress& init();
+        SocketAddress& init(const Hints& hints = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0});
 
         bool useNext() override;
 
@@ -69,6 +67,8 @@ namespace net::in {
         SocketAddress& setPort(uint16_t port);
         uint16_t getPort() const;
 
+        std::string getCanonName() const;
+
         std::string toString() const override;
 
     private:
@@ -76,10 +76,6 @@ namespace net::in {
         uint16_t port = 0;
 
         std::string canonName;
-
-        int aiSockType = 0;
-        int aiProtocol = 0;
-        int aiFlags = 0;
 
         std::shared_ptr<SocketAddrInfo> socketAddrInfo;
     };

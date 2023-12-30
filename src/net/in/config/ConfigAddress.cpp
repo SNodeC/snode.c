@@ -24,7 +24,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/netdb.h"
 #include "utils/PreserveErrno.h"
 
 #include <cstdint>
@@ -37,9 +36,8 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
-        : Super(instance)
-        , aiFlags(AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL) { // AI_CANONIDN produces a still reachable memory leak
-        Super::add_option(hostOpt,                           //
+        : Super(instance) {
+        Super::add_option(hostOpt, //
                           "--host",
                           "Host name or IPv4 address",
                           "hostname|IPv4",
@@ -55,10 +53,8 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
-        return &(new SocketAddress(hostOpt->as<std::string>(),
-                                   portOpt->as<uint16_t>(),
-                                   {.aiFlags = aiFlags, .aiSockType = aiSockType, .aiProtocol = aiProtocol}))
-                    ->init();
+        return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
+                    ->init({.aiFlags = aiFlags, .aiSockType = aiSockType, .aiProtocol = aiProtocol});
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -105,7 +101,7 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
-        this->aiFlags = AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL | aiFlags;
+        this->aiFlags = aiFlags;
 
         return *this;
     }

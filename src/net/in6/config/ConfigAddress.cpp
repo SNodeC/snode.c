@@ -41,9 +41,8 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
-        : Super(instance)
-        , aiFlags(AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL) { // AI_CANONIDN produces a still reachable memory leak
-        Super::add_option(hostOpt,                           //
+        : Super(instance) {
+        Super::add_option(hostOpt, //
                           "--host",
                           "Host name or IPv6 address",
                           "hostname|IPv6",
@@ -65,13 +64,11 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
-        return &(new SocketAddress(hostOpt->as<std::string>(),
-                                   portOpt->as<uint16_t>(),
-                                   {.aiFlags = (aiFlags | (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0)) &
-                                               (!ipv4MappedOpt->as<bool>() ? ~AI_V4MAPPED : ~0),
-                                    .aiSockType = aiSockType,
-                                    .aiProtocol = aiProtocol}))
-                    ->init();
+        return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
+                    ->init({.aiFlags = (aiFlags | (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0)) &
+                                       (!ipv4MappedOpt->as<bool>() ? ~AI_V4MAPPED : ~0),
+                            .aiSockType = aiSockType,
+                            .aiProtocol = aiProtocol});
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -134,7 +131,7 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
-        this->aiFlags = AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL | aiFlags;
+        this->aiFlags = aiFlags;
 
         return *this;
     }

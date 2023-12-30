@@ -33,26 +33,23 @@
 
 namespace net::in {
 
-    SocketAddress::SocketAddress(const Hints& options)
+    SocketAddress::SocketAddress()
         : Super(AF_INET)
-        , aiSockType(options.aiSockType)
-        , aiProtocol(options.aiProtocol)
-        , aiFlags(options.aiFlags)
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
     }
 
-    SocketAddress::SocketAddress(const std::string& ipOrHostname, const Hints& options)
-        : SocketAddress(options) {
+    SocketAddress::SocketAddress(const std::string& ipOrHostname)
+        : SocketAddress() {
         setHost(ipOrHostname);
     }
 
-    SocketAddress::SocketAddress(uint16_t port, const Hints& options)
-        : SocketAddress(options) {
+    SocketAddress::SocketAddress(uint16_t port)
+        : SocketAddress() {
         setPort(port);
     }
 
-    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port, const Hints& options)
-        : SocketAddress(options) {
+    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port)
+        : SocketAddress() {
         setHost(ipOrHostname);
         setPort(port);
     }
@@ -88,17 +85,18 @@ namespace net::in {
         }
     }
 
-    SocketAddress& SocketAddress::init() {
-        addrinfo hints{};
+    SocketAddress& SocketAddress::init(const Hints& hints) {
+        addrinfo addrInfoHints{};
 
-        hints.ai_family = Super::getAddressFamily();
-        hints.ai_socktype = aiSockType;
-        hints.ai_protocol = aiProtocol;
-        hints.ai_flags = aiFlags;
+        addrInfoHints.ai_family = Super::getAddressFamily();
+        addrInfoHints.ai_flags =
+            hints.aiFlags | AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL; // AI_CANONIDN produces a still reachable memory leak
+        addrInfoHints.ai_socktype = hints.aiSockType;
+        addrInfoHints.ai_protocol = hints.aiProtocol;
 
         int aiErrCode = 0;
 
-        if ((aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), hints)) == 0) {
+        if ((aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), addrInfoHints)) == 0) {
             sockAddr = socketAddrInfo->getSockAddr();
             canonName = socketAddrInfo->getCanonName();
         } else {
@@ -139,6 +137,10 @@ namespace net::in {
 
     uint16_t SocketAddress::getPort() const {
         return port;
+    }
+
+    std::string SocketAddress::getCanonName() const {
+        return canonName;
     }
 
     std::string SocketAddress::toString() const {
