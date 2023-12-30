@@ -54,6 +54,8 @@ namespace net::un::config {
         SocketAddress* init() final;
 
     public:
+        using Super::init;
+
         ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
 
         ConfigAddress& setSunPath(const std::string& sunPath);

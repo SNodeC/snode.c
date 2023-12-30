@@ -138,9 +138,40 @@ namespace core::socket::stream {
                         onStatus(remoteAddress, core::socket::STATE_OK);
 
                         SocketConnection* socketConnection = nullptr;
+
+                        typename SocketAddress::SockAddr localSockAddr;
+                        typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+                        typename SocketAddress::SockAddr remoteSockAddr;
+                        typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+                        SocketAddress localPeerAddress;
+                        if (physicalClientSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
+                            try {
+                                localPeerAddress = config->Local::init(localSockAddr, localSockAddrLen);
+                            } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                                LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+
+                                localPeerAddress = config->ConfigAddressLocal::init(localSockAddr, localSockAddrLen);
+                            }
+                        }
+
+                        SocketAddress remotePeerAddress;
+                        if (physicalClientSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
+                            try {
+                                remotePeerAddress = config->Remote::init(localSockAddr, localSockAddrLen);
+                            } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                                LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+
+                                remotePeerAddress = config->ConfigAddressRemote::init(localSockAddr, localSockAddrLen);
+                            }
+                        }
+
                         socketConnection = new SocketConnection(config->getInstanceName(),
                                                                 std::move(physicalClientSocket),
                                                                 onDisconnect,
+                                                                localPeerAddress,
+                                                                remotePeerAddress,
                                                                 config->getReadTimeout(),
                                                                 config->getWriteTimeout(),
                                                                 config->getReadBlockSize(),
@@ -185,9 +216,40 @@ namespace core::socket::stream {
                 onStatus(remoteAddress, core::socket::STATE_OK);
 
                 SocketConnection* socketConnection = nullptr;
+
+                typename SocketAddress::SockAddr localSockAddr;
+                typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+                typename SocketAddress::SockAddr remoteSockAddr;
+                typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+                SocketAddress localPeerAddress;
+                if (physicalClientSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
+                    try {
+                        localPeerAddress = config->Local::init(localSockAddr, localSockAddrLen);
+                    } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                        LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+
+                        localPeerAddress = config->ConfigAddressLocal::init(localSockAddr, localSockAddrLen);
+                    }
+                }
+
+                SocketAddress remotePeerAddress;
+                if (physicalClientSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
+                    try {
+                        remotePeerAddress = config->Remote::init(localSockAddr, localSockAddrLen);
+                    } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                        LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+
+                        remotePeerAddress = config->ConfigAddressRemote::init(localSockAddr, localSockAddrLen);
+                    }
+                }
+
                 socketConnection = new SocketConnection(config->getInstanceName(),
                                                         std::move(physicalClientSocket),
                                                         onDisconnect,
+                                                        localPeerAddress,
+                                                        remotePeerAddress,
                                                         config->getReadTimeout(),
                                                         config->getWriteTimeout(),
                                                         config->getReadBlockSize(),

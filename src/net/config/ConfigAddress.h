@@ -45,10 +45,12 @@ namespace net::config {
         virtual ~ConfigAddress();
 
     public:
+        SocketAddress init(SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
+
         SocketAddress& getSocketAddress();
         void renew();
 
-    private:
+    protected:
         virtual SocketAddress* init() = 0;
 
         SocketAddress* socketAddress = nullptr;

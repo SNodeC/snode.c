@@ -34,6 +34,8 @@ namespace core::socket::stream {
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(const std::string& instanceName,
                                                                                      PhysicalSocket&& physicalSocket,
                                                                                      const std::function<void()>& onDisconnect,
+                                                                                     const SocketAddress& localPeerAddress,
+                                                                                     const SocketAddress& remotePeerAddress,
                                                                                      const utils::Timeval& readTimeout,
                                                                                      const utils::Timeval& writeTimeout,
                                                                                      std::size_t readBlockSize,
@@ -55,21 +57,9 @@ namespace core::socket::stream {
               writeBlockSize,
               terminateTimeout)
         , physicalSocket(std::move(physicalSocket))
-        , onDisconnect(onDisconnect) {
-        typename SocketAddress::SockAddr localSockAddr;
-        typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
-
-        typename SocketAddress::SockAddr remoteSockAddr;
-        typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
-
-        if (this->physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
-            localAddress = {localSockAddr, localSockAddrLen};
-        }
-
-        if (this->physicalSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
-            remoteAddress = {remoteSockAddr, remoteSockAddrLen};
-        }
-
+        , onDisconnect(onDisconnect)
+        , localAddress(localPeerAddress)
+        , remoteAddress(remotePeerAddress) {
         SocketReader::enable(this->physicalSocket.getFd());
         SocketWriter::enable(this->physicalSocket.getFd());
         SocketWriter::suspend();

@@ -43,6 +43,11 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
+    SocketAddress ConfigAddress<SocketAddress>::init(SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen) {
+        return SocketAddress(sockAddr, sockAddrLen);
+    }
+
+    template <typename SocketAddress>
     SocketAddress& ConfigAddress<SocketAddress>::getSocketAddress() {
         if (socketAddress == nullptr) {
             socketAddress = init();

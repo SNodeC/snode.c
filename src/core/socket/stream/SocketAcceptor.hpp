@@ -142,9 +142,40 @@ namespace core::socket::stream {
                            << "'";
 
                 SocketConnection* socketConnection = nullptr;
+
+                typename SocketAddress::SockAddr localSockAddr;
+                typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+                typename SocketAddress::SockAddr remoteSockAddr;
+                typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+                SocketAddress localPeerAddress;
+                if (connectedPhysicalServerSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
+                    try {
+                        localPeerAddress = config->Local::init(localSockAddr, localSockAddrLen);
+                    } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                        LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+
+                        localPeerAddress = config->ConfigAddressLocal::init(localSockAddr, localSockAddrLen);
+                    }
+                }
+
+                SocketAddress remotePeerAddress;
+                if (connectedPhysicalServerSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
+                    try {
+                        remotePeerAddress = config->Local::init(localSockAddr, localSockAddrLen);
+                    } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                        LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+
+                        remotePeerAddress = config->ConfigAddressLocal::init(localSockAddr, localSockAddrLen);
+                    }
+                }
+
                 socketConnection = new SocketConnection(config->getInstanceName(),
                                                         std::move(connectedPhysicalServerSocket),
                                                         onDisconnect,
+                                                        localPeerAddress,
+                                                        remotePeerAddress,
                                                         config->getReadTimeout(),
                                                         config->getWriteTimeout(),
                                                         config->getReadBlockSize(),

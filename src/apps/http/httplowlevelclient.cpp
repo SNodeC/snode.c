@@ -75,7 +75,7 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
         [](std::vector<uint8_t> content) -> void {
             content.push_back(0);
 
-            VLOG(0) << "++   OnContent: " << content.data();
+            VLOG(0) << "++   OnContent: "; // << content.data();
         },
         [](web::http::client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
@@ -304,7 +304,12 @@ namespace legacy {
                 VLOG(0) << "\tClient: " << socketConnection->getLocalAddress().toString();
             });
 
-        const SocketAddress remoteAddress("localhost", 8080);
+        SocketAddress remoteAddress("localhost", 8080);
+
+        remoteAddress.init();
+
+        VLOG(0) << "###############': " << remoteAddress.getCanonName();
+        VLOG(0) << "###############': " << remoteAddress.toString();
 
         legacyClient.connect(remoteAddress,
                              [instanceName = legacyClient.getConfig().getInstanceName()](

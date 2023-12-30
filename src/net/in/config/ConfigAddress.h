@@ -55,6 +55,8 @@ namespace net::in::config {
         SocketAddress* init() final;
 
     public:
+        SocketAddress init(SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
+
         ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
 
         ConfigAddress& setHost(const std::string& ipOrHostname);

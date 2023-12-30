@@ -55,6 +55,8 @@ namespace net::l2::config {
         SocketAddress* init() final;
 
     public:
+        using Super::init;
+
         ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
 
         ConfigAddress& setBtAddress(const std::string& btAddress);

@@ -26,6 +26,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 #include <cstring>
 
@@ -54,7 +56,7 @@ namespace net::in {
         setPort(port);
     }
 
-    SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen)
+    SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen, bool numeric)
         : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen)
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
         char host[NI_MAXHOST];
@@ -62,25 +64,15 @@ namespace net::in {
         std::memset(host, 0, NI_MAXHOST);
         std::memset(serv, 0, NI_MAXSERV);
 
-        int ret = 0;
+        const int aiErrCode = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr),
+                                                        sizeof(sockAddr),
+                                                        host,
+                                                        NI_MAXHOST,
+                                                        serv,
+                                                        NI_MAXSERV,
+                                                        NI_NUMERICSERV | (numeric ? NI_NUMERICHOST : NI_NAMEREQD));
 
-        if ((ret = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr),
-                                             sizeof(sockAddr),
-                                             host,
-                                             NI_MAXHOST,
-                                             serv,
-                                             NI_MAXSERV,
-                                             NI_NUMERICSERV | NI_NAMEREQD)) != 0) {
-            ret = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr),
-                                            sizeof(sockAddr),
-                                            host,
-                                            NI_MAXHOST,
-                                            serv,
-                                            NI_MAXSERV,
-                                            NI_NUMERICSERV | NI_NUMERICHOST);
-        }
-
-        if (ret == 0) {
+        if (aiErrCode == 0) {
             if (serv[0] != '\0') {
                 this->port = static_cast<uint16_t>(std::stoul(serv));
             }
@@ -88,7 +80,19 @@ namespace net::in {
             this->host = host;
             this->canonName = host;
         } else {
-            this->canonName = gai_strerror(ret);
+            core::socket::State state = core::socket::STATE_OK;
+            switch (aiErrCode) {
+                case EAI_AGAIN:
+                case EAI_MEMORY:
+                    state = core::socket::STATE_ERROR;
+                    break;
+                default:
+                    state = core::socket::STATE_FATAL;
+                    break;
+            }
+
+            throw core::socket::SocketAddress::BadSocketAddress(
+                state, aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode), aiErrCode == EAI_SYSTEM ? errno : aiErrCode);
         }
     }
 
@@ -101,9 +105,9 @@ namespace net::in {
         addrInfoHints.ai_socktype = hints.aiSockType;
         addrInfoHints.ai_protocol = hints.aiProtocol;
 
-        int aiErrCode = 0;
+        const int aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), addrInfoHints);
 
-        if ((aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), addrInfoHints)) == 0) {
+        if (aiErrCode == 0) {
             sockAddr = socketAddrInfo->getSockAddr();
             canonName = socketAddrInfo->getCanonName();
         } else {

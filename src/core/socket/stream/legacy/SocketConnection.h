@@ -49,6 +49,8 @@ namespace core::socket::stream::legacy {
         SocketConnection(const std::string& instanceName,
                          PhysicalSocket&& physicalSocket,
                          const std::function<void(SocketConnection*)>& onDisconnect,
+                         const SocketAddress& localPeerAddress,
+                         const SocketAddress& remotePeerAddress,
                          const utils::Timeval& readTimeout,
                          const utils::Timeval& writeTimeout,
                          std::size_t readBlockSize,
