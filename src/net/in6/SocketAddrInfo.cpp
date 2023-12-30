@@ -65,7 +65,7 @@ namespace net::in6 {
     }
 
     std::string SocketAddrInfo::getCanonName() {
-        return currentAddrInfo->ai_canonname;
+        return currentAddrInfo->ai_canonname != nullptr ? currentAddrInfo->ai_canonname : std::string{};
     }
 
     void SocketAddrInfo::logAddressInfo() {

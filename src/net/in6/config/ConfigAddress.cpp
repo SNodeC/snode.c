@@ -41,8 +41,9 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
-        : Super(instance) {
-        Super::add_option(hostOpt, //
+        : Super(instance)
+        , aiFlags(AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL) { // AI_CANONIDN produces a still reachable memory leak
+        Super::add_option(hostOpt,                           //
                           "--host",
                           "Host name or IPv6 address",
                           "hostname|IPv6",
@@ -66,10 +67,10 @@ namespace net::in6::config {
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
         return &(new SocketAddress(hostOpt->as<std::string>(),
                                    portOpt->as<uint16_t>(),
-                                   aiFlags | AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL |
-                                       (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0), // AI_CANONIDN produces a still reachable memory leak
-                                   aiSockType,
-                                   aiProtocol))
+                                   {.aiFlags = (aiFlags | (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0)) &
+                                               (!ipv4MappedOpt->as<bool>() ? ~AI_V4MAPPED : ~0),
+                                    .aiSockType = aiSockType,
+                                    .aiProtocol = aiProtocol}))
                     ->init();
     }
 
@@ -133,7 +134,7 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
-        this->aiFlags |= aiFlags;
+        this->aiFlags = AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL | aiFlags;
 
         return *this;
     }

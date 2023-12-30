@@ -43,11 +43,20 @@ namespace net::in6 {
         using Super = net::SocketAddress<sockaddr_in6>;
 
     public:
-        using net::SocketAddress<sockaddr_in6>::SocketAddress;
-        SocketAddress(int aiFlags = 0, int aiSockType = 0, int aiProtocol = 0); // cppcheck-suppress noExplicitConstructor
-        explicit SocketAddress(const std::string& ipOrHostname, int aiFlags = 0, int aiSockType = 0, int aiProtocol = 0);
-        explicit SocketAddress(uint16_t port, int aiFlags = 0, int aiSockType = 0, int aiProtocol = 0);
-        SocketAddress(const std::string& ipOrHostname, uint16_t port, int aiFlags = 0, int aiSockType = 0, int aiProtocol = 0);
+        struct Hints {
+            int aiFlags = 0;
+            int aiSockType = 0;
+            int aiProtocol = 0;
+        };
+
+        using Super::Super;
+
+        SocketAddress(const Hints& options = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0}); // cppcheck-suppress noExplicitConstructor
+        explicit SocketAddress(const std::string& ipOrHostname, const Hints& options = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0});
+        explicit SocketAddress(uint16_t port, const Hints& options = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0});
+        SocketAddress(const std::string& ipOrHostname, // cppcheck-suppress noExplicitConstructor // wrong positive
+                      uint16_t port,
+                      const Hints& options = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0});
         SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
 
         SocketAddress& init();
@@ -63,7 +72,7 @@ namespace net::in6 {
         std::string toString() const override;
 
     private:
-        std::string host = "0.0.0.0";
+        std::string host = "::";
         uint16_t port = 0;
 
         std::string canonName;

@@ -33,26 +33,26 @@
 
 namespace net::in6 {
 
-    SocketAddress::SocketAddress(int aiFlags, int aiSockType, int aiProtocol)
+    SocketAddress::SocketAddress(const Hints& options)
         : Super(AF_INET6)
-        , aiSockType(aiSockType)
-        , aiProtocol(aiProtocol)
-        , aiFlags(aiFlags)
+        , aiSockType(options.aiSockType)
+        , aiProtocol(options.aiProtocol)
+        , aiFlags(options.aiFlags)
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
     }
 
-    SocketAddress::SocketAddress(const std::string& ipOrHostname, int aiFlags, int aiSockType, int aiProtocol)
-        : SocketAddress(aiFlags, aiSockType, aiProtocol) {
+    SocketAddress::SocketAddress(const std::string& ipOrHostname, const Hints& options)
+        : SocketAddress(options) {
         setHost(ipOrHostname);
     }
 
-    SocketAddress::SocketAddress(uint16_t port, int aiFlags, int aiSockType, int aiProtocol)
-        : SocketAddress(aiFlags, aiSockType, aiProtocol) {
+    SocketAddress::SocketAddress(uint16_t port, const Hints& options)
+        : SocketAddress(options) {
         setPort(port);
     }
 
-    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port, int aiFlags, int aiSockType, int aiProtocol)
-        : SocketAddress(aiFlags, aiSockType, aiProtocol) {
+    SocketAddress::SocketAddress(const std::string& ipOrHostname, uint16_t port, const Hints& options)
+        : SocketAddress(options) {
         setHost(ipOrHostname);
         setPort(port);
     }

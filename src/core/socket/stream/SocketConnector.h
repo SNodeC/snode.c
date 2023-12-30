@@ -44,7 +44,6 @@ namespace core::socket::stream {
         using SocketAddress = typename PhysicalClientSocket::SocketAddress;
         using SocketConnection = SocketConnectionT<PhysicalClientSocket>;
 
-    private:
     public:
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;

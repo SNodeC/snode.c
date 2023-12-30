@@ -39,7 +39,7 @@ namespace net::l2 {
         using Super = net::SocketAddress<sockaddr_l2>;
 
     public:
-        using net::SocketAddress<sockaddr_l2>::SocketAddress;
+        using Super::Super;
 
         SocketAddress();
         explicit SocketAddress(const std::string& btAddress);
