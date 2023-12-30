@@ -17,6 +17,7 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -126,7 +127,18 @@ Test getTest(int a, int b) {
     return Test(a, b);
 }
 
+static void test(uint32_t uintValue) {
+    std::cout << "Test UINT32_t: " << uintValue << std::endl;
+}
+
+static void test(int intValue) {
+    std::cout << "Test INT: " << intValue << std::endl;
+}
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
+    test(8080);
+    test(8080U);
+
     Test test1(5, 6);
     test1.print("Test test1(5, 6)");
 
