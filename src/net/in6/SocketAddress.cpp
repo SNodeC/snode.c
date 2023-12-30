@@ -62,26 +62,33 @@ namespace net::in6 {
         std::memset(host, 0, NI_MAXHOST);
         std::memset(serv, 0, NI_MAXSERV);
 
-        int ret = core::system::getnameinfo(
-            reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, NI_MAXSERV, NI_NUMERICSERV);
+        int ret = 0;
 
-        if (ret == 0) {
-            ret = core::system::getnameinfo(
-                reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NAMEREQD);
-        }
-        if (ret != 0) {
-            ret = core::system::getnameinfo(
-                reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
+        if ((ret = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr),
+                                             sizeof(sockAddr),
+                                             host,
+                                             NI_MAXHOST,
+                                             serv,
+                                             NI_MAXSERV,
+                                             NI_NUMERICSERV | NI_NAMEREQD)) != 0) {
+            ret = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr),
+                                            sizeof(sockAddr),
+                                            host,
+                                            NI_MAXHOST,
+                                            serv,
+                                            NI_MAXSERV,
+                                            NI_NUMERICSERV | NI_NUMERICHOST);
         }
 
         if (ret == 0) {
             if (serv[0] != '\0') {
                 this->port = static_cast<uint16_t>(std::stoul(serv));
             }
+
             this->host = host;
             this->canonName = host;
         } else {
-            this->host = gai_strerror(ret);
+            this->canonName = gai_strerror(ret);
         }
     }
 

@@ -34,6 +34,7 @@ namespace net {
     class SocketAddress : public core::socket::SocketAddress {
     public:
         using SockAddr = SockAddrT;
+        using SockLen = socklen_t;
 
         explicit SocketAddress(sa_family_t af, socklen_t sockAddrLen = sizeof(SockAddr));
 

@@ -49,13 +49,11 @@ namespace net::in6 {
             int aiProtocol = 0;
         };
 
-        using Super::Super;
-
         SocketAddress();
         explicit SocketAddress(const std::string& ipOrHostname);
         explicit SocketAddress(uint16_t port);
         SocketAddress(const std::string& ipOrHostname, uint16_t port);
-        SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+        SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen);
 
         SocketAddress& init(const Hints& hints = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0});
 

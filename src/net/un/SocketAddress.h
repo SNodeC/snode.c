@@ -37,11 +37,9 @@ namespace net::un {
         using Super = net::SocketAddress<sockaddr_un>;
 
     public:
-        using Super::Super;
-
         SocketAddress();
         explicit SocketAddress(const std::string& sunPath);
-        SocketAddress(const SocketAddress::SockAddr& sockAddr, socklen_t sockAddrLen);
+        SocketAddress(const SockAddr& sockAddr, socklen_t sockAddrLen);
 
         SocketAddress& init();
 

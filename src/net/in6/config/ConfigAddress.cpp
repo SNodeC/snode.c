@@ -54,6 +54,12 @@ namespace net::in6::config {
                           "port",
                           0,
                           CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
+        Super::add_flag(numericOpt, //
+                        "--numeric",
+                        "Suppress host name lookup",
+                        "bool",
+                        XSTR(IPV4_NUMERIC),
+                        CLI::IsMember({"true", "false"}));
         Super::add_flag(ipv4MappedOpt, //
                         "--ipv4-mapped",
                         "Resolve IPv4-mapped IPv6 addresses also",
@@ -65,8 +71,8 @@ namespace net::in6::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
         return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
-                    ->init({.aiFlags = (aiFlags | (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0)) &
-                                       (!ipv4MappedOpt->as<bool>() ? ~AI_V4MAPPED : ~0),
+                    ->init({.aiFlags = (aiFlags & ~AI_V4MAPPED & ~AI_NUMERICHOST) | (ipv4MappedOpt->as<bool>() ? AI_V4MAPPED : 0) |
+                                       (numericOpt->as<bool>() ? AI_NUMERICHOST : 0),
                             .aiSockType = aiSockType,
                             .aiProtocol = aiProtocol});
     }

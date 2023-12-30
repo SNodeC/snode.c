@@ -82,6 +82,7 @@ namespace net::in6::config {
     private:
         CLI::Option* hostOpt = nullptr;
         CLI::Option* portOpt = nullptr;
+        CLI::Option* numericOpt = nullptr;
         CLI::Option* ipv4MappedOpt = nullptr;
 
         int aiFlags = 0;

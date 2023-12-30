@@ -79,6 +79,7 @@ namespace net::in::config {
     private:
         CLI::Option* hostOpt = nullptr;
         CLI::Option* portOpt = nullptr;
+        CLI::Option* numericOpt = nullptr;
 
         int aiFlags = 0;
         int aiSockType = 0;

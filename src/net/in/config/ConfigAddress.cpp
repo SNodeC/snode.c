@@ -24,13 +24,18 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/netdb.h"
 #include "utils/PreserveErrno.h"
 
 #include <cstdint>
 #include <limits>
+#include <stdexcept>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#define XSTR(s) STR(s)
+#define STR(s) #s
 
 namespace net::in::config {
 
@@ -49,12 +54,20 @@ namespace net::in::config {
                           "port",
                           0,
                           CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
+        Super::add_flag(numericOpt, //
+                        "--numeric",
+                        "Suppress host name lookup",
+                        "bool",
+                        XSTR(IPV4_NUMERIC),
+                        CLI::IsMember({"true", "false"}));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
         return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
-                    ->init({.aiFlags = aiFlags, .aiSockType = aiSockType, .aiProtocol = aiProtocol});
+                    ->init({.aiFlags = (aiFlags & ~AI_V4MAPPED & ~AI_NUMERICHOST) | (numericOpt->as<bool>() ? AI_NUMERICHOST : 0),
+                            .aiSockType = aiSockType,
+                            .aiProtocol = aiProtocol});
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
