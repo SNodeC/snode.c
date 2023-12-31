@@ -54,7 +54,7 @@ namespace net::in6 {
         setPort(port);
     }
 
-    SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen)
+    SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen, bool numeric)
         : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen)
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
         char host[NI_MAXHOST];
@@ -62,25 +62,15 @@ namespace net::in6 {
         std::memset(host, 0, NI_MAXHOST);
         std::memset(serv, 0, NI_MAXSERV);
 
-        int ret = 0;
+        const int aiErrCode = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr),
+                                                        sizeof(sockAddr),
+                                                        host,
+                                                        NI_MAXHOST,
+                                                        serv,
+                                                        NI_MAXSERV,
+                                                        NI_NUMERICSERV | (numeric ? NI_NUMERICHOST : NI_NAMEREQD));
 
-        if ((ret = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr),
-                                             sizeof(sockAddr),
-                                             host,
-                                             NI_MAXHOST,
-                                             serv,
-                                             NI_MAXSERV,
-                                             NI_NUMERICSERV | NI_NAMEREQD)) != 0) {
-            ret = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr),
-                                            sizeof(sockAddr),
-                                            host,
-                                            NI_MAXHOST,
-                                            serv,
-                                            NI_MAXSERV,
-                                            NI_NUMERICSERV | NI_NUMERICHOST);
-        }
-
-        if (ret == 0) {
+        if (aiErrCode == 0) {
             if (serv[0] != '\0') {
                 this->port = static_cast<uint16_t>(std::stoul(serv));
             }
@@ -88,7 +78,19 @@ namespace net::in6 {
             this->host = host;
             this->canonName = host;
         } else {
-            this->canonName = gai_strerror(ret);
+            core::socket::State state = core::socket::STATE_OK;
+            switch (aiErrCode) {
+                case EAI_AGAIN:
+                case EAI_MEMORY:
+                    state = core::socket::STATE_ERROR;
+                    break;
+                default:
+                    state = core::socket::STATE_FATAL;
+                    break;
+            }
+
+            throw core::socket::SocketAddress::BadSocketAddress(
+                state, aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode), aiErrCode == EAI_SYSTEM ? errno : aiErrCode);
         }
     }
 
@@ -97,7 +99,7 @@ namespace net::in6 {
 
         addrInfoHints.ai_family = Super::getAddressFamily();
         addrInfoHints.ai_flags =
-            hints.aiFlags | AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL; // AI_CANONIDN produces a still reachable memory leak
+            hints.aiFlags | AI_ADDRCONFIG | AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL; // AI_CANONIDN produces a still reachable memory leak
         addrInfoHints.ai_socktype = hints.aiSockType;
         addrInfoHints.ai_protocol = hints.aiProtocol;
 

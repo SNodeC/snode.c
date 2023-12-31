@@ -78,6 +78,12 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
+    SocketAddress ConfigAddress<ConfigAddressType>::newSocketAddress(SocketAddress::SockAddr& sockAddr,
+                                                                     SocketAddress::SockLen sockAddrLen) {
+        return SocketAddress(sockAddr, sockAddrLen, numericOpt->as<bool>());
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
         setHost(socketAddress.getHost());
         setPort(socketAddress.getPort());

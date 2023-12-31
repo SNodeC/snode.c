@@ -148,22 +148,22 @@ namespace core::socket::stream {
                         SocketAddress localPeerAddress;
                         if (physicalClientSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
                             try {
-                                localPeerAddress = config->Local::init(localSockAddr, localSockAddrLen);
+                                localPeerAddress = config->Local::newSocketAddress(localSockAddr, localSockAddrLen);
                             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                                 LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                                localPeerAddress = config->ConfigAddressLocal::init(localSockAddr, localSockAddrLen);
+                                localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
                             }
                         }
 
                         SocketAddress remotePeerAddress;
                         if (physicalClientSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
                             try {
-                                remotePeerAddress = config->Remote::init(localSockAddr, localSockAddrLen);
+                                remotePeerAddress = config->Remote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
                             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                                 LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                                remotePeerAddress = config->ConfigAddressRemote::init(localSockAddr, localSockAddrLen);
+                                remotePeerAddress = config->ConfigAddressRemote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
                             }
                         }
 
@@ -226,22 +226,22 @@ namespace core::socket::stream {
                 SocketAddress localPeerAddress;
                 if (physicalClientSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
                     try {
-                        localPeerAddress = config->Local::init(localSockAddr, localSockAddrLen);
+                        localPeerAddress = config->Local::newSocketAddress(localSockAddr, localSockAddrLen);
                     } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                         LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                        localPeerAddress = config->ConfigAddressLocal::init(localSockAddr, localSockAddrLen);
+                        localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
                     }
                 }
 
                 SocketAddress remotePeerAddress;
                 if (physicalClientSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
                     try {
-                        remotePeerAddress = config->Remote::init(localSockAddr, localSockAddrLen);
+                        remotePeerAddress = config->Remote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
                     } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                         LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                        remotePeerAddress = config->ConfigAddressRemote::init(localSockAddr, localSockAddrLen);
+                        remotePeerAddress = config->ConfigAddressRemote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
                     }
                 }
 

@@ -65,13 +65,14 @@ namespace net::in::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
         return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
-                    ->init({.aiFlags = (aiFlags & ~AI_V4MAPPED & ~AI_NUMERICHOST) | (numericOpt->as<bool>() ? AI_NUMERICHOST : 0),
+                    ->init({.aiFlags = (aiFlags & ~AI_NUMERICHOST) | (numericOpt->as<bool>() ? AI_NUMERICHOST : 0),
                             .aiSockType = aiSockType,
                             .aiProtocol = aiProtocol});
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::init(SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen) {
+    SocketAddress ConfigAddress<ConfigAddressType>::newSocketAddress(SocketAddress::SockAddr& sockAddr,
+                                                                     SocketAddress::SockLen sockAddrLen) {
         return SocketAddress(sockAddr, sockAddrLen, numericOpt->as<bool>());
     }
 

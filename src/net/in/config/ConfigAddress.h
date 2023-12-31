@@ -55,7 +55,7 @@ namespace net::in::config {
         SocketAddress* init() final;
 
     public:
-        SocketAddress init(SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
+        SocketAddress newSocketAddress(SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
         ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
 

@@ -152,22 +152,22 @@ namespace core::socket::stream {
                 SocketAddress localPeerAddress;
                 if (connectedPhysicalServerSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
                     try {
-                        localPeerAddress = config->Local::init(localSockAddr, localSockAddrLen);
+                        localPeerAddress = config->Local::newSocketAddress(localSockAddr, localSockAddrLen);
                     } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                         LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                        localPeerAddress = config->ConfigAddressLocal::init(localSockAddr, localSockAddrLen);
+                        localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
                     }
                 }
 
                 SocketAddress remotePeerAddress;
                 if (connectedPhysicalServerSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
                     try {
-                        remotePeerAddress = config->Local::init(localSockAddr, localSockAddrLen);
+                        remotePeerAddress = config->Local::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
                     } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                         LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                        remotePeerAddress = config->ConfigAddressLocal::init(localSockAddr, localSockAddrLen);
+                        remotePeerAddress = config->ConfigAddressLocal::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
                     }
                 }
 
