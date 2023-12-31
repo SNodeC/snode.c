@@ -58,7 +58,7 @@ namespace net::in6::config {
                         "--numeric",
                         "Suppress host name lookup",
                         "bool",
-                        XSTR(IPV4_NUMERIC),
+                        XSTR(IPV6_NUMERIC),
                         CLI::IsMember({"true", "false"}));
         Super::add_flag(ipv4MappedOpt, //
                         "--ipv4-mapped",
@@ -78,7 +78,7 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::newSocketAddress(SocketAddress::SockAddr& sockAddr,
+    SocketAddress ConfigAddress<ConfigAddressType>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
                                                                      SocketAddress::SockLen sockAddrLen) {
         return SocketAddress(sockAddr, sockAddrLen, numericOpt->as<bool>());
     }

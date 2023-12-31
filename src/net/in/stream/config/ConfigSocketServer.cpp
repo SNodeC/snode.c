@@ -18,6 +18,7 @@
 
 #include "net/in/stream/config/ConfigSocketServer.h"
 
+#include "net/config/ConfigInstance.h"
 #include "net/config/stream/ConfigSocketServer.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -67,9 +68,21 @@ namespace net::in::stream::config {
                                                              "bool",
                                                              XSTR(REUSE_PORT),
                                                              CLI::IsMember({"true", "false"}));
+
+        CLI::App* app = instance->add_section("remote", "Remote side of connection for instance '" + instance->getInstanceName() + "'");
+        numericReverseOpt = app->add_flag("--numeric-reverse", "Suppress reverse host name lookup")
+                                ->type_name("bool")
+                                ->default_val(XSTR(IPV4_NUMERIC_REVERSE))
+                                ->take_last()
+                                ->group(app->get_formatter()->get_label("Persistent Options"))
+                                ->check(CLI::IsMember({"true", "false"}));
     }
 
     ConfigSocketServer::~ConfigSocketServer() {
+    }
+
+    SocketAddress ConfigSocketServer::newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen) {
+        return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
     }
 
     void ConfigSocketServer::setReusePort(bool reusePort) {
@@ -87,6 +100,18 @@ namespace net::in::stream::config {
 
     bool ConfigSocketServer::getReusePort() const {
         return reusePortOpt->as<bool>();
+    }
+
+    ConfigSocketServer& ConfigSocketServer::setNumericReverse(bool numeric) {
+        numericReverseOpt //
+            ->default_val(numeric)
+            ->clear();
+
+        return *this;
+    }
+
+    bool ConfigSocketServer::getNumericReverse() const {
+        return numericReverseOpt->as<bool>();
     }
 
 } // namespace net::in::stream::config

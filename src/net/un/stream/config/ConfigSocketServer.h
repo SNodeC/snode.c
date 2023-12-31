@@ -34,6 +34,8 @@ namespace net::un::stream::config {
 
     class ConfigSocketServer : public net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress> {
     public:
+        using Remote = ConfigSocketServer;
+
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
         ~ConfigSocketServer() override;

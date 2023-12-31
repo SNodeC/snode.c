@@ -60,6 +60,13 @@ namespace net::in::config {
                         "bool",
                         XSTR(IPV4_NUMERIC),
                         CLI::IsMember({"true", "false"}));
+
+        Super::add_flag(numericReverseOpt,
+                        "--numeric-reverse",
+                        "Suppress reverse host name lookup",
+                        "bool",
+                        XSTR(IPV4_NUMERIC_REVERSE),
+                        CLI::IsMember({"true", "false"}));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -71,9 +78,9 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::newSocketAddress(SocketAddress::SockAddr& sockAddr,
+    SocketAddress ConfigAddress<ConfigAddressType>::newSocketAddress(const SocketAddress::SockAddr &sockAddr,
                                                                      SocketAddress::SockLen sockAddrLen) {
-        return SocketAddress(sockAddr, sockAddrLen, numericOpt->as<bool>());
+        return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -116,6 +123,36 @@ namespace net::in::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     uint16_t ConfigAddress<ConfigAddressType>::getPort() const {
         return portOpt->as<uint16_t>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setNumeric(bool numeric) {
+        const utils::PreserveErrno preserveErrno;
+
+        numericOpt //
+            ->default_val(numeric)
+            ->clear();
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    bool ConfigAddress<ConfigAddressType>::getNumeric() const {
+        return numericOpt->as<bool>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setNumericReverse(bool numeric) {
+        numericReverseOpt //
+            ->default_val(numeric)
+            ->clear();
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    bool ConfigAddress<ConfigAddressType>::getNumericReverse() const {
+        return numericReverseOpt->as<bool>();
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

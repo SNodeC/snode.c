@@ -43,7 +43,8 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
-    SocketAddress ConfigAddress<SocketAddress>::newSocketAddress(SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen) {
+    SocketAddress ConfigAddress<SocketAddress>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
+                                                                 SocketAddress::SockLen sockAddrLen) {
         return SocketAddress(sockAddr, sockAddrLen);
     }
 

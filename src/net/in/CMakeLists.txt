@@ -25,6 +25,11 @@ append_source_file_config(
     true
 )
 
+append_source_file_config(
+    config/ConfigAddress.cpp IPV4_NUMERIC_REVERSE "Suppress host name lookup" false
+    true
+)
+
 add_library(net-in SHARED ${NET-IN_CPP} ${NET-IN_H})
 add_library(snodec::net-in ALIAS net-in)
 

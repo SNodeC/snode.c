@@ -152,7 +152,12 @@ namespace core::socket::stream {
                             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                                 LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                                localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
+                                try {
+                                    localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
+                                } catch (
+                                    const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                                    LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                                }
                             }
                         }
 
@@ -163,7 +168,12 @@ namespace core::socket::stream {
                             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                                 LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                                remotePeerAddress = config->ConfigAddressRemote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
+                                try {
+                                    remotePeerAddress = config->ConfigAddressRemote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
+                                } catch (
+                                    const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                                    LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                                }
                             }
                         }
 
@@ -230,7 +240,11 @@ namespace core::socket::stream {
                     } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                         LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                        localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
+                        try {
+                            localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
+                        } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                            LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                        }
                     }
                 }
 
@@ -241,7 +255,11 @@ namespace core::socket::stream {
                     } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                         LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                        remotePeerAddress = config->ConfigAddressRemote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
+                        try {
+                            remotePeerAddress = config->ConfigAddressRemote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
+                        } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                            LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                        }
                     }
                 }
 

@@ -21,6 +21,11 @@ set(NET-IN6_CPP SocketAddress.cpp SocketAddrInfo.cpp config/ConfigAddress.cpp)
 set(NET-IN6_H SocketAddress.h SocketAddrInfo.h config/ConfigAddress.h)
 
 append_source_file_config(
+    config/ConfigAddress.cpp IPV6_NUMERIC "Suppress host name lookup" false
+    true
+)
+
+append_source_file_config(
     config/ConfigAddress.cpp IPV4_MAPPED "IPv4-mapped IPv6 addresses" false
     true
 )

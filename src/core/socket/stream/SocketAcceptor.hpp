@@ -156,18 +156,25 @@ namespace core::socket::stream {
                     } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                         LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
 
-                        localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
+                        try {
+                            localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
+                        } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                            LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                        }
                     }
                 }
 
                 SocketAddress remotePeerAddress;
                 if (connectedPhysicalServerSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
                     try {
-                        remotePeerAddress = config->Local::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
+                        remotePeerAddress = config->Remote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
                     } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                         LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
-
-                        remotePeerAddress = config->ConfigAddressLocal::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
+                        try {
+                            remotePeerAddress = config->ConfigAddressLocal::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
+                        } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                            LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                        }
                     }
                 }
 

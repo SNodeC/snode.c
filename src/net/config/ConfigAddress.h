@@ -37,6 +37,7 @@ namespace net::config {
 
     template <typename SocketAddressT>
     class ConfigAddress : protected ConfigSection {
+    public:
         using SocketAddress = SocketAddressT;
 
     protected:
@@ -45,7 +46,7 @@ namespace net::config {
         virtual ~ConfigAddress();
 
     public:
-        SocketAddress newSocketAddress(SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
+        SocketAddress newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
         SocketAddress& getSocketAddress();
         void renew();

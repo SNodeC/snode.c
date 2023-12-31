@@ -38,6 +38,8 @@ namespace net::in6::stream::config {
 
     class ConfigSocketServer : public net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress> {
     public:
+        using Remote = ConfigSocketServer;
+
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
         ~ConfigSocketServer() override;

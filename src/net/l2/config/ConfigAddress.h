@@ -45,10 +45,9 @@ namespace net::l2::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress : public ConfigAddressTypeT<net::l2::SocketAddress> {
-        using SocketAddress = net::l2::SocketAddress;
+    public:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
-    public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
     private:

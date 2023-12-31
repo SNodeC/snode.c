@@ -45,10 +45,9 @@ namespace net::rc::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress : public ConfigAddressTypeT<net::rc::SocketAddress> {
-        using SocketAddress = net::rc::SocketAddress;
+    public:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
-    public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
     private:

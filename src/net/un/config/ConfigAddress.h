@@ -44,10 +44,9 @@ namespace net::un::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress : public ConfigAddressTypeT<net::un::SocketAddress> {
-        using SocketAddress = net::un::SocketAddress;
+    public:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
-    public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
     private:

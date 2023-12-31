@@ -45,17 +45,16 @@ namespace net::in::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress : public ConfigAddressTypeT<net::in::SocketAddress> {
-        using SocketAddress = net::in::SocketAddress;
+    public:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
-    public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
     private:
         SocketAddress* init() final;
 
     public:
-        SocketAddress newSocketAddress(SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
+        SocketAddress newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
         ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
 
@@ -64,6 +63,12 @@ namespace net::in::config {
 
         ConfigAddress& setPort(uint16_t port);
         uint16_t getPort() const;
+
+        ConfigAddress& setNumeric(bool numeric = true);
+        bool getNumeric() const;
+
+        ConfigAddress& setNumericReverse(bool numeric = true);
+        bool getNumericReverse() const;
 
     protected:
         ConfigAddress& setAiFlags(int aiFlags);
@@ -82,6 +87,7 @@ namespace net::in::config {
         CLI::Option* hostOpt = nullptr;
         CLI::Option* portOpt = nullptr;
         CLI::Option* numericOpt = nullptr;
+        CLI::Option* numericReverseOpt = nullptr;
 
         int aiFlags = 0;
         int aiSockType = 0;

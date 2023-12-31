@@ -33,6 +33,7 @@ namespace net::config {
 
     template <typename SocketAddressT>
     class ConfigAddressRemote : public net::config::ConfigAddress<SocketAddressT> {
+    public:
         using Super = net::config::ConfigAddress<SocketAddressT>;
 
     protected:

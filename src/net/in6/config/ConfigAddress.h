@@ -45,17 +45,16 @@ namespace net::in6::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress : public ConfigAddressTypeT<net::in6::SocketAddress> {
-        using SocketAddress = net::in6::SocketAddress;
+    public:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
-    public:
         explicit ConfigAddress(net::config::ConfigInstance* instance);
 
     private:
         SocketAddress* init() final;
 
     public:
-        SocketAddress newSocketAddress(SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
+        SocketAddress newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
         ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
 

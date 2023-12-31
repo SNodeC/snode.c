@@ -24,6 +24,12 @@ set(NET-IN-STREAM_H SocketClient.h SocketServer.h config/ConfigSocketClient.h
                     config/ConfigSocketServer.h
 )
 
+
+append_source_file_config(
+    config/ConfigSocketServer.cpp IPV4_NUMERIC_REVERSE "Suppress reverse host name lookup" false
+    true
+)
+
 append_source_file_config(
     config/ConfigSocketServer.cpp REUSE_PORT "Reuse port (IPv4/IPv6)" false
     true
