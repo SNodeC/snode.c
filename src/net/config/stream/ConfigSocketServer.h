@@ -20,6 +20,7 @@
 #define NET_CONFIG_STREAM_CONFIGSOCKETSERVER_H
 
 #include "net/config/ConfigAddressLocal.h"         // IWYU pragma: export
+#include "net/config/ConfigAddressRemote.h"        // IWYU pragma: export
 #include "net/config/ConfigConnection.h"           // IWYU pragma: export
 #include "net/config/ConfigListen.h"               // IWYU pragma: export
 #include "net/config/ConfigPhysicalSocketServer.h" // IWYU pragma: export
@@ -30,14 +31,18 @@
 
 namespace net::config::stream {
 
-    template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressT>
+    template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressLocalT,
+              template <template <typename SocketAddress> typename ConfigAddressTypeT>
+              typename ConfigAddressRemoteT>
     class ConfigSocketServer
-        : public ConfigAddressT<net::config::ConfigAddressLocal>
+        : public ConfigAddressLocalT<net::config::ConfigAddressLocal>
+        , public ConfigAddressRemoteT<net::config::ConfigAddressBase>
         , public net::config::ConfigConnection
         , public net::config::ConfigPhysicalSocketServer
         , public net::config::ConfigListen {
     public:
-        using Local = ConfigAddressT<net::config::ConfigAddressLocal>;
+        using Local = ConfigAddressLocalT<net::config::ConfigAddressLocal>;
+        using Remote = ConfigAddressRemoteT<net::config::ConfigAddressBase>;
 
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
     };

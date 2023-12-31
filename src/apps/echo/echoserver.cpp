@@ -54,7 +54,6 @@ int main(int argc, char* argv[]) {
 
     server.listen([instanceName = server.getConfig().getInstanceName()](const SocketServer::SocketAddress& socketAddress,
                                                                         const core::socket::State& state) -> void {
-        VLOG(1) << "AddressFamily: " << socketAddress.getAddressFamily();
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";

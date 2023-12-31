@@ -81,14 +81,16 @@ namespace net::config {
                                   ->configurable(false)
                                   ->allow_extras(false)
                                   ->group("Sections")
-                                  ->disabled(this->instanceName.empty());
+                                  ->disabled(this->instanceName.empty() || name.empty());
 
         sectionSc //
             ->option_defaults()
-            ->configurable(!this->instanceName.empty());
+            ->configurable(!sectionSc->get_disabled());
 
-        utils::Config::add_standard_flags(sectionSc);
-        utils::Config::add_help_flag(sectionSc);
+        if (!sectionSc->get_disabled()) {
+            utils::Config::add_standard_flags(sectionSc);
+            utils::Config::add_help_flag(sectionSc);
+        }
 
         return sectionSc;
     }

@@ -40,6 +40,37 @@
 namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddressBase<ConfigAddressType>::ConfigAddressBase(net::config::ConfigInstance* instance)
+        : Super(instance, "remote", "Remote side of connection for instance '" + instance->getInstanceName() + "'") {
+        Super::add_flag(numericReverseOpt,
+                        "--numeric-reverse",
+                        "Suppress reverse host name lookup",
+                        "bool",
+                        XSTR(IPV4_NUMERIC_REVERSE),
+                        CLI::IsMember({"true", "false"}));
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddressBase<ConfigAddressType>& ConfigAddressBase<ConfigAddressType>::setNumericReverse(bool numeric) {
+        numericReverseOpt //
+            ->default_val(numeric)
+            ->clear();
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    bool ConfigAddressBase<ConfigAddressType>::getNumericReverse() const {
+        return numericReverseOpt->as<bool>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    SocketAddress ConfigAddressBase<ConfigAddressType>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
+                                                                         SocketAddress::SockLen sockAddrLen) {
+        return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
         : Super(instance) {
         Super::add_option(hostOpt, //
@@ -60,7 +91,6 @@ namespace net::in::config {
                         "bool",
                         XSTR(IPV4_NUMERIC),
                         CLI::IsMember({"true", "false"}));
-
         Super::add_flag(numericReverseOpt,
                         "--numeric-reverse",
                         "Suppress reverse host name lookup",
@@ -78,7 +108,7 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::newSocketAddress(const SocketAddress::SockAddr &sockAddr,
+    SocketAddress ConfigAddress<ConfigAddressType>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
                                                                      SocketAddress::SockLen sockAddrLen) {
         return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
     }
@@ -207,8 +237,10 @@ namespace net::in::config {
 
 } // namespace net::in::config
 
+template class net::config::ConfigAddressBase<net::in::SocketAddress>;
 template class net::config::ConfigAddress<net::in::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::in::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::in::SocketAddress>;
 template class net::in::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::in::config::ConfigAddress<net::config::ConfigAddressRemote>;
+template class net::in::config::ConfigAddressBase<net::config::ConfigAddressBase>;

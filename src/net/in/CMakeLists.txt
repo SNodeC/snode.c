@@ -26,7 +26,7 @@ append_source_file_config(
 )
 
 append_source_file_config(
-    config/ConfigAddress.cpp IPV4_NUMERIC_REVERSE "Suppress host name lookup" false
+    config/ConfigAddress.cpp IPV4_NUMERIC_REVERSE "Suppress reverse host name lookup" false
     true
 )
 

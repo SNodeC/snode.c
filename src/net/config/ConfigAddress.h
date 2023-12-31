@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGADDRESS_H
 #define NET_CONFIG_CONFIGADDRESS_H
 
-#include "net/config/ConfigSection.h" // IWYU pragma: export
+#include "net/config/ConfigAddressBase.h" // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;
@@ -36,18 +36,17 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddress : protected ConfigSection {
+    class ConfigAddress : public ConfigAddressBase<SocketAddressT> {
     public:
+        using Super = ConfigAddressBase<SocketAddressT>;
         using SocketAddress = SocketAddressT;
 
     protected:
         ConfigAddress(ConfigInstance* instance, const std::string& addressOptionName, const std::string& addressOptionDescription);
 
-        virtual ~ConfigAddress();
+        ~ConfigAddress() override;
 
     public:
-        SocketAddress newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
-
         SocketAddress& getSocketAddress();
         void renew();
 

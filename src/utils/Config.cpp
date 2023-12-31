@@ -656,9 +656,9 @@ namespace utils {
 
         instance //
             ->option_defaults()
-            ->configurable(!name.empty());
+            ->configurable(!instance->get_disabled());
 
-        if (!aliases.empty()) {
+        if (!instance->get_disabled() && !aliases.empty()) {
             if (aliases.contains(name)) {
                 instance //
                     ->alias(aliases[name]);

@@ -36,17 +36,12 @@ namespace CLI {
 
 namespace net::in::stream::config {
 
-    class ConfigSocketServer : public net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress> {
-        using Super = net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress>;
-
+    class ConfigSocketServer
+        : public net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressBase> {
     public:
-        using Remote = ConfigSocketServer;
-
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
         ~ConfigSocketServer() override;
-
-        SocketAddress newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
         void setReusePort(bool reusePort = true);
         bool getReusePort() const;
@@ -60,6 +55,6 @@ namespace net::in::stream::config {
     };
 } // namespace net::in::stream::config
 
-extern template class net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress>;
+extern template class net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressBase>;
 
 #endif // NET_IN_STREAM_CONFIG_CONFIGSOCKETSERVER_H

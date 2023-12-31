@@ -44,6 +44,22 @@ namespace CLI {
 namespace net::in6::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
+    class ConfigAddressBase : public ConfigAddressTypeT<net::in6::SocketAddress> {
+    public:
+        using Super = ConfigAddressTypeT<SocketAddress>;
+
+        explicit ConfigAddressBase(net::config::ConfigInstance* instance);
+
+        SocketAddress newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
+
+        ConfigAddressBase& setNumericReverse(bool numeric = true);
+        bool getNumericReverse() const;
+
+    private:
+        CLI::Option* numericReverseOpt = nullptr;
+    };
+
+    template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress : public ConfigAddressTypeT<net::in6::SocketAddress> {
     public:
         using Super = ConfigAddressTypeT<SocketAddress>;
@@ -84,6 +100,7 @@ namespace net::in6::config {
         CLI::Option* hostOpt = nullptr;
         CLI::Option* portOpt = nullptr;
         CLI::Option* numericOpt = nullptr;
+        CLI::Option* numericReverseOpt = nullptr;
         CLI::Option* ipv4MappedOpt = nullptr;
 
         int aiFlags = 0;
@@ -93,10 +110,12 @@ namespace net::in6::config {
 
 } // namespace net::in6::config
 
+extern template class net::config::ConfigAddressBase<net::in6::SocketAddress>;
 extern template class net::config::ConfigAddress<net::in6::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::in6::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::in6::SocketAddress>;
 extern template class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
 extern template class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;
+extern template class net::in6::config::ConfigAddressBase<net::config::ConfigAddressBase>;
 
 #endif // NET_IN6_CONFIG_CONFIGADDRESS_H

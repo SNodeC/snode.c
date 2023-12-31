@@ -20,6 +20,7 @@
 #define NET_CONFIG_CONFIGADDRESS_HPP
 
 #include "net/config/ConfigAddress.h" // IWYU pragma: export
+#include "net/config/ConfigAddressBase.hpp"
 #include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,18 +35,12 @@ namespace net::config {
     ConfigAddress<SocketAddress>::ConfigAddress(ConfigInstance* instance,
                                                 const std::string& addressOptionName,
                                                 const std::string& addressOptionDescription)
-        : net::config::ConfigSection(instance, addressOptionName, addressOptionDescription) {
+        : Super(instance, addressOptionName, addressOptionDescription) {
     }
 
     template <typename SocketAddress>
     ConfigAddress<SocketAddress>::~ConfigAddress() {
         delete socketAddress;
-    }
-
-    template <typename SocketAddress>
-    SocketAddress ConfigAddress<SocketAddress>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
-                                                                 SocketAddress::SockLen sockAddrLen) {
-        return SocketAddress(sockAddr, sockAddrLen);
     }
 
     template <typename SocketAddress>

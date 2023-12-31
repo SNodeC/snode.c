@@ -16,23 +16,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/config/stream/ConfigSocketServer.h" // IWYU pragma: export
+#include "ConfigAddressBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config::stream {
+namespace net::config {
 
-    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddressLocal,
-              template <template <typename SocketAddress> typename ConfigAddressType>
-              typename ConfigAddressRemote>
-    ConfigSocketServer<ConfigAddressLocal, ConfigAddressRemote>::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : ConfigAddressLocal<net::config::ConfigAddressLocal>(instance)
-        , ConfigAddressRemote<net::config::ConfigAddressBase>(instance)
-        , net::config::ConfigConnection(instance)
-        , net::config::ConfigPhysicalSocketServer(instance)
-        , net::config::ConfigListen(instance) {
+    template <typename SocketAddress>
+    ConfigAddressBase<SocketAddress>::ConfigAddressBase(ConfigInstance* instance,
+                                                        const std::string& addressOptionName,
+                                                        const std::string& addressOptionDescription)
+        : net::config::ConfigSection(instance, addressOptionName, addressOptionDescription) {
     }
 
-} // namespace net::config::stream
+    template <typename SocketAddress>
+    SocketAddress ConfigAddressBase<SocketAddress>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
+                                                                     SocketAddress::SockLen sockAddrLen) {
+        return SocketAddress(sockAddr, sockAddrLen);
+    }
+
+} // namespace net::config

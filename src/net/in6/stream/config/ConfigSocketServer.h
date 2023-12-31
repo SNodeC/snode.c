@@ -36,10 +36,9 @@ namespace CLI {
 
 namespace net::in6::stream::config {
 
-    class ConfigSocketServer : public net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress> {
+    class ConfigSocketServer
+        : public net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress, net::in6::config::ConfigAddressBase> {
     public:
-        using Remote = ConfigSocketServer;
-
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
         ~ConfigSocketServer() override;
@@ -57,6 +56,6 @@ namespace net::in6::stream::config {
 
 } // namespace net::in6::stream::config
 
-extern template class net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress>;
+extern template class net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress, net::in6::config::ConfigAddressBase>;
 
 #endif // NET_IN6_STREAM_CONFIG_CONFIGSOCKETSERVER_H

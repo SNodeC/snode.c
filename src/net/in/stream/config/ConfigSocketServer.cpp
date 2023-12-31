@@ -18,7 +18,6 @@
 
 #include "net/in/stream/config/ConfigSocketServer.h"
 
-#include "net/config/ConfigInstance.h"
 #include "net/config/stream/ConfigSocketServer.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -54,7 +53,7 @@
 namespace net::in::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress>(instance) {
+        : net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressBase>(instance) {
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setPortRequired();
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
@@ -68,21 +67,9 @@ namespace net::in::stream::config {
                                                              "bool",
                                                              XSTR(REUSE_PORT),
                                                              CLI::IsMember({"true", "false"}));
-
-        CLI::App* app = instance->add_section("remote", "Remote side of connection for instance '" + instance->getInstanceName() + "'");
-        numericReverseOpt = app->add_flag("--numeric-reverse", "Suppress reverse host name lookup")
-                                ->type_name("bool")
-                                ->default_val(XSTR(IPV4_NUMERIC_REVERSE))
-                                ->take_last()
-                                ->group(app->get_formatter()->get_label("Persistent Options"))
-                                ->check(CLI::IsMember({"true", "false"}));
     }
 
     ConfigSocketServer::~ConfigSocketServer() {
-    }
-
-    SocketAddress ConfigSocketServer::newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen) {
-        return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
     }
 
     void ConfigSocketServer::setReusePort(bool reusePort) {
@@ -116,4 +103,4 @@ namespace net::in::stream::config {
 
 } // namespace net::in::stream::config
 
-template class net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress>;
+template class net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressBase>;

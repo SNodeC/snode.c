@@ -16,11 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_CONFIG_CONFIGSOCKETSERVER_H
-#define NET_L2_STREAM_CONFIG_CONFIGSOCKETSERVER_H
+#ifndef NET_CONFIG_CONFIGADDRESSBASE_H
+#define NET_CONFIG_CONFIGADDRESSBASE_H
 
-#include "net/config/stream/ConfigSocketServer.h" // IWYU pragma: export
-#include "net/l2/config/ConfigAddress.h"          // IWYU pragma: export
+#include "net/config/ConfigSection.h" // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;
@@ -28,20 +27,31 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+namespace CLI {
+    class Option;
+} // namespace CLI
 
-namespace net::l2::stream::config {
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-    class ConfigSocketServer
-        : public net::config::stream::ConfigSocketServer<net::l2::config::ConfigAddress, net::l2::config::ConfigAddressBase> {
+namespace net::config {
+
+    template <typename SocketAddressT>
+    class ConfigAddressBase : protected ConfigSection {
+    protected:
+        using Super = ConfigSection;
+
     public:
-        explicit ConfigSocketServer(net::config::ConfigInstance* instance);
+    protected:
+        ConfigAddressBase(ConfigInstance* instance,
+                          const std::string& addressOptionName = "",
+                          const std::string& addressOptionDescription = "");
 
-        ~ConfigSocketServer() override;
+        virtual ~ConfigAddressBase() = default;
+
+    public:
+        SocketAddressT newSocketAddress(const SocketAddressT::SockAddr& sockAddr, SocketAddressT::SockLen sockAddrLen);
     };
 
-} // namespace net::l2::stream::config
+} // namespace net::config
 
-extern template class net::config::stream::ConfigSocketServer<net::l2::config::ConfigAddress, net::l2::config::ConfigAddressBase>;
-
-#endif // NET_L2_STREAM_CONFIG_CONFIGSOCKETSERVER_H
+#endif // NET_CONFIG_CONFIGADDRESSBASE_H

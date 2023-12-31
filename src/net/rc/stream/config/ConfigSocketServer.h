@@ -32,10 +32,9 @@ namespace net::config {
 
 namespace net::rc::stream::config {
 
-    class ConfigSocketServer : public net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress> {
+    class ConfigSocketServer
+        : public net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress, net::rc::config::ConfigAddressBase> {
     public:
-        using Remote = ConfigSocketServer;
-
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
         ~ConfigSocketServer() override;
@@ -43,6 +42,6 @@ namespace net::rc::stream::config {
 
 } // namespace net::rc::stream::config
 
-extern template class net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress>;
+extern template class net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress, net::rc::config::ConfigAddressBase>;
 
 #endif // NET_RC_STREAM_CONFIG_CONFIGSOCKETSERVER_H
