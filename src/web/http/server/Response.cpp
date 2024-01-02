@@ -38,6 +38,8 @@
 #include <system_error>
 #include <utility>
 
+// IWYU pragma: no_include <bits/utility.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
@@ -213,11 +215,11 @@ namespace web::http::server {
 
         set({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
-        for (auto& [field, value] : headers) {
+        for (const auto& [field, value] : headers) {
             enqueue(std::string(field).append(": ").append(value).append("\r\n"));
         }
 
-        for (auto& [cookie, cookieValue] : cookies) {
+        for (const auto& [cookie, cookieValue] : cookies) { // cppcheck-suppress shadowFunction
             const std::string cookieString =
                 std::accumulate(cookieValue.getOptions().begin(),
                                 cookieValue.getOptions().end(),
