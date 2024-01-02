@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_CONFIGADDRESSBASE_H
-#define NET_CONFIG_CONFIGADDRESSBASE_H
+#ifndef NET_CONFIG_CONFIGADDRESSREVERSE_H
+#define NET_CONFIG_CONFIGADDRESSREVERSE_H
 
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
@@ -55,4 +55,4 @@ namespace net::config {
 
 } // namespace net::config
 
-#endif // NET_CONFIG_CONFIGADDRESSBASE_H
+#endif // NET_CONFIG_CONFIGADDRESSREVERSE_H
