@@ -53,6 +53,7 @@ namespace net::in::stream::config {
         CLI::Option* reusePortOpt = nullptr;
         CLI::Option* numericReverseOpt = nullptr;
     };
+
 } // namespace net::in::stream::config
 
 extern template class net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressBase>;
