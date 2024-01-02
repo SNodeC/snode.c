@@ -58,26 +58,25 @@ namespace net::in6 {
     SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen, bool numeric)
         : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen)
         , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
-        char host[NI_MAXHOST];
-        char serv[NI_MAXSERV];
-        std::memset(host, 0, NI_MAXHOST);
-        std::memset(serv, 0, NI_MAXSERV);
+        char hostC[NI_MAXHOST];
+        char servC[NI_MAXSERV];
+        std::memset(hostC, 0, NI_MAXHOST);
+        std::memset(servC, 0, NI_MAXSERV);
 
         const int aiErrCode = core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr),
                                                         sizeof(sockAddr),
-                                                        host,
+                                                        hostC,
                                                         NI_MAXHOST,
-                                                        serv,
+                                                        servC,
                                                         NI_MAXSERV,
                                                         NI_NUMERICSERV | (numeric ? NI_NUMERICHOST : NI_NAMEREQD));
-
         if (aiErrCode == 0) {
-            if (serv[0] != '\0') {
-                this->port = static_cast<uint16_t>(std::stoul(serv));
+            if (servC[0] != '\0') {
+                this->port = static_cast<uint16_t>(std::stoul(servC));
             }
 
-            this->host = host;
-            this->canonName = host;
+            this->host = hostC;
+            this->canonName = hostC;
         } else {
             core::socket::State state = core::socket::STATE_OK;
             switch (aiErrCode) {
@@ -104,9 +103,8 @@ namespace net::in6 {
         addrInfoHints.ai_socktype = hints.aiSockType;
         addrInfoHints.ai_protocol = hints.aiProtocol;
 
-        int aiErrCode = 0;
-
-        if ((aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), addrInfoHints)) == 0) {
+        const int aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), addrInfoHints);
+        if (aiErrCode == 0) {
             sockAddr = socketAddrInfo->getSockAddr();
             canonName = socketAddrInfo->getCanonName();
         } else {
