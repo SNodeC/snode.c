@@ -62,7 +62,7 @@ namespace net::in6::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddressReverse<ConfigAddressType>& ConfigAddressReverse<ConfigAddressType>::setNumericReverse(bool numeric) {
         numericReverseOpt //
-            ->default_val(numeric)
+            ->default_str(numeric ? "true" : "false")
             ->clear();
 
         return *this;
@@ -165,6 +165,31 @@ namespace net::in6::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     uint16_t ConfigAddress<ConfigAddressType>::getPort() const {
         return portOpt->as<uint16_t>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setNumeric(bool numeric) {
+        const utils::PreserveErrno preserveErrno;
+
+        numericOpt //
+            ->default_str(numeric ? "true" : "false")
+            ->clear();
+
+        return *this;
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    bool ConfigAddress<ConfigAddressType>::getNumeric() const {
+        return numericOpt->as<bool>();
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setNumericReverse(bool numeric) {
+        numericReverseOpt //
+            ->default_str(numeric ? "true" : "false")
+            ->clear();
+
+        return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

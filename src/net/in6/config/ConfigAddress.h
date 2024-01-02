@@ -85,6 +85,12 @@ namespace net::in6::config {
         ConfigAddress& setPort(uint16_t port);
         uint16_t getPort() const;
 
+        ConfigAddress& setNumeric(bool numeric = true);
+        bool getNumeric() const;
+
+        ConfigAddress& setNumericReverse(bool numeric = true);
+        bool getNumericReverse() const;
+
     protected:
         ConfigAddress& setIpv4Mapped(bool ipv4Mapped = true);
         bool getIpv4Mapped() const;
