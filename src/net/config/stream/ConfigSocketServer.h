@@ -32,18 +32,18 @@
 
 namespace net::config::stream {
 
-    template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressLocalT,
+    template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressT,
               template <template <typename SocketAddress> typename ConfigAddressTypeT>
-              typename ConfigAddressRemoteT>
+              typename ConfigAddressReverseT>
     class ConfigSocketServer
-        : public ConfigAddressLocalT<net::config::ConfigAddressLocal>
-        , public ConfigAddressRemoteT<net::config::ConfigAddressReverse>
+        : public ConfigAddressT<net::config::ConfigAddressLocal>
+        , public ConfigAddressReverseT<net::config::ConfigAddressReverse>
         , public net::config::ConfigConnection
         , public net::config::ConfigPhysicalSocketServer
         , public net::config::ConfigListen {
     public:
-        using Local = ConfigAddressLocalT<net::config::ConfigAddressLocal>;
-        using Remote = ConfigAddressRemoteT<net::config::ConfigAddressReverse>;
+        using Local = ConfigAddressT<net::config::ConfigAddressLocal>;
+        using Remote = ConfigAddressReverseT<net::config::ConfigAddressReverse>;
 
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
     };
