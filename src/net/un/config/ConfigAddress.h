@@ -76,10 +76,10 @@ namespace net::un::config {
 
 } // namespace net::un::config
 
-extern template class net::config::ConfigAddressBase<net::un::SocketAddress>;
 extern template class net::config::ConfigAddress<net::un::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::un::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::un::SocketAddress>;
+extern template class net::config::ConfigAddressBase<net::un::SocketAddress>;
 extern template class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
 extern template class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
 extern template class net::un::config::ConfigAddressBase<net::config::ConfigAddressBase>;

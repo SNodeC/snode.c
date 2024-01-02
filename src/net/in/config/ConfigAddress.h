@@ -116,10 +116,10 @@ namespace net::in::config {
 
 } // namespace net::in::config
 
-extern template class net::config::ConfigAddressBase<net::in::SocketAddress>;
 extern template class net::config::ConfigAddress<net::in::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::in::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::in::SocketAddress>;
+extern template class net::config::ConfigAddressBase<net::in::SocketAddress>;
 extern template class net::in::config::ConfigAddress<net::config::ConfigAddressLocal>;
 extern template class net::in::config::ConfigAddress<net::config::ConfigAddressRemote>;
 extern template class net::in::config::ConfigAddressBase<net::config::ConfigAddressBase>;

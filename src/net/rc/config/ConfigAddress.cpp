@@ -113,10 +113,10 @@ namespace net::rc::config {
 
 } // namespace net::rc::config
 
-template class net::config::ConfigAddressBase<net::rc::SocketAddress>;
 template class net::config::ConfigAddress<net::rc::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::rc::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::rc::SocketAddress>;
+template class net::config::ConfigAddressBase<net::rc::SocketAddress>;
 template class net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>;
 template class net::rc::config::ConfigAddressBase<net::config::ConfigAddressBase>;

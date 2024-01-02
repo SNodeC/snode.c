@@ -85,10 +85,10 @@ namespace net::un::config {
 
 } // namespace net::un::config
 
-template class net::config::ConfigAddressBase<net::un::SocketAddress>;
 template class net::config::ConfigAddress<net::un::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::un::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::un::SocketAddress>;
+template class net::config::ConfigAddressBase<net::un::SocketAddress>;
 template class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
 template class net::un::config::ConfigAddressBase<net::config::ConfigAddressBase>;

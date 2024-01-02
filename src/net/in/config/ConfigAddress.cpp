@@ -241,10 +241,10 @@ namespace net::in::config {
 
 } // namespace net::in::config
 
-template class net::config::ConfigAddressBase<net::in::SocketAddress>;
-template class net::config::ConfigAddress<net::in::SocketAddress>;
+template class net::config::ConfigAddressBase::in::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::in::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::in::SocketAddress>;
+template class net::config::ConfigAddressBase<net::in::SocketAddress>;
 template class net::in::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::in::config::ConfigAddress<net::config::ConfigAddressRemote>;
 template class net::in::config::ConfigAddressBase<net::config::ConfigAddressBase>;

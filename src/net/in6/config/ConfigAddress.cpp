@@ -234,10 +234,10 @@ namespace net::in6::config {
 
 } // namespace net::in6::config
 
-template class net::config::ConfigAddressBase<net::in6::SocketAddress>;
 template class net::config::ConfigAddress<net::in6::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::in6::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::in6::SocketAddress>;
+template class net::config::ConfigAddressBase<net::in6::SocketAddress>;
 template class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;
 template class net::in6::config::ConfigAddressBase<net::config::ConfigAddressBase>;
