@@ -30,7 +30,7 @@ namespace net::config {
 
     ConfigLegacy::ConfigLegacy(ConfigInstance* instance)
         : net::config::ConfigSection(
-              instance, "legacy", "Configuration of legacy behaviour for instance '" + instance->getInstanceName() + "'", true) {
+              instance, "legacy", "Configuration of legacy behavior for instance '" + instance->getInstanceName() + "'") {
     }
 
 } // namespace net::config

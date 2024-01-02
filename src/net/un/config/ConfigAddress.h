@@ -54,7 +54,9 @@ namespace net::un::config {
     public:
         using Super = ConfigAddressTypeT<net::un::SocketAddress>;
 
-        explicit ConfigAddress(net::config::ConfigInstance* instance);
+        explicit ConfigAddress(net::config::ConfigInstance* instance,
+                               const std::string& addressOptionName,
+                               const std::string& addressOptionDescription);
 
     private:
         SocketAddress* init() final;

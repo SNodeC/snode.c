@@ -37,7 +37,9 @@ namespace net::config {
         using Super = net::config::ConfigAddress<SocketAddressT>;
 
     protected:
-        explicit ConfigAddressLocal(ConfigInstance* instance);
+        explicit ConfigAddressLocal(ConfigInstance* instance,
+                                    const std::string& addressOptionName,
+                                    const std::string& addressOptionDescription);
     };
 
 } // namespace net::config

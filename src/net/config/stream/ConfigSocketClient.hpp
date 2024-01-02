@@ -24,12 +24,10 @@
 
 namespace net::config::stream {
 
-    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddressLocal,
-              template <template <typename SocketAddress> typename ConfigAddressType>
-              typename ConfigAddressRemote>
-    ConfigSocketClient<ConfigAddressLocal, ConfigAddressRemote>::ConfigSocketClient(net::config::ConfigInstance* instance)
-        : ConfigAddressRemote<net::config::ConfigAddressRemote>(instance)
-        , ConfigAddressLocal<net::config::ConfigAddressLocal>(instance)
+    template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddress>
+    ConfigSocketClient<ConfigAddress>::ConfigSocketClient(net::config::ConfigInstance* instance)
+        : ConfigAddress<net::config::ConfigAddressRemote>(instance, "remote", "Remote side of connection")
+        , ConfigAddress<net::config::ConfigAddressLocal>(instance, "local", "Local side of connection")
         , net::config::ConfigConnection(instance)
         , net::config::ConfigPhysicalSocketClient(instance) {
     }

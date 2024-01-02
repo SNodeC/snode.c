@@ -21,7 +21,6 @@
 
 #include "net/config/ConfigAddress.h" // IWYU pragma: export
 #include "net/config/ConfigAddressBase.hpp"
-#include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -28,8 +28,12 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddressLocal<SocketAddress>::ConfigAddressLocal(ConfigInstance* instance)
-        : Super::ConfigAddress(instance, "local", "Local side of connection for instance '" + instance->getInstanceName() + "'") {
+    ConfigAddressLocal<SocketAddress>::ConfigAddressLocal(ConfigInstance* instance,
+                                                          const std::string& addressOptionName,
+                                                          const std::string& addressOptionDescription)
+        : Super::ConfigAddress(instance, addressOptionName, addressOptionDescription) {
     }
 
 } // namespace net::config
+
+// "local", "Local side of connection for instance '" + instance->getInstanceName() + "'"

@@ -214,8 +214,8 @@ namespace CLI {
         }
 
         // Add a marker if subcommands are expected or optional
-        if (!app->get_subcommands([](const CLI::App* subc) {
-                    return ((!subc->get_disabled()) && (!subc->get_name().empty()));
+        if (!app->get_subcommands([](const App* subc) {
+                    return !subc->get_disabled() && !subc->get_name().empty();
                 })
                  .empty()) {
             // ############## Next line changed
@@ -240,7 +240,9 @@ namespace CLI {
     CLI11_INLINE std::string HelpFormatter::make_subcommands(const App* app, AppFormatMode mode) const {
         std::stringstream out;
 
-        const std::vector<const App*> subcommands = app->get_subcommands({});
+        const std::vector<const App*> subcommands = app->get_subcommands([](const App* subc) {
+            return !subc->get_disabled() && !subc->get_name().empty();
+        });
 
         // Make a list in definition order of the groups seen
         std::vector<std::string> subcmd_groups_seen;
@@ -264,7 +266,8 @@ namespace CLI {
         for (const std::string& group : subcmd_groups_seen) {
             out << "\n" << group << ":\n";
             const std::vector<const App*> subcommands_group = app->get_subcommands([&group](const App* sub_app) {
-                return detail::to_lower(sub_app->get_group()) == detail::to_lower(group);
+                return detail::to_lower(sub_app->get_group()) == detail::to_lower(group) && !sub_app->get_disabled() &&
+                       !sub_app->get_name().empty();
             });
             for (const App* new_com : subcommands_group) {
                 if (new_com->get_name().empty()) {

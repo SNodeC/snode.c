@@ -40,8 +40,10 @@
 namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddressBase<ConfigAddressType>::ConfigAddressBase(net::config::ConfigInstance* instance)
-        : Super(instance, "remote", "Remote side of connection for instance '" + instance->getInstanceName() + "'") {
+    ConfigAddressBase<ConfigAddressType>::ConfigAddressBase(net::config::ConfigInstance* instance,
+                                                            const std::string& addressOptionName,
+                                                            const std::string& addressOptionDescription)
+        : Super(instance, addressOptionName, addressOptionDescription) {
         Super::add_flag(numericReverseOpt,
                         "--numeric-reverse",
                         "Suppress reverse host name lookup",
@@ -71,8 +73,10 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance)
-        : Super(instance) {
+    ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance,
+                                                    const std::string& addressOptionName,
+                                                    const std::string& addressOptionDescription)
+        : Super(instance, addressOptionName, addressOptionDescription) {
         Super::add_option(hostOpt, //
                           "--host",
                           "Host name or IPv6 address",

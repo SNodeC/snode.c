@@ -17,6 +17,7 @@
  */
 
 #include "ConfigAddressBase.h"
+#include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,7 +29,8 @@ namespace net::config {
     ConfigAddressBase<SocketAddress>::ConfigAddressBase(ConfigInstance* instance,
                                                         const std::string& addressOptionName,
                                                         const std::string& addressOptionDescription)
-        : net::config::ConfigSection(instance, addressOptionName, addressOptionDescription) {
+        : net::config::ConfigSection(
+              instance, addressOptionName, addressOptionDescription + " for instance '" + instance->getInstanceName() + "'") {
     }
 
     template <typename SocketAddress>

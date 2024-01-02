@@ -48,7 +48,9 @@ namespace net::in6::config {
     public:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
-        explicit ConfigAddressBase(net::config::ConfigInstance* instance);
+        explicit ConfigAddressBase(net::config::ConfigInstance* instance,
+                                   const std::string& addressOptionName,
+                                   const std::string& addressOptionDescription);
 
         SocketAddress newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
@@ -64,7 +66,9 @@ namespace net::in6::config {
     public:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
-        explicit ConfigAddress(net::config::ConfigInstance* instance);
+        explicit ConfigAddress(net::config::ConfigInstance* instance,
+                               const std::string& addressOptionName,
+                               const std::string& addressOptionDescription);
 
     private:
         SocketAddress* init() final;

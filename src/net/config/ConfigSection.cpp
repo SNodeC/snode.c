@@ -39,6 +39,7 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include "log/Logger.h"
 #include "utils/ResetToDefault.h"
 
 #include <memory>
@@ -47,15 +48,12 @@
 
 namespace net::config {
 
-    ConfigSection::ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description, bool hidden)
+    ConfigSection::ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description)
         : instance(instance) {
         section = instance //
-                      ->add_section(name, description);
-
-        if (hidden) {
-            section //
-                ->group("");
-        }
+                      ->add_section(name, description)
+                      ->disabled()
+                      ->group("Sections");
     }
 
     void ConfigSection::required(CLI::Option* opt, bool req) {
@@ -80,6 +78,8 @@ namespace net::config {
     }
 
     CLI::Option* ConfigSection::add_option(CLI::Option*& opt, const std::string& name, const std::string& description) {
+        section->disabled(false);
+
         opt = section //
                   ->add_option_function<std::string>(name, utils::ResetToDefault(opt), description);
 
@@ -107,6 +107,8 @@ namespace net::config {
 
     CLI::Option*
     ConfigSection::add_flag(CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName) {
+        section->disabled(false);
+
         opt = section //
                   ->add_flag_function(name, utils::ResetToDefault(opt), description)
                   ->type_name(typeName)
@@ -134,6 +136,8 @@ namespace net::config {
                                                   const std::string& description,
                                                   const std::string& typeName,
                                                   const std::string& defaultValue) {
+        section->disabled(false);
+
         opt = section //
                   ->add_flag_function(name, callback, description)
                   ->take_last()

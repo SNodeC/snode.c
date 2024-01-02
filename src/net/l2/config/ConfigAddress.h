@@ -55,7 +55,9 @@ namespace net::l2::config {
     public:
         using Super = ConfigAddressTypeT<net::l2::SocketAddress>;
 
-        explicit ConfigAddress(net::config::ConfigInstance* instance);
+        explicit ConfigAddress(net::config::ConfigInstance* instance,
+                               const std::string& addressOptionName,
+                               const std::string& addressOptionDescription);
 
     private:
         SocketAddress* init() final;
