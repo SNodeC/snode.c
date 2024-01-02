@@ -19,9 +19,9 @@ function(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT
         set(VALUE "${DEFAULT_VALUE}")
     elseif("${ARGN}" STREQUAL "")
         set(VALUE "${${CONFIG_OPTION}}")
-    else()
+    else("${ARGN}" STREQUAL "")
         set(VALUE "${ARGN}")
-    endif()
+    endif("${ARGN}" STREQUAL "")
 
     set(SNODEC_${CONFIG_OPTION}
         "${VALUE}"
@@ -30,7 +30,7 @@ function(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT
 
     if ("${SNODEC_${CONFIG_OPTION}}" STREQUAL "true" OR "${SNODEC_${CONFIG_OPTION}}" STREQUAL "false")
         set_property(CACHE SNODEC_${CONFIG_OPTION} PROPERTY STRINGS "true" "false")
-     endif()
+     endif("${SNODEC_${CONFIG_OPTION}}" STREQUAL "true" OR "${SNODEC_${CONFIG_OPTION}}" STREQUAL "false")
 
     message(STATUS "Adding compile definition '" ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}} "' for '${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}'")
     set_property(

@@ -72,7 +72,6 @@ namespace net::in {
                                                         servC,
                                                         NI_MAXSERV,
                                                         NI_NUMERICSERV | (numeric ? NI_NUMERICHOST : NI_NAMEREQD));
-
         if (aiErrCode == 0) {
             if (servC[0] != '\0') {
                 this->port = static_cast<uint16_t>(std::stoul(servC));
@@ -107,7 +106,6 @@ namespace net::in {
         addrInfoHints.ai_protocol = hints.aiProtocol;
 
         const int aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), addrInfoHints);
-
         if (aiErrCode == 0) {
             sockAddr = socketAddrInfo->getSockAddr();
             canonName = socketAddrInfo->getCanonName();

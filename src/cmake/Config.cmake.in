@@ -36,7 +36,7 @@ macro(load_component_with_dependencies _comp _lspace _ladd)
                     ${_depcomp} "${_lspace}${_ladd}" "${_ladd}"
                 )
             endforeach(_depcomp ${${_comp}_DEPENDENCIES})
-        endif()
+        endif(${_comp}_DEPENDENCIES)
         include("${CMAKE_CURRENT_LIST_DIR}/snodec_${_comp}_Targets.cmake")
         include("${CMAKE_CURRENT_LIST_DIR}/snodec_${_comp}_Targets_Config.cmake"
                 OPTIONAL RESULT_VARIABLE ${_comp}_TARGETS_CONFIG_FILE
@@ -44,12 +44,12 @@ macro(load_component_with_dependencies _comp _lspace _ladd)
         message("${_lspace}${_comp}: loaded")
         if(NOT "${${_comp}_TARGETS_CONFIG_FILE}" STREQUAL "NOTFOUND")
             message("${_lspace}${_comp}: configured")
-        endif()
+        endif(NOT "${${_comp}_TARGETS_CONFIG_FILE}" STREQUAL "NOTFOUND")
         set(${_comp}_LOADED true)
-    else()
+    else(NOT ${_comp}_LOADED)
         message("${_lspace}${_comp}: already loaded")
-    endif()
-endmacro()
+    endif(NOT ${_comp}_LOADED)
+endmacro(load_component_with_dependencies _comp _lspace _ladd)
 
 set(_supported_components
     core
@@ -88,11 +88,11 @@ foreach(_comp ${snodec_FIND_COMPONENTS})
                 "Direct request for component ${_comp} not in list of supported components"
         )
         set(snodec_NOT_FOUND)
-    else()
+    else(NOT _comp IN_LIST _supported_components)
         load_component_with_dependencies(${_comp} "" "  ")
         check_required_components(${_comp})
-    endif()
-endforeach()
+    endif(NOT _comp IN_LIST _supported_components)
+endforeach(_comp ${snodec_FIND_COMPONENTS})
 
 if(NOT snodec_NOT_FOUND})
     set(CMAKE_SKIP_RPATH FALSE)

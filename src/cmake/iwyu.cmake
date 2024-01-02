@@ -36,9 +36,9 @@ if(iwyu_path)
 
         set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
     endif(CHECK_INCLUDES)
-else()
+else(iwyu_path)
     message(
         WARNING
             "Include-what-you-use (iwyu) is needed for checking include dependencies"
     )
-endif()
+endif(iwyu_path)
