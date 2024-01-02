@@ -150,16 +150,16 @@ namespace core::socket::stream {
                         if (physicalClientSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
                             try {
                                 localPeerAddress = config->Local::newSocketAddress(localSockAddr, localSockAddrLen);
-                                LOG(TRACE) << "Local PeerAddress: " << config->getInstanceName() << ": " << localPeerAddress.toString();
+                                LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << localPeerAddress.toString();
                             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                                LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                                LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
 
                                 try {
                                     localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
-                                    LOG(TRACE) << "Local PeerAddress: " << config->getInstanceName() << ": " << localPeerAddress.toString();
+                                    LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << localPeerAddress.toString();
                                 } catch (
                                     const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                                    LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                                    LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
                                 }
                             }
                         }
@@ -168,17 +168,16 @@ namespace core::socket::stream {
                         if (physicalClientSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
                             try {
                                 remotePeerAddress = config->Remote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                                LOG(TRACE) << "Remote PeerAddress: " << config->getInstanceName() << ": " << remotePeerAddress.toString();
+                                LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << remotePeerAddress.toString();
                             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                                LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                                LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
 
                                 try {
                                     remotePeerAddress = config->ConfigAddressRemote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                                    LOG(TRACE) << "Remote PeerAddress: " << config->getInstanceName() << ": "
-                                               << remotePeerAddress.toString();
+                                    LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << remotePeerAddress.toString();
                                 } catch (
                                     const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                                    LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                                    LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
                                 }
                             }
                         }
@@ -243,15 +242,15 @@ namespace core::socket::stream {
                 if (physicalClientSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
                     try {
                         localPeerAddress = config->Local::newSocketAddress(localSockAddr, localSockAddrLen);
-                        LOG(TRACE) << "Local PeerAddress: " << config->getInstanceName() << ": " << localPeerAddress.toString();
+                        LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << localPeerAddress.toString();
                     } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                        LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                        LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
 
                         try {
                             localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
-                            LOG(TRACE) << "Local PeerAddress: " << config->getInstanceName() << ": " << localPeerAddress.toString();
+                            LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << localPeerAddress.toString();
                         } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                            LOG(TRACE) << "Local Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                            LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
                         }
                     }
                 }
@@ -260,15 +259,15 @@ namespace core::socket::stream {
                 if (physicalClientSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
                     try {
                         remotePeerAddress = config->Remote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                        LOG(TRACE) << "Remote PeerAddress: " << config->getInstanceName() << ": " << remotePeerAddress.toString();
+                        LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << remotePeerAddress.toString();
                     } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                        LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                        LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
 
                         try {
                             remotePeerAddress = config->ConfigAddressRemote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                            LOG(TRACE) << "Remote PeerAddress: " << config->getInstanceName() << ": " << remotePeerAddress.toString();
+                            LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << remotePeerAddress.toString();
                         } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                            LOG(TRACE) << "Remote Peer: " << config->getInstanceName() << ": " << badSocketAddress.what();
+                            LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
                         }
                     }
                 }
