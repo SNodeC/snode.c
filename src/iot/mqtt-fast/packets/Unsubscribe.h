@@ -1,5 +1,5 @@
 /*
- * snode.c - a slim toolkit for network communication
+ * SNode.C - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify

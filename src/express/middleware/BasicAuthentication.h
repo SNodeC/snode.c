@@ -1,5 +1,5 @@
 /*
- * snode.c - a slim toolkit for network communication
+ * SNode.C - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023  Volker Christian <me@vchrist.at>
  * Json Middleware 2020, 2021 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer
  * Github <MarleneMayr><moseranna><MatteoMatteoMatteo><peregrin-tuk>
