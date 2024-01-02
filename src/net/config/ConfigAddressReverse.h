@@ -36,17 +36,17 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddressBase : protected ConfigSection {
+    class ConfigAddressReverse : protected ConfigSection {
     protected:
         using Super = ConfigSection;
 
     public:
     protected:
-        ConfigAddressBase(ConfigInstance* instance,
-                          const std::string& addressOptionName = "",
-                          const std::string& addressOptionDescription = "");
+        ConfigAddressReverse(ConfigInstance* instance,
+                             const std::string& addressOptionName = "",
+                             const std::string& addressOptionDescription = "");
 
-        virtual ~ConfigAddressBase() = default;
+        virtual ~ConfigAddressReverse() = default;
 
     public:
         SocketAddressT newSocketAddress(const SocketAddressT::SockAddr& sockAddr, SocketAddressT::SockLen sockAddrLen);

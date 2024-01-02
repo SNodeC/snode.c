@@ -27,7 +27,7 @@
 namespace net::un::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress, net::un::config::ConfigAddressBase>(instance) {
+        : net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress, net::un::config::ConfigAddressReverse>(instance) {
         net::un::config::ConfigAddress<net::config::ConfigAddressLocal>::sunPathRequired();
     }
 
@@ -36,4 +36,4 @@ namespace net::un::stream::config {
 
 } // namespace net::un::stream::config
 
-template class net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress, net::un::config::ConfigAddressBase>;
+template class net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress, net::un::config::ConfigAddressReverse>;

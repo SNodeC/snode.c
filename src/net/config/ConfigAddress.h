@@ -19,7 +19,7 @@
 #ifndef NET_CONFIG_CONFIGADDRESS_H
 #define NET_CONFIG_CONFIGADDRESS_H
 
-#include "net/config/ConfigAddressBase.h" // IWYU pragma: export
+#include "net/config/ConfigAddressReverse.h" // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;
@@ -36,9 +36,9 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddress : public ConfigAddressBase<SocketAddressT> {
+    class ConfigAddress : public ConfigAddressReverse<SocketAddressT> {
     public:
-        using Super = ConfigAddressBase<SocketAddressT>;
+        using Super = ConfigAddressReverse<SocketAddressT>;
         using SocketAddress = SocketAddressT;
 
     protected:

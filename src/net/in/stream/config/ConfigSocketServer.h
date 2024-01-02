@@ -37,7 +37,7 @@ namespace CLI {
 namespace net::in::stream::config {
 
     class ConfigSocketServer
-        : public net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressBase> {
+        : public net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressReverse> {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
@@ -46,16 +46,12 @@ namespace net::in::stream::config {
         void setReusePort(bool reusePort = true);
         bool getReusePort() const;
 
-        ConfigSocketServer& setNumericReverse(bool numeric = true);
-        bool getNumericReverse() const;
-
     private:
         CLI::Option* reusePortOpt = nullptr;
-        CLI::Option* numericReverseOpt = nullptr;
     };
 
 } // namespace net::in::stream::config
 
-extern template class net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressBase>;
+extern template class net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressReverse>;
 
 #endif // NET_IN_STREAM_CONFIG_CONFIGSOCKETSERVER_H

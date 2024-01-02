@@ -36,13 +36,13 @@ namespace net::config::stream {
               typename ConfigAddressRemoteT>
     class ConfigSocketServer
         : public ConfigAddressLocalT<net::config::ConfigAddressLocal>
-        , public ConfigAddressRemoteT<net::config::ConfigAddressBase>
+        , public ConfigAddressRemoteT<net::config::ConfigAddressReverse>
         , public net::config::ConfigConnection
         , public net::config::ConfigPhysicalSocketServer
         , public net::config::ConfigListen {
     public:
         using Local = ConfigAddressLocalT<net::config::ConfigAddressLocal>;
-        using Remote = ConfigAddressRemoteT<net::config::ConfigAddressBase>;
+        using Remote = ConfigAddressRemoteT<net::config::ConfigAddressReverse>;
 
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
     };

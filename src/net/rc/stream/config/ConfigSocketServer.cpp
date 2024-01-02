@@ -44,7 +44,7 @@
 namespace net::rc::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress, net::rc::config::ConfigAddressBase>(instance) {
+        : net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress, net::rc::config::ConfigAddressReverse>(instance) {
         net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::setChannelRequired();
 
         net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelOpt //
@@ -56,4 +56,4 @@ namespace net::rc::stream::config {
 
 } // namespace net::rc::stream::config
 
-template class net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress, net::rc::config::ConfigAddressBase>;
+template class net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress, net::rc::config::ConfigAddressReverse>;

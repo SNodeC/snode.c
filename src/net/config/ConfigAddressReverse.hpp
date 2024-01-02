@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ConfigAddressBase.h"
+#include "ConfigAddressReverse.h"
 #include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -26,16 +26,16 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddressBase<SocketAddress>::ConfigAddressBase(ConfigInstance* instance,
-                                                        const std::string& addressOptionName,
-                                                        const std::string& addressOptionDescription)
+    ConfigAddressReverse<SocketAddress>::ConfigAddressReverse(ConfigInstance* instance,
+                                                              const std::string& addressOptionName,
+                                                              const std::string& addressOptionDescription)
         : net::config::ConfigSection(
               instance, addressOptionName, addressOptionDescription + " for instance '" + instance->getInstanceName() + "'") {
     }
 
     template <typename SocketAddress>
-    SocketAddress ConfigAddressBase<SocketAddress>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
-                                                                     SocketAddress::SockLen sockAddrLen) {
+    SocketAddress ConfigAddressReverse<SocketAddress>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
+                                                                        SocketAddress::SockLen sockAddrLen) {
         return SocketAddress(sockAddr, sockAddrLen);
     }
 

@@ -33,7 +33,7 @@ namespace net::config {
 namespace net::un::stream::config {
 
     class ConfigSocketServer
-        : public net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress, net::un::config::ConfigAddressBase> {
+        : public net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress, net::un::config::ConfigAddressReverse> {
     public:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
@@ -42,6 +42,6 @@ namespace net::un::stream::config {
 
 } // namespace net::un::stream::config
 
-extern template class net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress, net::un::config::ConfigAddressBase>;
+extern template class net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress, net::un::config::ConfigAddressReverse>;
 
 #endif // NET_UN_STREAM_CONFIG_CONFIGSOCKETSERVER_H

@@ -40,6 +40,8 @@ set(NET_H
     config/ConfigAddressLocal.hpp
     config/ConfigAddressRemote.h
     config/ConfigAddressRemote.hpp
+    config/ConfigAddressReverse.h
+    config/ConfigAddressReverse.hpp
     config/ConfigInstance.h
     config/ConfigConnection.h
     config/ConfigLegacy.h

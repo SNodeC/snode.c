@@ -40,9 +40,9 @@
 namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddressBase<ConfigAddressType>::ConfigAddressBase(net::config::ConfigInstance* instance,
-                                                            const std::string& addressOptionName,
-                                                            const std::string& addressOptionDescription)
+    ConfigAddressReverse<ConfigAddressType>::ConfigAddressReverse(net::config::ConfigInstance* instance,
+                                                                  const std::string& addressOptionName,
+                                                                  const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
         Super::add_flag(numericReverseOpt,
                         "--numeric-reverse",
@@ -53,13 +53,13 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddressBase<ConfigAddressType>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
-                                                                         SocketAddress::SockLen sockAddrLen) {
+    SocketAddress ConfigAddressReverse<ConfigAddressType>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
+                                                                            SocketAddress::SockLen sockAddrLen) {
         return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddressBase<ConfigAddressType>& ConfigAddressBase<ConfigAddressType>::setNumericReverse(bool numeric) {
+    ConfigAddressReverse<ConfigAddressType>& ConfigAddressReverse<ConfigAddressType>::setNumericReverse(bool numeric) {
         numericReverseOpt //
             ->default_val(numeric)
             ->clear();
@@ -68,7 +68,7 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    bool ConfigAddressBase<ConfigAddressType>::getNumericReverse() const {
+    bool ConfigAddressReverse<ConfigAddressType>::getNumericReverse() const {
         return numericReverseOpt->as<bool>();
     }
 
@@ -237,7 +237,7 @@ namespace net::in6::config {
 template class net::config::ConfigAddress<net::in6::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::in6::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::in6::SocketAddress>;
-template class net::config::ConfigAddressBase<net::in6::SocketAddress>;
+template class net::config::ConfigAddressReverse<net::in6::SocketAddress>;
 template class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;
-template class net::in6::config::ConfigAddressBase<net::config::ConfigAddressBase>;
+template class net::in6::config::ConfigAddressReverse<net::config::ConfigAddressReverse>;

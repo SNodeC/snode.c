@@ -47,7 +47,7 @@
 namespace net::l2::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::config::stream::ConfigSocketServer<net::l2::config::ConfigAddress, net::l2::config::ConfigAddressBase>(instance) {
+        : net::config::stream::ConfigSocketServer<net::l2::config::ConfigAddress, net::l2::config::ConfigAddressReverse>(instance) {
         net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::setPsmRequired();
 
         net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmOpt //
@@ -60,4 +60,4 @@ namespace net::l2::stream::config {
 
 } // namespace net::l2::stream::config
 
-template class net::config::stream::ConfigSocketServer<net::l2::config::ConfigAddress, net::l2::config::ConfigAddressBase>;
+template class net::config::stream::ConfigSocketServer<net::l2::config::ConfigAddress, net::l2::config::ConfigAddressReverse>;

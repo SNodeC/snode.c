@@ -43,7 +43,7 @@ namespace CLI {
 namespace net::un::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
-    class ConfigAddressBase : public ConfigAddressTypeT<net::un::SocketAddress> {
+    class ConfigAddressReverse : public ConfigAddressTypeT<net::un::SocketAddress> {
     public:
         using Super = ConfigAddressTypeT<SocketAddress>;
         using Super::Super;
@@ -79,9 +79,9 @@ namespace net::un::config {
 extern template class net::config::ConfigAddress<net::un::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::un::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::un::SocketAddress>;
-extern template class net::config::ConfigAddressBase<net::un::SocketAddress>;
+extern template class net::config::ConfigAddressReverse<net::un::SocketAddress>;
 extern template class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
 extern template class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
-extern template class net::un::config::ConfigAddressBase<net::config::ConfigAddressBase>;
+extern template class net::un::config::ConfigAddressReverse<net::config::ConfigAddressReverse>;
 
 #endif // NET_L2_CONFIG_CONFIGADDRESS_H

@@ -26,8 +26,8 @@ append_source_file_config(
 )
 
 append_source_file_config(
-    config/ConfigAddress.cpp IPV4_NUMERIC_REVERSE "Suppress reverse host name lookup" false
-    true
+    config/ConfigAddress.cpp IPV4_NUMERIC_REVERSE
+    "Suppress reverse host name lookup" false true
 )
 
 add_library(net-in SHARED ${NET-IN_CPP} ${NET-IN_H})

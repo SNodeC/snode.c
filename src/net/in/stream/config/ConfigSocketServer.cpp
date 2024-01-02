@@ -53,7 +53,7 @@
 namespace net::in::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressBase>(instance) {
+        : net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressReverse>(instance) {
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setPortRequired();
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
@@ -89,18 +89,6 @@ namespace net::in::stream::config {
         return reusePortOpt->as<bool>();
     }
 
-    ConfigSocketServer& ConfigSocketServer::setNumericReverse(bool numeric) {
-        numericReverseOpt //
-            ->default_val(numeric)
-            ->clear();
-
-        return *this;
-    }
-
-    bool ConfigSocketServer::getNumericReverse() const {
-        return numericReverseOpt->as<bool>();
-    }
-
 } // namespace net::in::stream::config
 
-template class net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressBase>;
+template class net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressReverse>;

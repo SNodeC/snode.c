@@ -44,17 +44,17 @@ namespace CLI {
 namespace net::in6::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
-    class ConfigAddressBase : public ConfigAddressTypeT<net::in6::SocketAddress> {
+    class ConfigAddressReverse : public ConfigAddressTypeT<net::in6::SocketAddress> {
     public:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
-        explicit ConfigAddressBase(net::config::ConfigInstance* instance,
-                                   const std::string& addressOptionName,
-                                   const std::string& addressOptionDescription);
+        explicit ConfigAddressReverse(net::config::ConfigInstance* instance,
+                                      const std::string& addressOptionName,
+                                      const std::string& addressOptionDescription);
 
         SocketAddress newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
-        ConfigAddressBase& setNumericReverse(bool numeric = true);
+        ConfigAddressReverse& setNumericReverse(bool numeric = true);
         bool getNumericReverse() const;
 
     private:
@@ -117,9 +117,9 @@ namespace net::in6::config {
 extern template class net::config::ConfigAddress<net::in6::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::in6::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::in6::SocketAddress>;
-extern template class net::config::ConfigAddressBase<net::in6::SocketAddress>;
+extern template class net::config::ConfigAddressReverse<net::in6::SocketAddress>;
 extern template class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
 extern template class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;
-extern template class net::in6::config::ConfigAddressBase<net::config::ConfigAddressBase>;
+extern template class net::in6::config::ConfigAddressReverse<net::config::ConfigAddressReverse>;
 
 #endif // NET_IN6_CONFIG_CONFIGADDRESS_H

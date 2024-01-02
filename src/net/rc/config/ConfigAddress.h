@@ -44,7 +44,7 @@ namespace CLI {
 namespace net::rc::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
-    class ConfigAddressBase : public ConfigAddressTypeT<net::rc::SocketAddress> {
+    class ConfigAddressReverse : public ConfigAddressTypeT<net::rc::SocketAddress> {
     public:
         using Super = ConfigAddressTypeT<SocketAddress>;
         using Super::Super;
@@ -84,9 +84,9 @@ namespace net::rc::config {
 extern template class net::config::ConfigAddress<net::rc::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::rc::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::rc::SocketAddress>;
-extern template class net::config::ConfigAddressBase<net::rc::SocketAddress>;
+extern template class net::config::ConfigAddressReverse<net::rc::SocketAddress>;
 extern template class net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>;
 extern template class net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>;
-extern template class net::rc::config::ConfigAddressBase<net::config::ConfigAddressBase>;
+extern template class net::rc::config::ConfigAddressReverse<net::config::ConfigAddressReverse>;
 
 #endif // NET_RC_CONFIG_CONFIGADDRESS_H

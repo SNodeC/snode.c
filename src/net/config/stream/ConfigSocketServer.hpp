@@ -29,7 +29,7 @@ namespace net::config::stream {
               typename ConfigAddressRemote>
     ConfigSocketServer<ConfigAddressLocal, ConfigAddressRemote>::ConfigSocketServer(net::config::ConfigInstance* instance)
         : ConfigAddressLocal<net::config::ConfigAddressLocal>(instance, "local", "Local side of connection")
-        , ConfigAddressRemote<net::config::ConfigAddressBase>(instance, "remote", "Remote side of connection")
+        , ConfigAddressRemote<net::config::ConfigAddressReverse>(instance, "remote", "Remote side of connection")
         , net::config::ConfigConnection(instance)
         , net::config::ConfigPhysicalSocketServer(instance)
         , net::config::ConfigListen(instance) {
