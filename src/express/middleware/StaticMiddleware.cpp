@@ -57,7 +57,7 @@ namespace express::middleware {
             },
             [] MIDDLEWARE(req, res, next) {
                 if (req.url == "/") {
-                    LOG(INFO) << "Express StaticMiddleware: REDIRECTING to" + req.url + " -> " + "/index.html";
+                    LOG(INFO) << "Express StaticMiddleware: REDIRECTING " + req.url + " -> " + "/index.html";
                     res.redirect(308, "/index.html");
                 } else {
                     next();
