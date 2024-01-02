@@ -18,8 +18,6 @@
 
 #include "net/config/ConfigLegacy.h"
 
-#include "net/config/ConfigInstance.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -29,8 +27,7 @@
 namespace net::config {
 
     ConfigLegacy::ConfigLegacy(ConfigInstance* instance)
-        : net::config::ConfigSection(
-              instance, "legacy", "Configuration of legacy behavior for instance '" + instance->getInstanceName() + "'") {
+        : net::config::ConfigSection(instance, "legacy", "Configuration of legacy behavior") {
     }
 
 } // namespace net::config

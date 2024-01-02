@@ -17,7 +17,6 @@
  */
 
 #include "ConfigAddressReverse.h"
-#include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,8 +28,7 @@ namespace net::config {
     ConfigAddressReverse<SocketAddress>::ConfigAddressReverse(ConfigInstance* instance,
                                                               const std::string& addressOptionName,
                                                               const std::string& addressOptionDescription)
-        : net::config::ConfigSection(
-              instance, addressOptionName, addressOptionDescription + " for instance '" + instance->getInstanceName() + "'") {
+        : net::config::ConfigSection(instance, addressOptionName, addressOptionDescription) {
     }
 
     template <typename SocketAddress>

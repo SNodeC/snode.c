@@ -42,9 +42,9 @@ namespace net::config {
 
     public:
     protected:
-        ConfigAddressReverse(ConfigInstance* instance,
-                             const std::string& addressOptionName = "",
-                             const std::string& addressOptionDescription = "");
+        explicit ConfigAddressReverse(ConfigInstance* instance,
+                                      const std::string& addressOptionName = "",
+                                      const std::string& addressOptionDescription = "");
 
         virtual ~ConfigAddressReverse() = default;
 

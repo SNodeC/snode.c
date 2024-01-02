@@ -39,10 +39,10 @@
 #pragma GCC diagnostic pop
 #endif
 
-#include "log/Logger.h"
 #include "utils/ResetToDefault.h"
 
 #include <memory>
+#include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -51,7 +51,7 @@ namespace net::config {
     ConfigSection::ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description)
         : instance(instance) {
         section = instance //
-                      ->add_section(name, description)
+                      ->add_section(name, description + " for instance '" + instance->getInstanceName() + "'")
                       ->disabled()
                       ->group("Sections");
     }

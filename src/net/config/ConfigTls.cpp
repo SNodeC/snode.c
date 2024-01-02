@@ -18,7 +18,6 @@
 
 #include "net/config/ConfigTls.h"
 
-#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,7 +29,7 @@
 namespace net::config {
 
     ConfigTls::ConfigTls(ConfigInstance* instance)
-        : ConfigSection(instance, "tls", "Configuration of SSL/TLS behavior for instance '" + instance->getInstanceName() + "'") {
+        : ConfigSection(instance, "tls", "Configuration of SSL/TLS behavior") {
         add_option(certChainOpt, //
                    "--cert-chain",
                    "Certificate chain file",

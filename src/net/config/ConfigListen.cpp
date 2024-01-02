@@ -18,7 +18,6 @@
 
 #include "net/config/ConfigListen.h"
 
-#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,8 +29,7 @@
 namespace net::config {
 
     ConfigListen::ConfigListen(ConfigInstance* instance)
-        : net::config::ConfigSection(
-              instance, "server", "Configuration of server socket for instance '" + instance->getInstanceName() + "'") {
+        : net::config::ConfigSection(instance, "server", "Configuration of server socket") {
         add_option(backlogOpt, //
                    "--backlog",
                    "Listen backlog",
