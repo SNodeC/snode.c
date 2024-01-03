@@ -20,8 +20,9 @@
 #ifndef NET_UN_CONFIG_CONFIGADDRESS_H
 #define NET_UN_CONFIG_CONFIGADDRESS_H
 
-#include "net/config/ConfigAddressLocal.h"  // IWYU pragma: keep
-#include "net/config/ConfigAddressRemote.h" // IWYU pragma: keep
+#include "net/config/ConfigAddressLocal.h"   // IWYU pragma: keep
+#include "net/config/ConfigAddressRemote.h"  // IWYU pragma: keep
+#include "net/config/ConfigAddressReverse.h" // IWYU pragma: keep
 #include "net/un/SocketAddress.h"
 
 namespace net::config {
@@ -81,6 +82,7 @@ extern template class net::config::ConfigAddress<net::un::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::un::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::un::SocketAddress>;
 extern template class net::config::ConfigAddressReverse<net::un::SocketAddress>;
+extern template class net::config::ConfigAddressBase<net::un::SocketAddress>;
 extern template class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
 extern template class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
 extern template class net::un::config::ConfigAddressReverse<net::config::ConfigAddressReverse>;

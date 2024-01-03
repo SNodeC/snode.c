@@ -32,10 +32,8 @@
 namespace net::in6::phy::stream {
 
     class PhysicalSocketClient : public net::in6::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient> {
-    private:
-        using Super = net::in6::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
-
     public:
+        using Super = net::in6::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketClient>;
         using Super::Super;
 
         PhysicalSocketClient(PhysicalSocketClient&&) noexcept = default;

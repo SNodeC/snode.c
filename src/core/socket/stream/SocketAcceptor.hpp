@@ -30,6 +30,56 @@
 
 namespace core::socket::stream {
 
+    template <typename SocketAddress, typename PhysicalSocket, typename Config>
+    SocketAddress getLocalSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
+        typename SocketAddress::SockAddr localSockAddr;
+        typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+        SocketAddress localPeerAddress;
+        if (physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
+            try {
+                localPeerAddress = config->Local::getSocketAddress(localSockAddr, localSockAddrLen);
+                LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress " << localPeerAddress.toString();
+            } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
+
+                try {
+                    localPeerAddress = config->Local::Super::getSocketAddress(localSockAddr, localSockAddrLen);
+                    LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress " << localPeerAddress.toString();
+                } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                    LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
+                }
+            }
+        }
+
+        return localPeerAddress;
+    }
+
+    template <typename SocketAddress, typename PhysicalSocket, typename Config>
+    SocketAddress getRemoteSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
+        typename SocketAddress::SockAddr remoteSockAddr;
+        typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+        SocketAddress remotePeerAddress;
+        if (physicalSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
+            try {
+                remotePeerAddress = config->Remote::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
+                LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress " << remotePeerAddress.toString();
+            } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
+
+                try {
+                    remotePeerAddress = config->Remote::Super::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
+                    LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress " << remotePeerAddress.toString();
+                } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                    LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
+                }
+            }
+        }
+
+        return remotePeerAddress;
+    }
+
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::SocketAcceptor(
         const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
@@ -142,58 +192,17 @@ namespace core::socket::stream {
                 LOG(TRACE) << config->getInstanceName() << ": accept success '" << connectedPhysicalServerSocket.getBindAddress().toString()
                            << "'";
 
-                SocketConnection* socketConnection = nullptr;
-
-                typename SocketAddress::SockAddr localSockAddr;
-                typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
-
-                typename SocketAddress::SockAddr remoteSockAddr;
-                typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
-
-                SocketAddress localPeerAddress;
-                if (connectedPhysicalServerSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
-                    try {
-                        localPeerAddress = config->Local::newSocketAddress(localSockAddr, localSockAddrLen);
-                        LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress " << localPeerAddress.toString();
-                    } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                        LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
-
-                        try {
-                            localPeerAddress = config->ConfigAddressLocal::newSocketAddress(localSockAddr, localSockAddrLen);
-                            LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress " << localPeerAddress.toString();
-                        } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                            LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
-                        }
-                    }
-                }
-
-                SocketAddress remotePeerAddress;
-                if (connectedPhysicalServerSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
-                    try {
-                        remotePeerAddress = config->Remote::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                        LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress " << remotePeerAddress.toString();
-                    } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                        LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
-
-                        try {
-                            remotePeerAddress = config->Remote::ConfigAddressReverse::newSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                            LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress " << remotePeerAddress.toString();
-                        } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                            LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
-                        }
-                    }
-                }
-
-                socketConnection = new SocketConnection(config->getInstanceName(),
-                                                        std::move(connectedPhysicalServerSocket),
-                                                        onDisconnect,
-                                                        localPeerAddress,
-                                                        remotePeerAddress,
-                                                        config->getReadTimeout(),
-                                                        config->getWriteTimeout(),
-                                                        config->getReadBlockSize(),
-                                                        config->getWriteBlockSize(),
-                                                        config->getTerminateTimeout());
+                SocketConnection* socketConnection =
+                    new SocketConnection(config->getInstanceName(),
+                                         std::move(connectedPhysicalServerSocket),
+                                         onDisconnect,
+                                         getLocalSocketAddress<SocketAddress>(connectedPhysicalServerSocket, config),
+                                         getRemoteSocketAddress<SocketAddress>(connectedPhysicalServerSocket, config),
+                                         config->getReadTimeout(),
+                                         config->getWriteTimeout(),
+                                         config->getReadBlockSize(),
+                                         config->getWriteBlockSize(),
+                                         config->getTerminateTimeout());
 
                 onConnect(socketConnection);
                 onConnected(socketConnection);

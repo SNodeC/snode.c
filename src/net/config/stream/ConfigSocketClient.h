@@ -31,15 +31,16 @@
 
 namespace net::config::stream {
 
-    template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressT>
+    template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressLocalT,
+              template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressRemoteT = ConfigAddressLocalT>
     class ConfigSocketClient
-        : public ConfigAddressT<net::config::ConfigAddressRemote>
-        , public ConfigAddressT<net::config::ConfigAddressLocal>
+        : public ConfigAddressRemoteT<net::config::ConfigAddressRemote>
+        , public ConfigAddressLocalT<net::config::ConfigAddressLocal>
         , public net::config::ConfigConnection
         , public net::config::ConfigPhysicalSocketClient {
     public:
-        using Remote = ConfigAddressT<net::config::ConfigAddressRemote>;
-        using Local = ConfigAddressT<net::config::ConfigAddressLocal>;
+        using Remote = ConfigAddressRemoteT<net::config::ConfigAddressRemote>;
+        using Local = ConfigAddressLocalT<net::config::ConfigAddressLocal>;
 
         explicit ConfigSocketClient(net::config::ConfigInstance* instance);
     };

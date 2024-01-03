@@ -31,10 +31,8 @@ namespace net::un::phy {
 
     template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
     class PhysicalSocket : public PhysicalPeerSocketT<net::un::SocketAddress> {
-    private:
-        using Super = PhysicalPeerSocketT<net::un::SocketAddress>;
-
     public:
+        using Super = PhysicalPeerSocketT<net::un::SocketAddress>;
         using Super::Super;
 
         PhysicalSocket(int type, int protocol);

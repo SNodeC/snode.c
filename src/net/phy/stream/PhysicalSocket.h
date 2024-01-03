@@ -32,12 +32,9 @@ namespace net::phy::stream {
 
     template <typename SocketAddressT>
     class PhysicalSocket : public net::phy::PhysicalSocket<SocketAddressT> {
-    private:
-        using Super = net::phy::PhysicalSocket<SocketAddressT>;
-
     public:
+        using Super = net::phy::PhysicalSocket<SocketAddressT>;
         using SocketAddress = SocketAddressT;
-
         using Super::Super;
 
         enum SHUT { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };

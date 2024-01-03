@@ -17,10 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_CONFIG_CONFIGADDRESS_H
-#define NET_CONFIG_CONFIGADDRESS_H
+#ifndef NET_CONFIG_CONFIGADDRESSBASE_H
+#define NET_CONFIG_CONFIGADDRESSBASE_H
 
-#include "net/config/ConfigAddressBase.h" // IWYU pragma: export
+#include "net/config/ConfigSection.h" // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;
@@ -37,27 +37,22 @@ namespace CLI {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddress : public ConfigAddressBase<SocketAddressT> {
-    public:
-        using Super = ConfigAddressBase<SocketAddressT>;
-        using SocketAddress = SocketAddressT;
-
+    class ConfigAddressBase : protected ConfigSection {
     protected:
-        ConfigAddress(ConfigInstance* instance, const std::string& addressOptionName, const std::string& addressOptionDescription);
-
-        ~ConfigAddress() override;
+        using Super = ConfigSection;
 
     public:
-        using Super::getSocketAddress;
-        SocketAddress& getSocketAddress();
-        void renew();
+    protected:
+        explicit ConfigAddressBase(ConfigInstance* instance,
+                                   const std::string& addressOptionName = "",
+                                   const std::string& addressOptionDescription = "");
 
-    private:
-        virtual SocketAddress* init() = 0;
+        virtual ~ConfigAddressBase() = default;
 
-        SocketAddress* socketAddress = nullptr;
+    public:
+        SocketAddressT getSocketAddress(const SocketAddressT::SockAddr& sockAddr, SocketAddressT::SockLen sockAddrLen);
     };
 
 } // namespace net::config
 
-#endif // NET_CONFIG_CONFIGADDRESS_H
+#endif // NET_CONFIG_CONFIGADDRESSBASE_H

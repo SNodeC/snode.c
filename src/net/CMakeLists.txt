@@ -37,6 +37,9 @@ set(NET_H
     SocketAddress.hpp
     config/ConfigAddress.h
     config/ConfigAddress.hpp
+    config/ConfigAddressBase.h
+    config/ConfigAddressBase.hpp
+    config/ConfigAddressReverse.hpp
     config/ConfigAddressLocal.h
     config/ConfigAddressLocal.hpp
     config/ConfigAddressRemote.h

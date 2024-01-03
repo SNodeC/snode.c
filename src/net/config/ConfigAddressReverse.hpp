@@ -1,7 +1,6 @@
 /*
- * SNode.C - a slim toolkit for network communication
- * Copyright (C) Volker Christian <me@vchrist.at>
- *               2020, 2021, 2022, 2023, 2024
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,25 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ConfigAddressReverse.h"
+#include "net/config/ConfigAddressReverse.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config {
-
-    template <typename SocketAddress>
-    ConfigAddressReverse<SocketAddress>::ConfigAddressReverse(ConfigInstance* instance,
-                                                              const std::string& addressOptionName,
-                                                              const std::string& addressOptionDescription)
-        : net::config::ConfigSection(instance, addressOptionName, addressOptionDescription) {
-    }
-
-    template <typename SocketAddress>
-    SocketAddress ConfigAddressReverse<SocketAddress>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
-                                                                        SocketAddress::SockLen sockAddrLen) {
-        return SocketAddress(sockAddr, sockAddrLen);
-    }
-
-} // namespace net::config
+namespace net::config {} // namespace net::config

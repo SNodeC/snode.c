@@ -32,12 +32,9 @@ namespace net::phy::stream {
 
     template <typename SocketAddressT>
     class PhysicalSocketClient : public net::phy::stream::PhysicalSocket<SocketAddressT> {
-    private:
-        using Super = net::phy::stream::PhysicalSocket<SocketAddressT>;
-
     public:
+        using Super = net::phy::stream::PhysicalSocket<SocketAddressT>;
         using SocketAddress = SocketAddressT;
-
         using Super::Super;
 
         int connect(SocketAddress& remoteAddress);

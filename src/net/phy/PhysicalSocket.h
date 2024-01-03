@@ -54,9 +54,10 @@ namespace net::phy {
 
     public:
         PhysicalSocket() = delete;
-        PhysicalSocket(PhysicalSocket&) = delete; // only move is allowed for PhysicalSocket
-
-        PhysicalSocket& operator=(PhysicalSocket&) = delete; // only move is allowed for PhysicalSocket
+        PhysicalSocket(PhysicalSocket&) = delete;                  // only move is allowed for PhysicalSocket
+        PhysicalSocket& operator=(PhysicalSocket&) = delete;       // only move is allowed for PhysicalSocket
+        PhysicalSocket(const PhysicalSocket&) = delete;            // only move is allowed for PhysicalSocket
+        PhysicalSocket& operator=(const PhysicalSocket&) = delete; // only move is allowed for PhysicalSocket
 
         PhysicalSocket(int fd, const SocketAddress& bindAddress);
 
@@ -70,8 +71,14 @@ namespace net::phy {
 
         int getSockName(typename SocketAddress::SockAddr& localSockAddr, SocketAddress::SockLen& localSockAddrLen);
         int getPeerName(typename SocketAddress::SockAddr& remoteSockAddr, SocketAddress::SockLen& remoteSockAddrLen);
+        /*
+                template <typename ConfigT>
+                SocketAddress getLocalSocketAddress(ConfigT& config) const;
 
-        const SocketAddress& getBindAddress() const;
+                template <typename ConfigT>
+                SocketAddress getRemoteSocketAddress(ConfigT& config) const;
+        */
+        SocketAddress getBindAddress() const;
 
     private:
         int setSockopt(int level, int optname, const void* optval, SocketAddress::SockLen optlen) const;

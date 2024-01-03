@@ -17,32 +17,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_PHY_STREAM_PHYSICALSOCKET_H
-#define NET_UN_PHY_STREAM_PHYSICALSOCKET_H
-
-#include "net/phy/stream/PhysicalSocket.h" // IWYU pragma: export
-#include "net/un/phy/PhysicalSocket.h"     // IWYU pragma: export
+#include "ConfigAddressBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::un::phy::stream {
+namespace net::config {
 
-    template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
-    class PhysicalSocket : public net::un::phy::PhysicalSocket<PhysicalPeerSocketT> {
-    public:
-        using Super = net::un::phy::PhysicalSocket<PhysicalPeerSocketT>;
-        using Super::Super;
+    template <typename SocketAddress>
+    ConfigAddressBase<SocketAddress>::ConfigAddressBase(ConfigInstance* instance,
+                                                        const std::string& addressOptionName,
+                                                        const std::string& addressOptionDescription)
+        : net::config::ConfigSection(instance, addressOptionName, addressOptionDescription) {
+    }
 
-        PhysicalSocket();
-        PhysicalSocket(PhysicalSocket&&) noexcept = default;
+    template <typename SocketAddress>
+    SocketAddress ConfigAddressBase<SocketAddress>::getSocketAddress(const SocketAddress::SockAddr& sockAddr,
+                                                                     SocketAddress::SockLen sockAddrLen) {
+        return SocketAddress(sockAddr, sockAddrLen);
+    }
 
-        ~PhysicalSocket() override;
-    };
-
-} // namespace net::un::phy::stream
-
-extern template class net::phy::stream::PhysicalSocket<net::un::SocketAddress>;
-
-#endif // NET_UN_PHY_STREAM_PHYSICALSOCKET_H
+} // namespace net::config

@@ -21,7 +21,7 @@
 #define NET_CONFIG_CONFIGADDRESS_HPP
 
 #include "net/config/ConfigAddress.h" // IWYU pragma: export
-#include "net/config/ConfigAddressReverse.hpp"
+#include "net/config/ConfigAddressBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

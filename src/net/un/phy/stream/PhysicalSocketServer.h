@@ -32,10 +32,8 @@
 namespace net::un::phy::stream {
 
     class PhysicalSocketServer : public net::un::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer> {
-    private:
-        using Super = net::un::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
-
     public:
+        using Super = net::un::phy::stream::PhysicalSocket<net::phy::stream::PhysicalSocketServer>;
         using Super::Super;
 
         PhysicalSocketServer(PhysicalSocketServer&&) noexcept = default;

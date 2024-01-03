@@ -19,8 +19,10 @@
 
 #include "net/un/config/ConfigAddress.h"
 
+#include "net/config/ConfigAddressBase.hpp"
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
+#include "net/config/ConfigAddressReverse.hpp"
 #include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.hpp"
 #include "utils/Uuid.h"
@@ -90,6 +92,7 @@ template class net::config::ConfigAddress<net::un::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::un::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::un::SocketAddress>;
 template class net::config::ConfigAddressReverse<net::un::SocketAddress>;
+template class net::config::ConfigAddressBase<net::un::SocketAddress>;
 template class net::un::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::un::config::ConfigAddress<net::config::ConfigAddressRemote>;
 template class net::un::config::ConfigAddressReverse<net::config::ConfigAddressReverse>;

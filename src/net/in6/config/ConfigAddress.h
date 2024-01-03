@@ -20,8 +20,9 @@
 #ifndef NET_IN6_CONFIG_CONFIGADDRESS_H
 #define NET_IN6_CONFIG_CONFIGADDRESS_H
 
-#include "net/config/ConfigAddressLocal.h"  // IWYU pragma: keep
-#include "net/config/ConfigAddressRemote.h" // IWYU pragma: keep
+#include "net/config/ConfigAddressLocal.h"   // IWYU pragma: keep
+#include "net/config/ConfigAddressRemote.h"  // IWYU pragma: keep
+#include "net/config/ConfigAddressReverse.h" // IWYU pragma: keep
 #include "net/in6/SocketAddress.h"
 
 namespace net::config {
@@ -53,7 +54,8 @@ namespace net::in6::config {
                                       const std::string& addressOptionName,
                                       const std::string& addressOptionDescription);
 
-        SocketAddress newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
+        using Super::getSocketAddress;
+        SocketAddress getSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
         ConfigAddressReverse& setNumericReverse(bool numeric = true);
         bool getNumericReverse() const;
@@ -75,7 +77,8 @@ namespace net::in6::config {
         SocketAddress* init() final;
 
     public:
-        SocketAddress newSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
+        using Super::getSocketAddress;
+        SocketAddress getSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
         ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
 
@@ -125,6 +128,7 @@ extern template class net::config::ConfigAddress<net::in6::SocketAddress>;
 extern template class net::config::ConfigAddressLocal<net::in6::SocketAddress>;
 extern template class net::config::ConfigAddressRemote<net::in6::SocketAddress>;
 extern template class net::config::ConfigAddressReverse<net::in6::SocketAddress>;
+extern template class net::config::ConfigAddressBase<net::in6::SocketAddress>;
 extern template class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
 extern template class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;
 extern template class net::in6::config::ConfigAddressReverse<net::config::ConfigAddressReverse>;

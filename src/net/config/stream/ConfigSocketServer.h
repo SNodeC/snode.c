@@ -21,7 +21,7 @@
 #define NET_CONFIG_STREAM_CONFIGSOCKETSERVER_H
 
 #include "net/config/ConfigAddressLocal.h"         // IWYU pragma: export
-#include "net/config/ConfigAddressRemote.h"        // IWYU pragma: export
+#include "net/config/ConfigAddressReverse.h"       // IWYU pragma: export
 #include "net/config/ConfigConnection.h"           // IWYU pragma: export
 #include "net/config/ConfigListen.h"               // IWYU pragma: export
 #include "net/config/ConfigPhysicalSocketServer.h" // IWYU pragma: export
@@ -32,18 +32,18 @@
 
 namespace net::config::stream {
 
-    template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressT,
+    template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressLocalT,
               template <template <typename SocketAddress> typename ConfigAddressTypeT>
-              typename ConfigAddressReverseT>
+              typename ConfigAddressRemoteT>
     class ConfigSocketServer
-        : public ConfigAddressT<net::config::ConfigAddressLocal>
-        , public ConfigAddressReverseT<net::config::ConfigAddressReverse>
+        : public ConfigAddressLocalT<net::config::ConfigAddressLocal>
+        , public ConfigAddressRemoteT<net::config::ConfigAddressReverse>
         , public net::config::ConfigConnection
         , public net::config::ConfigPhysicalSocketServer
         , public net::config::ConfigListen {
     public:
-        using Local = ConfigAddressT<net::config::ConfigAddressLocal>;
-        using Remote = ConfigAddressReverseT<net::config::ConfigAddressReverse>;
+        using Local = ConfigAddressLocalT<net::config::ConfigAddressLocal>;
+        using Remote = ConfigAddressRemoteT<net::config::ConfigAddressReverse>;
 
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
     };

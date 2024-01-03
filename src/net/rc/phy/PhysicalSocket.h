@@ -31,10 +31,8 @@ namespace net::rc::phy {
 
     template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
     class PhysicalSocket : public PhysicalPeerSocketT<net::rc::SocketAddress> {
-    private:
-        using Super = PhysicalPeerSocketT<net::rc::SocketAddress>;
-
     public:
+        using Super = PhysicalPeerSocketT<net::rc::SocketAddress>;
         using Super::Super;
 
         PhysicalSocket(int type, int protocol);

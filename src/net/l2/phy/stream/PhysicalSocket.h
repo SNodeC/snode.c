@@ -31,10 +31,8 @@ namespace net::l2::phy::stream {
 
     template <template <typename SocketAddressT> typename PhysicalPeerSocketT>
     class PhysicalSocket : public net::l2::phy::PhysicalSocket<PhysicalPeerSocketT> {
-    private:
-        using Super = net::l2::phy::PhysicalSocket<PhysicalPeerSocketT>;
-
     public:
+        using Super = net::l2::phy::PhysicalSocket<PhysicalPeerSocketT>;
         using Super::Super;
 
         PhysicalSocket();

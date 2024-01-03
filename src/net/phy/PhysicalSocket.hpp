@@ -117,9 +117,61 @@ namespace net::phy {
                                                    SocketAddress::SockLen& remoteSockAddrLen) {
         return core::system::getpeername(core::Descriptor::getFd(), reinterpret_cast<sockaddr*>(&remoteSockAddr), &remoteSockAddrLen);
     }
+    /*
+        template <typename SocketAddress>
+        template <typename Config>
+        SocketAddress PhysicalSocket<SocketAddress>::getLocalSocketAddress(Config& config) const {
+            typename SocketAddress::SockAddr localSockAddr;
+            typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
+            SocketAddress localPeerAddress;
+            if (getSockName(localSockAddr, localSockAddrLen) == 0) {
+                try {
+                    localPeerAddress = config->Local::getSocketAddress(localSockAddr, localSockAddrLen);
+                    LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress " << localPeerAddress.toString();
+                } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                    LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
+
+                    try {
+                        localPeerAddress = config->Local::ConfigAddressReverse::getSocketAddress(localSockAddr, localSockAddrLen);
+                        LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress " << localPeerAddress.toString();
+                    } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                        LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
+                    }
+                }
+            }
+
+            return localPeerAddress;
+        }
+
+        template <typename SocketAddress>
+        template <typename Config>
+        SocketAddress PhysicalSocket<SocketAddress>::getRemoteSocketAddress(Config& config) const {
+            typename SocketAddress::SockAddr remoteSockAddr;
+            typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
+
+            SocketAddress remotePeerAddress;
+            if (getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
+                try {
+                    remotePeerAddress = config->Remote::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
+                    LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress " << remotePeerAddress.toString();
+                } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
+                    LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
+
+                    try {
+                        remotePeerAddress = config->Remote::ConfigAddressReverse::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
+                        LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress " << remotePeerAddress.toString();
+                    } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                        LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
+                    }
+                }
+            }
+
+            return remotePeerAddress;
+        }
+    */
     template <typename SocketAddress>
-    const SocketAddress& PhysicalSocket<SocketAddress>::getBindAddress() const {
+    SocketAddress PhysicalSocket<SocketAddress>::getBindAddress() const {
         return bindAddress;
     }
 

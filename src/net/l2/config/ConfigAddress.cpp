@@ -19,8 +19,10 @@
 
 #include "net/l2/config/ConfigAddress.h"
 
+#include "net/config/ConfigAddressBase.hpp"
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
+#include "net/config/ConfigAddressReverse.hpp"
 #include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -117,6 +119,7 @@ template class net::config::ConfigAddress<net::l2::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::l2::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::l2::SocketAddress>;
 template class net::config::ConfigAddressReverse<net::l2::SocketAddress>;
+template class net::config::ConfigAddressBase<net::l2::SocketAddress>;
 template class net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>;
 template class net::l2::config::ConfigAddressReverse<net::config::ConfigAddressReverse>;

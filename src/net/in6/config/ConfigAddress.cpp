@@ -19,8 +19,10 @@
 
 #include "net/in6/config/ConfigAddress.h"
 
+#include "net/config/ConfigAddressBase.hpp"
 #include "net/config/ConfigAddressLocal.hpp"
 #include "net/config/ConfigAddressRemote.hpp"
+#include "net/config/ConfigAddressReverse.hpp"
 #include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -42,8 +44,8 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddressReverse<ConfigAddressType>::ConfigAddressReverse(net::config::ConfigInstance* instance,
-                                                                  const std::string& addressOptionName,
-                                                                  const std::string& addressOptionDescription)
+                                                                    const std::string& addressOptionName,
+                                                                    const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
         Super::add_flag(numericReverseOpt,
                         "--numeric-reverse",
@@ -54,8 +56,8 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddressReverse<ConfigAddressType>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
-                                                                            SocketAddress::SockLen sockAddrLen) {
+    SocketAddress ConfigAddressReverse<ConfigAddressType>::getSocketAddress(const SocketAddress::SockAddr& sockAddr,
+                                                                             SocketAddress::SockLen sockAddrLen) {
         return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
     }
 
@@ -120,7 +122,7 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    SocketAddress ConfigAddress<ConfigAddressType>::newSocketAddress(const SocketAddress::SockAddr& sockAddr,
+    SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress(const SocketAddress::SockAddr& sockAddr,
                                                                      SocketAddress::SockLen sockAddrLen) {
         return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
     }
@@ -264,6 +266,7 @@ template class net::config::ConfigAddress<net::in6::SocketAddress>;
 template class net::config::ConfigAddressLocal<net::in6::SocketAddress>;
 template class net::config::ConfigAddressRemote<net::in6::SocketAddress>;
 template class net::config::ConfigAddressReverse<net::in6::SocketAddress>;
+template class net::config::ConfigAddressBase<net::in6::SocketAddress>;
 template class net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>;
 template class net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>;
 template class net::in6::config::ConfigAddressReverse<net::config::ConfigAddressReverse>;
