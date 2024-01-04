@@ -172,6 +172,8 @@ namespace core::socket::stream {
                         }
 
                         if (remoteAddress.useNext()) {
+                            onStatus(remoteAddress, state | core::socket::State::NO_RETRY);
+
                             LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
                                        << config->Remote::getSocketAddress().toString() << "'";
 
@@ -256,7 +258,30 @@ namespace core::socket::stream {
             } else if (PhysicalClientSocket::connectInProgress(errno)) {
                 LOG(TRACE) << config->getInstanceName() << ": connect still in progress '" << remoteAddress.toString() << "'";
             } else if (remoteAddress.useNext()) {
-                PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+                PLOG(TRACE) << config->getInstanceName() << ": connect failed 1 '" << remoteAddress.toString() << "'";
+
+                core::socket::State state = core::socket::STATE_OK;
+
+                switch (errno) {
+                    case EADDRINUSE:
+                    case EADDRNOTAVAIL:
+                    case ECONNREFUSED:
+                    case ENETUNREACH:
+                    case ENOENT:
+                    case EHOSTDOWN:
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed 2 '" << remoteAddress.toString() << "'";
+
+                        state = core::socket::STATE_ERROR;
+                        break;
+                    default:
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed 3 '" << remoteAddress.toString() << "'";
+
+                        state = core::socket::STATE_FATAL;
+                        break;
+                }
+
+                onStatus(remoteAddress, (state | core::socket::State::NO_RETRY));
+
                 LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '" << config->Remote::getSocketAddress().toString()
                            << "'";
 
@@ -271,18 +296,19 @@ namespace core::socket::stream {
                     case EADDRNOTAVAIL:
                     case ECONNREFUSED:
                     case ENETUNREACH:
-                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed 4'" << remoteAddress.toString() << "'";
 
                         state = core::socket::STATE_ERROR;
                         break;
                     default:
-                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed 5'" << remoteAddress.toString() << "'";
 
                         state = core::socket::STATE_FATAL;
                         break;
                 }
 
                 onStatus(remoteAddress, state);
+
                 disable();
             }
         } else {

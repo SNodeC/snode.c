@@ -177,20 +177,22 @@ namespace core::socket::stream {
                     },
                     [client = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
                                                                          core::socket::State state) -> void {
-                        onStatus(socketAddress, state);
+                        bool retry = (state & core::socket::State::NO_RETRY) == 0;
+                        state &= ~core::socket::State::NO_RETRY;
 
-                        bool retry = false;
+                        onStatus(socketAddress, state);
 
                         switch (state) {
                             case core::socket::State::OK:
                                 [[fallthrough]];
                             case core::socket::State::DISABLED:
+                                retry = false;
                                 break;
                             case core::socket::State::ERROR:
-                                retry = client.getConfig().getRetry();
+                                retry = retry && client.getConfig().getRetry();
                                 break;
                             case core::socket::State::FATAL:
-                                retry = client.getConfig().getRetry() && client.getConfig().getRetryOnFatal();
+                                retry = retry && client.getConfig().getRetry() && client.getConfig().getRetryOnFatal();
                                 break;
                         }
 

@@ -194,7 +194,7 @@ namespace net::config {
     }
 
     bool ConfigPhysicalSocket::getRetryOnFatal() const {
-        return retryOpt->as<bool>();
+        return retryOnFatalOpt->as<bool>();
     }
 
     void ConfigPhysicalSocket::setRetryTimeout(double sec) {

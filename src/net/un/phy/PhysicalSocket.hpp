@@ -45,8 +45,7 @@ namespace net::un::phy {
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
-    PhysicalSocket<PhysicalPeerSocket>&
-    PhysicalSocket<PhysicalPeerSocket>::operator=(PhysicalSocket&& physicalSocket) noexcept { // cppcheck-suppress operatorEqVarError
+    PhysicalSocket<PhysicalPeerSocket>& PhysicalSocket<PhysicalPeerSocket>::operator=(PhysicalSocket&& physicalSocket) noexcept {
         Super::operator=(std::move(physicalSocket));
         lockFd = std::exchange(physicalSocket.lockFd, -1);
 

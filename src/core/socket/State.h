@@ -36,6 +36,7 @@ namespace core::socket {
         constexpr static int DISABLED = 1;
         constexpr static int ERROR = 2;
         constexpr static int FATAL = 3;
+        constexpr static int NO_RETRY = 4;
 
 #ifdef SNODEC_INTREE_BUILD
 #define STATE_OK State(core::socket::State::OK, __FILE__, __LINE__)
@@ -52,6 +53,15 @@ namespace core::socket {
         operator int() const;
 
         bool operator==(const int& state) const;
+        State& operator=(int state);
+
+        State& operator|=(int state);
+        State& operator&=(int state);
+        State& operator^=(int state);
+
+        State operator|(int state);
+        State operator&(int state);
+        State operator^(int state);
 
         std::string what() const;
         std::string where() const;

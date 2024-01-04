@@ -34,7 +34,7 @@ namespace core::socket {
         , file(file)
         , line(line)
         , errnum(errno)
-        , errstr(errnum != 0 ? std::string(std::strerror(errnum)).append(" [").append(std::to_string(errnum)).append("]") : "") {
+        , errstr(errnum != 0 ? std::strerror(errnum) : "") {
     }
 
     State::State(const int& state, const std::string& file, const int& line, int errnum, const std::string& errstr)
@@ -42,7 +42,7 @@ namespace core::socket {
         , file(file)
         , line(line)
         , errnum(errnum)
-        , errstr(errnum != 0 ? std::string(errstr).append(" [").append(std::to_string(errnum)).append("]") : "") {
+        , errstr(errnum != 0 ? errstr : "") {
     }
 
     State::operator int() const {
@@ -53,10 +53,46 @@ namespace core::socket {
         return this->state == state;
     }
 
+    State& State::operator=(int state) {
+        this->state = state;
+
+        return *this;
+    }
+
+    State& State::operator|=(int state) {
+        this->state |= state;
+
+        return *this;
+    }
+
+    State& State::operator&=(int state) {
+        this->state &= state;
+
+        return *this;
+    }
+
+    State& State::operator^=(int state) {
+        this->state ^= state;
+
+        return *this;
+    }
+
+    State State::operator|(int state) {
+        return State(this->state | state, this->file, this->line, this->errnum, this->errstr);
+    }
+
+    State State::operator&(int state) {
+        return State(this->state & state, this->file, this->line, this->errnum, this->errstr);
+    }
+
+    State State::operator^(int state) {
+        return State(this->state ^ state, this->file, this->line, this->errnum, this->errstr);
+    }
+
     std::string State::what() const {
         std::string stateString;
 
-        switch (state) {
+        switch (state & ~NO_RETRY) {
             case OK:
                 stateString = "OK";
                 break;
@@ -70,7 +106,7 @@ namespace core::socket {
                 break;
         }
 
-        return stateString;
+        return stateString.append(" [").append(std::to_string(errnum)).append("]");
     }
 
     std::string State::where() const {
