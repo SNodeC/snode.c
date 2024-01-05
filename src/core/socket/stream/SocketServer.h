@@ -159,43 +159,56 @@ namespace core::socket::stream {
                     onConnected,
                     onDisconnect,
                     [server = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
-                                                                         core::socket::State state) -> void {
-                        onStatus(socketAddress, state);
+                                                                         core::socket::State state) mutable -> void {
+                        const bool retry = (state & core::socket::State::NO_RETRY) == 0;
 
-                        bool retry = false;
+                        state &= ~core::socket::State::NO_RETRY;
+                        onStatus(socketAddress, state);
 
                         switch (state) {
                             case core::socket::State::OK:
+                                server.currentOk++;
                                 [[fallthrough]];
                             case core::socket::State::DISABLED:
                                 break;
                             case core::socket::State::ERROR:
-                                retry = server.getConfig().getRetry();
+                                server.currentError++;
                                 break;
                             case core::socket::State::FATAL:
-                                retry = server.getConfig().getRetry() && server.getConfig().getRetryOnFatal();
+                                server.currentFatal++;
                                 break;
                         }
 
                         if (retry && (server.getConfig().getRetryTries() == 0 || tries < server.getConfig().getRetryTries())) {
-                            double relativeRetryTimeout = server.getConfig().getRetryLimit() > 0
-                                                              ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
-                                                                                 server.getConfig().getRetryLimit())
-                                                              : server.getConfig().getRetryTimeout() * retryTimeoutScale;
-                            relativeRetryTimeout -=
-                                utils::Random::getInRange(-server.getConfig().getRetryJitter(), server.getConfig().getRetryJitter()) *
-                                relativeRetryTimeout / 100.;
+                            if ((server.currentError > 0 && server.getConfig().getRetry()) ||
+                                (server.currentFatal > 0 && server.getConfig().getRetry() && server.getConfig().getRetryOnFatal())) {
+                                if (server.totalOk < server.currentError + server.currentFatal) {
+                                    server.totalOk += server.currentOk;
 
-                            LOG(INFO) << "Server OnStatus: " << server.getConfig().getInstanceName();
-                            LOG(INFO) << "  retrying in " << relativeRetryTimeout << " seconds";
+                                    double relativeRetryTimeout =
+                                        server.getConfig().getRetryLimit() > 0
+                                            ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
+                                                               server.getConfig().getRetryLimit())
+                                            : server.getConfig().getRetryTimeout() * retryTimeoutScale;
+                                    relativeRetryTimeout -= utils::Random::getInRange(-server.getConfig().getRetryJitter(),
+                                                                                      server.getConfig().getRetryJitter()) *
+                                                            relativeRetryTimeout / 100.;
 
-                            core::timer::Timer::singleshotTimer(
-                                [server, onStatus, tries, retryTimeoutScale]() mutable -> void {
-                                    server.getConfig().Local::renew();
+                                    LOG(INFO) << "Server OnStatus: " << server.getConfig().getInstanceName();
+                                    LOG(INFO) << "  retrying in " << relativeRetryTimeout << " seconds";
 
-                                    server.realListen(onStatus, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
-                                },
-                                relativeRetryTimeout);
+                                    core::timer::Timer::singleshotTimer(
+                                        [server, onStatus, tries, retryTimeoutScale]() mutable -> void {
+                                            server.getConfig().Local::renew();
+                                            server.currentOk = 0;
+                                            server.currentError = 0;
+                                            server.currentFatal = 0;
+
+                                            server.realListen(onStatus, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
+                                        },
+                                        relativeRetryTimeout);
+                                }
+                            }
                         }
                     },
                     Super::config);
@@ -257,6 +270,12 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
+
+    private:
+        std::size_t totalOk = 0;
+        std::size_t currentOk = 0;
+        std::size_t currentError = 0;
+        std::size_t currentFatal = 0;
     };
 
 } // namespace core::socket::stream

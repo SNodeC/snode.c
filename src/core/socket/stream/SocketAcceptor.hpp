@@ -158,6 +158,8 @@ namespace core::socket::stream {
                     LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
                                << config->Local::getSocketAddress().toString() << "'";
 
+                    onStatus(localAddress, (state | core::socket::State::NO_RETRY));
+
                     new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
                 } else {
                     onStatus(localAddress, state);
