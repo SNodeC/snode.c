@@ -770,11 +770,24 @@ namespace utils {
         return app;
     }
 
+    static void unrequire(CLI::App* instance) {
+        //        for (const auto& opt : instance->get_options({})) {
+        //            opt->required(false);
+        //            instance->remove_needs(opt);
+        //        }
+        for (const auto& sub : instance->get_subcommands({})) {
+            sub->disabled();
+            instance->remove_needs(sub);
+            //            unrequire(sub);
+        }
+    }
+
     void Config::required(CLI::App* instance, bool req) {
         if (req) {
             app->needs(instance);
         } else {
             app->remove_needs(instance);
+            unrequire(instance);
         }
 
         instance->required(req);

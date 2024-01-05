@@ -70,6 +70,9 @@ namespace CLI {
 
                     std::string defaultValue{};
                     if (default_also) {
+                        if (opt->get_default_str() == value) {
+                            value.clear();
+                        }
                         if (!opt->get_default_str().empty()) {
                             defaultValue = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, characterQuote);
                         } else if (opt->get_expected_min() == 0) {

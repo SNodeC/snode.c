@@ -23,6 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/Config.h"
 #include "utils/Exceptions.h"
 
@@ -49,6 +50,7 @@ namespace net::config {
                              "--disabled{true}",
                              [this]([[maybe_unused]] int64_t count) -> void {
                                  utils::Config::required(instanceSc, !disableOpt->as<bool>());
+                                 VLOG(0) << "##################";
                              },
                              "Disable this instance")
                          ->trigger_on_parse()
@@ -58,9 +60,9 @@ namespace net::config {
                          ->check(CLI::IsMember({"true", "false"}))
                          ->group(instanceSc->get_formatter()->get_label("Persistent Options"));
 
-        instanceSc->final_callback([this]() -> void {
-            (utils::ResetToDefault(disableOpt))(disableOpt->as<std::string>());
-        });
+        //        instanceSc->final_callback([this]() -> void {
+        //            (utils::ResetToDefault(disableOpt))(disableOpt->as<std::string>());
+        //        });
     }
 
     ConfigInstance::~ConfigInstance() {
