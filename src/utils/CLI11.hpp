@@ -8923,14 +8923,12 @@ public:                                                                         
                 }
                 // if we missing something but didn't have any options, just return
                 return;
-            } else {
-                subc->_process_requirements();
             }
         }
 
         // now process the requirements for subcommands if needed
         for (const auto& sub : subcommands_) {
-            if (sub->disabled_ || !sub->required_)
+            if (sub->disabled_)// || !sub->required_)
                 continue;
 
             if (sub->count_all() == 0) {
@@ -8952,9 +8950,7 @@ public:                                                                         
                 }
             }
 
-            if (!need_subcommands_.contains(sub.get()) && (sub->count() > 0 || sub->name_.empty())) {
-                sub->_process_requirements();
-            }
+            sub->_process_requirements();
         }
     }
 
