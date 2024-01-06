@@ -601,7 +601,7 @@ namespace utils {
             std::cout << "Append -h or --help to your command line for more information." << std::endl;
         }
 
-        if (!success) { // cppcheck-suppress knownConditionTrueFalse
+        if (!success) {
             logger::Logger::setQuiet();
         }
 
@@ -770,24 +770,27 @@ namespace utils {
         return app;
     }
 
-    static void unrequire(CLI::App* instance) {
-        //        for (const auto& opt : instance->get_options({})) {
-        //            opt->required(false);
-        //            instance->remove_needs(opt);
-        //        }
-        for (const auto& sub : instance->get_subcommands({})) {
-            sub->disabled();
-            instance->remove_needs(sub);
-            //            unrequire(sub);
-        }
-    }
-
     void Config::required(CLI::App* instance, bool req) {
         if (req) {
             app->needs(instance);
+
+            for (const auto& sub : instance->get_subcommands({})) {
+                sub->disabled(false);
+
+                if (sub->get_required()) {
+                    instance->needs(sub);
+                }
+            }
         } else {
             app->remove_needs(instance);
-            unrequire(instance);
+
+            for (const auto& sub : instance->get_subcommands({})) {
+                sub->disabled();
+
+                if (sub->get_required()) {
+                    instance->remove_needs(sub);
+                }
+            }
         }
 
         instance->required(req);
