@@ -21,7 +21,7 @@ function(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT
         set(VALUE "${${CONFIG_OPTION}}")
     else("${ARGN}" STREQUAL "")
         set(VALUE "${ARGN}")
-    endif("${ARGN}" STREQUAL "")
+    endif("${${CONFIG_OPTION}}" STREQUAL "")
 
     set(SNODEC_${CONFIG_OPTION}
         "${VALUE}"

@@ -21,7 +21,6 @@
 
 #include "utils/Daemon.h"
 #include "utils/Formatter.h"
-#include "utils/ResetToDefault.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -243,27 +242,24 @@ namespace utils {
 
             add_standard_flags(app.get());
 
-            logLevelOpt = app->add_option_function<std::string>( //
+            logLevelOpt = app->add_option( //
                                  "-l,--log-level",
-                                 utils::ResetToDefault(logLevelOpt),
                                  "Log level") //
                               ->default_val(4)
                               ->type_name("level")
                               ->check(CLI::Range(0, 6))
                               ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            verboseLevelOpt = app->add_option_function<std::string>( //
+            verboseLevelOpt = app->add_option( //
                                      "-v,--verbose-level",
-                                     utils::ResetToDefault(verboseLevelOpt),
                                      "Verbose level") //
                                   ->default_val(1)
                                   ->type_name("level")
                                   ->check(CLI::Range(0, 10))
                                   ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            quietOpt = app->add_flag_function( //
+            quietOpt = app->add_flag( //
                               "-q{true},!-u,--quiet{true}",
-                              utils::ResetToDefault(quietOpt),
                               "Quiet mode") //
                            ->take_last()
                            ->default_val("false")
@@ -271,18 +267,16 @@ namespace utils {
                            ->check(CLI::IsMember({"true", "false"}))
                            ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            logFileOpt = app->add_option_function<std::string>( //
+            logFileOpt = app->add_option( //
                                 "--log-file",
-                                utils::ResetToDefault(logFileOpt),
                                 "Log file path") //
                              ->default_val(logDirectory + "/" + applicationName + ".log")
                              ->type_name("logfile")
                              ->check(!CLI::ExistingDirectory)
                              ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            enforceLogFileOpt = app->add_flag_function( //
+            enforceLogFileOpt = app->add_flag( //
                                        "-e{true},!-n,--enforce-log-file{true}",
-                                       utils::ResetToDefault(enforceLogFileOpt),
                                        "Enforce writing of logs to file for foreground applications") //
                                     ->take_last()
                                     ->default_val("false")
@@ -290,9 +284,8 @@ namespace utils {
                                     ->check(CLI::IsMember({"true", "false"}))
                                     ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            daemonizeOpt = app->add_flag_function( //
+            daemonizeOpt = app->add_flag( //
                                   "-d{true},!-f,--daemonize{true}",
-                                  utils::ResetToDefault(daemonizeOpt),
                                   "Start application as daemon") //
                                ->take_last()
                                ->default_val("false")
@@ -300,18 +293,16 @@ namespace utils {
                                ->check(CLI::IsMember({"true", "false"}))
                                ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            userNameOpt = app->add_option_function<std::string>( //
+            userNameOpt = app->add_option( //
                                  "--user-name",
-                                 utils::ResetToDefault(userNameOpt),
                                  "Run daemon under specific user permissions") //
                               ->default_val(pw->pw_name)
                               ->type_name("username")
                               ->needs(daemonizeOpt)
                               ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            groupNameOpt = app->add_option_function<std::string>( //
+            groupNameOpt = app->add_option( //
                                   "--group-name",
-                                  utils::ResetToDefault(groupNameOpt),
                                   "Run daemon under specific group permissions")
                                ->default_val(gr->gr_name)
                                ->type_name("groupname")
@@ -803,14 +794,13 @@ namespace utils {
     }
 
     CLI::Option* Config::add_string_option(const std::string& name, const std::string& description, const std::string& typeName) {
-        applicationOptions[name] =
-            app //
-                ->add_option_function<std::string>(name, utils::ResetToDefault(applicationOptions[name]), description)
-                ->take_last()
-                ->type_name(typeName)
-                ->configurable()
-                ->required()
-                ->group("Application Options");
+        applicationOptions[name] = app //
+                                       ->add_option(name, description)
+                                       ->take_last()
+                                       ->type_name(typeName)
+                                       ->configurable()
+                                       ->required()
+                                       ->group("Application Options");
 
         app->needs(applicationOptions[name]);
 

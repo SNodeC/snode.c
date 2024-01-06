@@ -53,6 +53,9 @@ int main(int argc, char* argv[]) {
     server.getConfig().addSniCerts(sniCerts);
 #endif
 
+    //    server.getConfig().setDisabled();
+    //    server.getConfig().setDisabled(false);
+
     server.listen([instanceName = server.getConfig().getInstanceName()](const SocketServer::SocketAddress& socketAddress,
                                                                         const core::socket::State& state) -> void {
         switch (state) {

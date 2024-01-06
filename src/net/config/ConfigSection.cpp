@@ -40,8 +40,6 @@
 #pragma GCC diagnostic pop
 #endif
 
-#include "utils/ResetToDefault.h"
-
 #include <memory>
 #include <string>
 
@@ -82,7 +80,7 @@ namespace net::config {
         section->disabled(false);
 
         opt = section //
-                  ->add_option_function<std::string>(name, utils::ResetToDefault(opt), description);
+                  ->add_option(name, description);
 
         if (opt->get_configurable()) {
             opt->group(section->get_formatter()->get_label("Persistent Options"));
@@ -111,7 +109,7 @@ namespace net::config {
         section->disabled(false);
 
         opt = section //
-                  ->add_flag_function(name, utils::ResetToDefault(opt), description)
+                  ->add_flag(name, description)
                   ->type_name(typeName)
                   ->take_last();
 

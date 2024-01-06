@@ -20,7 +20,6 @@
 #include "ConfigPhysicalSocketClient.h"
 
 #include "net/config/ConfigSection.hpp"
-#include "utils/ResetToDefault.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -63,7 +62,6 @@ namespace net::config {
                 if (!this->reconnectOpt->as<bool>()) {
                     this->reconnectTimeOpt->clear();
                 }
-                utils::ResetToDefault(this->reconnectOpt)(static_cast<int64_t>(this->reconnectOpt->as<bool>()));
             },
             "Auto-reconnection in the event of a connection interruption",
             "bool",

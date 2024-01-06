@@ -24,7 +24,6 @@ set(UTILS_CPP
     Formatter.cpp
     PreserveErrno.cpp
     Random.cpp
-    ResetToDefault.cpp
     Timeval.cpp
     Uuid.cpp
     base64.cpp
@@ -42,7 +41,6 @@ set(UTILS_H
     Formatter.h
     PreserveErrno.h
     Random.h
-    ResetToDefault.h
     Timeval.h
     Uuid.h
     Validators.hpp

@@ -20,7 +20,6 @@
 #include "ConfigPhysicalSocket.h"
 
 #include "net/config/ConfigSection.hpp"
-#include "utils/ResetToDefault.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -59,7 +58,6 @@ namespace net::config {
                     this->retryJitterOpt->clear();
                     this->retryLimitOpt->clear();
                 }
-                (utils::ResetToDefault(retryOpt))(retryOpt->as<std::string>());
             },
             "Automatically retry listen|connect",
             "bool",
@@ -136,8 +134,6 @@ namespace net::config {
                 } else {
                     socketOptionsMap.erase(optName);
                 }
-
-                (utils::ResetToDefault(opt))(opt->as<std::string>());
             },
             description,
             typeName,

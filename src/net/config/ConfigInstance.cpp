@@ -19,11 +19,8 @@
 
 #include "net/config/ConfigInstance.h"
 
-#include "utils/ResetToDefault.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/Config.h"
 #include "utils/Exceptions.h"
 
