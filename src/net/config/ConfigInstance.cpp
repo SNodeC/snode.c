@@ -50,7 +50,6 @@ namespace net::config {
                              "--disabled{true}",
                              [this]([[maybe_unused]] int64_t count) -> void {
                                  utils::Config::required(instanceSc, !disableOpt->as<bool>());
-                                 VLOG(0) << "##################";
                              },
                              "Disable this instance")
                          ->trigger_on_parse()
@@ -59,10 +58,6 @@ namespace net::config {
                          ->type_name("bool")
                          ->check(CLI::IsMember({"true", "false"}))
                          ->group(instanceSc->get_formatter()->get_label("Persistent Options"));
-
-        //        instanceSc->final_callback([this]() -> void {
-        //            (utils::ResetToDefault(disableOpt))(disableOpt->as<std::string>());
-        //        });
     }
 
     ConfigInstance::~ConfigInstance() {
