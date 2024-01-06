@@ -26,15 +26,6 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config {
-
-    template <typename SocketAddress>
-    ConfigAddressRemote<SocketAddress>::ConfigAddressRemote(ConfigInstance* instance,
-                                                            const std::string& addressOptionName,
-                                                            const std::string& addressOptionDescription)
-        : Super::ConfigAddress(instance, addressOptionName, addressOptionDescription) {
-    }
-
-} // namespace net::config
+namespace net::config {} // namespace net::config
 
 // "remote", "Remote side of connection for instance '" + instance->getInstanceName() + "'"

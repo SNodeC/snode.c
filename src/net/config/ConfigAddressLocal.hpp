@@ -26,15 +26,6 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config {
-
-    template <typename SocketAddress>
-    ConfigAddressLocal<SocketAddress>::ConfigAddressLocal(ConfigInstance* instance,
-                                                          const std::string& addressOptionName,
-                                                          const std::string& addressOptionDescription)
-        : Super::ConfigAddress(instance, addressOptionName, addressOptionDescription) {
-    }
-
-} // namespace net::config
+namespace net::config {} // namespace net::config
 
 // "local", "Local side of connection for instance '" + instance->getInstanceName() + "'"
