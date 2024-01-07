@@ -68,7 +68,7 @@ namespace net::in6 {
 
         std::string getCanonName() const;
 
-        std::string toString() const override;
+        std::string toString(bool simple = false) const override;
 
     private:
         std::string host = "::";

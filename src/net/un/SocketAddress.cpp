@@ -80,7 +80,7 @@ namespace net::un {
 #pragma GCC diagnostic ignored "-Wrestrict"
 // Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105329
 #endif
-    std::string SocketAddress::toString() const {
+    std::string SocketAddress::toString([[maybe_unused]] bool simple) const {
         return sockAddr.sun_path[0] != '\0' ? std::string(sockAddr.sun_path) : std::string("@").append(std::string(sockAddr.sun_path + 1));
     }
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER)

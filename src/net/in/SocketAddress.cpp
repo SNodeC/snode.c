@@ -153,8 +153,11 @@ namespace net::in {
         return canonName;
     }
 
-    std::string SocketAddress::toString() const {
-        return std::string(host).append(":").append(std::to_string(port)).append(" (").append(canonName).append(")");
+    std::string SocketAddress::toString(bool simple) const {
+        return std::string(host)
+            .append(":")
+            .append(std::to_string(port))
+            .append((!simple ? std::string(" (").append(canonName).append(")") : ""));
     }
 
     bool SocketAddress::useNext() {

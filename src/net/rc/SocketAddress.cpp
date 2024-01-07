@@ -83,7 +83,7 @@ namespace net::rc {
         return channel;
     }
 
-    std::string SocketAddress::toString() const {
+    std::string SocketAddress::toString([[maybe_unused]] bool simple) const {
         return std::string(btAddress).append(":").append(std::to_string(channel));
     }
 

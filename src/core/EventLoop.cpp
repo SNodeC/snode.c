@@ -244,7 +244,7 @@ namespace core {
 
         LOG(TRACE) << "Core:: All resources released";
 
-        LOG(TRACE) << "SNode.C: Terminating ... BYE";
+        LOG(TRACE) << "SNode.C: Ended ... BYE";
     }
 
     State EventLoop::state() {

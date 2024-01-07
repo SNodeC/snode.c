@@ -53,7 +53,7 @@ namespace core::socket {
             return false;
         }
 
-        virtual std::string toString() const = 0;
+        virtual std::string toString(bool simple = false) const = 0;
     };
 
 } // namespace core::socket

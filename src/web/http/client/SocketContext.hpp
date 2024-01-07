@@ -98,7 +98,7 @@ namespace web::http::client {
     void SocketContext<Request, Response>::onConnected() {
         LOG(INFO) << "HTTP: connected";
 
-        request.setHost(getSocketConnection()->getRemoteAddress().toString());
+        request.setHost(getSocketConnection()->getRemoteAddress().toString(true));
 
         onRequestBegin(request);
     }
