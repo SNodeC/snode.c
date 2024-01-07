@@ -46,30 +46,25 @@ namespace net::config {
                           XSTR(REUSE_ADDRESS),
                           CLI::IsMember({"true", "false"}));
 
+        add_flag(retryOpt, //
+                 "--retry{true}",
+                 "Automatically retry listen|connect",
+                 "bool",
+                 XSTR(RETRY),
+                 CLI::IsMember({"true", "false"}));
+
         add_flag_function(
-            retryOpt, //
-            "--retry{true}",
+            retryOnFatalOpt, //
+            "--retry-on-fatal{true}",
             [this](int64_t) -> void {
-                if (!this->retryOpt->as<bool>()) {
-                    this->retryOnFatalOpt->clear();
-                    this->retryTimeoutOpt->clear();
-                    this->retryTriesOpt->clear();
-                    this->retryBaseOpt->clear();
-                    this->retryJitterOpt->clear();
-                    this->retryLimitOpt->clear();
+                if (retryOnFatalOpt->as<bool>() && !retryOpt->as<bool>()) {
+                    throw CLI::RequiresError(retryOnFatalOpt->get_name(), retryOpt->get_name().append("=true"));
                 }
             },
-            "Automatically retry listen|connect",
+            "Retry also on fatal errors",
             "bool",
-            XSTR(RETRY),
+            XSTR(RETRY_ON_FATAL),
             CLI::IsMember({"true", "false"}));
-
-        add_flag(retryOnFatalOpt, //
-                 "--retry-on-fatal{true}",
-                 "Retry also on fatal errors",
-                 "bool",
-                 XSTR(RETRY_ON_FATAL),
-                 CLI::IsMember({"true", "false"}));
         retryOnFatalOpt->needs(retryOpt);
 
         add_option(retryTimeoutOpt, //
@@ -165,7 +160,6 @@ namespace net::config {
 
         reuseAddressOpt //
             ->default_val(reuseAddress ? "true" : "false")
-            ->take_all()
             ->clear();
     }
 
