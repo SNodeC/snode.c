@@ -54,7 +54,7 @@ namespace net::rc {
         SocketAddress& setChannel(uint8_t channel);
         uint8_t getChannel() const;
 
-        std::string toString(bool simple = false) const override;
+        std::string toString(bool expanded = true) const override;
 
     private:
         std::string btAddress;

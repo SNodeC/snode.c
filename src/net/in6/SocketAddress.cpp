@@ -151,11 +151,11 @@ namespace net::in6 {
         return canonName;
     }
 
-    std::string SocketAddress::toString(bool simple) const {
+    std::string SocketAddress::toString(bool expanded) const {
         return std::string(host)
             .append(":")
             .append(std::to_string(port))
-            .append((!simple ? std::string(" (").append(canonName).append(")") : ""));
+            .append(expanded ? std::string(" (").append(canonName).append(")") : "");
     }
 
     bool SocketAddress::useNext() {

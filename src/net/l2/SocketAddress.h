@@ -54,7 +54,7 @@ namespace net::l2 {
         SocketAddress& setPsm(uint16_t psm);
         uint16_t getPsm() const;
 
-        std::string toString(bool simple = false) const override;
+        std::string toString(bool expanded = true) const override;
 
     private:
         std::string btAddress;
