@@ -77,7 +77,9 @@ namespace net::config {
     }
 
     CLI::Option* ConfigSection::add_option(CLI::Option*& opt, const std::string& name, const std::string& description) {
-        section->disabled(false);
+        if (!instance->getInstanceName().empty() && !section->get_display_name().empty()) {
+            section->disabled(false);
+        }
 
         opt = section //
                   ->add_option(name, description);
