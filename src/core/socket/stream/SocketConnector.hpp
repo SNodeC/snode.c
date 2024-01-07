@@ -258,8 +258,6 @@ namespace core::socket::stream {
             } else if (PhysicalClientSocket::connectInProgress(errno)) {
                 LOG(TRACE) << config->getInstanceName() << ": connect still in progress '" << remoteAddress.toString() << "'";
             } else if (remoteAddress.useNext()) {
-                PLOG(TRACE) << config->getInstanceName() << ": connect failed 1 '" << remoteAddress.toString() << "'";
-
                 core::socket::State state = core::socket::STATE_OK;
 
                 switch (errno) {
@@ -269,12 +267,12 @@ namespace core::socket::stream {
                     case ENETUNREACH:
                     case ENOENT:
                     case EHOSTDOWN:
-                        PLOG(TRACE) << config->getInstanceName() << ": connect failed 2 '" << remoteAddress.toString() << "'";
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
                         state = core::socket::STATE_ERROR;
                         break;
                     default:
-                        PLOG(TRACE) << config->getInstanceName() << ": connect failed 3 '" << remoteAddress.toString() << "'";
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
                         state = core::socket::STATE_FATAL;
                         break;
@@ -296,12 +294,14 @@ namespace core::socket::stream {
                     case EADDRNOTAVAIL:
                     case ECONNREFUSED:
                     case ENETUNREACH:
-                        PLOG(TRACE) << config->getInstanceName() << ": connect failed 4'" << remoteAddress.toString() << "'";
+                    case ENOENT:
+                    case EHOSTDOWN:
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
                         state = core::socket::STATE_ERROR;
                         break;
                     default:
-                        PLOG(TRACE) << config->getInstanceName() << ": connect failed 5'" << remoteAddress.toString() << "'";
+                        PLOG(TRACE) << config->getInstanceName() << ": connect failed '" << remoteAddress.toString() << "'";
 
                         state = core::socket::STATE_FATAL;
                         break;
