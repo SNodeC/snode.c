@@ -43,7 +43,6 @@ set(UTILS_H
     Random.h
     Timeval.h
     Uuid.h
-    Validators.hpp
     base64.h
     sha1.h
     system/signal.h
