@@ -46,7 +46,7 @@ namespace net::config {
                          ->add_flag_function(
                              "--disabled{true}",
                              [this]([[maybe_unused]] int64_t count) -> void {
-                                 utils::Config::required(instanceSc, !disableOpt->as<bool>());
+                                 utils::Config::disabled(instanceSc, disableOpt->as<bool>());
                              },
                              "Disable this instance")
                          ->trigger_on_parse()
@@ -122,7 +122,7 @@ namespace net::config {
             ->default_val(disabled ? "true" : "false")
             ->clear();
 
-        utils::Config::required(instanceSc, !disabled);
+        utils::Config::disabled(instanceSc, disabled);
     }
 
 } // namespace net::config

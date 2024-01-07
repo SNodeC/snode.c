@@ -761,30 +761,56 @@ namespace utils {
         return app;
     }
 
-    void Config::required(CLI::App* instance, bool req) {
-        if (req) {
+    void Config::required(CLI::App* instance, bool reqired) {
+        if (reqired) {
             app->needs(instance);
 
-            for (const auto& sub : instance->get_subcommands({})) {
-                sub->disabled(false);
-
-                if (sub->get_required()) {
-                    instance->needs(sub);
-                }
+            for (const auto& sub : instance->get_subcommands([](CLI::App* sc) -> bool {
+                     return sc->get_required();
+                 })) {
+                instance->needs(sub);
             }
         } else {
             app->remove_needs(instance);
 
-            for (const auto& sub : instance->get_subcommands({})) {
+            for (const auto& sub : instance->get_subcommands([](CLI::App* sc) -> bool {
+                     return sc->get_required();
+                 })) {
+                instance->remove_needs(sub);
+            }
+        }
+
+        instance->required(reqired);
+    }
+
+    void Config::disabled(CLI::App* instance, bool disabled) {
+        if (disabled) {
+            app->remove_needs(instance);
+
+            for (const auto& sub : instance->get_subcommands([](CLI::App* sc) -> bool {
+                     return !sc->get_disabled();
+                 })) {
                 sub->disabled();
 
                 if (sub->get_required()) {
                     instance->remove_needs(sub);
                 }
             }
+        } else {
+            app->needs(instance);
+
+            for (const auto& sub : instance->get_subcommands([](CLI::App* sc) -> bool {
+                     return sc->get_disabled();
+                 })) {
+                sub->disabled(false);
+
+                if (sub->get_required()) {
+                    instance->needs(sub);
+                }
+            }
         }
 
-        instance->required(req);
+        instance->required(disabled);
     }
 
     bool Config::remove_instance(CLI::App* instance) {
