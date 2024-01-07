@@ -460,8 +460,7 @@ namespace utils {
         std::stringstream out;
 
         CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
-        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::DEFAULT ||
-            mode == CLI::CallForCommandline::Mode::FULL) {
+        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::DEFAULT) {
             for (CLI::App* subcommand : app->get_subcommands({})) {
                 if (!subcommand->get_name().empty()) {
                     createCommandLineTemplate(out, subcommand, mode);
