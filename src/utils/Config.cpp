@@ -33,11 +33,13 @@
 #include <cstring>
 #include <fcntl.h>
 #include <filesystem>
+#include <fstream>
+#include <functional>
 #include <grp.h>
 #include <iostream>
 #include <memory>
 #include <pwd.h>
-#include <stdexcept>
+#include <sstream>
 #include <unistd.h>
 #include <vector>
 

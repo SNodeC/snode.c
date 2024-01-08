@@ -42,9 +42,8 @@
 
 #include "core/system/netdb.h"
 
+#include <memory>
 #include <netinet/in.h>
-#include <stdexcept>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

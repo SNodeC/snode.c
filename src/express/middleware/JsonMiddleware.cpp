@@ -22,7 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <initializer_list>
 #include <map>
 #include <memory>
 #include <nlohmann/json.hpp>

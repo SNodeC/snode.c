@@ -24,9 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <ext/alloc_traits.h>
 #include <map>
-#include <memory>
 #include <sstream>
 #include <utility>
 

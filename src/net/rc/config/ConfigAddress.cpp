@@ -19,18 +19,15 @@
 
 #include "net/rc/config/ConfigAddress.h"
 
-#include "net/config/ConfigAddressBase.hpp"
-#include "net/config/ConfigAddressLocal.hpp"
-#include "net/config/ConfigAddressRemote.hpp"
-#include "net/config/ConfigAddressReverse.hpp"
+#include "net/config/ConfigAddressBase.hpp"    // IWYU pragma: keep
+#include "net/config/ConfigAddressLocal.hpp"   // IWYU pragma: keep
+#include "net/config/ConfigAddressRemote.hpp"  // IWYU pragma: keep
+#include "net/config/ConfigAddressReverse.hpp" // IWYU pragma: keep
 #include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/PreserveErrno.h"
-
-#include <cstdint>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

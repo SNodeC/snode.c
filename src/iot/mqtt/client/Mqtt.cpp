@@ -41,9 +41,12 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
+#include <functional>
 #include <iomanip>
-#include <iostream>
+#include <map>
 #include <nlohmann/json.hpp>
+#include <sstream>
 
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 

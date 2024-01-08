@@ -26,7 +26,7 @@
 #include "net/un/stream/tls/config/ConfigSocketServer.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "core/socket/stream/SocketAcceptor.hpp"
-// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
+// IWYU pragma: no_include "core/socket/stream/tls/SocketConnection.hpp"
 // IWYU pragma: no_include "core/socket/stream/SocketConnectionFactory.hpp"
 // IWYU pragma: no_include "core/socket/stream/SocketReader.hpp"
 // IWYU pragma: no_include "core/socket/stream/SocketWriter.hpp"
@@ -34,8 +34,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 // IWYU pragma: no_include <map>
-// IWYU pragma: no_include <set>
-// IWYU pragma: no_include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

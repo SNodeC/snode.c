@@ -24,7 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <stdexcept>
+#include <functional>
 #include <string>
 #include <sys/socket.h>
 

@@ -44,7 +44,6 @@
 
 #include <memory>
 #include <netinet/in.h>
-#include <stdexcept>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

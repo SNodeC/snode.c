@@ -25,6 +25,7 @@
 #include "log/Logger.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "net/in/stream/tls/SocketClient.h"
+#include "web/http/CookieOptions.h"
 #include "web/http/client/ResponseParser.h"
 
 #include <cstddef>
@@ -34,14 +35,9 @@
 #include <openssl/ssl.h> // IWYU pragma: keep
 #include <openssl/x509v3.h>
 #include <string>
+#include <utility>
 #include <vector>
 
-namespace web::http {
-    class CookieOptions;
-}
-
-// IWYU pragma: no_include <openssl/ssl3.h>
-// IWYU pragma: no_include <bits/utility.h>
 // IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <openssl/x509.h>
 // IWYU pragma: no_include <openssl/types.h>

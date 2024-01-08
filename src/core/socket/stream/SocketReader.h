@@ -26,8 +26,8 @@
 
 #include "utils/Timeval.h"
 
-#include <cstdio>
 #include <functional>
+#include <sys/types.h>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

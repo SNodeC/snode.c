@@ -38,10 +38,10 @@
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <string>
+#include <utility>
 #include <variant>
 
 // IWYU pragma: no_include <openssl/ssl3.h>
-// IWYU pragma: no_include <bits/utility.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

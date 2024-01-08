@@ -20,12 +20,16 @@
 #ifndef WEB_WEBSOCKET_SUBSPROTOCOL_H
 #define WEB_WEBSOCKET_SUBSPROTOCOL_H
 
-#include "core/timer/Timer.h"                 // IWYU pragma: export
-#include "web/websocket/SubProtocolContext.h" // IWYU pragma: export
+#include "core/timer/Timer.h" // IWYU pragma: export
+
+namespace core::socket::stream {
+    class SocketConnection;
+}
 
 namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>
     class SocketContextUpgrade;
+    class SubProtocolContext;
 } // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

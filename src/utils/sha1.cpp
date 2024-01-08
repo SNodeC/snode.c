@@ -23,6 +23,7 @@
 
 #include <cstdlib>
 #include <iomanip>
+#include <sstream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

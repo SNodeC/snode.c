@@ -31,8 +31,6 @@
 #include <utility>
 #include <vector>
 
-// IWYU pragma: no_include <bits/utility.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace web::http;

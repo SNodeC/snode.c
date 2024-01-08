@@ -30,7 +30,6 @@
 #include "utils/Timeval.h"
 
 #include <algorithm>
-#include <memory>
 #include <mysql.h>
 #include <string>
 #include <utility>

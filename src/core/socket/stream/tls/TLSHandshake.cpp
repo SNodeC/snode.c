@@ -21,8 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h"
-
 #include <memory>
 #include <openssl/ssl.h> // IWYU pragma: keep
 

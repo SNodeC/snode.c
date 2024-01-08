@@ -29,7 +29,6 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
-#include <memory>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

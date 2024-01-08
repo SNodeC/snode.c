@@ -27,7 +27,7 @@
 
 #include <cstdint>
 #include <iomanip>
-#include <iostream>
+#include <sstream>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

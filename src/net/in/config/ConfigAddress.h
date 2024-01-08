@@ -29,6 +29,7 @@ namespace net::config {
     class ConfigInstance;
 } // namespace net::config
 
+// IWYU pragma: no_include "net/config/ConfigAddress.hpp"
 // IWYU pragma: no_include "net/config/ConfigAddressLocal.hpp"
 // IWYU pragma: no_include "net/config/ConfigAddressRemote.hpp"
 

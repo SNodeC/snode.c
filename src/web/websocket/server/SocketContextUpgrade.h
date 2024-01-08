@@ -21,6 +21,7 @@
 #define WEB_WEBSOCKET_SERVER_SOCKTECONTEXT_H
 
 #include "web/websocket/SocketContextUpgrade.h"
+#include "web/websocket/server/SubProtocol.h"
 
 namespace core::socket::stream {
     class SocketConnection;
@@ -36,15 +37,11 @@ namespace web {
         template <typename SubProtocolT>
         class SubProtocolFactory;
 
-        namespace server {
-            class SubProtocol;
-        }
     } // namespace websocket
 } // namespace web
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
 #include <list>
 #include <string>
 

@@ -25,11 +25,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <utility>
-
-// IWYU pragma: no_include <bits/utility.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -127,8 +123,6 @@ namespace web::http::client {
             headersSent = true;
         }
 
-        std::cout << std::string(junk, junkLen);
-
         socketContext->sendToPeer(junk, junkLen);
 
         if (headersSent) {
@@ -194,8 +188,6 @@ namespace web::http::client {
         headers.insert_or_assign("Content-Length", std::to_string(junkLen));
 
         enqueue(junk, junkLen);
-
-        std::cout << std::endl;
     }
 
     void Request::send(const std::string& junk) {

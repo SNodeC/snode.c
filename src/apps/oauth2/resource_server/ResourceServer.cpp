@@ -7,8 +7,10 @@
 
 #include <map>
 #include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
 #include <string>
+
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
+// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);

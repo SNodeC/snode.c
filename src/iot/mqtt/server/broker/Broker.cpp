@@ -27,12 +27,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
-#include <initializer_list>
 #include <nlohmann/json.hpp>
-#include <vector>
+#include <utility>
 
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
+// IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

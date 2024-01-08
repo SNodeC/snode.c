@@ -29,8 +29,6 @@
 #include <iterator>
 #include <utility>
 
-// IWYU pragma: no_include <bits/utility.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {

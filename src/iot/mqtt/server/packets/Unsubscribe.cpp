@@ -24,7 +24,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
-#include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

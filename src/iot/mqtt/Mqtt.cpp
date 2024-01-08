@@ -35,12 +35,12 @@
 #include "utils/system/signal.h"
 
 #include <cstring>
+#include <functional>
 #include <iomanip>
 #include <map>
-#include <ostream>
 #include <set>
-
-// IWYU pragma: no_include <bits/utility.h>
+#include <sstream>
+#include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

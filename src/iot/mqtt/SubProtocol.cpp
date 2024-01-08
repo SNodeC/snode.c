@@ -21,8 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h"
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt {

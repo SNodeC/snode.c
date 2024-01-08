@@ -26,8 +26,8 @@
 #include "utils/Timeval.h"
 
 #include <cstdint>
+#include <functional>
 #include <memory>
-#include <stdexcept>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push

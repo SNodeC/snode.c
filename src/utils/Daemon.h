@@ -22,9 +22,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/unistd.h"
+
 #include <stdexcept>
 #include <string>
-#include <sys/wait.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

@@ -23,6 +23,7 @@
 #include "core/SNodeC.h"
 #include "log/Logger.h"
 
+#include <functional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

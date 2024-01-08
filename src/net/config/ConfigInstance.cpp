@@ -25,8 +25,8 @@
 #include "utils/Exceptions.h"
 
 #include <cstdint>
+#include <functional>
 #include <memory>
-#include <stdexcept>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

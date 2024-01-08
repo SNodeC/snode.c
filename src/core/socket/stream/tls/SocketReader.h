@@ -27,6 +27,7 @@
 #include <cstdio>
 #include <functional>
 #include <openssl/types.h>
+#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

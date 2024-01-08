@@ -30,9 +30,7 @@
 #include <fstream>
 #include <grp.h>
 #include <pwd.h>
-#include <sys/stat.h>
-#include <syscall.h>
-#include <unistd.h>
+#include <sys/syscall.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

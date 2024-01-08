@@ -20,11 +20,10 @@
 #ifndef WEB_WEBSOCKET_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WEBSOCKET_SUBPROTOCOLPLUGININTERFACE_H
 
-#include "web/websocket/SubProtocolContext.h"
-
 namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>
     class SocketContextUpgrade;
+    class SubProtocolContext;
 } // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

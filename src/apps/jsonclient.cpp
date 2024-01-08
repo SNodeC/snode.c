@@ -26,14 +26,11 @@
 #include "web/http/client/Response.h"
 #include "web/http/legacy/in/Client.h"
 
-#include <cstdint>
 #include <functional>
 #include <map>
 #include <string>
 #include <utility>
 #include <vector>
-
-// IWYU pragma: no_include <bits/utility.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -19,6 +19,7 @@
 
 #include "core/socket/stream/SocketConnection.h"
 #include "web/websocket/SubProtocol.h"
+#include "web/websocket/SubProtocolContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

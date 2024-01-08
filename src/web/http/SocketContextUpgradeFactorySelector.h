@@ -40,8 +40,6 @@ namespace web::http {
         using Response = typename SocketContextUpgradeFactory::Response;
 
     protected:
-        using SocketContextUpgrade = web::http::SocketContextUpgrade<Request, Response>;
-
         SocketContextUpgradeFactorySelector() = default;
         virtual ~SocketContextUpgradeFactorySelector() = default;
 

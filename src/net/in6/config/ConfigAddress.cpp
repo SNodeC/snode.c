@@ -19,10 +19,10 @@
 
 #include "net/in6/config/ConfigAddress.h"
 
-#include "net/config/ConfigAddressBase.hpp"
-#include "net/config/ConfigAddressLocal.hpp"
-#include "net/config/ConfigAddressRemote.hpp"
-#include "net/config/ConfigAddressReverse.hpp"
+#include "net/config/ConfigAddressBase.hpp"    // IWYU pragma: keep
+#include "net/config/ConfigAddressLocal.hpp"   // IWYU pragma: keep
+#include "net/config/ConfigAddressRemote.hpp"  // IWYU pragma: keep
+#include "net/config/ConfigAddressReverse.hpp" // IWYU pragma: keep
 #include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,10 +30,7 @@
 #include "core/system/netdb.h"
 #include "utils/PreserveErrno.h"
 
-#include <cstdint>
 #include <limits>
-#include <stdexcept>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -44,8 +41,8 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddressReverse<ConfigAddressType>::ConfigAddressReverse(net::config::ConfigInstance* instance,
-                                                                    const std::string& addressOptionName,
-                                                                    const std::string& addressOptionDescription)
+                                                                  const std::string& addressOptionName,
+                                                                  const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
         Super::add_flag(numericReverseOpt,
                         "--numeric-reverse",
@@ -57,7 +54,7 @@ namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress ConfigAddressReverse<ConfigAddressType>::getSocketAddress(const SocketAddress::SockAddr& sockAddr,
-                                                                             SocketAddress::SockLen sockAddrLen) {
+                                                                            SocketAddress::SockLen sockAddrLen) {
         return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
     }
 

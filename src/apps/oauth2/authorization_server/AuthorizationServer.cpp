@@ -6,13 +6,18 @@
 #include "log/Logger.h"
 #include "utils/sha1.h"
 
-#include <chrono>
 #include <ctime>
-#include <cxxabi.h>
+#include <fstream>
 #include <iomanip>
+#include <map>
+#include <mysql.h>
 #include <nlohmann/json.hpp>
+#include <sstream>
+#include <string>
 
 // IWYU pragma: no_include <bits/chrono.h>
+// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 void addQueryParamToUri(std::string& uri, const std::string& queryParamName, const std::string& queryParamValue) {
     if (uri.find("?") == std::string::npos) {

@@ -22,10 +22,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <nlohmann/json.hpp>
+#include <utility>
 #include <vector>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
-// IWYU pragma: no_include <bits/utility.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
