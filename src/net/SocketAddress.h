@@ -45,8 +45,8 @@ namespace net {
 
         SocketAddress& operator=(const SocketAddress& socketAddress);
 
-        virtual const sockaddr& getSockAddr();
-        virtual const SockLen& getSockAddrLen() const;
+        const sockaddr& getSockAddr();
+        const SockLen& getSockAddrLen() const;
 
         sa_family_t getAddressFamily() const;
 

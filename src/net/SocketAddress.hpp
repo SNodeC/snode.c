@@ -62,7 +62,7 @@ namespace net {
     }
 
     template <typename SockAddr>
-    const SocketAddress<SockAddr>::SockLen& SocketAddress<SockAddr>::getSockAddrLen() const {
+    const typename SocketAddress<SockAddr>::SockLen& SocketAddress<SockAddr>::getSockAddrLen() const {
         return sockAddrLen;
     }
 

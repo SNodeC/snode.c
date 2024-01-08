@@ -69,8 +69,8 @@ namespace net::phy {
 
         int getSockError(int& cErrno) const;
 
-        int getSockName(typename SocketAddress::SockAddr& localSockAddr, SocketAddress::SockLen& localSockAddrLen);
-        int getPeerName(typename SocketAddress::SockAddr& remoteSockAddr, SocketAddress::SockLen& remoteSockAddrLen);
+        int getSockName(typename SocketAddress::SockAddr& localSockAddr, typename SocketAddress::SockLen& localSockAddrLen);
+        int getPeerName(typename SocketAddress::SockAddr& remoteSockAddr, typename SocketAddress::SockLen& remoteSockAddrLen);
         /*
                 template <typename ConfigT>
                 SocketAddress getLocalSocketAddress(ConfigT& config) const;
@@ -81,8 +81,8 @@ namespace net::phy {
         SocketAddress getBindAddress() const;
 
     private:
-        int setSockopt(int level, int optname, const void* optval, SocketAddress::SockLen optlen) const;
-        int getSockopt(int level, int optname, void* optval, SocketAddress::SockLen* optlen) const;
+        int setSockopt(int level, int optname, const void* optval, typename SocketAddress::SockLen optlen) const;
+        int getSockopt(int level, int optname, void* optval, typename SocketAddress::SockLen* optlen) const;
 
     protected:
         SocketAddress bindAddress;

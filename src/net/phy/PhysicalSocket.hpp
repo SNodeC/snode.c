@@ -97,24 +97,25 @@ namespace net::phy {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::setSockopt(int level, int optname, const void* optval, SocketAddress::SockLen optlen) const {
+    int
+    PhysicalSocket<SocketAddress>::setSockopt(int level, int optname, const void* optval, typename SocketAddress::SockLen optlen) const {
         return core::system::setsockopt(PhysicalSocket::getFd(), level, optname, optval, optlen);
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::getSockopt(int level, int optname, void* optval, SocketAddress::SockLen* optlen) const {
+    int PhysicalSocket<SocketAddress>::getSockopt(int level, int optname, void* optval, typename SocketAddress::SockLen* optlen) const {
         return core::system::getsockopt(PhysicalSocket::getFd(), level, optname, optval, optlen);
     }
 
     template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::getSockName(typename SocketAddress::SockAddr& localSockAddr,
-                                                   SocketAddress::SockLen& localSockAddrLen) {
+                                                   typename SocketAddress::SockLen& localSockAddrLen) {
         return core::system::getsockname(core::Descriptor::getFd(), reinterpret_cast<sockaddr*>(&localSockAddr), &localSockAddrLen);
     }
 
     template <typename SocketAddress>
     int PhysicalSocket<SocketAddress>::getPeerName(typename SocketAddress::SockAddr& remoteSockAddr,
-                                                   SocketAddress::SockLen& remoteSockAddrLen) {
+                                                   typename SocketAddress::SockLen& remoteSockAddrLen) {
         return core::system::getpeername(core::Descriptor::getFd(), reinterpret_cast<sockaddr*>(&remoteSockAddr), &remoteSockAddrLen);
     }
     /*

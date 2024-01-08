@@ -33,8 +33,8 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
-    SocketAddress ConfigAddressBase<SocketAddress>::getSocketAddress(const SocketAddress::SockAddr& sockAddr,
-                                                                     SocketAddress::SockLen sockAddrLen) {
+    SocketAddress ConfigAddressBase<SocketAddress>::getSocketAddress(const typename SocketAddress::SockAddr& sockAddr,
+                                                                     typename SocketAddress::SockLen sockAddrLen) {
         return SocketAddress(sockAddr, sockAddrLen);
     }
 

@@ -50,7 +50,7 @@ namespace net::config {
         virtual ~ConfigAddressBase() = default;
 
     public:
-        SocketAddressT getSocketAddress(const SocketAddressT::SockAddr& sockAddr, SocketAddressT::SockLen sockAddrLen);
+        SocketAddressT getSocketAddress(const typename SocketAddressT::SockAddr& sockAddr, typename SocketAddressT::SockLen sockAddrLen);
     };
 
 } // namespace net::config
