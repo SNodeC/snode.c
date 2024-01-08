@@ -130,7 +130,8 @@ namespace core::socket::stream {
         shutdownWrite([forceClose, this]() -> void {
             if (forceClose && SocketReader::isEnabled()) {
                 SocketReader::disable();
-            } else if (SocketWriter::isEnabled()) {
+            }
+            if (SocketWriter::isEnabled()) {
                 SocketWriter::disable();
             }
         });
