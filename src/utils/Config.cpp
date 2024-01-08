@@ -811,7 +811,7 @@ namespace utils {
             }
         }
 
-        instance->required(disabled);
+        instance->required(!disabled);
     }
 
     bool Config::remove_instance(CLI::App* instance) {
