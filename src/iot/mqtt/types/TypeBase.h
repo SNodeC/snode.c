@@ -41,10 +41,12 @@ namespace iot::mqtt::types {
     public:
         explicit TypeBase(std::size_t size = sizeof(ValueType));
         TypeBase(const TypeBase&) = default;
+        TypeBase(TypeBase&&) noexcept = default;
 
         virtual ~TypeBase() = default;
 
         TypeBase& operator=(const TypeBase&) = default;
+        TypeBase& operator=(TypeBase&&) noexcept = default;
 
         virtual std::size_t deserialize(iot::mqtt::MqttContext* mqttContext);
         virtual std::vector<char> serialize() const;

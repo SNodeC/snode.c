@@ -40,6 +40,13 @@ namespace iot::mqtt::types {
     class UIntV : public TypeBase<uint32_t> {
     public:
         UIntV();
+        UIntV(const UIntV&) = default;
+        UIntV(UIntV&&) noexcept = default;
+
+        ~UIntV() override;
+
+        UIntV& operator=(const UIntV&) = default;
+        UIntV& operator=(UIntV&&) noexcept = default;
 
         std::size_t deserialize(iot::mqtt::MqttContext* mqttContext) override;
 

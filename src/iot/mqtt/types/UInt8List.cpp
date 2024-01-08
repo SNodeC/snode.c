@@ -29,6 +29,9 @@
 
 namespace iot::mqtt::types {
 
+    UInt8List::~UInt8List() {
+    }
+
     UInt8List& UInt8List::operator=(const std::list<uint8_t>& newValue) {
         value = std::vector<char>(newValue.begin(), newValue.end());
 

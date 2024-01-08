@@ -34,6 +34,15 @@ namespace iot::mqtt::types {
 
     class UInt32 : public TypeBase<uint32_t> {
     public:
+        UInt32() = default;
+        UInt32(const UInt32&) = default;
+        UInt32(UInt32&&) noexcept = default;
+
+        UInt32& operator=(const UInt32&) = default;
+        UInt32& operator=(UInt32&&) noexcept = default;
+
+        ~UInt32() override;
+
         UInt32& operator=(const uint32_t& newValue);
         operator uint32_t() const;
     };

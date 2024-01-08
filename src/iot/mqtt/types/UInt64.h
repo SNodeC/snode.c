@@ -34,6 +34,15 @@ namespace iot::mqtt::types {
 
     class UInt64 : public TypeBase<uint64_t> {
     public:
+        UInt64() = default;
+        UInt64(const UInt64&) = default;
+        UInt64(UInt64&&) noexcept = default;
+
+        UInt64& operator=(const UInt64&) = default;
+        UInt64& operator=(UInt64&&) noexcept = default;
+
+        ~UInt64() override;
+
         UInt64& operator=(const uint64_t& newValue);
         operator uint64_t() const;
     };

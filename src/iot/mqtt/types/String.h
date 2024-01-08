@@ -42,6 +42,13 @@ namespace iot::mqtt::types {
     class String : public TypeBase<std::string> {
     public:
         String();
+        String(const String&) = default;
+        String(String&&) noexcept = default;
+
+        ~String() override;
+
+        String& operator=(const String&) = default;
+        String& operator=(String&&) noexcept = default;
 
         std::size_t deserialize(iot::mqtt::MqttContext* mqttContext) override;
         std::vector<char> serialize() const override;

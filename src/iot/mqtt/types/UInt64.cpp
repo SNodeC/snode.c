@@ -30,6 +30,9 @@
 
 namespace iot::mqtt::types {
 
+    UInt64::~UInt64() {
+    }
+
     UInt64& UInt64::operator=(const uint64_t& newValue) {
         *reinterpret_cast<uint64_t*>(value.data()) = htobe64(newValue);
 

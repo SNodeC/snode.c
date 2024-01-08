@@ -34,6 +34,15 @@ namespace iot::mqtt::types {
 
     class UInt16 : public TypeBase<uint16_t> {
     public:
+        UInt16() = default;
+        UInt16(const UInt16&) = default;
+        UInt16(UInt16&&) noexcept = default;
+
+        UInt16& operator=(const UInt16&) = default;
+        UInt16& operator=(UInt16&&) noexcept = default;
+
+        ~UInt16() override;
+
         UInt16& operator=(const uint16_t& newValue);
         operator uint16_t() const;
     };

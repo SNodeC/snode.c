@@ -34,6 +34,15 @@ namespace iot::mqtt::types {
 
     class UInt8 : public TypeBase<uint8_t> {
     public:
+        UInt8() = default;
+        UInt8(const UInt8&) = default;
+        UInt8(UInt8&&) noexcept = default;
+
+        UInt8& operator=(const UInt8&) = default;
+        UInt8& operator=(UInt8&&) noexcept = default;
+
+        ~UInt8() override;
+
         UInt8& operator=(const uint8_t& newValue);
         operator uint8_t() const;
     };

@@ -33,6 +33,9 @@ namespace iot::mqtt::types {
         : TypeBase(0) {
     }
 
+    StringRaw::~StringRaw() {
+    }
+
     StringRaw& StringRaw::operator=(const std::string& newValue) {
         value = std::vector<char>(newValue.begin(), newValue.end());
         return *this;

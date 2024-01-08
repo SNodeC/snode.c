@@ -29,6 +29,9 @@
 
 namespace iot::mqtt::types {
 
+    UInt8::~UInt8() {
+    }
+
     UInt8& UInt8::operator=(const uint8_t& newValue) {
         *reinterpret_cast<uint8_t*>(value.data()) = newValue;
 

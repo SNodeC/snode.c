@@ -38,6 +38,13 @@ namespace iot::mqtt::types {
 
     public:
         StringRaw();
+        StringRaw(const StringRaw&) = default;
+        StringRaw(StringRaw&&) noexcept = default;
+
+        StringRaw& operator=(const StringRaw&) = default;
+        StringRaw& operator=(StringRaw&&) noexcept = default;
+
+        ~StringRaw() override;
 
         StringRaw& operator=(const std::string& newValue);
         operator std::string() const;
