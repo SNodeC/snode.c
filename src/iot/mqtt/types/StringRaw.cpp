@@ -53,4 +53,8 @@ namespace iot::mqtt::types {
         return static_cast<std::string>(*this) != rhsValue;
     }
 
+    void StringRaw::reset([[maybe_unused]] std::size_t size) {
+        TypeBase::reset(0);
+    }
+
 } // namespace iot::mqtt::types

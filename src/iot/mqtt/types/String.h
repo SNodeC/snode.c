@@ -59,7 +59,7 @@ namespace iot::mqtt::types {
         bool operator==(const std::string& rhsValue) const;
         bool operator!=(const std::string& rhsValue) const;
 
-        void reset(std::size_t size = sizeof(ValueType)) override;
+        void reset(std::size_t size = 0) override;
 
     private:
         UInt16 stringLength;

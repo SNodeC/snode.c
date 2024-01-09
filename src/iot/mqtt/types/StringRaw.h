@@ -26,6 +26,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -51,6 +52,8 @@ namespace iot::mqtt::types {
 
         bool operator==(const std::string& rhsValue) const;
         bool operator!=(const std::string& rhsValue) const;
+
+        void reset(std::size_t size = 0) override;
     };
 
 } // namespace iot::mqtt::types
