@@ -93,9 +93,7 @@ namespace core::socket::stream {
         shutdownWrite();
     }
 
-    void SocketContext::onExit(int sig) {
-        LOG(TRACE) << socketConnection->getInstanceName() << ": Exit due to '" << strsignal(sig) << "' (SIG"
-                   << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
+    void SocketContext::onExit([[maybe_unused]] int sig) {
     }
 
 } // namespace core::socket::stream

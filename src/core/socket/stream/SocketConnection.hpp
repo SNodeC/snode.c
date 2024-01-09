@@ -210,7 +210,19 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onExit(int sig) {
         if (!exitProcessed) {
+            LOG(TRACE) << getInstanceName() << ": Exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = "
+                       << sig << ")";
+
             socketContext->onExit(sig);
+
+            if (!SocketWriter::terminateInProgress) {
+                SocketWriter::setTimeout(SocketWriter::terminateTimeout);
+                shutdownWrite([this]() -> void {
+                    SocketWriter::disable();
+                });
+                SocketWriter::terminateInProgress = true;
+            }
+
             exitProcessed = true;
         }
     }

@@ -92,13 +92,6 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::terminate() {
-        if (!terminateInProgress) {
-            setTimeout(terminateTimeout);
-            shutdownWrite([this]() -> void {
-                disable();
-            });
-            terminateInProgress = true;
-        }
     }
 
 } // namespace core::socket::stream
