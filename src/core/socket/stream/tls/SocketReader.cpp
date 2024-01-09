@@ -25,7 +25,6 @@
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
-#include <cerrno>
 #include <memory>
 #include <openssl/ssl.h> // IWYU pragma: keep
 

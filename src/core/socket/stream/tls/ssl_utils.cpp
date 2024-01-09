@@ -26,7 +26,6 @@
 #include "net/config/ConfigTlsServer.h" // IWYU pragma: keep
 #include "utils/PreserveErrno.h"
 
-#include <cerrno>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
