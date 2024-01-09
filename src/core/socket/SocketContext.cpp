@@ -21,34 +21,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-#include "utils/system/signal.h"
-
-#include <cstring>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket {
 
     void SocketContext::sendToPeer(const std::string& data) const {
         sendToPeer(data.data(), data.length());
-    }
-
-    void SocketContext::onWriteError(int errnum) {
-        if (errnum != 0) {
-            PLOG(TRACE) << "SocketContext: OnWriteError: " << errnum;
-        }
-    }
-
-    void SocketContext::onReadError(int errnum) {
-        if (errnum != 0) {
-            PLOG(TRACE) << "SocketContext: OnReadError: " << errnum;
-        }
-    }
-
-    void SocketContext::onExit(int sig) {
-        LOG(TRACE) << "SocketContext: Exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
-                   << ")";
     }
 
 } // namespace core::socket

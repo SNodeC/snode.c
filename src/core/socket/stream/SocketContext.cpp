@@ -23,6 +23,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+#include "utils/PreserveErrno.h"
+#include "utils/system/signal.h"
+
+#include <cstring>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
@@ -69,13 +75,27 @@ namespace core::socket::stream {
     }
 
     void SocketContext::onWriteError(int errnum) {
-        Super::onWriteError(errnum);
+        const utils::PreserveErrno pe(errnum);
+
+        PLOG(TRACE) << socketConnection->getInstanceName() << ": OnWriteError";
         shutdownRead();
     }
 
     void SocketContext::onReadError(int errnum) {
-        Super::onReadError(errnum);
+        const utils::PreserveErrno pe(errnum);
+
+        if (errno == 0) {
+            LOG(TRACE) << socketConnection->getInstanceName() << ": EOF received";
+        } else {
+            PLOG(TRACE) << socketConnection->getInstanceName() << ": ReadError";
+        }
+
         shutdownWrite();
+    }
+
+    void SocketContext::onExit(int sig) {
+        LOG(TRACE) << socketConnection->getInstanceName() << ": Exit due to '" << strsignal(sig) << "' (SIG"
+                   << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
     }
 
 } // namespace core::socket::stream

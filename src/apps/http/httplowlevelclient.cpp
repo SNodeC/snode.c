@@ -106,12 +106,12 @@ public:
     }
 
     void onWriteError(int errnum) override {
-        VLOG(0) << "OnWriteError: " << errnum;
+        core::socket::stream::SocketContext::onWriteError(errnum);
         shutdownRead();
     }
 
     void onReadError(int errnum) override {
-        VLOG(0) << "OnReadError: " << errnum;
+        core::socket::stream::SocketContext::onReadError(errnum);
         shutdownWrite();
     }
 

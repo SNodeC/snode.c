@@ -100,7 +100,7 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             ret = SocketReader::readFromPeer(junk, junkLen);
         } else {
-            LOG(TRACE) << "SocketConnection: ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
+            LOG(TRACE) << instanceName << ": ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
         }
 
         return ret;
@@ -113,13 +113,15 @@ namespace core::socket::stream {
                 SocketWriter::sendToPeer(junk, junkLen);
             }
         } else {
-            LOG(TRACE) << "SocketConnection: SendToPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
+            LOG(TRACE) << instanceName << ": SendToPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
         }
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
         if (!shutdownTriggered) {
+            LOG(TRACE) << instanceName << ": Do syscall shutdown (RD)";
+
             physicalSocket.shutdown(PhysicalSocket::SHUT::RD);
             shutdownTriggered = true;
         }
@@ -129,7 +131,7 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
         shutdownWrite([forceClose, this]() -> void {
             if (forceClose && SocketReader::isEnabled()) {
-                SocketReader::disable();
+                shutdownRead();
             }
             if (SocketWriter::isEnabled()) {
                 SocketWriter::disable();
@@ -156,10 +158,10 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void()>& onShutdown) {
         errno = 0;
 
-        LOG(TRACE) << "SocketConnection: Do syscall shutdonw (WR)";
+        LOG(TRACE) << instanceName << ": Do syscall shutdown (WR)";
 
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) != 0) {
-            PLOG(TRACE) << "SocketConnection: SocketWriter::doWriteShutdown";
+            PLOG(TRACE) << instanceName << ": SocketWriter::doWriteShutdown";
         }
 
         onShutdown();
@@ -197,7 +199,7 @@ namespace core::socket::stream {
             SocketWriter::onShutdown = onShutdown;
             if (SocketWriter::writeBuffer.empty()) {
                 shutdownInProgress = true;
-                LOG(TRACE) << "SocketWriter: Initiating shutdown process";
+                LOG(TRACE) << instanceName << ": Initiating shutdown process";
                 doWriteShutdown(onShutdown);
             } else {
                 SocketWriter::markShutdown = true;

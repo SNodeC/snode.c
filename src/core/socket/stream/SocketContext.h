@@ -64,12 +64,15 @@ namespace core::socket::stream {
         core::socket::stream::SocketConnection* getSocketConnection() const;
         core::socket::stream::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
-    private:
-        virtual void onConnected() = 0;
-        virtual void onDisconnected() = 0;
+    protected:
+        void onExit(int sig) override;
 
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;
+
+    private:
+        virtual void onConnected() = 0;
+        virtual void onDisconnected() = 0;
 
         core::socket::stream::SocketConnection* socketConnection;
 

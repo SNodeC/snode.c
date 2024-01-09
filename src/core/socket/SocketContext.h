@@ -48,8 +48,8 @@ namespace core::socket {
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
-        virtual void sendToPeer(const char* junk, std::size_t junkLen) const = 0;
         void sendToPeer(const std::string& data) const;
+        virtual void sendToPeer(const char* junk, std::size_t junkLen) const = 0;
         virtual std::size_t readFromPeer(char* junk, std::size_t junklen) const = 0;
 
         virtual void close() = 0;
@@ -57,10 +57,10 @@ namespace core::socket {
     protected:
         virtual std::size_t onReceivedFromPeer() = 0;
 
-        virtual void onExit(int sig);
+        virtual void onExit(int sig) = 0;
 
-        virtual void onWriteError(int errnum);
-        virtual void onReadError(int errnum);
+        virtual void onWriteError(int errnum) = 0;
+        virtual void onReadError(int errnum) = 0;
     };
 
 } // namespace core::socket

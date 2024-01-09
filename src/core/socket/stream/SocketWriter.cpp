@@ -69,8 +69,8 @@ namespace core::socket::stream {
                     resume();
                 }
             } else {
-                disable();
                 onStatus(errno);
+                disable();
             }
         } else if (!isSuspended()) {
             suspend();
