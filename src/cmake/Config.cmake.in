@@ -49,7 +49,7 @@ macro(load_component_with_dependencies _comp _lspace _ladd)
     else(NOT ${_comp}_LOADED)
         message("${_lspace}${_comp}: already loaded")
     endif(NOT ${_comp}_LOADED)
-endmacro(load_component_with_dependencies _comp _lspace _ladd)
+endmacro()
 
 set(_supported_components
     core
