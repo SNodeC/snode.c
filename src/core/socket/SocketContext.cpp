@@ -25,6 +25,9 @@
 
 namespace core::socket {
 
+    SocketContext::~SocketContext() {
+    }
+
     void SocketContext::sendToPeer(const std::string& data) const {
         sendToPeer(data.data(), data.length());
     }

@@ -67,7 +67,6 @@ namespace core::socket::stream {
 
         std::size_t size = 0;
         std::size_t cursor = 0;
-        bool terminateInProgress = false;
 
         utils::Timeval terminateTimeout;
     };

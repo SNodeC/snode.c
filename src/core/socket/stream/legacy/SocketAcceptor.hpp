@@ -48,6 +48,12 @@ namespace core::socket::stream::legacy {
               config) {
     }
 
+    template <typename PhysicalSocketServer, typename Config>
+    SocketAcceptor<PhysicalSocketServer, Config>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
+        : core::Observer(socketAcceptor)
+        , Super(socketAcceptor) {
+    }
+
     template <typename PhysicalClientSocket, typename Config>
     void core::socket::stream::legacy::SocketAcceptor<PhysicalClientSocket, Config>::useNextSocketAddress() {
         new SocketAcceptor(*this);

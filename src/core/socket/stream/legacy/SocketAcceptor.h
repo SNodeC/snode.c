@@ -54,6 +54,8 @@ namespace core::socket::stream::legacy {
                        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                        const std::shared_ptr<Config>& config);
 
+        SocketAcceptor(const SocketAcceptor& socketAcceptor);
+
     private:
         void useNextSocketAddress() override;
     };

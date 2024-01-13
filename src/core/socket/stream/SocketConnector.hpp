@@ -99,6 +99,14 @@ namespace core::socket::stream {
         , config(config) {
     }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#endif
+#ifdef __has_warning
+#if __has_warning("-Wabstract-vbase-init")
+#pragma GCC diagnostic ignored "-Wabstract-vbase-init"
+#endif
+#endif
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     SocketConnector<PhysicalSocketServer, Config, SocketConnection>::SocketConnector(const SocketConnector& socketConnector)
         : core::Observer(socketConnector)
@@ -111,6 +119,9 @@ namespace core::socket::stream {
         , onStatus(socketConnector.onStatus)
         , config(socketConnector.config) {
     }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     SocketConnector<PhysicalSocketClient, Config, SocketConnection>::~SocketConnector() {

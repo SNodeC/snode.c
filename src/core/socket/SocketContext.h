@@ -44,7 +44,7 @@ namespace core::socket {
         SocketContext& operator=(const SocketContext&) = delete;
         SocketContext& operator=(SocketContext&&) = delete;
 
-        virtual ~SocketContext() = default;
+        virtual ~SocketContext();
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
