@@ -29,12 +29,9 @@ namespace core::socket::stream::tls {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
-#include <set>
 #include <string>
 
 using SSL_CTX = struct ssl_ctx_st;
-using SSL = struct ssl_st;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -69,16 +66,7 @@ namespace core::socket::stream::tls {
 
         void initAcceptEvent() final;
 
-        SSL_CTX* getMasterSniCtx(const std::string& serverNameIndication);
-        SSL_CTX* getPoolSniCtx(const std::string& serverNameIndication);
-        SSL_CTX* getSniCtx(const std::string& serverNameIndication);
-
-        static int clientHelloCallback(SSL* ssl, int* al, void* arg);
-
         SSL_CTX* masterSslCtx = nullptr;
-        std::set<std::string> masterSslCtxSans;
-
-        std::map<std::string, SSL_CTX*> sniSslCtxs;
     };
 
 } // namespace core::socket::stream::tls

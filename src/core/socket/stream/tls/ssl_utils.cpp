@@ -37,8 +37,6 @@
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <string>
-#include <utility>
-#include <variant>
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 
@@ -90,34 +88,11 @@ namespace core::socket::stream::tls {
         return preverify_ok;
     }
 
-    struct SslConfig {
-        explicit SslConfig(bool server)
-            : server(server) {
-        }
-        SslConfig(bool server, const std::shared_ptr<net::config::ConfigTls>& configTls)
-            : certChain(configTls->getCertChain())
-            , certChainKey(configTls->getCertKey())
-            , password(configTls->getCertKeyPassword())
-            , caFile(configTls->getCaCertFile())
-            , caDir(configTls->getCaCertDir())
-            , useDefaultCaDir(configTls->getUseDefaultCaCertDir())
-            , cipherList(configTls->getCipherList())
-            , sslOptions(static_cast<ssl_option_t>(configTls->getSslTlsOptions()))
-            , server(server) {
-        }
+    SslConfig::SslConfig(bool server)
+        : server(server) {
+    }
 
-        std::string certChain;
-        std::string certChainKey;
-        std::string password;
-        std::string caFile;
-        std::string caDir;
-        bool useDefaultCaDir = false;
-        std::string cipherList;
-        ssl_option_t sslOptions = 0;
-        bool server = false;
-    };
-
-    static SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig) {
+    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig) {
         static int sslSessionCtxId = 1;
 
         SSL_CTX* ctx = SSL_CTX_new(sslConfig.server ? TLS_server_method() : TLS_client_method());
@@ -203,8 +178,6 @@ namespace core::socket::stream::tls {
                             LOG(TRACE) << "         " << sslConfig.certChain;
                         }
                     }
-                    if (!sslErr) {
-                    }
                 }
             }
             if (!sslErr) {
@@ -227,65 +200,8 @@ namespace core::socket::stream::tls {
         return ctx;
     }
 
-    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsServer>& configTls) {
-        return ssl_ctx_new(SslConfig(true, configTls));
-    }
-
-    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsClient>& configTls) {
-        return ssl_ctx_new(SslConfig(false, configTls));
-    }
-
-    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert) {
-        SslConfig sslConfig(true);
-
-        for (const auto& [key, value] : sniCert) {
-            if (key == "CertChain") {
-                sslConfig.certChain = std::get<std::string>(value);
-            } else if (key == "CertKey") {
-                sslConfig.certChainKey = std::get<std::string>(value);
-            } else if (key == "CertKeyPassword") {
-                sslConfig.password = std::get<std::string>(value);
-            } else if (key == "CaCertFile") {
-                sslConfig.caFile = std::get<std::string>(value);
-            } else if (key == "CaCertDir") {
-                sslConfig.caDir = std::get<std::string>(value);
-            } else if (key == "UseDefaultCaDir") {
-                sslConfig.useDefaultCaDir = std::get<bool>(value);
-            } else if (key == "CipherList") {
-                sslConfig.cipherList = std::get<std::string>(value);
-            } else if (key == "SslOptions") {
-                sslConfig.sslOptions = std::get<ssl_option_t>(value);
-            }
-        }
-
-        return ssl_ctx_new(sslConfig);
-    }
-
-    SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx) {
-        SSL_CTX* newSslCtx = SSL_set_SSL_CTX(ssl, sslCtx);
-        SSL_clear_options(ssl, 0xFFFFFFFFL);
-        SSL_set_options(ssl, SSL_CTX_get_options(sslCtx));
-        SSL_set_verify(ssl, SSL_CTX_get_verify_mode(sslCtx), SSL_CTX_get_verify_callback(sslCtx));
-        SSL_set_verify_depth(ssl, SSL_CTX_get_verify_depth(sslCtx));
-        SSL_set_mode(ssl, SSL_CTX_get_mode(sslCtx));
-
-        return newSslCtx;
-    }
-
-    void ssl_ctx_free(SSL_CTX* ctx) {
-        if (ctx != nullptr) {
-            SSL_CTX_free(ctx);
-        }
-    }
-
-    void ssl_set_sni(SSL* ssl, const std::string& sni) {
-        if (!sni.empty()) {
-            SSL_set_tlsext_host_name(ssl, sni.data());
-        }
-    }
-
-    std::set<std::string> ssl_get_sans(SSL_CTX* sslCtx) {
-        std::set<std::string> sans;
+    std::map<std::string, SSL_CTX*> ssl_get_sans(SSL_CTX* sslCtx) {
+        std::map<std::string, SSL_CTX*> sans;
 
         if (sslCtx != nullptr) {
             X509* x509 = SSL_CTX_get0_certificate(sslCtx);
@@ -321,7 +237,7 @@ namespace core::socket::stream::tls {
                         const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        sans.insert(subjectAltName);
+                        sans.insert({subjectAltName, sslCtx});
                     }
                 }
 #ifdef __GNUC__
@@ -340,6 +256,29 @@ namespace core::socket::stream::tls {
         }
 
         return sans;
+    }
+
+    void ssl_set_sni(SSL* ssl, const std::string& sni) {
+        if (!sni.empty()) {
+            SSL_set_tlsext_host_name(ssl, sni.data());
+        }
+    }
+
+    SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx) {
+        SSL_CTX* newSslCtx = SSL_set_SSL_CTX(ssl, sslCtx);
+        SSL_clear_options(ssl, 0xFFFFFFFFL);
+        SSL_set_options(ssl, SSL_CTX_get_options(sslCtx));
+        SSL_set_verify(ssl, SSL_CTX_get_verify_mode(sslCtx), SSL_CTX_get_verify_callback(sslCtx));
+        SSL_set_verify_depth(ssl, SSL_CTX_get_verify_depth(sslCtx));
+        SSL_set_mode(ssl, SSL_CTX_get_mode(sslCtx));
+
+        return newSslCtx;
+    }
+
+    void ssl_ctx_free(SSL_CTX* ctx) {
+        if (ctx != nullptr) {
+            SSL_CTX_free(ctx);
+        }
     }
 
     // From: https://www.bit-hive.com/documents/openssl-tutorial/

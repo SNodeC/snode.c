@@ -29,8 +29,6 @@ namespace core::socket::stream::tls {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-using SSL_CTX = struct ssl_ctx_st;
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {
@@ -63,8 +61,6 @@ namespace core::socket::stream::tls {
         void useNextSocketAddress() override;
 
         void initConnectEvent() final;
-
-        SSL_CTX* ctx = nullptr;
     };
 
 } // namespace core::socket::stream::tls

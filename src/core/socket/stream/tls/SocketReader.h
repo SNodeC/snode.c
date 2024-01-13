@@ -43,7 +43,7 @@ namespace core::socket::stream::tls {
     protected:
         virtual void doSSLShutdown() = 0;
 
-        virtual void doSSLHandshake(const std::function<void()>& onSuccess,
+        virtual bool doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onStatus) = 0;
 

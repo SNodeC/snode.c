@@ -25,6 +25,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
+#include <map>
+#include <string>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config::stream::tls {
@@ -36,6 +40,17 @@ namespace net::config::stream::tls {
         , public net::config::ConfigTlsServer {
     public:
         explicit ConfigSocketServer(const std::string& name);
+        ~ConfigSocketServer() override;
+
+        SSL_CTX* getSslCtx();
+        SSL_CTX* getSniCtx(const std::string& serverNameIndication);
+
+    private:
+        static int clientHelloCallback(SSL* ssl, int* al, void* arg);
+
+        SSL_CTX* sslCtx = nullptr;
+        std::list<SSL_CTX*> sniCtxs;
+        std::map<std::string, SSL_CTX*> sniCtxMap;
     };
 
 } // namespace net::config::stream::tls

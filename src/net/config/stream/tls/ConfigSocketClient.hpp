@@ -27,9 +27,36 @@ namespace net::config::stream::tls {
 
     template <typename ConfigSocketClientBase>
     ConfigSocketClient<ConfigSocketClientBase>::ConfigSocketClient(const std::string& name)
-        : net::config::ConfigInstance(name, "client")
+        : net::config::ConfigInstance(name, net::config::ConfigInstance::Role::CLIENT)
         , ConfigSocketClientBase(this)
         , net::config::ConfigTlsClient(this) {
+    }
+
+    template <typename ConfigSocketClientBase>
+    ConfigSocketClient<ConfigSocketClientBase>::~ConfigSocketClient() {
+        if (sslCtx != nullptr) {
+            core::socket::stream::tls::ssl_ctx_free(sslCtx);
+        }
+    }
+
+    template <typename ConfigSocketClientBase>
+    SSL_CTX* ConfigSocketClient<ConfigSocketClientBase>::getSslCtx() {
+        if (sslCtx == nullptr) {
+            core::socket::stream::tls::SslConfig sslConfig(false);
+
+            sslConfig.certChain = getCertChain();
+            sslConfig.certChainKey = getCertKey();
+            sslConfig.caDir = getCaCertDir();
+            sslConfig.caFile = getCaCertFile();
+            sslConfig.cipherList = getCipherList();
+            sslConfig.password = getCertKeyPassword();
+            sslConfig.sslOptions = getSslTlsOptions();
+            sslConfig.useDefaultCaDir = getUseDefaultCaCertDir();
+
+            sslCtx = core::socket::stream::tls::ssl_ctx_new(sslConfig);
+        }
+
+        return sslCtx;
     }
 
 } // namespace net::config::stream::tls

@@ -36,8 +36,9 @@ namespace net::config {
 
     class ConfigInstance {
     public:
-        ConfigInstance() = default;
-        explicit ConfigInstance(const std::string& instanceName, const std::string& role);
+        enum class Role { SERVER, CLIENT };
+
+        explicit ConfigInstance(const std::string& instanceName, Role role);
         ConfigInstance(const ConfigInstance&) = delete;
         ConfigInstance(ConfigInstance&&) = delete;
 
@@ -45,6 +46,8 @@ namespace net::config {
         ConfigInstance& operator=(ConfigInstance&&) = delete;
 
         virtual ~ConfigInstance();
+
+        Role getRole();
 
         const std::string& getInstanceName() const;
         void setInstanceName(const std::string& instanceName);
@@ -63,6 +66,8 @@ namespace net::config {
 
         std::string instanceName;
         static const std::string nameAnonymous;
+
+        Role role;
 
         CLI::App* instanceSc = nullptr;
         CLI::Option* disableOpt = nullptr;

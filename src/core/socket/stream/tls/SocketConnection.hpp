@@ -100,29 +100,33 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocket>
-    void SocketConnection<PhysicalSocket>::doSSLHandshake(const std::function<void()>& onSuccess,
+    bool SocketConnection<PhysicalSocket>::doSSLHandshake(const std::function<void()>& onSuccess,
                                                           const std::function<void()>& onTimeout,
                                                           const std::function<void(int)>& onStatus) {
-        if (!SocketReader::isSuspended()) {
-            SocketReader::suspend();
-        }
-        if (!SocketWriter::isSuspended()) {
-            SocketWriter::suspend();
+        if (ssl != nullptr) {
+            if (!SocketReader::isSuspended()) {
+                SocketReader::suspend();
+            }
+            if (!SocketWriter::isSuspended()) {
+                SocketWriter::suspend();
+            }
+
+            TLSHandshake::doHandshake(
+                ssl,
+                [onSuccess, this]() -> void { // onSuccess
+                    SocketReader::span();
+                    onSuccess();
+                },
+                [onTimeout]() -> void { // onTimeout
+                    onTimeout();
+                },
+                [onStatus](int sslErr) -> void { // onStatus
+                    onStatus(sslErr);
+                },
+                sslInitTimeout);
         }
 
-        TLSHandshake::doHandshake(
-            ssl,
-            [onSuccess, this]() -> void { // onSuccess
-                SocketReader::span();
-                onSuccess();
-            },
-            [onTimeout]() -> void { // onTimeout
-                onTimeout();
-            },
-            [onStatus](int sslErr) -> void { // onStatus
-                onStatus(sslErr);
-            },
-            sslInitTimeout);
+        return ssl != nullptr;
     }
 
     template <typename PhysicalSocket>

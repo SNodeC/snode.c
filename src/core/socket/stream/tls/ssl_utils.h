@@ -20,34 +20,40 @@
 #ifndef CORE_SOCKET_STREAM_TLS_SSL_UTILS_H
 #define CORE_SOCKET_STREAM_TLS_SSL_UTILS_H
 
-namespace net::config {
-    class ConfigTlsClient;
-    class ConfigTlsServer;
-} // namespace net::config
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/socket/stream/tls/ssl_version.h"
 
 #include <map>
-#include <memory>
-#include <openssl/types.h>
-#include <set>
+#include <openssl/types.h> // IWYU pragma: export
 #include <string>
-#include <variant>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {
 
-    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsServer>& configTls);
-    SSL_CTX* ssl_ctx_new(const std::shared_ptr<net::config::ConfigTlsClient>& configTls);
-    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert);
-    void ssl_ctx_free(SSL_CTX* ctx);
+    struct SslConfig {
+        explicit SslConfig(bool server);
+
+        std::string certChain;
+        std::string certChainKey;
+        std::string password;
+        std::string caFile;
+        std::string caDir;
+        bool useDefaultCaDir = false;
+        std::string cipherList;
+        ssl_option_t sslOptions = 0;
+        bool server = false;
+    };
+
+    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig);
+    std::map<std::string, SSL_CTX*> ssl_get_sans(SSL_CTX* sslCtx);
 
     void ssl_set_sni(SSL* ssl, const std::string& sni);
     SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx);
-    std::set<std::string> ssl_get_sans(SSL_CTX* sslCtx);
+
+    void ssl_ctx_free(SSL_CTX* ctx);
+
     std::string ssl_get_servername_from_client_hello(SSL* ssl);
 
     void ssl_log_error(const std::string& message);

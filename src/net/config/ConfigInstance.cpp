@@ -34,10 +34,16 @@ namespace net::config {
 
     const std::string ConfigInstance::nameAnonymous = "<anonymous>";
 
-    ConfigInstance::ConfigInstance(const std::string& instanceName, const std::string& role)
-        : instanceName(instanceName) {
-        instanceSc =
-            utils::Config::add_instance(instanceName, "Configuration for " + role + " instance '" + instanceName + "'", "Instances");
+    ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
+        : instanceName(instanceName)
+        , role(role) {
+        instanceSc = utils::Config::add_instance(instanceName,
+                                                 std::string("Configuration for ")
+                                                     .append(role == Role::SERVER ? "server" : "client")
+                                                     .append(" instance '")
+                                                     .append(instanceName)
+                                                     .append("'"),
+                                                 "Instances");
 
         utils::Config::add_standard_flags(instanceSc);
         utils::Config::add_help_flags(instanceSc);
@@ -59,6 +65,10 @@ namespace net::config {
 
     ConfigInstance::~ConfigInstance() {
         utils::Config::remove_instance(instanceSc);
+    }
+
+    ConfigInstance::Role ConfigInstance::getRole() {
+        return role;
     }
 
     const std::string& ConfigInstance::getInstanceName() const {

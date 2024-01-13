@@ -41,7 +41,7 @@ namespace core::socket::stream::tls {
         ssize_t write(const char* junk, std::size_t junkLen) override;
 
     protected:
-        virtual void doSSLHandshake(const std::function<void()>& onSuccess,
+        virtual bool doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onStatus) = 0;
 

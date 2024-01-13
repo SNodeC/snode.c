@@ -70,7 +70,7 @@ namespace core::socket::stream::tls {
 
         void stopSSL();
 
-        void doSSLHandshake(const std::function<void()>& onSuccess,
+        bool doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
                             const std::function<void(int)>& onStatus) final;
 

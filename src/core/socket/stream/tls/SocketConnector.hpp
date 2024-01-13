@@ -73,7 +73,8 @@ namespace core::socket::stream::tls {
                               ssl_log(instanceName + ": SSL/TLS initial handshake failed", sslErr);
 
                               socketConnection->close();
-                          });
+                          })) {
+                      LOG(TRACE) << "SSL/TLS: Initial handshake running";
                   } else {
                       ssl_log_error(Super::config->getInstanceName() + ": SSL/TLS initialization failed");
 
@@ -96,10 +97,6 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalSocketClient, typename Config>
     SocketConnector<PhysicalSocketClient, Config>::~SocketConnector() {
-        if (ctx != nullptr) {
-            LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << " releasing SSL_CTX";
-            ssl_ctx_free(ctx);
-        }
     }
 
     template <typename PhysicalClientSocket, typename Config>
@@ -112,7 +109,7 @@ namespace core::socket::stream::tls {
         if (!config->getDisabled()) {
             LOG(TRACE) << config->getInstanceName() << ": Initializing SSL/TLS";
 
-            ctx = ssl_ctx_new(config);
+            SSL_CTX* ctx = config->getSslCtx();
 
             if (ctx != nullptr) {
                 LOG(TRACE) << config->getInstanceName() << ": SSL/TLS master SSL_CTX created";
