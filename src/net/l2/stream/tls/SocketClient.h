@@ -27,6 +27,7 @@
 
 // IWYU pragma: no_include "core/socket/stream/SocketConnector.hpp"
 // IWYU pragma: no_include "core/socket/stream/tls/SocketConnection.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
 // IWYU pragma: no_include "core/socket/stream/SocketConnectionFactory.hpp"
 // IWYU pragma: no_include "core/socket/stream/SocketReader.hpp"
 // IWYU pragma: no_include "core/socket/stream/SocketWriter.hpp"

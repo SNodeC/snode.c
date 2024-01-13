@@ -26,6 +26,8 @@ namespace core::socket::stream::legacy {
     class SocketConnection;
 }
 
+// IWYU pragma: no_include "core/socket/stream/legacy/SocketConnection.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

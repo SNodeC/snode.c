@@ -20,6 +20,7 @@
 #include "net/rc/stream/legacy/SocketServer.h"
 
 #include "core/socket/Socket.hpp"                         // IWYU pragma: keep
+#include "core/socket/stream/SocketConnection.hpp"        // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketAcceptor.hpp"   // IWYU pragma: keep
 #include "core/socket/stream/legacy/SocketConnection.hpp" // IWYU pragma: keep
 
