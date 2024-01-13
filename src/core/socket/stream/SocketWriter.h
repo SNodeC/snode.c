@@ -51,15 +51,18 @@ namespace core::socket::stream {
 
         void writeEvent() final;
 
+        void signalEvent(int sigNum) final;
+
         void doWrite();
+
+        virtual void onSignal(int sigNum) = 0;
+        virtual void doWriteShutdown(const std::function<void()>& onShutdown) = 0;
 
     protected:
         void setBlockSize(std::size_t writeBlockSize);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
-        virtual void shutdownWrite(const std::function<void()>& onShutdown) = 0;
-
-        void terminate() final;
+        void shutdownWrite(const std::function<void()>& onShutdown);
 
         bool markShutdown = false;
 
@@ -71,11 +74,12 @@ namespace core::socket::stream {
 
         std::vector<char> writeBuffer;
 
+        bool shutdownInProgress = false;
+
     private:
         std::size_t blockSize = 0;
 
-        bool terminateInProgress = false;
-
+    public:
         utils::Timeval terminateTimeout;
     };
 

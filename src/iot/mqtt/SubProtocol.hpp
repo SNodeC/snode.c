@@ -140,8 +140,8 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::onExit(int sig) {
-        iot::mqtt::MqttContext::onExit(sig);
+    void SubProtocol<WSSubProtocolRole>::onSignal(int sig) {
+        iot::mqtt::MqttContext::onSignal(sig);
         LOG(INFO) << "WSMQTT: exit doe to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
 
         this->sendClose();

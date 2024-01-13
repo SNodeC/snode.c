@@ -84,15 +84,16 @@ namespace core {
         return tickStatus;
     }
 
-    void EventMultiplexer::sigExit(int sigNum) {
+    void EventMultiplexer::signal(int sigNum) {
         for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-            descriptorEventPublisher->sigExit(sigNum);
+            descriptorEventPublisher->signal(sigNum);
         }
+        timerEventPublisher->stop();
     }
 
-    void EventMultiplexer::stop() {
+    void EventMultiplexer::terminate() {
         for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-            descriptorEventPublisher->stop();
+            descriptorEventPublisher->disable();
         }
         timerEventPublisher->stop();
 

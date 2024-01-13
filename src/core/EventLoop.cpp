@@ -70,6 +70,10 @@ namespace core {
         return eventMultiplexer;
     }
 
+    State EventLoop::getEventLoopState() {
+        return eventLoopState;
+    }
+
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     bool EventLoop::init(int argc, char* argv[]) {
         logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
@@ -89,16 +93,15 @@ namespace core {
         tickCounter++;
 
         sigset_t newSet{};
-        sigset_t oldSet{};
-
         sigaddset(&newSet, SIGINT);
         sigaddset(&newSet, SIGTERM);
         sigaddset(&newSet, SIGALRM);
         sigaddset(&newSet, SIGHUP);
 
+        sigset_t oldSet{};
         sigprocmask(SIG_BLOCK, &newSet, &oldSet);
 
-        if (eventLoopState == State::RUNNING || eventLoopState == State::STOPING) {
+        if (eventLoopState == State::RUNNING || eventLoopState == State::STOPPING) {
             tickStatus = eventMultiplexer.tick(tickTimeOut, oldSet);
         }
 
@@ -194,7 +197,7 @@ namespace core {
     }
 
     void EventLoop::stop() {
-        eventLoopState = State::STOPING;
+        eventLoopState = State::STOPPING;
     }
 
     void EventLoop::free() {
@@ -204,33 +207,32 @@ namespace core {
             signal = std::to_string(stopsig);
         }
 
-        LOG(TRACE) << "Core: Sending 'onExit(" << signal << ")' to all DescriptorEventReceivers";
-
-        eventLoopState = State::STOPING;
+        eventLoopState = State::STOPPING;
 
         if (stopsig != 0) {
-            EventLoop::instance().eventMultiplexer.sigExit(stopsig);
+            LOG(TRACE) << "Core: Sending signal " << signal << " to all DescriptorEventReceivers";
+
+            EventLoop::instance().eventMultiplexer.signal(stopsig);
         }
 
         utils::Timeval timeout = 2;
 
         core::TickStatus tickStatus = TickStatus::SUCCESS;
         do {
-            LOG(TRACE) << "Core: Stopping all DescriptorEventReceivers";
-
             auto t1 = std::chrono::system_clock::now();
-
-            EventLoop::instance().eventMultiplexer.stop();
-
             const utils::Timeval timeoutOp = timeout;
+
             tickStatus = EventLoop::instance()._tick(timeoutOp);
 
             auto t2 = std::chrono::system_clock::now();
-
             const std::chrono::duration<double> seconds = t2 - t1;
 
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED));
+
+        LOG(TRACE) << "Core: Terminating all stalled  DescriptorEventReceivers";
+
+        EventLoop::instance().eventMultiplexer.terminate();
 
         LOG(TRACE) << "Core: Closing all libraries opened during runtime";
 
@@ -243,10 +245,6 @@ namespace core {
         LOG(TRACE) << "Core:: All resources released";
 
         LOG(TRACE) << "SNode.C: Ended ... BYE";
-    }
-
-    State EventLoop::state() {
-        return eventLoopState;
     }
 
     void EventLoop::stoponsig(int sig) {

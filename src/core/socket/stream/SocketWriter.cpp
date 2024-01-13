@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/system/signal.h"
+
 #include <cerrno>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -39,6 +41,29 @@ namespace core::socket::stream {
 
     void SocketWriter::writeEvent() {
         doWrite();
+    }
+
+    void SocketWriter::signalEvent(int sigNum) {
+        onSignal(sigNum);
+
+        switch (sigNum) {
+            case SIGINT:
+                [[fallthrough]];
+            case SIGTERM:
+                [[fallthrough]];
+            case SIGABRT:
+                [[fallthrough]];
+            case SIGHUP:
+                if (!shutdownInProgress) {
+                    SocketWriter::setTimeout(SocketWriter::terminateTimeout);
+                    shutdownWrite([this]() -> void {
+                        SocketWriter::disable();
+                    });
+                }
+                break;
+            case SIGALRM:
+                break;
+        }
     }
 
     void SocketWriter::doWrite() {
@@ -91,7 +116,14 @@ namespace core::socket::stream {
         }
     }
 
-    void SocketWriter::terminate() {
+    void SocketWriter::shutdownWrite(const std::function<void()>& onShutdown) {
+        SocketWriter::onShutdown = onShutdown;
+        if (SocketWriter::writeBuffer.empty()) {
+            doWriteShutdown(onShutdown);
+        } else {
+            SocketWriter::markShutdown = true;
+        }
+        shutdownInProgress = true;
     }
 
 } // namespace core::socket::stream

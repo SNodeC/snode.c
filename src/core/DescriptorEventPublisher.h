@@ -56,7 +56,7 @@ namespace core {
         void suspend(DescriptorEventReceiver* descriptorEventReceiver);
         void resume(DescriptorEventReceiver* descriptorEventReceiver);
 
-        virtual int spanActiveEvents() = 0;
+        virtual void spanActiveEvents() = 0;
         void checkTimedOutEvents(const utils::Timeval& currentTime);
         void releaseDisabledEvents(const utils::Timeval& currentTime);
 
@@ -65,8 +65,8 @@ namespace core {
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
 
-        void sigExit(int sigNum);
-        void stop();
+        void signal(int sigNum);
+        void disable();
 
         const std::string& getName() const;
 

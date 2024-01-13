@@ -157,8 +157,7 @@ namespace core::socket::stream {
                     onConnected,
                     [client = *this, onStatus](SocketConnection* socketConnection) -> void {
                         client.onDisconnect(socketConnection);
-
-                        if (client.getConfig().getReconnect() && !socketConnection->getExitProcessed()) {
+                        if (client.getConfig().getReconnect() && socketConnection->getEventLoopState() == core::State::RUNNING) {
                             double relativeReconnectTimeout = client.getConfig().getReconnectTime();
 
                             LOG(INFO) << "Client OnDisconnect: " << client.getConfig().getInstanceName();
@@ -166,7 +165,7 @@ namespace core::socket::stream {
                                       << "  reconnecting in " << relativeReconnectTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
-                                [client, onStatus]() mutable -> void {
+                                [client, onStatus]() -> void {
                                     client.getConfig().Local::renew();
                                     client.getConfig().Remote::renew();
 
@@ -177,7 +176,8 @@ namespace core::socket::stream {
                     },
                     [client = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
                                                                          core::socket::State state) -> void {
-                        bool retry = (state & core::socket::State::NO_RETRY) == 0;
+                        bool retry = (state & core::socket::State::NO_RETRY) == 0 &&
+                                     (client.getConfig().getRetryTries() == 0 || tries < client.getConfig().getRetryTries());
                         state &= ~core::socket::State::NO_RETRY;
 
                         onStatus(socketAddress, state);
@@ -196,7 +196,7 @@ namespace core::socket::stream {
                                 break;
                         }
 
-                        if (retry && (client.getConfig().getRetryTries() == 0 || tries < client.getConfig().getRetryTries())) {
+                        if (retry) {
                             double relativeRetryTimeout = client.getConfig().getRetryLimit() > 0
                                                               ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
                                                                                  client.getConfig().getRetryLimit())

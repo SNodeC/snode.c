@@ -46,6 +46,9 @@ namespace core::socket::stream {
         }
     }
 
+    void SocketReader::signalEvent([[maybe_unused]] int sigNum) { // Do nothing in case a signal was received
+    }
+
     std::size_t SocketReader::doRead() {
         errno = 0;
 
@@ -67,7 +70,8 @@ namespace core::socket::stream {
                     resume();
                 }
             } else {
-                onStatus(errno);
+                const int errnum = errno;
+                onStatus(errnum);
                 disable();
             }
         } else {
@@ -91,17 +95,6 @@ namespace core::socket::stream {
         size -= maxReturn;
 
         return maxReturn;
-    }
-
-    void SocketReader::terminate() {
-        if (!terminateInProgress) {
-            setTimeout(terminateTimeout);
-            // shutdown();
-            // do not shutdown our read side because we try to do a full tcp shutdown sequence.
-            // In case we do not receive a TCP-FIN (or equivalent depending on the protocol) the
-            // connection is hard closed after "terminateTimeout".
-            terminateInProgress = true;
-        }
     }
 
 } // namespace core::socket::stream

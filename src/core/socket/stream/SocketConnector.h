@@ -47,7 +47,6 @@ namespace core::socket::stream {
 
     public:
         SocketConnector() = delete;
-        SocketConnector(const SocketConnector&) = delete;
         SocketConnector(SocketConnector&&) = delete;
 
         SocketConnector& operator=(const SocketConnector&) = delete;
@@ -60,7 +59,11 @@ namespace core::socket::stream {
                         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                         const std::shared_ptr<Config>& config);
 
+        SocketConnector(const SocketConnector& socketConnector);
+
         ~SocketConnector() override;
+
+        virtual void useNextSocketAddress() = 0;
 
     protected:
         void initConnectEvent() override;

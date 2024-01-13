@@ -47,4 +47,8 @@ namespace core::eventreceiver {
         writeTimeout();
     }
 
+    void WriteEventReceiver::signalEvent([[maybe_unused]] int signum) {
+        disable();
+    }
+
 } // namespace core::eventreceiver

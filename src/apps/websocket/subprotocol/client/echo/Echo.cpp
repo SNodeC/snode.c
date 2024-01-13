@@ -72,7 +72,7 @@ namespace apps::websocket::subprotocol::echo::client {
         VLOG(1) << "Echo disconnected:";
     }
 
-    void Echo::onExit(int sig) {
+    void Echo::onSignal(int sig) {
         VLOG(1) << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
                 << ")";
 

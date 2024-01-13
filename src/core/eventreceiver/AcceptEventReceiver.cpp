@@ -47,6 +47,10 @@ namespace core::eventreceiver {
         acceptTimeout();
     }
 
+    void AcceptEventReceiver::signalEvent([[maybe_unused]] int signum) {
+        disable();
+    }
+
     InitAcceptEventReceiver::InitAcceptEventReceiver(const std::string& name)
         : core::EventReceiver("InitAcceptEventReceiver: " + name) {
         span();

@@ -60,14 +60,22 @@ namespace core::socket::stream::tls {
 
         switch (sslErr) {
             case SSL_ERROR_WANT_READ:
-                ReadEventReceiver::enable(fd);
-                WriteEventReceiver::enable(fd);
-                WriteEventReceiver::suspend();
+                if (!ReadEventReceiver::enable(fd)) {
+                    delete this;
+                } else if (!WriteEventReceiver::enable(fd)) {
+                    delete this;
+                } else {
+                    WriteEventReceiver::suspend();
+                }
                 break;
             case SSL_ERROR_WANT_WRITE:
-                ReadEventReceiver::enable(fd);
-                ReadEventReceiver::suspend();
-                WriteEventReceiver::enable(fd);
+                if (!ReadEventReceiver::enable(fd)) {
+                    delete this;
+                } else if (!WriteEventReceiver::enable(fd)) {
+                    delete this;
+                } else {
+                    ReadEventReceiver::suspend();
+                }
                 break;
             case SSL_ERROR_NONE:
                 onSuccess();
@@ -152,6 +160,9 @@ namespace core::socket::stream::tls {
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
         }
+    }
+
+    void TLSShutdown::signalEvent([[maybe_unused]] int signum) { // Do nothing on signal event
     }
 
     void TLSShutdown::unobservedEvent() {

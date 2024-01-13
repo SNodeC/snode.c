@@ -39,6 +39,8 @@ namespace core {
     class Observer {
     public:
         Observer() = default;
+        Observer(const Observer& observer);
+
         virtual ~Observer();
 
     protected:
@@ -72,26 +74,24 @@ namespace core {
         int getRegisteredFd() const;
 
     protected:
-        void enable(int fd);
+        [[nodiscard]] bool enable(int fd);
         void disable();
 
         void suspend();
         void resume();
 
     public:
-        bool isEnabled() const;
-        bool isSuspended() const;
+        [[nodiscard]] bool isEnabled() const;
+        [[nodiscard]] bool isSuspended() const;
 
         void setTimeout(const utils::Timeval& timeout);
-        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
+        [[nodiscard]] utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
 
         void checkTimeout(const utils::Timeval& currentTime);
 
-        virtual void terminate();
-
     private:
         void onEvent(const utils::Timeval& currentTime) final;
-        virtual void onExit(int sig);
+        void onSignal(int signum);
 
         void triggered(const utils::Timeval& currentTime);
         void setEnabled(const utils::Timeval& currentTime);
@@ -99,6 +99,7 @@ namespace core {
 
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
+        virtual void signalEvent([[maybe_unused]] int signum) = 0;
 
         DescriptorEventPublisher& descriptorEventPublisher;
 

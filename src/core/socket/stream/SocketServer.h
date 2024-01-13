@@ -160,26 +160,27 @@ namespace core::socket::stream {
                     onDisconnect,
                     [server = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
                                                                          core::socket::State state) mutable -> void {
-                        const bool retry = (state & core::socket::State::NO_RETRY) == 0;
+                        const bool retry = (state & core::socket::State::NO_RETRY) == 0 &&
+                                           (server.getConfig().getRetryTries() == 0 || tries < server.getConfig().getRetryTries());
 
                         state &= ~core::socket::State::NO_RETRY;
                         onStatus(socketAddress, state);
 
-                        switch (state) {
-                            case core::socket::State::OK:
-                                server.currentOk++;
-                                [[fallthrough]];
-                            case core::socket::State::DISABLED:
-                                break;
-                            case core::socket::State::ERROR:
-                                server.currentError++;
-                                break;
-                            case core::socket::State::FATAL:
-                                server.currentFatal++;
-                                break;
-                        }
+                        if (retry) {
+                            switch (state) {
+                                case core::socket::State::OK:
+                                    server.currentOk++;
+                                    [[fallthrough]];
+                                case core::socket::State::DISABLED:
+                                    break;
+                                case core::socket::State::ERROR:
+                                    server.currentError++;
+                                    break;
+                                case core::socket::State::FATAL:
+                                    server.currentFatal++;
+                                    break;
+                            }
 
-                        if (retry && (server.getConfig().getRetryTries() == 0 || tries < server.getConfig().getRetryTries())) {
                             if ((server.currentError > 0 && server.getConfig().getRetry()) ||
                                 (server.currentFatal > 0 && server.getConfig().getRetry() && server.getConfig().getRetryOnFatal())) {
                                 if (server.totalOk < server.currentError + server.currentFatal) {

@@ -117,8 +117,7 @@ namespace core::socket::stream::tls {
         bool server = false;
     };
 
-    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig);
-    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig) {
+    static SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig) {
         static int sslSessionCtxId = 1;
 
         SSL_CTX* ctx = SSL_CTX_new(sslConfig.server ? TLS_server_method() : TLS_client_method());

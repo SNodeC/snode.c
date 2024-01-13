@@ -26,7 +26,7 @@
 
 namespace core {
 
-    enum class State { LOADED, INITIALIZED, RUNNING, STOPING };
+    enum class State { LOADED, INITIALIZED, RUNNING, STOPPING };
 
 } // namespace core
 

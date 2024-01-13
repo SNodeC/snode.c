@@ -99,6 +99,19 @@ namespace core::socket::stream {
         , config(config) {
     }
 
+    template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
+    SocketConnector<PhysicalSocketServer, Config, SocketConnection>::SocketConnector(const SocketConnector& socketConnector)
+        : core::Observer(socketConnector)
+        , core::eventreceiver::InitConnectEventReceiver("SocketConnector")
+        , core::eventreceiver::ConnectEventReceiver("SocketConnector", 0)
+        , socketContextFactory(socketConnector.socketContextFactory)
+        , onConnect(socketConnector.onConnect)
+        , onConnected(socketConnector.onConnected)
+        , onDisconnect(socketConnector.onDisconnect)
+        , onStatus(socketConnector.onStatus)
+        , config(socketConnector.config) {
+    }
+
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     SocketConnector<PhysicalSocketClient, Config, SocketConnection>::~SocketConnector() {
     }
@@ -178,14 +191,16 @@ namespace core::socket::stream {
                             LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '"
                                        << config->Remote::getSocketAddress().toString() << "'";
 
-                            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
+                            useNextSocketAddress();
                         } else {
                             onStatus(remoteAddress, state);
                         }
                     } else if (PhysicalClientSocket::connectInProgress(errno)) {
-                        LOG(TRACE) << config->getInstanceName() << ": connect in progress '" << remoteAddress.toString() << "'";
-
-                        enable(physicalClientSocket.getFd());
+                        if (enable(physicalClientSocket.getFd())) {
+                            LOG(TRACE) << config->getInstanceName() << ": connect in progress '" << remoteAddress.toString() << "'";
+                        } else {
+                            LOG(TRACE) << config->getInstanceName() << ": Error: not monitored by SNode.C";
+                        }
                     } else {
                         LOG(TRACE) << config->getInstanceName() << ": connect success '" << remoteAddress.toString() << "'";
 
@@ -284,7 +299,7 @@ namespace core::socket::stream {
                 LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '" << config->Remote::getSocketAddress().toString()
                            << "'";
 
-                new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
+                useNextSocketAddress();
 
                 disable();
             } else {
@@ -333,7 +348,7 @@ namespace core::socket::stream {
             LOG(TRACE) << config->getInstanceName() << ": using next SocketAddress '" << config->Remote::getSocketAddress().toString()
                        << "'";
 
-            new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
+            useNextSocketAddress();
         } else {
             LOG(TRACE) << config->getInstanceName() << ": connect timeout '" << remoteAddress.toString() << "'";
 

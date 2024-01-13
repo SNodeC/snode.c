@@ -20,6 +20,8 @@
 #include "core/DescriptorEventReceiver.h"
 
 #include "core/DescriptorEventPublisher.h"
+#include "core/EventLoop.h"
+#include "core/State.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,6 +32,9 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
+
+    Observer::Observer([[maybe_unused]] const Observer& observer) { // Do not copy observationCounter
+    }
 
     Observer::~Observer() {
     }
@@ -63,15 +68,21 @@ namespace core {
         return observedFd;
     }
 
-    void DescriptorEventReceiver::enable(int fd) {
-        if (!enabled) {
-            observedFd = fd;
+    bool DescriptorEventReceiver::enable(int fd) {
+        if (core::EventLoop::getEventLoopState() != core::State::STOPPING) {
+            if (!enabled) {
+                observedFd = fd;
 
-            enabled = true;
-            descriptorEventPublisher.enable(this);
+                enabled = true;
+                descriptorEventPublisher.enable(this);
+            } else {
+                LOG(TRACE) << "EventReceiver: Double enable: " << getName() << ": fd = " << observedFd;
+            }
         } else {
-            LOG(TRACE) << "EventReceiver: Double enable: " << getName() << ": fd = " << observedFd;
+            LOG(TRACE) << "EventReceiver: Not enabled: Enable after signal";
         }
+
+        return core::EventLoop::getEventLoopState() != core::State::STOPPING;
     }
 
     void DescriptorEventReceiver::setEnabled(const utils::Timeval& currentTime) {
@@ -84,6 +95,7 @@ namespace core {
         if (enabled) {
             enabled = false;
             descriptorEventPublisher.disable(this);
+            LOG(TRACE) << "EventReceiver: Disable: " << getName() << ": fd = " << observedFd;
         } else {
             LOG(TRACE) << "EventReceiver: Double disable: " << getName() << ": fd = " << observedFd;
         }
@@ -128,12 +140,6 @@ namespace core {
         return suspended;
     }
 
-    void DescriptorEventReceiver::terminate() {
-        if (isEnabled()) {
-            disable();
-        }
-    }
-
     void DescriptorEventReceiver::setTimeout(const utils::Timeval& timeout) {
         if (timeout == TIMEOUT::DEFAULT) {
             this->maxInactivity = initialTimeout;
@@ -155,7 +161,8 @@ namespace core {
         dispatchEvent();
     }
 
-    void DescriptorEventReceiver::onExit([[maybe_unused]] int sig) {
+    void DescriptorEventReceiver::onSignal(int signum) {
+        signalEvent(signum);
     }
 
     void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) {

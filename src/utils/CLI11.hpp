@@ -8928,7 +8928,7 @@ public:                                                                         
 
         // now process the requirements for subcommands if needed
         for (const auto& sub : subcommands_) {
-            if (sub->disabled_)// || !sub->required_)
+            if (sub->disabled_) // || !sub->required_)
                 continue;
 
             if (sub->count_all() == 0) {

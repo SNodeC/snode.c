@@ -59,9 +59,9 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::onExit(int sig) {
+    void Mqtt::onSignal(int sig) {
         willFlag = false;
-        Super::onExit(sig);
+        Super::onSignal(sig);
     }
 
     iot::mqtt::ControlPacketDeserializer* Mqtt::createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) {

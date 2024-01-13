@@ -34,7 +34,7 @@ namespace core::socket::stream::legacy {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(const SocketAddress&, core::socket::State)>& onError,
+        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
         : Super(
               socketContextFactory,
@@ -44,8 +44,13 @@ namespace core::socket::stream::legacy {
                   socketConnection->connected(socketContextFactory);
               },
               onDisconnect,
-              onError,
+              onStatus,
               config) {
+    }
+
+    template <typename PhysicalClientSocket, typename Config>
+    void core::socket::stream::legacy::SocketAcceptor<PhysicalClientSocket, Config>::useNextSocketAddress() {
+        new SocketAcceptor(*this);
     }
 
 } // namespace core::socket::stream::legacy

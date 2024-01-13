@@ -55,15 +55,23 @@ namespace database::mariadb {
 
                     LOG(DEBUG) << "MariaDB: Got valid descriptor: " << fd;
 
-                    ReadEventReceiver::enable(fd);
-                    WriteEventReceiver::enable(fd);
-                    ExceptionalConditionEventReceiver::enable(fd);
+                    if (ReadEventReceiver::enable(fd) && WriteEventReceiver::enable(fd) && ExceptionalConditionEventReceiver::enable(fd)) {
+                        ReadEventReceiver::suspend();
+                        WriteEventReceiver::suspend();
+                        ExceptionalConditionEventReceiver::suspend();
 
-                    ReadEventReceiver::suspend();
-                    WriteEventReceiver::suspend();
-                    ExceptionalConditionEventReceiver::suspend();
-
-                    connected = true;
+                        connected = true;
+                    } else {
+                        if (ReadEventReceiver::isEnabled()) {
+                            ReadEventReceiver::disable();
+                        }
+                        if (WriteEventReceiver::isEnabled()) {
+                            WriteEventReceiver::disable();
+                        }
+                        if (ExceptionalConditionEventReceiver::isEnabled()) {
+                            ExceptionalConditionEventReceiver::disable();
+                        }
+                    }
                 } else {
                     LOG(WARNING) << "MariaDB: Got no valid descriptor: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
                 }

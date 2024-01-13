@@ -90,19 +90,14 @@ namespace core::select {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
-    int DescriptorEventPublisher::spanActiveEvents() {
-        int count = 0;
-
+    void DescriptorEventPublisher::spanActiveEvents() {
         for (auto& [fd, eventReceivers] : observedEventReceivers) {
             if (fdSet.isSet(fd) != 0) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;
                 eventReceiver->span();
-                count++;
             }
         }
-
-        return count;
     }
 
 } // namespace core::select

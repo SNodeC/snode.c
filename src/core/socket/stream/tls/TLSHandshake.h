@@ -61,6 +61,8 @@ namespace core::socket::stream::tls {
 
         void readEvent() final;
         void writeEvent() final;
+        void signalEvent(int signum) final;
+
         void readTimeout() final;
         void writeTimeout() final;
 

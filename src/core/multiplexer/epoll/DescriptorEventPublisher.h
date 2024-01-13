@@ -75,7 +75,7 @@ namespace core::epoll {
         void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
         void muxOff(core::DescriptorEventReceiver* eventReceiver) override;
 
-        int spanActiveEvents() override;
+        void spanActiveEvents() override;
 
         EPollEvents ePollEvents;
         uint32_t revents;

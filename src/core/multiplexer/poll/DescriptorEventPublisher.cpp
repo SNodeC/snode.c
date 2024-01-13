@@ -55,9 +55,7 @@ namespace core::poll {
         pollFds.muxOff(eventReceiver, events);
     }
 
-    int DescriptorEventPublisher::spanActiveEvents() {
-        int count = 0;
-
+    void DescriptorEventPublisher::spanActiveEvents() {
         pollfd* pollfds = pollFds.getEvents();
 
         const std::unordered_map<int, PollFdsManager::PollFdIndex>& pollFdsIndices = pollFds.getPollFdIndices();
@@ -69,11 +67,8 @@ namespace core::poll {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;
                 eventReceiver->span();
-                count++;
             }
         }
-
-        return count;
     }
 
 } // namespace core::poll

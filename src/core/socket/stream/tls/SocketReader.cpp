@@ -75,7 +75,7 @@ namespace core::socket::stream::tls {
                     const utils::PreserveErrno preserveErrno;
 
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
-                    VLOG(0) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
+                    LOG(TRACE) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
                     doSSLShutdown();
                 }
                     ret = -1;

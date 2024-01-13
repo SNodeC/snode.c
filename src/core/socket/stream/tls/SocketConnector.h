@@ -55,11 +55,15 @@ namespace core::socket::stream::tls {
                         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                         const std::shared_ptr<Config>& config);
 
+        SocketConnector(const SocketConnector& socketConnector);
+
         ~SocketConnector() override;
+
+    private:
+        void useNextSocketAddress() override;
 
         void initConnectEvent() final;
 
-    private:
         SSL_CTX* ctx = nullptr;
     };
 

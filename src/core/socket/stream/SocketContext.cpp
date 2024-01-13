@@ -23,12 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-#include "utils/PreserveErrno.h"
-#include "utils/system/signal.h"
-
-#include <cstring>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
@@ -74,26 +68,15 @@ namespace core::socket::stream {
         shutdownWrite(forceClose);
     }
 
-    void SocketContext::onWriteError(int errnum) {
-        const utils::PreserveErrno pe(errnum);
-
-        PLOG(TRACE) << socketConnection->getInstanceName() << ": OnWriteError";
+    void SocketContext::onWriteError([[maybe_unused]] int errnum) {
         shutdownRead();
     }
 
-    void SocketContext::onReadError(int errnum) {
-        const utils::PreserveErrno pe(errnum);
-
-        if (errno == 0) {
-            LOG(TRACE) << socketConnection->getInstanceName() << ": EOF received";
-        } else {
-            PLOG(TRACE) << socketConnection->getInstanceName() << ": ReadError";
-        }
-
+    void SocketContext::onReadError([[maybe_unused]] int errnum) {
         shutdownWrite();
     }
 
-    void SocketContext::onExit([[maybe_unused]] int sig) {
+    void SocketContext::onSignal([[maybe_unused]] int sig) {
     }
 
 } // namespace core::socket::stream

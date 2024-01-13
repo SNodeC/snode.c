@@ -53,8 +53,6 @@ namespace core::pipe {
         void unobservedEvent() override;
 
     private:
-        void terminate() override;
-
         std::function<void(int errnum)> onError;
 
         std::vector<char> writeBuffer;

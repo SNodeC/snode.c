@@ -48,8 +48,8 @@ namespace iot::mqtt {
         mqtt->onDisconnected();
     }
 
-    void MqttContext::onExit(int sig) {
-        mqtt->onExit(sig);
+    void MqttContext::onSignal(int sig) {
+        mqtt->onSignal(sig);
     }
 
 } // namespace iot::mqtt

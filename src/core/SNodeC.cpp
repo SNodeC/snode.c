@@ -52,7 +52,7 @@ namespace core {
     }
 
     State SNodeC::state() {
-        return EventLoop::state();
+        return EventLoop::getEventLoopState();
     }
 
 } // namespace core

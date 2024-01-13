@@ -100,6 +100,19 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
+    SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
+        : core::Observer(socketAcceptor)
+        , core::eventreceiver::InitAcceptEventReceiver("SocketAcceptor")
+        , core::eventreceiver::AcceptEventReceiver("SocketAcceptor", 0)
+        , socketContextFactory(socketAcceptor.socketContextFactory)
+        , onConnect(socketAcceptor.onConnect)
+        , onConnected(socketAcceptor.onConnected)
+        , onDisconnect(socketAcceptor.onDisconnect)
+        , onStatus(socketAcceptor.onStatus)
+        , config(socketAcceptor.config) {
+    }
+
+    template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::~SocketAcceptor() {
     }
 
@@ -150,9 +163,11 @@ namespace core::socket::stream {
                             break;
                     }
                 } else {
-                    LOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "' success";
-
-                    enable(physicalServerSocket.getFd());
+                    if (enable(physicalServerSocket.getFd())) {
+                        LOG(TRACE) << config->getInstanceName() << ": listen '" << localAddress.toString() << "' success";
+                    } else {
+                        LOG(TRACE) << config->getInstanceName() << ": Error: not monitored by SNode.C";
+                    }
                 }
 
                 if (localAddress.useNext()) {
@@ -161,7 +176,7 @@ namespace core::socket::stream {
 
                     onStatus(localAddress, (state | core::socket::State::NO_RETRY));
 
-                    new SocketAcceptor(socketContextFactory, onConnect, onConnected, onDisconnect, onStatus, config);
+                    useNextSocketAddress();
                 } else {
                     onStatus(localAddress, state);
                 }

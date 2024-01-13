@@ -36,8 +36,11 @@ namespace core::pipe {
 
     PipeSource::PipeSource(int fd)
         : core::eventreceiver::WriteEventReceiver("PipeSource fd = " + std::to_string(fd), 60) {
-        WriteEventReceiver::enable(fd);
-        WriteEventReceiver::suspend();
+        if (!WriteEventReceiver::enable(fd)) {
+            delete this;
+        } else {
+            WriteEventReceiver::suspend();
+        }
     }
 
     PipeSource::~PipeSource() {
@@ -85,10 +88,6 @@ namespace core::pipe {
 
     void PipeSource::unobservedEvent() {
         delete this;
-    }
-
-    void PipeSource::terminate() {
-        WriteEventReceiver::terminate();
     }
 
 } // namespace core::pipe

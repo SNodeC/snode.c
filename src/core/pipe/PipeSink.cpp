@@ -36,7 +36,9 @@ namespace core::pipe {
 
     PipeSink::PipeSink(int fd)
         : core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd), 60) {
-        ReadEventReceiver::enable(fd);
+        if (!ReadEventReceiver::enable(fd)) {
+            delete this;
+        }
     }
 
     PipeSink::~PipeSink() {
@@ -78,10 +80,6 @@ namespace core::pipe {
 
     void PipeSink::setOnError(const std::function<void(int errnum)>& onError) {
         this->onError = onError;
-    }
-
-    void PipeSink::terminate() {
-        ReadEventReceiver::terminate();
     }
 
     void PipeSink::unobservedEvent() {

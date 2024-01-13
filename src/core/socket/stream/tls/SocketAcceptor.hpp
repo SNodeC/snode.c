@@ -45,17 +45,17 @@ namespace core::socket::stream::tls {
         : Super(
               socketContextFactory,
               [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
-                  socketConnection->startSSL(this->masterSslCtx, Super::config->getInitTimeout(), Super::config->getShutdownTimeout());
-
                   onConnect(socketConnection);
-              },
-              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // on Connected
-                  SSL* ssl = socketConnection->getSSL();
+
+                  SSL* ssl = socketConnection->startSSL(
+                      this->config->getSslCtx(), Super::config->getInitTimeout(), Super::config->getShutdownTimeout());
 
                   if (ssl != nullptr) {
                       SSL_set_accept_state(ssl);
-
-                      socketConnection->doSSLHandshake(
+                  }
+              },
+              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // on Connected
+                  if (socketConnection->doSSLHandshake(
                           [socketContextFactory, onConnected, socketConnection, instanceName = Super::config->getInstanceName()]()
                               -> void { // onSuccess
                               LOG(TRACE) << "SSL/TLS: " << instanceName << ": SSL/TLS initial handshake success";
@@ -68,11 +68,12 @@ namespace core::socket::stream::tls {
 
                               socketConnection->close();
                           },
-                          [socketConnection, instanceName = Super::config->getInstanceName()](int sslErr) -> void { // onStatus
+                          [socketConnection, instanceName = Super::config->getInstanceName()](int sslErr) -> void { //
                               ssl_log(instanceName + ": SSL/TLS initial handshake failed", sslErr);
 
                               socketConnection->close();
-                          });
+                          })) {
+                      LOG(TRACE) << "SSL/TLS: Initial handshake running";
                   } else {
                       ssl_log_error(Super::config->getInstanceName() + ": SSL/TLS initialization failed");
 
@@ -85,6 +86,12 @@ namespace core::socket::stream::tls {
               },
               onStatus,
               config) {
+    }
+
+    template <typename PhysicalSocketServer, typename Config>
+    SocketAcceptor<PhysicalSocketServer, Config>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
+        : core::Observer(socketAcceptor)
+        , Super(socketAcceptor) {
     }
 
     template <typename PhysicalSocketServer, typename Config>
@@ -106,6 +113,11 @@ namespace core::socket::stream::tls {
                 });
             }
         }
+    }
+
+    template <typename PhysicalClientSocket, typename Config>
+    void core::socket::stream::tls::SocketAcceptor<PhysicalClientSocket, Config>::useNextSocketAddress() {
+        new SocketAcceptor(*this);
     }
 
     template <typename PhysicalSocketServer, typename Config>
@@ -147,7 +159,6 @@ namespace core::socket::stream::tls {
                                    << "'";
                     }
                 }
-                forceSni = config->getForceSni();
 
                 SSL_CTX_set_client_hello_cb(masterSslCtx, clientHelloCallback, this);
 
@@ -235,7 +246,7 @@ namespace core::socket::stream::tls {
                 LOG(TRACE) << "SSL/TLS: " << socketAcceptor->config->getInstanceName() << ": Setting sni certificate for '"
                            << serverNameIndication << "'";
                 ssl_set_ssl_ctx(ssl, sniSslCtx);
-            } else if (socketAcceptor->forceSni) {
+            } else if (socketAcceptor->config->getForceSni()) {
                 LOG(TRACE) << "SSL/TLS: " << socketAcceptor->config->getInstanceName() << ": No sni certificate found for '"
                            << serverNameIndication << "' but forceSni set - terminating";
                 ret = SSL_CLIENT_HELLO_ERROR;

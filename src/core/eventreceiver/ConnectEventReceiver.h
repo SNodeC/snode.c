@@ -42,6 +42,7 @@ namespace core::eventreceiver {
 
         void dispatchEvent() final;
         void timeoutEvent() final;
+        void signalEvent(int signum) override;
     };
 
     class InitConnectEventReceiver : public core::EventReceiver {

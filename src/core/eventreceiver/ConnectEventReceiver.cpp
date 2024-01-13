@@ -47,6 +47,10 @@ namespace core::eventreceiver {
         connectTimeout();
     }
 
+    void ConnectEventReceiver::signalEvent([[maybe_unused]] int signum) {
+        disable();
+    }
+
     InitConnectEventReceiver::InitConnectEventReceiver(const std::string& name)
         : core::EventReceiver("InitConnectEventReceiver: " + name) {
         span();

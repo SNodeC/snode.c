@@ -50,6 +50,7 @@ namespace core::socket::stream {
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
         void readEvent() final;
+        void signalEvent(int sigNum) final;
 
         std::size_t doRead();
 
@@ -57,8 +58,6 @@ namespace core::socket::stream {
         void setBlockSize(std::size_t readBlockSize);
 
         std::size_t readFromPeer(char* junk, std::size_t junkLen);
-
-        void terminate() final;
 
     private:
         std::function<void(int)> onStatus;

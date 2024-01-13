@@ -47,4 +47,8 @@ namespace core::eventreceiver {
         readTimeout();
     }
 
+    void ReadEventReceiver::signalEvent([[maybe_unused]] int signum) {
+        disable();
+    }
+
 } // namespace core::eventreceiver

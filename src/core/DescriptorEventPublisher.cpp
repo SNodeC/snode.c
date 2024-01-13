@@ -128,18 +128,18 @@ namespace core {
         return nextTimeout;
     }
 
-    void DescriptorEventPublisher::sigExit(int sigNum) {
+    void DescriptorEventPublisher::signal(int sigNum) {
         for (auto& [fd, eventReceivers] : observedEventReceivers) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
-                eventReceiver->onExit(sigNum);
+                eventReceiver->onSignal(sigNum);
             }
         }
     }
 
-    void DescriptorEventPublisher::stop() {
+    void DescriptorEventPublisher::disable() {
         for (auto& [fd, eventReceivers] : observedEventReceivers) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
-                eventReceiver->terminate();
+                eventReceiver->disable();
             }
         }
     }

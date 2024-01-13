@@ -121,7 +121,7 @@ namespace core::epoll {
         ePollEvents.muxOff(eventReceiver);
     }
 
-    int DescriptorEventPublisher::spanActiveEvents() {
+    void DescriptorEventPublisher::spanActiveEvents() {
         const int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {
@@ -132,8 +132,6 @@ namespace core::epoll {
                 eventReceiver->span();
             }
         }
-
-        return count;
     }
 
 } // namespace core::epoll

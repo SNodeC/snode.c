@@ -65,7 +65,7 @@ namespace core::socket::stream {
         core::socket::stream::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
     protected:
-        void onExit(int sig) override;
+        void onSignal(int sig) override;
 
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;

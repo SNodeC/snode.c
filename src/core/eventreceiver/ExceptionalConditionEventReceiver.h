@@ -44,6 +44,7 @@ namespace core::eventreceiver {
 
         void dispatchEvent() final;
         void timeoutEvent() final;
+        void signalEvent(int signum) override;
     };
 
 } // namespace core::eventreceiver

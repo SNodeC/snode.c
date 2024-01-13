@@ -89,8 +89,8 @@ namespace core {
         void span(core::Event* event);
         void relax(core::Event* event);
 
-        void sigExit(int sigNum);
-        void stop();
+        void signal(int sigNum);
+        void terminate();
         void clearEventQueue();
 
         TickStatus tick(const utils::Timeval& tickTimeOut, const sigset_t& sigMask);

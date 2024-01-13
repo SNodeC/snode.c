@@ -44,11 +44,11 @@ namespace utils {
         ~DaemonError() override;
     };
 
-    class DaemonExited : public std::runtime_error {
+    class DaemonSignaled : public std::runtime_error {
     public:
-        explicit DaemonExited(const std::string& message, pid_t pid);
+        explicit DaemonSignaled(const std::string& message, pid_t pid);
 
-        ~DaemonExited() override;
+        ~DaemonSignaled() override;
 
         pid_t getPid() const;
 

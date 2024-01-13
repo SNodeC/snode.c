@@ -22,7 +22,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/EventLoop.h"
 #include "log/Logger.h"
+#include "utils/PreserveErrno.h"
+#include "utils/system/signal.h"
 
 #include <cstddef>
 #include <utility>
@@ -35,8 +38,8 @@ namespace core::socket::stream {
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(const std::string& instanceName,
                                                                                      PhysicalSocket&& physicalSocket,
                                                                                      const std::function<void()>& onDisconnect,
-                                                                                     const SocketAddress& localPeerAddress,
-                                                                                     const SocketAddress& remotePeerAddress,
+                                                                                     const SocketAddress& localAddress,
+                                                                                     const SocketAddress& remoteAddress,
                                                                                      const utils::Timeval& readTimeout,
                                                                                      const utils::Timeval& writeTimeout,
                                                                                      std::size_t readBlockSize,
@@ -45,6 +48,14 @@ namespace core::socket::stream {
         : SocketConnection(instanceName)
         , SocketReader(
               [this](int errnum) -> void {
+                  const utils::PreserveErrno pe(errnum);
+
+                  if (errno == 0) {
+                      LOG(TRACE) << this->instanceName << ": EOF received";
+                  } else {
+                      PLOG(TRACE) << this->instanceName << ": ReadError";
+                  }
+
                   onReadError(errnum);
               },
               readTimeout,
@@ -52,18 +63,26 @@ namespace core::socket::stream {
               terminateTimeout)
         , SocketWriter(
               [this](int errnum) -> void {
+                  const utils::PreserveErrno pe(errnum);
+
+                  PLOG(TRACE) << this->instanceName << ": OnWriteError";
+
                   onWriteError(errnum);
               },
               writeTimeout,
               writeBlockSize,
               terminateTimeout)
         , physicalSocket(std::move(physicalSocket))
-        , onDisconnect(onDisconnect)
-        , localAddress(localPeerAddress)
-        , remoteAddress(remotePeerAddress) {
-        SocketReader::enable(this->physicalSocket.getFd());
-        SocketWriter::enable(this->physicalSocket.getFd());
-        SocketWriter::suspend();
+        , onDisconnect(onDisconnect)     // cppcheck-suppress selfInitialization // false positive
+        , localAddress(localAddress)     // cppcheck-suppress selfInitialization // false positive
+        , remoteAddress(remoteAddress) { // cppcheck-suppress selfInitialization // false positive
+        if (!SocketReader::enable(this->physicalSocket.getFd())) {
+            delete this;
+        } else if (!SocketWriter::enable(this->physicalSocket.getFd())) {
+            delete this;
+        } else {
+            SocketWriter::suspend();
+        }
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
@@ -109,7 +128,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::sendToPeer(const char* junk, std::size_t junkLen) {
         if (newSocketContext == nullptr) {
-            if (!shutdownInProgress && !SocketWriter::markShutdown) {
+            if (!SocketWriter::shutdownInProgress && !SocketWriter::markShutdown) {
                 SocketWriter::sendToPeer(junk, junkLen);
             }
         } else {
@@ -129,14 +148,18 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
-        shutdownWrite([forceClose, this]() -> void {
-            if (forceClose && SocketReader::isEnabled()) {
-                shutdownRead();
-            }
-            if (SocketWriter::isEnabled()) {
-                SocketWriter::disable();
-            }
-        });
+        if (!SocketWriter::shutdownInProgress) {
+            LOG(TRACE) << instanceName << ": Initiating shutdown process";
+
+            SocketWriter::shutdownWrite([forceClose, this]() -> void {
+                if (forceClose && SocketReader::isEnabled()) {
+                    shutdownRead();
+                }
+                if (SocketWriter::isEnabled()) {
+                    SocketWriter::disable();
+                }
+            });
+        }
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
@@ -150,8 +173,8 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getExitProcessed() {
-        return exitProcessed;
+    core::State SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getEventLoopState() {
+        return core::EventLoop::getEventLoopState();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
@@ -194,37 +217,24 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(const std::function<void()>& onShutdown) {
-        if (!shutdownInProgress) {
-            SocketWriter::onShutdown = onShutdown;
-            if (SocketWriter::writeBuffer.empty()) {
-                shutdownInProgress = true;
-                LOG(TRACE) << instanceName << ": Initiating shutdown process";
-                doWriteShutdown(onShutdown);
-            } else {
-                SocketWriter::markShutdown = true;
-            }
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onSignal(int signum) {
+        switch (signum) {
+            case SIGINT:
+                [[fallthrough]];
+            case SIGTERM:
+                [[fallthrough]];
+            case SIGABRT:
+                [[fallthrough]];
+            case SIGHUP:
+                LOG(TRACE) << instanceName << ": Shutting down due to signal '" << strsignal(signum) << "' (SIG"
+                           << utils::system::sigabbrev_np(signum) << " = " << signum << ")";
+                exitProcessed = true;
+                break;
+            case SIGALRM:
+                break;
         }
-    }
 
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onExit(int sig) {
-        if (!exitProcessed) {
-            LOG(TRACE) << getInstanceName() << ": Exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = "
-                       << sig << ")";
-
-            socketContext->onExit(sig);
-
-            if (!SocketWriter::terminateInProgress) {
-                SocketWriter::setTimeout(SocketWriter::terminateTimeout);
-                shutdownWrite([this]() -> void {
-                    SocketWriter::disable();
-                });
-                SocketWriter::terminateInProgress = true;
-            }
-
-            exitProcessed = true;
-        }
+        socketContext->onSignal(signum);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>

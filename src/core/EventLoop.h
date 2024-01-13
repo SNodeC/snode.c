@@ -53,6 +53,8 @@ namespace core {
         static unsigned long getTickCounter();
         EventMultiplexer& getEventMultiplexer();
 
+        static core::State getEventLoopState();
+
     private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static bool init(int argc, char* argv[]);
@@ -61,8 +63,6 @@ namespace core {
         static int start(const utils::Timeval& timeOut);
         static void stop();
         static void free();
-
-        static core::State state();
 
         static void stoponsig(int sig);
 

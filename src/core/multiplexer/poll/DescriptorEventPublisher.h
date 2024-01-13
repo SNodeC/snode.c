@@ -48,7 +48,7 @@ namespace core::poll {
         void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
         void muxOff(core::DescriptorEventReceiver* eventReceiver) override;
 
-        int spanActiveEvents() override;
+        void spanActiveEvents() override;
 
         core::poll::PollFdsManager& pollFds;
         short events;

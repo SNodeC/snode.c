@@ -21,6 +21,7 @@
 
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
+#include "core/State.h"
 #include "core/Timer.h"
 #include "core/TimerEventPublisher.h"
 
@@ -60,7 +61,12 @@ namespace core {
     }
 
     void TimerEventReceiver::enable() {
-        timerEventPublisher.insert(this);
+        if (core::EventLoop::getEventLoopState() != core::State::STOPPING) {
+            timerEventPublisher.insert(this);
+        } else {
+            LOG(TRACE) << "TimerEventReceiver: Not enabled: Enable after signal";
+            delete this;
+        }
     }
 
     void TimerEventReceiver::update() {
@@ -74,7 +80,7 @@ namespace core {
     }
 
     void TimerEventReceiver::onEvent(const utils::Timeval& currentTime) {
-        LOG(TRACE) << "Core::timer: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).getMsd() << " ms";
+        LOG(TRACE) << "TimerEventReceiver: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).getMsd() << " ms";
 
         dispatchEvent();
     }

@@ -64,7 +64,7 @@ namespace utils {
         }
         if (pid > 0) {
             /* Success: Let the parent terminate */
-            throw DaemonExited("Lead new session", pid);
+            throw DaemonSignaled("Lead new session", pid);
         }
 
         if (setsid() < 0) {
@@ -94,7 +94,7 @@ namespace utils {
             pidFile << pid << std::endl;
             pidFile.close();
 
-            throw DaemonExited("Drop session lead", pid);
+            throw DaemonSignaled("Drop session lead", pid);
         }
 
         struct passwd* pw = nullptr;
@@ -181,15 +181,15 @@ namespace utils {
         std::filesystem::remove(pidFileName); // In case we are here std::Filesystem::remove can not fail
     }
 
-    DaemonExited::DaemonExited(const std::string& message, pid_t pid)
+    DaemonSignaled::DaemonSignaled(const std::string& message, pid_t pid)
         : std::runtime_error(message)
         , pid(pid) {
     }
 
-    DaemonExited::~DaemonExited() {
+    DaemonSignaled::~DaemonSignaled() {
     }
 
-    pid_t DaemonExited::getPid() const {
+    pid_t DaemonSignaled::getPid() const {
         return pid;
     }
 

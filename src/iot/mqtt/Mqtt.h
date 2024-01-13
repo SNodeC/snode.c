@@ -67,7 +67,7 @@ namespace iot::mqtt {
 
         virtual void onConnected();
         virtual void onDisconnected();
-        virtual void onExit(int sig);
+        virtual void onSignal(int sig);
 
         core::socket::stream::SocketConnection* getSocketConnection();
 

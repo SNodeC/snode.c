@@ -45,18 +45,18 @@ namespace core::socket::stream::tls {
         : Super(
               socketContextFactory,
               [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
-                  socketConnection->startSSL(this->ctx, Super::config->getInitTimeout(), Super::config->getShutdownTimeout());
-
                   onConnect(socketConnection);
-              },
-              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // onConnected
-                  SSL* ssl = socketConnection->getSSL();
+
+                  SSL* ssl = socketConnection->startSSL(
+                      this->config->getSslCtx(), Super::config->getInitTimeout(), Super::config->getShutdownTimeout());
 
                   if (ssl != nullptr) {
                       SSL_set_connect_state(ssl);
                       ssl_set_sni(ssl, Super::config->getSni());
-
-                      socketConnection->doSSLHandshake(
+                  }
+              },
+              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // onConnected
+                  if (socketConnection->doSSLHandshake(
                           [socketContextFactory, onConnected, socketConnection, instanceName = Super::config->getInstanceName()]()
                               -> void { // onSuccess
                               LOG(TRACE) << "SSL/TLS: " << instanceName << ": SSL/TLS initial handshake success";
@@ -88,12 +88,23 @@ namespace core::socket::stream::tls {
               config) {
     }
 
+    template <typename PhysicalSocketServer, typename Config>
+    SocketConnector<PhysicalSocketServer, Config>::SocketConnector(const SocketConnector& socketConnector)
+        : core::Observer(socketConnector)
+        , Super::SocketConnector(socketConnector) {
+    }
+
     template <typename PhysicalSocketClient, typename Config>
     SocketConnector<PhysicalSocketClient, Config>::~SocketConnector() {
         if (ctx != nullptr) {
             LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << " releasing SSL_CTX";
             ssl_ctx_free(ctx);
         }
+    }
+
+    template <typename PhysicalClientSocket, typename Config>
+    void core::socket::stream::tls::SocketConnector<PhysicalClientSocket, Config>::useNextSocketAddress() {
+        new SocketConnector(*this);
     }
 
     template <typename PhysicalSocketClient, typename Config>

@@ -20,6 +20,8 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
+#include "core/State.h"
+
 namespace core::socket {
     class SocketAddress;
 } // namespace core::socket
@@ -110,8 +112,8 @@ namespace core::socket::stream {
         SocketConnectionT(const std::string& instanceName,
                           PhysicalSocket&& physicalSocket,
                           const std::function<void()>& onDisconnect,
-                          const SocketAddress& localPeerAddress,
-                          const SocketAddress& remotePeerAddress,
+                          const SocketAddress& localAddress,
+                          const SocketAddress& remoteAddress,
                           const utils::Timeval& readTimeout,
                           const utils::Timeval& writeTimeout,
                           std::size_t readBlockSize,
@@ -138,13 +140,10 @@ namespace core::socket::stream {
 
         void close() final;
 
-        bool getExitProcessed();
-
-    private:
-        void shutdownWrite(const std::function<void()>& onShutdown) override;
+        core::State getEventLoopState();
 
     protected:
-        virtual void doWriteShutdown(const std::function<void()>& onShutdown);
+        void doWriteShutdown(const std::function<void()>& onShutdown) override;
 
         PhysicalSocket physicalSocket;
 
@@ -154,7 +153,7 @@ namespace core::socket::stream {
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
-        void onExit(int sig) final;
+        void onSignal(int signum) final;
 
         void readTimeout() final;
         void writeTimeout() final;
@@ -166,7 +165,6 @@ namespace core::socket::stream {
         SocketAddress remoteAddress{};
 
         bool shutdownTriggered = false;
-        bool shutdownInProgress = false;
         bool exitProcessed = false;
     };
 

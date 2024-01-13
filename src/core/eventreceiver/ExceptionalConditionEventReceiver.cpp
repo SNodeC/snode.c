@@ -47,4 +47,8 @@ namespace core::eventreceiver {
         outOfBandTimeout();
     }
 
+    void ExceptionalConditionEventReceiver::signalEvent([[maybe_unused]] int signum) {
+        disable();
+    }
+
 } // namespace core::eventreceiver

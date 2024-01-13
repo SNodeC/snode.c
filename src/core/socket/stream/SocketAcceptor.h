@@ -47,7 +47,6 @@ namespace core::socket::stream {
 
     public:
         SocketAcceptor() = delete;
-        SocketAcceptor(const SocketAcceptor&) = delete;
         SocketAcceptor(SocketAcceptor&&) = delete;
 
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
@@ -60,7 +59,11 @@ namespace core::socket::stream {
                        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                        const std::shared_ptr<Config>& config);
 
+        SocketAcceptor(const SocketAcceptor& socketAcceptor);
+
         ~SocketAcceptor() override;
+
+        virtual void useNextSocketAddress() = 0;
 
     protected:
         void initAcceptEvent() override;

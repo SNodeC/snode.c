@@ -60,9 +60,13 @@ namespace core::socket::stream::tls {
                        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                        const std::shared_ptr<Config>& config);
 
+        SocketAcceptor(const SocketAcceptor& socketAcceptor);
+
         ~SocketAcceptor() override;
 
     private:
+        void useNextSocketAddress() override;
+
         void initAcceptEvent() final;
 
         SSL_CTX* getMasterSniCtx(const std::string& serverNameIndication);
@@ -75,7 +79,6 @@ namespace core::socket::stream::tls {
         std::set<std::string> masterSslCtxSans;
 
         std::map<std::string, SSL_CTX*> sniSslCtxs;
-        bool forceSni = false;
     };
 
 } // namespace core::socket::stream::tls

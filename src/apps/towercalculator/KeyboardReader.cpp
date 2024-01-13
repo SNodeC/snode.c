@@ -8,7 +8,9 @@
 KeyboardReader::KeyboardReader(const std::function<void(long)>& cb)
     : core::eventreceiver::ReadEventReceiver("KeyboardReader", 0)
     , callBack(cb) {
-    enable(STDIN_FILENO);
+    if (!enable(STDIN_FILENO)) {
+        std::cout << "KeyboardReader not activated";
+    }
 }
 
 void KeyboardReader::readEvent() {
@@ -20,7 +22,7 @@ void KeyboardReader::readEvent() {
     */
 
     char buffer[256];
-    ssize_t ret = read(STDIN_FILENO, buffer, 256);
+    const ssize_t ret = read(STDIN_FILENO, buffer, 256);
 
     if (ret > 0) {
         buffer[ret] = 0;

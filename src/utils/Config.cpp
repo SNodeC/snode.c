@@ -526,7 +526,7 @@ namespace utils {
                 std::cout << "Daemon error: " << e.what() << " ... exiting" << std::endl;
             } catch (const DaemonFailure& e) {
                 std::cout << "Daemon failure: " << e.what() << " ... exiting" << std::endl;
-            } catch (const DaemonExited& e) {
+            } catch (const DaemonSignaled& e) {
                 std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
             } catch (const CLI::CallForHelp&) {
                 std::cout << app->help() << std::endl;
