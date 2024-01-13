@@ -47,8 +47,10 @@ namespace core::socket::stream::tls {
               [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
                   onConnect(socketConnection);
 
-                  SSL* ssl = socketConnection->startSSL(
-                      this->config->getSslCtx(), Super::config->getInitTimeout(), Super::config->getShutdownTimeout());
+                  SSL* ssl = socketConnection->startSSL(socketConnection->getFd(),
+                                                        this->config->getSslCtx(),
+                                                        Super::config->getInitTimeout(),
+                                                        Super::config->getShutdownTimeout());
 
                   if (ssl != nullptr) {
                       SSL_set_accept_state(ssl);

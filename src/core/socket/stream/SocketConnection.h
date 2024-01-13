@@ -145,9 +145,9 @@ namespace core::socket::stream {
     protected:
         void doWriteShutdown(const std::function<void()>& onShutdown) override;
 
+    private:
         PhysicalSocket physicalSocket;
 
-    private:
         void onReceivedFromPeer(std::size_t available) final;
 
         void onWriteError(int errnum);
