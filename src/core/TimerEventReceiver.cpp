@@ -64,7 +64,7 @@ namespace core {
         if (core::EventLoop::getEventLoopState() != core::State::STOPPING) {
             timerEventPublisher.insert(this);
         } else {
-            LOG(TRACE) << "TimerEventReceiver: Not enabled: Enable after signal";
+            LOG(TRACE) << "TimerEventReceiver - Enable after signal: Not enabled";
             delete this;
         }
     }

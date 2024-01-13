@@ -33,8 +33,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-// IWYU pragma: no_include <map>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::stream::tls {

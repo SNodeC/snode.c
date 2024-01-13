@@ -157,6 +157,7 @@ namespace core::socket::stream {
                     onConnected,
                     [client = *this, onStatus](SocketConnection* socketConnection) -> void {
                         client.onDisconnect(socketConnection);
+
                         if (client.getConfig().getReconnect() && socketConnection->getEventLoopState() == core::State::RUNNING) {
                             double relativeReconnectTimeout = client.getConfig().getReconnectTime();
 
@@ -267,12 +268,12 @@ namespace core::socket::stream {
             return oldOnDisconnect;
         }
 
-        std::shared_ptr<SocketContextFactory> getSocketContextFactory() {
+        std::shared_ptr<SocketContextFactory> getSocketContextFactory() const {
             return socketContextFactory;
         }
 
     private:
-        std::shared_ptr<SocketContextFactory> socketContextFactory;
+        const std::shared_ptr<SocketContextFactory> socketContextFactory;
 
     protected:
         std::function<void(SocketConnection*)> onConnect;
