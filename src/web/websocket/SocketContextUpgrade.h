@@ -48,7 +48,7 @@ namespace web::websocket {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CLOSE_SOCKET_TIMEOUT 1
+#define CLOSE_SOCKET_TIMEOUT 10
 
 namespace web::websocket {
 
@@ -130,13 +130,14 @@ namespace web::websocket {
 
         void sendClose(const char* message, std::size_t messageLength) override {
             if (!closeSent) {
-                LOG(DEBUG) << "WebSocket: Sending close to peeeeeeeeeer";
-
-                closeSent = true;
+                LOG(DEBUG) << "WebSocket: Sending close to peer";
 
                 sendMessage(8, message, messageLength);
+                shutdownWrite();
 
                 setTimeout(CLOSE_SOCKET_TIMEOUT);
+
+                closeSent = true;
             }
         }
 
@@ -193,7 +194,6 @@ namespace web::websocket {
                         LOG(DEBUG) << "WebSocket: Close request received - replying with close";
                         sendClose(pongCloseData.data(), pongCloseData.length());
                         pongCloseData.clear();
-                        shutdownWrite();
                     }
                     break;
                 case SubProtocolContext::OpCode::PING:
