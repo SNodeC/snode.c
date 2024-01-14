@@ -133,7 +133,6 @@ namespace web::websocket {
                 LOG(DEBUG) << "WebSocket: Sending close to peer";
 
                 sendMessage(8, message, messageLength);
-                shutdownWrite();
 
                 setTimeout(CLOSE_SOCKET_TIMEOUT);
 
@@ -194,6 +193,7 @@ namespace web::websocket {
                         LOG(DEBUG) << "WebSocket: Close request received - replying with close";
                         sendClose(pongCloseData.data(), pongCloseData.length());
                         pongCloseData.clear();
+                        shutdownWrite();
                     }
                     break;
                 case SubProtocolContext::OpCode::PING:
