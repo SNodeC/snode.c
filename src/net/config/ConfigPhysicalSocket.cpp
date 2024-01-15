@@ -99,6 +99,12 @@ namespace net::config {
                    CLI::Range(0., 100.));
         retryJitterOpt->needs(retryOpt);
 
+        retryJitterOpt->needs(retryOpt);
+        retryBaseOpt->needs(retryOpt);
+        retryTriesOpt->needs(retryOpt);
+        retryTimeoutOpt->needs(retryOpt);
+        retryOnFatalOpt->needs(retryOpt);
+
         add_option(retryLimitOpt, //
                    "--retry-limit",
                    "Upper limit in seconds of retry timeout",
@@ -182,6 +188,22 @@ namespace net::config {
         retryOpt //
             ->default_val(retry ? "true" : "false")
             ->clear();
+
+        if (retry) {
+            retryLimitOpt->remove_needs(retryOpt);
+            retryJitterOpt->remove_needs(retryOpt);
+            retryBaseOpt->remove_needs(retryOpt);
+            retryTriesOpt->remove_needs(retryOpt);
+            retryTimeoutOpt->remove_needs(retryOpt);
+            retryOnFatalOpt->remove_needs(retryOpt);
+        } else {
+            retryLimitOpt->needs(retryOpt);
+            retryJitterOpt->needs(retryOpt);
+            retryBaseOpt->needs(retryOpt);
+            retryTriesOpt->needs(retryOpt);
+            retryTimeoutOpt->needs(retryOpt);
+            retryOnFatalOpt->needs(retryOpt);
+        }
 
         return *this;
     }

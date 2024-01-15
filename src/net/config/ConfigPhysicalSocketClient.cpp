@@ -89,6 +89,12 @@ namespace net::config {
             ->default_val(reconnect ? "true" : "false")
             ->clear();
 
+        if (reconnect) {
+            reconnectTimeOpt->remove_needs(reconnectOpt);
+        } else {
+            reconnectTimeOpt->needs(reconnectOpt);
+        }
+
         return *this;
     }
 
