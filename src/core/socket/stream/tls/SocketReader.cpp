@@ -66,6 +66,7 @@ namespace core::socket::stream::tls {
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
+                    LOG(TRACE) << "SSL/TLS: Zero return";
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | sslShutdownState);
                     doSSLShutdown();
                     errno = 0;

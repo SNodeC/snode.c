@@ -46,6 +46,10 @@ namespace apps::echo::model {
         VLOG(0) << "Echo disconnected";
     }
 
+    bool EchoSocketContext::onSignal([[maybe_unused]] int signum) {
+        return true;
+    }
+
     std::size_t EchoSocketContext::onReceivedFromPeer() {
         char junk[4096];
 

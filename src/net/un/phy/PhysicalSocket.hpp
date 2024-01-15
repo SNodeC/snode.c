@@ -26,6 +26,7 @@
 
 #include <cerrno>
 #include <cstdio>
+#include <filesystem>
 #include <string>
 #include <utility>
 
@@ -85,10 +86,12 @@ namespace net::un::phy {
                 LOG(TRACE) << "Opening lock file: " << bindAddress.getSunPath().append(".lock").data();
                 if (core::system::flock(lockFd, LOCK_EX | LOCK_NB) == 0) {
                     LOG(TRACE) << "Locking lock file: " << bindAddress.getSunPath().append(".lock").data();
-                    if (std::remove(bindAddress.getSunPath().data()) == 0) {
-                        LOG(TRACE) << "Removed possible stalled sun_path: " << bindAddress.getSunPath().data();
-                    } else {
-                        PLOG(TRACE) << "Removed possible stalled sun path: " << bindAddress.getSunPath().data();
+                    if (std::filesystem::exists(bindAddress.getSunPath().data())) {
+                        if (std::remove(bindAddress.getSunPath().data()) == 0) {
+                            LOG(TRACE) << "Removed stalled sun_path: " << bindAddress.getSunPath().data();
+                        } else {
+                            PLOG(TRACE) << "Removed stalled sun path: " << bindAddress.getSunPath().data();
+                        }
                     }
                 } else {
                     PLOG(TRACE) << "Locking lock file " << bindAddress.getSunPath().append(".lock").data();

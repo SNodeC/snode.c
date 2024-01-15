@@ -153,7 +153,7 @@ namespace core::socket::stream {
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
-        void onSignal(int signum) final;
+        [[nodiscard]] bool onSignal(int signum) final;
 
         void readTimeout() final;
         void writeTimeout() final;

@@ -217,7 +217,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onSignal(int signum) {
+    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onSignal(int signum) {
         switch (signum) {
             case SIGINT:
                 [[fallthrough]];
@@ -234,7 +234,7 @@ namespace core::socket::stream {
                 break;
         }
 
-        socketContext->onSignal(signum);
+        return socketContext->onSignal(signum);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>

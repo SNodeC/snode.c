@@ -108,4 +108,9 @@ namespace web::http::client {
         LOG(INFO) << "HTTP: disconnected";
     }
 
+    template <typename Request, typename Response>
+    bool SocketContext<Request, Response>::onSignal([[maybe_unused]] int signum) {
+        return true;
+    }
+
 } // namespace web::http::client

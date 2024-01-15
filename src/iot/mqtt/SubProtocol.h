@@ -85,7 +85,7 @@ namespace iot::mqtt {
         void onMessageEnd() override;
         void onMessageError(uint16_t errnum) override;
         void onDisconnected() override;
-        void onSignal(int sig) override;
+        [[nodiscard]] bool onSignal(int sig) override;
 
         core::socket::stream::SocketConnection* getSocketConnection() override;
 

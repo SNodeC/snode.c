@@ -71,6 +71,10 @@ namespace iot::mqtt::client {
         iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) final;
         void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
+    protected:
+        [[nodiscard]] bool onSignal(int sig) override;
+
+    private:
         virtual void onConnack(const iot::mqtt::packets::Connack& connack);
         virtual void onSuback(const iot::mqtt::packets::Suback& suback);
         virtual void onUnsuback(const iot::mqtt::packets::Unsuback& unsuback);
@@ -94,7 +98,7 @@ namespace iot::mqtt::client {
                          const std::string& password,
                          bool reflect);
         void sendSubscribe(std::list<Topic>& topics);
-        void sendUnsubscribe(std::list<std::string>& topics);
+        void sendUnsubscribe(const std::list<std::string>& topics);
         void sendPingreq() const;
         void sendDisconnect() const;
 

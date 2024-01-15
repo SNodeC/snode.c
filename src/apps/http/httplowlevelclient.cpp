@@ -101,6 +101,10 @@ public:
         VLOG(0) << "SimpleSocketProtocol disconnected";
     }
 
+    [[nodiscard]] bool onSignal([[maybe_unused]] int signum) override {
+        return true;
+    }
+
     std::size_t onReceivedFromPeer() override {
         return responseParser->parse();
     }

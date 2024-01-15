@@ -153,6 +153,10 @@ namespace iot::mqtt::client {
         static_cast<iot::mqtt::client::ControlPacketDeserializer*>(controlPacketDeserializer)->deliverPacket(this); // NOLINT
     }
 
+    bool Mqtt::onSignal([[maybe_unused]] int sig) {
+        return false;
+    }
+
     void Mqtt::onConnack([[maybe_unused]] const mqtt::packets::Connack& connack) {
     }
 
@@ -258,7 +262,7 @@ namespace iot::mqtt::client {
         send(iot::mqtt::packets::Subscribe(getPacketIdentifier(), topics));
     }
 
-    void Mqtt::sendUnsubscribe(std::list<std::string>& topics) { // Client
+    void Mqtt::sendUnsubscribe(const std::list<std::string>& topics) { // Client
         send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
     }
 

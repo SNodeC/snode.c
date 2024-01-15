@@ -38,8 +38,8 @@ namespace iot::mqtt {
         iot::mqtt::MqttContext::onDisconnected();
     }
 
-    void SocketContext::onSignal(int sig) {
-        iot::mqtt::MqttContext::onSignal(sig);
+    bool SocketContext::onSignal(int sig) {
+        return iot::mqtt::MqttContext::onSignal(sig);
     }
 
     core::socket::stream::SocketConnection* SocketContext::getSocketConnection() {
@@ -59,7 +59,7 @@ namespace iot::mqtt {
     }
 
     void SocketContext::end(bool fatal) {
-        core::socket::stream::SocketContext::shutdown(fatal);
+        core::socket::stream::SocketContext::shutdownWrite(fatal);
     }
 
     void SocketContext::close() {

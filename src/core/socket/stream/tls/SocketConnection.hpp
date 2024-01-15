@@ -189,7 +189,7 @@ namespace core::socket::stream::tls {
                 });
             }
         } else {
-            LOG(TRACE) << "SSL/TLS: SSL_Shutdown WAITING: Close_notify received but not send";
+            LOG(TRACE) << "SSL/TLS: SSL_Shutdown WAITING Close_notify received but not send";
         }
     }
 

@@ -66,6 +66,8 @@ namespace web::http::client {
         void onConnected() override;
         void onDisconnected() override;
 
+        [[nodiscard]] bool onSignal(int signum) override;
+
         std::function<void(Request&)> onRequestBegin;
 
         Request request;

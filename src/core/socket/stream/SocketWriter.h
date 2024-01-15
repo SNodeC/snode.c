@@ -55,7 +55,7 @@ namespace core::socket::stream {
 
         void doWrite();
 
-        virtual void onSignal(int sigNum) = 0;
+        [[nodiscard]] virtual bool onSignal(int sigNum) = 0;
         virtual void doWriteShutdown(const std::function<void()>& onShutdown) = 0;
 
     protected:

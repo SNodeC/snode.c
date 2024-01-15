@@ -138,10 +138,6 @@ namespace iot::mqtt {
         LOG(INFO) << "MQTT: Disconnected";
     }
 
-    void Mqtt::onSignal(int sig) {
-        LOG(INFO) << "MQTT: Exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
-    }
-
     core::socket::stream::SocketConnection* Mqtt::getSocketConnection() {
         return mqttContext->getSocketConnection();
     }

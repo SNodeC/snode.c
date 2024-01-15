@@ -59,9 +59,9 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::onSignal(int sig) {
+    bool Mqtt::onSignal([[maybe_unused]] int sig) {
         willFlag = false;
-        Super::onSignal(sig);
+        return true;
     }
 
     iot::mqtt::ControlPacketDeserializer* Mqtt::createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) {
@@ -320,7 +320,7 @@ namespace iot::mqtt::server {
         send(iot::mqtt::packets::Connack(returnCode, flags));
     }
 
-    void Mqtt::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) const { // Server
+    void Mqtt::sendSuback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes) const { // Server
         send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
     }
 

@@ -73,7 +73,7 @@ namespace web::websocket {
         /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
-        virtual void onSignal(int sig) = 0;
+        [[nodiscard]] virtual bool onSignal(int sig) = 0;
 
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
         virtual void onMessageStart(int opCode) = 0;

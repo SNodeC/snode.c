@@ -66,9 +66,10 @@ namespace iot::mqtt {
 namespace iot::mqtt::server {
 
     class Mqtt : public iot::mqtt::Mqtt {
-    public:
+    private:
         using Super = iot::mqtt::Mqtt;
 
+    public:
         explicit Mqtt(const std::shared_ptr<iot::mqtt::server::broker::Broker>& broker);
 
         ~Mqtt() override;
@@ -77,8 +78,10 @@ namespace iot::mqtt::server {
         iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) final;
         void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
-        void onSignal(int sig) override;
+    protected:
+        [[nodiscard]] bool onSignal(int sig) override;
 
+    private:
         using Super::initSession;
         void initSession(const utils::Timeval& keepAlive);
         void releaseSession();
@@ -98,7 +101,7 @@ namespace iot::mqtt::server {
 
     public:
         void sendConnack(uint8_t returnCode, uint8_t flags) const;
-        void sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) const;
+        void sendSuback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes) const;
         void sendUnsuback(uint16_t packetIdentifier) const;
         void sendPingresp() const;
 

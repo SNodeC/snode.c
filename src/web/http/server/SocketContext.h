@@ -79,6 +79,8 @@ namespace web::http::server {
         void onConnected() override;
         void onDisconnected() override;
 
+        [[nodiscard]] bool onSignal(int signum) override;
+
         void requestParsed();
 
         void reset();

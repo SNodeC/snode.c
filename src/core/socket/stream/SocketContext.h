@@ -58,14 +58,14 @@ namespace core::socket::stream {
 
         void shutdownRead();
         void shutdownWrite(bool forceClose = false);
-        void shutdown(bool forceClose = false);
+        //        void shutdown(bool forceClose = false);
         void close() override;
 
         core::socket::stream::SocketConnection* getSocketConnection() const;
         core::socket::stream::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
 
     protected:
-        void onSignal(int sig) override;
+        //        bool onSignal(int sig) override;
 
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;

@@ -62,12 +62,12 @@ namespace core::socket::stream {
     void SocketContext::shutdownWrite(bool forceClose) {
         socketConnection->shutdownWrite(forceClose);
     }
-
-    void SocketContext::shutdown(bool forceClose) {
-        shutdownRead();
-        shutdownWrite(forceClose);
-    }
-
+    /*
+        void SocketContext::shutdown(bool forceClose) {
+            shutdownRead();
+            shutdownWrite(forceClose);
+        }
+    */
     void SocketContext::onWriteError([[maybe_unused]] int errnum) {
         shutdownRead();
     }
@@ -75,8 +75,9 @@ namespace core::socket::stream {
     void SocketContext::onReadError([[maybe_unused]] int errnum) {
         shutdownWrite();
     }
-
-    void SocketContext::onSignal([[maybe_unused]] int sig) {
-    }
-
+    /*
+        bool SocketContext::onSignal([[maybe_unused]] int sig) {
+            return true; // on exit shutdownWrite by default. Could be overridden in a SubSocketContext.
+        }
+    */
 } // namespace core::socket::stream
