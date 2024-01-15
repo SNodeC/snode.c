@@ -161,7 +161,7 @@ namespace web::http::server {
 @enduml
      */
 
-    bool Response::upgrade(Request& req) {
+    [[nodiscard]] bool Response::upgrade(Request& req) {
         bool success = false;
 
         if (httputils::ci_contains(req.get("connection"), "Upgrade")) {

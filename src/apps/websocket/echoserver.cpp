@@ -71,9 +71,12 @@ int main(int argc, char* argv[]) {
         VLOG(2) << "upgrade: " << req.get("upgrade");
         VLOG(2) << "user-agent: " << req.get("user-agent");
 
-        if (!res.upgrade(req)) {
+        if (res.upgrade(req)) {
+            VLOG(1) << "Successful not upgrade to '" << req.get("upgrade") << "'";
             res.end();
-            VLOG(1) << "HTTP upgrade failed";
+        } else {
+            VLOG(1) << "Can upgrade to '" << req.get("upgrade") << "'";
+            res.end();
         }
     });
 
@@ -131,9 +134,12 @@ int main(int argc, char* argv[]) {
             VLOG(2) << "upgrade: " << req.get("upgrade");
             VLOG(2) << "user-agent: " << req.get("user-agent");
 
-            if (!res.upgrade(req)) {
+            if (res.upgrade(req)) {
+                VLOG(1) << "Successful not upgrade to '" << req.get("upgrade") << "'";
                 res.end();
-                VLOG(1) << "HTTP upgrade failed";
+            } else {
+                VLOG(1) << "Can upgrade to '" << req.get("upgrade") << "'";
+                res.end();
             }
         });
 

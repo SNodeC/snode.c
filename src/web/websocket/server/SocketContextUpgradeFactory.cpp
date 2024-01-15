@@ -66,26 +66,26 @@ namespace web::websocket::server {
                     response->set("Sec-WebSocket-Protocol", selectedSubProtocolName);
                     response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->get("sec-websocket-key")));
 
-                    response->status(101).end(); // Switch Protocol
+                    response->status(101); // Switch Protocol
                 } else {
                     delete socketContext;
                     socketContext = nullptr;
 
                     response->set("Connection", "close");
-                    response->status(400).end();
+                    response->status(400);
                 }
             } else {
                 checkRefCount();
 
                 response->set("Connection", "close");
-                response->status(400).end();
+                response->status(400);
             }
         } else {
             checkRefCount();
 
             response->set("Sec-WebSocket-Version", "13");
             response->set("Connection", "close");
-            response->status(426).end();
+            response->status(426);
         }
 
         return socketContext;
