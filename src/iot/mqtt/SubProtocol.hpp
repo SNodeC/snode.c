@@ -123,8 +123,14 @@ namespace iot::mqtt {
         size += data.size();
         data.clear();
 
-        if (!buffer.empty()) {
+        iot::mqtt::MqttContext::onReceivedFromPeer();
+
+        if (size > 0) {
             onReceivedFromPeerEvent.span();
+        } else {
+            buffer.clear();
+            cursor = 0;
+            size = 0;
         }
     }
 
@@ -142,7 +148,7 @@ namespace iot::mqtt {
     template <typename WSSubProtocolRole>
     bool SubProtocol<WSSubProtocolRole>::onSignal(int sig) {
         bool ret = iot::mqtt::MqttContext::onSignal(sig);
-        LOG(INFO) << "WSMQTT: exit doe to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
+        LOG(INFO) << "WSMQTT: exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
 
         this->sendClose();
 
