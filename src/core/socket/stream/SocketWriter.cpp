@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -70,6 +72,8 @@ namespace core::socket::stream {
                     writeBuffer.shrink_to_fit();
 
                     if (markShutdown) {
+                        LOG(TRACE) << "SocketWriter: Do delayed shutdown";
+
                         shutdownWrite(onShutdown);
                     }
                 }
@@ -97,6 +101,8 @@ namespace core::socket::stream {
             }
 
             writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
+        } else {
+            LOG(TRACE) << "SocketWriter: Send to peer while not enabled";
         }
     }
 
@@ -110,6 +116,7 @@ namespace core::socket::stream {
                 shutdownInProgress = true;
             } else {
                 SocketWriter::markShutdown = true;
+                LOG(TRACE) << "SocketWriter: Delay shutdown due to queued data";
             }
         }
     }
