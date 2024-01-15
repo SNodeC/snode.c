@@ -83,7 +83,7 @@ namespace iot::mqtt::server {
 
     private:
         using Super::initSession;
-        void initSession(const utils::Timeval& keepAlive);
+        bool initSession(const utils::Timeval& keepAlive);
         void releaseSession();
 
         virtual void onConnect(const iot::mqtt::packets::Connect& connect);

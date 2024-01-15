@@ -120,37 +120,41 @@ namespace iot::mqtt::server {
         static_cast<iot::mqtt::server::ControlPacketDeserializer*>(controlPacketDeserializer)->deliverPacket(this); // NOLINT
     }
 
-    void Mqtt::initSession(const utils::Timeval& keepAlive) {
+    bool Mqtt::initSession(const utils::Timeval& keepAlive) {
+        bool success = true;
+
         if (broker->hasActiveSession(clientId)) {
             LOG(DEBUG) << "MQTT Broker: Existing session found for ClientId = " << clientId;
             LOG(DEBUG) << "MQTT Broker:   closing";
-
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
 
-            mqttContext->end(true);
-
             willFlag = false;
+            success = false;
         } else if (broker->hasRetainedSession(clientId)) {
-            sendConnack(MQTT_CONNACK_ACCEPT, cleanSession ? MQTT_SESSION_NEW : MQTT_SESSION_PRESENT);
-
             LOG(DEBUG) << "MQTT Broker: Retained session found for ClientId = " << clientId;
             if (cleanSession) {
-                LOG(DEBUG) << "MQTT Broker:   Clean SessionId = " << this;
+                LOG(DEBUG) << "  New SessionId = " << this;
+                sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
+
                 broker->unsubscribe(clientId);
                 initSession(broker->newSession(clientId, this), keepAlive);
             } else {
-                LOG(DEBUG) << "MQTT Broker:   Renew SessionId = " << this;
+                LOG(DEBUG) << "  Renew SessionId = " << this;
+                sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_PRESENT);
+
                 initSession(broker->renewSession(clientId, this), keepAlive);
                 broker->restartSession(clientId);
             }
         } else {
-            sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
-
             LOG(DEBUG) << "MQTT Broker: No session found for ClientId = " << clientId;
             LOG(DEBUG) << "MQTT Broker:   new SessionId = " << this;
 
+            sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
+
             initSession(broker->newSession(clientId, this), keepAlive);
         }
+
+        return success;
     }
 
     void Mqtt::releaseSession() {
@@ -240,9 +244,11 @@ namespace iot::mqtt::server {
             willFlag = connect.getWillFlag();
             cleanSession = connect.getCleanSession();
 
-            initSession(1.5 * keepAlive);
-
-            onConnect(connect);
+            if (initSession(1.5 * keepAlive)) {
+                onConnect(connect);
+            } else {
+                mqttContext->end(true);
+            }
         }
     }
 
@@ -312,8 +318,6 @@ namespace iot::mqtt::server {
         onDisconnect(disconnect);
 
         releaseSession();
-
-        mqttContext->end();
     }
 
     void Mqtt::sendConnack(uint8_t returnCode, uint8_t flags) const { // Server

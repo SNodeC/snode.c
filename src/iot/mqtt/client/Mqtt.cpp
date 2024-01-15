@@ -176,7 +176,6 @@ namespace iot::mqtt::client {
 
         if (connack.getReturnCode() != MQTT_CONNACK_ACCEPT) {
             LOG(DEBUG) << "MQTT Client:   Negative ack received";
-            mqttContext->end(true);
         } else {
             initSession(&session, keepAlive);
 
@@ -272,6 +271,8 @@ namespace iot::mqtt::client {
 
     void Mqtt::sendDisconnect() const { // Client
         send(iot::mqtt::packets::Disconnect());
+
+        mqttContext->end();
     }
 
 } // namespace iot::mqtt::client
