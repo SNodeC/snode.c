@@ -113,9 +113,10 @@ namespace core::socket::stream::tls {
             masterSslCtx = config->getSslCtx();
 
             if (masterSslCtx != nullptr) {
+                LOG(TRACE) << config->getInstanceName() << ": Master SSL/TLS: SSL_CTX created";
                 Super::initAcceptEvent();
             } else {
-                LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": Master SSL/TLS certificate activation failed";
+                LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": Master SSL/TLS: Certificate activation failed";
 
                 Super::onStatus(Super::config->Local::getSocketAddress(), core::socket::STATE_ERROR);
                 Super::destruct();

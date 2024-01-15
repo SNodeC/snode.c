@@ -111,13 +111,14 @@ namespace core::socket::stream::tls {
         if (!config->getDisabled()) {
             LOG(TRACE) << config->getInstanceName() << ": Initializing SSL/TLS";
 
-            SSL_CTX* ctx = config->getSslCtx();
+            const SSL_CTX* ctx = config->getSslCtx();
 
             if (ctx != nullptr) {
-                LOG(TRACE) << config->getInstanceName() << ": SSL/TLS master SSL_CTX created";
+                LOG(TRACE) << config->getInstanceName() << ": SSL/TLS: SSL_CTX created";
                 Super::initConnectEvent();
             } else {
-                LOG(TRACE) << config->getInstanceName() << ": SSL/TLS master SSL_CTX created";
+                LOG(TRACE) << config->getInstanceName() << ": SSL/TLS: SSL_CTX created";
+
                 Super::onStatus(config->Remote::getSocketAddress(), core::socket::STATE_FATAL);
                 Super::destruct();
             }
