@@ -43,10 +43,10 @@ namespace net::config {
     class ConfigSection {
     public:
         ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description);
-        ConfigSection(const ConfigSection&) = default;
+        ConfigSection(const ConfigSection&) = delete;
         ConfigSection(ConfigSection&&) = delete;
 
-        ConfigSection& operator=(const ConfigSection&) = default;
+        ConfigSection& operator=(const ConfigSection&) = delete;
         ConfigSection& operator=(ConfigSection&&) = delete;
 
     protected:

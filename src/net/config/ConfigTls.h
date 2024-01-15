@@ -46,34 +46,34 @@ namespace net::config {
     public:
         explicit ConfigTls(ConfigInstance* instance);
 
-        void setInitTimeout(const utils::Timeval& newInitTimeout);
+        ConfigTls& setInitTimeout(const utils::Timeval& newInitTimeout);
         utils::Timeval getInitTimeout() const;
 
-        void setShutdownTimeout(const utils::Timeval& newShutdownTimeout);
+        ConfigTls& setShutdownTimeout(const utils::Timeval& newShutdownTimeout);
         utils::Timeval getShutdownTimeout() const;
 
-        void setCertChain(const std::string& newCertChain);
+        ConfigTls& setCertChain(const std::string& newCertChain);
         std::string getCertChain() const;
 
-        void setCertKey(const std::string& newCertKey);
+        ConfigTls& setCertKey(const std::string& newCertKey);
         std::string getCertKey() const;
 
-        void setCertKeyPassword(const std::string& newCertKeyPassword);
+        ConfigTls& setCertKeyPassword(const std::string& newCertKeyPassword);
         std::string getCertKeyPassword() const;
 
-        void setCaCertFile(const std::string& newCaCertFile);
+        ConfigTls& setCaCertFile(const std::string& newCaCertFile);
         std::string getCaCertFile() const;
 
-        void setCaCertDir(const std::string& newCaCertDir);
+        ConfigTls& setCaCertDir(const std::string& newCaCertDir);
         std::string getCaCertDir() const;
 
-        void setUseDefaultCaCertDir(bool set = true);
+        ConfigTls& setUseDefaultCaCertDir(bool set = true);
         bool getUseDefaultCaCertDir() const;
 
-        void setCipherList(const std::string& newCipherList);
+        ConfigTls& setCipherList(const std::string& newCipherList);
         std::string getCipherList() const;
 
-        void setSslTlsOptions(ssl_option_t newSslTlsOptions);
+        ConfigTls& setSslTlsOptions(ssl_option_t newSslTlsOptions);
         ssl_option_t getSslTlsOptions() const;
 
     private:

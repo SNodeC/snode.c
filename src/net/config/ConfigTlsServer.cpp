@@ -115,28 +115,34 @@ namespace net::config {
         });
     }
 
-    void ConfigTlsServer::setForceSni(bool forceSni) {
+    ConfigTlsServer& ConfigTlsServer::setForceSni(bool forceSni) {
         forceSniOpt //
             ->default_val(forceSni ? "true" : "false")
             ->clear();
+
+        return *this;
     }
 
     bool ConfigTlsServer::getForceSni() const {
         return forceSniOpt->as<bool>();
     }
 
-    void ConfigTlsServer::addSniCerts(
+    ConfigTlsServer& ConfigTlsServer::addSniCerts(
         const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCerts) {
         this->sniCerts.insert(sniCerts.begin(), sniCerts.end());
 
         sniCertsOpt->capture_default_str();
+
+        return *this;
     }
 
-    void ConfigTlsServer::addSniCert(const std::string& domain,
-                                     const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert) {
+    ConfigTlsServer& ConfigTlsServer::addSniCert(const std::string& domain,
+                                                 const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert) {
         this->sniCerts[domain] = sniCert;
 
         sniCertsOpt->capture_default_str();
+
+        return *this;
     }
 
     std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& ConfigTlsServer::getSniCerts() {

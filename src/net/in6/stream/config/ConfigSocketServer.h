@@ -44,10 +44,10 @@ namespace net::in6::stream::config {
 
         ~ConfigSocketServer() override;
 
-        void setReusePort(bool reusePort = true);
+        ConfigSocketServer& setReusePort(bool reusePort = true);
         bool getReusePort() const;
 
-        void setIPv6Only(bool iPv6Only = true);
+        ConfigSocketServer& setIPv6Only(bool iPv6Only = true);
         bool getIPv6Only() const;
 
     private:

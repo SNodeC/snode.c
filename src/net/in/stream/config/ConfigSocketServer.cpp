@@ -72,7 +72,7 @@ namespace net::in::stream::config {
     ConfigSocketServer::~ConfigSocketServer() {
     }
 
-    void ConfigSocketServer::setReusePort(bool reusePort) {
+    ConfigSocketServer& ConfigSocketServer::setReusePort(bool reusePort) {
         if (reusePort) {
             addSocketOption(SOL_SOCKET, SO_REUSEPORT, 1);
         } else {
@@ -83,6 +83,8 @@ namespace net::in::stream::config {
             ->default_val(reusePort ? "true" : "false")
             ->take_all()
             ->clear();
+
+        return *this;
     }
 
     bool ConfigSocketServer::getReusePort() const {

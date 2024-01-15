@@ -58,10 +58,12 @@ namespace net::config {
                           CLI::NonNegativeNumber);
     }
 
-    void ConfigPhysicalSocketServer::setAcceptTimeout(const utils::Timeval& acceptTimeout) {
+    ConfigPhysicalSocketServer& ConfigPhysicalSocketServer::setAcceptTimeout(const utils::Timeval& acceptTimeout) {
         acceptTimeoutOpt //
             ->default_val(acceptTimeout)
             ->clear();
+
+        return *this;
     }
 
     utils::Timeval ConfigPhysicalSocketServer::getAcceptTimeout() const {

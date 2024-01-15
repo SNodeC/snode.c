@@ -96,100 +96,120 @@ namespace net::config {
                    CLI::PositiveNumber);
     }
 
-    void ConfigTls::setCertChain(const std::string& newCertChain) {
+    ConfigTls& ConfigTls::setCertChain(const std::string& newCertChain) {
         certChainOpt //
             ->default_val(newCertChain)
             ->clear();
+
+        return *this;
     }
 
     std::string ConfigTls::getCertChain() const {
         return certChainOpt->as<std::string>();
     }
 
-    void ConfigTls::setCertKey(const std::string& newCertKey) {
+    ConfigTls& ConfigTls::setCertKey(const std::string& newCertKey) {
         certKeyOpt //
             ->default_val(newCertKey)
             ->clear();
+
+        return *this;
     }
 
     std::string ConfigTls::getCertKey() const {
         return certKeyOpt->as<std::string>();
     }
 
-    void ConfigTls::setCertKeyPassword(const std::string& newCertKeyPassword) {
+    ConfigTls& ConfigTls::setCertKeyPassword(const std::string& newCertKeyPassword) {
         certKeyPasswordOpt //
             ->default_val(newCertKeyPassword)
             ->clear();
+
+        return *this;
     }
 
     std::string ConfigTls::getCertKeyPassword() const {
         return certKeyPasswordOpt->as<std::string>();
     }
 
-    void ConfigTls::setCaCertFile(const std::string& newCaCertFile) {
+    ConfigTls& ConfigTls::setCaCertFile(const std::string& newCaCertFile) {
         caCertFileOpt //
             ->default_val(newCaCertFile)
             ->clear();
+
+        return *this;
     }
 
     std::string ConfigTls::getCaCertFile() const {
         return caCertFileOpt->as<std::string>();
     }
 
-    void ConfigTls::setCaCertDir(const std::string& newCaCertDir) {
+    ConfigTls& ConfigTls::setCaCertDir(const std::string& newCaCertDir) {
         caCertDirOpt //
             ->default_val(newCaCertDir)
             ->clear();
+
+        return *this;
     }
 
     std::string ConfigTls::getCaCertDir() const {
         return caCertDirOpt->as<std::string>();
     }
 
-    void ConfigTls::setUseDefaultCaCertDir(bool set) {
+    ConfigTls& ConfigTls::setUseDefaultCaCertDir(bool set) {
         useDefaultCaCertDirOpt //
             ->default_val(set ? "true" : "false")
             ->clear();
+
+        return *this;
     }
 
     bool ConfigTls::getUseDefaultCaCertDir() const {
         return useDefaultCaCertDirOpt->as<bool>();
     }
 
-    void ConfigTls::setCipherList(const std::string& newCipherList) {
+    ConfigTls& ConfigTls::setCipherList(const std::string& newCipherList) {
         cipherListOpt //
             ->default_val(newCipherList)
             ->clear();
+
+        return *this;
     }
 
     std::string ConfigTls::getCipherList() const {
         return cipherListOpt->as<std::string>();
     }
 
-    void ConfigTls::setSslTlsOptions(ssl_option_t newSslTlsOptions) {
+    ConfigTls& ConfigTls::setSslTlsOptions(ssl_option_t newSslTlsOptions) {
         tlsOptionsOpt //
             ->default_val(newSslTlsOptions)
             ->clear();
+
+        return *this;
     }
 
     ssl_option_t ConfigTls::getSslTlsOptions() const {
         return tlsOptionsOpt->as<ssl_option_t>();
     }
 
-    void ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeout) {
+    ConfigTls& ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeout) {
         initTimeoutOpt //
             ->default_val(newInitTimeout)
             ->clear();
+
+        return *this;
     }
 
     utils::Timeval ConfigTls::getInitTimeout() const {
         return initTimeoutOpt->as<utils::Timeval>();
     }
 
-    void ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeout) {
+    ConfigTls& ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeout) {
         shutdownTimeoutOpt //
             ->default_val(newShutdownTimeout)
             ->clear();
+
+        return *this;
     }
 
     utils::Timeval ConfigTls::getShutdownTimeout() const {

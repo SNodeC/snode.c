@@ -48,34 +48,34 @@ namespace net::config {
 
         const std::map<int, const net::phy::PhysicalSocketOption>& getSocketOptions();
 
-        void addSocketOption(int optLevel, int optName, int optValue);
-        void addSocketOption(int optLevel, int optName, const std::string& optValue);
-        void addSocketOption(int optLevel, int optName, const std::vector<char>& optValue);
+        ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, int optValue);
+        ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, const std::string& optValue);
+        ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, const std::vector<char>& optValue);
 
-        void removeSocketOption(int optName);
+        ConfigPhysicalSocket& removeSocketOption(int optName);
 
-        void setReuseAddress(bool reuseAddress = true);
+        ConfigPhysicalSocket& setReuseAddress(bool reuseAddress = true);
         bool getReuseAddress() const;
 
-        void setRetry(bool retry = true);
+        ConfigPhysicalSocket& setRetry(bool retry = true);
         bool getRetry() const;
 
-        void setRetryOnFatal(bool retry = true);
+        ConfigPhysicalSocket& setRetryOnFatal(bool retry = true);
         bool getRetryOnFatal() const;
 
-        void setRetryTimeout(double sec);
+        ConfigPhysicalSocket& setRetryTimeout(double sec);
         double getRetryTimeout() const;
 
-        void setRetryTries(unsigned int tries = 0); // 0 ... unlimmit
+        ConfigPhysicalSocket& setRetryTries(unsigned int tries = 0); // 0 ... unlimmit
         unsigned int getRetryTries() const;
 
-        void setRetryBase(double base);
+        ConfigPhysicalSocket& setRetryBase(double base);
         double getRetryBase() const;
 
-        void setRetryLimit(unsigned int limit);
+        ConfigPhysicalSocket& setRetryLimit(unsigned int limit);
         unsigned int getRetryLimit() const;
 
-        void setRetryJitter(double percent);
+        ConfigPhysicalSocket& setRetryJitter(double percent);
         double getRetryJitter() const;
 
     protected:

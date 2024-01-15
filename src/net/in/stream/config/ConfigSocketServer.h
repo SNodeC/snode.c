@@ -44,7 +44,7 @@ namespace net::in::stream::config {
 
         ~ConfigSocketServer() override;
 
-        void setReusePort(bool reusePort = true);
+        ConfigSocketServer& setReusePort(bool reusePort = true);
         bool getReusePort() const;
 
     private:

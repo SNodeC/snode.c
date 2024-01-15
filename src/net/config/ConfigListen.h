@@ -41,10 +41,10 @@ namespace net::config {
         explicit ConfigListen(ConfigInstance* instance);
 
         int getBacklog() const;
-        void setBacklog(int newBacklog);
+        ConfigListen& setBacklog(int newBacklog);
 
         int getAcceptsPerTick() const;
-        void setAcceptsPerTick(int acceptsPerTickSet);
+        ConfigListen& setAcceptsPerTick(int acceptsPerTickSet);
 
     private:
         CLI::Option* backlogOpt = nullptr;

@@ -47,13 +47,13 @@ namespace net::config {
     public:
         explicit ConfigPhysicalSocketClient(ConfigInstance* instance);
 
-        void setReconnect(bool reconnect = true);
+        ConfigPhysicalSocketClient& setReconnect(bool reconnect = true);
         bool getReconnect() const;
 
-        void setReconnectTime(double time);
+        ConfigPhysicalSocketClient& setReconnectTime(double time);
         double getReconnectTime() const;
 
-        void setConnectTimeout(const utils::Timeval& connectTimeout);
+        ConfigPhysicalSocketClient& setConnectTimeout(const utils::Timeval& connectTimeout);
         utils::Timeval getConnectTimeout() const;
 
     private:

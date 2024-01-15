@@ -136,22 +136,31 @@ namespace net::config {
             validator);
     }
 
-    void ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, int optValue) {
+    ConfigPhysicalSocket& ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, int optValue) {
         socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue)});
+
+        return *this;
     }
 
-    void ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::string& optValue) {
+    ConfigPhysicalSocket& ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::string& optValue) {
         socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue)});
-    }
-    void ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::vector<char>& optValue) {
-        socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue)});
+
+        return *this;
     }
 
-    void ConfigPhysicalSocket::removeSocketOption(int optName) {
+    ConfigPhysicalSocket& ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::vector<char>& optValue) {
+        socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue)});
+
+        return *this;
+    }
+
+    ConfigPhysicalSocket& ConfigPhysicalSocket::removeSocketOption(int optName) {
         socketOptionsMap.erase(optName);
+
+        return *this;
     }
 
-    void ConfigPhysicalSocket::setReuseAddress(bool reuseAddress) {
+    ConfigPhysicalSocket& ConfigPhysicalSocket::setReuseAddress(bool reuseAddress) {
         if (reuseAddress) {
             addSocketOption(SOL_SOCKET, SO_REUSEADDR, 1);
         } else {
@@ -161,76 +170,92 @@ namespace net::config {
         reuseAddressOpt //
             ->default_val(reuseAddress ? "true" : "false")
             ->clear();
+
+        return *this;
     }
 
     bool ConfigPhysicalSocket::getReuseAddress() const {
         return reuseAddressOpt->as<bool>();
     }
 
-    void ConfigPhysicalSocket::setRetry(bool retry) {
+    ConfigPhysicalSocket& ConfigPhysicalSocket::setRetry(bool retry) {
         retryOpt //
             ->default_val(retry ? "true" : "false")
             ->clear();
+
+        return *this;
     }
 
     bool ConfigPhysicalSocket::getRetry() const {
         return retryOpt->as<bool>();
     }
 
-    void ConfigPhysicalSocket::setRetryOnFatal(bool retry) {
+    ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryOnFatal(bool retry) {
         retryOnFatalOpt //
             ->default_val(retry ? "true" : "false")
             ->clear();
+
+        return *this;
     }
 
     bool ConfigPhysicalSocket::getRetryOnFatal() const {
         return retryOnFatalOpt->as<bool>();
     }
 
-    void ConfigPhysicalSocket::setRetryTimeout(double sec) {
+    ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryTimeout(double sec) {
         retryTimeoutOpt //
             ->default_val(sec)
             ->clear();
+
+        return *this;
     }
 
     double ConfigPhysicalSocket::getRetryTimeout() const {
         return retryTimeoutOpt->as<double>();
     }
 
-    void ConfigPhysicalSocket::setRetryTries(unsigned int tries) {
+    ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryTries(unsigned int tries) {
         retryTriesOpt //
             ->default_val(tries)
             ->clear();
+
+        return *this;
     }
 
     unsigned int ConfigPhysicalSocket::getRetryTries() const {
         return retryTriesOpt->as<unsigned int>();
     }
 
-    void ConfigPhysicalSocket::setRetryBase(double base) {
+    ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryBase(double base) {
         retryBaseOpt //
             ->default_val(base)
             ->clear();
+
+        return *this;
     }
 
     double ConfigPhysicalSocket::getRetryBase() const {
         return retryBaseOpt->as<double>();
     }
 
-    void ConfigPhysicalSocket::setRetryLimit(unsigned int limit) {
+    ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryLimit(unsigned int limit) {
         retryLimitOpt //
             ->default_val(limit)
             ->clear();
+
+        return *this;
     }
 
     unsigned int ConfigPhysicalSocket::getRetryLimit() const {
         return retryLimitOpt->as<unsigned int>();
     }
 
-    void ConfigPhysicalSocket::setRetryJitter(double percent) {
+    ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryJitter(double percent) {
         retryJitterOpt //
             ->default_val(percent)
             ->clear();
+
+        return *this;
     }
 
     double ConfigPhysicalSocket::getRetryJitter() const {

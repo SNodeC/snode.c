@@ -32,10 +32,12 @@ namespace net::config {
         sniOpt = add_option(sniOpt, "--sni", "Server Name Indication", "sni", "", CLI::TypeValidator<std::string>());
     }
 
-    void ConfigTlsClient::setSni(const std::string& sni) {
+    ConfigTlsClient& ConfigTlsClient::setSni(const std::string& sni) {
         sniOpt //
             ->default_val(sni)
             ->clear();
+
+        return *this;
     }
 
     std::string ConfigTlsClient::getSni() const {

@@ -84,30 +84,36 @@ namespace net::config {
                           CLI::NonNegativeNumber);
     }
 
-    void ConfigPhysicalSocketClient::setReconnect(bool reconnect) {
+    ConfigPhysicalSocketClient& ConfigPhysicalSocketClient::setReconnect(bool reconnect) {
         reconnectOpt //
             ->default_val(reconnect ? "true" : "false")
             ->clear();
+
+        return *this;
     }
 
     bool ConfigPhysicalSocketClient::getReconnect() const {
         return reconnectOpt->as<bool>();
     }
 
-    void ConfigPhysicalSocketClient::setReconnectTime(double time) {
+    ConfigPhysicalSocketClient& ConfigPhysicalSocketClient::setReconnectTime(double time) {
         reconnectTimeOpt //
             ->default_val(time)
             ->clear();
+
+        return *this;
     }
 
     double ConfigPhysicalSocketClient::getReconnectTime() const {
         return reconnectTimeOpt->as<double>();
     }
 
-    void ConfigPhysicalSocketClient::setConnectTimeout(const utils::Timeval& connectTimeout) {
+    ConfigPhysicalSocketClient& ConfigPhysicalSocketClient::setConnectTimeout(const utils::Timeval& connectTimeout) {
         connectTimeoutOpt //
             ->default_val(connectTimeout)
             ->clear();
+
+        return *this;
     }
 
     utils::Timeval ConfigPhysicalSocketClient::getConnectTimeout() const {

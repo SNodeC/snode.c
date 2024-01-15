@@ -75,7 +75,7 @@ namespace net::l2::stream {
         void listen(const std::string& btAddress,
                     uint16_t psm,
                     int backlog,
-                    const std::function<void(const SocketAddress& SocketAddress, int)>& onStatus) const {
+                    const std::function<void(const SocketAddress& SocketAddress, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm);
             Super::getConfig().setBacklog(backlog);
 

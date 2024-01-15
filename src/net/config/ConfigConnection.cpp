@@ -71,50 +71,60 @@ namespace net::config {
         return readTimeoutOpt->as<utils::Timeval>();
     }
 
-    void ConfigConnection::setReadTimeout(const utils::Timeval& newReadTimeoutSet) {
+    ConfigConnection& ConfigConnection::setReadTimeout(const utils::Timeval& newReadTimeoutSet) {
         readTimeoutOpt //
             ->default_val(newReadTimeoutSet)
             ->clear();
+
+        return *this;
     }
 
     utils::Timeval ConfigConnection::getWriteTimeout() const {
         return writeTimeoutOpt->as<utils::Timeval>();
     }
 
-    void ConfigConnection::setWriteTimeout(const utils::Timeval& newWriteTimeoutSet) {
+    ConfigConnection& ConfigConnection::setWriteTimeout(const utils::Timeval& newWriteTimeoutSet) {
         writeTimeoutOpt //
             ->default_val(newWriteTimeoutSet)
             ->clear();
+
+        return *this;
     }
 
     std::size_t ConfigConnection::getReadBlockSize() const {
         return readBlockSizeOpt->as<std::size_t>();
     }
 
-    void ConfigConnection::setReadBlockSize(std::size_t newReadBlockSize) {
+    ConfigConnection& ConfigConnection::setReadBlockSize(std::size_t newReadBlockSize) {
         readBlockSizeOpt //
             ->default_val(newReadBlockSize)
             ->clear();
+
+        return *this;
     }
 
     std::size_t ConfigConnection::getWriteBlockSize() const {
         return writeBlockSizeOpt->as<std::size_t>();
     }
 
-    void ConfigConnection::setWriteBlockSize(std::size_t newWriteBlockSize) {
+    ConfigConnection& ConfigConnection::setWriteBlockSize(std::size_t newWriteBlockSize) {
         writeBlockSizeOpt //
             ->default_val(newWriteBlockSize)
             ->clear();
+
+        return *this;
     }
 
     utils::Timeval ConfigConnection::getTerminateTimeout() const {
         return terminateTimeoutOpt->as<utils::Timeval>();
     }
 
-    void ConfigConnection::setTerminateTimeout(const utils::Timeval& newTerminateTimeout) {
+    ConfigConnection& ConfigConnection::setTerminateTimeout(const utils::Timeval& newTerminateTimeout) {
         terminateTimeoutOpt //
             ->default_val(newTerminateTimeout)
             ->clear();
+
+        return *this;
     }
 
 } // namespace net::config

@@ -49,20 +49,24 @@ namespace net::config {
         return backlogOpt->as<int>();
     }
 
-    void ConfigListen::setBacklog(int newBacklog) {
+    ConfigListen& ConfigListen::setBacklog(int newBacklog) {
         backlogOpt //
             ->default_val(newBacklog)
             ->clear();
+
+        return *this;
     }
 
     int ConfigListen::getAcceptsPerTick() const {
         return acceptsPerTickOpt->as<int>();
     }
 
-    void ConfigListen::setAcceptsPerTick(int acceptsPerTickSet) {
+    ConfigListen& ConfigListen::setAcceptsPerTick(int acceptsPerTickSet) {
         acceptsPerTickOpt //
             ->default_val(acceptsPerTickSet)
             ->clear();
+
+        return *this;
     }
 
 } // namespace net::config

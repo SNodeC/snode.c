@@ -44,11 +44,13 @@ namespace net::config {
     public:
         explicit ConfigTlsServer(ConfigInstance* instance);
 
-        void setForceSni(bool forceSni = true);
+        ConfigTlsServer& setForceSni(bool forceSni = true);
         bool getForceSni() const;
 
-        void addSniCerts(const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCerts);
-        void addSniCert(const std::string& domain, const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert);
+        ConfigTlsServer&
+        addSniCerts(const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCerts);
+        ConfigTlsServer& addSniCert(const std::string& domain,
+                                    const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert);
         std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& getSniCerts();
 
     private:
