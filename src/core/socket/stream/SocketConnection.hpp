@@ -127,12 +127,8 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::sendToPeer(const char* junk, std::size_t junkLen) {
-        if (newSocketContext == nullptr) {
-            if (!SocketWriter::shutdownInProgress && !SocketWriter::markShutdown) {
-                SocketWriter::sendToPeer(junk, junkLen);
-            }
-        } else {
-            LOG(TRACE) << instanceName << ": SendToPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
+        if (!SocketWriter::shutdownInProgress && !SocketWriter::markShutdown) {
+            SocketWriter::sendToPeer(junk, junkLen);
         }
     }
 
