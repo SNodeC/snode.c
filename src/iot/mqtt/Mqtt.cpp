@@ -32,9 +32,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-#include "utils/system/signal.h"
 
-#include <cstring>
 #include <functional>
 #include <iomanip>
 #include <map>
