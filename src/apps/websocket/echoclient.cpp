@@ -86,16 +86,16 @@ int main(int argc, char* argv[]) {
                                                                                          const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << " (1): connected to '" << socketAddress.toString() << "'";
+                    VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << " (1): disabled";
+                    VLOG(1) << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    LOG(ERROR) << instanceName << " (1): " << socketAddress.toString() << ": " << state.what();
+                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    LOG(FATAL) << instanceName << " (1): " << socketAddress.toString() << ": " << state.what();
+                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         }); // Connection:keep-alive\r\n\r\n"
@@ -145,16 +145,16 @@ int main(int argc, char* argv[]) {
                                                                                    const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << " (2): connected to '" << socketAddress.toString() << "'";
+                    VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << " (2): disabled";
+                    VLOG(1) << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    LOG(ERROR) << instanceName << " (2): " << socketAddress.toString() << ": " << state.what();
+                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    LOG(FATAL) << instanceName << " (2): " << socketAddress.toString() << ": " << state.what();
+                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         }); // Connection:keep-alive\r\n\r\n"
