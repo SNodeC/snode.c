@@ -98,10 +98,6 @@ namespace web::http::server {
         for (RequestContext* requestContext : requestContexts) {
             delete requestContext;
         }
-
-        if (currentRequestContext != nullptr) {
-            //            currentRequestContext->socketContextGone();
-        }
     }
 
     template <typename Request, typename Response>
@@ -131,7 +127,10 @@ namespace web::http::server {
                 onRequestReady(currentRequestContext->request, currentRequestContext->response);
             } else {
                 currentRequestContext->response.status(currentRequestContext->status).send(currentRequestContext->reason);
-                reset();
+                requestInProgress = false;
+                delete currentRequestContext;
+                currentRequestContext = nullptr;
+
                 shutdownWrite(true);
                 // close();
             }
@@ -151,22 +150,14 @@ namespace web::http::server {
             (currentRequestContext->request.httpMajor == 1 && currentRequestContext->request.httpMinor == 1 &&
              currentRequestContext->request.connectionState == ConnectionState::Close) ||
             (currentRequestContext->response.connectionState == ConnectionState::Close)) {
-            requestInProgress = false;
             shutdownWrite();
         } else {
-            requestInProgress = false;
-
             if (!requestContexts.empty() && requestContexts.front()->ready) {
                 requestParsed();
             }
         }
-    }
 
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::reset() {
         requestInProgress = false;
-        delete currentRequestContext;
-        currentRequestContext = nullptr;
     }
 
     template <typename Request, typename Response>
@@ -181,8 +172,6 @@ namespace web::http::server {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::switchSocketContext(core::socket::stream::SocketContext* socketContext) {
-        currentRequestContext = nullptr;
-
         Super::switchSocketContext(socketContext);
     }
 

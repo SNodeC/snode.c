@@ -85,8 +85,6 @@ namespace web::http::server {
 
         void requestParsed();
 
-        void reset();
-
         std::function<void(Request& req, Response& res)> onRequestReady;
 
         RequestParser parser;
