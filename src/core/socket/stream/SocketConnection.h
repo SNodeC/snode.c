@@ -88,7 +88,6 @@ namespace core::socket::stream {
 
         core::socket::stream::SocketContext* socketContext = nullptr;
         core::socket::stream::SocketContext* newSocketContext = nullptr;
-        bool socketContextConnected = false;
 
         std::string instanceName;
     };

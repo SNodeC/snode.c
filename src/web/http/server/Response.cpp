@@ -170,7 +170,6 @@ namespace web::http::server {
 
             if (socketContextUpgradeFactory != nullptr) {
                 success = requestContext->switchSocketContext(socketContextUpgradeFactory);
-                VLOG(0) << "######################: " << success;
             } else {
                 set("Connection", "close").status(404);
             }
