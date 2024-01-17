@@ -99,8 +99,8 @@ namespace web::http::server {
             delete requestContext;
         }
 
-        if (currentRequestContext) {
-            currentRequestContext->socketContextGone();
+        if (currentRequestContext != nullptr) {
+            //            currentRequestContext->socketContextGone();
         }
     }
 
@@ -151,10 +151,10 @@ namespace web::http::server {
             (currentRequestContext->request.httpMajor == 1 && currentRequestContext->request.httpMinor == 1 &&
              currentRequestContext->request.connectionState == ConnectionState::Close) ||
             (currentRequestContext->response.connectionState == ConnectionState::Close)) {
-            reset();
+            requestInProgress = false;
             shutdownWrite();
         } else {
-            reset();
+            requestInProgress = false;
 
             if (!requestContexts.empty() && requestContexts.front()->ready) {
                 requestParsed();
@@ -177,6 +177,13 @@ namespace web::http::server {
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
         LOG(INFO) << "HTTP disconnected";
+    }
+
+    template <typename Request, typename Response>
+    void SocketContext<Request, Response>::switchSocketContext(core::socket::stream::SocketContext* socketContext) {
+        currentRequestContext = nullptr;
+
+        Super::switchSocketContext(socketContext);
     }
 
     template <typename Request, typename Response>

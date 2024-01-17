@@ -19,7 +19,8 @@
 
 #include "web/http/server/RequestContextBase.h"
 
-#include "web/http/SocketContext.h"
+#include "core/socket/stream/SocketContextFactory.h"
+#include "web/http/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,16 +39,12 @@ namespace web::http::server {
         socketContext = nullptr;
     }
 
-    core::socket::SocketContext*
-    RequestContextBase::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory) {
-        core::socket::SocketContext* newSocketContext = nullptr;
-        if (socketContext != nullptr) {
-            newSocketContext = socketContext->switchSocketContext(socketContextUpgradeFactory);
-        } else {
-            delete this;
-        }
+    bool RequestContextBase::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory) {
+        socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
-        return newSocketContext;
+        //        socketContext->switchSocketContext(socketContextUpgrade);
+
+        return socketContextUpgrade != nullptr;
     }
 
     void RequestContextBase::sendToPeer(const char* junk, std::size_t junkLen) {
@@ -59,9 +56,13 @@ namespace web::http::server {
     void RequestContextBase::sendToPeerCompleted() {
         if (socketContext != nullptr) {
             socketContext->sendToPeerCompleted();
-        } else {
-            delete this;
+
+            if (socketContextUpgrade != nullptr) {
+                socketContext->switchSocketContext(socketContextUpgrade);
+            }
         }
+
+        delete this;
     }
 
     void RequestContextBase::close() {

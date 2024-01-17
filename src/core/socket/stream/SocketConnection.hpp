@@ -191,10 +191,9 @@ namespace core::socket::stream {
         std::size_t consumed = socketContext->onReceivedFromPeer();
 
         if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-            disconnected();
-            socketContext = newSocketContext;
+            disconnectSocketContext();
+            setSocketContext(newSocketContext);
             newSocketContext = nullptr;
-            connected(socketContext);
         }
 
         if (available != 0 && consumed == 0) {
@@ -245,7 +244,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::unobservedEvent() {
-        disconnected();
+        disconnectSocketContext();
         onDisconnect();
 
         delete this;

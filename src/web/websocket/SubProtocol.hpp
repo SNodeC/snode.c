@@ -62,6 +62,7 @@ namespace web::websocket {
     template <typename SocketContextUpgradeT>
     SubProtocol<SocketContextUpgradeT>::~SubProtocol() {
         pingTimer.cancel();
+        VLOG(0) << "############: Delete SubProtocol";
     }
 
     template <typename SocketContextUpgradeT>

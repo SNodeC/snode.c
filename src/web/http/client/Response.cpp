@@ -73,7 +73,12 @@ namespace web::http::client {
                 web::http::client::SocketContextUpgradeFactorySelector::instance()->select(request, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
+                core::socket::stream::SocketContext* newSocketContext =
+                    socketContextUpgradeFactory->create(socketContext->getSocketConnection());
+
+                if (newSocketContext != nullptr) {
+                    socketContext->switchSocketContext(newSocketContext);
+                } else {
                     LOG(DEBUG) << "HTTP: SocketContextUpgrade not created";
                     socketContext->close();
                 }

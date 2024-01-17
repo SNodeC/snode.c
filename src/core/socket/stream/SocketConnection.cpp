@@ -37,26 +37,17 @@ namespace core::socket::stream {
     SocketConnection::~SocketConnection() {
     }
 
-    core::socket::stream::SocketContext*
-    SocketConnection::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
-        newSocketContext = socketContextFactory->create(this);
-
-        if (newSocketContext == nullptr) {
-            LOG(TRACE) << "SocketConnection: Socket context switch unsuccessull: socket context not created";
-        }
-
-        return newSocketContext;
+    void SocketConnection::switchSocketContext(SocketContext* newSocketContext) {
+        this->newSocketContext = newSocketContext;
     }
 
-    core::socket::stream::SocketContext*
-    SocketConnection::setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory) {
-        socketContext = socketContextFactory->create(this);
-
-        if (socketContext == nullptr) {
-            LOG(TRACE) << "SocketConnection: Set socket context unsuccessull: new socket context not created";
+    void SocketConnection::setSocketContext(SocketContext* socketContext) {
+        if (socketContext != nullptr) { // Perform a pending SocketContextSwitch
+            this->socketContext = socketContext;
+            socketContext->onConnected();
+        } else {
+            LOG(TRACE) << "SocketConnection: Set socket context unsuccessful: new socket context not created";
         }
-
-        return socketContext;
     }
 
     void SocketConnection::sendToPeer(const std::string& data) {
@@ -76,19 +67,17 @@ namespace core::socket::stream {
     }
 
     void SocketConnection::connected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory) {
-        if (setSocketContext(socketContextFactory.get()) != nullptr) {
-            socketContext->onConnected();
+        SocketContext* newSocketContext = socketContextFactory->create(this);
+
+        if (newSocketContext != nullptr) {
+            setSocketContext(newSocketContext);
         } else {
             LOG(TRACE) << "SocketConnection: Failed creating new SocketContext";
             close();
         }
     }
 
-    void SocketConnection::connected(core::socket::stream::SocketContext* socketContext) {
-        socketContext->onConnected();
-    }
-
-    void SocketConnection::disconnected() {
+    void SocketConnection::disconnectSocketContext() {
         if (socketContext != nullptr) {
             socketContext->onDisconnected();
             delete socketContext;

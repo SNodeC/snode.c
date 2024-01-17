@@ -169,7 +169,8 @@ namespace web::http::server {
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                success = requestContext->switchSocketContext(socketContextUpgradeFactory) != nullptr;
+                success = requestContext->switchSocketContext(socketContextUpgradeFactory);
+                VLOG(0) << "######################: " << success;
             } else {
                 set("Connection", "close").status(404);
             }
