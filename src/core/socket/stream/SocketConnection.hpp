@@ -148,13 +148,14 @@ namespace core::socket::stream {
             LOG(TRACE) << instanceName << ": Initiating shutdown process";
 
             SocketWriter::shutdownWrite([forceClose, this]() -> void {
-                if (forceClose && SocketReader::isEnabled()) {
-                    shutdownRead();
-                }
                 if (SocketWriter::isEnabled()) {
                     SocketWriter::disable();
                 }
             });
+
+            if (forceClose && SocketReader::isEnabled()) {
+                shutdownRead();
+            }
         }
     }
 
@@ -191,14 +192,15 @@ namespace core::socket::stream {
         std::size_t consumed = socketContext->onReceivedFromPeer();
 
         if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-            disconnected();
-            socketContext = newSocketContext;
+            disconnectSocketContext();
+            setSocketContext(newSocketContext);
             newSocketContext = nullptr;
-            connected(socketContext);
         }
 
         if (available != 0 && consumed == 0) {
             close();
+
+            delete newSocketContext; // delete of nullptr is valid since C++14!
         }
     }
 
@@ -245,7 +247,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::unobservedEvent() {
-        disconnected();
+        disconnectSocketContext();
         onDisconnect();
 
         delete this;

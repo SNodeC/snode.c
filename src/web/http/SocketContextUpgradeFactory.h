@@ -63,7 +63,6 @@ namespace web::http {
     private:
         virtual SocketContextUpgrade<Request, Response>*
         create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
-
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
 
         void incRefCount();
@@ -74,6 +73,8 @@ namespace web::http {
         Request* request = nullptr;
         Response* response = nullptr;
 
+        friend Request;
+        friend Response;
         friend class SocketContextUpgrade<Request, Response>;
     };
 

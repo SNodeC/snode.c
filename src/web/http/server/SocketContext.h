@@ -79,11 +79,11 @@ namespace web::http::server {
         void onConnected() override;
         void onDisconnected() override;
 
+        void switchSocketContext(core::socket::stream::SocketContext* socketContext) override;
+
         [[nodiscard]] bool onSignal(int signum) override;
 
         void requestParsed();
-
-        void reset();
 
         std::function<void(Request& req, Response& res)> onRequestReady;
 
@@ -94,6 +94,8 @@ namespace web::http::server {
 
         bool requestInProgress = false;
         bool connectionTerminated = false;
+
+        friend class RequestContextBase;
     };
 
 } // namespace web::http::server

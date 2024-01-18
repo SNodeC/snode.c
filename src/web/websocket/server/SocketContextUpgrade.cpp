@@ -39,6 +39,8 @@ namespace web::websocket::server {
         if (subProtocolFactory != nullptr && subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
             SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
+
+        subProtocol = nullptr;
     }
 
     std::string SocketContextUpgrade::loadSubProtocol(const std::list<std::string>& subProtocolNames) {

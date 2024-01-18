@@ -19,17 +19,18 @@
 #ifndef WEB_HTTP_SERVER_REQUESTCONTEXTBASE_H
 #define WEB_HTTP_SERVER_REQUESTCONTEXTBASE_H
 
-namespace web::http {
-
+namespace core::socket::stream {
     class SocketContext;
+}
 
+namespace web::http {
+    class SocketContext;
 } // namespace web::http
 
 namespace core::socket {
-    class SocketContext;
     namespace stream {
         class SocketContextFactory;
-    }
+    } // namespace stream
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -46,9 +47,7 @@ namespace web::http::server {
 
         virtual ~RequestContextBase();
 
-        void socketContextGone();
-
-        core::socket::SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory);
+        bool switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeerCompleted();
@@ -56,6 +55,8 @@ namespace web::http::server {
 
     private:
         web::http::SocketContext* socketContext = nullptr;
+
+        core::socket::stream::SocketContext* socketContextUpgrade = nullptr;
     };
 
 } // namespace web::http::server

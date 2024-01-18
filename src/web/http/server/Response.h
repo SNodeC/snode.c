@@ -52,6 +52,9 @@ namespace web::http::server {
 
         void end();
 
+        void sendResponse(const char* junk, std::size_t junkLen);
+        void sendResponse(const std::string& junk);
+
         Response& status(int status);
         Response& append(const std::string& field, const std::string& value);
         Response& set(const std::string& field, const std::string& value, bool overwrite = true);
@@ -81,8 +84,6 @@ namespace web::http::server {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        void enqueue(const char* junk, std::size_t junkLen);
-        void enqueue(const std::string& junk);
         void sendHeader();
 
         void receive(const char* junk, std::size_t junkLen) override;

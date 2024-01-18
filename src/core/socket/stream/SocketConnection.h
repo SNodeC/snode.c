@@ -56,8 +56,12 @@ namespace core::socket::stream {
         virtual ~SocketConnection();
 
     public:
-        SocketContext* switchSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
+        void switchSocketContext(SocketContext* newSocketContext);
 
+    protected:
+        void setSocketContext(SocketContext* socketContext);
+
+    public:
         virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
         void sendToPeer(const std::string& data);
         void sentToPeer(const std::vector<uint8_t>& data);
@@ -78,16 +82,12 @@ namespace core::socket::stream {
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
     protected:
-        core::socket::stream::SocketContext* setSocketContext(core::socket::stream::SocketContextFactory* socketContextFactory);
-
         void connected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory);
-        static void connected(core::socket::stream::SocketContext* socketContext);
 
-        void disconnected();
+        void disconnectSocketContext();
 
         core::socket::stream::SocketContext* socketContext = nullptr;
         core::socket::stream::SocketContext* newSocketContext = nullptr;
-        bool socketContextConnected = false;
 
         std::string instanceName;
     };

@@ -46,7 +46,7 @@ namespace web::http::server {
         : requestContext(requestContext) {
     }
 
-    void Response::enqueue(const char* junk, std::size_t junkLen) {
+    void Response::sendResponse(const char* junk, std::size_t junkLen) {
         if (!headersSent && !sendHeaderInProgress) {
             sendHeaderInProgress = true;
             sendHeader();
@@ -67,8 +67,8 @@ namespace web::http::server {
         }
     }
 
-    void Response::enqueue(const std::string& junk) {
-        enqueue(junk.data(), junk.size());
+    void Response::sendResponse(const std::string& junk) {
+        sendResponse(junk.data(), junk.size());
     }
 
     void Response::send(const char* junk, std::size_t junkLen) {
@@ -77,14 +77,16 @@ namespace web::http::server {
         }
         set("Content-Length", std::to_string(junkLen), false);
 
-        enqueue(junk, junkLen);
+        sendResponse(junk, junkLen);
     }
 
     void Response::send(const std::string& junk) {
         if (!junk.empty()) {
             set("Content-Type", "text/html; charset=utf-8", false);
         }
-        send(junk.data(), junk.size());
+        set("Content-Length", std::to_string(junk.size()), false);
+
+        sendResponse(junk.data(), junk.size());
     }
 
     void Response::end() {
@@ -169,7 +171,7 @@ namespace web::http::server {
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                success = requestContext->switchSocketContext(socketContextUpgradeFactory) != nullptr;
+                success = requestContext->switchSocketContext(socketContextUpgradeFactory);
             } else {
                 set("Connection", "close").status(404);
             }
@@ -208,13 +210,13 @@ namespace web::http::server {
     }
 
     void Response::sendHeader() {
-        enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + StatusCode::reason(responseStatus) + "\r\n");
-        enqueue("Date: " + httputils::to_http_date() + "\r\n");
+        sendResponse("HTTP/1.1 " + std::to_string(responseStatus) + " " + StatusCode::reason(responseStatus) + "\r\n");
+        sendResponse("Date: " + httputils::to_http_date() + "\r\n");
 
         set({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
         for (const auto& [field, value] : headers) {
-            enqueue(std::string(field).append(": ").append(value).append("\r\n"));
+            sendResponse(std::string(field).append(": ").append(value).append("\r\n"));
         }
 
         for (const auto& [cookie, cookieValue] : cookies) { // cppcheck-suppress shadowFunction
@@ -225,10 +227,10 @@ namespace web::http::server {
                                 [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
                                     return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
                                 });
-            enqueue("Set-Cookie: " + cookieString + "\r\n");
+            sendResponse("Set-Cookie: " + cookieString + "\r\n");
         }
 
-        enqueue("\r\n");
+        sendResponse("\r\n");
 
         if (headers.find("Content-Length") != headers.end()) {
             contentLength = std::stoul(headers.find("Content-Length")->second);
@@ -238,7 +240,7 @@ namespace web::http::server {
     }
 
     void Response::receive(const char* junk, std::size_t junkLen) {
-        enqueue(junk, junkLen);
+        sendResponse(junk, junkLen);
     }
 
     void Response::eof() {
