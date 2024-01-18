@@ -47,8 +47,6 @@ namespace web::http::server {
 
         virtual ~RequestContextBase();
 
-        void socketContextGone();
-
         bool switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory);
 
         void sendToPeer(const char* junk, std::size_t junkLen);

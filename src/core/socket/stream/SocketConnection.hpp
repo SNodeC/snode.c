@@ -148,13 +148,14 @@ namespace core::socket::stream {
             LOG(TRACE) << instanceName << ": Initiating shutdown process";
 
             SocketWriter::shutdownWrite([forceClose, this]() -> void {
-                if (forceClose && SocketReader::isEnabled()) {
-                    shutdownRead();
-                }
                 if (SocketWriter::isEnabled()) {
                     SocketWriter::disable();
                 }
             });
+
+            if (forceClose && SocketReader::isEnabled()) {
+                shutdownRead();
+            }
         }
     }
 
@@ -198,6 +199,8 @@ namespace core::socket::stream {
 
         if (available != 0 && consumed == 0) {
             close();
+
+            delete newSocketContext; // delete of nullptr is valid since C++14!
         }
     }
 

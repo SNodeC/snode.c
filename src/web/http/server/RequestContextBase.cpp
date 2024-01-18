@@ -35,42 +35,30 @@ namespace web::http::server {
     RequestContextBase::~RequestContextBase() {
     }
 
-    void RequestContextBase::socketContextGone() {
-        socketContext = nullptr;
-    }
-
     bool RequestContextBase::switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory) {
         socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
-
-        //        socketContext->switchSocketContext(socketContextUpgrade);
 
         return socketContextUpgrade != nullptr;
     }
 
     void RequestContextBase::sendToPeer(const char* junk, std::size_t junkLen) {
-        if (socketContext != nullptr) {
-            socketContext->sendToPeer(junk, junkLen);
-        }
+        socketContext->sendToPeer(junk, junkLen);
     }
 
     void RequestContextBase::sendToPeerCompleted() {
-        if (socketContext != nullptr) {
-            socketContext->sendToPeerCompleted();
-
-            if (socketContextUpgrade != nullptr) {
-                socketContext->switchSocketContext(socketContextUpgrade);
-            }
+        if (socketContextUpgrade != nullptr) {
+            socketContext->switchSocketContext(socketContextUpgrade);
         }
+
+        socketContext->sendToPeerCompleted();
 
         delete this;
     }
 
     void RequestContextBase::close() {
-        if (socketContext != nullptr) {
-            socketContext->close();
-        } else {
-            delete this;
-        }
+        socketContext->close();
+
+        delete this;
     }
 
 } // namespace web::http::server

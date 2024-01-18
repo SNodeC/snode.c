@@ -112,27 +112,31 @@ namespace web::http::server {
             requestContexts.pop_front();
 
             requestInProgress = true;
+
+            Response& response = currentRequestContext->response;
+
             if (currentRequestContext->status == 0) {
-                if (((currentRequestContext->request.connectionState == ConnectionState::Close) ||
-                     (currentRequestContext->request.httpMajor == 0 && currentRequestContext->request.httpMinor == 9) ||
-                     (currentRequestContext->request.httpMajor == 1 && currentRequestContext->request.httpMinor == 0 &&
-                      currentRequestContext->request.connectionState != ConnectionState::Keep) ||
-                     (currentRequestContext->request.httpMajor == 1 && currentRequestContext->request.httpMinor == 1 &&
-                      currentRequestContext->request.connectionState == ConnectionState::Close))) {
-                    currentRequestContext->response.set("Connection", "close");
+                Request& request = currentRequestContext->request;
+
+                if ((request.connectionState == ConnectionState::Close) || (request.httpMajor == 0 && request.httpMinor == 9) ||
+                    (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
+                    (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close)) {
+                    response.set("Connection", "close");
                 } else {
-                    currentRequestContext->response.set("Connection", "keep-alive");
+                    response.set("Connection", "keep-alive");
                 }
 
-                onRequestReady(currentRequestContext->request, currentRequestContext->response);
+                onRequestReady(request, response);
             } else {
-                currentRequestContext->response.status(currentRequestContext->status).send(currentRequestContext->reason);
+                int status = currentRequestContext->status;
+                std::string& reason = currentRequestContext->reason;
+
+                response.status(status).send(reason);
                 requestInProgress = false;
                 delete currentRequestContext;
                 currentRequestContext = nullptr;
 
                 shutdownWrite(true);
-                // close();
             }
         }
     }
@@ -144,12 +148,13 @@ namespace web::http::server {
         // if 1.1 && (request == Close || contentLength = -1) => terminate
         // if (request == Close) => terminate
 
-        if ((currentRequestContext->request.httpMajor == 0 && currentRequestContext->request.httpMinor == 9) ||
-            (currentRequestContext->request.httpMajor == 1 && currentRequestContext->request.httpMinor == 0 &&
-             currentRequestContext->request.connectionState != ConnectionState::Keep) ||
-            (currentRequestContext->request.httpMajor == 1 && currentRequestContext->request.httpMinor == 1 &&
-             currentRequestContext->request.connectionState == ConnectionState::Close) ||
-            (currentRequestContext->response.connectionState == ConnectionState::Close)) {
+        Response& response = currentRequestContext->response;
+        Request& request = currentRequestContext->request;
+
+        if ((request.httpMajor == 0 && request.httpMinor == 9) ||
+            (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
+            (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close) ||
+            response.connectionState == ConnectionState::Close) {
             shutdownWrite();
         } else {
             if (!requestContexts.empty() && requestContexts.front()->ready) {
