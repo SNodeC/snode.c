@@ -51,14 +51,10 @@ namespace web::http::server {
         }
 
         socketContext->sendToPeerCompleted();
-
-        delete this;
     }
 
     void RequestContextBase::close() {
         socketContext->close();
-
-        delete this;
     }
 
 } // namespace web::http::server

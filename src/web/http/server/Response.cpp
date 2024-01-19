@@ -29,7 +29,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/system/time.h"
 
 #include <cerrno>
@@ -59,11 +58,6 @@ namespace web::http::server {
 
         if (headersSent) {
             contentSent += junkLen;
-            if (contentSent == contentLength) {
-                requestContext->sendToPeerCompleted();
-            } else if (contentSent > contentLength) {
-                requestContext->close();
-            }
         }
     }
 
@@ -78,6 +72,8 @@ namespace web::http::server {
         set("Content-Length", std::to_string(junkLen), false);
 
         sendResponse(junk, junkLen);
+
+        sendToPeerCompleted();
     }
 
     void Response::send(const std::string& junk) {
@@ -87,6 +83,8 @@ namespace web::http::server {
         set("Content-Length", std::to_string(junk.size()), false);
 
         sendResponse(junk.data(), junk.size());
+
+        sendToPeerCompleted();
     }
 
     void Response::end() {
@@ -190,7 +188,7 @@ namespace web::http::server {
             absolutFileName = std::filesystem::canonical(absolutFileName);
 
             if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                core::file::FileReader::connect(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
+                fileReader = core::file::FileReader::connect(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
                     if (err == 0) {
                         headers.insert({{"Content-Type", web::http::MimeTypes::contentType(absolutFileName)},
                                         {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
@@ -209,6 +207,17 @@ namespace web::http::server {
         }
     }
 
+    void Response::sendToPeerCompleted() {
+        if (contentSent == contentLength) {
+            requestContext->sendToPeerCompleted();
+
+        } else if (contentSent > contentLength) {
+            requestContext->close();
+        }
+
+        delete requestContext;
+    }
+
     void Response::sendHeader() {
         sendResponse("HTTP/1.1 " + std::to_string(responseStatus) + " " + StatusCode::reason(responseStatus) + "\r\n");
         sendResponse("Date: " + httputils::to_http_date() + "\r\n");
@@ -219,7 +228,7 @@ namespace web::http::server {
             sendResponse(std::string(field).append(": ").append(value).append("\r\n"));
         }
 
-        for (const auto& [cookie, cookieValue] : cookies) { // cppcheck-suppress shadowFunction
+        for (const auto& [cookie, cookieValue] : cookies) {
             const std::string cookieString =
                 std::accumulate(cookieValue.getOptions().begin(),
                                 cookieValue.getOptions().end(),
@@ -244,12 +253,21 @@ namespace web::http::server {
     }
 
     void Response::eof() {
-        LOG(DEBUG) << "HTTP: Stream EOF";
+        delete fileReader;
+        fileReader = nullptr;
+
+        sendToPeerCompleted();
     }
 
-    void Response::error([[maybe_unused]] int errnum) {
-        PLOG(DEBUG) << "HTTP: Error";
+    void Response::error(int errnum) {
+        errno = errnum;
+
         requestContext->close();
+
+        delete fileReader;
+        fileReader = nullptr;
+
+        sendToPeerCompleted();
     }
 
 } // namespace web::http::server

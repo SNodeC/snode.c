@@ -82,7 +82,7 @@ namespace core::socket::stream {
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
     protected:
-        void connected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory);
+        void connectSocketContext(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory);
 
         void disconnectSocketContext();
 
