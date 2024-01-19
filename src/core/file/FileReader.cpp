@@ -19,6 +19,9 @@
 
 #include "core/file/FileReader.h"
 
+#include "core/EventLoop.h"
+#include "core/State.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
@@ -26,6 +29,8 @@
 #include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+// socketConnection->getEventLoopState() == core::State::RUNNING
 
 constexpr int MF_READSIZE = 16384;
 
@@ -56,26 +61,29 @@ namespace core::file {
     }
 
     void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
-        if (!suspended) {
-            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-            static char junk[MF_READSIZE];
+        if (core::EventLoop::getEventLoopState() != core::State::STOPPING) {
+            if (!suspended) {
+                // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+                static char junk[MF_READSIZE];
 
-            const ssize_t ret = core::system::read(getFd(), junk, MF_READSIZE);
+                const ssize_t ret = core::system::read(getFd(), junk, MF_READSIZE);
 
-            if (ret > 0) {
-                if (send(junk, static_cast<std::size_t>(ret)) >= 0) {
-                    span();
+                if (ret > 0) {
+                    if (send(junk, static_cast<std::size_t>(ret)) >= 0) {
+                        span();
+                    } else {
+                        this->error(errno);
+                    }
                 } else {
-                    delete this;
+                    if (ret == 0) {
+                        this->eof();
+                    } else {
+                        this->error(errno);
+                    }
                 }
-            } else {
-                if (ret == 0) {
-                    this->eof();
-                } else {
-                    this->error(errno);
-                }
-                delete this;
             }
+        } else {
+            this->error(EINTR);
         }
     }
 

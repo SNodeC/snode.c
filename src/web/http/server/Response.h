@@ -23,6 +23,14 @@
 #include "web/http/ConnectionState.h"
 #include "web/http/CookieOptions.h"
 
+namespace core::file {
+    class FileReader;
+}
+
+namespace core::socket::stream {
+    class SocketContext;
+}
+
 namespace web::http::server {
     class Request;
     class RequestContextBase;
@@ -76,7 +84,11 @@ namespace web::http::server {
         std::map<std::string, web::http::CookieOptions> cookies;
 
     private:
+        void sendToPeerCompleted();
+        core::file::FileReader* fileReader = nullptr;
         ConnectionState connectionState = ConnectionState::Default;
+
+        core::socket::stream::SocketContext* socketContextUpgrade = nullptr;
 
         bool sendHeaderInProgress = false;
         bool headersSent = false;

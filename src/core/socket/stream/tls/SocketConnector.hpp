@@ -64,7 +64,7 @@ namespace core::socket::stream::tls {
                               LOG(TRACE) << "SSL/TLS: " << instanceName << ": SSL/TLS initial handshake success";
 
                               onConnected(socketConnection);
-                              socketConnection->connected(socketContextFactory);
+                              socketConnection->connectSocketContext(socketContextFactory);
                           },
                           [socketConnection, instanceName = Super::config->getInstanceName()]() -> void { // onTimeout
                               LOG(TRACE) << "SSL/TLS: " << instanceName << ": SSL/TLS initial handshake timed out";

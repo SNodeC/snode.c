@@ -73,9 +73,9 @@ namespace core::socket::stream {
               writeBlockSize,
               terminateTimeout)
         , physicalSocket(std::move(physicalSocket))
-        , onDisconnect(onDisconnect)     // cppcheck-suppress selfInitialization // false positive
-        , localAddress(localAddress)     // cppcheck-suppress selfInitialization // false positive
-        , remoteAddress(remoteAddress) { // cppcheck-suppress selfInitialization // false positive
+        , onDisconnect(onDisconnect)
+        , localAddress(localAddress)
+        , remoteAddress(remoteAddress) {
         if (!SocketReader::enable(this->physicalSocket.getFd())) {
             delete this;
         } else if (!SocketWriter::enable(this->physicalSocket.getFd())) {
@@ -148,14 +148,13 @@ namespace core::socket::stream {
             LOG(TRACE) << instanceName << ": Initiating shutdown process";
 
             SocketWriter::shutdownWrite([forceClose, this]() -> void {
+                if (forceClose && SocketReader::isEnabled()) {
+                    shutdownRead();
+                }
                 if (SocketWriter::isEnabled()) {
                     SocketWriter::disable();
                 }
             });
-
-            if (forceClose && SocketReader::isEnabled()) {
-                shutdownRead();
-            }
         }
     }
 

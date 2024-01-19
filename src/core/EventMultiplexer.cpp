@@ -89,6 +89,8 @@ namespace core {
             descriptorEventPublisher->signal(sigNum);
         }
         timerEventPublisher->stop();
+
+        releaseExpiredResources(utils::Timeval::currentTime());
     }
 
     void EventMultiplexer::terminate() {
@@ -198,8 +200,8 @@ namespace core {
         publishQueue->push_back(event); // do not allow two or more same events in one tick
     }
 
-    void EventMultiplexer::EventQueue::remove(Event* event) { // cppcheck-suppress constParameterPointer
-        publishQueue->remove(event);                          // in case of erase remove the event from the published queue
+    void EventMultiplexer::EventQueue::remove(Event* event) {
+        publishQueue->remove(event); // in case of erase remove the event from the published queue
     }
 
     void EventMultiplexer::EventQueue::execute(const utils::Timeval& currentTime) {

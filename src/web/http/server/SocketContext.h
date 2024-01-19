@@ -79,8 +79,6 @@ namespace web::http::server {
         void onConnected() override;
         void onDisconnected() override;
 
-        void switchSocketContext(core::socket::stream::SocketContext* socketContext) override;
-
         [[nodiscard]] bool onSignal(int signum) override;
 
         void requestParsed();

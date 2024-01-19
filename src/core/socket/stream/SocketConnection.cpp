@@ -66,7 +66,7 @@ namespace core::socket::stream {
         return instanceName;
     }
 
-    void SocketConnection::connected(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory) {
+    void SocketConnection::connectSocketContext(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory) {
         SocketContext* newSocketContext = socketContextFactory->create(this);
 
         if (newSocketContext != nullptr) {

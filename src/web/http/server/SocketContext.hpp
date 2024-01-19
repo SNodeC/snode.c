@@ -176,11 +176,6 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::switchSocketContext(core::socket::stream::SocketContext* socketContext) {
-        Super::switchSocketContext(socketContext);
-    }
-
-    template <typename Request, typename Response>
     bool SocketContext<Request, Response>::onSignal([[maybe_unused]] int signum) {
         return true;
     }

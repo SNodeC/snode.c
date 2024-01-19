@@ -46,8 +46,6 @@ namespace core::socket::stream {
     public:
         explicit SocketContext(core::socket::stream::SocketConnection* socketConnection);
 
-        ~SocketContext() override = default;
-
         using Super::sendToPeer;
 
         void sendToPeer(const char* junk, std::size_t junkLen) const final;
