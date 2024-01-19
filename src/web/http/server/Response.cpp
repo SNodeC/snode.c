@@ -82,9 +82,7 @@ namespace web::http::server {
         }
         set("Content-Length", std::to_string(junk.size()), false);
 
-        sendResponse(junk.data(), junk.size());
-
-        sendToPeerCompleted();
+        send(junk.data(), junk.size());
     }
 
     void Response::end() {
@@ -188,7 +186,7 @@ namespace web::http::server {
             absolutFileName = std::filesystem::canonical(absolutFileName);
 
             if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                fileReader = core::file::FileReader::connect(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
+                fileReader = core::file::FileReader::open(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
                     if (err == 0) {
                         headers.insert({{"Content-Type", web::http::MimeTypes::contentType(absolutFileName)},
                                         {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
@@ -210,7 +208,6 @@ namespace web::http::server {
     void Response::sendToPeerCompleted() {
         if (contentSent == contentLength) {
             requestContext->sendToPeerCompleted();
-
         } else if (contentSent > contentLength) {
             requestContext->close();
         }
@@ -228,7 +225,7 @@ namespace web::http::server {
             sendResponse(std::string(field).append(": ").append(value).append("\r\n"));
         }
 
-        for (const auto& [cookie, cookieValue] : cookies) {
+        for (const auto& [cookie, cookieValue] : cookies) { // cppcheck-suppress shadowFunction
             const std::string cookieString =
                 std::accumulate(cookieValue.getOptions().begin(),
                                 cookieValue.getOptions().end(),

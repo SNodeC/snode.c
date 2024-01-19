@@ -49,7 +49,7 @@ namespace core::file {
         FileReader(int fd, core::pipe::Sink& sink, const std::string& name);
 
     public:
-        static FileReader* connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError);
+        static FileReader* open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onError);
 
         void onEvent(const utils::Timeval& currentTime) override;
 

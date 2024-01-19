@@ -44,7 +44,7 @@ namespace core::file {
         span();
     }
 
-    FileReader* FileReader::connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError) {
+    FileReader* FileReader::open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onError) {
         errno = 0;
 
         FileReader* fileReader = nullptr;
@@ -52,7 +52,7 @@ namespace core::file {
         const int fd = core::system::open(path.c_str(), O_RDONLY);
 
         if (fd >= 0) {
-            fileReader = new FileReader(fd, writeStream, "FileReader: " + path);
+            fileReader = new FileReader(fd, sink, "FileReader: " + path);
         }
 
         onError(errno);
@@ -83,7 +83,7 @@ namespace core::file {
                 }
             }
         } else {
-            this->error(EINTR);
+            this->error(0);
         }
     }
 
