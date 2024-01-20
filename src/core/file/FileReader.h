@@ -52,14 +52,6 @@ namespace core::file {
         static FileReader* open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onError);
 
         void onEvent(const utils::Timeval& currentTime) override;
-
-        void suspend();
-        void resume();
-
-        bool isSuspended() const;
-
-    private:
-        bool suspended = false;
     };
 
 } // namespace core::file

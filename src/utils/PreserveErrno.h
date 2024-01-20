@@ -22,7 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno> // IWYU pragma: export
+#include <cerrno>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

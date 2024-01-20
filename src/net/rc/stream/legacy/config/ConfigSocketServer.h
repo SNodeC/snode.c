@@ -21,7 +21,7 @@
 #define NET_RC_STREAM_LEGACY_CONFIG_CONFIGSOCKETSERVER_H
 
 #include "net/config/stream/legacy/ConfigSocketServer.h"
-#include "net/rc/stream/config/ConfigSocketServer.h" // IWYU pragma: export
+#include "net/rc/stream/config/ConfigSocketServer.h"
 
 // IWYU pragma: no_include "net/config/stream/legacy/ConfigSocketServer.hpp"
 

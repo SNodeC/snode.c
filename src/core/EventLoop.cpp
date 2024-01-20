@@ -76,6 +76,26 @@ namespace core {
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     bool EventLoop::init(int argc, char* argv[]) {
+        struct sigaction sact {};
+        sigemptyset(&sact.sa_mask);
+        sact.sa_flags = 0;
+        sact.sa_handler = SIG_IGN;
+
+        struct sigaction oldPipeAct {};
+        sigaction(SIGPIPE, &sact, &oldPipeAct);
+
+        struct sigaction oldIntAct {};
+        sigaction(SIGINT, &sact, &oldIntAct);
+
+        struct sigaction oldTermAct {};
+        sigaction(SIGTERM, &sact, &oldTermAct);
+
+        struct sigaction oldAlarmAct {};
+        sigaction(SIGALRM, &sact, &oldAlarmAct);
+
+        struct sigaction oldHupAct {};
+        sigaction(SIGHUP, &sact, &oldHupAct);
+
         logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
 
         if (utils::Config::init(argc, argv)) {
@@ -83,6 +103,12 @@ namespace core {
 
             LOG(TRACE) << "SNode.C: Starting ... HELLO";
         }
+
+        sigaction(SIGPIPE, &oldPipeAct, nullptr);
+        sigaction(SIGINT, &oldIntAct, nullptr);
+        sigaction(SIGTERM, &oldTermAct, nullptr);
+        sigaction(SIGALRM, &oldAlarmAct, nullptr);
+        sigaction(SIGHUP, &oldHupAct, nullptr);
 
         return eventLoopState == State::INITIALIZED;
     }
@@ -136,33 +162,33 @@ namespace core {
     }
 
     int EventLoop::start(const utils::Timeval& timeOut) {
+        struct sigaction sact {};
+        sigemptyset(&sact.sa_mask);
+        sact.sa_flags = 0;
+        sact.sa_handler = SIG_IGN;
+
+        struct sigaction oldPipeAct {};
+        sigaction(SIGPIPE, &sact, &oldPipeAct);
+
+        sact.sa_handler = EventLoop::stoponsig;
+
+        struct sigaction oldIntAct {};
+        sigaction(SIGINT, &sact, &oldIntAct);
+
+        struct sigaction oldTermAct {};
+        sigaction(SIGTERM, &sact, &oldTermAct);
+
+        struct sigaction oldAlarmAct {};
+        sigaction(SIGALRM, &sact, &oldAlarmAct);
+
+        struct sigaction oldHupAct {};
+        sigaction(SIGHUP, &sact, &oldHupAct);
+
         if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
-            LOG(TRACE) << "Core::EventLoop: started";
-
-            struct sigaction sact {};
-            sigemptyset(&sact.sa_mask);
-            sact.sa_flags = 0;
-            sact.sa_handler = SIG_IGN;
-
-            struct sigaction oldPipeAct {};
-            sigaction(SIGPIPE, &sact, &oldPipeAct);
-
-            sact.sa_handler = EventLoop::stoponsig;
-
-            struct sigaction oldIntAct {};
-            sigaction(SIGINT, &sact, &oldIntAct);
-
-            struct sigaction oldTermAct {};
-            sigaction(SIGTERM, &sact, &oldTermAct);
-
-            struct sigaction oldAlarmAct {};
-            sigaction(SIGALRM, &sact, &oldAlarmAct);
-
-            struct sigaction oldHupAct {};
-            sigaction(SIGHUP, &sact, &oldHupAct);
-
             eventLoopState = State::RUNNING;
             core::TickStatus tickStatus = TickStatus::SUCCESS;
+
+            LOG(TRACE) << "Core::EventLoop: started";
 
             do {
                 tickStatus = EventLoop::instance()._tick(timeOut);
@@ -182,14 +208,15 @@ namespace core {
                     break;
             }
 
-            sigaction(SIGPIPE, &oldPipeAct, nullptr);
-            sigaction(SIGINT, &oldIntAct, nullptr);
-            sigaction(SIGTERM, &oldTermAct, nullptr);
-            sigaction(SIGALRM, &oldAlarmAct, nullptr);
-            sigaction(SIGHUP, &oldHupAct, nullptr);
         } else {
             EventLoop::instance().eventMultiplexer.clearEventQueue();
         }
+
+        sigaction(SIGPIPE, &oldPipeAct, nullptr);
+        sigaction(SIGINT, &oldIntAct, nullptr);
+        sigaction(SIGTERM, &oldTermAct, nullptr);
+        sigaction(SIGALRM, &oldAlarmAct, nullptr);
+        sigaction(SIGHUP, &oldHupAct, nullptr);
 
         free();
 

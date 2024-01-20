@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/SubProtocol.h" // IWYU pragma: export
+#include "iot/mqtt/SubProtocol.h"
 #include "log/Logger.h"
 #include "utils/system/signal.h"
 #include "web/websocket/SubProtocolContext.h"

@@ -84,7 +84,7 @@ namespace core::socket::stream {
     protected:
         void connectSocketContext(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory);
 
-        void disconnectSocketContext();
+        void disconnectCurrentSocketContext();
 
         core::socket::stream::SocketContext* socketContext = nullptr;
         core::socket::stream::SocketContext* newSocketContext = nullptr;

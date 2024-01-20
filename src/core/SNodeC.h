@@ -20,14 +20,15 @@
 #ifndef CORE_SNODEC_H
 #define CORE_SNODEC_H
 
-#include "core/State.h"      // IWYU pragma: export
-#include "core/TickStatus.h" // IWYU pragma: export
+#include "core/State.h" // IWYU pragma: export
+#include "core/TickStatus.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h"
 
 #include <climits>
+#include <cstddef>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -25,6 +25,8 @@
 
 #include "utils/PreserveErrno.h"
 
+#include <cerrno>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::epoll {

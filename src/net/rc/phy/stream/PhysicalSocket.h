@@ -20,8 +20,8 @@
 #ifndef NET_RC_PHY_STREAM_PHYSICALSOCKET_H
 #define NET_RC_PHY_STREAM_PHYSICALSOCKET_H
 
-#include "net/phy/stream/PhysicalSocket.h" // IWYU pragma: export
-#include "net/rc/phy/PhysicalSocket.h"     // IWYU pragma: export
+#include "net/phy/stream/PhysicalSocket.h"
+#include "net/rc/phy/PhysicalSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

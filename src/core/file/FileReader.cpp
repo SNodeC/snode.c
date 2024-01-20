@@ -62,42 +62,25 @@ namespace core::file {
 
     void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
         if (core::EventLoop::getEventLoopState() != core::State::STOPPING) {
-            if (!suspended) {
-                // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-                static char junk[MF_READSIZE];
+            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+            static char junk[MF_READSIZE];
 
-                const ssize_t ret = core::system::read(getFd(), junk, MF_READSIZE);
+            const ssize_t ret = core::system::read(getFd(), junk, MF_READSIZE);
 
-                if (ret > 0) {
-                    if (send(junk, static_cast<std::size_t>(ret)) >= 0) {
-                        span();
-                    } else {
-                        this->error(errno);
-                    }
+            if (ret > 0) {
+                if (send(junk, static_cast<std::size_t>(ret)) >= 0) {
+                    span();
                 } else {
-                    if (ret == 0) {
-                        this->eof();
-                    } else {
-                        this->error(errno);
-                    }
+                    this->error(errno);
                 }
+            } else if (ret == 0) {
+                this->eof();
+            } else {
+                this->error(errno);
             }
         } else {
-            this->error(0);
+            this->eof();
         }
-    }
-
-    void FileReader::suspend() {
-        suspended = true;
-    }
-
-    void FileReader::resume() {
-        suspended = false;
-        span();
-    }
-
-    bool FileReader::isSuspended() const {
-        return suspended;
     }
 
 } // namespace core::file

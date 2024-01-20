@@ -20,7 +20,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONTEXT_H
 #define CORE_SOCKET_STREAM_SOCKETCONTEXT_H
 
-#include "core/socket/SocketContext.h" // IWYU pragma: export
+#include "core/socket/SocketContext.h"
 
 namespace utils {
     class Timeval;

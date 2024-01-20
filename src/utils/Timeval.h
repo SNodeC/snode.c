@@ -22,7 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/system/time.h" // IWYU pragma: export
+#include "utils/system/time.h"
 
 struct timeval;
 

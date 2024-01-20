@@ -20,7 +20,7 @@
 #ifndef NET_CONFIG_CONFIGCONN_H
 #define NET_CONFIG_CONFIGCONN_H
 
-#include "net/config/ConfigSection.h" // IWYU pragma: export
+#include "net/config/ConfigSection.h" // IW YU pragma: export
 
 namespace net::config {
     class ConfigInstance;
@@ -32,6 +32,8 @@ namespace CLI {
 } // namespace CLI
 
 #include "utils/Timeval.h"
+
+#include <cstddef>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

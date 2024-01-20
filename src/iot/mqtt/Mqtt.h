@@ -44,6 +44,7 @@ namespace iot::mqtt {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <vector>

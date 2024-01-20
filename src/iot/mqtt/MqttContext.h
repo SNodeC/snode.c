@@ -30,7 +30,7 @@ namespace iot::mqtt {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h"
+#include <cstddef>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

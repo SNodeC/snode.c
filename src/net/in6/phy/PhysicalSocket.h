@@ -20,8 +20,8 @@
 #ifndef NET_IN6_PHY_PHYSICALSOCKET_H
 #define NET_IN6_PHY_PHYSICALSOCKET_H
 
-#include "net/in6/SocketAddress.h"  // IWYU pragma: export
-#include "net/phy/PhysicalSocket.h" // IWYU pragma: export
+#include "net/in6/SocketAddress.h" // IWYU pragma: export
+#include "net/phy/PhysicalSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -73,9 +73,9 @@ namespace core::socket::stream {
               writeBlockSize,
               terminateTimeout)
         , physicalSocket(std::move(physicalSocket))
-        , onDisconnect(onDisconnect)
-        , localAddress(localAddress)
-        , remoteAddress(remoteAddress) {
+        , onDisconnect(onDisconnect)     // cppcheck-suppress selfInitialization
+        , localAddress(localAddress)     // cppcheck-suppress selfInitialization
+        , remoteAddress(remoteAddress) { // cppcheck-suppress selfInitialization
         if (!SocketReader::enable(this->physicalSocket.getFd())) {
             delete this;
         } else if (!SocketWriter::enable(this->physicalSocket.getFd())) {
@@ -191,7 +191,7 @@ namespace core::socket::stream {
         std::size_t consumed = socketContext->onReceivedFromPeer();
 
         if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-            disconnectSocketContext();
+            disconnectCurrentSocketContext();
             setSocketContext(newSocketContext);
             newSocketContext = nullptr;
         }
@@ -246,7 +246,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::unobservedEvent() {
-        disconnectSocketContext();
+        disconnectCurrentSocketContext();
         onDisconnect();
 
         delete this;

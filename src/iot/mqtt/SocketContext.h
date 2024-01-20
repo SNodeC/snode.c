@@ -20,7 +20,7 @@
 #ifndef IOT_MQTT_SOCKETCONTEXT_H
 #define IOT_MQTT_SOCKETCONTEXT_H
 
-#include "core/socket/stream/SocketContext.h" // IWYU pragma: export
+#include "core/socket/stream/SocketContext.h"
 #include "iot/mqtt/MqttContext.h"
 
 namespace core::socket::stream {

@@ -20,8 +20,8 @@
 #ifndef NET_RC_PHY_STREAM_PHYSICALSOCKETCLIENT_H
 #define NET_RC_PHY_STREAM_PHYSICALSOCKETCLIENT_H
 
-#include "net/phy/stream/PhysicalSocketClient.h" // IWYU pragma: export
-#include "net/rc/phy/stream/PhysicalSocket.h"    // IWYU pragma: export
+#include "net/phy/stream/PhysicalSocketClient.h"
+#include "net/rc/phy/stream/PhysicalSocket.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/rc/phy/stream/PhysicalSocket.hpp"
 

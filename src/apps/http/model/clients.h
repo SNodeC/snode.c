@@ -71,9 +71,9 @@ namespace apps::http::legacy {
                 }
 
                 LOG(INFO) << "     Cookies:";
-                for (auto& [name, cookie] : response.cookies) {
+                for (const auto& [name, cookie] : response.cookies) {
                     LOG(INFO) << "       " + name + " = " + cookie.getValue();
-                    for (auto& [option, value] : cookie.getOptions()) {
+                    for (const auto& [option, value] : cookie.getOptions()) {
                         LOG(INFO) << "         " + option + " = " + value;
                     }
                 }
@@ -121,9 +121,9 @@ namespace apps::http::tls {
                 }
 
                 LOG(INFO) << "     Cookies:";
-                for (auto& [name, cookie] : response.cookies) {
+                for (const auto& [name, cookie] : response.cookies) {
                     LOG(INFO) << "       " + name + " = " + cookie.getValue();
-                    for (auto& [option, value] : cookie.getOptions()) {
+                    for (const auto& [option, value] : cookie.getOptions()) {
                         LOG(INFO) << "         " + option + " = " + value;
                     }
                 }

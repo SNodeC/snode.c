@@ -26,6 +26,7 @@
 
 #include "utils/Timeval.h"
 
+#include <cstddef>
 #include <functional>
 #include <sys/types.h>
 #include <vector>

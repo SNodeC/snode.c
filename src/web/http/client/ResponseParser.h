@@ -21,7 +21,7 @@
 #define WEB_HTTP_CLIENT_RESPONSEPARSER_H
 
 #include "web/http/CookieOptions.h"
-#include "web/http/Parser.h" // IWYU pragma: export
+#include "web/http/Parser.h"
 
 namespace core::socket::stream {
     class SocketContext;
@@ -29,9 +29,9 @@ namespace core::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
 #include <functional>
 #include <map>
-#include <stdint.h>
 #include <string>
 #include <vector>
 

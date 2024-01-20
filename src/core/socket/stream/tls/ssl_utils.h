@@ -25,7 +25,7 @@
 #include "core/socket/stream/tls/ssl_version.h"
 
 #include <map>
-#include <openssl/types.h> // IWYU pragma: export
+#include <openssl/types.h>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

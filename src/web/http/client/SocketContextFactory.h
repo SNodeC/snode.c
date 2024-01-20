@@ -21,7 +21,7 @@
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 
 #include "web/http/SocketContextFactory.h"
-#include "web/http/client/SocketContext.hpp" // IWYU pragma: export
+#include "web/http/client/SocketContext.hpp"
 
 namespace core::socket::stream {
     class SocketConnection;

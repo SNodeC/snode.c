@@ -20,8 +20,8 @@
 #ifndef NET_UN_STREAM_LEGACY_SOCKETCLIENT_H
 #define NET_UN_STREAM_LEGACY_SOCKETCLIENT_H
 
-#include "core/socket/stream/legacy/SocketConnection.h"     // IWYU pragma: export
-#include "core/socket/stream/legacy/SocketConnector.h"      // IWYU pragma: export
+#include "core/socket/stream/legacy/SocketConnection.h"
+#include "core/socket/stream/legacy/SocketConnector.h"
 #include "net/un/stream/SocketClient.h"                     // IWYU pragma: export
 #include "net/un/stream/legacy/config/ConfigSocketClient.h" // IWYU pragma: export
 

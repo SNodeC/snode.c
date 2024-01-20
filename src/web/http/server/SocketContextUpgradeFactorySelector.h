@@ -32,9 +32,10 @@
 
 namespace web::http::server {
 
-    class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory> {
+    class SocketContextUpgradeFactorySelector
+        : public web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory> {
     private:
-        using Super = web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>;
+        using Super = web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory>;
 
         using Super::load;
         using Super::select;

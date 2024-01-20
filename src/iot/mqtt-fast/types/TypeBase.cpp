@@ -18,7 +18,7 @@
 
 #include "iot/mqtt-fast/types/TypeBase.h"
 
-#include "iot/mqtt-fast/SocketContext.h"
+#include "core/socket/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

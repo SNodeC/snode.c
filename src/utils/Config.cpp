@@ -43,6 +43,23 @@
 #include <unistd.h>
 #include <vector>
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#endif
+#ifdef __has_warning
+#if __has_warning("-Wweak-vtables")
+#pragma GCC diagnostic ignored "-Wweak-vtables"
+#endif
+#if __has_warning("-Wcovered-switch-default")
+#pragma GCC diagnostic ignored "-Wcovered-switch-default"
+#endif
+#endif
+#include "utils/CLI11.hpp"
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define XSTR(s) STR(s)

@@ -20,7 +20,7 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_SOCKETCONTEXTFACTORY_H
 
-#include "core/socket/stream/SocketContextFactory.h" // IWYU pragma: export
+#include "core/socket/stream/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

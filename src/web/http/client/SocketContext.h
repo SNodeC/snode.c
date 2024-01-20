@@ -20,7 +20,7 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXT_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXT_H
 
-#include "web/http/SocketContext.h" // IWYU pragma: export
+#include "web/http/SocketContext.h"
 #include "web/http/client/ResponseParser.h"
 
 namespace web::http::client {

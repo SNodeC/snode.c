@@ -20,8 +20,8 @@
 #ifndef IOT_MQTT_FIXEDHEADER_H
 #define IOT_MQTT_FIXEDHEADER_H
 
-#include "iot/mqtt/types/UInt8.h" // IWYU pragma: export
-#include "iot/mqtt/types/UIntV.h" // IWYU pragma: export
+#include "iot/mqtt/types/UInt8.h"
+#include "iot/mqtt/types/UIntV.h"
 
 namespace iot::mqtt {
     class MqttContext; // IWYU pragma: keep
@@ -30,7 +30,7 @@ namespace iot::mqtt {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

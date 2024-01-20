@@ -20,7 +20,7 @@
 #ifndef NET_TIMER_TIMER_H
 #define NET_TIMER_TIMER_H
 
-#include "core/Timer.h" // IWYU pragma: export
+#include "core/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

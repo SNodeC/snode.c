@@ -20,7 +20,7 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTUPGRADE_H
 #define WEB_HTTP_SOCKETCONTEXTUPGRADE_H
 
-#include "core/socket/stream/SocketContext.h"     // IWYU pragma: export
+#include "core/socket/stream/SocketContext.h"
 #include "web/http/SocketContextUpgradeFactory.h" // IWYU pragma: export
 
 namespace core::socket {

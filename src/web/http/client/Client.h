@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_CLIENT_CLIENT_H
 #define WEB_HTTP_CLIENT_CLIENT_H
 
-#include "web/http/client/SocketContextFactory.h" // IWYU pragma: export
+#include "web/http/client/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

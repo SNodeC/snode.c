@@ -4,6 +4,7 @@
 #include "core/EventReceiver.h"
 #include "utils/Timeval.h"
 
+#include <cstddef>
 #include <deque>
 
 class TowerCalculator : public core::EventReceiver {

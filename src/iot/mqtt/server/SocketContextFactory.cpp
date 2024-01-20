@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/server/SocketContextFactory.h" // IWYU pragma: export
+#include "iot/mqtt/server/SocketContextFactory.h"
 
 #include "iot/mqtt/server/broker/Broker.h"
 

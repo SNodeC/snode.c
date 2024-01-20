@@ -20,7 +20,7 @@
 #ifndef IOT_MQTT_SERVER_CONTROLPACKETDESERIALIZER_H
 #define IOT_MQTT_SERVER_CONTROLPACKETDESERIALIZER_H
 
-#include "iot/mqtt/ControlPacketDeserializer.h" // IWYU pragma: export
+#include "iot/mqtt/ControlPacketDeserializer.h"
 
 namespace iot::mqtt::server {
     class Mqtt;

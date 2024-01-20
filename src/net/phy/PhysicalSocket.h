@@ -71,13 +71,7 @@ namespace net::phy {
 
         int getSockName(typename SocketAddress::SockAddr& localSockAddr, typename SocketAddress::SockLen& localSockAddrLen);
         int getPeerName(typename SocketAddress::SockAddr& remoteSockAddr, typename SocketAddress::SockLen& remoteSockAddrLen);
-        /*
-                template <typename ConfigT>
-                SocketAddress getLocalSocketAddress(ConfigT& config) const;
 
-                template <typename ConfigT>
-                SocketAddress getRemoteSocketAddress(ConfigT& config) const;
-        */
         SocketAddress getBindAddress() const;
 
     private:

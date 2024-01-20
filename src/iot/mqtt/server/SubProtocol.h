@@ -19,8 +19,8 @@
 #ifndef IOT_MQTT_SERVER_MQTTSUBPROTOCOL_H
 #define IOT_MQTT_SERVER_MQTTSUBPROTOCOL_H
 
-#include "iot/mqtt/SubProtocol.h"             // IWYU pragma: export
-#include "web/websocket/server/SubProtocol.h" // IWYU pragma: keep
+#include "iot/mqtt/SubProtocol.h" // IWYU pragma: export
+#include "web/websocket/server/SubProtocol.h"
 
 // IWYU pragma: no_include "iot/mqtt/SubProtocol.hpp"
 

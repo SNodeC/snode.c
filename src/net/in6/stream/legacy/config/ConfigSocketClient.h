@@ -21,7 +21,7 @@
 #define NET_IN6_STREAM_LEGACY_CONFIG_CONFIGSOCKETCLIENT_H
 
 #include "net/config/stream/legacy/ConfigSocketClient.h"
-#include "net/in6/stream/config/ConfigSocketClient.h" // IWYU pragma: export
+#include "net/in6/stream/config/ConfigSocketClient.h"
 
 // IWYU pragma: no_include "net/config/stream/legacy/ConfigSocketClient.hpp"
 
