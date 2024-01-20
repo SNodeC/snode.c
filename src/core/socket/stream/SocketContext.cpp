@@ -43,6 +43,10 @@ namespace core::socket::stream {
         socketConnection->sendToPeer(junk, junkLen);
     }
 
+    void SocketContext::streamToPeer(core::file::FileReader* fileReader) const {
+        socketConnection->streamToPeer(fileReader);
+    }
+
     std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) const {
         return socketConnection->readFromPeer(junk, junklen);
     }

@@ -45,6 +45,10 @@ namespace web::http::server {
         socketContext->sendToPeer(junk, junkLen);
     }
 
+    void RequestContextBase::streamToPeer(core::file::FileReader* fileReader) {
+        socketContext->streamToPeer(fileReader);
+    }
+
     void RequestContextBase::sendToPeerCompleted() {
         if (socketContextUpgrade != nullptr) {
             socketContext->switchSocketContext(socketContextUpgrade);

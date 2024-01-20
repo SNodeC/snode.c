@@ -19,6 +19,8 @@
 
 #include "core/socket/stream/SocketWriter.h"
 
+#include "core/file/FileReader.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -40,6 +42,17 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::writeEvent() {
+        VLOG(0) << "############## WriteEvent()";
+        if (fileReader != nullptr && writeBuffer.empty()) {
+            const ssize_t count = fileReader->read(16384);
+
+            VLOG(0) << "############## WriteEvent() - stream insert: " << count;
+
+            if (count == 0) {
+                fileReader = nullptr;
+            }
+        }
+
         doWrite();
     }
 
@@ -53,40 +66,44 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::doWrite() {
+        VLOG(0) << "############## doWrite()";
         if (!writeBuffer.empty()) {
             const std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
             const ssize_t retWrite = write(writeBuffer.data(), writeLen);
 
+            //            VLOG(0) << "Sending Data: " << std::string(writeBuffer.data(), writeLen);
+
             if (retWrite > 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
 
-                if (!isSuspended()) {
-                    suspend();
-                }
                 if (!writeBuffer.empty()) {
                     if (writeBuffer.capacity() > writeBuffer.size() * 2) {
                         writeBuffer.shrink_to_fit();
                     }
-                    span();
-                } else {
-                    writeBuffer.shrink_to_fit();
-
-                    if (markShutdown) {
-                        LOG(TRACE) << "SocketWriter: Do delayed shutdown";
-
-                        shutdownWrite(onShutdown);
-                    }
                 }
-            } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-                if (isSuspended()) {
-                    resume();
+
+                if (!isSuspended()) {
+                    suspend();
                 }
+                span();
+            } else if ((errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) && isSuspended()) {
+                resume();
             } else {
                 onStatus(errno);
                 disable();
             }
-        } else if (!isSuspended()) {
-            suspend();
+        } else {
+            if (!isSuspended()) {
+                suspend();
+            }
+
+            writeBuffer.shrink_to_fit();
+
+            if (markShutdown) {
+                LOG(TRACE) << "SocketWriter: Do delayed shutdown";
+
+                shutdownWrite(onShutdown);
+            }
         }
     }
 
@@ -95,6 +112,7 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::sendToPeer(const char* junk, std::size_t junkLen) {
+        VLOG(0) << "############## sendToPeer()";
         if (isEnabled()) {
             if (writeBuffer.empty()) {
                 resume();
@@ -103,6 +121,16 @@ namespace core::socket::stream {
             writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
         } else {
             LOG(TRACE) << "SocketWriter: Send to peer while not enabled";
+        }
+    }
+
+    void SocketWriter::streamToPeer(file::FileReader* fileReader) {
+        VLOG(0) << "############## streamToPeer(): " << this->fileReader;
+
+        this->fileReader = fileReader;
+
+        if (fileReader->read(16384) == 0) {
+            fileReader = nullptr;
         }
     }
 

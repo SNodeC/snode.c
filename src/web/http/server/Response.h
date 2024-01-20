@@ -52,11 +52,13 @@ namespace web::http::server {
         explicit Response(RequestContextBase* requestContext);
         Response(const Response&) = default;
 
-        ~Response() override = default;
+        ~Response() override;
 
     public:
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
+
+        void stream(core::file::FileReader* fileReader);
 
         void end();
 

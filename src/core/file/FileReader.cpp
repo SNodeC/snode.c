@@ -25,8 +25,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
+#include "log/Logger.h"
 
 #include <cerrno>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -41,7 +43,7 @@ namespace core::file {
         , EventReceiver(name) {
         Source::connect(sink);
 
-        span();
+        //        span();
     }
 
     FileReader* FileReader::open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onError) {
@@ -58,6 +60,27 @@ namespace core::file {
         onError(errno);
 
         return fileReader;
+    }
+
+    ssize_t FileReader::read(std::size_t pufferSize) {
+        std::vector<char> puffer;
+        puffer.reserve(pufferSize);
+
+        const ssize_t ret = core::system::read(getFd(), puffer.data(), puffer.capacity());
+
+        VLOG(0) << "FileReader: read count: " << ret;
+
+        if (ret > 0) {
+            if (send(puffer.data(), static_cast<std::size_t>(ret)) < 0) {
+                this->error(errno);
+            }
+        } else if (ret == 0) {
+            this->eof();
+        } else {
+            this->error(errno);
+        }
+
+        return ret;
     }
 
     void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {

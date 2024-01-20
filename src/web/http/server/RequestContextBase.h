@@ -27,6 +27,10 @@ namespace web::http {
     class SocketContext;
 } // namespace web::http
 
+namespace core::file {
+    class FileReader;
+}
+
 namespace core::socket {
     namespace stream {
         class SocketContextFactory;
@@ -50,6 +54,7 @@ namespace web::http::server {
         bool switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
+        void streamToPeer(core::file::FileReader* fileReader);
         void sendToPeerCompleted();
         void close();
 

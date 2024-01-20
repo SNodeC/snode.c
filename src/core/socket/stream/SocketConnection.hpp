@@ -133,6 +133,13 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamToPeer(core::file::FileReader* fileReader) {
+        if (!SocketWriter::shutdownInProgress && !SocketWriter::markShutdown) {
+            SocketWriter::streamToPeer(fileReader);
+        }
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
         if (!shutdownTriggered) {
             LOG(TRACE) << instanceName << ": Do syscall shutdown (RD)";

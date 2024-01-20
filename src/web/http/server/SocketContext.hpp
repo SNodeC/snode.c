@@ -53,6 +53,8 @@ namespace web::http::server {
                   request.httpVersion = httpVersion;
                   request.httpMajor = httpMajor;
                   request.httpMinor = httpMinor;
+
+                  VLOG(0) << "---------------- 1";
               },
               [&requestContexts = this->requestContexts](const std::map<std::string, std::string>& header,
                                                          const std::map<std::string, std::string>& cookies) -> void {
@@ -69,11 +71,15 @@ namespace web::http::server {
                   }
 
                   request.cookies = std::move(cookies);
+
+                  VLOG(0) << "---------------- 2";
               },
               [&requestContexts = this->requestContexts](std::vector<uint8_t>& content) -> void {
                   Request& request = requestContexts.back()->request;
 
                   request.body = std::move(content);
+
+                  VLOG(0) << "---------------- 3";
               },
               [this]() -> void {
                   RequestContext* requestContext = requestContexts.back();
@@ -81,6 +87,8 @@ namespace web::http::server {
                   requestContext->ready = true;
 
                   requestParsed();
+
+                  VLOG(0) << "---------------- 4";
               },
               [this](int status, const std::string& reason) -> void {
                   RequestContext* requestContext = requestContexts.back();
@@ -90,6 +98,8 @@ namespace web::http::server {
                   requestContext->ready = true;
 
                   requestParsed();
+
+                  VLOG(0) << "---------------- 5";
               }) {
     }
 
@@ -97,6 +107,9 @@ namespace web::http::server {
     SocketContext<Request, Response>::~SocketContext() {
         for (RequestContext* requestContext : requestContexts) {
             delete requestContext;
+        }
+        if (currentRequestContext != nullptr) {
+            delete currentRequestContext;
         }
     }
 
@@ -107,7 +120,9 @@ namespace web::http::server {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::requestParsed() {
+        VLOG(0) << "+++++++++++++++++++++ 1";
         if (!requestInProgress) {
+            VLOG(0) << "+++++++++++++++++++++ 2";
             currentRequestContext = requestContexts.front();
             requestContexts.pop_front();
 
@@ -151,6 +166,12 @@ namespace web::http::server {
         Response& response = currentRequestContext->response;
         Request& request = currentRequestContext->request;
 
+        requestInProgress = false;
+
+        currentRequestContext = nullptr;
+
+        VLOG(0) << "#############################";
+
         if ((request.httpMajor == 0 && request.httpMinor == 9) ||
             (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
             (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close) ||
@@ -161,8 +182,6 @@ namespace web::http::server {
                 requestParsed();
             }
         }
-
-        requestInProgress = false;
     }
 
     template <typename Request, typename Response>

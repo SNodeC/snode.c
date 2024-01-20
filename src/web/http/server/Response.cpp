@@ -29,6 +29,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/system/time.h"
 
 #include <cerrno>
@@ -43,6 +44,12 @@ namespace web::http::server {
 
     Response::Response(RequestContextBase* requestContext)
         : requestContext(requestContext) {
+    }
+
+    Response::~Response() {
+        if (fileReader != nullptr) {
+            delete fileReader;
+        }
     }
 
     void Response::sendResponse(const char* junk, std::size_t junkLen) {
@@ -83,6 +90,13 @@ namespace web::http::server {
         set("Content-Length", std::to_string(junk.size()), false);
 
         send(junk.data(), junk.size());
+    }
+
+    void Response::stream(core::file::FileReader* fileReader) {
+        requestContext->streamToPeer(fileReader);
+
+        // Set Header correctly
+        sendResponse("");
     }
 
     void Response::end() {
@@ -195,6 +209,8 @@ namespace web::http::server {
                         onError(err);
                     }
                 });
+
+                stream(fileReader);
             } else {
                 errno = EEXIST;
                 onError(errno);
@@ -206,7 +222,9 @@ namespace web::http::server {
     }
 
     void Response::sendToPeerCompleted() {
+        VLOG(0) << "&&&&&&&&&&&&&&&&&&&&& 1: " << contentSent << " - " << contentLength;
         if (contentSent == contentLength) {
+            VLOG(0) << "&&&&&&&&&&&&&&&&&&&&& 2";
             requestContext->sendToPeerCompleted();
         } else if (contentSent > contentLength) {
             requestContext->close();
@@ -250,6 +268,7 @@ namespace web::http::server {
     }
 
     void Response::eof() {
+        VLOG(0) << "Response: FileReader EOF";
         delete fileReader;
         fileReader = nullptr;
 
@@ -257,6 +276,7 @@ namespace web::http::server {
     }
 
     void Response::error(int errnum) {
+        VLOG(0) << "Response: FileReader ERROR";
         errno = errnum;
 
         requestContext->close();

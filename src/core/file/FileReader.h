@@ -30,8 +30,10 @@ namespace utils {
     class Timeval;
 } // namespace utils
 
+#include <cstddef>
 #include <functional>
 #include <string>
+#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -50,6 +52,8 @@ namespace core::file {
 
     public:
         static FileReader* open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onError);
+
+        ssize_t read(std::size_t pufferSize);
 
         void onEvent(const utils::Timeval& currentTime) override;
     };

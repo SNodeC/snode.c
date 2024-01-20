@@ -22,6 +22,10 @@
 
 #include "core/State.h"
 
+namespace core::file {
+    class FileReader;
+}
+
 namespace core::socket {
     class SocketAddress;
 } // namespace core::socket
@@ -66,6 +70,8 @@ namespace core::socket::stream {
         void sendToPeer(const std::string& data);
         void sentToPeer(const std::vector<uint8_t>& data);
         void sentToPeer(const std::vector<char>& data);
+
+        virtual void streamToPeer(core::file::FileReader* fileReader) = 0;
 
         virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
@@ -134,6 +140,8 @@ namespace core::socket::stream {
 
         using Super::sendToPeer;
         void sendToPeer(const char* junk, std::size_t junkLen) final;
+
+        void streamToPeer(core::file::FileReader* fileReader) final;
 
         void shutdownRead() final;
         void shutdownWrite(bool forceClose) final;
