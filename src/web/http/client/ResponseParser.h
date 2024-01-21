@@ -20,7 +20,7 @@
 #ifndef WEB_HTTP_CLIENT_RESPONSEPARSER_H
 #define WEB_HTTP_CLIENT_RESPONSEPARSER_H
 
-#include "web/http/CookieOptions.h"
+#include "web/http/CookieOptions.h" // IWYU pragma: export
 #include "web/http/Parser.h"
 
 namespace core::socket::stream {

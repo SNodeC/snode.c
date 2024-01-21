@@ -17,22 +17,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 #include "apps/http/model/servers.h"
-#include "log/Logger.h"
 #include "utils/Config.h"
 
-#include <string>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #if (STREAM_TYPE == TLS) // tls
-
-#include "core/socket/stream/tls/ssl_version.h"
 
 #include <map>
 #include <variant>
 
 #endif // (STREAM_TYPE == TLS)
+
+#include "log/Logger.h"
+
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

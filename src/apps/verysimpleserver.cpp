@@ -17,13 +17,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "express/tls/in/WebApp.h"
-#include "log/Logger.h"
 #include "utils/Config.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <string>
 

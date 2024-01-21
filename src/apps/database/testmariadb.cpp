@@ -22,11 +22,11 @@
 #include "core/timer/Timer.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/MariaDBCommandSequence.h"
-#include "log/Logger.h"
+#include "utils/Config.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Config.h"
+#include "log/Logger.h"
 
 #include <cstdlib>
 #include <functional>
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 
     core::SNodeC::init(argc, argv);
 
-    database::mariadb::MariaDBConnectionDetails details = {
+    const database::mariadb::MariaDBConnectionDetails details = {
         .hostname = utils::Config::get_string_option_value("--db-host"),
         .username = "snodec",
         .password = "pentium5",

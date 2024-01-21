@@ -17,14 +17,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 #include "core/SNodeC.h"
-#include "log/Logger.h"
 #include "web/http/client/Request.h"
 #include "web/http/client/Response.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/tls/in/Client.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <functional>
 #include <iostream>

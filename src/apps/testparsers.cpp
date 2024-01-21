@@ -17,12 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "web/http/client/ResponseParser.h"
+#include "web/http/server/RequestParser.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-#include "web/http/CookieOptions.h"
-#include "web/http/client/ResponseParser.h"
-#include "web/http/server/RequestParser.h"
 
 #include <cstdint>
 #include <functional>

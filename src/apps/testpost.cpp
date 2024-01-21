@@ -17,10 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 #include "express/legacy/in/WebApp.h"
 #include "express/tls/in/WebApp.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "log/Logger.h"
 
 #include <string>
@@ -109,9 +110,10 @@ int main(int argc, char* argv[]) {
     const TLSWebApp tlsApp;
     tlsApp.getConfig().setReuseAddress();
 
-    tlsApp.getConfig().setCertChain("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
-    tlsApp.getConfig().setCertKey("/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
-    tlsApp.getConfig().setCertKeyPassword("snode.c");
+    tlsApp.getConfig()
+        .setCertChain("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem")
+        .setCertKey("/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem")
+        .setCertKeyPassword("snode.c");
 
     tlsApp.use(legacyApp);
 

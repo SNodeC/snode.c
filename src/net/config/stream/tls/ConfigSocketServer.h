@@ -20,8 +20,8 @@
 #ifndef NET_CONFIG_STREAM_TLS_CONFIGSOCKETSERVER_H
 #define NET_CONFIG_STREAM_TLS_CONFIGSOCKETSERVER_H
 
-#include "net/config/ConfigInstance.h"
-#include "net/config/ConfigTlsServer.h"
+#include "net/config/ConfigInstance.h"  // IWYU pragma: export
+#include "net/config/ConfigTlsServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

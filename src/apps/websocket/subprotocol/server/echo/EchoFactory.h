@@ -20,7 +20,6 @@
 #ifndef APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 #define APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
-#include "apps/websocket/subprotocol/client/echo/EchoFactory.h"
 #include "web/websocket/SubProtocolFactory.h"
 
 namespace web::websocket {
