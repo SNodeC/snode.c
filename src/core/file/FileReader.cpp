@@ -49,7 +49,7 @@ namespace core::file {
         span();
     }
 
-    FileReader* FileReader::open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onError) {
+    FileReader* FileReader::open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onStatus) {
         errno = 0;
 
         FileReader* fileReader = nullptr;
@@ -60,7 +60,7 @@ namespace core::file {
             fileReader = new FileReader(fd, sink, "FileReader: " + path);
         }
 
-        onError(errno);
+        onStatus(errno);
 
         return fileReader;
     }

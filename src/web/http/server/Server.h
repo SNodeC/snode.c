@@ -33,13 +33,13 @@
 namespace web::http::server {
 
     template <template <typename SocketContextFactoryT, typename... Args> typename SocketServerT, typename RequestT, typename ResponseT>
-    class Server : public SocketServerT<web::http::server::SocketContextFactory<RequestT, ResponseT>> {
+    class Server : public SocketServerT<web::http::server::SocketContextFactory<RequestT, ResponseT>> { // this makes it an HTTP server
     public:
         using Request = RequestT;
         using Response = ResponseT;
 
     private:
-        using Super = SocketServerT<web::http::server::SocketContextFactory<Request, Response>>; // this makes it an HTTP server
+        using Super = SocketServerT<web::http::server::SocketContextFactory<Request, Response>>;
 
     public:
         using SocketConnection = typename Super::SocketConnection;
