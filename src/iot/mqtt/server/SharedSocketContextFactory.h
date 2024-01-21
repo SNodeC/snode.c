@@ -20,7 +20,7 @@
 #ifndef IOT_MQTT_SERVER_SHAREDSOCKETCONTEXTFACTORY_H
 #define IOT_MQTT_SERVER_SHAREDSOCKETCONTEXTFACTORY_H
 
-#include "core/socket/stream/SocketContextFactory.h"
+#include "core/socket/stream/SocketContextFactory.h" // IWYU pragma: export
 
 namespace core::socket::stream {
     class SocketConnection;
