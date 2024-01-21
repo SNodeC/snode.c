@@ -16,12 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "log/Logger.h"
 #include "web/http/ConnectionState.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/SocketContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <string>
 
@@ -53,8 +54,6 @@ namespace web::http::server {
                   request.httpVersion = httpVersion;
                   request.httpMajor = httpMajor;
                   request.httpMinor = httpMinor;
-
-                  VLOG(0) << "---------------- 1";
               },
               [&requestContexts = this->requestContexts](const std::map<std::string, std::string>& header,
                                                          const std::map<std::string, std::string>& cookies) -> void {
@@ -71,15 +70,11 @@ namespace web::http::server {
                   }
 
                   request.cookies = std::move(cookies);
-
-                  VLOG(0) << "---------------- 2";
               },
               [&requestContexts = this->requestContexts](std::vector<uint8_t>& content) -> void {
                   Request& request = requestContexts.back()->request;
 
                   request.body = std::move(content);
-
-                  VLOG(0) << "---------------- 3";
               },
               [this]() -> void {
                   RequestContext* requestContext = requestContexts.back();
@@ -87,8 +82,6 @@ namespace web::http::server {
                   requestContext->ready = true;
 
                   requestParsed();
-
-                  VLOG(0) << "---------------- 4";
               },
               [this](int status, const std::string& reason) -> void {
                   RequestContext* requestContext = requestContexts.back();
@@ -98,8 +91,6 @@ namespace web::http::server {
                   requestContext->ready = true;
 
                   requestParsed();
-
-                  VLOG(0) << "---------------- 5";
               }) {
     }
 
@@ -120,38 +111,39 @@ namespace web::http::server {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::requestParsed() {
-        VLOG(0) << "+++++++++++++++++++++ 1";
-        if (!requestInProgress) {
-            VLOG(0) << "+++++++++++++++++++++ 2";
+        if (!currentRequestContext) {
             currentRequestContext = requestContexts.front();
-            requestContexts.pop_front();
 
-            requestInProgress = true;
+            if (currentRequestContext != nullptr && currentRequestContext->ready) {
+                requestContexts.pop_front();
 
-            Response& response = currentRequestContext->response;
+                Response& response = currentRequestContext->response;
 
-            if (currentRequestContext->status == 0) {
-                Request& request = currentRequestContext->request;
+                if (currentRequestContext->status == 0) {
+                    Request& request = currentRequestContext->request;
 
-                if ((request.connectionState == ConnectionState::Close) || (request.httpMajor == 0 && request.httpMinor == 9) ||
-                    (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
-                    (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close)) {
-                    response.set("Connection", "close");
+                    bool keepAlive =
+                        (request.connectionState == ConnectionState::Close) || (request.httpMajor == 0 && request.httpMinor == 9) ||
+                        (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
+                        (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close);
+
+                    if (keepAlive) {
+                        response.set("Connection", "close");
+                    } else {
+                        response.set("Connection", "keep-alive");
+                    }
+
+                    onRequestReady(request, response);
                 } else {
-                    response.set("Connection", "keep-alive");
+                    int status = currentRequestContext->status;
+                    std::string& reason = currentRequestContext->reason;
+
+                    response.status(status).send(reason);
+                    delete currentRequestContext;
+                    currentRequestContext = nullptr;
+
+                    shutdownWrite(true);
                 }
-
-                onRequestReady(request, response);
-            } else {
-                int status = currentRequestContext->status;
-                std::string& reason = currentRequestContext->reason;
-
-                response.status(status).send(reason);
-                requestInProgress = false;
-                delete currentRequestContext;
-                currentRequestContext = nullptr;
-
-                shutdownWrite(true);
             }
         }
     }
@@ -166,36 +158,34 @@ namespace web::http::server {
         Response& response = currentRequestContext->response;
         Request& request = currentRequestContext->request;
 
-        requestInProgress = false;
-
         currentRequestContext = nullptr;
 
-        VLOG(0) << "#############################";
+        bool keepAlive = (request.httpMajor == 0 && request.httpMinor == 9) ||
+                         (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
+                         (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close) ||
+                         response.connectionState == ConnectionState::Close;
 
-        if ((request.httpMajor == 0 && request.httpMinor == 9) ||
-            (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
-            (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close) ||
-            response.connectionState == ConnectionState::Close) {
+        if (keepAlive) {
             shutdownWrite();
-        } else {
-            if (!requestContexts.empty() && requestContexts.front()->ready) {
-                requestParsed();
-            }
+        } else if (!requestContexts.empty() && requestContexts.front()->ready) {
+            requestParsed();
         }
     }
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onConnected() {
-        LOG(INFO) << "HTTP connected";
+        LOG(INFO) << getSocketConnection()->getInstanceName() << ": HTTP onConnected";
     }
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
-        LOG(INFO) << "HTTP disconnected";
+        LOG(INFO) << getSocketConnection()->getInstanceName() << ": HTTP onDisconnected";
     }
 
     template <typename Request, typename Response>
-    bool SocketContext<Request, Response>::onSignal([[maybe_unused]] int signum) {
+    bool SocketContext<Request, Response>::onSignal(int signum) {
+        LOG(INFO) << getSocketConnection()->getInstanceName() << ": HTTP onSignal: " << signum;
+
         return true;
     }
 

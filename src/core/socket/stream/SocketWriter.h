@@ -22,8 +22,8 @@
 
 #include "core/eventreceiver/WriteEventReceiver.h"
 
-namespace core::file {
-    class FileReader;
+namespace core::pipe {
+    class Source;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -67,7 +67,7 @@ namespace core::socket::stream {
         void setBlockSize(std::size_t writeBlockSize);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
-        void streamToPeer(core::file::FileReader* fileReader);
+        void streamToPeer(core::pipe::Source* source);
 
         void shutdownWrite(const std::function<void()>& onShutdown);
 
@@ -79,16 +79,15 @@ namespace core::socket::stream {
     protected:
         std::function<void()> onShutdown;
 
-        std::vector<char> writeBuffer;
+        std::vector<char> writePuffer;
 
         bool shutdownInProgress = false;
 
     private:
-        core::file::FileReader* fileReader = nullptr;
+        core::pipe::Source* source = nullptr;
 
         std::size_t blockSize = 0;
 
-    public:
         utils::Timeval terminateTimeout;
     };
 

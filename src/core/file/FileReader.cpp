@@ -25,7 +25,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
-#include "log/Logger.h"
 
 #include <cerrno>
 #include <vector>
@@ -34,7 +33,7 @@
 
 // socketConnection->getEventLoopState() == core::State::RUNNING
 
-constexpr int MF_READSIZE = 16384;
+// constexpr int MF_READSIZE = 16384;
 
 namespace core::file {
 
@@ -42,8 +41,15 @@ namespace core::file {
         : core::Descriptor(fd)
         , EventReceiver(name) {
         Source::connect(sink);
+    }
 
-        //        span();
+    FileReader::FileReader(int fd, core::pipe::Sink& sink, const std::string& name, std::size_t pufferSize)
+        : core::Descriptor(fd)
+        , EventReceiver(name)
+        , pufferSize(pufferSize) {
+        Source::connect(sink);
+
+        span();
     }
 
     FileReader* FileReader::open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onError) {
@@ -68,8 +74,6 @@ namespace core::file {
 
         const ssize_t ret = core::system::read(getFd(), puffer.data(), puffer.capacity());
 
-        VLOG(0) << "FileReader: read count: " << ret;
-
         if (ret > 0) {
             if (send(puffer.data(), static_cast<std::size_t>(ret)) < 0) {
                 this->error(errno);
@@ -85,24 +89,7 @@ namespace core::file {
 
     void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
         if (core::EventLoop::getEventLoopState() != core::State::STOPPING) {
-            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-            static char junk[MF_READSIZE];
-
-            const ssize_t ret = core::system::read(getFd(), junk, MF_READSIZE);
-
-            if (ret > 0) {
-                if (send(junk, static_cast<std::size_t>(ret)) >= 0) {
-                    span();
-                } else {
-                    this->error(errno);
-                }
-            } else if (ret == 0) {
-                this->eof();
-            } else {
-                this->error(errno);
-            }
-        } else {
-            this->eof();
+            read(pufferSize);
         }
     }
 

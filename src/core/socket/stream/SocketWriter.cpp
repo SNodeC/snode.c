@@ -19,7 +19,7 @@
 
 #include "core/socket/stream/SocketWriter.h"
 
-#include "core/file/FileReader.h"
+#include "core/pipe/Source.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,19 +37,16 @@ namespace core::socket::stream {
                                const utils::Timeval& terminateTimeout)
         : core::eventreceiver::WriteEventReceiver("SocketWriter", timeout)
         , onStatus(onStatus)
+        , blockSize(blockSize)
         , terminateTimeout(terminateTimeout) {
-        setBlockSize(blockSize);
     }
 
     void SocketWriter::writeEvent() {
-        VLOG(0) << "############## WriteEvent()";
-        if (fileReader != nullptr && writeBuffer.empty()) {
-            const ssize_t count = fileReader->read(16384);
-
-            VLOG(0) << "############## WriteEvent() - stream insert: " << count;
+        if (source != nullptr && writePuffer.empty()) {
+            const ssize_t count = source->read(blockSize * 5);
 
             if (count == 0) {
-                fileReader = nullptr;
+                source = nullptr;
             }
         }
 
@@ -61,25 +58,19 @@ namespace core::socket::stream {
             shutdownWrite([this]() -> void {
                 SocketWriter::disable();
             });
-        } else {
         }
     }
 
     void SocketWriter::doWrite() {
-        VLOG(0) << "############## doWrite()";
-        if (!writeBuffer.empty()) {
-            const std::size_t writeLen = (writeBuffer.size() < blockSize) ? writeBuffer.size() : blockSize;
-            const ssize_t retWrite = write(writeBuffer.data(), writeLen);
-
-            //            VLOG(0) << "Sending Data: " << std::string(writeBuffer.data(), writeLen);
+        if (!writePuffer.empty()) {
+            const std::size_t writeLen = (writePuffer.size() < blockSize) ? writePuffer.size() : blockSize;
+            const ssize_t retWrite = write(writePuffer.data(), writeLen);
 
             if (retWrite > 0) {
-                writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
+                writePuffer.erase(writePuffer.begin(), writePuffer.begin() + retWrite);
 
-                if (!writeBuffer.empty()) {
-                    if (writeBuffer.capacity() > writeBuffer.size() * 2) {
-                        writeBuffer.shrink_to_fit();
-                    }
+                if (writePuffer.capacity() > writePuffer.size() * 2) {
+                    writePuffer.shrink_to_fit();
                 }
 
                 if (!isSuspended()) {
@@ -97,8 +88,6 @@ namespace core::socket::stream {
                 suspend();
             }
 
-            writeBuffer.shrink_to_fit();
-
             if (markShutdown) {
                 LOG(TRACE) << "SocketWriter: Do delayed shutdown";
 
@@ -112,25 +101,22 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::sendToPeer(const char* junk, std::size_t junkLen) {
-        VLOG(0) << "############## sendToPeer()";
         if (isEnabled()) {
-            if (writeBuffer.empty()) {
+            if (writePuffer.empty()) {
                 resume();
             }
 
-            writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
+            writePuffer.insert(writePuffer.end(), junk, junk + junkLen);
         } else {
             LOG(TRACE) << "SocketWriter: Send to peer while not enabled";
         }
     }
 
-    void SocketWriter::streamToPeer(file::FileReader* fileReader) {
-        VLOG(0) << "############## streamToPeer(): " << this->fileReader;
+    void SocketWriter::streamToPeer(core::pipe::Source* source) {
+        this->source = source;
 
-        this->fileReader = fileReader;
-
-        if (fileReader->read(16384) == 0) {
-            fileReader = nullptr;
+        if (source->read(blockSize * 5) == 0) {
+            this->source = nullptr;
         }
     }
 
@@ -139,7 +125,7 @@ namespace core::socket::stream {
             SocketWriter::setTimeout(SocketWriter::terminateTimeout);
 
             SocketWriter::onShutdown = onShutdown;
-            if (SocketWriter::writeBuffer.empty()) {
+            if (SocketWriter::writePuffer.empty()) {
                 doWriteShutdown(onShutdown);
                 shutdownInProgress = true;
             } else {

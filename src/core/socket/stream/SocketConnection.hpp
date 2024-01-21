@@ -133,9 +133,9 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamToPeer(core::file::FileReader* fileReader) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamToPeer(core::pipe::Source* source) {
         if (!SocketWriter::shutdownInProgress && !SocketWriter::markShutdown) {
-            SocketWriter::streamToPeer(fileReader);
+            SocketWriter::streamToPeer(source);
         }
     }
 

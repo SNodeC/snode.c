@@ -29,7 +29,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/system/time.h"
 
 #include <cerrno>
@@ -47,9 +46,7 @@ namespace web::http::server {
     }
 
     Response::~Response() {
-        if (fileReader != nullptr) {
-            delete fileReader;
-        }
+        delete source;
     }
 
     void Response::sendResponse(const char* junk, std::size_t junkLen) {
@@ -92,11 +89,8 @@ namespace web::http::server {
         send(junk.data(), junk.size());
     }
 
-    void Response::stream(core::file::FileReader* fileReader) {
-        requestContext->streamToPeer(fileReader);
-
-        // Set Header correctly
-        sendResponse("");
+    void Response::stream(core::pipe::Source* source) {
+        requestContext->streamToPeer(source);
     }
 
     void Response::end() {
@@ -200,7 +194,7 @@ namespace web::http::server {
             absolutFileName = std::filesystem::canonical(absolutFileName);
 
             if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                fileReader = core::file::FileReader::open(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
+                source = core::file::FileReader::open(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
                     if (err == 0) {
                         headers.insert({{"Content-Type", web::http::MimeTypes::contentType(absolutFileName)},
                                         {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
@@ -210,7 +204,7 @@ namespace web::http::server {
                     }
                 });
 
-                stream(fileReader);
+                stream(source);
             } else {
                 errno = EEXIST;
                 onError(errno);
@@ -222,9 +216,7 @@ namespace web::http::server {
     }
 
     void Response::sendToPeerCompleted() {
-        VLOG(0) << "&&&&&&&&&&&&&&&&&&&&& 1: " << contentSent << " - " << contentLength;
         if (contentSent == contentLength) {
-            VLOG(0) << "&&&&&&&&&&&&&&&&&&&&& 2";
             requestContext->sendToPeerCompleted();
         } else if (contentSent > contentLength) {
             requestContext->close();
@@ -268,21 +260,19 @@ namespace web::http::server {
     }
 
     void Response::eof() {
-        VLOG(0) << "Response: FileReader EOF";
-        delete fileReader;
-        fileReader = nullptr;
+        delete source;
+        source = nullptr;
 
         sendToPeerCompleted();
     }
 
     void Response::error(int errnum) {
-        VLOG(0) << "Response: FileReader ERROR";
         errno = errnum;
 
         requestContext->close();
 
-        delete fileReader;
-        fileReader = nullptr;
+        delete source;
+        source = nullptr;
 
         sendToPeerCompleted();
     }

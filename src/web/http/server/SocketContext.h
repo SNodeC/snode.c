@@ -90,7 +90,6 @@ namespace web::http::server {
         std::list<RequestContext*> requestContexts;
         RequestContext* currentRequestContext = nullptr;
 
-        bool requestInProgress = false;
         bool connectionTerminated = false;
 
         friend class RequestContextBase;

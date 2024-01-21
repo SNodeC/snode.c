@@ -23,13 +23,14 @@
 #include "web/http/ConnectionState.h"
 #include "web/http/CookieOptions.h"
 
-namespace core::file {
-    class FileReader;
-}
-
-namespace core::socket::stream {
-    class SocketContext;
-}
+namespace core {
+    namespace pipe {
+        class Source;
+    }
+    namespace socket::stream {
+        class SocketContext;
+    }
+} // namespace core
 
 namespace web::http::server {
     class Request;
@@ -58,7 +59,7 @@ namespace web::http::server {
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
 
-        void stream(core::file::FileReader* fileReader);
+        void stream(core::pipe::Source* fileReader);
 
         void end();
 
@@ -87,7 +88,7 @@ namespace web::http::server {
 
     private:
         void sendToPeerCompleted();
-        core::file::FileReader* fileReader = nullptr;
+        core::pipe::Source* source = nullptr;
         ConnectionState connectionState = ConnectionState::Default;
 
         core::socket::stream::SocketContext* socketContextUpgrade = nullptr;
