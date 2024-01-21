@@ -1,7 +1,6 @@
 /*
- * SNode.C - a slim toolkit for network communication
- * Copyright (C) Volker Christian <me@vchrist.at>
- *               2020, 2021, 2022, 2023, 2024
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,8 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_STATE_H
-#define CORE_STATE_H
+#include "core/State.h"
+
+#include "core/EventLoop.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,10 +26,8 @@
 
 namespace core {
 
-    enum class State { LOADED, INITIALIZED, RUNNING, STOPPING };
-
-    State eventLoopState();
+    State eventLoopState() {
+        return EventLoop::getEventLoopState();
+    }
 
 } // namespace core
-
-#endif // CORE_STATE_H

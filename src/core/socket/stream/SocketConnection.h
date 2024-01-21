@@ -20,8 +20,6 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
-#include "core/State.h"
-
 namespace core {
     namespace pipe {
         class Source;
@@ -147,8 +145,6 @@ namespace core::socket::stream {
         void shutdownWrite(bool forceClose) final;
 
         void close() final;
-
-        core::State getEventLoopState();
 
     protected:
         void doWriteShutdown(const std::function<void()>& onShutdown) override;

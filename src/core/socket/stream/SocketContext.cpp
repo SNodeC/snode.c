@@ -43,7 +43,7 @@ namespace core::socket::stream {
         socketConnection->sendToPeer(junk, junkLen);
     }
 
-    void SocketContext::streamToPeer(pipe::Source *source) const {
+    void SocketContext::streamToPeer(pipe::Source* source) const {
         socketConnection->streamToPeer(source);
     }
 

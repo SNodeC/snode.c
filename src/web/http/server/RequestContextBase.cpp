@@ -45,7 +45,7 @@ namespace web::http::server {
         socketContext->sendToPeer(junk, junkLen);
     }
 
-    void RequestContextBase::streamToPeer(core::pipe::Source *source) {
+    void RequestContextBase::streamToPeer(core::pipe::Source* source) {
         socketContext->streamToPeer(source);
     }
 

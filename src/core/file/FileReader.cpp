@@ -19,7 +19,6 @@
 
 #include "core/file/FileReader.h"
 
-#include "core/EventLoop.h"
 #include "core/State.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,8 +29,6 @@
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-// socketConnection->getEventLoopState() == core::State::RUNNING
 
 // constexpr int MF_READSIZE = 16384;
 
@@ -88,7 +85,7 @@ namespace core::file {
     }
 
     void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
-        if (core::EventLoop::getEventLoopState() != core::State::STOPPING) {
+        if (core::eventLoopState() != core::State::STOPPING) {
             read(pufferSize);
         }
     }
