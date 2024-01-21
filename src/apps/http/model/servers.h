@@ -29,7 +29,6 @@
 
 #include WEBAPP_INCLUDE // IWYU pragma: export
 
-#include "express/Router.h"
 #include "express/middleware/StaticMiddleware.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

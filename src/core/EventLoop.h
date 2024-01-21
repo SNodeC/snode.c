@@ -20,7 +20,7 @@
 #ifndef CORE_EVENTLOOP_H
 #define CORE_EVENTLOOP_H
 
-#include "core/State.h"
+#include "core/State.h" // IWYU pragma: export
 #include "core/TickStatus.h"
 
 namespace core {

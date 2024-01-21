@@ -20,8 +20,8 @@
 #ifndef NET_IN_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 #define NET_IN_STREAM_TLS_CONFIG_CONFIGSOCKETCLIENT_H
 
-#include "net/config/stream/tls/ConfigSocketClient.h"
-#include "net/in/stream/config/ConfigSocketClient.h"
+#include "net/config/stream/tls/ConfigSocketClient.h" // IWYU pragma: export
+#include "net/in/stream/config/ConfigSocketClient.h"  // IWYU pragma: export
 
 // IWYU pragma: no_include "net/config/stream/tls/ConfigSocketClient.hpp"
 

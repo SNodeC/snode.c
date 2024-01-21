@@ -1,7 +1,6 @@
 /*
- * SNode.C - a slim toolkit for network communication
- * Copyright (C) Volker Christian <me@vchrist.at>
- *               2020, 2021, 2022, 2023, 2024
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,21 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_STREAM_TLS_SSL_VERSION_H
-#define CORE_SOCKET_STREAM_TLS_SSL_VERSION_H
+#include "core/State.h"
+
+#include "core/EventLoop.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/opensslv.h>
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-#include <openssl/types.h>
-using ssl_option_t = uint64_t;
-#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
-#include <openssl/ossl_typ.h>
-using ssl_option_t = uint32_t;
-#endif
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // CORE_SOCKET_STREAM_TLS_SSL_VERSION_H
+namespace core {
+
+    State eventLoopState() {
+        return EventLoop::getEventLoopState();
+    }
+
+} // namespace core

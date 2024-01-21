@@ -21,7 +21,6 @@
 
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
-#include "core/State.h"
 #include "core/Timer.h"
 #include "core/TimerEventPublisher.h"
 
@@ -61,7 +60,7 @@ namespace core {
     }
 
     void TimerEventReceiver::enable() {
-        if (core::EventLoop::getEventLoopState() != core::State::STOPPING) {
+        if (core::eventLoopState() != core::State::STOPPING) {
             timerEventPublisher.insert(this);
         } else {
             LOG(TRACE) << "TimerEventReceiver - Enable after signal: Not enabled";

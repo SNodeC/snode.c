@@ -26,6 +26,10 @@ namespace utils {
     class Timeval;
 } // namespace utils
 
+namespace core::pipe {
+    class Source;
+}
+
 namespace core::socket::stream {
     class SocketConnection;
 
@@ -49,6 +53,8 @@ namespace core::socket::stream {
         using Super::sendToPeer;
 
         void sendToPeer(const char* junk, std::size_t junkLen) const final;
+        void streamToPeer(core::pipe::Source* source) const final;
+
         std::size_t readFromPeer(char* junk, std::size_t junklen) const final;
 
         void setTimeout(const utils::Timeval& timeout) final;

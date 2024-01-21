@@ -19,7 +19,6 @@
 
 #include "core/file/FileReader.h"
 
-#include "core/EventLoop.h"
 #include "core/State.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -27,18 +26,24 @@
 #include "core/system/unistd.h"
 
 #include <cerrno>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-// socketConnection->getEventLoopState() == core::State::RUNNING
-
-constexpr int MF_READSIZE = 16384;
+// constexpr int MF_READSIZE = 16384;
 
 namespace core::file {
 
     FileReader::FileReader(int fd, core::pipe::Sink& sink, const std::string& name)
         : core::Descriptor(fd)
         , EventReceiver(name) {
+        Source::connect(sink);
+    }
+
+    FileReader::FileReader(int fd, core::pipe::Sink& sink, const std::string& name, std::size_t pufferSize)
+        : core::Descriptor(fd)
+        , EventReceiver(name)
+        , pufferSize(pufferSize) {
         Source::connect(sink);
 
         span();
@@ -60,26 +65,28 @@ namespace core::file {
         return fileReader;
     }
 
-    void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
-        if (core::EventLoop::getEventLoopState() != core::State::STOPPING) {
-            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-            static char junk[MF_READSIZE];
+    ssize_t FileReader::read(std::size_t pufferSize) {
+        std::vector<char> puffer;
+        puffer.reserve(pufferSize);
 
-            const ssize_t ret = core::system::read(getFd(), junk, MF_READSIZE);
+        const ssize_t ret = core::system::read(getFd(), puffer.data(), puffer.capacity());
 
-            if (ret > 0) {
-                if (send(junk, static_cast<std::size_t>(ret)) >= 0) {
-                    span();
-                } else {
-                    this->error(errno);
-                }
-            } else if (ret == 0) {
-                this->eof();
-            } else {
+        if (ret > 0) {
+            if (send(puffer.data(), static_cast<std::size_t>(ret)) < 0) {
                 this->error(errno);
             }
-        } else {
+        } else if (ret == 0) {
             this->eof();
+        } else {
+            this->error(errno);
+        }
+
+        return ret;
+    }
+
+    void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
+        if (core::eventLoopState() != core::State::STOPPING) {
+            read(pufferSize);
         }
     }
 

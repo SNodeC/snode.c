@@ -22,7 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/EventLoop.h"
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 #include "utils/system/signal.h"
@@ -133,6 +132,13 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamToPeer(core::pipe::Source* source) {
+        if (!SocketWriter::shutdownInProgress && !SocketWriter::markShutdown) {
+            SocketWriter::streamToPeer(source);
+        }
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
         if (!shutdownTriggered) {
             LOG(TRACE) << instanceName << ": Do syscall shutdown (RD)";
@@ -166,11 +172,6 @@ namespace core::socket::stream {
         if (SocketReader::isEnabled()) {
             SocketReader::disable();
         }
-    }
-
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    core::State SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getEventLoopState() {
-        return core::EventLoop::getEventLoopState();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>

@@ -18,16 +18,16 @@
  */
 
 #include "core/SNodeC.h"
-#include "log/Logger.h"
 #include "model/servers.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <functional>
 #include <string>
 
 #if (STREAM_TYPE == TLS)
-#include "core/socket/stream/tls/ssl_version.h"
 
 #include <map>
 #include <variant>
@@ -35,6 +35,8 @@
 #endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+// IWYU pragma: no_include "core/socket/stream/tls/ssl_utils.h"
 
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);

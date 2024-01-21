@@ -22,6 +22,10 @@
 
 #include "core/eventreceiver/WriteEventReceiver.h"
 
+namespace core::pipe {
+    class Source;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h"
@@ -63,6 +67,8 @@ namespace core::socket::stream {
         void setBlockSize(std::size_t writeBlockSize);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
+        void streamToPeer(core::pipe::Source* source);
+
         void shutdownWrite(const std::function<void()>& onShutdown);
 
         bool markShutdown = false;
@@ -73,14 +79,15 @@ namespace core::socket::stream {
     protected:
         std::function<void()> onShutdown;
 
-        std::vector<char> writeBuffer;
+        std::vector<char> writePuffer;
 
         bool shutdownInProgress = false;
 
     private:
+        core::pipe::Source* source = nullptr;
+
         std::size_t blockSize = 0;
 
-    public:
         utils::Timeval terminateTimeout;
     };
 

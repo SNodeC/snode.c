@@ -24,6 +24,10 @@ namespace utils {
     class Timeval;
 } // namespace utils
 
+namespace core::pipe {
+    class Source;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -50,6 +54,8 @@ namespace core::socket {
 
         void sendToPeer(const std::string& data) const;
         virtual void sendToPeer(const char* junk, std::size_t junkLen) const = 0;
+        virtual void streamToPeer(core::pipe::Source* source) const = 0;
+
         virtual std::size_t readFromPeer(char* junk, std::size_t junklen) const = 0;
 
         virtual void close() = 0;

@@ -28,6 +28,8 @@ namespace core {
 
     enum class State { LOADED, INITIALIZED, RUNNING, STOPPING };
 
+    State eventLoopState();
+
 } // namespace core
 
 #endif // CORE_STATE_H

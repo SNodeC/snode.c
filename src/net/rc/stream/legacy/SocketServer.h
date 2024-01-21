@@ -21,7 +21,7 @@
 #define NET_RC_STREAM_LEGACY_SOCKETSERVER_H
 
 #include "core/socket/stream/legacy/SocketAcceptor.h"
-#include "core/socket/stream/legacy/SocketConnection.h"
+#include "core/socket/stream/legacy/SocketConnection.h"     // IWYU pragma: export
 #include "net/rc/stream/SocketServer.h"                     // IWYU pragma: export
 #include "net/rc/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: export
 

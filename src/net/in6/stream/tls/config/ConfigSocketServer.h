@@ -20,8 +20,8 @@
 #ifndef NET_IN6_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 #define NET_IN6_STREAM_TLS_CONFIG_CONFIGSOCKETSERVER_H
 
-#include "net/config/stream/tls/ConfigSocketServer.h"
-#include "net/in6/stream/config/ConfigSocketServer.h"
+#include "net/config/stream/tls/ConfigSocketServer.h" // IWYU pragma: export
+#include "net/in6/stream/config/ConfigSocketServer.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "net/config/stream/tls/ConfigSocketServer.hpp"
 

@@ -20,7 +20,7 @@
 #ifndef NET_CONFIG_CONFIGLEGACY_H
 #define NET_CONFIG_CONFIGLEGACY_H
 
-#include "net/config/ConfigSection.h" // IW YU pragma: export
+#include "net/config/ConfigSection.h"
 
 namespace net::config {
     class ConfigInstance;

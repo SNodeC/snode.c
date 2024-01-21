@@ -30,8 +30,6 @@ if(iwyu_path)
             --quoted_includes_first
             -Xiwyu
             --max_line_length=160
-            -Xiwyu
-            --check_also='${PROJECT_SOURCE_DIR}/*'
         )
 
         set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})

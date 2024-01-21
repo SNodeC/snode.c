@@ -20,7 +20,7 @@
 #ifndef VHOST_H
 #define VHOST_H
 
-#include "express/Router.h"
+#include "express/Router.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

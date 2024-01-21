@@ -20,10 +20,10 @@
 #ifndef NET_CONFIG_STREAM_CONFIGSOCKETSERVER_H
 #define NET_CONFIG_STREAM_CONFIGSOCKETSERVER_H
 
-#include "net/config/ConfigAddressLocal.h"   // IWYU pragma: export
-#include "net/config/ConfigAddressReverse.h" // IWYU pragma: export
-#include "net/config/ConfigConnection.h"
-#include "net/config/ConfigListen.h"
+#include "net/config/ConfigAddressLocal.h"         // IWYU pragma: export
+#include "net/config/ConfigAddressReverse.h"       // IWYU pragma: export
+#include "net/config/ConfigConnection.h"           // IWYU pragma: export
+#include "net/config/ConfigListen.h"               // IWYU pragma: export
 #include "net/config/ConfigPhysicalSocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

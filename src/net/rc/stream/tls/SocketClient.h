@@ -20,7 +20,7 @@
 #ifndef NET_RC_STREAM_TLS_SOCKETCLIENT_H
 #define NET_RC_STREAM_TLS_SOCKETCLIENT_H
 
-#include "core/socket/stream/tls/SocketConnection.h"
+#include "core/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnector.h"
 #include "net/rc/stream/SocketClient.h"                  // IWYU pragma: export
 #include "net/rc/stream/tls/config/ConfigSocketClient.h" // IWYU pragma: export

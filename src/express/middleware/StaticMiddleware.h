@@ -20,7 +20,7 @@
 #ifndef EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H
 #define EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H
 
-#include "express/Router.h"
+#include "express/Router.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "web/http/CookieOptions.h"
 

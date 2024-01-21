@@ -29,7 +29,7 @@ set(CORE_CPP
     EventMultiplexer.cpp
     EventReceiver.cpp
     SNodeC.cpp
-    State.h
+    State.cpp
     Timer.cpp
     TimerEventPublisher.cpp
     TimerEventReceiver.cpp
@@ -68,6 +68,7 @@ set(CORE_H
     EventMultiplexer.h
     EventReceiver.h
     SNodeC.h
+    State.h
     TickStatus.h
     Timer.h
     TimerEventPublisher.h

@@ -158,7 +158,7 @@ namespace core::socket::stream {
                     [client = *this, onStatus](SocketConnection* socketConnection) -> void {
                         client.onDisconnect(socketConnection);
 
-                        if (client.getConfig().getReconnect() && socketConnection->getEventLoopState() == core::State::RUNNING) {
+                        if (client.getConfig().getReconnect() && core::eventLoopState() == core::State::RUNNING) {
                             double relativeReconnectTimeout = client.getConfig().getReconnectTime();
 
                             LOG(INFO) << "Client OnDisconnect: " << client.getConfig().getInstanceName();

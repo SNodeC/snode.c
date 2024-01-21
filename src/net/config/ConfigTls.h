@@ -20,11 +20,13 @@
 #ifndef NET_CONFIG_CONFIGTLS_H
 #define NET_CONFIG_CONFIGTLS_H
 
-#include "net/config/ConfigSection.h" // IW YU pragma: export
+#include "net/config/ConfigSection.h"
 
 namespace net::config {
     class ConfigInstance;
 }
+
+#include "core/socket/stream/tls/ssl_utils.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,8 +34,6 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
-#include "core/socket/stream/tls/ssl_utils.h"   // IWYU pragma: export
-#include "core/socket/stream/tls/ssl_version.h" // IWYU pragma: export
 #include "utils/Timeval.h"
 
 #include <string>

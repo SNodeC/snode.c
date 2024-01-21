@@ -17,16 +17,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 #include "core/SNodeC.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
-#include "log/Logger.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "net/in/stream/tls/SocketClient.h"
-#include "web/http/CookieOptions.h"
 #include "web/http/client/ResponseParser.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <cstddef>
 #include <cstdint>

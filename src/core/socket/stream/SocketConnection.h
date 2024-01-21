@@ -20,16 +20,18 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
-#include "core/State.h"
-
-namespace core::socket {
-    class SocketAddress;
-} // namespace core::socket
-
-namespace core::socket::stream {
-    class SocketContextFactory;
-    class SocketContext;
-} // namespace core::socket::stream
+namespace core {
+    namespace pipe {
+        class Source;
+    }
+    namespace socket {
+        class SocketAddress;
+        namespace stream {
+            class SocketContextFactory;
+            class SocketContext;
+        } // namespace stream
+    }     // namespace socket
+} // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,6 +68,8 @@ namespace core::socket::stream {
         void sendToPeer(const std::string& data);
         void sentToPeer(const std::vector<uint8_t>& data);
         void sentToPeer(const std::vector<char>& data);
+
+        virtual void streamToPeer(core::pipe::Source* source) = 0;
 
         virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
@@ -135,12 +139,12 @@ namespace core::socket::stream {
         using Super::sendToPeer;
         void sendToPeer(const char* junk, std::size_t junkLen) final;
 
+        void streamToPeer(core::pipe::Source* source) final;
+
         void shutdownRead() final;
         void shutdownWrite(bool forceClose) final;
 
         void close() final;
-
-        core::State getEventLoopState();
 
     protected:
         void doWriteShutdown(const std::function<void()>& onShutdown) override;

@@ -20,7 +20,6 @@
 #include "core/DescriptorEventReceiver.h"
 
 #include "core/DescriptorEventPublisher.h"
-#include "core/EventLoop.h"
 #include "core/State.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -69,7 +68,7 @@ namespace core {
     }
 
     bool DescriptorEventReceiver::enable(int fd) {
-        if (core::EventLoop::getEventLoopState() != core::State::STOPPING) {
+        if (core::eventLoopState() != core::State::STOPPING) {
             if (!enabled) {
                 observedFd = fd;
 
@@ -82,7 +81,7 @@ namespace core {
             LOG(TRACE) << "EventReceiver: Not enabled: Enable after signal";
         }
 
-        return core::EventLoop::getEventLoopState() != core::State::STOPPING;
+        return core::eventLoopState() != core::State::STOPPING;
     }
 
     void DescriptorEventReceiver::setEnabled(const utils::Timeval& currentTime) {

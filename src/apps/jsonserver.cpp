@@ -18,10 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "log/Logger.h"
 
 #include <map>

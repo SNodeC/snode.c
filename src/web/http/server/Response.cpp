@@ -45,6 +45,10 @@ namespace web::http::server {
         : requestContext(requestContext) {
     }
 
+    Response::~Response() {
+        delete source;
+    }
+
     void Response::sendResponse(const char* junk, std::size_t junkLen) {
         if (!headersSent && !sendHeaderInProgress) {
             sendHeaderInProgress = true;
@@ -83,6 +87,10 @@ namespace web::http::server {
         set("Content-Length", std::to_string(junk.size()), false);
 
         send(junk.data(), junk.size());
+    }
+
+    void Response::stream(core::pipe::Source* source) {
+        requestContext->streamToPeer(source);
     }
 
     void Response::end() {
@@ -186,7 +194,7 @@ namespace web::http::server {
             absolutFileName = std::filesystem::canonical(absolutFileName);
 
             if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                fileReader = core::file::FileReader::open(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
+                source = core::file::FileReader::open(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
                     if (err == 0) {
                         headers.insert({{"Content-Type", web::http::MimeTypes::contentType(absolutFileName)},
                                         {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
@@ -195,6 +203,8 @@ namespace web::http::server {
                         onError(err);
                     }
                 });
+
+                stream(source);
             } else {
                 errno = EEXIST;
                 onError(errno);
@@ -250,8 +260,8 @@ namespace web::http::server {
     }
 
     void Response::eof() {
-        delete fileReader;
-        fileReader = nullptr;
+        delete source;
+        source = nullptr;
 
         sendToPeerCompleted();
     }
@@ -261,8 +271,8 @@ namespace web::http::server {
 
         requestContext->close();
 
-        delete fileReader;
-        fileReader = nullptr;
+        delete source;
+        source = nullptr;
 
         sendToPeerCompleted();
     }

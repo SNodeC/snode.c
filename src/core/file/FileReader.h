@@ -22,7 +22,7 @@
 
 #include "core/EventReceiver.h"
 #include "core/file/File.h"
-#include "core/pipe/Source.h"
+#include "core/pipe/Source.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,8 +30,10 @@ namespace utils {
     class Timeval;
 } // namespace utils
 
+#include <cstddef>
 #include <functional>
 #include <string>
+#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -47,11 +49,17 @@ namespace core::file {
         , virtual public File {
     protected:
         FileReader(int fd, core::pipe::Sink& sink, const std::string& name);
+        FileReader(int fd, core::pipe::Sink& sink, const std::string& name, std::size_t pufferSize);
 
     public:
         static FileReader* open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onError);
 
+        ssize_t read(std::size_t pufferSize) override;
+
         void onEvent(const utils::Timeval& currentTime) override;
+
+    private:
+        std::size_t pufferSize = 0;
     };
 
 } // namespace core::file
