@@ -122,12 +122,12 @@ namespace web::http::server {
                 if (currentRequestContext->status == 0) {
                     Request& request = currentRequestContext->request;
 
-                    bool keepAlive =
-                        (request.connectionState == ConnectionState::Close) || (request.httpMajor == 0 && request.httpMinor == 9) ||
-                        (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
-                        (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close);
+                    bool close = (request.connectionState == ConnectionState::Close) ||
+                                 (request.httpMajor == 0 && request.httpMinor == 9) ||
+                                 (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
+                                 (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close);
 
-                    if (keepAlive) {
+                    if (close) {
                         response.set("Connection", "close");
                     } else {
                         response.set("Connection", "keep-alive");
@@ -160,12 +160,12 @@ namespace web::http::server {
 
         currentRequestContext = nullptr;
 
-        bool keepAlive = (request.httpMajor == 0 && request.httpMinor == 9) ||
-                         (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
-                         (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close) ||
-                         response.connectionState == ConnectionState::Close;
+        bool close = (request.httpMajor == 0 && request.httpMinor == 9) ||
+                     (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
+                     (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close) ||
+                     response.connectionState == ConnectionState::Close;
 
-        if (keepAlive) {
+        if (close) {
             shutdownWrite();
         } else if (!requestContexts.empty() && requestContexts.front()->ready) {
             requestParsed();
