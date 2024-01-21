@@ -20,6 +20,8 @@
 #ifndef NET_RC_STREAM_LEGACY_SOCKETSERVER_H
 #define NET_RC_STREAM_LEGACY_SOCKETSERVER_H
 
+// IWYU pragma: always_keep
+
 #include "core/socket/stream/legacy/SocketAcceptor.h"
 #include "core/socket/stream/legacy/SocketConnection.h"     // IWYU pragma: export
 #include "net/rc/stream/SocketServer.h"                     // IWYU pragma: export

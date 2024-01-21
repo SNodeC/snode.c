@@ -20,6 +20,8 @@
 #ifndef NET_L2_STREAM_TLS_SOCKETSERVER_H
 #define NET_L2_STREAM_TLS_SOCKETSERVER_H
 
+// IWYU pragma: always_keep
+
 #include "core/socket/stream/tls/SocketAcceptor.h"
 #include "core/socket/stream/tls/SocketConnection.h"     // IWYU pragma: export
 #include "net/l2/stream/SocketServer.h"                  // IWYU pragma: export

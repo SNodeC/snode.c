@@ -20,6 +20,8 @@
 #ifndef NET_UN_STREAM_TLS_SOCKETCLIENT_H
 #define NET_UN_STREAM_TLS_SOCKETCLIENT_H
 
+// IWYU pragma: always_keep
+
 #include "core/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnector.h"
 #include "net/un/stream/SocketClient.h"                  // IWYU pragma: export
