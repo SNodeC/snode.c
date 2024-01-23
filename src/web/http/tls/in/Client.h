@@ -21,6 +21,8 @@
 
 #include "net/in/stream/tls/SocketClient.h" // IWYU pragma: export
 #include "web/http/client/Client.h"         // IWYU pragma: export
+#include "web/http/client/Request.h"        // IWYU pragma: export
+#include "web/http/client/Response.h"       // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +31,9 @@
 namespace web::http::tls::in {
 
     template <typename Request, typename Response>
-    using Client = web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response>;
+    using ClientBase = web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response>;
+
+    using Client = ClientBase<web::http::client::Request, web::http::client::Response>;
 
 } // namespace web::http::tls::in
 

@@ -18,6 +18,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 add_compile_options($<$<CXX_COMPILER_ID:Clang>:-Wno-missing-prototypes>)
+add_compile_options($<$<CXX_COMPILER_ID:Clang>:-Wno-weak-vtables>)
 
 get_target_property(HTTP_INSTALL_RPATH http-server HTTP_INSTALL_RPATH)
 get_target_property(HTTP_INSTALL_RPATH http-client HTTP_INSTALL_RPATH)

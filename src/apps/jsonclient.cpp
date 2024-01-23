@@ -19,8 +19,6 @@
  */
 
 #include "core/SNodeC.h"
-#include "web/http/client/Request.h"
-#include "web/http/client/Response.h"
 #include "web/http/legacy/in/Client.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -38,9 +36,9 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    using Request = web::http::client::Request;
-    using Response = web::http::client::Response;
-    using Client = web::http::legacy::in::Client<Request, Response>;
+    using Client = web::http::legacy::in::Client;
+    using Request = Client::Request;
+    using Response = Client::Response;
     using SocketAddress = Client::SocketAddress;
 
     const Client jsonClient(

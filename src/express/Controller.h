@@ -40,7 +40,7 @@ namespace express {
         Controller(Request& request, Response& response);
 
         void setRootRoute(RootRoute* rootRoute);
-        void setCurrentRoute(Route* newCurrentRoute);
+        void setCurrentRoute(Route* currentRoute);
 
         Request* getRequest() const;
         Response* getResponse() const;

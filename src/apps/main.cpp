@@ -20,7 +20,70 @@
 #include <cstdint>
 #include <iostream>
 #include <string>
+#include <unistd.h>
 #include <utility>
+#include <vector>
+
+class Vector {
+public:
+    explicit Vector(std::vector<char>::size_type size) {
+        vector.reserve(size);
+    }
+
+    explicit Vector(const Vector& vector)
+        : vector(vector.vector.begin(), vector.vector.end()) {
+        this->vector.reserve(vector.vector.capacity());
+    }
+
+    virtual ~Vector() = default;
+
+    std::vector<char>::size_type size() {
+        return vector.size();
+    }
+
+    std::vector<char>::size_type capacity() {
+        return vector.capacity();
+    }
+
+    void resize(std::vector<char>::size_type size) {
+        vector.resize(size);
+    }
+
+    void shrink_to_fit() {
+        vector.shrink_to_fit();
+    }
+
+    void clear() {
+        vector.clear();
+    }
+
+    operator char*() {
+        return vector.data();
+    }
+
+    virtual operator std::vector<char>::size_type() = 0;
+
+protected:
+    std::vector<char> vector;
+};
+
+class OutVector : public Vector {
+public:
+    using Vector::Vector;
+
+    operator std::vector<char>::size_type() override {
+        return Vector::vector.size();
+    }
+};
+
+class InVector : public Vector {
+public:
+    using Vector::Vector;
+
+    operator std::vector<char>::size_type() override {
+        return Vector::vector.capacity();
+    }
+};
 
 class Member {
 public:
@@ -171,6 +234,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     test6.print("test6 = cond ? getTest(7, 8) : Test(9, 10)");
 
     [[maybe_unused]] Test&& test7(std::move(test6));
+
+    InVector inVector(17);
+    read(0, inVector, inVector);
+
+    OutVector outVector(27);
+    write(0, outVector, outVector);
 
     return 0;
 }

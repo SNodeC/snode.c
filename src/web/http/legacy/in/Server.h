@@ -20,6 +20,8 @@
 #define WEB_HTTP_LEGACY_IN_SERVER_H
 
 #include "net/in/stream/legacy/SocketServer.h" // IWYU pragma: export
+#include "web/http/server/Response.h"          // IWYU pragma: export
+#include "web/http/server/Server.h"            // IWYU pragma: export
 #include "web/http/server/Server.h"            // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,7 +31,9 @@
 namespace web::http::legacy::in {
 
     template <typename Request, typename Response>
-    using Server = web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>;
+    using ServerBase = web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>;
+
+    using Server = ServerBase<web::http::server::Request, web::http::server::Response>;
 
 } // namespace web::http::legacy::in
 

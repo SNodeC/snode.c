@@ -55,7 +55,7 @@ namespace express::dispatcher {
                 Next next(controller);
                 lambda(*controller.getRequest(), *controller.getResponse(), next);
 
-                // If next() was called synchroneously continue current route-tree traversal
+                // If next() was called synchronously continue current route-tree traversal
                 if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
                     dispatched = false;
                     controller = next.controller;

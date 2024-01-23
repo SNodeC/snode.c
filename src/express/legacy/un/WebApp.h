@@ -28,7 +28,7 @@
 
 namespace express::legacy::un {
 
-    using WebApp = WebAppT<web::http::legacy::un::Server<express::Request, express::Response>>;
+    using WebApp = WebAppT<web::http::legacy::un::ServerBase<express::Request, express::Response>>;
 
 } // namespace express::legacy::un
 

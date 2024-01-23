@@ -20,10 +20,10 @@
 // IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 void addQueryParamToUri(std::string& uri, const std::string& queryParamName, const std::string& queryParamValue) {
-    if (uri.find("?") == std::string::npos) {
-        uri += "?";
+    if (uri.find('?') == std::string::npos) {
+        uri += '?';
     } else {
-        uri += "&";
+        uri += '&';
     }
     uri += queryParamName + "=" + queryParamValue;
 }
@@ -52,9 +52,9 @@ std::string hashSha1(const std::string& str) {
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
-    express::legacy::in::WebApp app("OAuth2AuthorizationServer");
+    const express::legacy::in::WebApp app("OAuth2AuthorizationServer");
 
-    database::mariadb::MariaDBConnectionDetails details{
+    const database::mariadb::MariaDBConnectionDetails details{
         .hostname = "localhost",
         .username = "rathalin",
         .password = "rathalin",
@@ -67,11 +67,11 @@ int main(int argc, char* argv[]) {
 
     app.use(express::middleware::JsonMiddleware());
 
-    express::Router router{};
+    const express::Router router{};
 
     // Middleware to catch requests without a valid client_id
     router.use([&db] MIDDLEWARE(req, res, next) {
-        std::string queryClientId{req.query("client_id")};
+        const std::string queryClientId{req.query("client_id")};
         if (queryClientId.length() > 0) {
             db.query(
                 "select count(*) from client where uuid = '" + queryClientId + "'",
@@ -100,11 +100,11 @@ int main(int argc, char* argv[]) {
         // REQUIRED: response_type, client_id
         // OPTIONAL: redirect_uri, scope
         // RECOMMENDED: state
-        std::string paramResponseType{req.query("response_type")};
-        std::string paramClientId{req.query("client_id")};
-        std::string paramRedirectUri{req.query("redirect_uri")};
-        std::string paramScope{req.query("scope")};
-        std::string paramState{req.query("state")};
+        const std::string paramResponseType{req.query("response_type")};
+        const std::string paramClientId{req.query("client_id")};
+        const std::string paramRedirectUri{req.query("redirect_uri")};
+        const std::string paramScope{req.query("scope")};
+        const std::string paramState{req.query("state")};
 
         VLOG(0) << "Query params: "
                 << "response_type=" << req.query("response_type") << ", "
@@ -176,13 +176,13 @@ int main(int argc, char* argv[]) {
                         req.query("client_id") + "'",
                     [&req, &res, &db, &body](const MYSQL_ROW row) -> void {
                         if (row != nullptr) {
-                            std::string dbEmail{row[0]};
-                            std::string dbPasswordHash{row[1]};
-                            std::string dbPasswordSalt{row[2]};
-                            std::string dbRedirectUri{row[3]};
-                            std::string dbState{row[4]};
-                            std::string queryEmail{body["email"]};
-                            std::string queryPassword{body["password"]};
+                            const std::string dbEmail{row[0]};
+                            const std::string dbPasswordHash{row[1]};
+                            const std::string dbPasswordSalt{row[2]};
+                            const std::string dbRedirectUri{row[3]};
+                            const std::string dbState{row[4]};
+                            const std::string queryEmail{body["email"]};
+                            const std::string queryPassword{body["password"]};
                             // Check email and password
                             if (dbEmail != queryEmail) {
                                 res.status(401).send("Invalid email address");
@@ -190,8 +190,8 @@ int main(int argc, char* argv[]) {
                                 res.status(401).send("Invalid password");
                             } else {
                                 // Generate auth code which expires after 10 minutes
-                                unsigned int expireMinutes{10};
-                                std::string authCode{getNewUUID()};
+                                const unsigned int expireMinutes{10};
+                                const std::string authCode{getNewUUID()};
                                 db.exec(
                                       "insert into token(uuid, expire_datetime) "
                                       "values('" +
@@ -223,8 +223,8 @@ int main(int argc, char* argv[]) {
                                                         }
                                                         // Set CORS header
                                                         res.set("Access-Control-Allow-Origin", "*");
-                                                        nlohmann::json responseJson = {{"redirect_uri", clientRedirectUri}};
-                                                        std::string responseJsonString{responseJson.dump(4)};
+                                                        const nlohmann::json responseJson = {{"redirect_uri", clientRedirectUri}};
+                                                        const std::string responseJsonString{responseJson.dump(4)};
                                                         VLOG(0) << "Sending json reponse: " << responseJsonString;
                                                         res.send(responseJsonString);
                                                     },
@@ -303,10 +303,10 @@ int main(int argc, char* argv[]) {
                                         return;
                                     }
                                     // Generate access and refresh token
-                                    std::string accessToken{getNewUUID()};
-                                    unsigned int accessTokenExpireSeconds{60 * 60}; // 1 hour
-                                    std::string refreshToken{getNewUUID()};
-                                    unsigned int refreshTokenExpireSeconds{60 * 60 * 24}; // 24 hours
+                                    const std::string accessToken{getNewUUID()};
+                                    const unsigned int accessTokenExpireSeconds{60 * 60}; // 1 hour
+                                    const std::string refreshToken{getNewUUID()};
+                                    const unsigned int refreshTokenExpireSeconds{60 * 60 * 24}; // 24 hours
                                     db.exec(
                                           "insert into token(uuid, expire_datetime) "
                                           "values('" +
@@ -370,10 +370,10 @@ int main(int argc, char* argv[]) {
                                                             req.query("client_id") + "'",
                                                         [&res, accessToken, accessTokenExpireSeconds, refreshToken]() -> void {
                                                             // Send auth token and refresh token
-                                                            nlohmann::json jsonResponse = {{"access_token", accessToken},
-                                                                                           {"expires_in", accessTokenExpireSeconds},
-                                                                                           {"refresh_token", refreshToken}};
-                                                            std::string jsonResponseString{jsonResponse.dump(4)};
+                                                            const nlohmann::json jsonResponse = {{"access_token", accessToken},
+                                                                                                 {"expires_in", accessTokenExpireSeconds},
+                                                                                                 {"refresh_token", refreshToken}};
+                                                            const std::string jsonResponseString{jsonResponse.dump(4)};
                                                             res.send(jsonResponseString);
                                                         },
                                                         [&res](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -466,8 +466,8 @@ int main(int argc, char* argv[]) {
                                             "where uuid = '" +
                                             req.query("client_id") + "'",
                                         [&res, accessToken, accessTokenExpireSeconds]() -> void {
-                                            nlohmann::json responseJson = {{"access_token", accessToken},
-                                                                           {"expires_in", accessTokenExpireSeconds}};
+                                            const nlohmann::json responseJson = {{"access_token", accessToken},
+                                                                                 {"expires_in", accessTokenExpireSeconds}};
                                             res.send(responseJson.dump(4));
                                         },
                                         [&res](const std::string& errorString, unsigned int errorNumber) -> void {
@@ -496,13 +496,13 @@ int main(int argc, char* argv[]) {
                 res.status(500).send("Missing 'access_token' in json");
                 return;
             }
-            std::string jsonAccessToken{jsonBody["access_token"]};
+            const std::string jsonAccessToken{jsonBody["access_token"]};
             if (!jsonBody.contains("client_id")) {
                 VLOG(0) << "Missing 'client_id' in json";
                 res.status(500).send("Missing 'client_id' in json");
                 return;
             }
-            std::string jsonClientId{jsonBody["client_id"]};
+            const std::string jsonClientId{jsonBody["client_id"]};
             db.query(
                 "select count(*) "
                 "from client c "
@@ -516,12 +516,12 @@ int main(int argc, char* argv[]) {
                 [&res, jsonClientId, jsonAccessToken](const MYSQL_ROW row) -> void {
                     if (row != nullptr) {
                         if (std::stoi(row[0]) == 0) {
-                            nlohmann::json errorJson = {{"error", "Invalid access token"}};
+                            const nlohmann::json errorJson = {{"error", "Invalid access token"}};
                             VLOG(0) << "Sending 401: Invalid access token '" << jsonAccessToken << "'";
                             res.status(401).send(errorJson.dump(4));
                         } else {
                             VLOG(0) << "Sending 200: Valid access token '" << jsonAccessToken << "";
-                            nlohmann::json successJson = {{"success", "Valid access token"}};
+                            const nlohmann::json successJson = {{"success", "Valid access token"}};
                             res.status(200).send(successJson.dump(4));
                         }
                     }

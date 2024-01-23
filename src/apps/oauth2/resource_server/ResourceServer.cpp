@@ -1,8 +1,6 @@
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
 #include "log/Logger.h"
-#include "web/http/client/Request.h"  // for Request, client
-#include "web/http/client/Response.h" // for Response
 #include "web/http/legacy/in/Client.h"
 
 #include <map>
@@ -15,7 +13,7 @@
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
-    express::legacy::in::WebApp app("OAuth2ResourceServer");
+    const express::legacy::in::WebApp app("OAuth2ResourceServer");
 
     const std::string authorizationServerUri{"http://localhost:8082"};
 
@@ -23,24 +21,22 @@ int main(int argc, char* argv[]) {
 
     app.get("/access", [authorizationServerUri] APPLICATION(req, res) {
         res.set("Access-Control-Allow-Origin", "*");
-        std::string queryAccessToken{req.query("access_token")};
-        std::string queryClientId{req.query("client_id")};
+        const std::string queryAccessToken{req.query("access_token")};
+        const std::string queryClientId{req.query("client_id")};
         if (queryAccessToken.empty() || queryClientId.empty()) {
             VLOG(0) << "Missing access_token or client_id in body";
             res.sendStatus(401);
             return;
         }
 
-        web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
-            [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
-                -> void {
+        const web::http::legacy::in::Client legacyClient(
+            [](web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "OnConnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
-            []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
-                   socketConnection) -> void {
+            []([[maybe_unused]] web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "OnConnected";
             },
             [queryAccessToken, queryClientId](web::http::client::Request& request) -> void {
@@ -49,8 +45,8 @@ int main(int argc, char* argv[]) {
                 request.method = "POST";
                 VLOG(0) << "ClientId: " << queryClientId;
                 VLOG(0) << "AcceessToken: " << queryAccessToken;
-                nlohmann::json requestJson = {{"access_token", queryAccessToken}, {"client_id", queryClientId}};
-                std::string requestJsonString{requestJson.dump(4)};
+                const nlohmann::json requestJson = {{"access_token", queryAccessToken}, {"client_id", queryClientId}};
+                const std::string requestJsonString{requestJson.dump(4)};
                 request.send(requestJsonString);
             },
             [&res]([[maybe_unused]] web::http::client::Request& request, web::http::client::Response& response) -> void {
@@ -58,10 +54,10 @@ int main(int argc, char* argv[]) {
                 response.body.push_back(0);
                 VLOG(0) << "Response: " << response.body.data();
                 if (std::stoi(response.statusCode) != 200) {
-                    nlohmann::json errorJson = {{"error", "Invalid access token"}};
+                    const nlohmann::json errorJson = {{"error", "Invalid access token"}};
                     res.status(401).send(errorJson.dump(4));
                 } else {
-                    nlohmann::json successJson = {{"content", "🦆"}};
+                    const nlohmann::json successJson = {{"content", "🦆"}};
                     res.status(200).send(successJson.dump(4));
                 }
             },
@@ -70,8 +66,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
-                -> void {
+            [](web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -81,8 +76,7 @@ int main(int argc, char* argv[]) {
         legacyClient.connect(
             "localhost",
             8082,
-            [](const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& socketAddress,
-               core::socket::State state) -> void {
+            [](const web::http::legacy::in::Client::SocketAddress& socketAddress, const core::socket::State& state) -> void {
                 switch (state) {
                     case core::socket::State::OK:
                         VLOG(1) << "OAuth2ResourceServer: connected to '" << socketAddress.toString() << "'";

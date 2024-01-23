@@ -4,7 +4,7 @@
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
-    express::legacy::in::WebApp app("OAuth2Client");
+    const express::legacy::in::WebApp app("OAuth2Client");
 
     app.get("/oauth2", [] APPLICATION(req, res) {
         // if (req.query("grant_type")) {}

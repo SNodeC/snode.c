@@ -34,8 +34,12 @@ using namespace express;
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
-    const legacy::in::WebApp legacyApp("legacy");
-    using SocketAddress = legacy::in::WebApp::SocketAddress;
+    using LegacyWebApp = express::legacy::in::WebApp;
+    using Request = LegacyWebApp::Request;
+    using Response = LegacyWebApp::Response;
+    using SocketAddress = LegacyWebApp::SocketAddress;
+
+    const LegacyWebApp legacyApp("legacy");
 
     legacyApp.get("/", [] APPLICATION(req, res) {
         VLOG(1) << "HTTP GET on "
@@ -100,9 +104,12 @@ int main(int argc, char* argv[]) {
     });
 
     {
-        const tls::in::WebApp tlsApp("tls");
+        using TlsWebApp = express::tls::in::WebApp;
+        using Request = TlsWebApp::Request;
+        using Response = TlsWebApp::Response;
+        using SocketAddress = TlsWebApp::SocketAddress;
 
-        using SocketAddress = tls::in::WebApp::SocketAddress;
+        const TlsWebApp tlsApp("tls");
 
         tlsApp.get("/", [] APPLICATION(req, res) {
             if (req.url == "/" || req.url == "/index.html") {

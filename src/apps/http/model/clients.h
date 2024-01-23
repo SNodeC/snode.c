@@ -29,8 +29,8 @@
 
 #include CLIENT_INCLUDE // IWYU pragma: export
 
-#include "web/http/client/Request.h"
-#include "web/http/client/Response.h"
+// #include "web/http/client/Request.h"
+// #include "web/http/client/Response.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -48,9 +48,9 @@
 
 namespace apps::http::legacy {
 
-    using Request = web::http::client::Request;
-    using Response = web::http::client::Response;
-    using Client = web::http::legacy::NET::Client<Request, Response>;
+    using Client = web::http::legacy::NET::Client;
+    using Request = Client::Request;
+    using Response = Client::Response;
 
     Client getClient() {
         return Client(
@@ -97,9 +97,9 @@ namespace apps::http::legacy {
 
 namespace apps::http::tls {
 
-    using Request = web::http::client::Request;
-    using Response = web::http::client::Response;
-    using Client = web::http::tls::NET::Client<Request, Response>;
+    using Client = web::http::tls::NET::Client;
+    using Request = Client::Request;
+    using Response = Client::Response;
     using SocketConnection = Client::SocketConnection;
 
     Client getClient() {

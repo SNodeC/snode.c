@@ -18,8 +18,6 @@
  */
 
 #include "core/SNodeC.h"
-#include "web/http/client/Request.h"
-#include "web/http/client/Response.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/tls/in/Client.h"
 
@@ -42,18 +40,21 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     {
-        using LegacySocketAddress = web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress;
+        using LegacyClient = web::http::legacy::in::Client;
+        using Request = LegacyClient::Request;
+        using Response = LegacyClient::Response;
+        using LegacySocketAddress = LegacyClient::SocketAddress;
 
-        const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
+        const LegacyClient legacyClient(
             "legacy",
-            [](web::http::client::Request& request) -> void {
+            [](Request& request) -> void {
                 VLOG(1) << "OnRequestBegin";
 
                 request.set("Sec-WebSocket-Protocol", "test, echo");
 
                 request.upgrade("/ws/", "hui, websocket");
             },
-            [](web::http::client::Request& request, web::http::client::Response& response) -> void {
+            [](Request& request, Response& response) -> void {
                 VLOG(1) << "OnResponse";
                 VLOG(2) << "     Status:";
                 VLOG(2) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
@@ -101,18 +102,21 @@ int main(int argc, char* argv[]) {
             }
         }); // Connection:keep-alive\r\n\r\n"
 
-        using TLSSocketAddress = web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress;
+        using TlsClient = web::http::tls::in::Client;
+        using Request = TlsClient::Request;
+        using Response = TlsClient::Response;
+        using TLSSocketAddress = TlsClient::SocketAddress;
 
-        const web::http::tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
+        const TlsClient tlsClient(
             "tls",
-            [](web::http::client::Request& request) -> void {
+            [](Request& request) -> void {
                 VLOG(1) << "OnRequestBegin";
 
                 request.set("Sec-WebSocket-Protocol", "test, echo");
 
                 request.upgrade("/ws/", "hui, websocket");
             },
-            [](web::http::client::Request& request, web::http::client::Response& response) -> void {
+            [](Request& request, Response& response) -> void {
                 VLOG(1) << "OnResponse";
                 VLOG(2) << "     Status:";
                 VLOG(2) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;

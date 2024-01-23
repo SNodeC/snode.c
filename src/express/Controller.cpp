@@ -67,17 +67,16 @@ namespace express {
 
         lastRoute = currentRoute;
 
-        if (lastTick != core::EventLoop::getTickCounter()) { // If asynchron next() start traversing of route-tree
+        if (lastTick != core::EventLoop::getTickCounter()) { // If asynchronous next() start traversing of route-tree
             rootRoute->dispatch(*const_cast<express::Controller*>(this));
         }
     }
 
     bool Controller::nextRouter() {
-        bool breakDispatching = false;
+        const bool breakDispatching = lastRoute == currentRoute && (flags & Controller::NEXT_ROUTER) != 0;
 
-        if (lastRoute == currentRoute && (flags & Controller::NEXT_ROUTER) != 0) {
+        if (breakDispatching) {
             flags &= ~Controller::NEXT_ROUTER;
-            breakDispatching = true;
         }
 
         return breakDispatching;

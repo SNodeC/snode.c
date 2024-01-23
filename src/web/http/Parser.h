@@ -35,10 +35,6 @@ namespace core::socket::stream {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef MAX_CONTENT_JUNK_LEN
-#define MAX_CONTENT_JUNK_LEN 16384
-#endif
-
 namespace web::http {
 
     class Parser {

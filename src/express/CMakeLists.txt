@@ -77,9 +77,11 @@ set(HTTP_SERVER_EXPRESS_H
     legacy/in/WebApp.h
     legacy/in6/WebApp.h
     legacy/rc/WebApp.h
+    legacy/un/WebApp.h
     tls/in/WebApp.h
     tls/in6/WebApp.h
     tls/rc/WebApp.h
+    tls/un/WebApp.h
     ${JSONMIDDLEWARE_H}
 )
 

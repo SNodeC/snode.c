@@ -47,6 +47,22 @@ set(HTTP_H
     SocketContextUpgradeFactory.hpp
     SocketContextUpgradeFactorySelector.h
     SocketContextUpgradeFactorySelector.hpp
+    legacy/in/Client.h
+    legacy/in/Server.h
+    legacy/in6/Client.h
+    legacy/in6/Server.h
+    legacy/rc/Client.h
+    legacy/rc/Server.h
+    legacy/un/Client.h
+    legacy/un/Server.h
+    tls/in/Client.h
+    tls/in/Server.h
+    tls/in6/Client.h
+    tls/in6/Server.h
+    tls/rc/Client.h
+    tls/rc/Server.h
+    tls/un/Client.h
+    tls/un/Server.h
 )
 
 add_library(http SHARED ${HTTP_CPP} ${HTTP_H})
