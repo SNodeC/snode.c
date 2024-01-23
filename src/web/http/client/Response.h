@@ -49,7 +49,6 @@ namespace web::http::client {
 
         void reset();
 
-        // switch to protected later on
     public:
         const std::string& header(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;
