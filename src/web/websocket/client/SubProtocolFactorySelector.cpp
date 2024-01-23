@@ -50,8 +50,8 @@ namespace web::websocket::client {
     }
 
     SubProtocolFactorySelector::SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
-        const std::string websocketSubprotocolInstallLibraryFile = "libsnodec-websocket-" + subProtocolName + "-client.so." SOVERSION;
-        const std::string websocketSubprotocolInstallFunctionName = subProtocolName + "ClientSubProtocolFactory";
+        const std::string websocketSubprotocolLibraryFile = "libsnodec-websocket-" + subProtocolName + "-client.so." SOVERSION;
+        const std::string websocketSubprotocolFunctionName = subProtocolName + "ClientSubProtocolFactory";
 
         std::string websocketSubprotocolInstallLibdir = WEBSOCKET_SUBPROTOCO_INSTALL_LIBDIR;
 
@@ -67,12 +67,12 @@ namespace web::websocket::client {
         if (std::filesystem::is_directory(websocketSubprotocolInstallLibdir + "/" + utils::Config::getApplicationName())) {
             subProtocolFactory = Super::load(subProtocolName,
                                              websocketSubprotocolInstallLibdir + "/" + utils::Config::getApplicationName() + "/" +
-                                                 websocketSubprotocolInstallLibraryFile,
-                                             websocketSubprotocolInstallFunctionName);
+                                                 websocketSubprotocolLibraryFile,
+                                             websocketSubprotocolFunctionName);
         } else {
             subProtocolFactory = Super::load(subProtocolName,
-                                             websocketSubprotocolInstallLibdir + "/" + websocketSubprotocolInstallLibraryFile,
-                                             websocketSubprotocolInstallFunctionName);
+                                             websocketSubprotocolInstallLibdir + "/" + websocketSubprotocolLibraryFile,
+                                             websocketSubprotocolFunctionName);
         }
 
         return subProtocolFactory;
