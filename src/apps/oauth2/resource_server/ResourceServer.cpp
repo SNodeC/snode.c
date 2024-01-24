@@ -61,10 +61,11 @@ int main(int argc, char* argv[]) {
                     res.status(200).send(successJson.dump(4));
                 }
             },
-            [](int status, const std::string& reason) -> void {
+            [&res](int status, const std::string& reason) -> void {
                 VLOG(0) << "OnResponseError";
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
+                res.sendStatus(401);
             },
             [](web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "OnDisconnect";
