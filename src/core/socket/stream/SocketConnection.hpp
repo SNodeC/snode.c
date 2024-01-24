@@ -126,16 +126,12 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::sendToPeer(const char* junk, std::size_t junkLen) {
-        if (!SocketWriter::shutdownInProgress && !SocketWriter::markShutdown) {
-            SocketWriter::sendToPeer(junk, junkLen);
-        }
+        SocketWriter::sendToPeer(junk, junkLen);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamToPeer(core::pipe::Source* source) {
-        if (!SocketWriter::shutdownInProgress && !SocketWriter::markShutdown) {
-            SocketWriter::streamToPeer(source);
-        }
+        SocketWriter::streamToPeer(source);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>

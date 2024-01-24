@@ -101,22 +101,30 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::sendToPeer(const char* junk, std::size_t junkLen) {
-        if (isEnabled()) {
-            if (writePuffer.empty()) {
-                resume();
-            }
+        if (!shutdownInProgress && !markShutdown) {
+            if (isEnabled()) {
+                if (writePuffer.empty()) {
+                    resume();
+                }
 
-            writePuffer.insert(writePuffer.end(), junk, junk + junkLen);
+                writePuffer.insert(writePuffer.end(), junk, junk + junkLen);
+            } else {
+                LOG(TRACE) << "SocketWriter: Send to peer while not enabled";
+            }
         } else {
-            LOG(TRACE) << "SocketWriter: Send to peer while not enabled";
+            LOG(TRACE) << "SocketWriter: sendToPeer() while shutdown in progress";
         }
     }
 
     void SocketWriter::streamToPeer(core::pipe::Source* source) {
-        this->source = source;
+        if (!shutdownInProgress && !markShutdown) {
+            this->source = source;
 
-        if (source->read(blockSize * 5) == 0) {
-            this->source = nullptr;
+            if (source->read(blockSize * 5) == 0) {
+                this->source = nullptr;
+            }
+        } else {
+            LOG(TRACE) << "SocketWriter: streamToPeer() while shutdown in progress";
         }
     }
 
