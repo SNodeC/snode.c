@@ -58,9 +58,7 @@ namespace apps::http::legacy {
     using WebApp = express::legacy::NET::WebApp;
 
     WebApp getWebApp(const std::string& name, const std::string& rootPath) {
-        WebApp webApp(name, getRouter(rootPath));
-
-        return webApp;
+        return WebApp(name, getRouter(rootPath));
     }
 
 } // namespace apps::http::legacy

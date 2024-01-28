@@ -29,9 +29,6 @@
 
 #include CLIENT_INCLUDE // IWYU pragma: export
 
-// #include "web/http/client/Request.h"
-// #include "web/http/client/Response.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
