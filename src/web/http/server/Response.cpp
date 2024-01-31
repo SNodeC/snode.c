@@ -29,7 +29,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/system/time.h"
 
 #include <cerrno>
@@ -47,12 +46,8 @@ namespace web::http::server {
     }
 
     Response::~Response() {
-        VLOG(0) << "############### AAAAAAAAAAAAAAAAAAAAA: source = " << source;
         if (source != nullptr) {
-            VLOG(0) << "############### BBBBBBBBBBBBBBBBBBBBB";
-            if (requestContext->streamToPeer(nullptr)) {
-            }
-            VLOG(0) << "############### CCCCCCCCCCCCCCCCCCCCC: " << source;
+            stream(nullptr);
 
             delete source;
         }
@@ -100,10 +95,6 @@ namespace web::http::server {
 
     bool Response::stream(core::pipe::Source* source) {
         return requestContext->streamToPeer(source);
-        //        if (!requestContext->streamToPeer(source)) {
-        //            delete source;
-        //            source = nullptr;
-        //        }
     }
 
     void Response::end() {
@@ -281,7 +272,7 @@ namespace web::http::server {
     }
 
     void Response::eof() {
-        if (requestContext->streamToPeer(nullptr)) {
+        if (stream(nullptr)) {
             delete source;
             source = nullptr;
         }
@@ -294,7 +285,7 @@ namespace web::http::server {
 
         requestContext->close();
 
-        if (requestContext->streamToPeer(nullptr)) {
+        if (stream(nullptr)) {
             delete source;
             source = nullptr;
         }

@@ -43,7 +43,7 @@ namespace core::pipe {
 
         void disconnect();
         void connect(Source& source);
-        void disconnect(Source& source);
+        void disconnect(const Source& source);
 
     private:
         Source* source;

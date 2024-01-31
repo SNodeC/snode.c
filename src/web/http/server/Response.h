@@ -59,7 +59,7 @@ namespace web::http::server {
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
 
-        [[nodiscard]] bool stream(core::pipe::Source* source);
+        bool stream(core::pipe::Source* source);
 
         void end();
 

@@ -48,7 +48,7 @@ namespace core::pipe {
         sink.connect(*this);
     }
 
-    void Source::disconnect(Sink& sink) {
+    void Source::disconnect(const Sink& sink) {
         if (&sink == this->sink) {
             this->sink = nullptr;
         }

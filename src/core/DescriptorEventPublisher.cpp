@@ -42,12 +42,12 @@ namespace core {
 
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
         const int fd = descriptorEventReceiver->getRegisteredFd();
-        descriptorEventReceiver->setEnabled(utils::Timeval::currentTime());
         observedEventReceivers[fd].push_front(descriptorEventReceiver);
         muxAdd(descriptorEventReceiver);
         if (descriptorEventReceiver->isSuspended()) {
             muxOff(descriptorEventReceiver);
         }
+        descriptorEventReceiver->setEnabled(utils::Timeval::currentTime());
     }
 
     void DescriptorEventPublisher::disable([[maybe_unused]] DescriptorEventReceiver* descriptorEventReceiver) {

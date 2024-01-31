@@ -121,8 +121,6 @@ namespace core::socket::stream {
     bool SocketWriter::streamToPeer(core::pipe::Source* source) {
         bool success = false;
 
-        VLOG(0) << "ÖÖÖÖÖÖÖÖÖÖÖÖ: current: " << this->source << " - new: " << source;
-
         if (!shutdownInProgress && !markShutdown) {
             if (isEnabled()) {
                 success = true;
@@ -141,7 +139,6 @@ namespace core::socket::stream {
             LOG(TRACE) << "SocketWriter: streamToPeer() while shutdown in progress";
         }
 
-        VLOG(0) << "--------------------- success: " << success;
         this->source = source;
 
         return success;
