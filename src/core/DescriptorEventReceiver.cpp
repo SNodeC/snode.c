@@ -81,7 +81,7 @@ namespace core {
             LOG(TRACE) << "EventReceiver: Not enabled: Enable after signal";
         }
 
-        return core::eventLoopState() != core::State::STOPPING;
+        return enabled;
     }
 
     void DescriptorEventReceiver::setEnabled(const utils::Timeval& currentTime) {
