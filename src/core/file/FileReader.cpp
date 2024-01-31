@@ -27,7 +27,6 @@
 #include "log/Logger.h"
 
 #include <cerrno>
-#include <sys/types.h>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
