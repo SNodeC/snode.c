@@ -130,8 +130,8 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamToPeer(core::pipe::Source* source) {
-        SocketWriter::streamToPeer(source);
+    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamToPeer(core::pipe::Source* source) {
+        return SocketWriter::streamToPeer(source);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>

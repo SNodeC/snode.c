@@ -49,7 +49,7 @@ namespace core::socket::stream {
                               std::size_t blockSize,
                               const utils::Timeval& terminateTimeout);
 
-        ~SocketWriter() override = default;
+        ~SocketWriter() override;
 
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
@@ -67,7 +67,7 @@ namespace core::socket::stream {
         void setBlockSize(std::size_t writeBlockSize);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
-        void streamToPeer(core::pipe::Source* source);
+        [[nodiscard]] bool streamToPeer(core::pipe::Source* source);
 
         void shutdownWrite(const std::function<void()>& onShutdown);
 

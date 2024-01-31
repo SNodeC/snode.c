@@ -54,7 +54,7 @@ namespace web::http::server {
         bool switchSocketContext(core::socket::stream::SocketContextFactory* socketContextUpgradeFactory);
 
         void sendToPeer(const char* junk, std::size_t junkLen);
-        void streamToPeer(core::pipe::Source* source);
+        [[nodiscard]] bool streamToPeer(core::pipe::Source* source);
         void sendToPeerCompleted();
         void close();
 

@@ -29,6 +29,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/system/time.h"
 
 #include <cerrno>
@@ -46,7 +47,15 @@ namespace web::http::server {
     }
 
     Response::~Response() {
-        delete source;
+        VLOG(0) << "############### AAAAAAAAAAAAAAAAAAAAA: source = " << source;
+        if (source != nullptr) {
+            VLOG(0) << "############### BBBBBBBBBBBBBBBBBBBBB";
+            if (requestContext->streamToPeer(nullptr)) {
+                VLOG(0) << "############### CCCCCCCCCCCCCCCCCCCCC";
+                delete source;
+                sendToPeerCompleted();
+            }
+        }
     }
 
     void Response::sendResponse(const char* junk, std::size_t junkLen) {
@@ -90,7 +99,9 @@ namespace web::http::server {
     }
 
     void Response::stream(core::pipe::Source* source) {
-        requestContext->streamToPeer(source);
+        if (!requestContext->streamToPeer(source)) {
+            delete source;
+        }
     }
 
     void Response::end() {
@@ -204,7 +215,12 @@ namespace web::http::server {
                     }
                 });
 
-                stream(source);
+                if (source != nullptr) {
+                    stream(source);
+                } else {
+                    errno = ENODATA;
+                    onError(errno);
+                }
             } else {
                 errno = EEXIST;
                 onError(errno);
@@ -218,7 +234,7 @@ namespace web::http::server {
     void Response::sendToPeerCompleted() {
         if (contentSent == contentLength) {
             requestContext->sendToPeerCompleted();
-        } else if (contentSent > contentLength) {
+        } else {
             requestContext->close();
         }
 
@@ -260,8 +276,10 @@ namespace web::http::server {
     }
 
     void Response::eof() {
-        delete source;
-        source = nullptr;
+        if (requestContext->streamToPeer(nullptr)) {
+            delete source;
+            source = nullptr;
+        }
 
         sendToPeerCompleted();
     }
@@ -271,8 +289,10 @@ namespace web::http::server {
 
         requestContext->close();
 
-        delete source;
-        source = nullptr;
+        if (requestContext->streamToPeer(nullptr)) {
+            delete source;
+            source = nullptr;
+        }
 
         sendToPeerCompleted();
     }

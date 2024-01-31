@@ -41,15 +41,11 @@ namespace core::socket::stream {
         , terminateTimeout(terminateTimeout) {
     }
 
+    SocketWriter::~SocketWriter() {
+        delete source;
+    }
+
     void SocketWriter::writeEvent() {
-        if (source != nullptr && writePuffer.empty()) {
-            const ssize_t count = source->read(blockSize * 5);
-
-            if (count == 0) {
-                source = nullptr;
-            }
-        }
-
         doWrite();
     }
 
@@ -88,9 +84,11 @@ namespace core::socket::stream {
                 suspend();
             }
 
-            if (markShutdown) {
-                LOG(TRACE) << "SocketWriter: Do delayed shutdown";
+            if (source != nullptr) {
+                source->resume();
+            }
 
+            if (markShutdown) {
                 shutdownWrite(onShutdown);
             }
         }
@@ -108,6 +106,10 @@ namespace core::socket::stream {
                 }
 
                 writePuffer.insert(writePuffer.end(), junk, junk + junkLen);
+
+                if (source != nullptr && writePuffer.size() > 5 * blockSize) {
+                    source->suspend();
+                }
             } else {
                 LOG(TRACE) << "SocketWriter: Send to peer while not enabled";
             }
@@ -116,16 +118,35 @@ namespace core::socket::stream {
         }
     }
 
-    void SocketWriter::streamToPeer(core::pipe::Source* source) {
-        if (!shutdownInProgress && !markShutdown) {
-            this->source = source;
+    bool SocketWriter::streamToPeer(core::pipe::Source* source) {
+        bool success = false;
 
-            if (source->read(blockSize * 5) == 0) {
-                this->source = nullptr;
+        VLOG(0) << "ÖÖÖÖÖÖÖÖÖÖÖÖ: current: " << this->source << " - new: " << source;
+        //        delete this->source;
+
+        if (!shutdownInProgress && !markShutdown) {
+            if (isEnabled()) {
+                success = true;
+
+                if (source != nullptr) {
+                    source->resume();
+                    LOG(TRACE) << "SocketWriter: streamToPeer() started";
+                } else {
+                    LOG(TRACE) << "SocketWriter: streamToPeer() with nullptr source";
+                }
+            } else {
+                LOG(TRACE) << "SocketWriter: streamToPeer() while not enabled";
+                delete this->source;
             }
         } else {
             LOG(TRACE) << "SocketWriter: streamToPeer() while shutdown in progress";
+            delete this->source;
         }
+
+        VLOG(0) << "--------------------- success: " << success;
+        this->source = source;
+
+        return success;
     }
 
     void SocketWriter::shutdownWrite(const std::function<void()>& onShutdown) {

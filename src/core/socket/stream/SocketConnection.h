@@ -69,7 +69,7 @@ namespace core::socket::stream {
         void sentToPeer(const std::vector<uint8_t>& data);
         void sentToPeer(const std::vector<char>& data);
 
-        virtual void streamToPeer(core::pipe::Source* source) = 0;
+        [[nodiscard]] virtual bool streamToPeer(core::pipe::Source* source) = 0;
 
         virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
@@ -139,7 +139,7 @@ namespace core::socket::stream {
         using Super::sendToPeer;
         void sendToPeer(const char* junk, std::size_t junkLen) final;
 
-        void streamToPeer(core::pipe::Source* source) final;
+        [[nodiscard]] bool streamToPeer(core::pipe::Source* source) final;
 
         void shutdownRead() final;
         void shutdownWrite(bool forceClose) final;

@@ -40,10 +40,13 @@ namespace core::pipe {
         void connect(Sink& sink);
         void disconnect(Sink& sink);
 
-        virtual ssize_t read(std::size_t readSize) = 0;
+        virtual void read() = 0;
         ssize_t send(const char* junk, std::size_t junkLen);
         void eof();
         void error(int errnum);
+
+        virtual void suspend() = 0;
+        virtual void resume() = 0;
 
     private:
         Sink* sink;
