@@ -228,7 +228,7 @@ namespace core::socket::stream {
                 break;
         }
 
-        return socketContext->onSignal(signum);
+        return socketContext != nullptr ? socketContext->onSignal(signum) : true;
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
