@@ -44,7 +44,7 @@ namespace core::file {
     }
 
     FileReader::~FileReader() {
-        VLOG(0) << "DDDDelete FileReader: " << this;
+        VLOG(0) << "~FileReader() " << this;
     }
 
     FileReader* FileReader::open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onStatus) {
@@ -64,7 +64,6 @@ namespace core::file {
     }
 
     void FileReader::read() {
-        VLOG(0) << "++++++++++++++: " << this;
         if (!suspended) {
             std::vector<char> puffer(pufferSize);
 

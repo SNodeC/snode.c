@@ -51,10 +51,10 @@ namespace web::http::server {
         if (source != nullptr) {
             VLOG(0) << "############### BBBBBBBBBBBBBBBBBBBBB";
             if (requestContext->streamToPeer(nullptr)) {
-                VLOG(0) << "############### CCCCCCCCCCCCCCCCCCCCC";
-                delete source;
-                sendToPeerCompleted();
             }
+            VLOG(0) << "############### CCCCCCCCCCCCCCCCCCCCC: " << source;
+
+            delete source;
         }
     }
 
@@ -98,10 +98,12 @@ namespace web::http::server {
         send(junk.data(), junk.size());
     }
 
-    void Response::stream(core::pipe::Source* source) {
-        if (!requestContext->streamToPeer(source)) {
-            delete source;
-        }
+    bool Response::stream(core::pipe::Source* source) {
+        return requestContext->streamToPeer(source);
+        //        if (!requestContext->streamToPeer(source)) {
+        //            delete source;
+        //            source = nullptr;
+        //        }
     }
 
     void Response::end() {
@@ -216,7 +218,10 @@ namespace web::http::server {
                 });
 
                 if (source != nullptr) {
-                    stream(source);
+                    if (!stream(source)) {
+                        delete source;
+                        source = nullptr;
+                    }
                 } else {
                     errno = ENODATA;
                     onError(errno);

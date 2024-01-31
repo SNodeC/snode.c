@@ -42,7 +42,7 @@ namespace core::socket::stream {
     }
 
     SocketWriter::~SocketWriter() {
-        delete source;
+        //        delete source;
     }
 
     void SocketWriter::writeEvent() {
@@ -122,7 +122,6 @@ namespace core::socket::stream {
         bool success = false;
 
         VLOG(0) << "ÖÖÖÖÖÖÖÖÖÖÖÖ: current: " << this->source << " - new: " << source;
-        //        delete this->source;
 
         if (!shutdownInProgress && !markShutdown) {
             if (isEnabled()) {
@@ -131,16 +130,15 @@ namespace core::socket::stream {
                 if (source != nullptr) {
                     source->resume();
                     LOG(TRACE) << "SocketWriter: streamToPeer() started";
+
                 } else {
                     LOG(TRACE) << "SocketWriter: streamToPeer() with nullptr source";
                 }
             } else {
                 LOG(TRACE) << "SocketWriter: streamToPeer() while not enabled";
-                delete this->source;
             }
         } else {
             LOG(TRACE) << "SocketWriter: streamToPeer() while shutdown in progress";
-            delete this->source;
         }
 
         VLOG(0) << "--------------------- success: " << success;
