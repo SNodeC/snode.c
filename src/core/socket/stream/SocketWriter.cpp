@@ -128,7 +128,6 @@ namespace core::socket::stream {
                 if (source != nullptr) {
                     source->resume();
                     LOG(TRACE) << "SocketWriter: streamToPeer() started";
-
                 } else {
                     LOG(TRACE) << "SocketWriter: streamToPeer() with nullptr source";
                 }
