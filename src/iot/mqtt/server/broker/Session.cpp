@@ -101,7 +101,7 @@ namespace iot::mqtt::server::broker {
         messageVector.reserve(messageQueue.size());
 
         for (const Message& message : messageQueue) {
-            messageVector.emplace_back(message.toJson());
+            messageVector.emplace_back(message.toJson()); // cppcheck-suppress useStlAlgorithm
         }
 
         json["message_queue"] = messageVector;
@@ -111,7 +111,7 @@ namespace iot::mqtt::server::broker {
 
     void Session::fromJson(const nlohmann::json& json) {
         for (const nlohmann::json& messageJson : json["message_queue"]) {
-            messageQueue.emplace_back(Message().fromJson(messageJson));
+            messageQueue.emplace_back(Message().fromJson(messageJson)); // cppcheck-suppress useStlAlgorithm
         }
 
         iot::mqtt::Session::fromJson(json);

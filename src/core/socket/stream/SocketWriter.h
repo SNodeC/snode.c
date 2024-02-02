@@ -49,8 +49,6 @@ namespace core::socket::stream {
                               std::size_t blockSize,
                               const utils::Timeval& terminateTimeout);
 
-        ~SocketWriter() override;
-
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 

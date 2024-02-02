@@ -41,10 +41,6 @@ namespace core::socket::stream {
         , terminateTimeout(terminateTimeout) {
     }
 
-    SocketWriter::~SocketWriter() {
-        //        delete source;
-    }
-
     void SocketWriter::writeEvent() {
         doWrite();
     }
@@ -95,7 +91,7 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::setBlockSize(std::size_t writeBlockSize) {
-        this->blockSize = writeBlockSize;
+        blockSize = writeBlockSize;
     }
 
     void SocketWriter::sendToPeer(const char* junk, std::size_t junkLen) {
