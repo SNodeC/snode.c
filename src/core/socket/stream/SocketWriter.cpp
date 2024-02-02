@@ -80,12 +80,10 @@ namespace core::socket::stream {
                 suspend();
             }
 
-            if (source != nullptr) {
-                source->resume();
-            }
-
             if (markShutdown) {
                 shutdownWrite(onShutdown);
+            } else if (source != nullptr) {
+                source->resume();
             }
         }
     }
