@@ -83,7 +83,7 @@ namespace core::socket::stream {
 
     void SocketReader::setBlockSize(std::size_t readBlockSize) {
         readBuffer.resize(readBlockSize);
-        this->blockSize = readBlockSize;
+        blockSize = readBlockSize;
     }
 
     std::size_t SocketReader::readFromPeer(char* junk, std::size_t junkLen) {

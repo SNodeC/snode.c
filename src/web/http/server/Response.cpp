@@ -46,7 +46,11 @@ namespace web::http::server {
     }
 
     Response::~Response() {
-        delete source;
+        if (source != nullptr) {
+            stream(nullptr);
+
+            delete source;
+        }
     }
 
     void Response::sendResponse(const char* junk, std::size_t junkLen) {
@@ -89,8 +93,8 @@ namespace web::http::server {
         send(junk.data(), junk.size());
     }
 
-    void Response::stream(core::pipe::Source* source) {
-        requestContext->streamToPeer(source);
+    bool Response::stream(core::pipe::Source* source) {
+        return requestContext->streamToPeer(source);
     }
 
     void Response::end() {
@@ -204,7 +208,15 @@ namespace web::http::server {
                     }
                 });
 
-                stream(source);
+                if (source != nullptr) {
+                    if (!stream(source)) {
+                        delete source;
+                        source = nullptr;
+                    }
+                } else {
+                    errno = ENODATA;
+                    onError(errno);
+                }
             } else {
                 errno = EEXIST;
                 onError(errno);
@@ -218,7 +230,7 @@ namespace web::http::server {
     void Response::sendToPeerCompleted() {
         if (contentSent == contentLength) {
             requestContext->sendToPeerCompleted();
-        } else if (contentSent > contentLength) {
+        } else {
             requestContext->close();
         }
 
@@ -260,8 +272,10 @@ namespace web::http::server {
     }
 
     void Response::eof() {
-        delete source;
-        source = nullptr;
+        if (stream(nullptr)) {
+            delete source;
+            source = nullptr;
+        }
 
         sendToPeerCompleted();
     }
@@ -271,8 +285,10 @@ namespace web::http::server {
 
         requestContext->close();
 
-        delete source;
-        source = nullptr;
+        if (stream(nullptr)) {
+            delete source;
+            source = nullptr;
+        }
 
         sendToPeerCompleted();
     }

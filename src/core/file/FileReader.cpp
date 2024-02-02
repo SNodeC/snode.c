@@ -30,23 +30,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-// constexpr int MF_READSIZE = 16384;
+constexpr int MF_READSIZE = 16384;
 
 namespace core::file {
-
-    FileReader::FileReader(int fd, core::pipe::Sink& sink, const std::string& name)
-        : core::Descriptor(fd)
-        , EventReceiver(name) {
-        Source::connect(sink);
-    }
 
     FileReader::FileReader(int fd, core::pipe::Sink& sink, const std::string& name, std::size_t pufferSize)
         : core::Descriptor(fd)
         , EventReceiver(name)
         , pufferSize(pufferSize) {
         Source::connect(sink);
-
-        span();
     }
 
     FileReader* FileReader::open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onStatus) {
@@ -57,7 +49,7 @@ namespace core::file {
         const int fd = core::system::open(path.c_str(), O_RDONLY);
 
         if (fd >= 0) {
-            fileReader = new FileReader(fd, sink, "FileReader: " + path);
+            fileReader = new FileReader(fd, sink, "FileReader: " + path, MF_READSIZE);
         }
 
         onStatus(errno);
@@ -65,29 +57,40 @@ namespace core::file {
         return fileReader;
     }
 
-    ssize_t FileReader::read(std::size_t pufferSize) {
-        std::vector<char> puffer;
-        puffer.reserve(pufferSize);
+    void FileReader::read() {
+        if (!suspended) {
+            std::vector<char> puffer(pufferSize);
 
-        const ssize_t ret = core::system::read(getFd(), puffer.data(), puffer.capacity());
-
-        if (ret > 0) {
-            if (send(puffer.data(), static_cast<std::size_t>(ret)) < 0) {
+            const ssize_t ret = core::system::read(getFd(), puffer.data(), puffer.capacity());
+            if (ret > 0) {
+                if (this->send(puffer.data(), static_cast<std::size_t>(ret)) < 0) {
+                    this->error(errno);
+                }
+                span();
+            } else if (ret == 0) {
+                this->eof();
+            } else {
                 this->error(errno);
             }
-        } else if (ret == 0) {
-            this->eof();
-        } else {
-            this->error(errno);
         }
-
-        return ret;
     }
 
     void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
         if (core::eventLoopState() != core::State::STOPPING) {
-            read(pufferSize);
+            read();
         }
+    }
+
+    void FileReader::suspend() {
+        suspended = true;
+
+        relax();
+    }
+
+    void FileReader::resume() {
+        suspended = false;
+
+        span();
     }
 
 } // namespace core::file

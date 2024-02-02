@@ -58,33 +58,32 @@ namespace core::socket::stream::tls {
             sslErr = SSL_get_error(ssl, ret);
         }
 
-        switch (sslErr) {
-            case SSL_ERROR_WANT_READ:
-                if (!ReadEventReceiver::enable(fd)) {
-                    delete this;
-                } else if (!WriteEventReceiver::enable(fd)) {
-                    delete this;
-                } else {
-                    WriteEventReceiver::suspend();
-                }
-                break;
-            case SSL_ERROR_WANT_WRITE:
-                if (!ReadEventReceiver::enable(fd)) {
-                    delete this;
-                } else if (!WriteEventReceiver::enable(fd)) {
-                    delete this;
-                } else {
-                    ReadEventReceiver::suspend();
-                }
-                break;
-            case SSL_ERROR_NONE:
-                onSuccess();
-                delete this;
-                break;
-            default:
-                onStatus(sslErr);
-                delete this;
-                break;
+        if (!ReadEventReceiver::enable(fd)) {
+            delete this;
+        } else if (!WriteEventReceiver::enable(fd)) {
+            ReadEventReceiver::disable();
+        } else {
+            ReadEventReceiver::suspend();
+            WriteEventReceiver::suspend();
+
+            switch (sslErr) {
+                case SSL_ERROR_WANT_READ:
+                    ReadEventReceiver::resume();
+                    break;
+                case SSL_ERROR_WANT_WRITE:
+                    WriteEventReceiver::resume();
+                    break;
+                case SSL_ERROR_NONE:
+                    onSuccess();
+                    ReadEventReceiver::disable();
+                    WriteEventReceiver::disable();
+                    break;
+                default:
+                    onStatus(sslErr);
+                    ReadEventReceiver::disable();
+                    WriteEventReceiver::disable();
+                    break;
+            }
         }
     }
 

@@ -35,9 +35,7 @@ namespace core {
     }
 
     Event::~Event() {
-        if (published) {
-            relax();
-        }
+        relax();
     }
 
     void Event::span() {

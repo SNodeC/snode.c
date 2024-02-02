@@ -94,14 +94,14 @@ namespace iot::mqtt_fast {
         send(iot::mqtt_fast::packets::Subscribe(getPacketIdentifier(), topics));
     }
 
-    void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
+    void SocketContext::sendSuback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes) {
         LOG(DEBUG) << "MQTT (fast): Send SUBACK";
         LOG(DEBUG) << "MQTT (fast): ===========";
 
         send(iot::mqtt_fast::packets::Suback(packetIdentifier, returnCodes));
     }
 
-    void SocketContext::sendUnsubscribe(std::list<std::string>& topics) {
+    void SocketContext::sendUnsubscribe(const std::list<std::string>& topics) {
         LOG(DEBUG) << "MQTT (fast): Send UNSUBSCRIBE";
         LOG(DEBUG) << "MQTT (fast): ================";
 
