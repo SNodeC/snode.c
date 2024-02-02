@@ -167,9 +167,6 @@ namespace core::socket::stream {
 
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};
-
-        bool shutdownTriggered = false;
-        bool exitProcessed = false;
     };
 
 } // namespace core::socket::stream

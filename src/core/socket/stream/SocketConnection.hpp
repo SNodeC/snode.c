@@ -136,12 +136,9 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
-        if (!shutdownTriggered) {
-            LOG(TRACE) << instanceName << ": Do syscall shutdown (RD)";
+        LOG(TRACE) << instanceName << ": Do syscall shutdown (RD)";
 
-            physicalSocket.shutdown(PhysicalSocket::SHUT::RD);
-            shutdownTriggered = true;
-        }
+        physicalSocket.shutdown(PhysicalSocket::SHUT::RD);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
@@ -222,7 +219,6 @@ namespace core::socket::stream {
             case SIGHUP:
                 LOG(TRACE) << instanceName << ": Shutting down due to signal '" << strsignal(signum) << "' (SIG"
                            << utils::system::sigabbrev_np(signum) << " = " << signum << ")";
-                exitProcessed = true;
                 break;
             case SIGALRM:
                 break;
