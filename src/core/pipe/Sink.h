@@ -37,9 +37,10 @@ namespace core::pipe {
 
         virtual ~Sink();
 
-        virtual void receive(const char* junk, std::size_t junkLen) = 0;
-        virtual void eof() = 0;
-        virtual void error(int errnum) = 0;
+        virtual void onReceive(const char* junk, std::size_t junkLen) = 0;
+        virtual void onEof() = 0;
+        virtual void onError(int errnum) = 0;
+        virtual void onDisconnect() = 0;
 
         void disconnect();
         void connect(Source& source);
