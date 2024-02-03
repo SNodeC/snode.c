@@ -100,7 +100,8 @@ namespace web::http::server {
             delete requestContext;
         }
         if (currentRequestContext != nullptr) {
-            delete currentRequestContext;
+            VLOG(0) << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%";
+            currentRequestContext->response.stop();
         }
     }
 
@@ -155,20 +156,22 @@ namespace web::http::server {
         // if 1.1 && (request == Close || contentLength = -1) => terminate
         // if (request == Close) => terminate
 
-        Response& response = currentRequestContext->response;
-        Request& request = currentRequestContext->request;
+        if (currentRequestContext != nullptr) {
+            Response& response = currentRequestContext->response;
+            Request& request = currentRequestContext->request;
 
-        currentRequestContext = nullptr;
+            currentRequestContext = nullptr;
 
-        bool close = (request.httpMajor == 0 && request.httpMinor == 9) ||
-                     (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
-                     (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close) ||
-                     response.connectionState == ConnectionState::Close;
+            bool close = (request.httpMajor == 0 && request.httpMinor == 9) ||
+                         (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
+                         (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close) ||
+                         response.connectionState == ConnectionState::Close;
 
-        if (close) {
-            shutdownWrite();
-        } else if (!requestContexts.empty() && requestContexts.front()->ready) {
-            requestParsed();
+            if (close) {
+                shutdownWrite();
+            } else if (!requestContexts.empty() && requestContexts.front()->ready) {
+                requestParsed();
+            }
         }
     }
 

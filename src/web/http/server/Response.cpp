@@ -29,6 +29,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/system/time.h"
 
 #include <cerrno>
@@ -46,11 +47,8 @@ namespace web::http::server {
     }
 
     Response::~Response() {
-        if (source != nullptr) {
-            stream(nullptr);
-
-            delete source;
-        }
+        VLOG(0) << "#########################";
+        stream(nullptr);
     }
 
     void Response::sendResponse(const char* junk, std::size_t junkLen) {
@@ -209,10 +207,11 @@ namespace web::http::server {
                 });
 
                 if (source != nullptr) {
-                    if (!stream(source)) {
-                        delete source;
-                        source = nullptr;
-                    }
+                    stream(source);
+                    //                    if (!stream(source)) {
+                    //                        delete source;
+                    //                        source = nullptr;
+                    //                    }
                 } else {
                     errno = ENODATA;
                     onError(errno);
@@ -235,6 +234,12 @@ namespace web::http::server {
         }
 
         delete requestContext;
+    }
+
+    void Response::stop() {
+        if (source != nullptr) {
+            source->stop();
+        }
     }
 
     void Response::sendHeader() {
@@ -267,12 +272,14 @@ namespace web::http::server {
         }
     }
 
-    void Response::receive(const char* junk, std::size_t junkLen) {
+    void Response::onReceive(const char* junk, std::size_t junkLen) {
         sendResponse(junk, junkLen);
     }
 
-    void Response::eof() {
+    void Response::onEof() {
+        VLOG(0) << "§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§ 1";
         if (stream(nullptr)) {
+            VLOG(0) << "§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§ 2";
             delete source;
             source = nullptr;
         }
@@ -280,7 +287,7 @@ namespace web::http::server {
         sendToPeerCompleted();
     }
 
-    void Response::error(int errnum) {
+    void Response::onError(int errnum) {
         errno = errnum;
 
         requestContext->close();
@@ -291,6 +298,11 @@ namespace web::http::server {
         }
 
         sendToPeerCompleted();
+    }
+
+    void Response::onDisconnect() {
+        VLOG(0) << "++++++++++++++++++++++++++";
+        delete requestContext;
     }
 
 } // namespace web::http::server
