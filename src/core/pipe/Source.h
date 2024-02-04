@@ -49,9 +49,6 @@ namespace core::pipe {
         virtual void resume() = 0;
         virtual void stop() = 0;
 
-    protected:
-        void ddd();
-
     private:
         Sink* sink;
     };

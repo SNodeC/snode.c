@@ -73,10 +73,6 @@ namespace core::pipe {
         }
     }
 
-    void Source::ddd() {
-        sink->onDisconnect();
-    }
-
     void Source::eof() {
         if (this->sink != nullptr) {
             sink->onEof();

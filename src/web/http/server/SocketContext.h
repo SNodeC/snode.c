@@ -50,17 +50,15 @@ namespace web::http::server {
         public:
             explicit RequestContext(SocketContext* serverContext)
                 : RequestContextBase(serverContext)
-                , response(this)
-                , ready(false)
-                , status(0) {
+                , response(this) {
             }
 
             Request request;
             Response response;
 
-            bool ready;
+            bool ready = false;
 
-            int status;
+            int status = 0;
             std::string reason;
         };
 

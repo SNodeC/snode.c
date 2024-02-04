@@ -37,7 +37,7 @@ namespace web::http::server {
         , onRequestReady(onRequestReady)
         , parser(
               this,
-              [this](void) -> void {
+              [this]() -> void {
                   requestContexts.emplace_back(new RequestContext(this));
               },
               [&requestContexts = this->requestContexts](const std::string& method,
@@ -100,7 +100,6 @@ namespace web::http::server {
             delete requestContext;
         }
         if (currentRequestContext != nullptr) {
-            VLOG(0) << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%";
             currentRequestContext->response.stop();
         }
     }

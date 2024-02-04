@@ -22,7 +22,6 @@
 #include "net/rc/stream/legacy/SocketServer.h" // IWYU pragma: export
 #include "web/http/server/Response.h"          // IWYU pragma: export
 #include "web/http/server/Server.h"            // IWYU pragma: export
-#include "web/http/server/Server.h"            // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

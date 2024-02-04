@@ -106,7 +106,6 @@ namespace web::http::server {
         void onReceive(const char* junk, std::size_t junkLen) override;
         void onEof() override;
         void onError(int errnum) override;
-        void onDisconnect() override;
 
         template <typename Request, typename Response>
         friend class SocketContext;

@@ -69,8 +69,8 @@ namespace iot::mqtt_fast {
         void sendPubrel(uint16_t packetIdentifier);
         void sendPubcomp(uint16_t packetIdentifier);
         void sendSubscribe(std::list<Topic>& topics);
-        void sendSuback(uint16_t packetIdentifier, const std::list<uint8_t> &returnCodes);
-        void sendUnsubscribe(const std::list<std::string> &topics);
+        void sendSuback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes);
+        void sendUnsubscribe(const std::list<std::string>& topics);
         void sendUnsuback(uint16_t packetIdentifier);
         void sendPingreq();
         void sendPingresp();

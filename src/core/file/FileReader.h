@@ -49,8 +49,6 @@ namespace core::file {
     protected:
         FileReader(int fd, core::pipe::Sink& sink, const std::string& name, std::size_t pufferSize);
 
-        ~FileReader();
-
     public:
         static FileReader* open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onError);
 

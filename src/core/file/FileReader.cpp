@@ -24,7 +24,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
-#include "log/Logger.h"
 
 #include <cerrno>
 #include <vector>
@@ -40,10 +39,6 @@ namespace core::file {
         , EventReceiver(name)
         , pufferSize(pufferSize) {
         Source::connect(sink);
-    }
-
-    FileReader::~FileReader() {
-        VLOG(0) << "=============================";
     }
 
     FileReader* FileReader::open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onStatus) {
@@ -99,15 +94,7 @@ namespace core::file {
     }
 
     void FileReader::stop() {
-        VLOG(0) << "#################### Called stop 1";
-
         suspend();
-
-        VLOG(0) << "#################### Called stop 2";
-
-        ddd();
-
-        VLOG(0) << "#################### Called stop 3";
 
         delete this;
     }

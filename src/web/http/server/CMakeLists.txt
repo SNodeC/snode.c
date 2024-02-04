@@ -35,7 +35,7 @@ set(HTTPSERVER_H
     SocketContextUpgradeFactorySelector.h
 )
 
-add_library(http-server SHARED ${HTTPSERVER_CPP} ${HTTPSERVER_h})
+add_library(http-server SHARED ${HTTPSERVER_CPP} ${HTTPSERVER_H})
 add_library(snodec::http-server ALIAS http-server)
 
 set_source_files_properties(

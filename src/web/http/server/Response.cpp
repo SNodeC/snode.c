@@ -29,7 +29,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/system/time.h"
 
 #include <cerrno>
@@ -47,7 +46,6 @@ namespace web::http::server {
     }
 
     Response::~Response() {
-        VLOG(0) << "#########################";
         stream(nullptr);
     }
 
@@ -239,6 +237,8 @@ namespace web::http::server {
     void Response::stop() {
         if (source != nullptr) {
             source->stop();
+
+            delete requestContext;
         }
     }
 
@@ -277,9 +277,7 @@ namespace web::http::server {
     }
 
     void Response::onEof() {
-        VLOG(0) << "§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§ 1";
         if (stream(nullptr)) {
-            VLOG(0) << "§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§ 2";
             delete source;
             source = nullptr;
         }
@@ -298,11 +296,6 @@ namespace web::http::server {
         }
 
         sendToPeerCompleted();
-    }
-
-    void Response::onDisconnect() {
-        VLOG(0) << "++++++++++++++++++++++++++";
-        delete requestContext;
     }
 
 } // namespace web::http::server
