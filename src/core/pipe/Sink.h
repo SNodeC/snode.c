@@ -37,7 +37,7 @@ namespace core::pipe {
 
         virtual ~Sink();
 
-        virtual void onReceive(const char* junk, std::size_t junkLen) = 0;
+        virtual void onSend(const char* junk, std::size_t junkLen) = 0;
         virtual void onEof() = 0;
         virtual void onError(int errnum) = 0;
 

@@ -48,7 +48,7 @@ namespace web::http::client {
             const std::function<void(std::map<std::string, std::string>&, std::map<std::string, web::http::CookieOptions>&)>& onHeader,
             const std::function<void(std::vector<uint8_t>&)>& onContent,
             const std::function<void(ResponseParser&)>& onParsed,
-            const std::function<void(int, const std::string&)>& onError);
+            const std::function<void(int, std::string&&)>& onError);
 
         void reset() override;
 
@@ -59,7 +59,7 @@ namespace web::http::client {
         enum Parser::ParserState parseStartLine(const std::string& line) override;
         enum Parser::ParserState parseHeader() override;
         enum Parser::ParserState parseContent(std::vector<uint8_t>& content) override;
-        enum Parser::ParserState parsingError(int code, const std::string& reason) override;
+        enum Parser::ParserState parsingError(int code, std::string&& reason) override;
 
         void parsingFinished();
 
@@ -72,7 +72,7 @@ namespace web::http::client {
         std::function<void(std::map<std::string, std::string>&, std::map<std::string, web::http::CookieOptions>&)> onHeader;
         std::function<void(std::vector<uint8_t>&)> onContent;
         std::function<void(ResponseParser&)> onParsed;
-        std::function<void(int, const std::string&)> onError;
+        std::function<void(int, std::string&&)> onError;
     };
 
 } // namespace web::http::client

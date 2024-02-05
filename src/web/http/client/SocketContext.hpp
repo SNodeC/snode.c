@@ -49,8 +49,8 @@ namespace web::http::client {
                   response.statusCode = statusCode;
                   response.reason = reason;
               },
-              [&response = this->response](const std::map<std::string, std::string>& headers,
-                                           const std::map<std::string, web::http::CookieOptions>& cookies) -> void {
+              [&response = this->response](std::map<std::string, std::string>& headers,
+                                           std::map<std::string, web::http::CookieOptions>& cookies) -> void {
                   response.headers = headers;
                   response.cookies = cookies;
               },
@@ -68,7 +68,7 @@ namespace web::http::client {
                   request.reset();
                   response.reset();
               },
-              [onError, this](int status, const std::string& reason) -> void {
+              [onError, this](int status, std::string&& reason) -> void {
                   onError(status, reason);
 
                   shutdownWrite(true);

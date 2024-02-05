@@ -47,7 +47,7 @@ namespace web::http::server {
             const std::function<void(std::map<std::string, std::string>&, std::map<std::string, std::string>&)>& onHeader,
             const std::function<void(std::vector<uint8_t>&)>& onContent,
             const std::function<void()>& onParsed,
-            const std::function<void(int, const std::string&)>& onError);
+            const std::function<void(int, std::string&&)>& onError);
 
         RequestParser(const RequestParser&) = delete;
         RequestParser& operator=(const RequestParser&) = delete;
@@ -68,7 +68,7 @@ namespace web::http::server {
 
         // Exits
         void parsingFinished();
-        enum Parser::ParserState parsingError(int code, const std::string& reason) override;
+        enum Parser::ParserState parsingError(int code, std::string&& reason) override;
 
         // Supported web-methods
         std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};
@@ -85,7 +85,7 @@ namespace web::http::server {
         std::function<void(std::map<std::string, std::string>&, std::map<std::string, std::string>&)> onHeader;
         std::function<void(std::vector<uint8_t>&)> onContent;
         std::function<void()> onParsed;
-        std::function<void(int, const std::string&)> onError;
+        std::function<void(int, std::string&&)> onError;
     };
 
 } // namespace web::http::server

@@ -38,7 +38,7 @@ namespace web::http::server {
         const std::function<void(std::map<std::string, std::string>&, std::map<std::string, std::string>&)>& onHeader,
         const std::function<void(std::vector<uint8_t>&)>& onContent,
         const std::function<void()>& onParsed,
-        const std::function<void(int, const std::string&)>& onError)
+        const std::function<void(int, std::string&&)>& onError)
         : Parser(socketContext)
         , onStart(onStart)
         , onRequest(onRequest)
@@ -162,8 +162,8 @@ namespace web::http::server {
         onParsed();
     }
 
-    enum Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {
-        onError(code, reason);
+    enum Parser::ParserState RequestParser::parsingError(int code, std::string&& reason) {
+        onError(code, std::move(reason));
 
         return ParserState::ERROR;
     }

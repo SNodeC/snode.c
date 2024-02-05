@@ -55,8 +55,8 @@ namespace web::http::server {
                   request.httpMajor = httpMajor;
                   request.httpMinor = httpMinor;
               },
-              [&requestContexts = this->requestContexts](const std::map<std::string, std::string>& header,
-                                                         const std::map<std::string, std::string>& cookies) -> void {
+              [&requestContexts = this->requestContexts](std::map<std::string, std::string>& header,
+                                                         std::map<std::string, std::string>& cookies) -> void {
                   Request& request = requestContexts.back()->request;
 
                   request.headers = std::move(header);
@@ -83,7 +83,7 @@ namespace web::http::server {
 
                   requestParsed();
               },
-              [this](int status, const std::string& reason) -> void {
+              [this](int status, std::string&& reason) -> void {
                   RequestContext* requestContext = requestContexts.back();
 
                   requestContext->status = status;

@@ -206,10 +206,6 @@ namespace web::http::server {
 
                 if (source != nullptr) {
                     stream(source);
-                    //                    if (!stream(source)) {
-                    //                        delete source;
-                    //                        source = nullptr;
-                    //                    }
                 } else {
                     errno = ENODATA;
                     onError(errno);
@@ -272,7 +268,7 @@ namespace web::http::server {
         }
     }
 
-    void Response::onReceive(const char* junk, std::size_t junkLen) {
+    void Response::onSend(const char* junk, std::size_t junkLen) {
         sendResponse(junk, junkLen);
     }
 

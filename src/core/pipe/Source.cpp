@@ -58,7 +58,7 @@ namespace core::pipe {
         ssize_t ret = static_cast<ssize_t>(junkLen);
 
         if (this->sink != nullptr) {
-            sink->onReceive(junk, junkLen);
+            sink->onSend(junk, junkLen);
         } else {
             ret = -1;
             errno = EPIPE;
