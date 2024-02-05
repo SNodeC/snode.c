@@ -27,10 +27,10 @@ namespace core::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <set>
-#include <stdint.h>
 #include <string>
 #include <vector>
 
