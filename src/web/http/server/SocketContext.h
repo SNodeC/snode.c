@@ -53,6 +53,10 @@ namespace web::http::server {
                 , response(this) {
             }
 
+            void stop() {
+                response.stopResponse();
+            }
+
             Request request;
             Response response;
 

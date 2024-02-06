@@ -63,9 +63,6 @@ namespace web::http::server {
 
         void end();
 
-        void sendResponse(const char* junk, std::size_t junkLen);
-        void sendResponse(const std::string& junk);
-
         Response& status(int status);
         Response& append(const std::string& field, const std::string& value);
         Response& set(const std::string& field, const std::string& value, bool overwrite = true);
@@ -87,8 +84,12 @@ namespace web::http::server {
         std::map<std::string, web::http::CookieOptions> cookies;
 
     private:
-        void sendToPeerCompleted();
-        void stop();
+        void sendResponse(const char* junk, std::size_t junkLen);
+        void sendResponse(const std::string& junk);
+
+        void sendResponseCompleted();
+
+        void stopResponse();
 
         core::pipe::Source* source = nullptr;
         ConnectionState connectionState = ConnectionState::Default;
@@ -103,9 +104,9 @@ namespace web::http::server {
 
         void sendHeader();
 
-        void onSend(const char* junk, std::size_t junkLen) override;
-        void onEof() override;
-        void onError(int errnum) override;
+        void onStreamData(const char* junk, std::size_t junkLen) override;
+        void onStreamEof() override;
+        void onStreamError(int errnum) override;
 
         template <typename Request, typename Response>
         friend class SocketContext;

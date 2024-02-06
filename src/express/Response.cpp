@@ -62,7 +62,7 @@ namespace express {
     }
 
     void Response::sendStatus(int state) {
-        this->status(state).send(web::http::StatusCode::reason(state));
+        this->status(state).send(web::http::StatusCode::reason(state) + "\r\n");
     }
 
     Response& Response::attachment(const std::string& fileName) {

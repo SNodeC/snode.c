@@ -37,16 +37,19 @@ namespace core::pipe {
 
         virtual ~Sink();
 
-        virtual void onSend(const char* junk, std::size_t junkLen) = 0;
-        virtual void onEof() = 0;
-        virtual void onError(int errnum) = 0;
+        virtual void onStreamData(const char* junk, std::size_t junkLen) = 0;
+        virtual void onStreamEof() = 0;
+        virtual void onStreamError(int errnum) = 0;
 
+    protected:
         void disconnect();
         void connect(Source& source);
         void disconnect(const Source& source);
 
     private:
         Source* source;
+
+        friend class Source;
     };
 
 } // namespace core::pipe

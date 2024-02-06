@@ -77,7 +77,7 @@ namespace web::http::server {
 
         sendResponse(junk, junkLen);
 
-        sendToPeerCompleted();
+        sendResponseCompleted();
     }
 
     void Response::send(const std::string& junk) {
@@ -203,7 +203,6 @@ namespace web::http::server {
                         onError(err);
                     }
                 });
-
                 if (source != nullptr) {
                     stream(source);
                 } else {
@@ -220,7 +219,7 @@ namespace web::http::server {
         }
     }
 
-    void Response::sendToPeerCompleted() {
+    void Response::sendResponseCompleted() {
         if (contentSent == contentLength) {
             requestContext->sendToPeerCompleted();
         } else {
@@ -230,7 +229,7 @@ namespace web::http::server {
         delete requestContext;
     }
 
-    void Response::stop() {
+    void Response::stopResponse() {
         if (source != nullptr) {
             source->stop();
 
@@ -268,20 +267,20 @@ namespace web::http::server {
         }
     }
 
-    void Response::onSend(const char* junk, std::size_t junkLen) {
+    void Response::onStreamData(const char* junk, std::size_t junkLen) {
         sendResponse(junk, junkLen);
     }
 
-    void Response::onEof() {
+    void Response::onStreamEof() {
         if (stream(nullptr)) {
             delete source;
             source = nullptr;
         }
 
-        sendToPeerCompleted();
+        sendResponseCompleted();
     }
 
-    void Response::onError(int errnum) {
+    void Response::onStreamError(int errnum) {
         errno = errnum;
 
         requestContext->close();
@@ -291,7 +290,7 @@ namespace web::http::server {
             source = nullptr;
         }
 
-        sendToPeerCompleted();
+        sendResponseCompleted();
     }
 
 } // namespace web::http::server

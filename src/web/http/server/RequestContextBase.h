@@ -31,11 +31,9 @@ namespace core::pipe {
     class Source;
 }
 
-namespace core::socket {
-    namespace stream {
-        class SocketContextFactory;
-    } // namespace stream
-} // namespace core::socket
+namespace core::socket::stream {
+    class SocketContextFactory;
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

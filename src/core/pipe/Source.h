@@ -36,6 +36,11 @@ namespace core::pipe {
         Source();
         virtual ~Source();
 
+        virtual void suspend() = 0;
+        virtual void resume() = 0;
+        virtual void stop() = 0;
+
+    protected:
         void disconnect();
         void connect(Sink& sink);
         void disconnect(const Sink& sink);
@@ -44,12 +49,10 @@ namespace core::pipe {
         void eof();
         void error(int errnum);
 
-        virtual void suspend() = 0;
-        virtual void resume() = 0;
-        virtual void stop() = 0;
-
     private:
         Sink* sink;
+
+        friend class Sink;
     };
 
 } // namespace core::pipe

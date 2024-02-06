@@ -100,7 +100,7 @@ namespace web::http::server {
             delete requestContext;
         }
         if (currentRequestContext != nullptr) {
-            currentRequestContext->response.stop();
+            currentRequestContext->stop();
         }
     }
 
@@ -122,8 +122,7 @@ namespace web::http::server {
                 if (currentRequestContext->status == 0) {
                     Request& request = currentRequestContext->request;
 
-                    bool close = (request.connectionState == ConnectionState::Close) ||
-                                 (request.httpMajor == 0 && request.httpMinor == 9) ||
+                    bool close = (request.httpMajor == 0 && request.httpMinor == 9) ||
                                  (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
                                  (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close);
 
@@ -156,8 +155,8 @@ namespace web::http::server {
         // if (request == Close) => terminate
 
         if (currentRequestContext != nullptr) {
-            Response& response = currentRequestContext->response;
-            Request& request = currentRequestContext->request;
+            const Response& response = currentRequestContext->response;
+            const Request& request = currentRequestContext->request;
 
             currentRequestContext = nullptr;
 
