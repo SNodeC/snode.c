@@ -40,18 +40,18 @@ namespace web::http::server {
               [this]() -> void {
                   requestContexts.emplace_back(new RequestContext(this));
               },
-              [&requestContexts = this->requestContexts](const std::string& method,
-                                                         const std::string& url,
-                                                         const std::string& httpVersion,
+              [&requestContexts = this->requestContexts](std::string& method,
+                                                         std::string& url,
+                                                         std::string& httpVersion,
                                                          int httpMajor,
                                                          int httpMinor,
                                                          std::map<std::string, std::string>& queries) -> void {
                   Request& request = requestContexts.back()->request;
 
-                  request.method = method;
-                  request.url = url;
+                  request.method = std::move(method);
+                  request.url = std::move(url);
                   request.queries = std::move(queries);
-                  request.httpVersion = httpVersion;
+                  request.httpVersion = std::move(httpVersion);
                   request.httpMajor = httpMajor;
                   request.httpMinor = httpMinor;
               },
@@ -88,6 +88,7 @@ namespace web::http::server {
 
                   requestContext->status = status;
                   requestContext->reason = std::move(reason);
+
                   requestContext->ready = true;
 
                   requestParsed();
