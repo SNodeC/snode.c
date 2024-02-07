@@ -57,7 +57,6 @@ namespace web::http::server {
             headersSent = true;
         }
 
-        // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete)
         requestContext->sendToPeer(junk, junkLen);
 
         if (headersSent) {

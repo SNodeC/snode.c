@@ -48,14 +48,8 @@ namespace web::http::server {
 
         class RequestContext : public RequestContextBase {
         public:
-            explicit RequestContext(SocketContext* serverContext)
-                : RequestContextBase(serverContext)
-                , response(this) {
-            }
-
-            void stop() {
-                response.stopResponse();
-            }
+            explicit RequestContext(SocketContext* serverContext);
+            void stop() override;
 
             Request request;
             Response response;

@@ -55,7 +55,7 @@ namespace web::http::server {
         [[nodiscard]] bool streamToPeer(core::pipe::Source* source);
         void sendToPeerCompleted();
         void close();
-        void stop();
+        virtual void stop() = 0;
 
     private:
         web::http::SocketContext* socketContext = nullptr;

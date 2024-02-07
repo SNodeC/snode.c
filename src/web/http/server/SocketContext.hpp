@@ -31,6 +31,17 @@
 namespace web::http::server {
 
     template <typename Request, typename Response>
+    SocketContext<Request, Response>::RequestContext::RequestContext(SocketContext* serverContext)
+        : RequestContextBase(serverContext)
+        , response(this) {
+    }
+
+    template <typename Request, typename Response>
+    void SocketContext<Request, Response>::RequestContext::stop() {
+        response.stopResponse();
+    }
+
+    template <typename Request, typename Response>
     SocketContext<Request, Response>::SocketContext(core::socket::stream::SocketConnection* socketConnection,
                                                     const std::function<void(Request&, Response&)>& onRequestReady)
         : Super(socketConnection)
@@ -97,12 +108,6 @@ namespace web::http::server {
 
     template <typename Request, typename Response>
     SocketContext<Request, Response>::~SocketContext() {
-        for (RequestContext* requestContext : requestContexts) {
-            delete requestContext;
-        }
-        if (currentRequestContext != nullptr) {
-            currentRequestContext->stop();
-        }
     }
 
     template <typename Request, typename Response>
@@ -182,6 +187,13 @@ namespace web::http::server {
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
         LOG(INFO) << getSocketConnection()->getInstanceName() << ": HTTP onDisconnected";
+
+        for (RequestContext* requestContext : requestContexts) {
+            delete requestContext;
+        }
+        if (currentRequestContext != nullptr) {
+            currentRequestContext->stop();
+        }
     }
 
     template <typename Request, typename Response>
