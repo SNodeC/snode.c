@@ -19,7 +19,8 @@
 #ifndef WEB_HTTP_SERVER_REQUESTPARSER_H
 #define WEB_HTTP_SERVER_REQUESTPARSER_H
 
-#include "web/http/Parser.h" // IWYU pragma: export
+#include "web/http/Parser.h"         // IWYU pragma: export
+#include "web/http/server/Request.h" // IWYU pragma: export
 
 namespace core::socket::stream {
     class SocketContext;
@@ -27,12 +28,9 @@ namespace core::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
 #include <functional>
-#include <map>
 #include <set>
 #include <string>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,14 +38,9 @@ namespace web::http::server {
 
     class RequestParser : public web::http::Parser {
     public:
-        RequestParser(
-            core::socket::stream::SocketContext* socketContext,
-            const std::function<void(void)>& onStart,
-            const std::function<void(std::string&, std::string&, std::string&, int, int, std::map<std::string, std::string>&)>& onRequest,
-            const std::function<void(std::map<std::string, std::string>&, std::map<std::string, std::string>&)>& onHeader,
-            const std::function<void(std::vector<uint8_t>&)>& onContent,
-            const std::function<void()>& onParsed,
-            const std::function<void(int, std::string&&)>& onError);
+        RequestParser(core::socket::stream::SocketContext* socketContext,
+                      const std::function<void(Request&&)>& onParsed,
+                      const std::function<void(int, std::string&&)>& onError);
 
         RequestParser(const RequestParser&) = delete;
         RequestParser& operator=(const RequestParser&) = delete;
@@ -73,18 +66,10 @@ namespace web::http::server {
         // Supported web-methods
         std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};
 
-        // Data specific to HTTP request messages
-        std::string method;
-        std::string url;
-        std::map<std::string, std::string> cookies;
-        std::map<std::string, std::string> queries;
+        Request request;
 
         // Callbacks
-        std::function<void(void)> onStart;
-        std::function<void(std::string&, std::string&, std::string&, int, int, std::map<std::string, std::string>&)> onRequest;
-        std::function<void(std::map<std::string, std::string>&, std::map<std::string, std::string>&)> onHeader;
-        std::function<void(std::vector<uint8_t>&)> onContent;
-        std::function<void()> onParsed;
+        std::function<void(Request&&)> onParsed;
         std::function<void(int, std::string&&)> onError;
     };
 

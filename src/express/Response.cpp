@@ -32,8 +32,8 @@
 
 namespace express {
 
-    Response::Response(web::http::server::RequestContextBase* requestContext)
-        : web::http::server::Response(requestContext) {
+    Response::Response(web::http::SocketContext *socketContext)
+        : web::http::server::Response(socketContext) {
     }
 
     Response::Response(web::http::server::Response&& response) noexcept

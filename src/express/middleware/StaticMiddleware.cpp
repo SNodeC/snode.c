@@ -24,7 +24,6 @@
 #include "log/Logger.h"
 
 #include <map>
-#include <memory>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -40,37 +39,37 @@ namespace express::middleware {
                 req,
                 res,
                 next) {
-                if (req.method == "GET") {
+                if (req->method == "GET") {
                     if (forceClose) {
-                        res.set("Connection", "close");
+                        res->set("Connection", "close");
                     } else {
-                        res.set("Connection", "keep-alive");
+                        res->set("Connection", "keep-alive");
                     }
-                    res.set(stdHeaders);
+                    res->set(stdHeaders);
                     for (auto& [value, options] : stdCookies) {
-                        res.cookie(value, options.getValue(), options.getOptions());
+                        res->cookie(value, options.getValue(), options.getOptions());
                     }
                     next();
                 } else {
-                    LOG(INFO) << "Express StaticMiddleware: Wrong method " << req.method;
-                    res.set("Connection", "Close");
-                    res.sendStatus(400);
+                    LOG(INFO) << "Express StaticMiddleware: Wrong method " << req->method;
+                    res->set("Connection", "Close");
+                    res->sendStatus(400);
                 }
             },
             [] MIDDLEWARE(req, res, next) {
-                if (req.url == "/") {
-                    LOG(INFO) << "Express StaticMiddleware: REDIRECTING " + req.url + " -> " + "/index.html";
-                    res.redirect(308, "/index.html");
+                if (req->url == "/") {
+                    LOG(INFO) << "Express StaticMiddleware: REDIRECTING " + req->url + " -> " + "/index.html";
+                    res->redirect(308, "/index.html");
                 } else {
                     next();
                 }
             },
             [&root = this->root] APPLICATION(req, res) {
-                LOG(INFO) << "Express StaticMiddleware:: GET " + req.url + " -> " + root + req.url;
-                res.sendFile(root + req.url, [&req, &res](int ret) -> void {
+                LOG(INFO) << "Express StaticMiddleware:: GET " + req->url + " -> " + root + req->url;
+                res->sendFile(root + req->url, [&req, &res](int ret) -> void {
                     if (ret != 0) {
-                        PLOG(INFO) << req.url;
-                        res.status(404).end();
+                        PLOG(INFO) << req->url;
+                        res->status(404).end();
                     }
                 });
             });

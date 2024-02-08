@@ -21,10 +21,10 @@
 
 #include "core/file/FileReader.h"
 #include "web/http/MimeTypes.h"
+#include "web/http/SocketContext.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
-#include "web/http/server/RequestContextBase.h"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -41,8 +41,8 @@
 
 namespace web::http::server {
 
-    Response::Response(RequestContextBase* requestContext)
-        : requestContext(requestContext) {
+    Response::Response(SocketContext* socketContext)
+        : socketContext(socketContext) {
     }
 
     Response::~Response() {
@@ -50,17 +50,19 @@ namespace web::http::server {
     }
 
     void Response::sendResponse(const char* junk, std::size_t junkLen) {
-        if (!headersSent && !sendHeaderInProgress) {
-            sendHeaderInProgress = true;
-            sendHeader();
-            sendHeaderInProgress = false;
-            headersSent = true;
-        }
+        if (socketContext != nullptr) {
+            if (!headersSent && !sendHeaderInProgress) {
+                sendHeaderInProgress = true;
+                sendHeader();
+                sendHeaderInProgress = false;
+                headersSent = true;
+            }
 
-        requestContext->sendToPeer(junk, junkLen);
+            socketContext->sendToPeer(junk, junkLen);
 
-        if (headersSent) {
-            contentSent += junkLen;
+            if (headersSent) {
+                contentSent += junkLen;
+            }
         }
     }
 
@@ -89,7 +91,13 @@ namespace web::http::server {
     }
 
     bool Response::stream(core::pipe::Source* source) {
-        return requestContext->streamToPeer(source);
+        bool success = false;
+
+        if (socketContext != nullptr) {
+            success = socketContext->streamToPeer(source);
+        }
+
+        return success;
     }
 
     void Response::end() {
@@ -166,20 +174,23 @@ namespace web::http::server {
 @enduml
      */
 
-    [[nodiscard]] bool Response::upgrade(Request& req) {
+    [[nodiscard]] bool Response::upgrade(std::shared_ptr<Request> req) {
         bool success = false;
 
-        if (httputils::ci_contains(req.get("connection"), "Upgrade")) {
-            web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
+        if (socketContext != nullptr) {
+            if (httputils::ci_contains(req->get("connection"), "Upgrade")) {
+                web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                    web::http::server::SocketContextUpgradeFactorySelector::instance()->select(*req, *this);
 
-            if (socketContextUpgradeFactory != nullptr) {
-                success = requestContext->switchSocketContext(socketContextUpgradeFactory);
+                if (socketContextUpgradeFactory != nullptr) {
+                    socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
+                    success = socketContextUpgrade != nullptr;
+                } else {
+                    set("Connection", "close").status(404);
+                }
             } else {
-                set("Connection", "close").status(404);
+                set("Connection", "close").status(400);
             }
-        } else {
-            set("Connection", "close").status(400);
         }
 
         return success;
@@ -219,21 +230,41 @@ namespace web::http::server {
     }
 
     void Response::sendResponseCompleted() {
-        if (contentSent == contentLength) {
-            requestContext->sendToPeerCompleted();
-        } else {
-            requestContext->close();
-        }
+        if (socketContext != nullptr) {
+            if (contentSent == contentLength) {
+                if (socketContextUpgrade != nullptr) {
+                    socketContext->switchSocketContext(socketContextUpgrade);
+                }
 
-        delete requestContext;
+                socketContext->sendToPeerCompleted();
+
+                responseStatus = 200;
+                headers.clear();
+                cookies.clear();
+                sendHeaderInProgress = false;
+                headersSent = false;
+                contentLength = 0;
+                contentSent = 0;
+            } else {
+                socketContext->close();
+            }
+        }
     }
 
     void Response::stopResponse() {
         if (source != nullptr) {
             source->stop();
-
-            delete requestContext;
         }
+
+        responseStatus = 200;
+        headers.clear();
+        cookies.clear();
+        sendHeaderInProgress = false;
+        headersSent = false;
+        contentLength = 0;
+        contentSent = 0;
+
+        socketContext = nullptr;
     }
 
     void Response::sendHeader() {
@@ -282,7 +313,9 @@ namespace web::http::server {
     void Response::onStreamError(int errnum) {
         errno = errnum;
 
-        requestContext->close();
+        if (socketContext != nullptr) {
+            socketContext->close();
+        }
 
         if (stream(nullptr)) {
             delete source;

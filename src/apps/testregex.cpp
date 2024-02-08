@@ -58,12 +58,12 @@ Router router(database::mariadb::MariaDBClient& db) {
                 next();
             },
             [&db] MIDDLEWARE(req, res, next) { // http://localhost:8080/query/123
-                VLOG(0) << "UserId: " << req.params["userId"];
-                std::string userId = req.params["userId"];
+                VLOG(0) << "UserId: " << req->params["userId"];
+                std::string userId = req->params["userId"];
 
-                req.setAttribute<std::string, "html-table">(std::string());
+                req->setAttribute<std::string, "html-table">(std::string());
 
-                req.getAttribute<std::string, "html-table">([&userId](std::string& table) -> void {
+                req->getAttribute<std::string, "html-table">([&userId](std::string& table) -> void {
                     table = "<html>\n"
                             "  <head>\n"
                             "    <title>"
@@ -87,7 +87,7 @@ Router router(database::mariadb::MariaDBClient& db) {
                     [next, &req, i](const MYSQL_ROW row) mutable -> void {
                         if (row != nullptr) {
                             i++;
-                            req.getAttribute<std::string, "html-table">([row, &i](std::string& table) -> void {
+                            req->getAttribute<std::string, "html-table">([row, &i](std::string& table) -> void {
                                 table.append("      <tr>\n"
                                              "        <td>\n" +
                                              std::to_string(i) +
@@ -104,7 +104,7 @@ Router router(database::mariadb::MariaDBClient& db) {
                                              "      </tr>\n");
                             });
                         } else {
-                            req.getAttribute<std::string, "html-table">([](std::string& table) -> void {
+                            req->getAttribute<std::string, "html-table">([](std::string& table) -> void {
                                 table.append(std::string("    </table>\n"
                                                          "  </body>\n"
                                                          "</html>\n"));
@@ -115,7 +115,7 @@ Router router(database::mariadb::MariaDBClient& db) {
                     },
                     [&res, userId](const std::string& errorString, unsigned int errorNumber) -> void {
                         VLOG(0) << "Error: " << errorString << " : " << errorNumber;
-                        res.status(404).send(userId + ": " + errorString + " - " + std::to_string(errorNumber));
+                        res->status(404).send(userId + ": " + errorString + " - " + std::to_string(errorNumber));
                     });
             },
             [] MIDDLEWARE(req, res, next) {
@@ -133,18 +133,18 @@ Router router(database::mariadb::MariaDBClient& db) {
         .get([] APPLICATION(req, res) {
             VLOG(0) << "SendResult";
 
-            req.getAttribute<std::string, "html-table">(
-                [&res](std::string& table) -> void {
-                    res.send(table);
+            req->getAttribute<std::string, "html-table">(
+                [res](std::string& table) -> void {
+                    res->send(table);
                 },
-                [&res](const std::string&) -> void {
-                    res.end();
+                [res](const std::string&) -> void {
+                    res->end();
                 });
         });
     router.get("/account/:userId(\\d*)/:userName", [&db] APPLICATION(req, res) { // http://localhost:8080/account/123/perfectNDSgroup
         VLOG(0) << "Show account of";
-        VLOG(0) << "UserId: " << req.params["userId"];
-        VLOG(0) << "UserName: " << req.params["userName"];
+        VLOG(0) << "UserId: " << req->params["userId"];
+        VLOG(0) << "UserName: " << req->params["userName"];
 
         const std::string response = "<html>"
                                      "  <head>"
@@ -154,17 +154,17 @@ Router router(database::mariadb::MariaDBClient& db) {
                                      "    <h1>Regex return</h1>"
                                      "    <ul>"
                                      "      <li>UserId: " +
-                                     req.params["userId"] +
+                                     req->params["userId"] +
                                      "      </li>"
                                      "      <li>UserName: " +
-                                     req.params["userName"] +
+                                     req->params["userName"] +
                                      "      </li>"
                                      "    </ul>"
                                      "  </body>"
                                      "</html>";
 
-        const std::string userId = req.params["userId"];
-        const std::string userName = req.params["userName"];
+        const std::string userId = req->params["userId"];
+        const std::string userName = req->params["userName"];
 
         db.exec(
             "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
@@ -175,12 +175,12 @@ Router router(database::mariadb::MariaDBClient& db) {
                 VLOG(0) << "Error: " << errorString << " : " << errorNumber;
             });
 
-        res.send(response);
+        res->send(response);
     });
     router.get("/asdf/:testRegex1(d\\d{3}e)/jklö/:testRegex2", [] APPLICATION(req, res) { // http://localhost:8080/asdf/d123e/jklö/hallo
         VLOG(0) << "Testing Regex";
-        VLOG(0) << "Regex1: " << req.params["testRegex1"];
-        VLOG(0) << "Regex2: " << req.params["testRegex2"];
+        VLOG(0) << "Regex1: " << req->params["testRegex1"];
+        VLOG(0) << "Regex2: " << req->params["testRegex2"];
 
         const std::string response = "<html>"
                                      "  <head>"
@@ -190,26 +190,26 @@ Router router(database::mariadb::MariaDBClient& db) {
                                      "    <h1>Regex return</h1>"
                                      "    <ul>"
                                      "      <li>Regex 1: " +
-                                     req.params["testRegex1"] +
+                                     req->params["testRegex1"] +
                                      "      </li>"
                                      "      <li>Regex 2: " +
-                                     req.params["testRegex2"] +
+                                     req->params["testRegex2"] +
                                      "      </li>"
                                      "    </ul>"
                                      "  </body>"
                                      "</html>";
 
-        res.send(response);
+        res->send(response);
     });
     router.get("/search/:search", [] APPLICATION(req, res) { // http://localhost:8080/search/buxtehude123
         VLOG(0) << "Show Search of";
-        VLOG(0) << "Search: " << req.params["search"];
-        VLOG(0) << "Queries: " << req.query("test");
+        VLOG(0) << "Search: " << req->params["search"];
+        VLOG(0) << "Queries: " << req->query("test");
 
-        res.send(req.params["search"]);
+        res->send(req->params["search"]);
     });
     router.use([] APPLICATION(req, res) {
-        res.status(404).send("Not found: " + req.url);
+        res->status(404).send("Not found: " + req->url);
     });
 
     return router;

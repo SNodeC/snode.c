@@ -48,8 +48,10 @@ namespace core::socket {
         SocketContext& operator=(const SocketContext&) = delete;
         SocketContext& operator=(SocketContext&&) = delete;
 
+    protected:
         virtual ~SocketContext();
 
+    public:
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
         void sendToPeer(const std::string& data) const;

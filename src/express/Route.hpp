@@ -31,16 +31,19 @@ namespace express {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional> // for function
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DEFINE_ROUTE_TEMPLATE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                           \
     template <typename... Lambdas>                                                                                                         \
-    Route& Route::METHOD(const std::function<void(Request & req, Response & res)>& lambda, Lambdas... lambdas) const {                     \
+    Route& Route::METHOD(const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& lambda,                   \
+                         Lambdas... lambdas) const {                                                                                       \
         return this->METHOD(lambda).METHOD(lambdas...);                                                                                    \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
-    Route& Route::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda, Lambdas... lambdas) const {        \
+    Route& Route::METHOD(const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res, Next & next)>& lambda,      \
+                         Lambdas... lambdas) const {                                                                                       \
         return this->METHOD(lambda).METHOD(lambdas...);                                                                                    \
     }
 

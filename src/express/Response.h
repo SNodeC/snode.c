@@ -22,9 +22,9 @@
 
 #include "web/http/server/Response.h" // IWYU pragma: export
 
-namespace web::http::server {
-    class RequestContextBase;
-} // namespace web::http::server
+namespace web::http {
+    class SocketContext;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,7 +37,7 @@ namespace express {
 
     class Response : public web::http::server::Response {
     public:
-        explicit Response(web::http::server::RequestContextBase* requestContext);
+        explicit Response(web::http::SocketContext* socketContext);
         explicit Response(web::http::server::Response&& response) noexcept;
         explicit Response(Response&& response) noexcept = default;
 

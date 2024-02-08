@@ -29,6 +29,7 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -37,13 +38,14 @@ namespace express {
 
     class Controller {
     public:
-        Controller(Request& request, Response& response);
+        Controller(std::shared_ptr<Request> request, std::shared_ptr<Response> response);
 
         void setRootRoute(RootRoute* rootRoute);
         void setCurrentRoute(Route* currentRoute);
 
-        Request* getRequest() const;
-        Response* getResponse() const;
+        std::shared_ptr<Request> getRequest() const;
+        std::shared_ptr<Response> getResponse() const;
+
         int getFlags() const;
 
         void next(const std::string& how) const;
@@ -62,8 +64,8 @@ namespace express {
 
         unsigned long lastTick = 0;
 
-        Request* request = nullptr;
-        Response* response = nullptr;
+        std::shared_ptr<Request> request = nullptr;
+        std::shared_ptr<Response> response = nullptr;
 
         mutable int flags = NONE;
     };

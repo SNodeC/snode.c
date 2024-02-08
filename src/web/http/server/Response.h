@@ -32,16 +32,19 @@ namespace core {
     }
 } // namespace core
 
-namespace web::http::server {
-    class Request;
-    class RequestContextBase;
-} // namespace web::http::server
+namespace web::http {
+    class SocketContext;
+    namespace server {
+        class Request;
+    } // namespace server
+} // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>    // for size_t
 #include <functional> // IWYU pragma: export
 #include <map>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -50,7 +53,7 @@ namespace web::http::server {
 
     class Response : public core::pipe::Sink {
     protected:
-        explicit Response(RequestContextBase* requestContext);
+        explicit Response(web::http::SocketContext* socketContext);
         Response(Response&) = default;
         Response(Response&&) = default;
 
@@ -72,12 +75,12 @@ namespace web::http::server {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
-        [[nodiscard]] bool upgrade(Request& req);
+        [[nodiscard]] bool upgrade(std::shared_ptr<Request> req);
 
         void sendFile(const std::string& file, const std::function<void(int errnum)>& onError);
 
     protected:
-        RequestContextBase* requestContext;
+        web::http::SocketContext* socketContext = nullptr;
 
         int responseStatus = 200;
 

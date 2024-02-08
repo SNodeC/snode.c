@@ -55,8 +55,8 @@ namespace express {
         WebAppT(const std::string& name, const Router& router)
             : WebApp(router)
             , Server(name,
-                     [rootRoute = this->rootRoute](Request& req,
-                                                   Response& res) -> void { // onRequestReady
+                     [rootRoute = this->rootRoute](std::shared_ptr<Request> req,
+                                                   std::shared_ptr<Response> res) -> void { // onRequestReady
                          rootRoute->dispatch(Controller(req, res));
                      }) {
         }

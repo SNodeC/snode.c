@@ -8,13 +8,13 @@ int main(int argc, char* argv[]) {
 
     app.get("/oauth2", [] APPLICATION(req, res) {
         // if (req.query("grant_type")) {}
-        if (!req.query("code").empty()) {
-            res.sendFile("/home/rathalin/projects/snode.c/src/oauth2/client_app/vue-frontend-oauth2-client/dist/index.html",
-                         [&req](int ret) -> void {
-                             if (ret != 0) {
-                                 PLOG(ERROR) << req.url;
-                             }
-                         });
+        if (!req->query("code").empty()) {
+            res->sendFile("/home/rathalin/projects/snode.c/src/oauth2/client_app/vue-frontend-oauth2-client/dist/index.html",
+                          [&req](int ret) -> void {
+                              if (ret != 0) {
+                                  PLOG(ERROR) << req->url;
+                              }
+                          });
             /*
             std::string tokenRequestUri{"http://localhost:8082/oauth2/token"};
             tokenRequestUri += "?grant_type=authorization_code";

@@ -24,12 +24,10 @@
 
 #include "log/Logger.h"
 
-#include <cstdint>
 #include <functional>
 #include <map>
 #include <string>
 #include <utility>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,35 +38,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     server::RequestParser requestParser(
         nullptr,
-        []() -> void {
-        },
-        [](const std::string& method,
-           const std::string& originalUrl,
-           const std::string& httpVersion,
-           int httpMajor,
-           int httpMinor,
-           const std::map<std::string, std::string>& queries) -> void {
-            VLOG(0) << "++ Request: " << method << " " << originalUrl << " "
-                    << " " << httpVersion << " " << httpMajor << " " << httpMinor;
-            for (const auto& [queryField, queryValue] : queries) {
-                VLOG(0) << "++    Query: " << queryField << " = " << queryValue;
-            }
-        },
-        [](std::map<std::string, std::string>& header, std::map<std::string, std::string>& cookies) -> void {
-            VLOG(0) << "++    Header: ";
-            for (auto& [headerField, headerFieldValue] : header) {
-                VLOG(0) << "++      " << headerField << " = " << headerFieldValue;
-            }
-            VLOG(0) << "++    Cookie: ";
-            for (auto& [cookieName, cookieValue] : cookies) {
-                VLOG(0) << "++      " << cookieName << " = " << cookieValue;
-            }
-        },
-        [](std::vector<uint8_t>& content) -> void {
-            content.push_back(0);
-            VLOG(0) << content.data();
-        },
-        []() -> void {
+        []([[maybe_unused]] web::http::server::Request&& request) -> void {
             VLOG(0) << "++    OnParsed";
         },
         [](int status, const std::string& reason) -> void {

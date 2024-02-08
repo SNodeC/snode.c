@@ -20,12 +20,12 @@ int main(int argc, char* argv[]) {
     app.use(express::middleware::JsonMiddleware());
 
     app.get("/access", [authorizationServerUri] APPLICATION(req, res) {
-        res.set("Access-Control-Allow-Origin", "*");
-        const std::string queryAccessToken{req.query("access_token")};
-        const std::string queryClientId{req.query("client_id")};
+        res->set("Access-Control-Allow-Origin", "*");
+        const std::string queryAccessToken{req->query("access_token")};
+        const std::string queryClientId{req->query("client_id")};
         if (queryAccessToken.empty() || queryClientId.empty()) {
             VLOG(0) << "Missing access_token or client_id in body";
-            res.sendStatus(401);
+            res->sendStatus(401);
             return;
         }
 
@@ -55,17 +55,17 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "Response: " << response.body.data();
                 if (std::stoi(response.statusCode) != 200) {
                     const nlohmann::json errorJson = {{"error", "Invalid access token"}};
-                    res.status(401).send(errorJson.dump(4));
+                    res->status(401).send(errorJson.dump(4));
                 } else {
                     const nlohmann::json successJson = {{"content", "🦆"}};
-                    res.status(200).send(successJson.dump(4));
+                    res->status(200).send(successJson.dump(4));
                 }
             },
             [&res](int status, const std::string& reason) -> void {
                 VLOG(0) << "OnResponseError";
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
-                res.sendStatus(401);
+                res->sendStatus(401);
             },
             [](web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "OnDisconnect";

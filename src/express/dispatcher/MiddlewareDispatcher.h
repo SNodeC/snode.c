@@ -33,6 +33,7 @@ namespace express {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -42,12 +43,12 @@ namespace express::dispatcher {
     class MiddlewareDispatcher : public express::Dispatcher {
     public:
         explicit MiddlewareDispatcher(
-            const std::function<void(express::Request& req, express::Response& res, express::Next& next)>& lambda);
+            const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res, express::Next& next)>& lambda);
 
     private:
         bool dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
 
-        const std::function<void(express::Request& req, express::Response& res, express::Next& next)> lambda;
+        const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res, express::Next& next)> lambda;
     };
 
 } // namespace express::dispatcher

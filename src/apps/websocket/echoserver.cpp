@@ -44,44 +44,44 @@ int main(int argc, char* argv[]) {
     legacyApp.get("/", [] APPLICATION(req, res) {
         VLOG(1) << "HTTP GET on "
                 << "/";
-        if (req.url == "/" || req.url == "/index.html") {
-            req.url = "/wstest.html";
+        if (req->url == "/" || req->url == "/index.html") {
+            req->url = "/wstest.html";
         }
 
-        VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
-        res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int errnum) -> void {
+        VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
+        res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [&req](int errnum) -> void {
             if (errnum == 0) {
-                VLOG(1) << req.url;
+                VLOG(1) << req->url;
             } else {
                 VLOG(1) << "HTTP response send file failed: " << std::strerror(errnum);
             }
         });
     });
 
-    legacyApp.get("/ws", [](Request& req, Response& res) -> void {
+    legacyApp.get("/ws", [](std::shared_ptr<Request> req, std::shared_ptr<Response> res) -> void {
         VLOG(1) << "HTTP GET on  legacy /ws";
 
-        const std::string uri = req.originalUrl;
+        const std::string uri = req->originalUrl;
 
         VLOG(2) << "OriginalUri: " << uri;
-        VLOG(2) << "Uri: " << req.url;
+        VLOG(2) << "Uri: " << req->url;
 
-        VLOG(2) << "Host: " << req.get("host");
-        VLOG(2) << "Connection: " << req.get("connection");
-        VLOG(2) << "Origin: " << req.get("origin");
-        VLOG(2) << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
-        VLOG(2) << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
-        VLOG(2) << "sec-websocket-key: " << req.get("sec-websocket-key");
-        VLOG(2) << "sec-websocket-version: " << req.get("sec-websocket-version");
-        VLOG(2) << "upgrade: " << req.get("upgrade");
-        VLOG(2) << "user-agent: " << req.get("user-agent");
+        VLOG(2) << "Host: " << req->get("host");
+        VLOG(2) << "Connection: " << req->get("connection");
+        VLOG(2) << "Origin: " << req->get("origin");
+        VLOG(2) << "Sec-WebSocket-Protocol: " << req->get("sec-websocket-protocol");
+        VLOG(2) << "sec-web-socket-extensions: " << req->get("sec-websocket-extensions");
+        VLOG(2) << "sec-websocket-key: " << req->get("sec-websocket-key");
+        VLOG(2) << "sec-websocket-version: " << req->get("sec-websocket-version");
+        VLOG(2) << "upgrade: " << req->get("upgrade");
+        VLOG(2) << "user-agent: " << req->get("user-agent");
 
-        if (res.upgrade(req)) {
-            VLOG(1) << "Successful upgrade to '" << req.get("upgrade") << "'";
-            res.end();
+        if (res->upgrade(req)) {
+            VLOG(1) << "Successful upgrade to '" << req->get("upgrade") << "'";
+            res->end();
         } else {
-            VLOG(1) << "Can upgrade to '" << req.get("upgrade") << "'";
-            res.end();
+            VLOG(1) << "Can upgrade to '" << req->get("upgrade") << "'";
+            res->end();
         }
     });
 
@@ -112,42 +112,42 @@ int main(int argc, char* argv[]) {
         const TlsWebApp tlsApp("tls");
 
         tlsApp.get("/", [] APPLICATION(req, res) {
-            if (req.url == "/" || req.url == "/index.html") {
-                req.url = "/wstest.html";
+            if (req->url == "/" || req->url == "/index.html") {
+                req->url = "/wstest.html";
             }
 
-            VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
-            res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int ret) -> void {
+            VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
+            res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [&req](int ret) -> void {
                 if (ret != 0) {
-                    PLOG(ERROR) << req.url;
+                    PLOG(ERROR) << req->url;
                 }
             });
         });
 
-        tlsApp.get("/ws", [](Request& req, Response& res) -> void {
+        tlsApp.get("/ws", [](std::shared_ptr<Request> req, std::shared_ptr<Response> res) -> void {
             VLOG(1) << "HTTP GET on  tls /ws";
 
-            const std::string uri = req.originalUrl;
+            const std::string uri = req->originalUrl;
 
             VLOG(2) << "OriginalUri: " << uri;
-            VLOG(2) << "Uri: " << req.url;
+            VLOG(2) << "Uri: " << req->url;
 
-            VLOG(2) << "Connection: " << req.get("connection");
-            VLOG(2) << "Host: " << req.get("host");
-            VLOG(2) << "Origin: " << req.get("origin");
-            VLOG(2) << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
-            VLOG(2) << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
-            VLOG(2) << "sec-websocket-key: " << req.get("sec-websocket-key");
-            VLOG(2) << "sec-websocket-version: " << req.get("sec-websocket-version");
-            VLOG(2) << "upgrade: " << req.get("upgrade");
-            VLOG(2) << "user-agent: " << req.get("user-agent");
+            VLOG(2) << "Connection: " << req->get("connection");
+            VLOG(2) << "Host: " << req->get("host");
+            VLOG(2) << "Origin: " << req->get("origin");
+            VLOG(2) << "Sec-WebSocket-Protocol: " << req->get("sec-websocket-protocol");
+            VLOG(2) << "sec-web-socket-extensions: " << req->get("sec-websocket-extensions");
+            VLOG(2) << "sec-websocket-key: " << req->get("sec-websocket-key");
+            VLOG(2) << "sec-websocket-version: " << req->get("sec-websocket-version");
+            VLOG(2) << "upgrade: " << req->get("upgrade");
+            VLOG(2) << "user-agent: " << req->get("user-agent");
 
-            if (res.upgrade(req)) {
-                VLOG(1) << "Successful upgrade to '" << req.get("upgrade") << "'";
-                res.end();
+            if (res->upgrade(req)) {
+                VLOG(1) << "Successful upgrade to '" << req->get("upgrade") << "'";
+                res->end();
             } else {
-                VLOG(1) << "Can upgrade to '" << req.get("upgrade") << "'";
-                res.end();
+                VLOG(1) << "Can upgrade to '" << req->get("upgrade") << "'";
+                res->end();
             }
         });
 

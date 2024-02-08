@@ -19,7 +19,6 @@
 #ifndef WEB_HTTP_SERVER_REQUEST_H
 #define WEB_HTTP_SERVER_REQUEST_H
 
-#include "utils/AttributeInjector.h"
 #include "web/http/ConnectionState.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,15 +32,15 @@
 
 namespace web::http::server {
 
-    class Request : public utils::MultibleAttributeInjector {
+    class Request {
     protected:
-        Request() = default;
         Request(Request&) = default;
         Request(Request&&) = default;
 
+    public:
+        Request() = default;
         virtual ~Request() = default;
 
-    public:
         const std::string& get(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;
         const std::string& query(const std::string& key) const;
@@ -67,6 +66,8 @@ namespace web::http::server {
 
         template <typename Request, typename Response>
         friend class SocketContext;
+
+        friend class RequestParser;
     };
 
 } // namespace web::http::server

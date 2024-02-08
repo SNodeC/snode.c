@@ -22,7 +22,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
-#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -31,7 +30,7 @@ namespace express::middleware {
     VHost::VHost(const std::string& host)
         : host(host) {
         use([&host = this->host] MIDDLEWARE(req, res, next) {
-            if (req.get("Host") == host) {
+            if (req->get("Host") == host) {
                 next();
             } else {
                 next("router");

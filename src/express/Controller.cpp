@@ -29,11 +29,11 @@
 
 namespace express {
 
-    Controller::Controller(Request& request, Response& response)
+    Controller::Controller(std::shared_ptr<Request> request, std::shared_ptr<Response> response)
         : lastTick(core::EventLoop::getTickCounter())
-        , request(&request)
-        , response(&response) {
-        request.extend();
+        , request(request)
+        , response(response) {
+        request->extend();
     }
 
     void Controller::setRootRoute(RootRoute* rootRoute) {
@@ -44,11 +44,11 @@ namespace express {
         this->currentRoute = currentRoute;
     }
 
-    Request* Controller::getRequest() const {
+    std::shared_ptr<Request> Controller::getRequest() const {
         return request;
     }
 
-    Response* Controller::getResponse() const {
+    std::shared_ptr<Response> Controller::getResponse() const {
         return response;
     }
 

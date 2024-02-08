@@ -23,7 +23,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
-#include <memory>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 
@@ -40,11 +39,11 @@ namespace express::middleware {
                 // store it as type json from nlohmann library
                 //                nlohmann::json json = nlohmann::json::parse(req.body, req.body + req.contentLength);
 
-                req.body.push_back(0);
-                const nlohmann::json json = nlohmann::json::parse(req.body);
+                req->body.push_back(0);
+                const nlohmann::json json = nlohmann::json::parse(req->body);
 
                 // set all the json data as attributes in the request object
-                req.setAttribute<nlohmann::json>(json);
+                req->setAttribute<nlohmann::json>(json);
             } catch ([[maybe_unused]] const nlohmann::detail::parse_error& error) {
                 // silently fail if body is not json
             }

@@ -20,6 +20,7 @@
 #ifndef EXPRESS_REQUEST_H
 #define EXPRESS_REQUEST_H
 
+#include "utils/AttributeInjector.h"
 #include "web/http/server/Request.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,7 +32,9 @@
 
 namespace express {
 
-    class Request : public web::http::server::Request {
+    class Request
+        : public web::http::server::Request
+        , public utils::MultibleAttributeInjector {
     public:
         Request() = default;
         explicit Request(web::http::server::Request&& request) noexcept;

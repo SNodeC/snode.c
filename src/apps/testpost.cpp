@@ -38,53 +38,53 @@ int main(int argc, char* argv[]) {
     legacyApp.getConfig().setReuseAddress();
 
     legacyApp.get("/", [] APPLICATION(req, res) {
-        res.send("<html>"
-                 "    <head>"
-                 "        <style>"
-                 "            main {"
-                 "                min-height: 30em;"
-                 "                padding: 3em;"
-                 "                background-image: repeating-radial-gradient( circle at 0 0, #fff, #ddd 50px);"
-                 "            }"
-                 "            input[type=\"file\"] {"
-                 "                display: block;"
-                 "                margin: 2em;"
-                 "                padding: 2em;"
-                 "                border: 1px dotted;"
-                 "            }"
-                 "        </style>"
-                 "    </head>"
-                 "    <body>"
-                 "        <h1>File-Upload with input type=\"file\"</h1>"
-                 "        <main>"
-                 "            <h2>Send us something fancy!</h2>"
-                 "            <form method=\"post\" enctype=\"multipart/form-data\">"
-                 "                <label> Select a text file (*.txt, *.html etc.) from your computer."
-                 "                    <input name=\"datei\" type=\"file\" size=\"50\" accept=\"text/*\">"
-                 "                </label>"
-                 "                <button>… and off we go!</button>"
-                 "            </form>"
-                 "        </main>"
-                 "    </body>"
-                 "</html>");
+        res->send("<html>"
+                  "    <head>"
+                  "        <style>"
+                  "            main {"
+                  "                min-height: 30em;"
+                  "                padding: 3em;"
+                  "                background-image: repeating-radial-gradient( circle at 0 0, #fff, #ddd 50px);"
+                  "            }"
+                  "            input[type=\"file\"] {"
+                  "                display: block;"
+                  "                margin: 2em;"
+                  "                padding: 2em;"
+                  "                border: 1px dotted;"
+                  "            }"
+                  "        </style>"
+                  "    </head>"
+                  "    <body>"
+                  "        <h1>File-Upload with input type=\"file\"</h1>"
+                  "        <main>"
+                  "            <h2>Send us something fancy!</h2>"
+                  "            <form method=\"post\" enctype=\"multipart/form-data\">"
+                  "                <label> Select a text file (*.txt, *.html etc.) from your computer."
+                  "                    <input name=\"datei\" type=\"file\" size=\"50\" accept=\"text/*\">"
+                  "                </label>"
+                  "                <button>… and off we go!</button>"
+                  "            </form>"
+                  "        </main>"
+                  "    </body>"
+                  "</html>");
     });
 
     legacyApp.post("/", [] APPLICATION(req, res) {
-        VLOG(0) << "Content-Type: " << req.get("Content-Type");
-        VLOG(0) << "Content-Length: " << req.get("Content-Length");
+        VLOG(0) << "Content-Type: " << req->get("Content-Type");
+        VLOG(0) << "Content-Length: " << req->get("Content-Length");
 
-        req.body.push_back(0);
-        VLOG(0) << req.body.data();
+        req->body.push_back(0);
+        VLOG(0) << req->body.data();
 
-        res.send("<html>"
-                 "    <body>"
-                 "        <h1>Thank you, we received your file!</h1>"
-                 "        <h2>Content:</h2>"
-                 "<pre>" +
-                 std::string(reinterpret_cast<char*>(req.body.data())) +
-                 "</pre>"
-                 "    </body>"
-                 "</html>");
+        res->send("<html>"
+                  "    <body>"
+                  "        <h1>Thank you, we received your file!</h1>"
+                  "        <h2>Content:</h2>"
+                  "<pre>" +
+                  std::string(reinterpret_cast<char*>(req->body.data())) +
+                  "</pre>"
+                  "    </body>"
+                  "</html>");
     });
 
     legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, const core::socket::State& state) -> void {

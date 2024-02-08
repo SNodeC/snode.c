@@ -16,6 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "core/EventReceiver.h"
 #include "web/http/ConnectionState.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/SocketContext.h" // IWYU pragma: export
@@ -30,84 +31,44 @@
 
 namespace web::http::server {
 
-    template <typename Request, typename Response>
-    SocketContext<Request, Response>::RequestContext::RequestContext(SocketContext* serverContext)
-        : RequestContextBase(serverContext)
-        , response(this) {
+    class RequestEvent : public core::EventReceiver {
+    public:
+        explicit RequestEvent(const std::function<void(void)>& callBack)
+            : core::EventReceiver("RequestEvent")
+            , callBack(callBack) {
+        }
+
+        void onEvent([[maybe_unused]] const utils::Timeval& currentTime) override {
+            callBack();
+            delete this;
+        }
+
+    private:
+        std::function<void(void)> callBack;
+    };
+
+    static void nextTick(const std::function<void(void)>& callBack) {
+        RequestEvent* requestEvent = new RequestEvent(callBack);
+        requestEvent->span();
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::RequestContext::stop() {
-        response.stopResponse();
-    }
-
-    template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                                                    const std::function<void(Request&, Response&)>& onRequestReady)
+    SocketContext<Request, Response>::SocketContext(
+        core::socket::stream::SocketConnection* socketConnection,
+        const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& onRequestReady)
         : Super(socketConnection)
         , onRequestReady(onRequestReady)
+        , response(std::make_shared<Response>(this))
         , parser(
               this,
-              [this]() -> void {
-                  requestContexts.emplace_back(new RequestContext(this));
-              },
-              [&requestContexts = this->requestContexts](std::string& method,
-                                                         std::string& url,
-                                                         std::string& httpVersion,
-                                                         int httpMajor,
-                                                         int httpMinor,
-                                                         std::map<std::string, std::string>& queries) -> void {
-                  Request& request = requestContexts.back()->request;
-
-                  request.method = std::move(method);
-                  request.url = std::move(url);
-                  request.queries = std::move(queries);
-                  request.httpVersion = std::move(httpVersion);
-                  request.httpMajor = httpMajor;
-                  request.httpMinor = httpMinor;
-              },
-              [&requestContexts = this->requestContexts](std::map<std::string, std::string>& header,
-                                                         std::map<std::string, std::string>& cookies) -> void {
-                  Request& request = requestContexts.back()->request;
-
-                  request.headers = std::move(header);
-
-                  for (auto& [field, value] : request.headers) {
-                      if (field == "connection" && httputils::ci_contains(value, "close")) {
-                          request.connectionState = ConnectionState::Close;
-                      } else if (field == "connection" && httputils::ci_contains(value, "keep-alive")) {
-                          request.connectionState = ConnectionState::Keep;
-                      }
-                  }
-
-                  request.cookies = std::move(cookies);
-              },
-              [&requestContexts = this->requestContexts](std::vector<uint8_t>& content) -> void {
-                  Request& request = requestContexts.back()->request;
-
-                  request.body = std::move(content);
-              },
-              [this]() -> void {
-                  RequestContext* requestContext = requestContexts.back();
-
-                  requestContext->ready = true;
+              [this](web::http::server::Request&& request) -> void {
+                  requests.emplace_back(std::make_shared<Request>(std::move(request)));
 
                   requestParsed();
               },
               [this](int status, std::string&& reason) -> void {
-                  RequestContext* requestContext = requestContexts.back();
-
-                  requestContext->status = status;
-                  requestContext->reason = std::move(reason);
-
-                  requestContext->ready = true;
-
-                  requestParsed();
+                  requestError(status, std::move(reason));
               }) {
-    }
-
-    template <typename Request, typename Response>
-    SocketContext<Request, Response>::~SocketContext() {
     }
 
     template <typename Request, typename Response>
@@ -117,40 +78,29 @@ namespace web::http::server {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::requestParsed() {
-        if (!currentRequestContext) {
-            currentRequestContext = requestContexts.front();
+        if (request == nullptr && !requests.empty()) {
+            request = requests.front();
+            requests.pop_front();
 
-            if (currentRequestContext != nullptr && currentRequestContext->ready) {
-                requestContexts.pop_front();
+            bool close = (request->httpMajor == 0 && request->httpMinor == 9) ||
+                         (request->httpMajor == 1 && request->httpMinor == 0 && request->connectionState != ConnectionState::Keep) ||
+                         (request->httpMajor == 1 && request->httpMinor == 1 && request->connectionState == ConnectionState::Close);
 
-                Response& response = currentRequestContext->response;
-
-                if (currentRequestContext->status == 0) {
-                    Request& request = currentRequestContext->request;
-
-                    bool close = (request.httpMajor == 0 && request.httpMinor == 9) ||
-                                 (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
-                                 (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close);
-
-                    if (close) {
-                        response.set("Connection", "close");
-                    } else {
-                        response.set("Connection", "keep-alive");
-                    }
-
-                    onRequestReady(request, response);
-                } else {
-                    int status = currentRequestContext->status;
-                    std::string& reason = currentRequestContext->reason;
-
-                    response.status(status).send(reason);
-                    delete currentRequestContext;
-                    currentRequestContext = nullptr;
-
-                    shutdownWrite(true);
-                }
+            if (close) {
+                response->set("Connection", "close");
+            } else {
+                response->set("Connection", "keep-alive");
             }
+
+            onRequestReady(request, response);
         }
+    }
+
+    template <typename Request, typename Response>
+    void SocketContext<Request, Response>::requestError(int status, std::string&& reason) {
+        response->status(status).send(reason);
+
+        shutdownWrite(true);
     }
 
     template <typename Request, typename Response>
@@ -160,22 +110,19 @@ namespace web::http::server {
         // if 1.1 && (request == Close || contentLength = -1) => terminate
         // if (request == Close) => terminate
 
-        if (currentRequestContext != nullptr) {
-            const Response& response = currentRequestContext->response;
-            const Request& request = currentRequestContext->request;
+        bool close = (request->httpMajor == 0 && request->httpMinor == 9) ||
+                     (request->httpMajor == 1 && request->httpMinor == 0 && request->connectionState != ConnectionState::Keep) ||
+                     (request->httpMajor == 1 && request->httpMinor == 1 && request->connectionState == ConnectionState::Close) ||
+                     response->connectionState == ConnectionState::Close;
 
-            currentRequestContext = nullptr;
+        request = nullptr;
 
-            bool close = (request.httpMajor == 0 && request.httpMinor == 9) ||
-                         (request.httpMajor == 1 && request.httpMinor == 0 && request.connectionState != ConnectionState::Keep) ||
-                         (request.httpMajor == 1 && request.httpMinor == 1 && request.connectionState == ConnectionState::Close) ||
-                         response.connectionState == ConnectionState::Close;
-
-            if (close) {
-                shutdownWrite();
-            } else if (!requestContexts.empty() && requestContexts.front()->ready) {
+        if (close) {
+            shutdownWrite();
+        } else if (!requests.empty()) {
+            nextTick([this]() -> void {
                 requestParsed();
-            }
+            });
         }
     }
 
@@ -188,11 +135,8 @@ namespace web::http::server {
     void SocketContext<Request, Response>::onDisconnected() {
         LOG(INFO) << getSocketConnection()->getInstanceName() << ": HTTP onDisconnected";
 
-        for (RequestContext* requestContext : requestContexts) {
-            delete requestContext;
-        }
-        if (currentRequestContext != nullptr) {
-            currentRequestContext->stop();
+        if (response != nullptr) {
+            response->stopResponse();
         }
     }
 

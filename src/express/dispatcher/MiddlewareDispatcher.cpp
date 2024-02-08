@@ -30,7 +30,8 @@
 
 namespace express::dispatcher {
 
-    MiddlewareDispatcher::MiddlewareDispatcher(const std::function<void(express::Request&, express::Response&, express::Next&)>& lambda)
+    MiddlewareDispatcher::MiddlewareDispatcher(
+        const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res, express::Next&)>& lambda)
         : lambda(lambda) {
     }
 
@@ -53,7 +54,7 @@ namespace express::dispatcher {
                 }
 
                 Next next(controller);
-                lambda(*controller.getRequest(), *controller.getResponse(), next);
+                lambda(controller.getRequest(), controller.getResponse(), next);
 
                 // If next() was called synchronously continue current route-tree traversal
                 if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {

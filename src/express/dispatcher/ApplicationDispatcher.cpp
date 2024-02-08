@@ -30,7 +30,8 @@
 
 namespace express::dispatcher {
 
-    ApplicationDispatcher::ApplicationDispatcher(const std::function<void(express::Request&, express::Response&)>& lambda)
+    ApplicationDispatcher::ApplicationDispatcher(
+        const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& lambda)
         : lambda(lambda) {
     }
 
@@ -53,7 +54,7 @@ namespace express::dispatcher {
                     setParams(absoluteMountPath, *controller.getRequest());
                 }
 
-                lambda(*controller.getRequest(), *controller.getResponse());
+                lambda(controller.getRequest(), controller.getResponse());
             }
         }
 

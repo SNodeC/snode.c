@@ -19,10 +19,12 @@
 
 #include "web/http/server/RequestParser.h"
 
+#include "web/http/ConnectionState.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <map>
 #include <regex>
 #include <tuple>
 #include <utility>
@@ -31,32 +33,23 @@
 
 namespace web::http::server {
 
-    RequestParser::RequestParser(
-        core::socket::stream::SocketContext* socketContext,
-        const std::function<void(void)>& onStart,
-        const std::function<void(std::string&, std::string&, std::string&, int, int, std::map<std::string, std::string>&)>& onRequest,
-        const std::function<void(std::map<std::string, std::string>&, std::map<std::string, std::string>&)>& onHeader,
-        const std::function<void(std::vector<uint8_t>&)>& onContent,
-        const std::function<void()>& onParsed,
-        const std::function<void(int, std::string&&)>& onError)
+    RequestParser::RequestParser(core::socket::stream::SocketContext* socketContext,
+                                 const std::function<void(Request&&)>& onParsed,
+                                 const std::function<void(int, std::string&&)>& onError)
         : Parser(socketContext)
-        , onStart(onStart)
-        , onRequest(onRequest)
-        , onHeader(onHeader)
-        , onContent(onContent)
         , onParsed(onParsed)
         , onError(onError) {
     }
 
     void RequestParser::reset() {
         Parser::reset();
-        method.clear();
-        url.clear();
-        httpVersion.clear();
-        queries.clear();
-        cookies.clear();
-        httpMajor = 0;
-        httpMinor = 0;
+        request.method.clear();
+        request.url.clear();
+        request.httpVersion.clear();
+        request.queries.clear();
+        request.cookies.clear();
+        request.httpMajor = 0;
+        request.httpMinor = 0;
     }
 
     bool RequestParser::methodSupported(const std::string& method) const {
@@ -64,7 +57,6 @@ namespace web::http::server {
     }
 
     void RequestParser::begin() {
-        onStart();
     }
 
     enum Parser::ParserState RequestParser::parseStartLine(const std::string& line) {
@@ -73,32 +65,30 @@ namespace web::http::server {
         if (!line.empty()) {
             std::string remaining;
 
-            std::tie(method, remaining) = httputils::str_split(line, ' ');
-            std::tie(url, httpVersion) = httputils::str_split(remaining, ' ');
+            std::tie(request.method, remaining) = httputils::str_split(line, ' ');
+            std::tie(request.url, request.httpVersion) = httputils::str_split(remaining, ' ');
 
             std::string queriesLine;
-            std::tie(std::ignore, queriesLine) = httputils::str_split(url, '?');
+            std::tie(std::ignore, queriesLine) = httputils::str_split(request.url, '?');
 
-            if (!methodSupported(method)) {
+            if (!methodSupported(request.method)) {
                 parserState = parsingError(400, "Bad request method");
-            } else if (url.empty() || url.front() != '/') {
+            } else if (request.url.empty() || request.url.front() != '/') {
                 parserState = parsingError(400, "Malformed request");
             } else {
                 std::smatch httpVersionMatch;
-                if (!std::regex_match(httpVersion, httpVersionMatch, httpVersionRegex)) {
+                if (!std::regex_match(request.httpVersion, httpVersionMatch, httpVersionRegex)) {
                     parserState = parsingError(400, "Wrong protocol-version");
                 } else {
-                    httpMajor = std::stoi(httpVersionMatch.str(1));
-                    httpMinor = std::stoi(httpVersionMatch.str(2));
+                    request.httpMajor = std::stoi(httpVersionMatch.str(1));
+                    request.httpMinor = std::stoi(httpVersionMatch.str(2));
 
                     while (!queriesLine.empty()) {
                         std::string query;
 
                         std::tie(query, queriesLine) = httputils::str_split(queriesLine, '&');
-                        queries.insert(httputils::str_split(query, '='));
+                        request.queries.insert(httputils::str_split(query, '='));
                     }
-
-                    onRequest(method, url, httpVersion, httpMajor, httpMinor, queries);
                 }
             }
         } else {
@@ -132,7 +122,7 @@ namespace web::http::server {
                         httputils::str_trimm(cookieName);
                         httputils::str_trimm(cookieValue);
 
-                        cookies.insert({cookieName, cookieValue});
+                        request.cookies.insert({cookieName, cookieValue});
                     }
                 }
             }
@@ -140,7 +130,7 @@ namespace web::http::server {
 
         Parser::headers.erase("cookie");
 
-        onHeader(Parser::headers, cookies);
+        request.headers = Parser::headers;
 
         enum Parser::ParserState parserState = Parser::ParserState::BODY;
         if (contentLength == 0 && httpMinor == 1) {
@@ -152,14 +142,23 @@ namespace web::http::server {
     }
 
     Parser::ParserState RequestParser::parseContent(std::vector<uint8_t>& content) {
-        onContent(content);
+        request.body = std::move(content);
+
         parsingFinished();
 
         return ParserState::BEGIN;
     }
 
     void RequestParser::parsingFinished() {
-        onParsed();
+        for (auto& [field, value] : request.headers) {
+            if (field == "connection" && httputils::ci_contains(value, "close")) {
+                request.connectionState = ConnectionState::Close;
+            } else if (field == "connection" && httputils::ci_contains(value, "keep-alive")) {
+                request.connectionState = ConnectionState::Keep;
+            }
+        }
+
+        onParsed(std::move(request));
     }
 
     enum Parser::ParserState RequestParser::parsingError(int code, std::string&& reason) {

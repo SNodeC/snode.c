@@ -79,7 +79,6 @@ namespace web::http::server {
         headers.clear();
         cookies.clear();
         queries.clear();
-        MultibleAttributeInjector::reset();
     }
 
 } // namespace web::http::server

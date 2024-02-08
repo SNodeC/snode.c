@@ -20,7 +20,6 @@
 #define WEB_HTTP_SERVER_SOCKETCONTEXT_H
 
 #include "web/http/SocketContext.h" // IWYU pragma: export
-#include "web/http/server/RequestContextBase.h"
 #include "web/http/server/RequestParser.h"
 
 namespace web::http::server {
@@ -32,6 +31,7 @@ namespace web::http::server {
 
 #include <functional>
 #include <list>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -46,26 +46,9 @@ namespace web::http::server {
         using Request = RequestT;
         using Response = ResponseT;
 
-        class RequestContext : public RequestContextBase {
-        public:
-            explicit RequestContext(SocketContext* serverContext);
-            void stop() override;
-
-            Request request;
-            Response response;
-
-            bool ready = false;
-
-            int status = 0;
-            std::string reason;
-        };
-
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                      const std::function<void(Request&, Response&)>& onRequestReady);
-
-    protected:
-        ~SocketContext() override;
+                      const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& onRequestReady);
 
     private:
         std::size_t onReceivedFromPeer() override;
@@ -78,17 +61,19 @@ namespace web::http::server {
         [[nodiscard]] bool onSignal(int signum) override;
 
         void requestParsed();
+        void requestError(int status, std::string&& reason);
 
-        std::function<void(Request& req, Response& res)> onRequestReady;
+        std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)> onRequestReady;
 
+        std::shared_ptr<Response> response;
+        std::shared_ptr<Request> request;
         RequestParser parser;
 
-        std::list<RequestContext*> requestContexts;
-        RequestContext* currentRequestContext = nullptr;
+        std::list<std::shared_ptr<Request>> requests;
 
         bool connectionTerminated = false;
 
-        friend class RequestContextBase;
+        friend Response;
     };
 
 } // namespace web::http::server

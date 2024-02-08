@@ -18,13 +18,12 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(HTTPSERVER_CPP
-    Request.cpp RequestContextBase.cpp RequestParser.cpp Response.cpp
+    Request.cpp RequestParser.cpp Response.cpp
     SocketContextUpgradeFactory.cpp SocketContextUpgradeFactorySelector.cpp
 )
 
 set(HTTPSERVER_H
     Request.h
-    RequestContextBase.h
     RequestParser.h
     Response.h
     Server.h

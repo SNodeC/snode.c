@@ -61,12 +61,13 @@ namespace web::http::server {
             : Server("", onConnect, onConnected, onRequestReady, onDisconnect) {
         }
 
-        Server(const std::string& name, const std::function<void(Request&, Response&)>& onRequestReady)
+        Server(const std::string& name,
+               const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& onRequestReady)
             : Super(name) {
             Super::getSocketContextFactory()->setOnRequestReady(onRequestReady);
         }
 
-        explicit Server(const std::function<void(Request&, Response&)>& onRequestReady)
+        explicit Server(const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& onRequestReady)
             : Server("", onRequestReady) {
         }
     };

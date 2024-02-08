@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     legacyApp.post("/index.html", [] APPLICATION(req, res) {
         std::string jsonString;
 
-        req.getAttribute<nlohmann::json>(
+        req->getAttribute<nlohmann::json>(
             [&jsonString](nlohmann::json& json) -> void {
                 jsonString = json.dump(4);
                 VLOG(0) << "Application received body: " << jsonString;
@@ -78,11 +78,11 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << key << " attribute not found";
             });
 
-        res.send(jsonString);
+        res->send(jsonString);
     });
 
     legacyApp.post([] APPLICATION(req, res) {
-        res.send("Wrong Url");
+        res->send("Wrong Url");
     });
 
     return WebApp::start();

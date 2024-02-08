@@ -55,12 +55,12 @@ int main(int argc, char* argv[]) {
 
         const Router& router2 = middleware::VHost("atlas.home.vchrist.at:8080");
         router2.get("/", [] APPLICATION(req, res) {
-            res.send("Hello! I am VHOST atlas.home.vchrist.at.");
+            res->send("Hello! I am VHOST atlas.home.vchrist.at.");
         });
         legacyApp.use(router2);
 
         legacyApp.use([] APPLICATION(req, res) {
-            res.status(404).send("The requested resource is not found.");
+            res->status(404).send("The requested resource is not found.");
         });
 
         legacyApp.listen(8080,
@@ -91,12 +91,12 @@ int main(int argc, char* argv[]) {
 
             const Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8088");
             vh2.get("/", [] APPLICATION(req, res) {
-                res.send("Hello! I am VHOST atlas.home.vchrist.at.");
+                res->send("Hello! I am VHOST atlas.home.vchrist.at.");
             });
             tlsApp.use(vh2);
 
             tlsApp.use([] APPLICATION(req, res) {
-                res.status(404).send("The requested resource is not found.");
+                res->status(404).send("The requested resource is not found.");
             });
 
             tlsApp.listen(8088,
