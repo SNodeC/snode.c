@@ -38,7 +38,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     server::RequestParser requestParser(
         nullptr,
-        []([[maybe_unused]] web::http::server::Request&& request) -> void {
+        []([[maybe_unused]] web::http::server::Request& request) -> void {
             VLOG(0) << "++    OnParsed";
         },
         [](int status, const std::string& reason) -> void {

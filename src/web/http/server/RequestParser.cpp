@@ -34,7 +34,7 @@
 namespace web::http::server {
 
     RequestParser::RequestParser(core::socket::stream::SocketContext* socketContext,
-                                 const std::function<void(Request&&)>& onParsed,
+                                 const std::function<void(Request&)>& onParsed,
                                  const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
         , onParsed(onParsed)
@@ -133,9 +133,12 @@ namespace web::http::server {
         request.headers = Parser::headers;
 
         enum Parser::ParserState parserState = Parser::ParserState::BODY;
-        if (contentLength == 0 && httpMinor == 1) {
+        if (contentLength == 0 && request.httpMinor == 1) {
             parsingFinished();
             parserState = ParserState::BEGIN;
+        } else {
+            httpMajor = request.httpMajor;
+            httpMinor = request.httpMinor;
         }
 
         return parserState;
@@ -158,7 +161,7 @@ namespace web::http::server {
             }
         }
 
-        onParsed(std::move(request));
+        onParsed(request);
     }
 
     enum Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {
