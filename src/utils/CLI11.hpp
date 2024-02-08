@@ -8915,17 +8915,6 @@ public:                                                                         
             throw RequiredError::Option(require_option_min_, require_option_max_, used_options, option_list);
         }
 
-        // check needs
-        for (const auto& subc : need_subcommands_) {
-            if (subc->count_all() == 0) {
-                if (count_all() > 0) {
-                    throw RequiresError(get_display_name(), subc->get_display_name());
-                }
-                // if we missing something but didn't have any options, just return
-                return;
-            }
-        }
-
         // now process the requirements for subcommands if needed
         for (const auto& sub : subcommands_) {
             if (sub->disabled_) // || !sub->required_)
@@ -8946,11 +8935,22 @@ public:                                                                         
                         }
                     }
                 } else {
-                    throw(CLI::RequiredError(sub->get_display_name()));
+                    throw(CLI::RequiresError(get_display_name(), sub->get_display_name()));
                 }
             }
 
             sub->_process_requirements();
+        }
+
+        // check needs
+        for (const auto& subc : need_subcommands_) {
+            if (subc->count_all() == 0) {
+                if (count_all() > 0) {
+                    throw RequiresError(get_display_name(), subc->get_display_name());
+                }
+                // if we missing something but didn't have any options, just return
+                return;
+            }
         }
     }
 
