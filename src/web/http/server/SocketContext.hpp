@@ -31,15 +31,16 @@
 
 namespace web::http::server {
 
-    class RequestEvent : public core::EventReceiver {
+    class NextTickEvent : public core::EventReceiver {
     public:
-        explicit RequestEvent(const std::function<void(void)>& callBack)
+        explicit NextTickEvent(const std::function<void(void)>& callBack)
             : core::EventReceiver("RequestEvent")
             , callBack(callBack) {
         }
 
         void onEvent([[maybe_unused]] const utils::Timeval& currentTime) override {
             callBack();
+
             delete this;
         }
 
@@ -47,9 +48,8 @@ namespace web::http::server {
         std::function<void(void)> callBack;
     };
 
-    static void nextTick(const std::function<void(void)>& callBack) {
-        RequestEvent* requestEvent = new RequestEvent(callBack);
-        requestEvent->span();
+    static void atNextTick(const std::function<void(void)>& callBack) {
+        (new NextTickEvent(callBack))->span();
     }
 
     template <typename Request, typename Response>
@@ -120,7 +120,7 @@ namespace web::http::server {
         if (close) {
             shutdownWrite();
         } else if (!requests.empty()) {
-            nextTick([this]() -> void {
+            atNextTick([this]() -> void {
                 requestParsed();
             });
         }
