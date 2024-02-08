@@ -236,7 +236,7 @@ namespace web::http::server {
                     socketContext->switchSocketContext(socketContextUpgrade);
                 }
 
-                socketContext->sendToPeerCompleted();
+                socketContext->requestCompleted();
 
                 responseStatus = 200;
                 headers.clear();

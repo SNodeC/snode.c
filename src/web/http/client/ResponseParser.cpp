@@ -44,7 +44,7 @@ namespace web::http::client {
         const std::function<void(std::map<std::string, std::string>&, std::map<std::string, CookieOptions>&)>& onHeader,
         const std::function<void(std::vector<uint8_t>&)>& onContent,
         const std::function<void(ResponseParser&)>& onParsed,
-        const std::function<void(int, std::string&&)>& onError)
+        const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
         , onStart(onStart)
         , onResponse(onResponse)
@@ -163,8 +163,8 @@ namespace web::http::client {
         return ParserState::BEGIN;
     }
 
-    enum Parser::ParserState ResponseParser::parsingError(int code, std::string&& reason) {
-        onError(code, std::move(reason));
+    enum Parser::ParserState ResponseParser::parsingError(int code, const std::string& reason) {
+        onError(code, reason);
 
         return ParserState::ERROR;
     }

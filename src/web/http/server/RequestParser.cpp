@@ -35,7 +35,7 @@ namespace web::http::server {
 
     RequestParser::RequestParser(core::socket::stream::SocketContext* socketContext,
                                  const std::function<void(Request&&)>& onParsed,
-                                 const std::function<void(int, std::string&&)>& onError)
+                                 const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
         , onParsed(onParsed)
         , onError(onError) {
@@ -161,8 +161,8 @@ namespace web::http::server {
         onParsed(std::move(request));
     }
 
-    enum Parser::ParserState RequestParser::parsingError(int code, std::string&& reason) {
-        onError(code, std::move(reason.append("\r\n")));
+    enum Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {
+        onError(code, reason + "\r\n");
 
         return ParserState::ERROR;
     }

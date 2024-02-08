@@ -53,7 +53,7 @@ namespace web::http::server {
     private:
         std::size_t onReceivedFromPeer() override;
 
-        void sendToPeerCompleted() override;
+        void requestCompleted() override;
 
         void onConnected() override;
         void onDisconnected() override;
@@ -61,7 +61,7 @@ namespace web::http::server {
         [[nodiscard]] bool onSignal(int signum) override;
 
         void requestParsed();
-        void requestError(int status, std::string&& reason);
+        void requestError(int status, const std::string &reason);
 
         std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)> onRequestReady;
 

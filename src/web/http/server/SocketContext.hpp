@@ -66,8 +66,8 @@ namespace web::http::server {
 
                   requestParsed();
               },
-              [this](int status, std::string&& reason) -> void {
-                  requestError(status, std::move(reason));
+              [this](int status, const std::string& reason) -> void {
+                  requestError(status, reason);
               }) {
     }
 
@@ -97,32 +97,36 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::requestError(int status, std::string&& reason) {
+    void SocketContext<Request, Response>::requestError(int status, const std::string& reason) {
         response->status(status).send(reason);
 
         shutdownWrite(true);
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::sendToPeerCompleted() {
+    void SocketContext<Request, Response>::requestCompleted() {
         // if 0.9 => terminate
         // if 1.0 && (request != Keep || contentLength = -1) => terminate
         // if 1.1 && (request == Close || contentLength = -1) => terminate
         // if (request == Close) => terminate
 
-        bool close = (request->httpMajor == 0 && request->httpMinor == 9) ||
-                     (request->httpMajor == 1 && request->httpMinor == 0 && request->connectionState != ConnectionState::Keep) ||
-                     (request->httpMajor == 1 && request->httpMinor == 1 && request->connectionState == ConnectionState::Close) ||
-                     response->connectionState == ConnectionState::Close;
+        if (request != nullptr) {
+            bool close = (request->httpMajor == 0 && request->httpMinor == 9) ||
+                         (request->httpMajor == 1 && request->httpMinor == 0 && request->connectionState != ConnectionState::Keep) ||
+                         (request->httpMajor == 1 && request->httpMinor == 1 && request->connectionState == ConnectionState::Close) ||
+                         response->connectionState == ConnectionState::Close;
 
-        request = nullptr;
+            if (close) {
+                shutdownWrite();
+            } else if (!requests.empty()) {
+                atNextTick([this]() -> void {
+                    requestParsed();
+                });
+            }
 
-        if (close) {
+            request = nullptr;
+        } else {
             shutdownWrite();
-        } else if (!requests.empty()) {
-            atNextTick([this]() -> void {
-                requestParsed();
-            });
         }
     }
 

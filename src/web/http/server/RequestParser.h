@@ -40,7 +40,7 @@ namespace web::http::server {
     public:
         RequestParser(core::socket::stream::SocketContext* socketContext,
                       const std::function<void(Request&&)>& onParsed,
-                      const std::function<void(int, std::string&&)>& onError);
+                      const std::function<void(int, const std::string&)>& onError);
 
         RequestParser(const RequestParser&) = delete;
         RequestParser& operator=(const RequestParser&) = delete;
@@ -61,7 +61,7 @@ namespace web::http::server {
 
         // Exits
         void parsingFinished();
-        enum Parser::ParserState parsingError(int code, std::string&& reason) override;
+        enum Parser::ParserState parsingError(int code, const std::string& reason) override;
 
         // Supported web-methods
         std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};
@@ -70,7 +70,7 @@ namespace web::http::server {
 
         // Callbacks
         std::function<void(Request&&)> onParsed;
-        std::function<void(int, std::string&&)> onError;
+        std::function<void(int, const std::string&)> onError;
     };
 
 } // namespace web::http::server

@@ -68,7 +68,7 @@ namespace web::http::client {
                   request.reset();
                   response.reset();
               },
-              [onError, this](int status, std::string&& reason) -> void {
+              [onError, this](int status, const std::string& reason) -> void {
                   onError(status, reason);
 
                   shutdownWrite(true);
@@ -76,7 +76,7 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::sendToPeerCompleted() {
+    void SocketContext<Request, Response>::requestCompleted() {
     }
 
     template <typename Request, typename Response>

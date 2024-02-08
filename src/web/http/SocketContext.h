@@ -46,7 +46,7 @@ namespace web::http {
         std::size_t onReceivedFromPeer() override = 0;
 
     public:
-        virtual void sendToPeerCompleted() = 0;
+        virtual void requestCompleted() = 0;
     };
 
 } // namespace web::http
