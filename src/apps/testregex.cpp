@@ -84,7 +84,7 @@ Router router(database::mariadb::MariaDBClient& db) {
                 int i = 0;
                 db.query(
                     "SELECT * FROM snodec where username = '" + userId + "'",
-                    [next, &req, i](const MYSQL_ROW row) mutable -> void {
+                    [next, req, i](const MYSQL_ROW row) mutable -> void {
                         if (row != nullptr) {
                             i++;
                             req->getAttribute<std::string, "html-table">([row, &i](std::string& table) -> void {
@@ -113,7 +113,7 @@ Router router(database::mariadb::MariaDBClient& db) {
                             next();
                         }
                     },
-                    [&res, userId](const std::string& errorString, unsigned int errorNumber) -> void {
+                    [res, userId](const std::string& errorString, unsigned int errorNumber) -> void {
                         VLOG(0) << "Error: " << errorString << " : " << errorNumber;
                         res->status(404).send(userId + ": " + errorString + " - " + std::to_string(errorNumber));
                     });
@@ -168,7 +168,7 @@ Router router(database::mariadb::MariaDBClient& db) {
 
         db.exec(
             "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
-            [userId, userName](void) -> void {
+            [userId, userName]() -> void {
                 VLOG(0) << "Inserted: -> " << userId << " - " << userName;
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
