@@ -42,9 +42,9 @@ namespace express::middleware {
                 next) {
                 if (req.method == "GET") {
                     if (forceClose) {
-                        res.set("Connection", "Close");
+                        res.set("Connection", "close");
                     } else {
-                        res.set("Connection", "Keep-Alive");
+                        res.set("Connection", "keep-alive");
                     }
                     res.set(stdHeaders);
                     for (auto& [value, options] : stdCookies) {

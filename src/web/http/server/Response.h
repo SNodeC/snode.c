@@ -51,7 +51,8 @@ namespace web::http::server {
     class Response : public core::pipe::Sink {
     protected:
         explicit Response(RequestContextBase* requestContext);
-        Response(const Response&) = default;
+        Response(Response&) = default;
+        Response(Response&&) = default;
 
         ~Response() override;
 

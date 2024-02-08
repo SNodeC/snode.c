@@ -34,6 +34,9 @@ namespace express {
     class Request : public web::http::server::Request {
     public:
         Request() = default;
+        explicit Request(web::http::server::Request&& request) noexcept;
+        explicit Request(Request&& request) noexcept = default;
+        Request(Request&) = delete;
 
         ~Request() override;
 

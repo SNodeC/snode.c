@@ -36,7 +36,8 @@ namespace web::http::server {
     class Request : public utils::MultibleAttributeInjector {
     protected:
         Request() = default;
-        Request(const Request&) = default;
+        Request(Request&) = default;
+        Request(Request&&) = default;
 
         virtual ~Request() = default;
 
@@ -62,7 +63,7 @@ namespace web::http::server {
         std::map<std::string, std::string> headers;
         std::map<std::string, std::string> cookies;
 
-        std::string nullstr = "";
+        std::string nullstr;
 
         template <typename Request, typename Response>
         friend class SocketContext;

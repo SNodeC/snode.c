@@ -163,7 +163,7 @@ namespace web::http::server {
     }
 
     enum Parser::ParserState RequestParser::parsingError(int code, std::string&& reason) {
-        onError(code, std::move(reason));
+        onError(code, std::move(reason.append("\r\n")));
 
         return ParserState::ERROR;
     }

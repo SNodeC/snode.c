@@ -26,6 +26,7 @@
 #include <filesystem>
 #include <map>
 #include <nlohmann/json.hpp>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,6 +34,10 @@ namespace express {
 
     Response::Response(web::http::server::RequestContextBase* requestContext)
         : web::http::server::Response(requestContext) {
+    }
+
+    Response::Response(web::http::server::Response&& response) noexcept
+        : web::http::server::Response(std::move(response)) {
     }
 
     Response::~Response() {

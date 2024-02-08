@@ -29,6 +29,11 @@
 
 namespace express {
 
+    Request::Request(web::http::server::Request&& request) noexcept
+        : web::http::server::Request(std::move(request)) {
+        extend();
+    }
+
     Request::~Request() {
     }
 

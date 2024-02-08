@@ -38,6 +38,8 @@ namespace express {
     class Response : public web::http::server::Response {
     public:
         explicit Response(web::http::server::RequestContextBase* requestContext);
+        explicit Response(web::http::server::Response&& response) noexcept;
+        explicit Response(Response&& response) noexcept = default;
 
         ~Response() override;
 
