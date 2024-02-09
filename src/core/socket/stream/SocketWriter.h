@@ -32,6 +32,7 @@ namespace core::pipe {
 
 #include <cstddef>
 #include <functional>
+#include <string>
 #include <sys/types.h>
 #include <vector>
 
@@ -44,7 +45,8 @@ namespace core::socket::stream {
         SocketWriter() = delete;
 
     protected:
-        explicit SocketWriter(const std::function<void(int)>& onStatus,
+        explicit SocketWriter(const std::string& instanceName,
+                              const std::function<void(int)>& onStatus,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
                               const utils::Timeval& terminateTimeout);

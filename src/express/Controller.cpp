@@ -33,7 +33,6 @@ namespace express {
         : lastTick(core::EventLoop::getTickCounter())
         , request(request)
         , response(response) {
-        request->extend();
     }
 
     void Controller::setRootRoute(RootRoute* rootRoute) {
@@ -104,9 +103,8 @@ namespace express {
     bool Controller::laxRouting() {
         bool ret = false;
 
-        if (!request->originalUrl.ends_with('/')) {
-            request->url = request->originalUrl + "/";
-            request->extend();
+        if (!request->url.ends_with('/')) {
+            request->url.append("/");
 
             ret = true;
         }

@@ -26,8 +26,8 @@
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
-#include <memory>
 #include <openssl/ssl.h> // IWYU pragma: keep
+#include <string>
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 
@@ -47,16 +47,16 @@ namespace core::socket::stream::tls {
                 case SSL_ERROR_WANT_READ: {
                     const utils::PreserveErrno preserveErrno;
 
-                    LOG(TRACE) << "SSL/TLS: Start renegotiation on write";
+                    LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on write";
                     doSSLHandshake(
-                        []() -> void {
-                            LOG(TRACE) << "SSL/TLS: Renegotiation on write success";
+                        [instanceName = getName()]() -> void {
+                            LOG(TRACE) << instanceName << " SSL/TLS: Renegotiation on write success";
                         },
-                        []() -> void {
-                            LOG(TRACE) << "SSL/TLS: Renegotiation on write timed out";
+                        [instanceName = getName()]() -> void {
+                            LOG(TRACE) << instanceName << " SSL/TLS: Renegotiation on write timed out";
                         },
-                        [](int ssl_err) -> void {
-                            ssl_log("SSL/TLS: Renegotiation", ssl_err);
+                        [instanceName = getName()](int ssl_err) -> void {
+                            ssl_log(instanceName + " SSL/TLS: Renegotiation", ssl_err);
                         });
                 }
                     ret = -1;
@@ -72,7 +72,7 @@ namespace core::socket::stream::tls {
                     ret = -1;
                     break;
                 default:
-                    ssl_log("SSL/TLS: Write failed", ssl_err);
+                    ssl_log(getName() + " SSL/TLS: Write failed", ssl_err);
                     errno = EIO;
                     ret = -1;
                     break;

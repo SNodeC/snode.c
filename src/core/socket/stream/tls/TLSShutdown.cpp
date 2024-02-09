@@ -21,7 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
 #include <openssl/ssl.h> // IWYU pragma: keep
 
 // IWYU pragma: no_include <openssl/ssl3.h>
@@ -30,21 +29,23 @@
 
 namespace core::socket::stream::tls {
 
-    void TLSShutdown::doShutdown(SSL* ssl,
+    void TLSShutdown::doShutdown(const std::string& instanceName,
+                                 SSL* ssl,
                                  const std::function<void(void)>& onSuccess,
                                  const std::function<void(void)>& onTimeout,
                                  const std::function<void(int err)>& onStatus,
                                  const utils::Timeval& timeout) {
-        new TLSShutdown(ssl, onSuccess, onTimeout, onStatus, timeout);
+        new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout);
     }
 
-    TLSShutdown::TLSShutdown(SSL* ssl,
+    TLSShutdown::TLSShutdown(const std::string& instanceName,
+                             SSL* ssl,
                              const std::function<void(void)>& onSuccess,
                              const std::function<void(void)>& onTimeout,
                              const std::function<void(int err)>& onStatus,
                              const utils::Timeval& timeout)
-        : ReadEventReceiver("TLSShutdown", timeout)
-        , WriteEventReceiver("TLSShutdown", timeout)
+        : ReadEventReceiver(instanceName + " SSL/TLS shutdown:", timeout)
+        , WriteEventReceiver(instanceName + " SSL/TLS shutdown:", timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)

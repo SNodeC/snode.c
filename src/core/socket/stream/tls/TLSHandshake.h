@@ -31,6 +31,7 @@ namespace utils {
 
 #include <functional>
 #include <openssl/opensslv.h>
+#include <string>
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/types.h>
@@ -46,14 +47,16 @@ namespace core::socket::stream::tls {
         : public core::eventreceiver::ReadEventReceiver
         , public core::eventreceiver::WriteEventReceiver {
     public:
-        static void doHandshake(SSL* ssl,
+        static void doHandshake(const std::string& instanceName,
+                                SSL* ssl,
                                 const std::function<void(void)>& onSuccess,
                                 const std::function<void(void)>& onTimeout,
                                 const std::function<void(int)>& onStatus,
                                 const utils::Timeval& timeout);
 
     private:
-        TLSHandshake(SSL* ssl,
+        TLSHandshake(const std::string& instanceName,
+                     SSL* ssl,
                      const std::function<void(void)>& onSuccess,
                      const std::function<void(void)>& onTimeout,
                      const std::function<void(int)>& onStatus,

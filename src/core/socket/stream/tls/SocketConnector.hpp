@@ -61,24 +61,24 @@ namespace core::socket::stream::tls {
                   if (socketConnection->doSSLHandshake(
                           [socketContextFactory, onConnected, socketConnection, instanceName = Super::config->getInstanceName()]()
                               -> void { // onSuccess
-                              LOG(TRACE) << "SSL/TLS: " << instanceName << ": SSL/TLS initial handshake success";
+                              LOG(TRACE) << instanceName << " SSL/TLS: Initial handshake success";
 
                               onConnected(socketConnection);
                               socketConnection->connectSocketContext(socketContextFactory);
                           },
                           [socketConnection, instanceName = Super::config->getInstanceName()]() -> void { // onTimeout
-                              LOG(TRACE) << "SSL/TLS: " << instanceName << ": SSL/TLS initial handshake timed out";
+                              LOG(TRACE) << instanceName << " SSL/TLS: Initial handshake timed out";
 
                               socketConnection->close();
                           },
                           [socketConnection, instanceName = Super::config->getInstanceName()](int sslErr) -> void { // onError
-                              ssl_log(instanceName + ": SSL/TLS initial handshake failed", sslErr);
+                              ssl_log(instanceName + " SSL/TLS: Initial handshake failed", sslErr);
 
                               socketConnection->close();
                           })) {
-                      LOG(TRACE) << "SSL/TLS: Initial handshake running";
+                      LOG(TRACE) << Super::config->getInstanceName() << " SSL/TLS: Initial handshake running";
                   } else {
-                      ssl_log_error(Super::config->getInstanceName() + ": SSL/TLS initialization failed");
+                      ssl_log_error(Super::config->getInstanceName() + " SSL/TLS: Initialization failed");
 
                       socketConnection->close();
                   }
@@ -109,15 +109,15 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocketClient, typename Config>
     void SocketConnector<PhysicalSocketClient, Config>::initConnectEvent() {
         if (!config->getDisabled()) {
-            LOG(TRACE) << config->getInstanceName() << ": Initializing SSL/TLS";
+            LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
 
             const SSL_CTX* ctx = config->getSslCtx();
 
             if (ctx != nullptr) {
-                LOG(TRACE) << config->getInstanceName() << ": SSL/TLS: SSL_CTX created";
+                LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
                 Super::initConnectEvent();
             } else {
-                LOG(TRACE) << config->getInstanceName() << ": SSL/TLS: SSL_CTX created";
+                LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creation failed";
 
                 Super::onStatus(config->Remote::getSocketAddress(), core::socket::STATE_FATAL);
                 Super::destruct();

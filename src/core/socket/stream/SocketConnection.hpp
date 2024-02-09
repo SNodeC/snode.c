@@ -46,6 +46,7 @@ namespace core::socket::stream {
                                                                                      const utils::Timeval& terminateTimeout)
         : SocketConnection(instanceName)
         , SocketReader(
+              instanceName,
               [this](int errnum) -> void {
                   const utils::PreserveErrno pe(errnum);
 
@@ -61,6 +62,7 @@ namespace core::socket::stream {
               readBlockSize,
               terminateTimeout)
         , SocketWriter(
+              instanceName,
               [this](int errnum) -> void {
                   const utils::PreserveErrno pe(errnum);
 

@@ -51,6 +51,7 @@ namespace core::socket::stream::tls {
     struct SslConfig {
         explicit SslConfig(bool server);
 
+        std::string instanceName;
         std::string certChain;
         std::string certChainKey;
         std::string password;

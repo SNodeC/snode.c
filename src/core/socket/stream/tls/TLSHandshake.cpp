@@ -21,7 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
 #include <openssl/ssl.h> // IWYU pragma: keep
 
 // IWYU pragma: no_include <openssl/ssl3.h>
@@ -30,21 +29,23 @@
 
 namespace core::socket::stream::tls {
 
-    void TLSHandshake::doHandshake(SSL* ssl,
+    void TLSHandshake::doHandshake(const std::string& instanceName,
+                                   SSL* ssl,
                                    const std::function<void(void)>& onSuccess,
                                    const std::function<void(void)>& onTimeout,
                                    const std::function<void(int err)>& onStatus,
                                    const utils::Timeval& timeout) {
-        new TLSHandshake(ssl, onSuccess, onTimeout, onStatus, timeout);
+        new TLSHandshake(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout);
     }
 
-    TLSHandshake::TLSHandshake(SSL* ssl,
+    TLSHandshake::TLSHandshake(const std::string& instanceName,
+                               SSL* ssl,
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
                                const std::function<void(int err)>& onStatus,
                                const utils::Timeval& timeout)
-        : ReadEventReceiver("TLSHandshake", timeout)
-        , WriteEventReceiver("TLSHandshake", timeout)
+        : ReadEventReceiver(instanceName + " SSL/TLS handshake:", timeout)
+        , WriteEventReceiver(instanceName + " SSL/TLS handshake:", timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)

@@ -40,15 +40,15 @@ namespace core::socket::stream {
         if (physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
             try {
                 localPeerAddress = config->Local::getSocketAddress(localSockAddr, localSockAddrLen);
-                LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress " << localPeerAddress.toString();
+                LOG(TRACE) << config->getInstanceName() << " PeerAddress (local): " << localPeerAddress.toString();
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
+                LOG(TRACE) << config->getInstanceName() << " PeerAddress (local): " << badSocketAddress.what();
 
                 try {
                     localPeerAddress = config->Local::Super::getSocketAddress(localSockAddr, localSockAddrLen);
-                    LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress " << localPeerAddress.toString();
+                    LOG(TRACE) << config->getInstanceName() << " PeerAddress (local): " << localPeerAddress.toString();
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                    LOG(TRACE) << config->getInstanceName() << ": Local PeerAddress: " << badSocketAddress.what();
+                    LOG(TRACE) << config->getInstanceName() << " PeerAddress (local): " << badSocketAddress.what();
                 }
             }
         }
@@ -65,15 +65,15 @@ namespace core::socket::stream {
         if (physicalSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
             try {
                 remotePeerAddress = config->Remote::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress " << remotePeerAddress.toString();
+                LOG(TRACE) << config->getInstanceName() << " PeerAddress (remote): " << remotePeerAddress.toString();
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
+                LOG(TRACE) << config->getInstanceName() << " PeerAddress (remote): " << badSocketAddress.what();
 
                 try {
                     remotePeerAddress = config->Remote::Super::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                    LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress " << remotePeerAddress.toString();
+                    LOG(TRACE) << config->getInstanceName() << " PeerAddress (remote): " << remotePeerAddress.toString();
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                    LOG(TRACE) << config->getInstanceName() << ": Remote PeerAddress: " << badSocketAddress.what();
+                    LOG(TRACE) << config->getInstanceName() << " PeerAddress (remote): " << badSocketAddress.what();
                 }
             }
         }
@@ -89,8 +89,8 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
-        : core::eventreceiver::InitConnectEventReceiver("SocketConnector")
-        , core::eventreceiver::ConnectEventReceiver("SocketConnector", 0)
+        : core::eventreceiver::InitConnectEventReceiver(config->getInstanceName() + " SocketConnector:")
+        , core::eventreceiver::ConnectEventReceiver(config->getInstanceName() + " SocketConnector:", 0)
         , socketContextFactory(socketContextFactory)
         , onConnect(onConnect)
         , onConnected(onConnected)
@@ -110,8 +110,8 @@ namespace core::socket::stream {
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     SocketConnector<PhysicalSocketServer, Config, SocketConnection>::SocketConnector(const SocketConnector& socketConnector)
         : core::Observer(socketConnector)
-        , core::eventreceiver::InitConnectEventReceiver("SocketConnector")
-        , core::eventreceiver::ConnectEventReceiver("SocketConnector", 0)
+        , core::eventreceiver::InitConnectEventReceiver(config->getInstanceName() + " SocketConnector:")
+        , core::eventreceiver::ConnectEventReceiver(config->getInstanceName() + " SocketConnector:", 0)
         , socketContextFactory(socketConnector.socketContextFactory)
         , onConnect(socketConnector.onConnect)
         , onConnected(socketConnector.onConnected)

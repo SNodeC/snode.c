@@ -60,6 +60,11 @@ namespace web::http::server {
         ~Response() override;
 
     public:
+        void sendFragment(const char* junk, std::size_t junkLen);
+        void sendFragment(const std::string& junk);
+
+        void sendResponseCompleted();
+
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
 
@@ -88,11 +93,6 @@ namespace web::http::server {
         std::map<std::string, web::http::CookieOptions> cookies;
 
     private:
-        void sendResponse(const char* junk, std::size_t junkLen);
-        void sendResponse(const std::string& junk);
-
-        void sendResponseCompleted();
-
         void stopResponse();
 
         core::pipe::Source* source = nullptr;

@@ -28,11 +28,12 @@
 
 namespace core::socket::stream {
 
-    SocketReader::SocketReader(const std::function<void(int)>& onStatus,
+    SocketReader::SocketReader(const std::string& instanceName,
+                               const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout,
                                std::size_t blockSize,
                                const utils::Timeval& terminateTimeout)
-        : core::eventreceiver::ReadEventReceiver("SocketReader", timeout)
+        : core::eventreceiver::ReadEventReceiver(instanceName, timeout)
         , onStatus(onStatus)
         , terminateTimeout(terminateTimeout) {
         setBlockSize(blockSize);

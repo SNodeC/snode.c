@@ -46,10 +46,12 @@ namespace web::http::server {
     }
 
     Response::~Response() {
-        stream(nullptr);
+        if (source != nullptr) {
+            stream(nullptr);
+        }
     }
 
-    void Response::sendResponse(const char* junk, std::size_t junkLen) {
+    void Response::sendFragment(const char* junk, std::size_t junkLen) {
         if (socketContext != nullptr) {
             if (!headersSent && !sendHeaderInProgress) {
                 sendHeaderInProgress = true;
@@ -66,8 +68,8 @@ namespace web::http::server {
         }
     }
 
-    void Response::sendResponse(const std::string& junk) {
-        sendResponse(junk.data(), junk.size());
+    void Response::sendFragment(const std::string& junk) {
+        sendFragment(junk.data(), junk.size());
     }
 
     void Response::send(const char* junk, std::size_t junkLen) {
@@ -76,7 +78,7 @@ namespace web::http::server {
         }
         set("Content-Length", std::to_string(junkLen), false);
 
-        sendResponse(junk, junkLen);
+        sendFragment(junk, junkLen);
 
         sendResponseCompleted();
     }
@@ -216,7 +218,10 @@ namespace web::http::server {
                     }
                 });
                 if (source != nullptr) {
-                    stream(source);
+                    if (!stream(source)) {
+                        source->stop();
+                        source = nullptr;
+                    }
                 } else {
                     errno = ENODATA;
                     onError(errno);
@@ -256,6 +261,7 @@ namespace web::http::server {
     void Response::stopResponse() {
         if (source != nullptr) {
             source->stop();
+            source = nullptr;
         }
 
         responseStatus = 200;
@@ -270,13 +276,13 @@ namespace web::http::server {
     }
 
     void Response::sendHeader() {
-        sendResponse("HTTP/1.1 " + std::to_string(responseStatus) + " " + StatusCode::reason(responseStatus) + "\r\n");
-        sendResponse("Date: " + httputils::to_http_date() + "\r\n");
+        sendFragment("HTTP/1.1 " + std::to_string(responseStatus) + " " + StatusCode::reason(responseStatus) + "\r\n");
+        sendFragment("Date: " + httputils::to_http_date() + "\r\n");
 
         set({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
         for (const auto& [field, value] : headers) {
-            sendResponse(std::string(field).append(": ").append(value).append("\r\n"));
+            sendFragment(std::string(field).append(": ").append(value).append("\r\n"));
         }
 
         for (const auto& [cookie, cookieValue] : cookies) { // cppcheck-suppress shadowFunction
@@ -287,10 +293,10 @@ namespace web::http::server {
                                 [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
                                     return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
                                 });
-            sendResponse("Set-Cookie: " + cookieString + "\r\n");
+            sendFragment("Set-Cookie: " + cookieString + "\r\n");
         }
 
-        sendResponse("\r\n");
+        sendFragment("\r\n");
 
         if (headers.find("Content-Length") != headers.end()) {
             contentLength = std::stoul(headers.find("Content-Length")->second);
@@ -300,14 +306,14 @@ namespace web::http::server {
     }
 
     void Response::onStreamData(const char* junk, std::size_t junkLen) {
-        sendResponse(junk, junkLen);
+        sendFragment(junk, junkLen);
     }
 
     void Response::onStreamEof() {
-        if (stream(nullptr)) {
-            delete source;
-            source = nullptr;
-        }
+        stream(nullptr);
+
+        delete source;
+        source = nullptr;
 
         sendResponseCompleted();
     }
@@ -319,10 +325,10 @@ namespace web::http::server {
             socketContext->close();
         }
 
-        if (stream(nullptr)) {
-            delete source;
-            source = nullptr;
-        }
+        stream(nullptr);
+
+        delete source;
+        source = nullptr;
 
         sendResponseCompleted();
     }

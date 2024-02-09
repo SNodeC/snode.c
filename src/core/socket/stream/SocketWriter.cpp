@@ -31,11 +31,12 @@
 
 namespace core::socket::stream {
 
-    SocketWriter::SocketWriter(const std::function<void(int)>& onStatus,
+    SocketWriter::SocketWriter(const std::string& instanceName,
+                               const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout,
                                std::size_t blockSize,
                                const utils::Timeval& terminateTimeout)
-        : core::eventreceiver::WriteEventReceiver("SocketWriter", timeout)
+        : core::eventreceiver::WriteEventReceiver(instanceName, timeout)
         , onStatus(onStatus)
         , blockSize(blockSize)
         , terminateTimeout(terminateTimeout) {
@@ -105,10 +106,10 @@ namespace core::socket::stream {
                     source->suspend();
                 }
             } else {
-                LOG(TRACE) << "SocketWriter: Send to peer while not enabled";
+                LOG(TRACE) << getName() << ": Send to peer while not enabled";
             }
         } else {
-            LOG(TRACE) << "SocketWriter: sendToPeer() while shutdown in progress";
+            LOG(TRACE) << getName() << ": sendToPeer() while shutdown in progress";
         }
     }
 
@@ -121,15 +122,15 @@ namespace core::socket::stream {
 
                 if (source != nullptr) {
                     source->resume();
-                    LOG(TRACE) << "SocketWriter: streamToPeer() started";
+                    LOG(TRACE) << getName() << ": streamToPeer() started";
                 } else {
-                    LOG(TRACE) << "SocketWriter: streamToPeer() with nullptr source";
+                    LOG(TRACE) << getName() << ": streamToPeer() completed";
                 }
             } else {
-                LOG(TRACE) << "SocketWriter: streamToPeer() while not enabled";
+                LOG(TRACE) << getName() << ": streamToPeer() while not enabled";
             }
         } else {
-            LOG(TRACE) << "SocketWriter: streamToPeer() while shutdown in progress";
+            LOG(TRACE) << getName() << ": streamToPeer() while shutdown in progress";
         }
 
         this->source = source;
@@ -147,7 +148,7 @@ namespace core::socket::stream {
                 shutdownInProgress = true;
             } else {
                 SocketWriter::markShutdown = true;
-                LOG(TRACE) << "SocketWriter: Delay shutdown due to queued data";
+                LOG(TRACE) << getName() << ": Delay shutdown due to queued data";
             }
         }
     }

@@ -27,6 +27,7 @@
 #include "log/Logger.h"
 
 #include <openssl/ssl.h>
+#include <string>
 #include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -112,6 +113,7 @@ namespace core::socket::stream::tls {
             }
 
             TLSHandshake::doHandshake(
+                Super::getInstanceName(),
                 ssl,
                 [onSuccess, this]() -> void { // onSuccess
                     SocketReader::span();
@@ -148,6 +150,7 @@ namespace core::socket::stream::tls {
         }
 
         TLSShutdown::doShutdown(
+            Super::getInstanceName(),
             ssl,
             [onSuccess, this, resumeSocketReader, resumeSocketWriter]() -> void { // onSuccess
                 if (resumeSocketReader) {
@@ -182,7 +185,7 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocket>
     void SocketConnection<PhysicalSocket>::doSSLShutdown() {
         if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-            LOG(TRACE) << "SSL/TLS: SSL_Shutdown COMPLETED: Close_notify sent and received";
+            LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown complete: Close_notify sent and received";
             if (SocketWriter::isEnabled()) {
                 Super::doWriteShutdown([this]() -> void {
                     SocketWriter::disable();
@@ -199,27 +202,27 @@ namespace core::socket::stream::tls {
             doSSLShutdown(
                 [this, &onShutdown]() -> void { // thus send one
                     if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-                        LOG(TRACE) << "SSL/TLS: SSL_Shutdown COMPLETED: Close_notify sent and received";
+                        LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown waiting: Close_notify sent and received";
                         Super::doWriteShutdown(onShutdown);
                     } else {
-                        LOG(TRACE) << "SSL/TLS: SSL_Shutdown WAITING: Close_notify sent but not received";
+                        LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown waiting: Close_notify sent but not received";
                     }
                 },
                 [this]() -> void {
-                    LOG(TRACE) << "SSL/TLS: SSL_shutdown: Handshake timed out";
+                    LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown: Handshake timed out";
                     Super::doWriteShutdown([this]() -> void {
                         SocketConnection::close();
                     });
                 },
                 [this](int sslErr) -> void {
-                    ssl_log("SSL_shutdown: Handshake failed", sslErr);
+                    ssl_log(Super::getInstanceName() + " SSL/TLS: Shutdown: Handshake failed", sslErr);
                     Super::doWriteShutdown([this]() -> void {
                         SocketConnection::close();
                     });
                 },
                 sslShutdownTimeout);
         } else {
-            LOG(TRACE) << "SSL/TLS: SocketWriter::doWriteShutdown: Close_notify already send";
+            LOG(TRACE) << "SSL/TLS: Shutdown: Close_notify already send";
         }
     }
 

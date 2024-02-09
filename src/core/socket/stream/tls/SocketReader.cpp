@@ -26,8 +26,8 @@
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
-#include <memory>
 #include <openssl/ssl.h> // IWYU pragma: keep
+#include <string>
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 
@@ -52,22 +52,22 @@ namespace core::socket::stream::tls {
                 case SSL_ERROR_WANT_WRITE: {
                     const utils::PreserveErrno preserveErrno;
 
-                    LOG(TRACE) << "SSL/TLS: Start renegotiation on read";
+                    LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
                     doSSLHandshake(
-                        []() -> void {
-                            LOG(TRACE) << "SSL/TLS: Renegotiation on read success";
+                        [this]() -> void {
+                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
                         },
-                        []() -> void {
-                            LOG(TRACE) << "SSL/TLS: Renegotiation on read timed out";
+                        [this]() -> void {
+                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
                         },
-                        [](int ssl_err) -> void {
-                            ssl_log("SSL/TLS: Renegotiation", ssl_err);
+                        [this](int ssl_err) -> void {
+                            ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
                         });
                 }
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
-                    LOG(TRACE) << "SSL/TLS: Zero return";
+                    LOG(TRACE) << getName() << " SSL/TLS: Zero return";
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | sslShutdownState);
                     doSSLShutdown();
                     errno = 0;
@@ -77,13 +77,13 @@ namespace core::socket::stream::tls {
                     const utils::PreserveErrno preserveErrno;
 
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
-                    LOG(TRACE) << "SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
+                    LOG(TRACE) << getName() << " SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
                     doSSLShutdown();
                 }
                     ret = -1;
                     break;
                 default:
-                    ssl_log("SSL/TLS: Error read failed", ssl_err);
+                    ssl_log(getName() + " SSL/TLS: Error read failed", ssl_err);
                     errno = EIO;
                     ret = -1;
                     break;

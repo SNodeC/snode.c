@@ -55,6 +55,8 @@ namespace net::config::stream::tls {
         if (sslCtx == nullptr) {
             core::socket::stream::tls::SslConfig sslConfig(true);
 
+            sslConfig.instanceName = getInstanceName();
+
             sslConfig.certChain = getCertChain();
             sslConfig.certChainKey = getCertKey();
             sslConfig.caDir = getCaCertDir();
@@ -84,12 +86,14 @@ namespace net::config::stream::tls {
             sniCtxMap.insert(sslSans.begin(), sslSans.end());
 
             for (const auto& [sni, ctx] : sniCtxMap) {
-                LOG(TRACE) << "SSL/TLS: " << getInstanceName() << ": SSL_CTX (E) sni for '" << sni << "' from master certificate installed";
+                LOG(TRACE) << getInstanceName() << " SSL/TLS: SSL_CTX (E) sni for '" << sni << "' from master certificate installed";
             }
 
             for (const auto& [domain, sniCertConf] : getSniCerts()) {
                 if (!domain.empty()) {
                     core::socket::stream::tls::SslConfig sslConfig(true);
+
+                    sslConfig.instanceName = getInstanceName();
 
                     for (const auto& [key, value] : sniCertConf) {
                         if (key == "CertChain") {
@@ -117,37 +121,37 @@ namespace net::config::stream::tls {
                         sniCtxs.push_back(newCtx);
                         sniCtxMap.insert({domain, newCtx});
 
-                        LOG(TRACE) << "SSL/TLS: " << getInstanceName() << ": SSL_CTX (E) sni for '" << domain << "' explicitly installed";
+                        LOG(TRACE) << getInstanceName() << " SSL/TLS: SSL_CTX (E) sni for '" << domain << "' explicitly installed";
 
                         for (const auto& [san, ctx] : core::socket::stream::tls::ssl_get_sans(newCtx)) {
                             sniCtxMap.insert({san, ctx});
 
-                            LOG(TRACE) << "SSL/TLS: " << getInstanceName() << ": SSL_CTX (S) sni for '" << san << "' from SAN installed";
+                            LOG(TRACE) << getInstanceName() << " SSL/TLS: SSL_CTX (S) sni for '" << san << "' from SAN installed";
                         }
                     } else {
-                        LOG(TRACE) << "SSL/TLS: " << getInstanceName() << ": Can not create SNI_SSL_CTX for domain '" << domain << "'";
+                        LOG(TRACE) << getInstanceName() << " SSL/TLS: Can not create SNI_SSL_CTX for domain '" << domain << "'";
                     }
                 }
             }
-            LOG(TRACE) << "SNI list result:";
+            LOG(TRACE) << getInstanceName() << " SSL/TLS: SNI list result:";
             for (const auto& [sni, ctx] : sniCtxMap) {
                 LOG(TRACE) << "  SNI: " << sni;
             }
         }
 
-        LOG(TRACE) << "SSL/TLS: " << getInstanceName() << ": Search for sni='" << serverNameIndication << "' in sni certificates";
+        LOG(TRACE) << getInstanceName() << " SSL/TLS: Search for sni='" << serverNameIndication << "' in sni certificates";
 
         std::map<std::string, SSL_CTX*>::iterator sniPairIt = std::find_if(
             sniCtxMap.begin(), sniCtxMap.end(), [&serverNameIndication, this](const std::pair<std::string, SSL_CTX*>& sniPair) -> bool {
-                LOG(TRACE) << "SSL/TLS: " << getInstanceName() << ":  .. " << sniPair.first.c_str();
+                LOG(TRACE) << getInstanceName() << " SSL/TLS:  .. " << sniPair.first.c_str();
                 return core::socket::stream::tls::match(sniPair.first.c_str(), serverNameIndication.c_str());
             });
 
         if (sniPairIt != sniCtxMap.end()) {
-            LOG(TRACE) << "SSL/TLS: " << getInstanceName() << ": found '" << sniPairIt->first << "'";
+            LOG(TRACE) << getInstanceName() << " SSL/TLS: found '" << sniPairIt->first << "'";
             sniCtx = sniPairIt->second;
         } else {
-            LOG(TRACE) << "SSL/TLS: " << getInstanceName() << ": not found";
+            LOG(TRACE) << getInstanceName() << " SSL/TLS: not found";
         }
 
         return sniCtx;
@@ -164,19 +168,19 @@ namespace net::config::stream::tls {
         if (!serverNameIndication.empty()) {
             SSL_CTX* sniSslCtx = config->getSniCtx(serverNameIndication);
             if (sniSslCtx != nullptr) {
-                LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": Setting sni certificate for '" << serverNameIndication << "'";
+                LOG(TRACE) << config->getInstanceName() << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
                 core::socket::stream::tls::ssl_set_ssl_ctx(ssl, sniSslCtx);
             } else if (config->getForceSni()) {
-                LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": No sni certificate found for '" << serverNameIndication
+                LOG(TRACE) << config->getInstanceName() << " SSL/TLS: No sni certificate found for '" << serverNameIndication
                            << "' but forceSni set - terminating";
                 ret = SSL_CLIENT_HELLO_ERROR;
                 *al = SSL_AD_UNRECOGNIZED_NAME;
             } else {
-                LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": No sni certificate found for '" << serverNameIndication
+                LOG(TRACE) << config->getInstanceName() << " SSL/TLS: No sni certificate found for '" << serverNameIndication
                            << "' still using master certificate";
             }
         } else {
-            LOG(TRACE) << "SSL/TLS: " << config->getInstanceName() << ": No sni certificate set - the client did not request one";
+            LOG(TRACE) << config->getInstanceName() << " SSL/TLS: No sni certificate set - the client did not request one";
         }
 
         return ret;

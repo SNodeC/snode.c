@@ -30,7 +30,7 @@ namespace core::eventreceiver {
 
     ConnectEventReceiver::ConnectEventReceiver(const std::string& name, const utils::Timeval& timeout)
         : core::DescriptorEventReceiver(
-              "ConnectEventReceiver: " + name,
+              name + " connect",
               core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR),
               timeout) {
     }

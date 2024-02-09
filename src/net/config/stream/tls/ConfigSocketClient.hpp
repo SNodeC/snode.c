@@ -44,6 +44,8 @@ namespace net::config::stream::tls {
         if (sslCtx == nullptr) {
             core::socket::stream::tls::SslConfig sslConfig(false);
 
+            sslConfig.instanceName = getInstanceName();
+
             sslConfig.certChain = getCertChain();
             sslConfig.certChainKey = getCertKey();
             sslConfig.caDir = getCaCertDir();

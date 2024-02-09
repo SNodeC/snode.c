@@ -75,10 +75,10 @@ namespace core {
                 enabled = true;
                 descriptorEventPublisher.enable(this);
             } else {
-                LOG(TRACE) << "EventReceiver: Double enable: " << getName() << ": fd = " << observedFd;
+                LOG(TRACE) << getName() << " (" << observedFd << "): Double enable";
             }
         } else {
-            LOG(TRACE) << "EventReceiver: Not enabled: Enable after signal";
+            LOG(TRACE) << getName() << " (" << observedFd << "): Enable after signal";
         }
 
         return enabled;
@@ -94,9 +94,9 @@ namespace core {
         if (enabled) {
             enabled = false;
             descriptorEventPublisher.disable(this);
-            LOG(TRACE) << "EventReceiver: Disable: " << getName() << ": fd = " << observedFd;
+            LOG(TRACE) << getName() << " (" << observedFd << "): Disabled";
         } else {
-            LOG(TRACE) << "EventReceiver: Double disable: " << getName() << ": fd = " << observedFd;
+            LOG(TRACE) << getName() << " (" << observedFd << "): Double disable";
         }
     }
 
@@ -114,10 +114,10 @@ namespace core {
                 suspended = true;
                 descriptorEventPublisher.suspend(this);
             } else {
-                LOG(TRACE) << "EventReceiver: Double suspend: " << getName() << ": fd = " << observedFd;
+                LOG(TRACE) << getName() << " (" << observedFd << "): Double suspend";
             }
         } else {
-            LOG(TRACE) << "EventReceiver: Suspend while not enabled: " << getName() << ": fd = " << observedFd;
+            LOG(TRACE) << getName() << " (" << observedFd << "): Suspend while not enabled";
         }
     }
 
@@ -128,10 +128,10 @@ namespace core {
                 lastTriggered = utils::Timeval::currentTime();
                 descriptorEventPublisher.resume(this);
             } else {
-                LOG(TRACE) << "EventReceiver: Double resume: " << getName() << ": fd = " << observedFd;
+                LOG(TRACE) << getName() << " (" << observedFd << "): Double resume";
             }
         } else {
-            LOG(TRACE) << "EventReceiver: Resume while not enabled: " << getName() << ": fd = " << observedFd;
+            LOG(TRACE) << getName() << " (" << observedFd << "): Resume while not enabled";
         }
     }
 
