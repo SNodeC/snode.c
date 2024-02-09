@@ -75,7 +75,7 @@ namespace web::http::server {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
-        [[nodiscard]] bool upgrade(std::shared_ptr<Request> req);
+        bool upgrade(std::shared_ptr<Request> req);
 
         void sendFile(const std::string& file, const std::function<void(int errnum)>& onError);
 

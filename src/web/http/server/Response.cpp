@@ -174,9 +174,7 @@ namespace web::http::server {
 @enduml
      */
 
-    [[nodiscard]] bool Response::upgrade(std::shared_ptr<Request> req) {
-        bool success = false;
-
+    bool Response::upgrade(std::shared_ptr<Request> req) {
         if (socketContext != nullptr) {
             if (httputils::ci_contains(req->get("connection"), "Upgrade")) {
                 web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
@@ -184,7 +182,9 @@ namespace web::http::server {
 
                 if (socketContextUpgradeFactory != nullptr) {
                     socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
-                    success = socketContextUpgrade != nullptr;
+                    if (socketContextUpgrade == nullptr) {
+                        set("Connection", "close").status(404);
+                    }
                 } else {
                     set("Connection", "close").status(404);
                 }
@@ -193,7 +193,9 @@ namespace web::http::server {
             }
         }
 
-        return success;
+        end();
+
+        return socketContextUpgrade != nullptr;
     }
 
     void Response::sendFile(const std::string& file, const std::function<void(int errnum)>& onError) {
