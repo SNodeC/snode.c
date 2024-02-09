@@ -62,6 +62,14 @@ namespace web::http::server {
         , parser(
               this,
               [this](web::http::server::Request& request) -> void {
+                  for (auto& [field, value] : request.headers) {
+                      if (field == "connection" && httputils::ci_contains(value, "close")) {
+                          request.connectionState = ConnectionState::Close;
+                      } else if (field == "connection" && httputils::ci_contains(value, "keep-alive")) {
+                          request.connectionState = ConnectionState::Keep;
+                      }
+                  }
+
                   requests.emplace_back(std::make_shared<Request>(std::move(request)));
 
                   requestParsed();

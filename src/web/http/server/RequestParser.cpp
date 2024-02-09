@@ -19,7 +19,6 @@
 
 #include "web/http/server/RequestParser.h"
 
-#include "web/http/ConnectionState.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -153,14 +152,6 @@ namespace web::http::server {
     }
 
     void RequestParser::parsingFinished() {
-        for (auto& [field, value] : request.headers) {
-            if (field == "connection" && httputils::ci_contains(value, "close")) {
-                request.connectionState = ConnectionState::Close;
-            } else if (field == "connection" && httputils::ci_contains(value, "keep-alive")) {
-                request.connectionState = ConnectionState::Keep;
-            }
-        }
-
         onParsed(request);
     }
 
