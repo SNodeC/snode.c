@@ -8949,7 +8949,7 @@ public:                                                                         
                     throw RequiresError(get_display_name(), subc->get_display_name());
                 }
                 // if we missing something but didn't have any options, just return
-                return;
+                break;
             }
         }
     }
