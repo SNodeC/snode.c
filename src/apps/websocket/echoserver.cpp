@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.get("/ws", [](std::shared_ptr<Request> req, std::shared_ptr<Response> res) -> void {
-        VLOG(1) << "HTTP GET on  legacy /ws";
+        VLOG(1) << "HTTP GET on legacy /ws";
 
         const std::string uri = req->originalUrl;
 
@@ -76,12 +76,14 @@ int main(int argc, char* argv[]) {
         VLOG(2) << "upgrade: " << req->get("upgrade");
         VLOG(2) << "user-agent: " << req->get("user-agent");
 
-        if (res->upgrade(req)) {
-            VLOG(1) << "Successful upgrade to '" << req->get("upgrade") << "'";
-            res->end();
+        if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
+            if (res->upgrade(req)) {
+                VLOG(1) << "Successful upgrade to '" << req->get("upgrade") << "'";
+            } else {
+                VLOG(1) << "Can not upgrade to '" << req->get("upgrade") << "'";
+            }
         } else {
-            VLOG(1) << "Can upgrade to '" << req->get("upgrade") << "'";
-            res->end();
+            res->sendStatus(404);
         }
     });
 
@@ -125,7 +127,7 @@ int main(int argc, char* argv[]) {
         });
 
         tlsApp.get("/ws", [](std::shared_ptr<Request> req, std::shared_ptr<Response> res) -> void {
-            VLOG(1) << "HTTP GET on  tls /ws";
+            VLOG(1) << "HTTP GET on tls /ws";
 
             const std::string uri = req->originalUrl;
 
@@ -142,12 +144,16 @@ int main(int argc, char* argv[]) {
             VLOG(2) << "upgrade: " << req->get("upgrade");
             VLOG(2) << "user-agent: " << req->get("user-agent");
 
-            if (res->upgrade(req)) {
-                VLOG(1) << "Successful upgrade to '" << req->get("upgrade") << "'";
-                res->end();
+            if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
+                if (res->upgrade(req)) {
+                    VLOG(1) << "Successful upgrade to '" << req->get("upgrade") << "'";
+                    res->end();
+                } else {
+                    VLOG(1) << "Can upgrade to '" << req->get("upgrade") << "'";
+                    res->end();
+                }
             } else {
-                VLOG(1) << "Can upgrade to '" << req->get("upgrade") << "'";
-                res->end();
+                res->sendStatus(404);
             }
         });
 
