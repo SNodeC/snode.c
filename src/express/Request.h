@@ -49,10 +49,8 @@ namespace express {
         std::string path;
         std::map<std::string, std::string> params;
 
-    protected:
+    private:
         Request& extend();
-
-        friend class Controller;
     };
 
 } // namespace express
