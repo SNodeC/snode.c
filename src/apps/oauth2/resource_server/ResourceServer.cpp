@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
                 const std::string requestJsonString{requestJson.dump(4)};
                 request.send(requestJsonString);
             },
-            [&res]([[maybe_unused]] web::http::client::Request& request, web::http::client::Response& response) -> void {
+            [res]([[maybe_unused]] web::http::client::Request& request, web::http::client::Response& response) -> void {
                 VLOG(0) << "OnResponse";
                 response.body.push_back(0);
                 VLOG(0) << "Response: " << response.body.data();
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
                     res->status(200).send(successJson.dump(4));
                 }
             },
-            [&res](int status, const std::string& reason) -> void {
+            [res](int status, const std::string& reason) -> void {
                 VLOG(0) << "OnResponseError";
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;

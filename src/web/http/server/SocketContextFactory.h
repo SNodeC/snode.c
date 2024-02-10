@@ -45,7 +45,7 @@ namespace web::http::server {
         SocketContextFactory(const SocketContextFactory&) = delete;
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;
 
-        void setOnRequestReady(const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& onRequestReady) {
+        void setOnRequestReady(const std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)>& onRequestReady) {
             this->onRequestReady = onRequestReady;
         }
 
@@ -54,7 +54,7 @@ namespace web::http::server {
             return new web::http::server::SocketContext<Request, Response>(socketConnection, onRequestReady);
         }
 
-        std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)> onRequestReady;
+        std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onRequestReady;
     };
 
 } // namespace web::http::server

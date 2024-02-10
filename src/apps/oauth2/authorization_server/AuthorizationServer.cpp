@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
         if (queryClientId.length() > 0) {
             db.query(
                 "select count(*) from client where uuid = '" + queryClientId + "'",
-                [&req, &res, next, queryClientId](const MYSQL_ROW row) -> void {
+                [req, res, next, queryClientId](const MYSQL_ROW row) -> void {
                     if (row != nullptr) {
                         if (std::stoi(row[0]) > 0) {
                             VLOG(0) << "Valid client id '" << queryClientId << "'";
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
                         }
                     }
                 },
-                [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                [res](const std::string& errorString, unsigned int errorNumber) -> void {
                     VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                     res->sendStatus(500);
                 });
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
 
     router.get("/login", [] APPLICATION(req, res) {
         res->sendFile("/home/rathalin/projects/snode.c/src/oauth2/authorization_server/vue-frontend-oauth2-auth-server/dist/index.html",
-                      [&req](int ret) -> void {
+                      [req](int ret) -> void {
                           if (ret != 0) {
                               PLOG(ERROR) << req->url;
                           }
@@ -168,13 +168,13 @@ int main(int argc, char* argv[]) {
 
     router.post("/login", [&db] APPLICATION(req, res) {
         req->getAttribute<nlohmann::json>(
-            [&req, &res, &db](nlohmann::json& body) -> void {
+            [req, res, &db](nlohmann::json& body) -> void {
                 db.query(
                     "select email, password_hash, password_salt, redirect_uri, state "
                     "from client "
                     "where uuid = '" +
                         req->query("client_id") + "'",
-                    [&req, &res, &db, &body](const MYSQL_ROW row) -> void {
+                    [req, res, &db, &body](const MYSQL_ROW row) -> void {
                         if (row != nullptr) {
                             const std::string dbEmail{row[0]};
                             const std::string dbPasswordHash{row[1]};
@@ -199,13 +199,13 @@ int main(int argc, char* argv[]) {
                                           timeToString(std::chrono::system_clock::now() + std::chrono::minutes(expireMinutes)) + "')",
                                       []() -> void {
                                       },
-                                      [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                      [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                           VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                           res->sendStatus(500);
                                       })
                                     .query(
                                         "select last_insert_id()",
-                                        [&req, &res, &db, dbState, dbRedirectUri, authCode](const MYSQL_ROW row) -> void {
+                                        [req, res, &db, dbState, dbRedirectUri, authCode](const MYSQL_ROW row) -> void {
                                             if (row != nullptr) {
                                                 db.exec(
                                                     "update client "
@@ -214,7 +214,7 @@ int main(int argc, char* argv[]) {
                                                         "' "
                                                         "where uuid = '" +
                                                         req->query("client_id") + "'",
-                                                    [&res, dbState, dbRedirectUri, authCode]() -> void {
+                                                    [res, dbState, dbRedirectUri, authCode]() -> void {
                                                         // Redirect back to the client app
                                                         std::string clientRedirectUri{dbRedirectUri};
                                                         addQueryParamToUri(clientRedirectUri, "code", authCode);
@@ -228,25 +228,25 @@ int main(int argc, char* argv[]) {
                                                         VLOG(0) << "Sending json reponse: " << responseJsonString;
                                                         res->send(responseJsonString);
                                                     },
-                                                    [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                                    [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                                         VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                                         res->sendStatus(500);
                                                     });
                                             }
                                         },
-                                        [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                        [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                             VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                             res->sendStatus(500);
                                         });
                             }
                         }
                     },
-                    [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                    [res](const std::string& errorString, unsigned int errorNumber) -> void {
                         VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                         res->sendStatus(500);
                     });
             },
-            [&res]([[maybe_unused]] const std::string& key) -> void {
+            [res]([[maybe_unused]] const std::string& key) -> void {
                 res->sendStatus(500);
             });
     });
@@ -279,7 +279,7 @@ int main(int argc, char* argv[]) {
                 "' "
                 "and redirect_uri = '" +
                 queryRedirectUri + "'",
-            [&req, &res, &db](const MYSQL_ROW row) -> void {
+            [req, res, &db](const MYSQL_ROW row) -> void {
                 if (row != nullptr) {
                     if (std::stoi(row[0]) == 0) {
                         res->status(400).send("Query param 'redirect_uri' must be the same as in the initial request");
@@ -296,7 +296,7 @@ int main(int argc, char* argv[]) {
                                 req->query("code") +
                                 "' "
                                 "and timestampdiff(second, current_timestamp(), a.expire_datetime) > 0",
-                            [&req, &res, &db](const MYSQL_ROW row) -> void {
+                            [req, res, &db](const MYSQL_ROW row) -> void {
                                 if (row != nullptr) {
                                     if (std::stoi(row[0]) == 0) {
                                         res->status(401).send("Invalid auth token");
@@ -316,13 +316,13 @@ int main(int argc, char* argv[]) {
                                               "')",
                                           []() -> void {
                                           },
-                                          [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                          [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                               VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                               res->sendStatus(500);
                                           })
                                         .query(
                                             "select last_insert_id()",
-                                            [&req, &res, &db](const MYSQL_ROW row) -> void {
+                                            [req, res, &db](const MYSQL_ROW row) -> void {
                                                 if (row != nullptr) {
                                                     db.exec(
                                                         "update client "
@@ -333,13 +333,13 @@ int main(int argc, char* argv[]) {
                                                             req->query("client_id") + "'",
                                                         []() -> void {
                                                         },
-                                                        [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                                        [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                                             VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                                             res->sendStatus(500);
                                                         });
                                                 }
                                             },
-                                            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                            [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                                 VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                                 res->sendStatus(500);
                                             })
@@ -352,13 +352,13 @@ int main(int argc, char* argv[]) {
                                                 "')",
                                             []() -> void {
                                             },
-                                            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                            [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                                 VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                                 res->sendStatus(500);
                                             })
                                         .query(
                                             "select last_insert_id()",
-                                            [&req, &res, &db, accessToken, accessTokenExpireSeconds, refreshToken](
+                                            [req, res, &db, accessToken, accessTokenExpireSeconds, refreshToken](
                                                 const MYSQL_ROW row) -> void {
                                                 if (row != nullptr) {
                                                     db.exec(
@@ -368,7 +368,7 @@ int main(int argc, char* argv[]) {
                                                             "' "
                                                             "where uuid = '" +
                                                             req->query("client_id") + "'",
-                                                        [&res, accessToken, accessTokenExpireSeconds, refreshToken]() -> void {
+                                                        [res, accessToken, accessTokenExpireSeconds, refreshToken]() -> void {
                                                             // Send auth token and refresh token
                                                             const nlohmann::json jsonResponse = {{"access_token", accessToken},
                                                                                                  {"expires_in", accessTokenExpireSeconds},
@@ -376,26 +376,26 @@ int main(int argc, char* argv[]) {
                                                             const std::string jsonResponseString{jsonResponse.dump(4)};
                                                             res->send(jsonResponseString);
                                                         },
-                                                        [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                                        [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                                             VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                                             res->sendStatus(500);
                                                         });
                                                 }
                                             },
-                                            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                            [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                                 VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                                 res->sendStatus(500);
                                             });
                                 }
                             },
-                            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                            [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                 VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                 res->sendStatus(500);
                             });
                     }
                 }
             },
-            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+            [res](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                 res->sendStatus(500);
             });
@@ -434,7 +434,7 @@ int main(int argc, char* argv[]) {
                 req->query("refresh_token") +
                 "' "
                 "and timestampdiff(second, current_timestamp(), r.expire_datetime) > 0",
-            [&req, &res, &db](const MYSQL_ROW row) -> void {
+            [req, res, &db](const MYSQL_ROW row) -> void {
                 if (row != nullptr) {
                     if (std::stoi(row[0]) == 0) {
                         res->status(401).send("Invalid refresh token");
@@ -450,13 +450,13 @@ int main(int argc, char* argv[]) {
                               timeToString(std::chrono::system_clock::now() + std::chrono::seconds(accessTokenExpireSeconds)) + "')",
                           []() -> void {
                           },
-                          [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                          [res](const std::string& errorString, unsigned int errorNumber) -> void {
                               VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                               res->sendStatus(500);
                           })
                         .query(
                             "select last_insert_id()",
-                            [&req, &res, &db, accessToken, accessTokenExpireSeconds](const MYSQL_ROW row) -> void {
+                            [req, res, &db, accessToken, accessTokenExpireSeconds](const MYSQL_ROW row) -> void {
                                 if (row != nullptr) {
                                     db.exec(
                                         "update client "
@@ -465,24 +465,24 @@ int main(int argc, char* argv[]) {
                                             "' "
                                             "where uuid = '" +
                                             req->query("client_id") + "'",
-                                        [&res, accessToken, accessTokenExpireSeconds]() -> void {
+                                        [res, accessToken, accessTokenExpireSeconds]() -> void {
                                             const nlohmann::json responseJson = {{"access_token", accessToken},
                                                                                  {"expires_in", accessTokenExpireSeconds}};
                                             res->send(responseJson.dump(4));
                                         },
-                                        [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                                        [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                             VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                             res->sendStatus(500);
                                         });
                                 }
                             },
-                            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                            [res](const std::string& errorString, unsigned int errorNumber) -> void {
                                 VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                                 res->sendStatus(500);
                             });
                 }
             },
-            [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+            [res](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                 res->sendStatus(500);
             });
@@ -490,7 +490,7 @@ int main(int argc, char* argv[]) {
 
     router.post("/token/validate", [&db] APPLICATION(req, res) {
         VLOG(0) << "POST /token/validate";
-        req->getAttribute<nlohmann::json>([&res, &db](nlohmann::json& jsonBody) -> void {
+        req->getAttribute<nlohmann::json>([res, &db](nlohmann::json& jsonBody) -> void {
             if (!jsonBody.contains("access_token")) {
                 VLOG(0) << "Missing 'access_token' in json";
                 res->status(500).send("Missing 'access_token' in json");
@@ -513,7 +513,7 @@ int main(int argc, char* argv[]) {
                     "' "
                     "and a.uuid = '" +
                     jsonAccessToken + "'",
-                [&res, jsonClientId, jsonAccessToken](const MYSQL_ROW row) -> void {
+                [res, jsonClientId, jsonAccessToken](const MYSQL_ROW row) -> void {
                     if (row != nullptr) {
                         if (std::stoi(row[0]) == 0) {
                             const nlohmann::json errorJson = {{"error", "Invalid access token"}};
@@ -526,7 +526,7 @@ int main(int argc, char* argv[]) {
                         }
                     }
                 },
-                [&res](const std::string& errorString, unsigned int errorNumber) -> void {
+                [res](const std::string& errorString, unsigned int errorNumber) -> void {
                     VLOG(0) << "Database error: " << errorString << " : " << errorNumber;
                     res->sendStatus(500);
                 });

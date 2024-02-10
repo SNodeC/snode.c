@@ -31,31 +31,10 @@
 
 namespace web::http::server {
 
-    class NextTickEvent : public core::EventReceiver {
-    public:
-        explicit NextTickEvent(const std::function<void(void)>& callBack)
-            : core::EventReceiver("RequestEvent")
-            , callBack(callBack) {
-        }
-
-        void onEvent([[maybe_unused]] const utils::Timeval& currentTime) override {
-            callBack();
-
-            delete this;
-        }
-
-    private:
-        std::function<void(void)> callBack;
-    };
-
-    static void atNextTick(const std::function<void(void)>& callBack) {
-        (new NextTickEvent(callBack))->span();
-    }
-
     template <typename Request, typename Response>
     SocketContext<Request, Response>::SocketContext(
         core::socket::stream::SocketConnection* socketConnection,
-        const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& onRequestReady)
+        const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onRequestReady)
         : Super(socketConnection)
         , onRequestReady(onRequestReady)
         , response(std::make_shared<Response>(this))
@@ -127,7 +106,7 @@ namespace web::http::server {
             if (close) {
                 shutdownWrite();
             } else if (!requests.empty()) {
-                atNextTick([this]() -> void {
+                core::EventReceiver::atNextTick([this]() -> void {
                     requestParsed();
                 });
             }

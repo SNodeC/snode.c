@@ -48,7 +48,7 @@ namespace web::http::server {
 
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                      const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& onRequestReady);
+                      const std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)>& onRequestReady);
 
     private:
         std::size_t onReceivedFromPeer() override;
@@ -61,9 +61,9 @@ namespace web::http::server {
         [[nodiscard]] bool onSignal(int signum) override;
 
         void requestParsed();
-        void requestError(int status, const std::string &reason);
+        void requestError(int status, const std::string& reason);
 
-        std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)> onRequestReady;
+        std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onRequestReady;
 
         std::shared_ptr<Response> response;
         std::shared_ptr<Request> request;

@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
         }
 
         VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
-        res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [&req](int errnum) -> void {
+        res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int errnum) -> void {
             if (errnum == 0) {
                 VLOG(1) << req->url;
             } else {
@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
             }
 
             VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
-            res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [&req](int ret) -> void {
+            res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int ret) -> void {
                 if (ret != 0) {
                     PLOG(ERROR) << req->url;
                 }
