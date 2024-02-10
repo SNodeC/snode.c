@@ -110,8 +110,8 @@ namespace core::socket::stream {
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     SocketConnector<PhysicalSocketServer, Config, SocketConnection>::SocketConnector(const SocketConnector& socketConnector)
         : core::Observer(socketConnector)
-        , core::eventreceiver::InitConnectEventReceiver(config->getInstanceName() + " SocketConnector:")
-        , core::eventreceiver::ConnectEventReceiver(config->getInstanceName() + " SocketConnector:", 0)
+        , core::eventreceiver::InitConnectEventReceiver(socketConnector.config->getInstanceName() + " SocketConnector:")
+        , core::eventreceiver::ConnectEventReceiver(socketConnector.config->getInstanceName() + " SocketConnector:", 0)
         , socketContextFactory(socketConnector.socketContextFactory)
         , onConnect(socketConnector.onConnect)
         , onConnected(socketConnector.onConnected)
