@@ -62,7 +62,7 @@ namespace core::socket::stream::tls {
     private:
         void useNextSocketAddress() override;
 
-        void initConnectEvent() final;
+        void init() final;
     };
 
 } // namespace core::socket::stream::tls

@@ -106,7 +106,7 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocketServer, typename Config>
-    void SocketAcceptor<PhysicalSocketServer, Config>::initAcceptEvent() {
+    void SocketAcceptor<PhysicalSocketServer, Config>::init() {
         if (!config->getDisabled()) {
             LOG(TRACE) << config->getInstanceName() << " SSL/TLS: Initializing";
 
@@ -114,7 +114,7 @@ namespace core::socket::stream::tls {
 
             if (masterSslCtx != nullptr) {
                 LOG(TRACE) << config->getInstanceName() << " SSL/TLS: Master SSL_CTX created";
-                Super::initAcceptEvent();
+                Super::init();
             } else {
                 LOG(TRACE) << config->getInstanceName() << " SSL/TLS: Master SSL/TLS creation failed";
 
@@ -122,7 +122,7 @@ namespace core::socket::stream::tls {
                 Super::destruct();
             }
         } else {
-            Super::initAcceptEvent();
+            Super::init();
         }
     }
 

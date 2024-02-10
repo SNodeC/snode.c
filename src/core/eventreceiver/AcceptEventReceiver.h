@@ -45,16 +45,6 @@ namespace core::eventreceiver {
         void signalEvent(int signum) override;
     };
 
-    class InitAcceptEventReceiver : public core::EventReceiver {
-    protected:
-        InitAcceptEventReceiver(const std::string& name);
-
-    private:
-        void onEvent(const utils::Timeval& currentTime) override;
-
-        virtual void initAcceptEvent() = 0;
-    };
-
 } // namespace core::eventreceiver
 
 #endif // CORE_EVENTRECEIVER_ACCEPTEVENTRECEIVER_H

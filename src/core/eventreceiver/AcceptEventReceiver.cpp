@@ -51,13 +51,4 @@ namespace core::eventreceiver {
         disable();
     }
 
-    InitAcceptEventReceiver::InitAcceptEventReceiver(const std::string& name)
-        : core::EventReceiver("InitAcceptEventReceiver: " + name) {
-        span();
-    }
-
-    void InitAcceptEventReceiver::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
-        initAcceptEvent();
-    }
-
 } // namespace core::eventreceiver

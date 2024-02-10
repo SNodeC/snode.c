@@ -24,6 +24,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+
 namespace utils {
     class Timeval;
 } // namespace utils
@@ -44,6 +46,8 @@ namespace core {
         virtual ~EventReceiver() = default;
 
     public:
+        static void atNextTick(const std::function<void(void)>& callBack);
+
         void span();
         void relax();
 

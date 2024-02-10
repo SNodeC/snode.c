@@ -89,14 +89,16 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
-        : core::eventreceiver::InitAcceptEventReceiver(config->getInstanceName() + " SocketAcceptor:")
-        , core::eventreceiver::AcceptEventReceiver(config->getInstanceName() + " SocketAcceptor:", 0)
+        : core::eventreceiver::AcceptEventReceiver(config->getInstanceName() + " SocketAcceptor:", 0)
         , socketContextFactory(socketContextFactory)
         , onConnect(onConnect)
         , onConnected(onConnected)
         , onDisconnect(onDisconnect)
         , onStatus(onStatus)
         , config(config) {
+        atNextTick([this]() -> void {
+            init();
+        });
     }
 
 #ifdef __GNUC__
@@ -110,7 +112,6 @@ namespace core::socket::stream {
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
         : core::Observer(socketAcceptor)
-        , core::eventreceiver::InitAcceptEventReceiver(socketAcceptor.config->getInstanceName() + " SocketAcceptor:")
         , core::eventreceiver::AcceptEventReceiver(socketAcceptor.config->getInstanceName() + " SocketAcceptor:", 0)
         , socketContextFactory(socketAcceptor.socketContextFactory)
         , onConnect(socketAcceptor.onConnect)
@@ -118,6 +119,9 @@ namespace core::socket::stream {
         , onDisconnect(socketAcceptor.onDisconnect)
         , onStatus(socketAcceptor.onStatus)
         , config(socketAcceptor.config) {
+        atNextTick([this]() -> void {
+            init();
+        });
     }
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -128,7 +132,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
-    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::initAcceptEvent() {
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::init() {
         if (!config->getDisabled()) {
             try {
                 LOG(TRACE) << config->getInstanceName() << ": Starting";

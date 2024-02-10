@@ -51,13 +51,4 @@ namespace core::eventreceiver {
         disable();
     }
 
-    InitConnectEventReceiver::InitConnectEventReceiver(const std::string& name)
-        : core::EventReceiver("InitConnectEventReceiver: " + name) {
-        span();
-    }
-
-    void InitConnectEventReceiver::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
-        initConnectEvent();
-    }
-
 } // namespace core::eventreceiver

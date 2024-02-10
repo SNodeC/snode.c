@@ -107,7 +107,7 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocketClient, typename Config>
-    void SocketConnector<PhysicalSocketClient, Config>::initConnectEvent() {
+    void SocketConnector<PhysicalSocketClient, Config>::init() {
         if (!config->getDisabled()) {
             LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
 
@@ -115,7 +115,7 @@ namespace core::socket::stream::tls {
 
             if (ctx != nullptr) {
                 LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
-                Super::initConnectEvent();
+                Super::init();
             } else {
                 LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creation failed";
 
@@ -123,7 +123,7 @@ namespace core::socket::stream::tls {
                 Super::destruct();
             }
         } else {
-            Super::initConnectEvent();
+            Super::init();
         }
     }
 

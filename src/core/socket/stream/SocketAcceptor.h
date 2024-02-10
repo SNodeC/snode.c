@@ -34,9 +34,7 @@
 namespace core::socket::stream {
 
     template <typename PhysicalSocketServerT, typename ConfigT, template <typename PhysicalSocketServer> typename SocketConnectionT>
-    class SocketAcceptor
-        : protected core::eventreceiver::InitAcceptEventReceiver
-        , protected core::eventreceiver::AcceptEventReceiver {
+    class SocketAcceptor : protected core::eventreceiver::AcceptEventReceiver {
     private:
         using PhysicalServerSocket = PhysicalSocketServerT;
 
@@ -66,7 +64,7 @@ namespace core::socket::stream {
         virtual void useNextSocketAddress() = 0;
 
     protected:
-        void initAcceptEvent() override;
+        virtual void init();
 
     private:
         void acceptEvent() override;

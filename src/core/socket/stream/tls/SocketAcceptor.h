@@ -66,7 +66,7 @@ namespace core::socket::stream::tls {
     private:
         void useNextSocketAddress() override;
 
-        void initAcceptEvent() final;
+        void init() final;
 
         SSL_CTX* masterSslCtx = nullptr;
     };
