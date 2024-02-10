@@ -30,8 +30,7 @@
 
 namespace express::dispatcher {
 
-    ApplicationDispatcher::ApplicationDispatcher(
-        const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& lambda)
+    ApplicationDispatcher::ApplicationDispatcher(const std::function<void (std::shared_ptr<Request> &, std::shared_ptr<Response> &)> &lambda)
         : lambda(lambda) {
     }
 

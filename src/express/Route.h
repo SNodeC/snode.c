@@ -44,13 +44,13 @@ namespace express {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DECLARE_ROUTE_REQUESTMETHOD(METHOD)                                                                                                \
-    Route& METHOD(const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& lambda) const;                   \
-    Route& METHOD(const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res, Next & next)>& lambda) const;      \
+    Route& METHOD(const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res)>& lambda) const;               \
+    Route& METHOD(const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res, Next & next)>& lambda) const;  \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res)>& lambda, Lambdas... lambdas)      \
+    Route& METHOD(const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res)>& lambda, Lambdas... lambdas)  \
         const;                                                                                                                             \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res, Next & next)>& lambda,             \
+    Route& METHOD(const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res, Next & next)>& lambda,         \
                   Lambdas... lambdas) const;
 
 namespace express {

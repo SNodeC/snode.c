@@ -47,8 +47,8 @@ namespace express {
         void setRootRoute(RootRoute* rootRoute);
         void setCurrentRoute(Route* currentRoute);
 
-        const std::shared_ptr<Request>& getRequest() const;
-        const std::shared_ptr<Response>& getResponse() const;
+        std::shared_ptr<Request>& getRequest() const;
+        std::shared_ptr<Response>& getResponse() const;
 
         int getFlags() const;
 

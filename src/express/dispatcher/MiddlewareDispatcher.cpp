@@ -32,8 +32,7 @@
 
 namespace express::dispatcher {
 
-    MiddlewareDispatcher::MiddlewareDispatcher(
-        const std::function<void(std::shared_ptr<Request> req, std::shared_ptr<Response> res, express::Next&)>& lambda)
+    MiddlewareDispatcher::MiddlewareDispatcher(const std::function<void (std::shared_ptr<Request> &, std::shared_ptr<Response> &, express::Next &)> &lambda)
         : lambda(lambda) {
     }
 

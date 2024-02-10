@@ -35,7 +35,7 @@ namespace express {
         , lastTick(core::EventLoop::getTickCounter()) {
     }
 
-    Controller::Controller(Controller &&controller) noexcept
+    Controller::Controller(Controller&& controller) noexcept
         : request(controller.request)
         , response(controller.response)
         , rootRoute(controller.rootRoute)
@@ -45,7 +45,7 @@ namespace express {
         , flags(controller.flags) {
     }
 
-    Controller::Controller(const Controller &controller)
+    Controller::Controller(const Controller& controller)
         : request(controller.request)
         , response(controller.response)
         , rootRoute(controller.rootRoute)
@@ -55,7 +55,7 @@ namespace express {
         , flags(controller.flags) {
     }
 
-    Controller &Controller::operator=(Controller &&controller) noexcept {
+    Controller& Controller::operator=(Controller&& controller) noexcept {
         request = controller.request;
         response = controller.response;
         rootRoute = controller.rootRoute;
@@ -75,11 +75,11 @@ namespace express {
         this->currentRoute = currentRoute;
     }
 
-    const std::shared_ptr<Request>& Controller::getRequest() const {
+    std::shared_ptr<Request>& Controller::getRequest() const {
         return request;
     }
 
-    const std::shared_ptr<Response>& Controller::getResponse() const {
+    std::shared_ptr<Response>& Controller::getResponse() const {
         return response;
     }
 
