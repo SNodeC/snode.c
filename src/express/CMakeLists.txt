@@ -51,6 +51,7 @@ set(HTTP_SERVER_EXPRESS_CPP
     middleware/BasicAuthentication.cpp
     middleware/StaticMiddleware.cpp
     middleware/VHost.cpp
+    middleware/VerboseRequest.cpp
     ${JSONMIDDLEWARE_CPP}
 )
 
@@ -74,6 +75,7 @@ set(HTTP_SERVER_EXPRESS_H
     middleware/BasicAuthentication.h
     middleware/StaticMiddleware.h
     middleware/VHost.h
+    middleware/VerboseRequest.h
     legacy/in/WebApp.h
     legacy/in6/WebApp.h
     legacy/rc/WebApp.h

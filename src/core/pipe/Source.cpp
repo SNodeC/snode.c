@@ -29,23 +29,15 @@
 
 namespace core::pipe {
 
-    Source::Source()
-        : sink(nullptr) {
+    Source::Source(Sink& sink)
+        : sink(&sink) {
+        sink.connect(*this);
     }
 
     Source::~Source() {
-        disconnect();
-    }
-
-    void Source::disconnect() {
         if (sink != nullptr) {
             sink->disconnect(*this);
         }
-    }
-
-    void Source::connect(Sink& sink) {
-        this->sink = &sink;
-        sink.connect(*this);
     }
 
     void Source::disconnect(const Sink& sink) {

@@ -37,8 +37,8 @@ namespace core::file {
     FileReader::FileReader(int fd, core::pipe::Sink& sink, const std::string& name, std::size_t pufferSize)
         : core::Descriptor(fd)
         , EventReceiver(name)
+        , core::pipe::Source(sink)
         , pufferSize(pufferSize) {
-        Source::connect(sink);
     }
 
     FileReader* FileReader::open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onStatus) {

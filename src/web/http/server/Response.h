@@ -54,7 +54,7 @@ namespace web::http::server {
     class Response : public core::pipe::Sink {
     protected:
         explicit Response(web::http::SocketContext* socketContext);
-        Response(Response&) = default;
+        Response(Response&) = delete;
         Response(Response&&) = default;
 
         ~Response() override;
@@ -83,6 +83,8 @@ namespace web::http::server {
         bool upgrade(std::shared_ptr<Request> req);
 
         void sendFile(const std::string& file, const std::function<void(int errnum)>& onError);
+
+        web::http::SocketContext* getSocketContext() const;
 
     protected:
         web::http::SocketContext* socketContext = nullptr;

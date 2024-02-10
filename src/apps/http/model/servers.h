@@ -30,6 +30,7 @@
 #include WEBAPP_INCLUDE // IWYU pragma: export
 
 #include "express/middleware/StaticMiddleware.h"
+#include "express/middleware/VerboseRequest.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,6 +47,7 @@
 express::Router getRouter(const std::string& rootPath) {
     express::Router router;
 
+    router.use(express::middleware::VerboseRequest());
     router.use(express::middleware::StaticMiddleware(rootPath));
 
     return router;

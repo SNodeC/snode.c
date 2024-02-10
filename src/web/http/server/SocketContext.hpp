@@ -25,8 +25,6 @@
 
 #include "log/Logger.h"
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
@@ -41,7 +39,7 @@ namespace web::http::server {
         , parser(
               this,
               [this](web::http::server::Request& request) -> void {
-                  for (auto& [field, value] : request.headers) {
+                  for (const auto& [field, value] : request.headers) {
                       if (field == "connection" && httputils::ci_contains(value, "close")) {
                           request.connectionState = ConnectionState::Close;
                       } else if (field == "connection" && httputils::ci_contains(value, "keep-alive")) {

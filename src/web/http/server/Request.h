@@ -58,10 +58,12 @@ namespace web::http::server {
 
         virtual void reset();
 
+    public:
         std::map<std::string, std::string> queries;
         std::map<std::string, std::string> headers;
         std::map<std::string, std::string> cookies;
 
+    protected:
         std::string nullstr;
 
         template <typename Request, typename Response>

@@ -33,7 +33,14 @@ namespace core::pipe {
 
     class Source {
     public:
-        Source();
+        Source(Sink& sink);
+
+        Source(Source&) = delete;
+        Source(Source&&) = default;
+
+        Source& operator=(Source&) = delete;
+        Source& operator=(Source&&) = default;
+
         virtual ~Source();
 
         virtual void suspend() = 0;
@@ -41,8 +48,6 @@ namespace core::pipe {
         virtual void stop() = 0;
 
     protected:
-        void disconnect();
-        void connect(Sink& sink);
         void disconnect(const Sink& sink);
 
         ssize_t send(const char* junk, std::size_t junkLen);

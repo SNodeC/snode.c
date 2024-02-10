@@ -236,6 +236,10 @@ namespace web::http::server {
         }
     }
 
+    SocketContext* Response::getSocketContext() const {
+        return socketContext;
+    }
+
     void Response::sendResponseCompleted() {
         if (socketContext != nullptr) {
             if (contentSent == contentLength) {

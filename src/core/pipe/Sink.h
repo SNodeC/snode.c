@@ -33,7 +33,12 @@ namespace core::pipe {
     class Sink {
     public:
         Sink();
-        Sink(const Sink&) = default;
+
+        Sink(Sink&) = delete;
+        Sink(Sink&&) = default;
+
+        Sink& operator=(Sink&) = delete;
+        Sink& operator=(Sink&&) = default;
 
         virtual ~Sink();
 

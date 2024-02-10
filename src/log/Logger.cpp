@@ -33,14 +33,14 @@ namespace logger {
         el::Configurations conf = *el::Loggers::defaultConfigurations();
 
         conf.setGlobally(el::ConfigurationType::Enabled, "true");
-        conf.setGlobally(el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %level %msg");
+        conf.setGlobally(el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick %level %msg");
         conf.setGlobally(el::ConfigurationType::ToFile, "false");
         conf.setGlobally(el::ConfigurationType::ToStandardOutput, "true");
         conf.setGlobally(el::ConfigurationType::SubsecondPrecision, "2");
         conf.setGlobally(el::ConfigurationType::PerformanceTracking, "false");
         conf.setGlobally(el::ConfigurationType::MaxLogFileSize, "2097152");
         conf.setGlobally(el::ConfigurationType::LogFlushThreshold, "0");
-        conf.set(el::Level::Verbose, el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %msg");
+        conf.set(el::Level::Verbose, el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick %msg");
 
         el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
         el::Loggers::addFlag(el::LoggingFlag::DisablePerformanceTrackingCheckpointComparison);

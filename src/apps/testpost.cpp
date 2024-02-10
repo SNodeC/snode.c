@@ -18,6 +18,7 @@
  */
 
 #include "express/legacy/in/WebApp.h"
+#include "express/middleware/VerboseRequest.h"
 #include "express/tls/in/WebApp.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,6 +37,8 @@ int main(int argc, char* argv[]) {
 
     const LegacyWebApp legacyApp;
     legacyApp.getConfig().setReuseAddress();
+
+    legacyApp.use(express::middleware::VerboseRequest());
 
     legacyApp.get("/", [] APPLICATION(req, res) {
         res->send("<html>"
