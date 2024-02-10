@@ -31,8 +31,9 @@ namespace core::timer {
     }
 
     void IntervalTimer::dispatchEvent() {
-        dispatcher();
         update();
+
+        dispatcher();
     }
 
     void IntervalTimer::unobservedEvent() {

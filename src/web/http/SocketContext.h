@@ -24,8 +24,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http {
@@ -41,9 +39,6 @@ namespace web::http {
     private:
         using Super = core::socket::stream::SocketContext;
         using Super::Super;
-
-    protected:
-        std::size_t onReceivedFromPeer() override = 0;
 
     public:
         virtual void requestCompleted() = 0;

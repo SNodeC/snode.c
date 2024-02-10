@@ -70,7 +70,6 @@ namespace web::http::server {
             bool close = (request->httpMajor == 0 && request->httpMinor == 9) ||
                          (request->httpMajor == 1 && request->httpMinor == 0 && request->connectionState != ConnectionState::Keep) ||
                          (request->httpMajor == 1 && request->httpMinor == 1 && request->connectionState == ConnectionState::Close);
-
             if (close) {
                 response->set("Connection", "close");
             } else {
@@ -100,7 +99,6 @@ namespace web::http::server {
                          (request->httpMajor == 1 && request->httpMinor == 0 && request->connectionState != ConnectionState::Keep) ||
                          (request->httpMajor == 1 && request->httpMinor == 1 && request->connectionState == ConnectionState::Close) ||
                          response->connectionState == ConnectionState::Close;
-
             if (close) {
                 shutdownWrite();
             } else if (!requests.empty()) {
