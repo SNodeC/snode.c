@@ -54,7 +54,11 @@ namespace web::http::server {
     class Response : public core::pipe::Sink {
     protected:
         explicit Response(web::http::SocketContext* socketContext);
+
+    public:
         Response(Response&) = delete;
+
+    protected:
         Response(Response&&) = default;
 
         ~Response() override;

@@ -65,11 +65,12 @@ namespace web::http::server {
 
         std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onRequestReady;
 
-        std::shared_ptr<Response> response;
-        std::shared_ptr<Request> request;
-        RequestParser parser;
+        std::shared_ptr<Response> response = nullptr;
+        std::shared_ptr<Request> request = nullptr;
 
         std::list<std::shared_ptr<Request>> requests;
+
+        RequestParser parser;
 
         bool connectionTerminated = false;
 
