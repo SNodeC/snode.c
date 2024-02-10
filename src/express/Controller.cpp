@@ -29,10 +29,42 @@
 
 namespace express {
 
-    Controller::Controller(std::shared_ptr<Request> request, std::shared_ptr<Response> response)
-        : lastTick(core::EventLoop::getTickCounter())
-        , request(request)
-        , response(response) {
+    Controller::Controller(std::shared_ptr<Request>& request, std::shared_ptr<Response>& response)
+        : request(request)
+        , response(response)
+        , lastTick(core::EventLoop::getTickCounter()) {
+    }
+
+    Controller::Controller(Controller &&controller) noexcept
+        : request(controller.request)
+        , response(controller.response)
+        , rootRoute(controller.rootRoute)
+        , lastRoute(controller.lastRoute)
+        , currentRoute(controller.currentRoute)
+        , lastTick(controller.lastTick)
+        , flags(controller.flags) {
+    }
+
+    Controller::Controller(const Controller &controller)
+        : request(controller.request)
+        , response(controller.response)
+        , rootRoute(controller.rootRoute)
+        , lastRoute(controller.lastRoute)
+        , currentRoute(controller.currentRoute)
+        , lastTick(controller.lastTick)
+        , flags(controller.flags) {
+    }
+
+    Controller &Controller::operator=(Controller &&controller) noexcept {
+        request = controller.request;
+        response = controller.response;
+        rootRoute = controller.rootRoute;
+        lastRoute = controller.lastRoute;
+        currentRoute = controller.currentRoute;
+        lastTick = controller.lastTick;
+        flags = controller.flags;
+
+        return *this;
     }
 
     void Controller::setRootRoute(RootRoute* rootRoute) {
@@ -43,11 +75,11 @@ namespace express {
         this->currentRoute = currentRoute;
     }
 
-    std::shared_ptr<Request> Controller::getRequest() const {
+    const std::shared_ptr<Request>& Controller::getRequest() const {
         return request;
     }
 
-    std::shared_ptr<Response> Controller::getResponse() const {
+    const std::shared_ptr<Response>& Controller::getResponse() const {
         return response;
     }
 

@@ -60,7 +60,7 @@ namespace express {
         RootRoute() = default;
 
     protected:
-        void dispatch(std::shared_ptr<Request> req, std::shared_ptr<Response> res);
+        void dispatch(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res);
 
         void dispatch(Controller&& controller);
         void dispatch(Controller& controller);

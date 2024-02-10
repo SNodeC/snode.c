@@ -26,6 +26,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <utility>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
@@ -59,7 +61,7 @@ namespace express::dispatcher {
                 // If next() was called synchronously continue current route-tree traversal
                 if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
                     dispatched = false;
-                    controller = next.controller;
+                    controller = std::move(next.controller);
                 }
             }
         }
