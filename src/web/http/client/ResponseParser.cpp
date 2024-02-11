@@ -25,6 +25,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <map>
 #include <regex>
 #include <tuple>
 #include <utility>
@@ -37,55 +38,39 @@
 
 namespace web::http::client {
 
-    ResponseParser::ResponseParser(
-        core::socket::stream::SocketContext* socketContext,
-        const std::function<void(void)>& onStart,
-        const std::function<void(std::string&, std::string&, std::string&)>& onResponse,
-        const std::function<void(std::map<std::string, std::string>&, std::map<std::string, CookieOptions>&)>& onHeader,
-        const std::function<void(std::vector<uint8_t>&)>& onContent,
-        const std::function<void(ResponseParser&)>& onParsed,
-        const std::function<void(int, const std::string&)>& onError)
+    ResponseParser::ResponseParser(core::socket::stream::SocketContext* socketContext,
+                                   const std::function<void(void)>& onStart,
+                                   const std::function<void(Response&)>& onParsed,
+                                   const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
+        , response(socketContext)
         , onStart(onStart)
-        , onResponse(onResponse)
-        , onHeader(onHeader)
-        , onContent(onContent)
         , onParsed(onParsed)
         , onError(onError) {
-    }
-
-    void ResponseParser::reset() {
-        Parser::reset();
-        httpVersion.clear();
-        statusCode.clear();
-        reason.clear();
-        cookies.clear();
     }
 
     void ResponseParser::begin() {
         onStart();
     }
 
-    enum Parser::ParserState ResponseParser::parseStartLine(const std::string& line) {
-        enum Parser::ParserState parserState = Parser::ParserState::HEADER;
+    Parser::ParserState ResponseParser::parseStartLine(const std::string& line) {
+        Parser::ParserState parserState = Parser::ParserState::HEADER;
 
         if (!line.empty()) {
             std::string remaining;
 
-            std::tie(httpVersion, remaining) = httputils::str_split(line, ' ');
+            std::tie(response.httpVersion, remaining) = httputils::str_split(line, ' ');
 
             std::smatch httpVersionMatch;
-            if (!std::regex_match(httpVersion, httpVersionMatch, httpVersionRegex)) {
+            if (!std::regex_match(response.httpVersion, httpVersionMatch, httpVersionRegex)) {
                 parserState = parsingError(400, "Wrong protocol version");
             } else {
-                httpMajor = std::stoi(httpVersionMatch.str(1));
-                httpMinor = std::stoi(httpVersionMatch.str(2));
+                response.httpMajor = std::stoi(httpVersionMatch.str(1));
+                response.httpMinor = std::stoi(httpVersionMatch.str(2));
 
-                std::tie(statusCode, reason) = httputils::str_split(remaining, ' ');
-                if (StatusCode::contains(std::stoi(statusCode))) {
-                    if (!reason.empty()) {
-                        onResponse(httpVersion, statusCode, reason);
-                    } else {
+                std::tie(response.statusCode, response.reason) = httputils::str_split(remaining, ' ');
+                if (StatusCode::contains(std::stoi(response.statusCode))) {
+                    if (response.reason.empty()) {
                         parserState = parsingError(400, "No reason phrase");
                     }
                 } else {
@@ -98,7 +83,7 @@ namespace web::http::client {
         return parserState;
     }
 
-    enum Parser::ParserState ResponseParser::parseHeader() {
+    Parser::ParserState ResponseParser::parseHeader() {
         for (const auto& [headerFieldName, headerFieldValue] : Parser::headers) {
             if (headerFieldName != "set-cookie") {
                 if (headerFieldName == "content-length") {
@@ -124,7 +109,7 @@ namespace web::http::client {
 
                     std::map<std::string, CookieOptions>::iterator cookieElement;
                     bool inserted = false;
-                    std::tie(cookieElement, inserted) = cookies.insert({cookieName, CookieOptions(cookieValue)});
+                    std::tie(cookieElement, inserted) = response.cookies.insert({cookieName, CookieOptions(cookieValue)});
 
                     while (!cookieOptions.empty()) {
                         std::string option;
@@ -143,34 +128,41 @@ namespace web::http::client {
             }
         }
 
-        Parser::headers.erase("set-cookie");
+        headers.erase("set-cookie");
 
-        onHeader(Parser::headers, cookies);
+        response.headers = std::move(Parser::headers);
 
-        enum Parser::ParserState parserState = Parser::ParserState::BODY;
-        if (contentLength == 0 && httpMinor == 1) {
-            parsingFinished();
-            parserState = ParserState::BEGIN;
+        ParserState parserState = Parser::ParserState::BODY;
+        if (contentLength == 0 && response.httpMinor == 1) {
+            parserState = parsingFinished();
+        } else {
+            httpMajor = response.httpMajor;
+            httpMinor = response.httpMinor;
         }
 
         return parserState;
     }
 
     Parser::ParserState ResponseParser::parseContent(std::vector<uint8_t>& content) {
-        onContent(content);
-        parsingFinished();
+        response.body = std::move(content);
+
+        return parsingFinished();
+    }
+
+    Parser::ParserState ResponseParser::parsingFinished() {
+        onParsed(response);
+
+        reset();
 
         return ParserState::BEGIN;
     }
 
-    enum Parser::ParserState ResponseParser::parsingError(int code, const std::string& reason) {
+    Parser::ParserState ResponseParser::parsingError(int code, const std::string& reason) {
         onError(code, reason);
 
-        return ParserState::ERROR;
-    }
+        reset();
 
-    void ResponseParser::parsingFinished() {
-        onParsed(*this);
+        return ParserState::ERROR;
     }
 
 } // namespace web::http::client

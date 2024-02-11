@@ -26,10 +26,15 @@ namespace web::http {
     class SocketContext;
 } // namespace web::http
 
+namespace web::http::client {
+    class Response;
+} // namespace web::http::client
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
 #include <map>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -37,19 +42,16 @@ namespace web::http {
 namespace web::http::client {
 
     class Request {
-    protected:
+    public:
         explicit Request(web::http::SocketContext* clientContext);
 
+        explicit Request(Request&) = delete;
+        explicit Request(Request&&) noexcept = default;
+
+        Request& operator=(Request&) = delete;
+        Request& operator=(Request&&) noexcept = default;
+
         virtual ~Request() = default;
-
-    public:
-        std::string method = "GET";
-        std::string url;
-        std::string host;
-        int httpMajor = 1;
-        int httpMinor = 1;
-
-        ConnectionState connectionState = ConnectionState::Default;
 
         Request& setHost(const std::string& host);
         Request& append(const std::string& field, const std::string& value);
@@ -59,10 +61,14 @@ namespace web::http::client {
         Request& cookie(const std::map<std::string, std::string>& cookies);
         Request& type(const std::string& type);
 
+        void sendFragment(const char* junk, std::size_t junkLen);
+        void sendFragment(const std::string& data);
+
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
 
         void upgrade(const std::string& url, const std::string& protocols);
+        void upgrade(std::shared_ptr<Response>& response);
 
         void sendHeader();
 
@@ -71,21 +77,29 @@ namespace web::http::client {
         const std::string& header(const std::string& field);
 
     protected:
-        void enqueue(const char* junk, std::size_t junkLen);
-        void enqueue(const std::string& data);
+        virtual void reset();
 
+        web::http::SocketContext* socketContext;
+
+        ConnectionState connectionState = ConnectionState::Default;
+
+    public:
+        std::string method = "GET";
+        std::string url;
+        std::string host;
+        int httpMajor = 1;
+        int httpMinor = 1;
+
+    protected:
+        std::map<std::string, std::string> queries;
+        std::map<std::string, std::string> headers;
+        std::map<std::string, std::string> cookies;
+
+    private:
         bool sendHeaderInProgress = false;
         bool headersSent = false;
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
-
-        web::http::SocketContext* socketContext;
-
-        virtual void reset();
-
-        std::map<std::string, std::string> queries;
-        std::map<std::string, std::string> headers;
-        std::map<std::string, std::string> cookies;
 
         std::string nullstr;
 

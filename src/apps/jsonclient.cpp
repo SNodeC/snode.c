@@ -27,6 +27,7 @@
 
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -43,36 +44,36 @@ int main(int argc, char* argv[]) {
 
     const Client jsonClient(
         "legacy",
-        [](Request& request) -> void {
+        [](std::shared_ptr<Request>& request) -> void {
             VLOG(0) << "-- OnRequest";
-            request.method = "POST";
-            request.url = "/index.html";
-            request.type("application/json");
-            request.set("Connection", "close");
-            request.send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
+            request->method = "POST";
+            request->url = "/index.html";
+            request->type("application/json");
+            request->set("Connection", "close");
+            request->send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
-        []([[maybe_unused]] Request& request, Response& response) -> void {
+        []([[maybe_unused]] std::shared_ptr<Request>& request, std::shared_ptr<Response>& response) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
-            VLOG(0) << "       " << response.httpVersion;
-            VLOG(0) << "       " << response.statusCode;
-            VLOG(0) << "       " << response.reason;
+            VLOG(0) << "       " << response->httpVersion;
+            VLOG(0) << "       " << response->statusCode;
+            VLOG(0) << "       " << response->reason;
 
             VLOG(0) << "     Headers:";
-            for (auto& [field, value] : response.headers) {
+            for (auto& [field, value] : response->headers) {
                 VLOG(0) << "       " << field + " = " + value;
             }
 
             VLOG(0) << "     Cookies:";
-            for (const auto& [name, cookie] : response.cookies) {
+            for (const auto& [name, cookie] : response->cookies) {
                 VLOG(0) << "       " + name + " = " + cookie.getValue();
                 for (auto& [option, value] : cookie.getOptions()) {
                     VLOG(0) << "         " + option + " = " + value;
                 }
             }
 
-            response.body.push_back(0);
-            VLOG(0) << "     Body:\n----------- start body -----------" << response.body.data() << "\n------------ end body ------------";
+            response->body.push_back(0);
+            VLOG(0) << "     Body:\n----------- start body -----------" << response->body.data() << "\n------------ end body ------------";
         },
         [](int status, const std::string& reason) -> void {
             VLOG(0) << "-- OnResponseError";

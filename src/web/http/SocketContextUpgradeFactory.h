@@ -74,6 +74,7 @@ namespace web::http {
         Response* response = nullptr;
 
         friend Response;
+        friend Request;
         friend class SocketContextUpgrade<Request, Response>;
     };
 

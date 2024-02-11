@@ -27,6 +27,8 @@ if(iwyu_path)
             -Xiwyu
             --cxx17ns
             -Xiwyu
+            --regex=ecmascript
+            -Xiwyu
             --quoted_includes_first
             -Xiwyu
             --max_line_length=160

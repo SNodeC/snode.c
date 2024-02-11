@@ -20,10 +20,17 @@
 #include "web/http/client/Request.h"
 
 #include "web/http/SocketContext.h"
+#include "web/http/client/Response.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
+namespace core::socket::stream {
+    class SocketContext;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <utility>
 
@@ -115,7 +122,7 @@ namespace web::http::client {
         connectionState = ConnectionState::Default;
     }
 
-    void Request::enqueue(const char* junk, std::size_t junkLen) {
+    void Request::sendFragment(const char* junk, std::size_t junkLen) {
         if (!headersSent && !sendHeaderInProgress) {
             sendHeaderInProgress = true;
             sendHeader();
@@ -135,8 +142,8 @@ namespace web::http::client {
         }
     }
 
-    void Request::enqueue(const std::string& data) {
-        enqueue(data.data(), data.size());
+    void Request::sendFragment(const std::string& data) {
+        sendFragment(data.data(), data.size());
     }
 
     void Request::sendHeader() {
@@ -151,28 +158,28 @@ namespace web::http::client {
             queryString.pop_back();
         }
 
-        enqueue(method + " " + url + queryString + " " + httpVersion + "\r\n");
+        sendFragment(method + " " + url + queryString + " " + httpVersion + "\r\n");
 
         if (!host.empty()) {
-            enqueue("Host: " + host + "\r\n");
+            sendFragment("Host: " + host + "\r\n");
         }
-        enqueue("Date: " + httputils::to_http_date() + "\r\n");
+        sendFragment("Date: " + httputils::to_http_date() + "\r\n");
 
         headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
         for (const auto& [field, value] : headers) {
-            enqueue(std::string(field).append(":").append(value).append("\r\n"));
+            sendFragment(std::string(field).append(":").append(value).append("\r\n"));
         }
 
         if (contentLength != 0) {
-            enqueue(std::string("Content-Length: ").append(std::to_string(contentLength)).append("\r\n"));
+            sendFragment(std::string("Content-Length: ").append(std::to_string(contentLength)).append("\r\n"));
         }
 
         for (const auto& [name, value] : cookies) {
-            enqueue(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
+            sendFragment(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
         }
 
-        enqueue("\r\n");
+        sendFragment("\r\n");
 
         if (headers.find("Content-Length") != headers.end()) {
             contentLength = std::stoul(headers.find("Content-Length")->second);
@@ -187,7 +194,7 @@ namespace web::http::client {
         }
         headers.insert_or_assign("Content-Length", std::to_string(junkLen));
 
-        enqueue(junk, junkLen);
+        sendFragment(junk, junkLen);
     }
 
     void Request::send(const std::string& junk) {
@@ -215,6 +222,31 @@ namespace web::http::client {
             start();
             socketContextUpgradeFactory->checkRefCount();
         } else {
+            socketContext->close();
+        }
+    }
+
+    void Request::upgrade(std::shared_ptr<Response>& response) {
+        if (httputils::ci_contains(response->header("connection"), "Upgrade")) {
+            web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
+
+            if (socketContextUpgradeFactory != nullptr) {
+                core::socket::stream::SocketContext* newSocketContext =
+                    socketContextUpgradeFactory->create(socketContext->getSocketConnection());
+
+                if (newSocketContext != nullptr) {
+                    socketContext->switchSocketContext(newSocketContext);
+                } else {
+                    LOG(DEBUG) << "HTTP: SocketContextUpgrade not created";
+                    socketContext->close();
+                }
+            } else {
+                LOG(DEBUG) << "HTTP: SocketContextUpgradeFactory not existing";
+                socketContext->close();
+            }
+        } else {
+            LOG(DEBUG) << "HTTP: Response did not contain upgrade";
             socketContext->close();
         }
     }

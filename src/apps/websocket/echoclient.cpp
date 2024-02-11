@@ -28,6 +28,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -47,36 +48,36 @@ int main(int argc, char* argv[]) {
 
         const LegacyClient legacyClient(
             "legacy",
-            [](Request& request) -> void {
+            [](std::shared_ptr<Request>& request) -> void {
                 VLOG(1) << "OnRequestBegin";
 
-                request.set("Sec-WebSocket-Protocol", "test, echo");
+                request->set("Sec-WebSocket-Protocol", "test, echo");
 
-                request.upgrade("/ws/", "hui, websocket");
+                request->upgrade("/ws/", "hui, websocket");
             },
-            [](Request& request, Response& response) -> void {
+            [](std::shared_ptr<Request>& request, std::shared_ptr<Response>& response) -> void {
                 VLOG(1) << "OnResponse";
                 VLOG(2) << "     Status:";
-                VLOG(2) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
+                VLOG(2) << "       " << response->httpVersion << " " << response->statusCode << " " << response->reason;
 
                 VLOG(2) << "     Headers:";
-                for (const auto& [field, value] : response.headers) {
+                for (const auto& [field, value] : response->headers) {
                     VLOG(2) << "       " << field + " = " + value;
                 }
 
                 VLOG(2) << "     Cookies:";
-                for (const auto& [name, cookie] : response.cookies) {
+                for (const auto& [name, cookie] : response->cookies) {
                     VLOG(2) << "       " + name + " = " + cookie.getValue();
                     for (const auto& [option, value] : cookie.getOptions()) {
                         VLOG(2) << "         " + option + " = " + value;
                     }
                 }
 
-                response.body.push_back(0); // make it a c-string
+                response->body.push_back(0); // make it a c-string
                 std::cout << "Body:\n----------- start body -----------\n"
-                          << response.body.data() << "\n------------ end body ------------" << std::endl;
+                          << response->body.data() << "\n------------ end body ------------" << std::endl;
 
-                response.upgrade(request);
+                request->upgrade(response);
             },
             [](int status, const std::string& reason) -> void {
                 VLOG(1) << "OnResponseError";
@@ -109,36 +110,36 @@ int main(int argc, char* argv[]) {
 
         const TlsClient tlsClient(
             "tls",
-            [](Request& request) -> void {
+            [](std::shared_ptr<Request>& request) -> void {
                 VLOG(1) << "OnRequestBegin";
 
-                request.set("Sec-WebSocket-Protocol", "test, echo");
+                request->set("Sec-WebSocket-Protocol", "test, echo");
 
-                request.upgrade("/ws/", "hui, websocket");
+                request->upgrade("/ws/", "hui, websocket");
             },
-            [](Request& request, Response& response) -> void {
+            [](std::shared_ptr<Request>& request, std::shared_ptr<Response>& response) -> void {
                 VLOG(1) << "OnResponse";
                 VLOG(2) << "     Status:";
-                VLOG(2) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
+                VLOG(2) << "       " << response->httpVersion << " " << response->statusCode << " " << response->reason;
 
                 VLOG(2) << "     Headers:";
-                for (auto& [field, value] : response.headers) {
+                for (auto& [field, value] : response->headers) {
                     VLOG(2) << "       " << field + " = " + value;
                 }
 
                 VLOG(2) << "     Cookies:";
-                for (const auto& [name, cookie] : response.cookies) {
+                for (const auto& [name, cookie] : response->cookies) {
                     VLOG(2) << "       " + name + " = " + cookie.getValue();
                     for (const auto& [option, value] : cookie.getOptions()) {
                         VLOG(2) << "         " + option + " = " + value;
                     }
                 }
 
-                response.body.push_back(0); // make it a c-string
+                response->body.push_back(0); // make it a c-string
                 std::cout << "Body:\n----------- start body -----------\n"
-                          << response.body.data() << "\n------------ end body ------------" << std::endl;
+                          << response->body.data() << "\n------------ end body ------------" << std::endl;
 
-                response.upgrade(request);
+                request->upgrade(response);
             },
             [](int status, const std::string& reason) -> void {
                 VLOG(1) << "OnResponseError";

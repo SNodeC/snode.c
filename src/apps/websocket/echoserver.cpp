@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
         });
     });
 
-    legacyApp.get("/ws", [](std::shared_ptr<Request> req, std::shared_ptr<Response> res) -> void {
+    legacyApp.get("/ws", [](std::shared_ptr<Request>& req, std::shared_ptr<Response>& res) -> void {
         VLOG(1) << "HTTP GET on legacy /ws";
 
         const std::string uri = req->originalUrl;
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
             });
         });
 
-        tlsApp.get("/ws", [](std::shared_ptr<Request> req, std::shared_ptr<Response> res) -> void {
+        tlsApp.get("/ws", [](std::shared_ptr<Request>& req, std::shared_ptr<Response>& res) -> void {
             VLOG(1) << "HTTP GET on tls /ws";
 
             const std::string uri = req->originalUrl;

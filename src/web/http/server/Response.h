@@ -52,18 +52,17 @@ namespace web::http {
 namespace web::http::server {
 
     class Response : public core::pipe::Sink {
-    protected:
+    public:
         explicit Response(web::http::SocketContext* socketContext);
 
-    public:
-        Response(Response&) = delete;
+        explicit Response(Response&) = delete;
+        explicit Response(Response&&) noexcept = default;
 
-    protected:
-        Response(Response&&) = default;
+        Response& operator=(Response&) = delete;
+        Response& operator=(Response&&) noexcept = default;
 
         ~Response() override;
 
-    public:
         void sendFragment(const char* junk, std::size_t junkLen);
         void sendFragment(const std::string& junk);
 
@@ -91,7 +90,11 @@ namespace web::http::server {
         web::http::SocketContext* getSocketContext() const;
 
     protected:
+        virtual void reset();
+
         web::http::SocketContext* socketContext = nullptr;
+
+        ConnectionState connectionState = ConnectionState::Default;
 
         int responseStatus = 200;
 
@@ -102,7 +105,6 @@ namespace web::http::server {
         void stopResponse();
 
         core::pipe::Source* source = nullptr;
-        ConnectionState connectionState = ConnectionState::Default;
 
         core::socket::stream::SocketContext* socketContextUpgrade = nullptr;
 

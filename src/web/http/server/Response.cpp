@@ -240,6 +240,16 @@ namespace web::http::server {
         return socketContext;
     }
 
+    void Response::reset() {
+        responseStatus = 200;
+        headers.clear();
+        cookies.clear();
+        sendHeaderInProgress = false;
+        headersSent = false;
+        contentLength = 0;
+        contentSent = 0;
+    }
+
     void Response::sendResponseCompleted() {
         if (socketContext != nullptr) {
             if (contentSent == contentLength) {
@@ -249,13 +259,6 @@ namespace web::http::server {
 
                 socketContext->requestCompleted();
 
-                responseStatus = 200;
-                headers.clear();
-                cookies.clear();
-                sendHeaderInProgress = false;
-                headersSent = false;
-                contentLength = 0;
-                contentSent = 0;
             } else {
                 socketContext->close();
             }
@@ -267,14 +270,6 @@ namespace web::http::server {
             source->stop();
             source = nullptr;
         }
-
-        responseStatus = 200;
-        headers.clear();
-        cookies.clear();
-        sendHeaderInProgress = false;
-        headersSent = false;
-        contentLength = 0;
-        contentSent = 0;
 
         socketContext = nullptr;
     }

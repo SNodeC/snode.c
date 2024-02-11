@@ -40,17 +40,6 @@ namespace web::http::server {
         , onError(onError) {
     }
 
-    void RequestParser::reset() {
-        Parser::reset();
-        request.method.clear();
-        request.url.clear();
-        request.httpVersion.clear();
-        request.queries.clear();
-        request.cookies.clear();
-        request.httpMajor = 0;
-        request.httpMinor = 0;
-    }
-
     bool RequestParser::methodSupported(const std::string& method) const {
         return supportedMethods.contains(method);
     }
@@ -58,8 +47,8 @@ namespace web::http::server {
     void RequestParser::begin() {
     }
 
-    enum Parser::ParserState RequestParser::parseStartLine(const std::string& line) {
-        enum Parser::ParserState parserState = Parser::ParserState::HEADER;
+    Parser::ParserState RequestParser::parseStartLine(const std::string& line) {
+        Parser::ParserState parserState = Parser::ParserState::HEADER;
 
         if (!line.empty()) {
             std::string remaining;
@@ -97,7 +86,7 @@ namespace web::http::server {
         return parserState;
     }
 
-    enum Parser::ParserState RequestParser::parseHeader() {
+    Parser::ParserState RequestParser::parseHeader() {
         for (auto& [headerFieldName, headerFieldValue] : Parser::headers) {
             if (headerFieldName != "cookie") {
                 if (headerFieldName == "content-length") {
@@ -129,12 +118,11 @@ namespace web::http::server {
 
         Parser::headers.erase("cookie");
 
-        request.headers = Parser::headers;
+        request.headers = std::move(Parser::headers);
 
         enum Parser::ParserState parserState = Parser::ParserState::BODY;
         if (contentLength == 0 && request.httpMinor == 1) {
-            parsingFinished();
-            parserState = ParserState::BEGIN;
+            parserState = parsingFinished();
         } else {
             httpMajor = request.httpMajor;
             httpMinor = request.httpMinor;
@@ -146,17 +134,21 @@ namespace web::http::server {
     Parser::ParserState RequestParser::parseContent(std::vector<uint8_t>& content) {
         request.body = std::move(content);
 
-        parsingFinished();
+        return parsingFinished();
+    }
+
+    Parser::ParserState RequestParser::parsingFinished() {
+        onParsed(request);
+
+        reset();
 
         return ParserState::BEGIN;
     }
 
-    void RequestParser::parsingFinished() {
-        onParsed(request);
-    }
-
-    enum Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {
+    Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {
         onError(code, reason + "\r\n");
+
+        reset();
 
         return ParserState::ERROR;
     }

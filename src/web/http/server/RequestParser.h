@@ -45,9 +45,10 @@ namespace web::http::server {
         RequestParser(const RequestParser&) = delete;
         RequestParser& operator=(const RequestParser&) = delete;
 
-        void reset() override;
-
     private:
+        // Supported web-methods
+        std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};
+
         // Check if request method is supported
         virtual bool methodSupported(const std::string& method) const;
 
@@ -55,16 +56,13 @@ namespace web::http::server {
         void begin() override;
 
         // Parsers and Validators
-        enum Parser::ParserState parseStartLine(const std::string& line) override;
-        enum Parser::ParserState parseHeader() override;
-        enum Parser::ParserState parseContent(std::vector<uint8_t>& content) override;
+        ParserState parseStartLine(const std::string& line) override;
+        ParserState parseHeader() override;
+        ParserState parseContent(std::vector<uint8_t>& content) override;
 
         // Exits
-        void parsingFinished();
-        enum Parser::ParserState parsingError(int code, const std::string& reason) override;
-
-        // Supported web-methods
-        std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};
+        ParserState parsingFinished();
+        ParserState parsingError(int code, const std::string& reason) override;
 
         Request request;
 

@@ -31,12 +31,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <map>
 #include <openssl/ssl.h> // IWYU pragma: keep
 #include <openssl/x509v3.h>
 #include <string>
-#include <utility>
-#include <vector>
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <openssl/x509.h>
@@ -52,31 +49,8 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
         socketContext,
         []() -> void {
         },
-        [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
-            VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
-        },
-        [](const std::map<std::string, std::string>& headers, const std::map<std::string, web::http::CookieOptions>& cookies) -> void {
-            VLOG(0) << "++   Headers:";
-            for (const auto& [field, value] : headers) {
-                VLOG(0) << "++       " << field + " = " + value;
-            }
-
-            VLOG(0) << "++   Cookies:";
-            for (const auto& [name, cookie] : cookies) {
-                VLOG(0) << "++     " + name + " = " + cookie.getValue();
-                for (const auto& [option, value] : cookie.getOptions()) {
-                    VLOG(0) << "++       " + option + " = " + value;
-                }
-            }
-        },
-        [](std::vector<uint8_t> content) -> void {
-            content.push_back(0);
-
-            VLOG(0) << "++   OnContent: "; // << content.data();
-        },
-        [](web::http::client::ResponseParser& parser) -> void {
+        []([[maybe_unused]] web::http::client::Response& response) -> void {
             VLOG(0) << "++   OnParsed";
-            parser.reset();
         },
         [](int status, const std::string& reason) -> void {
             VLOG(0) << "++   OnError: " + std::to_string(status) + " - " + reason;

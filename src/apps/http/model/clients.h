@@ -52,32 +52,32 @@ namespace apps::http::legacy {
     Client getClient() {
         return Client(
             "httpclient",
-            [](Request& request) -> void {
-                request.url = "/index.html";
-                request.set("Connection", "close");
-                request.start();
+            [](std::shared_ptr<Request>& request) -> void {
+                request->url = "/index.html";
+                request->set("Connection", "close");
+                request->start();
             },
-            []([[maybe_unused]] Request& request, Response& response) -> void {
+            []([[maybe_unused]] std::shared_ptr<Request>& request, std::shared_ptr<Response>& response) -> void {
                 LOG(INFO) << "-- OnResponse";
                 LOG(INFO) << "     Status:";
-                LOG(INFO) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
+                LOG(INFO) << "       " << response->httpVersion << " " << response->statusCode << " " << response->reason;
 
                 LOG(INFO) << "     Headers:";
-                for (const auto& [field, value] : response.headers) {
+                for (const auto& [field, value] : response->headers) {
                     LOG(INFO) << "       " << field + " = " + value;
                 }
 
                 LOG(INFO) << "     Cookies:";
-                for (const auto& [name, cookie] : response.cookies) {
+                for (const auto& [name, cookie] : response->cookies) {
                     LOG(INFO) << "       " + name + " = " + cookie.getValue();
                     for (const auto& [option, value] : cookie.getOptions()) {
                         LOG(INFO) << "         " + option + " = " + value;
                     }
                 }
 
-                response.body.push_back(0); // make it a c-string
+                response->body.push_back(0); // make it a c-string
                 std::cout << "Body:\n----------- start body -----------\n"
-                          << response.body.data() << "\n------------ end body ------------" << std::endl;
+                          << response->body.data() << "\n------------ end body ------------" << std::endl;
             },
             [](int status, const std::string& reason) -> void {
                 LOG(INFO) << "-- OnResponseError";
@@ -102,32 +102,32 @@ namespace apps::http::tls {
     Client getClient() {
         Client client(
             "httpclient",
-            [](Request& request) -> void {
-                request.url = "/index.html";
-                request.set("Connection", "close");
-                request.start();
+            [](std::shared_ptr<Request>& request) -> void {
+                request->url = "/index.html";
+                request->set("Connection", "close");
+                request->start();
             },
-            []([[maybe_unused]] Request& request, Response& response) -> void {
+            []([[maybe_unused]] std::shared_ptr<Request>& request, std::shared_ptr<Response>& response) -> void {
                 LOG(INFO) << "-- OnResponse";
                 LOG(INFO) << "     Status:";
-                LOG(INFO) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
+                LOG(INFO) << "       " << response->httpVersion << " " << response->statusCode << " " << response->reason;
 
                 LOG(INFO) << "     Headers:";
-                for (const auto& [field, value] : response.headers) {
+                for (const auto& [field, value] : response->headers) {
                     LOG(INFO) << "       " << field + " = " + value;
                 }
 
                 LOG(INFO) << "     Cookies:";
-                for (const auto& [name, cookie] : response.cookies) {
+                for (const auto& [name, cookie] : response->cookies) {
                     LOG(INFO) << "       " + name + " = " + cookie.getValue();
                     for (const auto& [option, value] : cookie.getOptions()) {
                         LOG(INFO) << "         " + option + " = " + value;
                     }
                 }
 
-                response.body.push_back(0); // make it a c-string
+                response->body.push_back(0); // make it a c-string
                 std::cout << "Body:\n----------- start body -----------\n"
-                          << response.body.data() << "\n------------ end body ------------" << std::endl;
+                          << response->body.data() << "\n------------ end body ------------" << std::endl;
             },
             [](int status, const std::string& reason) -> void {
                 LOG(INFO) << "-- OnResponseError";

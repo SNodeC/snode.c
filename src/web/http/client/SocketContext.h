@@ -31,6 +31,7 @@ namespace web::http::client {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -47,16 +48,9 @@ namespace web::http::client {
 
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                      const std::function<void(Request&)>& onRequestBegin,
-                      const std::function<void(Request&, Response&)>& onResponse,
-                      const std::function<void(int, const std::string&)>& onError);
-
-    protected:
-        ~SocketContext() override = default;
-
-    public:
-        Request& getRequest();
-        Response& getResponse();
+                      const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
+                      const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
+                      const std::function<void(int, const std::string&)>& onResponseError);
 
     private:
         std::size_t onReceivedFromPeer() override;
@@ -68,10 +62,15 @@ namespace web::http::client {
 
         [[nodiscard]] bool onSignal(int signum) override;
 
-        std::function<void(Request&)> onRequestBegin;
+        void responseParsed();
+        void responseError(int status, const std::string& reason);
 
-        Request request;
-        Response response;
+        std::function<void(std::shared_ptr<Request>&)> onRequestBegin;
+        std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onResponseReady;
+        std::function<void(int, const std::string&)> onResponseError;
+
+        std::shared_ptr<Response> response = nullptr;
+        std::shared_ptr<Request> request = nullptr;
 
         ResponseParser parser;
     };

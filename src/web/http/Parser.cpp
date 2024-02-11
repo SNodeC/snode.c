@@ -46,10 +46,10 @@ namespace web::http {
 
     void Parser::reset() {
         parserState = ParserState::BEGIN;
-        headers.clear();
         contentLength = 0;
-        content.clear();
         contentRead = 0;
+        httpMinor = 0;
+        httpMajor = 0;
     }
 
     std::size_t Parser::parse() {

@@ -47,8 +47,8 @@ namespace web::http::client {
         Client(const std::string& name,
                const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
-               const std::function<void(Request&)>& onRequestBegin,
-               const std::function<void(Request&, Response&)>& onResponseReady,
+               const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
+               const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(SocketConnection*)>& onDisconnect)
             : Super(name, onConnect, onConnected, onDisconnect) {
@@ -59,16 +59,16 @@ namespace web::http::client {
 
         Client(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
-               const std::function<void(Request&)>& onRequestBegin,
-               const std::function<void(Request&, Response&)>& onResponseReady,
+               const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
+               const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(SocketConnection*)>& onDisconnect)
             : Client("", onConnect, onConnected, onRequestBegin, onResponseReady, onResponseError, onDisconnect) {
         }
 
         Client(const std::string& name,
-               const std::function<void(Request&)>& onRequestBegin,
-               const std::function<void(Request&, Response&)>& onResponseReady,
+               const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
+               const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
                const std::function<void(int, const std::string&)>& onResponseError)
             : Super(name) {
             Super::getSocketContextFactory()->setOnRequestBegin(onRequestBegin);
@@ -76,8 +76,8 @@ namespace web::http::client {
             Super::getSocketContextFactory()->setOnResponseError(onResponseError);
         }
 
-        Client(const std::function<void(Request&)>& onRequestBegin,
-               const std::function<void(Request&, Response&)>& onResponseReady,
+        Client(const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
+               const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
                const std::function<void(int, const std::string&)>& onResponseError)
             : Client("", onRequestBegin, onResponseReady, onResponseError) {
         }

@@ -196,12 +196,13 @@ namespace core {
 
             switch (tickStatus) {
                 case TickStatus::SUCCESS:
-                    [[fallthrough]];
-                case TickStatus::INTERRUPTED:
-                    LOG(TRACE) << "Core::EventLoop: Interrupted";
+                    LOG(TRACE) << "Core::EventLoop: Stopped";
                     break;
                 case TickStatus::NOOBSERVER:
                     LOG(TRACE) << "Core::EventLoop: No Observer";
+                    break;
+                case TickStatus::INTERRUPTED:
+                    LOG(TRACE) << "Core::EventLoop: Interrupted";
                     break;
                 case TickStatus::TRACE:
                     PLOG(FATAL) << "Core::EventLoop: _tick()";

@@ -39,7 +39,12 @@ namespace express {
     public:
         explicit Response(web::http::SocketContext* socketContext);
         explicit Response(web::http::server::Response&& response) noexcept;
-        explicit Response(Response&& response) noexcept = default;
+
+        explicit Response(Response&) = delete;
+        explicit Response(Response&&) noexcept = default;
+
+        Response& operator=(Response&) = delete;
+        Response& operator=(Response&&) noexcept = default;
 
         ~Response() override;
 

@@ -32,51 +32,28 @@
 namespace web::http::client {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                                                    const std::function<void(Request&)>& onRequestBegin,
-                                                    const std::function<void(Request&, Response&)>& onResponse,
-                                                    const std::function<void(int, const std::string&)>& onError)
+    SocketContext<Request, Response>::SocketContext(
+        core::socket::stream::SocketConnection* socketConnection,
+        const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
+        const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
+        const std::function<void(int, const std::string&)>& onResponseError)
         : Super(socketConnection)
         , onRequestBegin(onRequestBegin)
-        , request(this)
-        , response(this)
+        , onResponseReady(onResponseReady)
+        , onResponseError(onResponseError)
+        , request(std::make_shared<Request>(this))
         , parser(
               this,
               []() -> void {
               },
-              [&response = this->response](std::string& httpVersion, std::string& statusCode, std::string& reason) -> void {
-                  response.httpVersion = httpVersion;
-                  response.statusCode = statusCode;
-                  response.reason = reason;
-              },
-              [&response = this->response](std::map<std::string, std::string>& headers,
-                                           std::map<std::string, web::http::CookieOptions>& cookies) -> void {
-                  response.headers = headers;
-                  response.cookies = cookies;
-              },
-              [&response = this->response](std::vector<uint8_t>& content) -> void {
-                  response.body = std::move(content);
-              },
-              [onResponse, this](web::http::client::ResponseParser& parser) -> void {
-                  onResponse(request, response);
+              [onResponseReady, this](web::http::client::Response& response) -> void {
+                  this->response = std::make_shared<Response>(std::move(response));
 
-                  if (response.header("connection") == "close" || request.header("connection") == "close") {
-                      shutdownWrite();
-                  }
-
-                  parser.reset();
-                  request.reset();
-                  response.reset();
+                  responseParsed();
               },
-              [onError, this](int status, const std::string& reason) -> void {
-                  onError(status, reason);
-
-                  shutdownWrite(true);
+              [this](int status, const std::string& reason) -> void {
+                  responseError(status, reason);
               }) {
-    }
-
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::requestCompleted() {
     }
 
     template <typename Request, typename Response>
@@ -85,31 +62,46 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    Request& SocketContext<Request, Response>::getRequest() {
-        return request;
+    void SocketContext<Request, Response>::responseParsed() {
+        onResponseReady(request, response);
+
+        requestCompleted();
     }
 
     template <typename Request, typename Response>
-    Response& SocketContext<Request, Response>::getResponse() {
-        return response;
+    void SocketContext<Request, Response>::responseError(int status, const std::string& reason) {
+        onResponseError(status, reason);
+
+        shutdownWrite(true);
+    }
+
+    template <typename Request, typename Response>
+    void SocketContext<Request, Response>::requestCompleted() {
+        if (response->header("connection") == "close" || request->header("connection") == "close") {
+            shutdownWrite();
+        }
+
+        request->reset();
     }
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onConnected() {
-        LOG(INFO) << "HTTP: connected";
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onConnected";
 
-        request.setHost(getSocketConnection()->getRemoteAddress().toString(false));
+        request->setHost(getSocketConnection()->getRemoteAddress().toString(false));
 
         onRequestBegin(request);
     }
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
-        LOG(INFO) << "HTTP: disconnected";
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onDisconnected";
     }
 
     template <typename Request, typename Response>
     bool SocketContext<Request, Response>::onSignal([[maybe_unused]] int signum) {
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onSignal  " << signum;
+
         return true;
     }
 

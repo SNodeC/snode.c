@@ -22,6 +22,7 @@
 
 #include "web/http/CookieOptions.h" // IWYU pragma: export
 #include "web/http/Parser.h"
+#include "web/http/client/Response.h" // IWYU pragma: export
 
 namespace core::socket::stream {
     class SocketContext;
@@ -31,7 +32,6 @@ namespace core::socket::stream {
 
 #include <cstdint>
 #include <functional>
-#include <map>
 #include <string>
 #include <vector>
 
@@ -41,37 +41,32 @@ namespace web::http::client {
 
     class ResponseParser : public web::http::Parser {
     public:
-        ResponseParser(
-            core::socket::stream::SocketContext* socketContext,
-            const std::function<void(void)>& onStart,
-            const std::function<void(std::string&, std::string&, std::string&)>& onResponse,
-            const std::function<void(std::map<std::string, std::string>&, std::map<std::string, web::http::CookieOptions>&)>& onHeader,
-            const std::function<void(std::vector<uint8_t>&)>& onContent,
-            const std::function<void(ResponseParser&)>& onParsed,
-            const std::function<void(int, const std::string&)>& onError);
+        ResponseParser(core::socket::stream::SocketContext* socketContext,
+                       const std::function<void(void)>& onStart,
+                       const std::function<void(Response&)>& onParsed,
+                       const std::function<void(int, const std::string&)>& onError);
 
-        void reset() override;
+        ResponseParser(const ResponseParser&) = delete;
+        ResponseParser& operator=(const ResponseParser&) = delete;
 
     private:
         // Entrence
         void begin() override;
 
-        enum Parser::ParserState parseStartLine(const std::string& line) override;
-        enum Parser::ParserState parseHeader() override;
-        enum Parser::ParserState parseContent(std::vector<uint8_t>& content) override;
-        enum Parser::ParserState parsingError(int code, const std::string& reason) override;
+        // Parsers and Validators
+        ParserState parseStartLine(const std::string& line) override;
+        ParserState parseHeader() override;
+        ParserState parseContent(std::vector<uint8_t>& content) override;
 
-        void parsingFinished();
+        // Exits
+        ParserState parsingFinished();
+        ParserState parsingError(int code, const std::string& reason) override;
 
-        std::string statusCode;
-        std::string reason;
-        std::map<std::string, CookieOptions> cookies;
+        Response response;
 
+        // Callbacks
         std::function<void(void)> onStart;
-        std::function<void(std::string&, std::string&, std::string&)> onResponse;
-        std::function<void(std::map<std::string, std::string>&, std::map<std::string, web::http::CookieOptions>&)> onHeader;
-        std::function<void(std::vector<uint8_t>&)> onContent;
-        std::function<void(ResponseParser&)> onParsed;
+        std::function<void(Response&)> onParsed;
         std::function<void(int, const std::string&)> onError;
     };
 

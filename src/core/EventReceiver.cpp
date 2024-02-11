@@ -25,24 +25,24 @@
 
 namespace core {
 
-    class NextTickEvent : public core::EventReceiver {
-    public:
-        explicit NextTickEvent(const std::function<void(void)>& callBack)
-            : core::EventReceiver("RequestEvent")
-            , callBack(callBack) {
-        }
-
-        void onEvent([[maybe_unused]] const utils::Timeval& currentTime) override {
-            callBack();
-
-            delete this;
-        }
-
-    private:
-        std::function<void(void)> callBack;
-    };
-
     void EventReceiver::atNextTick(const std::function<void()>& callBack) {
+        class NextTickEvent : public core::EventReceiver {
+        public:
+            explicit NextTickEvent(const std::function<void(void)>& callBack)
+                : core::EventReceiver("RequestEvent")
+                , callBack(callBack) {
+            }
+
+            void onEvent([[maybe_unused]] const utils::Timeval& currentTime) override {
+                callBack();
+
+                delete this;
+            }
+
+        private:
+            std::function<void(void)> callBack;
+        };
+
         (new NextTickEvent(callBack))->span();
     }
 

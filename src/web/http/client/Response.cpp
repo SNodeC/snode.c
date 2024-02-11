@@ -19,17 +19,9 @@
 
 #include "web/http/client/Response.h"
 
-#include "web/http/SocketContext.h"
-#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
-namespace core::socket::stream {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
 
 #include <iterator>
 #include <utility>
@@ -38,7 +30,7 @@ namespace core::socket::stream {
 
 namespace web::http::client {
 
-    Response::Response(web::http::SocketContext* clientContext)
+    Response::Response(core::socket::stream::SocketContext* clientContext)
         : socketContext(clientContext) {
     }
 
@@ -69,31 +61,6 @@ namespace web::http::client {
         }
 
         return nullstr;
-    }
-
-    void Response::upgrade(Request& request) {
-        if (httputils::ci_contains(this->header("connection"), "Upgrade")) {
-            web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                web::http::client::SocketContextUpgradeFactorySelector::instance()->select(request, *this);
-
-            if (socketContextUpgradeFactory != nullptr) {
-                core::socket::stream::SocketContext* newSocketContext =
-                    socketContextUpgradeFactory->create(socketContext->getSocketConnection());
-
-                if (newSocketContext != nullptr) {
-                    socketContext->switchSocketContext(newSocketContext);
-                } else {
-                    LOG(DEBUG) << "HTTP: SocketContextUpgrade not created";
-                    socketContext->close();
-                }
-            } else {
-                LOG(DEBUG) << "HTTP: SocketContextUpgradeFactory not existing";
-                socketContext->close();
-            }
-        } else {
-            LOG(DEBUG) << "HTTP: Response did not contain upgrade";
-            socketContext->close();
-        }
     }
 
     void Response::reset() {

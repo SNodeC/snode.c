@@ -33,14 +33,23 @@
 namespace web::http::server {
 
     class Request {
-    protected:
-        Request(Request&) = default;
-        Request(Request&&) = default;
-
     public:
         Request() = default;
+
+        explicit Request(Request&) = delete;
+        explicit Request(Request&&) noexcept = default;
+
+        Request& operator=(Request&) = delete;
+        Request& operator=(Request&&) noexcept = default;
+
         virtual ~Request() = default;
 
+    protected:
+        ConnectionState connectionState = ConnectionState::Default;
+
+        virtual void reset();
+
+    public:
         const std::string& get(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;
         const std::string& query(const std::string& key) const;
@@ -53,23 +62,15 @@ namespace web::http::server {
         int httpMinor = 0;
         std::vector<uint8_t> body;
 
-    protected:
-        ConnectionState connectionState = ConnectionState::Default;
-
-        virtual void reset();
-
-    public:
         std::map<std::string, std::string> queries;
         std::map<std::string, std::string> headers;
         std::map<std::string, std::string> cookies;
 
-    protected:
+    private:
         std::string nullstr;
 
         template <typename Request, typename Response>
         friend class SocketContext;
-
-        friend class RequestParser;
     };
 
 } // namespace web::http::server

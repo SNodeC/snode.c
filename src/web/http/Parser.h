@@ -60,12 +60,12 @@ namespace web::http {
 
         std::size_t parse();
 
+        virtual void reset();
+
     protected:
         // Parser state
         enum struct ParserState { BEGIN, FIRSTLINE, HEADER, BODY, ERROR } parserState = ParserState::BEGIN;
         static const std::regex httpVersionRegex;
-
-        virtual void reset();
 
     private:
         virtual void begin() = 0;
@@ -80,7 +80,6 @@ namespace web::http {
         std::map<std::string, std::string> headers;
         std::vector<uint8_t> content;
 
-        std::string httpVersion;
         int httpMajor = 0;
         int httpMinor = 0;
 

@@ -38,8 +38,12 @@ namespace express {
     public:
         Request() = default;
         explicit Request(web::http::server::Request&& request) noexcept;
-        explicit Request(Request&& request) noexcept = default;
-        Request(Request&) = delete;
+
+        explicit Request(Request&) = delete;
+        explicit Request(Request&&) noexcept = default;
+
+        Request& operator=(Request&) = delete;
+        Request& operator=(Request&&) noexcept = default;
 
         ~Request() override;
 

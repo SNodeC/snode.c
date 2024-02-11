@@ -39,21 +39,22 @@ int main(int argc, char* argv[]) {
             []([[maybe_unused]] web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "OnConnected";
             },
-            [queryAccessToken, queryClientId](web::http::client::Request& request) -> void {
+            [queryAccessToken, queryClientId](std::shared_ptr<web::http::client::Request>& request) -> void {
                 VLOG(0) << "OnRequestBegin";
-                request.url = "/oauth2/token/validate?client_id=" + queryClientId;
-                request.method = "POST";
+                request->url = "/oauth2/token/validate?client_id=" + queryClientId;
+                request->method = "POST";
                 VLOG(0) << "ClientId: " << queryClientId;
-                VLOG(0) << "AcceessToken: " << queryAccessToken;
+                VLOG(0) << "AccessToken: " << queryAccessToken;
                 const nlohmann::json requestJson = {{"access_token", queryAccessToken}, {"client_id", queryClientId}};
                 const std::string requestJsonString{requestJson.dump(4)};
-                request.send(requestJsonString);
+                request->send(requestJsonString);
             },
-            [res]([[maybe_unused]] web::http::client::Request& request, web::http::client::Response& response) -> void {
+            [res]([[maybe_unused]] std::shared_ptr<web::http::client::Request>& request,
+                  std::shared_ptr<web::http::client::Response>& response) -> void {
                 VLOG(0) << "OnResponse";
-                response.body.push_back(0);
-                VLOG(0) << "Response: " << response.body.data();
-                if (std::stoi(response.statusCode) != 200) {
+                response->body.push_back(0);
+                VLOG(0) << "Response: " << response->body.data();
+                if (std::stoi(response->statusCode) != 200) {
                     const nlohmann::json errorJson = {{"error", "Invalid access token"}};
                     res->status(401).send(errorJson.dump(4));
                 } else {

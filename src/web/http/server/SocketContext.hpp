@@ -106,6 +106,7 @@ namespace web::http::server {
                 });
             }
 
+            response->reset();
             request = nullptr;
         } else {
             shutdownWrite();
@@ -114,21 +115,21 @@ namespace web::http::server {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onConnected() {
-        LOG(INFO) << getSocketConnection()->getInstanceName() << ": HTTP onConnected";
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onConnected";
     }
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
-        LOG(INFO) << getSocketConnection()->getInstanceName() << ": HTTP onDisconnected";
-
         if (response != nullptr) {
             response->stopResponse();
         }
+
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onDisconnected";
     }
 
     template <typename Request, typename Response>
     bool SocketContext<Request, Response>::onSignal(int signum) {
-        LOG(INFO) << getSocketConnection()->getInstanceName() << ": HTTP onSignal: " << signum;
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onSignal " << signum;
 
         return true;
     }

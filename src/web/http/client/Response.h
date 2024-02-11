@@ -31,45 +31,47 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http {
+namespace core::socket::stream {
     class SocketContext;
-
-    namespace client {
-        class Request;
-    } // namespace client
-} // namespace web::http
+}
 
 namespace web::http::client {
 
     class Response {
-    protected:
-        explicit Response(web::http::SocketContext* clientContext);
+    public:
+        explicit Response(core::socket::stream::SocketContext* clientContext);
 
-        web::http::SocketContext* socketContext;
+        explicit Response(Response&) = delete;
+        explicit Response(Response&&) noexcept = default;
+
+        Response& operator=(Response&) = delete;
+        Response& operator=(Response&&) noexcept = default;
+
+    protected:
+        core::socket::stream::SocketContext* socketContext;
 
         void reset();
 
     public:
         const std::string& header(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;
+
+        // Properties
         std::string httpVersion;
         std::string statusCode;
         std::string reason;
+        int httpMajor = 0;
+        int httpMinor = 0;
         std::vector<uint8_t> body;
 
-        void upgrade(Request& request);
-
-        // need code to make it at least protected
         std::map<std::string, std::string> headers;
         std::map<std::string, CookieOptions> cookies;
 
-        // CookieOptions are not queryable currently. Need code to access it.
+    private:
+        std::string nullstr;
 
         template <typename Request, typename Response>
         friend class SocketContext;
-
-    private:
-        std::string nullstr;
     };
 
 } // namespace web::http::client

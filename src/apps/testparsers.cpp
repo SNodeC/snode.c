@@ -25,9 +25,7 @@
 #include "log/Logger.h"
 
 #include <functional>
-#include <map>
 #include <string>
-#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -75,30 +73,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         nullptr,
         []() -> void {
         },
-        [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
-            VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
-        },
-        [](std::map<std::string, std::string>& headers, std::map<std::string, web::http::CookieOptions>& cookies) -> void {
-            VLOG(0) << "++   Headers:";
-            for (auto& [field, value] : headers) {
-                VLOG(0) << "++       " << field + " = " + value;
-            }
-
-            VLOG(0) << "++   Cookies:";
-            for (const auto& [name, cookie] : cookies) {
-                VLOG(0) << "++     " + name + " = " + cookie.getValue();
-                for (const auto& [option, value] : cookie.getOptions()) {
-                    VLOG(0) << "++       " + option + " = " + value;
-                }
-            }
-        },
-        [](std::vector<uint8_t>& content) -> void {
-            content.push_back(0);
-            VLOG(0) << content.data();
-        },
-        [](client::ResponseParser& parser) -> void {
+        []([[maybe_unused]] client::Response& response) -> void {
             VLOG(0) << "++   OnParsed";
-            parser.reset();
         },
         [](int status, const std::string& reason) -> void {
             VLOG(0) << "++   OnError: " + std::to_string(status) + " - " + reason;
