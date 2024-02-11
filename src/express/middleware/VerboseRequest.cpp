@@ -38,13 +38,15 @@
 namespace express::middleware {
 
     // From: https://gist.github.com/shreyasbharath/32a8092666303a916e24a81b18af146b
-    std::string hexDump(const std::vector<uint8_t>& bytes) {
+    std::string hexDump(const std::vector<uint8_t>& bytes, int prefixLength = 0) {
         std::stringstream hexStream;
 
         uint8_t buff[17];
         size_t i = 0;
 
         hexStream << std::hex;
+
+        int currentPrefixLength = 0;
 
         // Process every byte in the data.
         for (i = 0; i < bytes.size(); i++) {
@@ -58,8 +60,10 @@ namespace express::middleware {
 
                 // Output the offset.
                 hexStream << Color::Code::FG_BLUE;
-                hexStream << "  " << std::setw(4) << std::setfill('0') << static_cast<unsigned int>(i);
+                hexStream << std::setw(currentPrefixLength) << std::setfill(' ') << ""
+                          << ": " << std::setw(4) << std::setfill('0') << static_cast<unsigned int>(i);
                 hexStream << Color::Code::FG_DEFAULT << " ";
+                currentPrefixLength = prefixLength;
             }
 
             // Now the hex code for the specific character.
@@ -85,7 +89,7 @@ namespace express::middleware {
         }
 
         // And print the final ASCII bit.
-        hexStream << "  " << buff << std::endl;
+        hexStream << "  " << buff;
 
         return hexStream.str();
     }
@@ -93,7 +97,7 @@ namespace express::middleware {
     VerboseRequest::VerboseRequest(Details details) {
         use([details] MIDDLEWARE(req, res, next) {
             int prefixLength = static_cast<int>((res->getSocketContext()->getSocketConnection()->getInstanceName() + ":").size()) - 1;
-            prefixLength = prefixLength < 10 ? 10 : prefixLength;
+            prefixLength = 9;
 
             int keyLength = 0;
 
@@ -107,19 +111,18 @@ namespace express::middleware {
                 keyLength = std::max(keyLength, static_cast<int>(key.size()));
             }
 
-            LOG(TRACE) << std::setw(prefixLength) << res->getSocketContext()->getSocketConnection()->getInstanceName() << ": "
-                       << req->method << " " << req->url << " " << req->httpVersion;
+            std::stringstream requestStream;
 
             if ((details & Details::W_REQUEST) != 0) {
-                LOG(TRACE) << std::setw(prefixLength) << "Request"
-                           << ": " << std::setw(keyLength) << "method"
-                           << " : " << req->method;
-                LOG(TRACE) << std::setw(prefixLength) << ""
-                           << ": " << std::setw(keyLength) << "http-version"
-                           << " : " << req->httpVersion;
-                LOG(TRACE) << std::setw(prefixLength) << ""
-                           << ": " << std::setw(keyLength) << "url"
-                           << " : " << req->url;
+                requestStream << std::setw(prefixLength) << "Request"
+                              << ": " << std::setw(keyLength) << "method"
+                              << " : " << req->method << "\n";
+                requestStream << std::setw(prefixLength) << ""
+                              << ": " << std::setw(keyLength) << "url"
+                              << " : " << req->url << "\n";
+                requestStream << std::setw(prefixLength) << ""
+                              << ": " << std::setw(keyLength) << "http-version"
+                              << " : " << req->httpVersion << "\n";
             }
 
             std::string prefix;
@@ -127,7 +130,7 @@ namespace express::middleware {
             if ((details & Details::W_QUERIES) != 0) {
                 prefix = "Queries";
                 for (const auto& [key, value] : req->queries) {
-                    LOG(TRACE) << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << key << " : " << value;
+                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << key << " : " << value << "\n";
                     prefix = "";
                 }
             }
@@ -135,7 +138,7 @@ namespace express::middleware {
             if ((details & Details::W_HEADERS) != 0) {
                 prefix = "Header";
                 for (const auto& [key, value] : req->headers) {
-                    LOG(TRACE) << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << key << " : " << value;
+                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << key << " : " << value << "\n";
                     prefix = "";
                 }
             }
@@ -143,7 +146,7 @@ namespace express::middleware {
             if ((details & Details::W_COOKIES) != 0) {
                 prefix = "Cookies";
                 for (const auto& [key, value] : req->cookies) {
-                    LOG(TRACE) << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << key << " : " << value;
+                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << key << " : " << value << "\n";
                     prefix = "";
                 }
             }
@@ -151,10 +154,13 @@ namespace express::middleware {
             if ((details & Details::W_CONTENT) != 0) {
                 if (!req->body.empty()) {
                     prefix = "Body";
-
-                    LOG(TRACE) << std::setw(prefixLength) << prefix << ":\n" << hexDump(req->body);
+                    requestStream << std::setw(prefixLength) << prefix << hexDump(req->body, prefixLength);
                 }
             }
+
+            LOG(TRACE) << std::setw(prefixLength) << res->getSocketContext()->getSocketConnection()->getInstanceName() << " HTTP: '"
+                       << req->method << " " << req->url << " " << req->httpVersion << "'\n"
+                       << requestStream.str();
 
             next();
         });
