@@ -33,12 +33,10 @@
 
 class TowerCalculator : public core::EventReceiver {
 public:
-    TowerCalculator();
-
-private:
     void* operator new(std::size_t size) = delete;
 
-public:
+    TowerCalculator();
+
     void calculate(long startValue);
 
 protected:

@@ -20,7 +20,7 @@
 #define WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 
 #include "web/http/SocketContextFactory.h"
-#include "web/http/server/SocketContext.hpp" // IWYU pragma: export
+#include "web/http/server/SocketContext.hpp"
 
 namespace core::socket {
     class SocketConnection;
