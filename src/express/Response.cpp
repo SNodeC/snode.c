@@ -32,7 +32,7 @@
 
 namespace express {
 
-    Response::Response(web::http::SocketContext *socketContext)
+    Response::Response(web::http::SocketContext* socketContext)
         : web::http::server::Response(socketContext) {
     }
 
