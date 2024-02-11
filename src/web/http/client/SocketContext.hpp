@@ -65,7 +65,11 @@ namespace web::http::client {
     void SocketContext<Request, Response>::responseParsed() {
         onResponseReady(request, response);
 
-        requestCompleted();
+        if (response->header("connection") == "close" || request->header("connection") == "close") {
+            shutdownWrite();
+        }
+
+        request->reset();
     }
 
     template <typename Request, typename Response>
@@ -77,11 +81,7 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::requestCompleted() {
-        if (response->header("connection") == "close" || request->header("connection") == "close") {
-            shutdownWrite();
-        }
-
-        request->reset();
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: Request sent";
     }
 
     template <typename Request, typename Response>
