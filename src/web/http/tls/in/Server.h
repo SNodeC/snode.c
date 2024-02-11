@@ -20,7 +20,6 @@
 #define WEB_HTTP_TLS_IN_SERVER_H
 
 #include "net/in/stream/tls/SocketServer.h" // IWYU pragma: export
-#include "web/http/server/Request.h"        // IWYU pragma: export
 #include "web/http/server/Response.h"       // IWYU pragma: export
 #include "web/http/server/Server.h"         // IWYU pragma: export
 

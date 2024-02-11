@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SERVER_REQUESTPARSER_H
 #define WEB_HTTP_SERVER_REQUESTPARSER_H
 
-#include "web/http/Parser.h"         // IWYU pragma: export
+#include "web/http/Parser.h"
 #include "web/http/server/Request.h" // IWYU pragma: export
 
 namespace core::socket::stream {
