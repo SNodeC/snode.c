@@ -118,13 +118,13 @@ namespace core::socket::stream {
 
         if (!shutdownInProgress && !markShutdown) {
             if (isEnabled()) {
-                success = true;
-
                 if (source != nullptr) {
-                    source->resume();
                     LOG(TRACE) << getName() << ": streamToPeer() started";
+
+                    source->start();
+                    success = true;
                 } else {
-                    LOG(TRACE) << getName() << ": streamToPeer() completed";
+                    LOG(TRACE) << getName() << ": streamToPeer() source is nullptr";
                 }
             } else {
                 LOG(TRACE) << getName() << ": streamToPeer() while not enabled";
@@ -136,6 +136,10 @@ namespace core::socket::stream {
         this->source = source;
 
         return success;
+    }
+
+    void SocketWriter::streamEof() {
+        this->source = nullptr;
     }
 
     void SocketWriter::shutdownWrite(const std::function<void()>& onShutdown) {

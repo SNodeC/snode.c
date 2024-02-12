@@ -151,13 +151,15 @@ namespace express::middleware {
             if ((details & Details::W_CONTENT) != 0) {
                 if (!req->body.empty()) {
                     prefix = "Body";
-                    requestStream << std::setw(prefixLength) << prefix << hexDump(req->body, prefixLength);
+                    requestStream << std::setw(prefixLength) << prefix << hexDump(req->body, prefixLength) << "\n";
                 }
             }
 
+            std::string requestString = requestStream.str();
+            requestString.pop_back();
             LOG(TRACE) << std::setw(prefixLength) << res->getSocketContext()->getSocketConnection()->getInstanceName() << " HTTP: '"
                        << req->method << " " << req->url << " " << req->httpVersion << "'\n"
-                       << requestStream.str();
+                       << requestString;
 
             next();
         });

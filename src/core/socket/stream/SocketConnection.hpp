@@ -137,6 +137,11 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamEof() {
+        SocketWriter::streamEof();
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
         LOG(TRACE) << instanceName << ": Do syscall shutdown (RD)";
 

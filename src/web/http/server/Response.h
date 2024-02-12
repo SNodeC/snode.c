@@ -75,6 +75,8 @@ namespace web::http::server {
 
         void end();
 
+        Response& sendHeader();
+
         Response& status(int status);
         Response& append(const std::string& field, const std::string& value);
         Response& set(const std::string& field, const std::string& value, bool overwrite = true);
@@ -85,7 +87,7 @@ namespace web::http::server {
 
         void upgrade(std::shared_ptr<Request> req, const std::function<void(bool success)>& status);
 
-        void sendFile(const std::string& file, const std::function<void(int errnum)>& onError);
+        void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
 
         web::http::SocketContext* getSocketContext() const;
 
@@ -104,18 +106,12 @@ namespace web::http::server {
     private:
         void stopResponse();
 
-        core::pipe::Source* source = nullptr;
-
         core::socket::stream::SocketContext* socketContextUpgrade = nullptr;
-
-        bool sendHeaderInProgress = false;
-        bool headersSent = false;
 
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        void sendHeader();
-
+        void onStreamConnect(core::pipe::Source* source) override;
         void onStreamData(const char* junk, std::size_t junkLen) override;
         void onStreamEof() override;
         void onStreamError(int errnum) override;

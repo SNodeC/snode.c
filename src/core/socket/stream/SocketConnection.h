@@ -70,6 +70,7 @@ namespace core::socket::stream {
         void sentToPeer(const std::vector<char>& data);
 
         [[nodiscard]] virtual bool streamToPeer(core::pipe::Source* source) = 0;
+        virtual void streamEof() = 0;
 
         virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
@@ -140,6 +141,7 @@ namespace core::socket::stream {
         void sendToPeer(const char* junk, std::size_t junkLen) final;
 
         [[nodiscard]] bool streamToPeer(core::pipe::Source* source) final;
+        void streamEof() final;
 
         void shutdownRead() final;
         void shutdownWrite(bool forceClose) final;

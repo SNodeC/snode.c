@@ -29,6 +29,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/system/time.h"
 
 #include <cerrno>
@@ -46,25 +47,15 @@ namespace web::http::server {
     }
 
     Response::~Response() {
-        if (source != nullptr) {
-            stream(nullptr);
+        if (socketContext != nullptr) {
+            socketContext->streamEof();
         }
     }
 
     void Response::sendFragment(const char* junk, std::size_t junkLen) {
         if (socketContext != nullptr) {
-            if (!headersSent && !sendHeaderInProgress) {
-                sendHeaderInProgress = true;
-                sendHeader();
-                sendHeaderInProgress = false;
-                headersSent = true;
-            }
-
             socketContext->sendToPeer(junk, junkLen);
-
-            if (headersSent) {
-                contentSent += junkLen;
-            }
+            contentSent += junkLen;
         }
     }
 
@@ -78,6 +69,7 @@ namespace web::http::server {
         }
         set("Content-Length", std::to_string(junkLen), false);
 
+        sendHeader();
         sendFragment(junk, junkLen);
 
         sendResponseCompleted();
@@ -200,7 +192,7 @@ namespace web::http::server {
         status(socketContextUpgrade != nullptr);
     }
 
-    void Response::sendFile(const std::string& file, const std::function<void(int errnum)>& onError) {
+    void Response::sendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
         std::string absolutFileName = file;
 
         if (std::filesystem::exists(absolutFileName)) {
@@ -208,31 +200,25 @@ namespace web::http::server {
             absolutFileName = std::filesystem::canonical(absolutFileName);
 
             if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                source = core::file::FileReader::open(absolutFileName, *this, [this, &absolutFileName, onError](int err) -> void {
-                    if (err == 0) {
-                        headers.insert({{"Content-Type", web::http::MimeTypes::contentType(absolutFileName)},
-                                        {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
-                        headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
-                    } else {
-                        onError(err);
-                    }
-                });
-                if (source != nullptr) {
-                    if (!stream(source)) {
-                        source->stop();
-                        source = nullptr;
-                    }
-                } else {
-                    errno = ENODATA;
-                    onError(errno);
-                }
+                core::file::FileReader::open(absolutFileName)
+                    ->pipe(this, [this, &absolutFileName, &callback](core::pipe::Source* source, int errnum) -> void {
+                        callback(errnum);
+
+                        if (errnum == 0) {
+                            headers.insert({{"Content-Type", web::http::MimeTypes::contentType(absolutFileName)},
+                                            {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
+                            headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                        } else {
+                            source->stop();
+                        }
+                    });
             } else {
                 errno = EEXIST;
-                onError(errno);
+                callback(errno);
             }
         } else {
             errno = ENOENT;
-            onError(errno);
+            callback(errno);
         }
     }
 
@@ -244,8 +230,6 @@ namespace web::http::server {
         responseStatus = 200;
         headers.clear();
         cookies.clear();
-        sendHeaderInProgress = false;
-        headersSent = false;
         contentLength = 0;
         contentSent = 0;
     }
@@ -261,22 +245,18 @@ namespace web::http::server {
     }
 
     void Response::stopResponse() {
-        if (source != nullptr) {
-            source->stop();
-            source = nullptr;
-        }
-
+        stop();
         socketContext = nullptr;
     }
 
-    void Response::sendHeader() {
-        sendFragment("HTTP/1.1 " + std::to_string(responseStatus) + " " + StatusCode::reason(responseStatus) + "\r\n");
-        sendFragment("Date: " + httputils::to_http_date() + "\r\n");
+    Response& Response::sendHeader() {
+        socketContext->sendToPeer("HTTP/1.1 " + std::to_string(responseStatus) + " " + StatusCode::reason(responseStatus) + "\r\n");
+        socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
 
         set({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
         for (const auto& [field, value] : headers) {
-            sendFragment(std::string(field).append(": ").append(value).append("\r\n"));
+            socketContext->sendToPeer(std::string(field).append(": ").append(value).append("\r\n"));
         }
 
         for (const auto& [cookie, cookieValue] : cookies) { // cppcheck-suppress shadowFunction
@@ -287,15 +267,29 @@ namespace web::http::server {
                                 [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
                                     return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
                                 });
-            sendFragment("Set-Cookie: " + cookieString + "\r\n");
+            socketContext->sendToPeer("Set-Cookie: " + cookieString + "\r\n");
         }
 
-        sendFragment("\r\n");
+        socketContext->sendToPeer("\r\n");
 
         if (headers.find("Content-Length") != headers.end()) {
             contentLength = std::stoul(headers.find("Content-Length")->second);
         } else {
             contentLength = 0;
+        }
+
+        return *this;
+    }
+
+    void Response::onStreamConnect(core::pipe::Source* source) {
+        if (stream(source)) {
+            LOG(TRACE) << "Start stream success";
+
+            sendHeader();
+        } else {
+            LOG(TRACE) << "Start stream failed";
+
+            source->stop();
         }
     }
 
@@ -304,8 +298,9 @@ namespace web::http::server {
     }
 
     void Response::onStreamEof() {
-        stream(nullptr);
-        source = nullptr;
+        if (socketContext != nullptr) {
+            socketContext->streamEof();
+        }
 
         sendResponseCompleted();
     }
@@ -314,11 +309,9 @@ namespace web::http::server {
         errno = errnum;
 
         if (socketContext != nullptr) {
+            socketContext->streamEof();
             socketContext->close();
         }
-
-        stream(nullptr);
-        source = nullptr;
 
         sendResponseCompleted();
     }

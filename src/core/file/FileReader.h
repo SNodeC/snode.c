@@ -31,14 +31,9 @@ namespace utils {
 } // namespace utils
 
 #include <cstddef>
-#include <functional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-namespace core::pipe {
-    class Sink;
-} // namespace core::pipe
 
 namespace core::file {
 
@@ -46,17 +41,19 @@ namespace core::file {
         : public core::EventReceiver
         , public core::pipe::Source
         , virtual public File {
-    protected:
-        FileReader(int fd, core::pipe::Sink& sink, const std::string& name, std::size_t pufferSize);
+    private:
+        FileReader(int fd, const std::string& name, std::size_t pufferSize);
 
     public:
-        static FileReader* open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onError);
+        static FileReader* open(const std::string& path);
+
+        bool isOpen() override;
 
         void read();
 
         void onEvent(const utils::Timeval& currentTime) override;
 
-    private:
+        void start() final;
         void suspend() final;
         void resume() final;
         void stop() final;

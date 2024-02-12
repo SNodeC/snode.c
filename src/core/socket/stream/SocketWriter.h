@@ -68,6 +68,7 @@ namespace core::socket::stream {
 
         void sendToPeer(const char* junk, std::size_t junkLen);
         [[nodiscard]] bool streamToPeer(core::pipe::Source* source);
+        void streamEof();
 
         void shutdownWrite(const std::function<void()>& onShutdown);
 

@@ -23,6 +23,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <functional>
 #include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -33,29 +34,34 @@ namespace core::pipe {
 
     class Source {
     public:
-        Source(Sink& sink);
+        Source() = default;
 
         Source(Source&) = delete;
-        Source(Source&&) = default;
+        Source(Source&&) = delete;
 
         Source& operator=(Source&) = delete;
-        Source& operator=(Source&&) = default;
+        Source& operator=(Source&&) = delete;
 
         virtual ~Source();
 
+        virtual bool isOpen() = 0;
+
+        void pipe(Sink* sink, const std::function<void(Source* source, int errnum)>& callback);
+
+        virtual void start() = 0;
         virtual void suspend() = 0;
         virtual void resume() = 0;
         virtual void stop() = 0;
 
     protected:
-        void disconnect(const Sink& sink);
-
         ssize_t send(const char* junk, std::size_t junkLen);
         void eof();
         void error(int errnum);
 
     private:
-        Sink* sink;
+        void disconnect(const Sink* sink);
+
+        Sink* sink = nullptr;
 
         friend class Sink;
     };

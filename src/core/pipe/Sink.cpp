@@ -32,22 +32,42 @@ namespace core::pipe {
     }
 
     Sink::~Sink() {
-        disconnect();
+        if (source != nullptr) {
+            source->disconnect(this);
+        }
     }
 
-    void Sink::disconnect() {
+    void Sink::stop() {
         if (source != nullptr) {
-            source->disconnect(*this);
+            source->stop();
             source = nullptr;
         }
     }
 
-    void Sink::connect(Source& source) {
-        this->source = &source;
+    void Sink::streamData(const char* junk, std::size_t junkLen) {
+        onStreamData(junk, junkLen);
     }
 
-    void Sink::disconnect(const Source& source) {
-        if (&source == this->source) {
+    void Sink::streamEof(const Source* source) {
+        onStreamEof();
+
+        disconnect(source);
+    }
+
+    void Sink::streamError(const Source* source, int errnum) {
+        onStreamError(errnum);
+
+        disconnect(source);
+    }
+
+    void Sink::pipe(Source* source) {
+        this->source = source;
+
+        onStreamConnect(source);
+    }
+
+    void Sink::disconnect(const Source* source) {
+        if (source == this->source) {
             this->source = nullptr;
         }
     }

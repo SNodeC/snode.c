@@ -29,19 +29,29 @@
 
 namespace core::pipe {
 
-    Source::Source(Sink& sink)
-        : sink(&sink) {
-        sink.connect(*this);
-    }
-
     Source::~Source() {
         if (sink != nullptr) {
-            sink->disconnect(*this);
+            sink->disconnect(this);
         }
     }
 
-    void Source::disconnect(const Sink& sink) {
-        if (&sink == this->sink) {
+    void Source::pipe(Sink* sink, const std::function<void(Source*, int)>& callback) {
+        if (sink != nullptr) {
+            if (isOpen()) {
+                callback(this, 0);
+
+                this->sink = sink;
+                sink->pipe(this);
+            } else {
+                callback(this, errno);
+            }
+        } else {
+            callback(this, EFAULT);
+        }
+    }
+
+    void Source::disconnect(const Sink* sink) {
+        if (sink == this->sink) {
             this->sink = nullptr;
         }
     }
@@ -50,7 +60,7 @@ namespace core::pipe {
         ssize_t ret = static_cast<ssize_t>(junkLen);
 
         if (this->sink != nullptr) {
-            sink->onStreamData(junk, junkLen);
+            sink->streamData(junk, junkLen);
         } else {
             ret = -1;
             errno = EPIPE;
@@ -61,13 +71,13 @@ namespace core::pipe {
 
     void Source::error(int errnum) {
         if (this->sink != nullptr) {
-            sink->onStreamError(errnum);
+            sink->streamError(this, errnum);
         }
     }
 
     void Source::eof() {
         if (this->sink != nullptr) {
-            sink->onStreamEof();
+            sink->streamEof(this);
         }
     }
 

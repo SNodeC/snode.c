@@ -54,6 +54,7 @@ namespace core::socket::stream {
 
         void sendToPeer(const char* junk, std::size_t junkLen) const final;
         [[nodiscard]] bool streamToPeer(core::pipe::Source* source) const;
+        void streamEof();
 
         std::size_t readFromPeer(char* junk, std::size_t junklen) const final;
 

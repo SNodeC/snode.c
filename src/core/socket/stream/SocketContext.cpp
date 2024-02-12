@@ -47,6 +47,10 @@ namespace core::socket::stream {
         return socketConnection->streamToPeer(source);
     }
 
+    void SocketContext::streamEof() {
+        socketConnection->streamEof();
+    }
+
     std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) const {
         return socketConnection->readFromPeer(junk, junklen);
     }

@@ -34,27 +34,22 @@ constexpr int MF_READSIZE = 16384;
 
 namespace core::file {
 
-    FileReader::FileReader(int fd, core::pipe::Sink& sink, const std::string& name, std::size_t pufferSize)
+    FileReader::FileReader(int fd, const std::string& name, std::size_t pufferSize)
         : core::Descriptor(fd)
         , EventReceiver(name)
-        , core::pipe::Source(sink)
         , pufferSize(pufferSize) {
     }
 
-    FileReader* FileReader::open(const std::string& path, core::pipe::Sink& sink, const std::function<void(int err)>& onStatus) {
+    FileReader* FileReader::open(const std::string& path) {
         errno = 0;
-
-        FileReader* fileReader = nullptr;
 
         const int fd = core::system::open(path.c_str(), O_RDONLY);
 
-        if (fd >= 0) {
-            fileReader = new FileReader(fd, sink, "FileReader: " + path, MF_READSIZE);
-        }
+        return new FileReader(fd, "FileReader: " + path, MF_READSIZE);
+    }
 
-        onStatus(errno);
-
-        return fileReader;
+    bool FileReader::isOpen() {
+        return getFd() >= 0;
     }
 
     void FileReader::read() {
@@ -83,6 +78,10 @@ namespace core::file {
         if (core::eventLoopState() != core::State::STOPPING) {
             read();
         }
+    }
+
+    void FileReader::start() {
+        span();
     }
 
     void FileReader::suspend() {

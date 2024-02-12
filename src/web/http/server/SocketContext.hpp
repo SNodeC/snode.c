@@ -108,8 +108,8 @@ namespace web::http::server {
                     });
                 }
 
-                response->reset();
                 request = nullptr;
+                response->reset();
             } else {
                 shutdownWrite();
             }
