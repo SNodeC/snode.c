@@ -134,10 +134,9 @@ namespace web::http::client {
 
         if (headersSent) {
             contentSent += junkLen;
-            if (contentSent == contentLength) {
-                socketContext->requestCompleted();
-            } else if (contentSent > contentLength) {
-                socketContext->close();
+
+            if (contentSent >= contentLength) {
+                socketContext->requestCompleted(contentSent == contentLength);
             }
         }
     }

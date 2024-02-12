@@ -76,8 +76,14 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::requestCompleted() {
-        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: Request sent";
+    void SocketContext<Request, Response>::requestCompleted(bool success) {
+        if (success) {
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent successful";
+        } else {
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent failed";
+
+            shutdownWrite();
+        }
     }
 
     template <typename Request, typename Response>

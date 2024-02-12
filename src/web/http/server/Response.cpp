@@ -252,16 +252,11 @@ namespace web::http::server {
 
     void Response::sendResponseCompleted() {
         if (socketContext != nullptr) {
-            if (contentSent == contentLength) {
-                if (socketContextUpgrade != nullptr) {
-                    socketContext->switchSocketContext(socketContextUpgrade);
-                }
-
-                socketContext->requestCompleted();
-
-            } else {
-                socketContext->close();
+            if (socketContextUpgrade != nullptr) {
+                socketContext->switchSocketContext(socketContextUpgrade);
             }
+
+            socketContext->requestCompleted(contentSent == contentLength);
         }
     }
 
@@ -310,8 +305,6 @@ namespace web::http::server {
 
     void Response::onStreamEof() {
         stream(nullptr);
-
-        delete source;
         source = nullptr;
 
         sendResponseCompleted();
@@ -325,8 +318,6 @@ namespace web::http::server {
         }
 
         stream(nullptr);
-
-        delete source;
         source = nullptr;
 
         sendResponseCompleted();

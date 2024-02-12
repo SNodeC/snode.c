@@ -53,7 +53,7 @@ namespace web::http::server {
     private:
         std::size_t onReceivedFromPeer() override;
 
-        void requestCompleted() override;
+        void requestCompleted(bool success) override;
 
         void onConnected() override;
         void onDisconnected() override;

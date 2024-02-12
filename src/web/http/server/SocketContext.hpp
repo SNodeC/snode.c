@@ -87,27 +87,32 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::requestCompleted() {
+    void SocketContext<Request, Response>::requestCompleted(bool success) {
         // if 0.9 => terminate
         // if 1.0 && (request != Keep || contentLength = -1) => terminate
         // if 1.1 && (request == Close || contentLength = -1) => terminate
         // if (request == Close) => terminate
 
-        if (request != nullptr) {
-            bool close = (request->httpMajor == 0 && request->httpMinor == 9) ||
-                         (request->httpMajor == 1 && request->httpMinor == 0 && request->connectionState != ConnectionState::Keep) ||
-                         (request->httpMajor == 1 && request->httpMinor == 1 && request->connectionState == ConnectionState::Close) ||
-                         response->connectionState == ConnectionState::Close;
-            if (close) {
-                shutdownWrite();
-            } else if (!requests.empty()) {
-                core::EventReceiver::atNextTick([this]() -> void {
-                    requestParsed();
-                });
-            }
+        if (success) {
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
+            if (request != nullptr) {
+                bool close = (request->httpMajor == 0 && request->httpMinor == 9) ||
+                             (request->httpMajor == 1 && request->httpMinor == 0 && request->connectionState != ConnectionState::Keep) ||
+                             (request->httpMajor == 1 && request->httpMinor == 1 && request->connectionState == ConnectionState::Close) ||
+                             response->connectionState == ConnectionState::Close;
+                if (close) {
+                    shutdownWrite();
+                } else if (!requests.empty()) {
+                    core::EventReceiver::atNextTick([this]() -> void {
+                        requestParsed();
+                    });
+                }
 
-            response->reset();
-            request = nullptr;
+                response->reset();
+                request = nullptr;
+            } else {
+                shutdownWrite();
+            }
         } else {
             shutdownWrite();
         }
