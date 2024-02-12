@@ -24,10 +24,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
-#include <map>
+#include <cstdint> // IWYU pragma: export
+#include <map>     // IWYU pragma: export
 #include <string>
-#include <vector>
+#include <vector> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

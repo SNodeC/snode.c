@@ -25,12 +25,8 @@
 
 #include "log/Logger.h"
 
-#include <functional>
-#include <map>
-#include <memory>
 #include <string>
 #include <utility>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

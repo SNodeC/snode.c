@@ -29,9 +29,9 @@
 
 #include <cstdlib>
 #endif
+
 #include "web/http/http_utils.h"
 
-#include <string>
 #include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

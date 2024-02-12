@@ -18,7 +18,7 @@
 
 #include "core/EventReceiver.h"
 #include "web/http/http_utils.h"
-#include "web/http/server/SocketContext.h"
+#include "web/http/server/SocketContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

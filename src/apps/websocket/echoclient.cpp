@@ -25,13 +25,9 @@
 
 #include "log/Logger.h"
 
-#include <functional>
 #include <iostream>
-#include <map>
-#include <memory>
 #include <string>
 #include <utility>
-#include <vector>
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 

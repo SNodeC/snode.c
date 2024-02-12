@@ -20,8 +20,8 @@
 #define WEB_HTTP_TLS_IN_SERVER_H
 
 #include "net/in/stream/tls/SocketServer.h" // IWYU pragma: export
-#include "web/http/server/Response.h"
-#include "web/http/server/Server.h"
+#include "web/http/server/Response.h"       // IWYU pragma: export
+#include "web/http/server/Server.h"         // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

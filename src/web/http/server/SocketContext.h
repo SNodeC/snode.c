@@ -19,8 +19,8 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXT_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXT_H
 
-#include "web/http/SocketContext.h" // IWYU pragma: export
-#include "web/http/server/RequestParser.h"
+#include "web/http/SocketContext.h"        // IWYU pragma: export
+#include "web/http/server/RequestParser.h" // IWYU pragma: export
 
 namespace web::http::server {
     class Request;
@@ -31,7 +31,7 @@ namespace web::http::server {
 
 #include <functional>
 #include <list>
-#include <memory>
+#include <memory> // IWYU pragma: export
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

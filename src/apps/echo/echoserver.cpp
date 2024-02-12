@@ -24,7 +24,6 @@
 
 #include "log/Logger.h"
 
-#include <functional>
 #include <string>
 
 #if (STREAM_TYPE == TLS)

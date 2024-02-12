@@ -28,7 +28,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <iomanip>
-#include <map>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -96,9 +95,7 @@ namespace express::middleware {
 
     VerboseRequest::VerboseRequest(Details details) {
         use([details] MIDDLEWARE(req, res, next) {
-            int prefixLength = static_cast<int>((res->getSocketContext()->getSocketConnection()->getInstanceName() + ":").size()) - 1;
-            prefixLength = 9;
-
+            const int prefixLength = 9;
             int keyLength = 0;
 
             for (const auto& [key, value] : req->queries) {

@@ -24,7 +24,6 @@
 
 #if (STREAM_TYPE == TLS) // tls
 
-#include <map>
 #include <variant>
 
 #endif // (STREAM_TYPE == TLS)

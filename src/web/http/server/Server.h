@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SERVER_SERVERT_H
 #define WEB_HTTP_SERVER_SERVERT_H
 
-#include "web/http/server/SocketContextFactory.h"
+#include "web/http/server/SocketContextFactory.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

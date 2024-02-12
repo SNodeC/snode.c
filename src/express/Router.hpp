@@ -19,13 +19,12 @@
 #ifndef EXPRESS_ROUTER_HPP
 #define EXPRESS_ROUTER_HPP
 
-// IWYU pragma: no_include "express/RootRoute.h"
 // IWYU pragma: no_include "express/Router.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory> // for __shared_ptr_access, shared_ptr
-#include <string> // for string
+#include <memory> // IWYU pragma: export
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

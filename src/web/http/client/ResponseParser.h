@@ -20,7 +20,6 @@
 #ifndef WEB_HTTP_CLIENT_RESPONSEPARSER_H
 #define WEB_HTTP_CLIENT_RESPONSEPARSER_H
 
-#include "web/http/CookieOptions.h" // IWYU pragma: export
 #include "web/http/Parser.h"
 #include "web/http/client/Response.h" // IWYU pragma: export
 

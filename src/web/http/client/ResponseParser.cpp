@@ -25,7 +25,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <map>
 #include <regex>
 #include <tuple>
 #include <utility>

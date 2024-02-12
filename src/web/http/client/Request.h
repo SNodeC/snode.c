@@ -32,7 +32,7 @@ namespace web::http::client {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
+#include <cstddef> // IWYU pragma: export
 #include <map>
 #include <memory>
 #include <string>

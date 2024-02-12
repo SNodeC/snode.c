@@ -29,8 +29,6 @@
 #include "log/Logger.h"
 
 #include <cstddef>
-#include <cstdint>
-#include <functional>
 #include <openssl/ssl.h> // IWYU pragma: keep
 #include <openssl/x509v3.h>
 #include <string>

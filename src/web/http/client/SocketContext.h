@@ -20,8 +20,8 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXT_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXT_H
 
-#include "web/http/SocketContext.h"
-#include "web/http/client/ResponseParser.h"
+#include "web/http/SocketContext.h"         // IWYU pragma: export
+#include "web/http/client/ResponseParser.h" // IWYU pragma: export
 
 namespace web::http::client {
     class Request;
@@ -31,7 +31,7 @@ namespace web::http::client {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <memory>
+#include <memory> // IWYU pragma: export
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
