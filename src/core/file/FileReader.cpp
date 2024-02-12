@@ -67,10 +67,14 @@ namespace core::file {
                     this->error(errno);
                 }
                 span();
-            } else if (ret == 0) {
-                this->eof();
             } else {
-                this->error(errno);
+                if (ret == 0) {
+                    this->eof();
+                } else {
+                    this->error(errno);
+                }
+
+                delete this;
             }
         }
     }
