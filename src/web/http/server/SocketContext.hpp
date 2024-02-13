@@ -1,6 +1,7 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
