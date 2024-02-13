@@ -48,8 +48,8 @@ namespace core::pipe {
         void pipe(Source* source);
 
         void streamData(const char* junk, std::size_t junkLen);
-        void streamEof(const Source* source);
-        void streamError(const Source* source, int errnum);
+        void streamEof();
+        void streamError(int errnum);
 
         void disconnect(const Source* source);
 

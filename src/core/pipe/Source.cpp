@@ -57,6 +57,8 @@ namespace core::pipe {
     void Source::disconnect(const Sink* sink) {
         if (sink == this->sink) {
             this->sink = nullptr;
+
+            stop();
         }
     }
 
@@ -75,13 +77,13 @@ namespace core::pipe {
 
     void Source::error(int errnum) {
         if (this->sink != nullptr) {
-            sink->streamError(this, errnum);
+            sink->streamError(errnum);
         }
     }
 
     void Source::eof() {
         if (this->sink != nullptr) {
-            sink->streamEof(this);
+            sink->streamEof();
         }
     }
 

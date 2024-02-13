@@ -48,16 +48,16 @@ namespace core::pipe {
         onSourceData(junk, junkLen);
     }
 
-    void Sink::streamEof(const Source* source) {
+    void Sink::streamEof() {
         onSourceEof();
 
-        disconnect(source);
+        this->source = nullptr;
     }
 
-    void Sink::streamError(const Source* source, int errnum) {
+    void Sink::streamError(int errnum) {
         onSourceError(errnum);
 
-        disconnect(source);
+        this->source = nullptr;
     }
 
     void Sink::pipe(Source* source) {
