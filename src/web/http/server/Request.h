@@ -47,8 +47,6 @@ namespace web::http::server {
     protected:
         ConnectionState connectionState = ConnectionState::Default;
 
-        virtual void reset();
-
     public:
         const std::string& get(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;

@@ -63,7 +63,4 @@ namespace web::http::client {
         return nullstr;
     }
 
-    void Response::reset() {
-    }
-
 } // namespace web::http::client

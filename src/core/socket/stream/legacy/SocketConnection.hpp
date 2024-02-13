@@ -33,6 +33,7 @@ namespace core::socket::stream::legacy {
     SocketConnection<PhysicalSocket>::SocketConnection(const std::string& instanceName,
                                                        PhysicalSocket&& physicalSocket,
                                                        const std::function<void(SocketConnection*)>& onDisconnect,
+                                                       const std::string& configuredServer,
                                                        const SocketAddress& localAddress,
                                                        const SocketAddress& remoteAddress,
                                                        const utils::Timeval& readTimeout,
@@ -46,6 +47,7 @@ namespace core::socket::stream::legacy {
               [onDisconnect, this]() -> void {
                   onDisconnect(this);
               },
+              configuredServer,
               localAddress,
               remoteAddress,
               readTimeout,

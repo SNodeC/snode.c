@@ -52,18 +52,16 @@ namespace core::socket::stream {
 
     class SocketConnection {
     public:
-        SocketConnection(const std::string& instanceName);
+        SocketConnection(const std::string& instanceName, const std::string& configuredServer);
 
     protected:
         virtual ~SocketConnection();
 
-    public:
-        void switchSocketContext(SocketContext* newSocketContext);
-
-    protected:
         void setSocketContext(SocketContext* socketContext);
 
     public:
+        void switchSocketContext(SocketContext* newSocketContext);
+
         virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
         void sendToPeer(const std::string& data);
         void sentToPeer(const std::vector<uint8_t>& data);
@@ -78,6 +76,7 @@ namespace core::socket::stream {
         virtual void shutdownWrite(bool forceClose) = 0;
 
         const std::string& getInstanceName() const;
+        const std::string& getConfiguredServer() const;
 
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
         virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
@@ -95,6 +94,7 @@ namespace core::socket::stream {
         core::socket::stream::SocketContext* newSocketContext = nullptr;
 
         std::string instanceName;
+        std::string configuredServer;
     };
 
     template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT>
@@ -117,6 +117,7 @@ namespace core::socket::stream {
         SocketConnectionT(const std::string& instanceName,
                           PhysicalSocket&& physicalSocket,
                           const std::function<void()>& onDisconnect,
+                          const std::string& configuredServer,
                           const SocketAddress& localAddress,
                           const SocketAddress& remoteAddress,
                           const utils::Timeval& readTimeout,

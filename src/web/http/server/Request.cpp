@@ -69,16 +69,4 @@ namespace web::http::server {
         return nullstr;
     }
 
-    void Request::reset() {
-        method.clear();
-        url.clear();
-        httpVersion.clear();
-        httpMajor = 0;
-        httpMinor = 0;
-        connectionState = ConnectionState::Default;
-        headers.clear();
-        cookies.clear();
-        queries.clear();
-    }
-
 } // namespace web::http::server

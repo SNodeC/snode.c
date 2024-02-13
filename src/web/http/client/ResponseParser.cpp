@@ -49,6 +49,8 @@ namespace web::http::client {
     }
 
     void ResponseParser::begin() {
+        reset();
+
         onStart();
     }
 
@@ -151,15 +153,11 @@ namespace web::http::client {
     Parser::ParserState ResponseParser::parsingFinished() {
         onParsed(response);
 
-        reset();
-
         return ParserState::BEGIN;
     }
 
     Parser::ParserState ResponseParser::parsingError(int code, const std::string& reason) {
         onError(code, reason);
-
-        reset();
 
         return ParserState::ERROR;
     }

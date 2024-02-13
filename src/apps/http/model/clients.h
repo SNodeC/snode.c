@@ -54,7 +54,7 @@ namespace apps::http::legacy {
             "httpclient",
             [](std::shared_ptr<Request>& request) -> void {
                 request->url = "/index.html";
-                request->set("Connection", "close");
+                request->set("Connection", "close", true);
                 request->start();
             },
             []([[maybe_unused]] std::shared_ptr<Request>& request, std::shared_ptr<Response>& response) -> void {

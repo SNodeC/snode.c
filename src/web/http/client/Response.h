@@ -50,8 +50,6 @@ namespace web::http::client {
     protected:
         core::socket::stream::SocketContext* socketContext;
 
-        void reset();
-
     public:
         const std::string& header(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;
@@ -72,6 +70,8 @@ namespace web::http::client {
 
         template <typename Request, typename Response>
         friend class SocketContext;
+
+        friend class ResponseParser;
     };
 
 } // namespace web::http::client

@@ -55,6 +55,7 @@ namespace core::socket::stream::tls {
         SocketConnection(const std::string& instanceName,
                          PhysicalSocket&& physicalSocket,
                          const std::function<void(SocketConnection*)>& onDisconnect,
+                         const std::string& configuredServer,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const utils::Timeval& readTimeout,

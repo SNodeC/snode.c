@@ -229,6 +229,7 @@ namespace core::socket::stream {
                     new SocketConnection(config->getInstanceName(),
                                          std::move(connectedPhysicalSocket),
                                          onDisconnect,
+                                         config->Local::getSocketAddress().toString(false),
                                          getLocalSocketAddress<SocketAddress>(connectedPhysicalSocket, config),
                                          getRemoteSocketAddress<SocketAddress>(connectedPhysicalSocket, config),
                                          config->getReadTimeout(),

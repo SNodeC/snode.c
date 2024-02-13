@@ -21,7 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
+#include <map> // IWYU pragma: keep
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,12 +40,13 @@ namespace express::middleware {
 
     class VHost& VHost::instance(const std::string& host) {
         // Keep all created vhost middlewares alive
-        static std::list<std::shared_ptr<class VHost>> vhostMiddlewares;
+        static std::map<std::string, std::shared_ptr<class VHost>> vHostMiddlewares;
 
-        const std::shared_ptr<VHost> vhost = std::shared_ptr<VHost>(new VHost(host));
-        vhostMiddlewares.push_back(vhost);
+        if (!vHostMiddlewares.contains(host)) {
+            vHostMiddlewares[host] = std::shared_ptr<VHost>(new VHost(host));
+        }
 
-        return *vhost;
+        return *vHostMiddlewares[host];
     }
 
     // "Constructor" of StaticMiddleware

@@ -42,6 +42,19 @@ namespace web::http::client {
         : socketContext(clientContext) {
     }
 
+    void Request::reset() {
+        method = "GET";
+        url.clear();
+        httpMajor = 1;
+        httpMinor = 1;
+        queries.clear();
+        headers.clear();
+        cookies.clear();
+        contentLength = 0;
+        contentSent = 0;
+        connectionState = ConnectionState::Default;
+    }
+
     Request& Request::setHost(const std::string& host) {
         this->host = host;
 
@@ -103,19 +116,6 @@ namespace web::http::client {
         headers.insert({"Content-Type", type});
 
         return *this;
-    }
-
-    void Request::reset() {
-        method = "GET";
-        url.clear();
-        httpMajor = 1;
-        httpMinor = 1;
-        queries.clear();
-        headers.clear();
-        cookies.clear();
-        contentLength = 0;
-        contentSent = 0;
-        connectionState = ConnectionState::Default;
     }
 
     Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
@@ -241,6 +241,10 @@ namespace web::http::client {
 
     const std::string& Request::header(const std::string& field) {
         return headers[field];
+    }
+
+    SocketContext* Request::getSocketContext() const {
+        return socketContext;
     }
 
 } // namespace web::http::client

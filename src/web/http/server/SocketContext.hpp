@@ -37,6 +37,8 @@ namespace web::http::server {
         , response(std::make_shared<Response>(this))
         , parser(
               this,
+              [this]() -> void {
+              },
               [this](web::http::server::Request& request) -> void {
                   std::string connection = request.get("Connection");
                   if (!connection.empty()) {

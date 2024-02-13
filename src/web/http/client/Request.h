@@ -53,6 +53,10 @@ namespace web::http::client {
 
         virtual ~Request() = default;
 
+    protected:
+        virtual void reset();
+
+    public:
         Request& setHost(const std::string& host);
         Request& append(const std::string& field, const std::string& value);
         Request& set(const std::string& field, const std::string& value, bool overwrite = false);
@@ -78,9 +82,9 @@ namespace web::http::client {
 
         const std::string& header(const std::string& field);
 
-    protected:
-        virtual void reset();
+        web::http::SocketContext* getSocketContext() const;
 
+    protected:
         web::http::SocketContext* socketContext;
 
         ConnectionState connectionState = ConnectionState::Default;

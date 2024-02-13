@@ -32,9 +32,11 @@
 namespace web::http::server {
 
     RequestParser::RequestParser(core::socket::stream::SocketContext* socketContext,
+                                 const std::function<void()>& onStart,
                                  const std::function<void(Request&)>& onParsed,
                                  const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
+        , onStart(onStart)
         , onParsed(onParsed)
         , onError(onError) {
     }
@@ -44,6 +46,9 @@ namespace web::http::server {
     }
 
     void RequestParser::begin() {
+        reset();
+
+        onStart();
     }
 
     Parser::ParserState RequestParser::parseStartLine(const std::string& line) {
@@ -143,15 +148,11 @@ namespace web::http::server {
     Parser::ParserState RequestParser::parsingFinished() {
         onParsed(request);
 
-        reset();
-
         return ParserState::BEGIN;
     }
 
     Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {
         onError(code, reason + "\r\n");
-
-        reset();
 
         return ParserState::ERROR;
     }

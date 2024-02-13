@@ -30,8 +30,9 @@
 
 namespace core::socket::stream {
 
-    SocketConnection::SocketConnection(const std::string& instanceName)
-        : instanceName(instanceName) {
+    SocketConnection::SocketConnection(const std::string& instanceName, const std::string& configuredServer)
+        : instanceName(instanceName)
+        , configuredServer(configuredServer) {
     }
 
     SocketConnection::~SocketConnection() {
@@ -66,8 +67,12 @@ namespace core::socket::stream {
         return instanceName;
     }
 
+    const std::string& SocketConnection::getConfiguredServer() const {
+        return configuredServer;
+    }
+
     void SocketConnection::connectSocketContext(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory) {
-        SocketContext* socketContext = socketContextFactory->create(this); // cppcheck-suppress shadowVariable
+        SocketContext* socketContext = socketContextFactory->create(this);
 
         if (socketContext != nullptr) {
             setSocketContext(socketContext);

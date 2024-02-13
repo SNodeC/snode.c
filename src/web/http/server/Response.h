@@ -63,17 +63,16 @@ namespace web::http::server {
 
         ~Response() override;
 
+        Response& sendHeader();
         Response& sendFragment(const char* junk, std::size_t junkLen);
         Response& sendFragment(const std::string& junk);
-
-        void sendResponseCompleted();
-
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
-
+        void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
+        void upgrade(std::shared_ptr<Request> req, const std::function<void(bool success)>& status);
         void end();
 
-        Response& sendHeader();
+        void sendResponseCompleted();
 
         Response& status(int status);
         Response& append(const std::string& field, const std::string& value);
@@ -82,10 +81,6 @@ namespace web::http::server {
         Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
-
-        void upgrade(std::shared_ptr<Request> req, const std::function<void(bool success)>& status);
-
-        void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
 
         web::http::SocketContext* getSocketContext() const;
 
