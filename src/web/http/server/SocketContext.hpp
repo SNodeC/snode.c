@@ -38,12 +38,9 @@ namespace web::http::server {
         , parser(
               this,
               [this](web::http::server::Request& request) -> void {
-                  for (const auto& [field, value] : request.headers) {
-                      if (field == "connection" && httputils::ci_contains(value, "close")) {
-                          request.connectionState = ConnectionState::Close;
-                      } else if (field == "connection" && httputils::ci_contains(value, "keep-alive")) {
-                          request.connectionState = ConnectionState::Keep;
-                      }
+                  std::string connection = request.get("Connection");
+                  if (!connection.empty()) {
+                      response->set("Connection", connection);
                   }
 
                   requests.emplace_back(std::make_shared<Request>(std::move(request)));
@@ -66,15 +63,6 @@ namespace web::http::server {
             request = requests.front();
             requests.pop_front();
 
-            bool close = (request->httpMajor == 0 && request->httpMinor == 9) ||
-                         (request->httpMajor == 1 && request->httpMinor == 0 && request->connectionState != ConnectionState::Keep) ||
-                         (request->httpMajor == 1 && request->httpMinor == 1 && request->connectionState == ConnectionState::Close);
-            if (close) {
-                response->set("Connection", "close");
-            } else {
-                response->set("Connection", "keep-alive");
-            }
-
             onRequestReady(request, response);
         }
     }
@@ -88,18 +76,14 @@ namespace web::http::server {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::requestCompleted(bool success) {
-        // if 0.9 => terminate
-        // if 1.0 && (request != Keep || contentLength = -1) => terminate
-        // if 1.1 && (request == Close || contentLength = -1) => terminate
-        // if (request == Close) => terminate
-
         if (success) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
             if (request != nullptr) {
-                bool close = (request->httpMajor == 0 && request->httpMinor == 9) ||
-                             (request->httpMajor == 1 && request->httpMinor == 0 && request->connectionState != ConnectionState::Keep) ||
-                             (request->httpMajor == 1 && request->httpMinor == 1 && request->connectionState == ConnectionState::Close) ||
-                             response->connectionState == ConnectionState::Close;
+                bool close =
+                    response->connectionState == ConnectionState::Close ||
+                    (response->connectionState == ConnectionState::Default &&
+                     ((request->httpMajor == 0 && request->httpMinor == 9) || (request->httpMajor == 1 && request->httpMinor == 0)));
+
                 if (close) {
                     shutdownWrite();
                 } else if (!requests.empty()) {
@@ -114,6 +98,8 @@ namespace web::http::server {
                 shutdownWrite();
             }
         } else {
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request: wrong content length";
+
             shutdownWrite();
         }
     }

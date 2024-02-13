@@ -118,11 +118,10 @@ namespace core::socket::stream {
 
         if (!shutdownInProgress && !markShutdown) {
             if (isEnabled()) {
-                if (source != nullptr) {
-                    LOG(TRACE) << getName() << ": streamToPeer() started";
+                success = source != nullptr;
 
-                    source->start();
-                    success = true;
+                if (success) {
+                    LOG(TRACE) << getName() << ": streamToPeer() started";
                 } else {
                     LOG(TRACE) << getName() << ": streamToPeer() source is nullptr";
                 }

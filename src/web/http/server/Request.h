@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SERVER_REQUEST_H
 #define WEB_HTTP_SERVER_REQUEST_H
 
-#include "web/http/ConnectionState.h"
+#include "web/http/ConnectionState.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -71,6 +71,8 @@ namespace web::http::server {
 
         template <typename Request, typename Response>
         friend class SocketContext;
+
+        friend class RequestParser;
     };
 
 } // namespace web::http::server

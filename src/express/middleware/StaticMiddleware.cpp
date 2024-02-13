@@ -35,14 +35,14 @@ namespace express::middleware {
         use(
             [&stdHeaders = this->stdHeaders,
              &stdCookies = this->stdCookies,
-             &forceClose = this->forceClose] MIDDLEWARE( // cppcheck-suppress assignBoolToPointer
+             &connectionState = this->defaultConnectionState] MIDDLEWARE( // cppcheck-suppress assignBoolToPointer
                 req,
                 res,
                 next) {
                 if (req->method == "GET") {
-                    if (forceClose) {
+                    if (connectionState == web::http::ConnectionState::Close) {
                         res->set("Connection", "close");
-                    } else {
+                    } else if (connectionState == web::http::ConnectionState::Keep) {
                         res->set("Connection", "keep-alive");
                     }
                     res->set(stdHeaders);
@@ -107,8 +107,8 @@ namespace express::middleware {
         return *this;
     }
 
-    class StaticMiddleware& StaticMiddleware::alwaysClose() {
-        this->forceClose = true;
+    class StaticMiddleware& StaticMiddleware::afterResponse(web::http::ConnectionState connectionState) {
+        this->defaultConnectionState = connectionState;
 
         return *this;
     }

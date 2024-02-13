@@ -111,10 +111,10 @@ namespace web::http::server {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        void onStreamConnect(core::pipe::Source* source) override;
-        void onStreamData(const char* junk, std::size_t junkLen) override;
-        void onStreamEof() override;
-        void onStreamError(int errnum) override;
+        void onSourceConnect(core::pipe::Source* source) override;
+        void onSourceData(const char* junk, std::size_t junkLen) override;
+        void onSourceEof() override;
+        void onSourceError(int errnum) override;
 
         template <typename Request, typename Response>
         friend class SocketContext;

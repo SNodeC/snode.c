@@ -50,6 +50,10 @@ namespace core::pipe {
         }
     }
 
+    void Source::pipe(std::shared_ptr<Sink> sink, const std::function<void(Source*, int)>& callback) {
+        pipe(sink.get(), callback);
+    }
+
     void Source::disconnect(const Sink* sink) {
         if (sink == this->sink) {
             this->sink = nullptr;

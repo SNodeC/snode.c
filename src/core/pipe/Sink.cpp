@@ -45,17 +45,17 @@ namespace core::pipe {
     }
 
     void Sink::streamData(const char* junk, std::size_t junkLen) {
-        onStreamData(junk, junkLen);
+        onSourceData(junk, junkLen);
     }
 
     void Sink::streamEof(const Source* source) {
-        onStreamEof();
+        onSourceEof();
 
         disconnect(source);
     }
 
     void Sink::streamError(const Source* source, int errnum) {
-        onStreamError(errnum);
+        onSourceError(errnum);
 
         disconnect(source);
     }
@@ -63,7 +63,7 @@ namespace core::pipe {
     void Sink::pipe(Source* source) {
         this->source = source;
 
-        onStreamConnect(source);
+        onSourceConnect(source);
     }
 
     void Sink::disconnect(const Source* source) {

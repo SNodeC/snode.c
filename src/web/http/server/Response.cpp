@@ -29,7 +29,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/system/time.h"
 
 #include <cerrno>
@@ -128,11 +127,11 @@ namespace web::http::server {
         if (overwrite || headers.find(field) == headers.end()) {
             headers.insert_or_assign(field, value);
 
-            if (field == "Content-Length") {
+            if (httputils::ci_contains(field, "Content-Length")) {
                 contentLength = std::stoul(value);
-            } else if (field == "Connection" && httputils::ci_contains(value, "close")) {
+            } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(value, "close")) {
                 connectionState = ConnectionState::Close;
-            } else if (field == "Connection" && httputils::ci_contains(value, "keep-alive")) {
+            } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(value, "keep-alive")) {
                 connectionState = ConnectionState::Keep;
             }
         }
@@ -177,13 +176,13 @@ namespace web::http::server {
                 if (socketContextUpgradeFactory != nullptr) {
                     socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
                     if (socketContextUpgrade == nullptr) {
-                        set("Connection", "close").status(404);
+                        set("Connection", "close", true).status(404);
                     }
                 } else {
-                    set("Connection", "close").status(404);
+                    set("Connection", "close", true).status(404);
                 }
             } else {
-                set("Connection", "close").status(400);
+                set("Connection", "close", true).status(400);
             }
         }
 
@@ -205,9 +204,9 @@ namespace web::http::server {
                         callback(errnum);
 
                         if (errnum == 0) {
-                            headers.insert({{"Content-Type", web::http::MimeTypes::contentType(absolutFileName)},
-                                            {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
-                            headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                            set("Content-Type", web::http::MimeTypes::contentType(absolutFileName));
+                            set("Last-Modified", httputils::file_mod_http_date(absolutFileName));
+                            set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)), true);
                         } else {
                             source->stop();
                         }
@@ -272,32 +271,24 @@ namespace web::http::server {
 
         socketContext->sendToPeer("\r\n");
 
-        if (headers.find("Content-Length") != headers.end()) {
-            contentLength = std::stoul(headers.find("Content-Length")->second);
-        } else {
-            contentLength = 0;
-        }
-
         return *this;
     }
 
-    void Response::onStreamConnect(core::pipe::Source* source) {
+    void Response::onSourceConnect(core::pipe::Source* source) {
         if (stream(source)) {
-            LOG(TRACE) << "Start stream success";
-
             sendHeader();
-        } else {
-            LOG(TRACE) << "Start stream failed";
 
+            source->start();
+        } else {
             source->stop();
         }
     }
 
-    void Response::onStreamData(const char* junk, std::size_t junkLen) {
+    void Response::onSourceData(const char* junk, std::size_t junkLen) {
         sendFragment(junk, junkLen);
     }
 
-    void Response::onStreamEof() {
+    void Response::onSourceEof() {
         if (socketContext != nullptr) {
             socketContext->streamEof();
         }
@@ -305,7 +296,7 @@ namespace web::http::server {
         sendResponseCompleted();
     }
 
-    void Response::onStreamError(int errnum) {
+    void Response::onSourceError(int errnum) {
         errno = errnum;
 
         if (socketContext != nullptr) {

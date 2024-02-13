@@ -90,6 +90,10 @@ namespace web::http::server {
             if (headerFieldName != "cookie") {
                 if (headerFieldName == "content-length") {
                     Parser::contentLength = std::stoul(headerFieldValue);
+                } else if (headerFieldName == "connection" && httputils::ci_contains(headerFieldValue, "close")) {
+                    request.connectionState = ConnectionState::Close;
+                } else if (headerFieldName == "connection" && httputils::ci_contains(headerFieldValue, "keep-alive")) {
+                    request.connectionState = ConnectionState::Keep;
                 }
             } else {
                 std::string cookiesLine = headerFieldValue;

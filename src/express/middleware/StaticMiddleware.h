@@ -20,7 +20,8 @@
 #ifndef EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H
 #define EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H
 
-#include "express/Router.h" // IWYU pragma: export
+#include "express/Router.h"           // IWYU pragma: export
+#include "web/http/ConnectionState.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "web/http/CookieOptions.h"
 
@@ -48,18 +49,16 @@ namespace express::middleware {
         StaticMiddleware& setStdHeaders(const std::map<std::string, std::string>& stdHeaders);
         StaticMiddleware& appendStdHeaders(const std::map<std::string, std::string>& stdHeaders);
         StaticMiddleware& appendStdHeaders(const std::string& field, const std::string& value);
-
         StaticMiddleware&
         appendStdCookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
-
-        StaticMiddleware& alwaysClose();
+        StaticMiddleware& afterResponse(web::http::ConnectionState connectionState);
 
     private:
         std::string root;
         std::map<std::string, std::string> stdHeaders = {
             {"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}};
         std::map<std::string, web::http::CookieOptions> stdCookies = {};
-        bool forceClose = false;
+        web::http::ConnectionState defaultConnectionState = web::http::ConnectionState::Default;
 
         friend class StaticMiddleware& StaticMiddleware(const std::string& root);
     };

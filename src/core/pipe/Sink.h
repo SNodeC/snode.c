@@ -53,10 +53,10 @@ namespace core::pipe {
 
         void disconnect(const Source* source);
 
-        virtual void onStreamConnect(Source* source) = 0;
-        virtual void onStreamData(const char* junk, std::size_t junkLen) = 0;
-        virtual void onStreamEof() = 0;
-        virtual void onStreamError(int errnum) = 0;
+        virtual void onSourceConnect(Source* source) = 0;
+        virtual void onSourceData(const char* junk, std::size_t junkLen) = 0;
+        virtual void onSourceEof() = 0;
+        virtual void onSourceError(int errnum) = 0;
 
         Source* source;
 

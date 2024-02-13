@@ -24,6 +24,7 @@
 
 #include <cstddef>
 #include <functional>
+#include <memory>
 #include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -47,6 +48,7 @@ namespace core::pipe {
         virtual bool isOpen() = 0;
 
         void pipe(Sink* sink, const std::function<void(Source* source, int errnum)>& callback);
+        void pipe(std::shared_ptr<Sink> sink, const std::function<void(Source* source, int errnum)>& callback);
 
         virtual void start() = 0;
         virtual void suspend() = 0;
