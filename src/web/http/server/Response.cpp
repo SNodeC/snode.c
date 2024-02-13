@@ -51,46 +51,36 @@ namespace web::http::server {
         }
     }
 
-    void Response::sendFragment(const char* junk, std::size_t junkLen) {
+    Response& Response::sendFragment(const char* junk, std::size_t junkLen) {
         if (socketContext != nullptr) {
             socketContext->sendToPeer(junk, junkLen);
             contentSent += junkLen;
         }
+
+        return *this;
     }
 
-    void Response::sendFragment(const std::string& junk) {
-        sendFragment(junk.data(), junk.size());
+    Response& Response::sendFragment(const std::string& junk) {
+        return sendFragment(junk.data(), junk.size());
     }
 
     void Response::send(const char* junk, std::size_t junkLen) {
         if (junkLen > 0) {
-            set("Content-Type", "application/octet-stream", false);
+            set("Content-Type", "application/octet-stream");
         }
-        set("Content-Length", std::to_string(junkLen), false);
+        set("Content-Length", std::to_string(junkLen), true);
 
         sendHeader();
         sendFragment(junk, junkLen);
-
         sendResponseCompleted();
     }
 
     void Response::send(const std::string& junk) {
         if (!junk.empty()) {
-            set("Content-Type", "text/html; charset=utf-8", false);
+            set("Content-Type", "text/html; charset=utf-8");
         }
-        set("Content-Length", std::to_string(junk.size()), false);
 
         send(junk.data(), junk.size());
-    }
-
-    bool Response::stream(core::pipe::Source* source) {
-        bool success = false;
-
-        if (socketContext != nullptr) {
-            success = socketContext->streamToPeer(source);
-        }
-
-        return success;
     }
 
     void Response::end() {
@@ -159,9 +149,9 @@ namespace web::http::server {
         return cookie(name, "", opts);
     }
 
-    /* Just an UML-Sequencediagram test */
+    /* Just an UML-Sequence diagram test */
 
-    /** Sequence diagramm of res.upgrade(req).
+    /** Sequence diagram of res.upgrade(req).
 @startuml
 !include web/http/server/pu/response_upgrade.pu
 @enduml
@@ -231,6 +221,7 @@ namespace web::http::server {
         cookies.clear();
         contentLength = 0;
         contentSent = 0;
+        connectionState = ConnectionState::Default;
     }
 
     void Response::sendResponseCompleted() {
@@ -252,7 +243,7 @@ namespace web::http::server {
         socketContext->sendToPeer("HTTP/1.1 " + std::to_string(responseStatus) + " " + StatusCode::reason(responseStatus) + "\r\n");
         socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
 
-        set({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
+        set("X-Powered-By", "snode.c");
 
         for (const auto& [field, value] : headers) {
             socketContext->sendToPeer(std::string(field).append(": ").append(value).append("\r\n"));
@@ -275,7 +266,7 @@ namespace web::http::server {
     }
 
     void Response::onSourceConnect(core::pipe::Source* source) {
-        if (stream(source)) {
+        if (socketContext != nullptr && socketContext->streamToPeer(source)) {
             sendHeader();
 
             source->start();

@@ -63,15 +63,13 @@ namespace web::http::server {
 
         ~Response() override;
 
-        void sendFragment(const char* junk, std::size_t junkLen);
-        void sendFragment(const std::string& junk);
+        Response& sendFragment(const char* junk, std::size_t junkLen);
+        Response& sendFragment(const std::string& junk);
 
         void sendResponseCompleted();
 
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
-
-        bool stream(core::pipe::Source* source);
 
         void end();
 

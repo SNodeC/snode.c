@@ -110,42 +110,33 @@ namespace web::http::client {
         url.clear();
         httpMajor = 1;
         httpMinor = 1;
-        host.clear();
         queries.clear();
         headers.clear();
         cookies.clear();
-        headersSent = false;
-        sendHeaderInProgress = false;
         contentLength = 0;
         contentSent = 0;
-
         connectionState = ConnectionState::Default;
     }
 
-    void Request::sendFragment(const char* junk, std::size_t junkLen) {
-        if (!headersSent && !sendHeaderInProgress) {
-            sendHeaderInProgress = true;
-            sendHeader();
-            sendHeaderInProgress = false;
-            headersSent = true;
-        }
-
+    Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
         socketContext->sendToPeer(junk, junkLen);
 
-        if (headersSent) {
-            contentSent += junkLen;
+        contentSent += junkLen;
 
-            if (contentSent >= contentLength) {
-                socketContext->requestCompleted(contentSent == contentLength);
-            }
+        return *this;
+    }
+
+    Request& Request::sendFragment(const std::string& data) {
+        return sendFragment(data.data(), data.size());
+    }
+
+    void Request::sendRequestCompleted() {
+        if (socketContext != nullptr) {
+            socketContext->requestCompleted(contentSent == contentLength);
         }
     }
 
-    void Request::sendFragment(const std::string& data) {
-        sendFragment(data.data(), data.size());
-    }
-
-    void Request::sendHeader() {
+    Request& Request::sendHeader() {
         const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
         std::string queryString;
@@ -157,43 +148,41 @@ namespace web::http::client {
             queryString.pop_back();
         }
 
-        sendFragment(method + " " + url + queryString + " " + httpVersion + "\r\n");
+        socketContext->sendToPeer(method + " " + url + queryString + " " + httpVersion + "\r\n");
 
         if (!host.empty()) {
-            sendFragment("Host: " + host + "\r\n");
+            socketContext->sendToPeer("Host: " + host + "\r\n");
         }
-        sendFragment("Date: " + httputils::to_http_date() + "\r\n");
+        socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
 
-        headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
+        set("X-Powered-By", "snode.c");
 
         for (const auto& [field, value] : headers) {
-            sendFragment(std::string(field).append(":").append(value).append("\r\n"));
+            socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
         }
 
         if (contentLength != 0) {
-            sendFragment(std::string("Content-Length: ").append(std::to_string(contentLength)).append("\r\n"));
+            socketContext->sendToPeer(std::string("Content-Length: ").append(std::to_string(contentLength)).append("\r\n"));
         }
 
         for (const auto& [name, value] : cookies) {
-            sendFragment(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
+            socketContext->sendToPeer(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
         }
 
-        sendFragment("\r\n");
+        socketContext->sendToPeer("\r\n");
 
-        if (headers.find("Content-Length") != headers.end()) {
-            contentLength = std::stoul(headers.find("Content-Length")->second);
-        } else {
-            contentLength = 0;
-        }
+        return *this;
     }
 
     void Request::send(const char* junk, std::size_t junkLen) {
         if (junkLen > 0) {
-            headers.insert({"Content-Type", "application/octet-stream"});
+            set("Content-Type", "application/octet-stream");
         }
-        headers.insert_or_assign("Content-Length", std::to_string(junkLen));
+        set("Content-Length", std::to_string(junkLen), true);
 
+        sendHeader();
         sendFragment(junk, junkLen);
+        sendRequestCompleted();
     }
 
     void Request::send(const std::string& junk) {
@@ -207,19 +196,15 @@ namespace web::http::client {
         this->url = url;
 
         set("Connection", "Upgrade", true);
-        set("Upgrade", protocols);
-
-        // load upgrade context
-        // let upgrade context fill the request-header fields
-        // send the request to the server
-        // the response-code needs to check the response from the server and upgrade the context in case the server says OK
+        set("Upgrade", protocols, true);
 
         web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
             web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
 
         if (socketContextUpgradeFactory != nullptr) {
-            start();
             socketContextUpgradeFactory->checkRefCount();
+
+            start();
         } else {
             socketContext->close();
         }

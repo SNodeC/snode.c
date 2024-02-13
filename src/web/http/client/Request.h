@@ -61,18 +61,20 @@ namespace web::http::client {
         Request& cookie(const std::map<std::string, std::string>& cookies);
         Request& type(const std::string& type);
 
-        void sendFragment(const char* junk, std::size_t junkLen);
-        void sendFragment(const std::string& data);
+        Request& sendHeader();
+
+        Request& sendFragment(const char* junk, std::size_t junkLen);
+        Request& sendFragment(const std::string& data);
 
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
 
+        void start();
+
         void upgrade(const std::string& url, const std::string& protocols);
         void upgrade(std::shared_ptr<Response>& response);
 
-        void sendHeader();
-
-        void start();
+        void sendRequestCompleted();
 
         const std::string& header(const std::string& field);
 
@@ -96,8 +98,6 @@ namespace web::http::client {
         std::map<std::string, std::string> cookies;
 
     private:
-        bool sendHeaderInProgress = false;
-        bool headersSent = false;
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 

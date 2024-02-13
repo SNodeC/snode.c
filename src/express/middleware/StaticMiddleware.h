@@ -55,8 +55,7 @@ namespace express::middleware {
 
     private:
         std::string root;
-        std::map<std::string, std::string> stdHeaders = {
-            {"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}};
+        std::map<std::string, std::string> stdHeaders = {{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}};
         std::map<std::string, web::http::CookieOptions> stdCookies = {};
         web::http::ConnectionState defaultConnectionState = web::http::ConnectionState::Default;
 
