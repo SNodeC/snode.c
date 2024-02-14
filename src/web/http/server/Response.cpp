@@ -151,11 +151,11 @@ namespace web::http::server {
 !include web/http/server/pu/response_upgrade.pu
 @enduml
      */
-    void Response::upgrade(std::shared_ptr<Request> req, const std::function<void(bool)>& status) {
+    void Response::upgrade(std::shared_ptr<Request> request, const std::function<void(bool)>& status) {
         if (socketContext != nullptr) {
-            if (httputils::ci_contains(req->get("connection"), "Upgrade")) {
+            if (httputils::ci_contains(request->get("connection"), "Upgrade")) {
                 web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                    web::http::server::SocketContextUpgradeFactorySelector::instance()->select(*req, *this);
+                    web::http::server::SocketContextUpgradeFactorySelector::instance()->select(*request, *this);
 
                 if (socketContextUpgradeFactory != nullptr) {
                     socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());

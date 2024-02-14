@@ -40,8 +40,6 @@ namespace web::http::client {
         , request(std::make_shared<Request>(this))
         , parser(
               this,
-              [this]() -> void {
-              },
               [onResponseReady, this](web::http::client::Response& response) -> void {
                   this->response = std::make_shared<Response>(std::move(response));
 

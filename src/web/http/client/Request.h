@@ -33,6 +33,7 @@ namespace web::http::client {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // IWYU pragma: export
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -69,7 +70,7 @@ namespace web::http::client {
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
         void upgrade(const std::string& url, const std::string& protocols);
-        void upgrade(std::shared_ptr<Response>& response);
+        void upgrade(std::shared_ptr<Response>& response, const std::function<void(bool success)>& status);
 
         Request& sendHeader();
         Request& sendFragment(const char* junk, std::size_t junkLen);

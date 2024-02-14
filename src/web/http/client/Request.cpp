@@ -163,14 +163,15 @@ namespace web::http::client {
         }
     }
 
-    void Request::upgrade(std::shared_ptr<Response>& response) {
+    void Request::upgrade(std::shared_ptr<Response>& response, const std::function<void(bool success)>& status) {
+        core::socket::stream::SocketContext* newSocketContext = nullptr;
+
         if (httputils::ci_contains(response->get("connection"), "Upgrade")) {
             web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
                 web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
 
             if (socketContextUpgradeFactory != nullptr) {
-                core::socket::stream::SocketContext* newSocketContext =
-                    socketContextUpgradeFactory->create(socketContext->getSocketConnection());
+                newSocketContext = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                 if (newSocketContext != nullptr) {
                     socketContext->switchSocketContext(newSocketContext);
@@ -186,6 +187,8 @@ namespace web::http::client {
             LOG(DEBUG) << "HTTP: Response did not contain upgrade";
             socketContext->close();
         }
+
+        status(newSocketContext != nullptr);
     }
 
     Request& Request::sendHeader() {

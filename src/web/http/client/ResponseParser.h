@@ -41,7 +41,6 @@ namespace web::http::client {
     class ResponseParser : public web::http::Parser {
     public:
         ResponseParser(core::socket::stream::SocketContext* socketContext,
-                       const std::function<void(void)>& onStart,
                        const std::function<void(Response&)>& onParsed,
                        const std::function<void(int, const std::string&)>& onError);
 
@@ -64,7 +63,6 @@ namespace web::http::client {
         Response response;
 
         // Callbacks
-        std::function<void(void)> onStart;
         std::function<void(Response&)> onParsed;
         std::function<void(int, const std::string&)> onError;
     };

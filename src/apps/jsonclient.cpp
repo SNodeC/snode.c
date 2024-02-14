@@ -41,36 +41,36 @@ int main(int argc, char* argv[]) {
 
     const Client jsonClient(
         "legacy",
-        [](std::shared_ptr<Request>& request) -> void {
+        [](std::shared_ptr<Request>& req) -> void {
             VLOG(0) << "-- OnRequest";
-            request->method = "POST";
-            request->url = "/index.html";
-            request->type("application/json");
-            request->set("Connection", "close");
-            request->send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
+            req->method = "POST";
+            req->url = "/index.html";
+            req->type("application/json");
+            req->set("Connection", "close");
+            req->send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
-        []([[maybe_unused]] std::shared_ptr<Request>& request, std::shared_ptr<Response>& response) -> void {
+        []([[maybe_unused]] std::shared_ptr<Request>& req, std::shared_ptr<Response>& res) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
-            VLOG(0) << "       " << response->httpVersion;
-            VLOG(0) << "       " << response->statusCode;
-            VLOG(0) << "       " << response->reason;
+            VLOG(0) << "       " << res->httpVersion;
+            VLOG(0) << "       " << res->statusCode;
+            VLOG(0) << "       " << res->reason;
 
             VLOG(0) << "     Headers:";
-            for (auto& [field, value] : response->headers) {
+            for (auto& [field, value] : res->headers) {
                 VLOG(0) << "       " << field + " = " + value;
             }
 
             VLOG(0) << "     Cookies:";
-            for (const auto& [name, cookie] : response->cookies) {
+            for (const auto& [name, cookie] : res->cookies) {
                 VLOG(0) << "       " + name + " = " + cookie.getValue();
                 for (auto& [option, value] : cookie.getOptions()) {
                     VLOG(0) << "         " + option + " = " + value;
                 }
             }
 
-            response->body.push_back(0);
-            VLOG(0) << "     Body:\n----------- start body -----------" << response->body.data() << "\n------------ end body ------------";
+            res->body.push_back(0);
+            VLOG(0) << "     Body:\n----------- start body -----------" << res->body.data() << "\n------------ end body ------------";
         },
         [](int status, const std::string& reason) -> void {
             VLOG(0) << "-- OnResponseError";

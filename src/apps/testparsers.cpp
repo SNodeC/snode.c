@@ -36,8 +36,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     server::RequestParser requestParser(
         nullptr,
-        [](void) -> void {
-        },
         []([[maybe_unused]] web::http::server::Request& request) -> void {
             VLOG(0) << "++    OnParsed";
         },
@@ -73,8 +71,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     client::ResponseParser responseParser(
         nullptr,
-        []() -> void {
-        },
         []([[maybe_unused]] client::Response& response) -> void {
             VLOG(0) << "++   OnParsed";
         },

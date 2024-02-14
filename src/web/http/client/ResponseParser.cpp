@@ -38,19 +38,15 @@
 namespace web::http::client {
 
     ResponseParser::ResponseParser(core::socket::stream::SocketContext* socketContext,
-                                   const std::function<void(void)>& onStart,
                                    const std::function<void(Response&)>& onParsed,
                                    const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
-        , onStart(onStart)
         , onParsed(onParsed)
         , onError(onError) {
     }
 
     void ResponseParser::begin() {
         reset();
-
-        onStart();
     }
 
     Parser::ParserState ResponseParser::parseStartLine(const std::string& line) {
