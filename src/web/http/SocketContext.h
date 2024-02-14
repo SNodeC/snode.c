@@ -41,7 +41,8 @@ namespace web::http {
         using Super::Super;
 
     public:
-        virtual void requestCompleted(bool success) = 0;
+        virtual void sendToPeerCompleted(bool success) = 0;
+        virtual void requestCompleted() = 0;
     };
 
 } // namespace web::http

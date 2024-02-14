@@ -53,46 +53,40 @@ namespace web::http::client {
 
         virtual ~Request() = default;
 
-    protected:
-        virtual void reset();
+    private:
+        virtual void reInit();
 
     public:
-        Request& setHost(const std::string& host);
+        Request& host(const std::string& host);
         Request& append(const std::string& field, const std::string& value);
-        Request& set(const std::string& field, const std::string& value, bool overwrite = false);
-        Request& set(const std::map<std::string, std::string>& headers, bool overwrite = false);
+        Request& set(const std::string& field, const std::string& value, bool overwrite = true);
+        Request& set(const std::map<std::string, std::string>& headers, bool overwrite = true);
+        Request& type(const std::string& type);
         Request& cookie(const std::string& name, const std::string& value);
         Request& cookie(const std::map<std::string, std::string>& cookies);
-        Request& type(const std::string& type);
-
-        Request& sendHeader();
-
-        Request& sendFragment(const char* junk, std::size_t junkLen);
-        Request& sendFragment(const std::string& data);
-
-        void send(const char* junk, std::size_t junkLen);
-        void send(const std::string& junk);
 
         void start();
-
+        void send(const char* junk, std::size_t junkLen);
+        void send(const std::string& junk);
         void upgrade(const std::string& url, const std::string& protocols);
         void upgrade(std::shared_ptr<Response>& response);
 
-        void sendRequestCompleted();
+        Request& sendHeader();
+        Request& sendFragment(const char* junk, std::size_t junkLen);
+        Request& sendFragment(const std::string& data);
 
+    private:
+        void sendCompleted();
+
+    public:
         const std::string& header(const std::string& field);
 
         web::http::SocketContext* getSocketContext() const;
 
-    protected:
-        web::http::SocketContext* socketContext;
-
-        ConnectionState connectionState = ConnectionState::Default;
-
+    private:
     public:
         std::string method = "GET";
         std::string url;
-        std::string host;
         int httpMajor = 1;
         int httpMinor = 1;
 
@@ -105,7 +99,9 @@ namespace web::http::client {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        std::string nullstr;
+        web::http::SocketContext* socketContext;
+
+        ConnectionState connectionState = ConnectionState::Default;
 
         template <typename Request, typename Response>
         friend class SocketContext;

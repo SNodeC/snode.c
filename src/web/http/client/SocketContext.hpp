@@ -53,30 +53,7 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    std::size_t SocketContext<Request, Response>::onReceivedFromPeer() {
-        return parser.parse();
-    }
-
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::responseParsed() {
-        onResponseReady(request, response);
-
-        if (response->header("connection") == "close" || request->header("connection") == "close") {
-            shutdownWrite();
-        }
-
-        request->reset();
-    }
-
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::responseError(int status, const std::string& reason) {
-        onResponseError(status, reason);
-
-        shutdownWrite(true);
-    }
-
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::requestCompleted(bool success) {
+    void SocketContext<Request, Response>::sendToPeerCompleted(bool success) {
         if (success) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent successful";
         } else {
@@ -87,12 +64,49 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
+    void SocketContext<Request, Response>::responseParsed() {
+        onResponseReady(request, response);
+
+        requestCompleted();
+    }
+
+    template <typename Request, typename Response>
+    void SocketContext<Request, Response>::responseError(int status, const std::string& reason) {
+        onResponseError(status, reason);
+
+        shutdownWrite(true);
+    }
+
+    template <typename RequestT, typename ResponseT>
+    void SocketContext<RequestT, ResponseT>::requestCompleted() {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
+
+        bool close = response->connectionState == ConnectionState::Close ||
+                     (response->connectionState == ConnectionState::Default &&
+                      ((request->httpMajor == 0 && request->httpMinor == 9) || (request->httpMajor == 1 && request->httpMinor == 0)));
+
+        if (close) {
+            shutdownWrite();
+        } else {
+            // TODO: Queue requests
+            // TODO: Process next queued request
+        }
+
+        request->reInit();
+    }
+
+    template <typename Request, typename Response>
     void SocketContext<Request, Response>::onConnected() {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onConnected";
 
-        request->setHost(getSocketConnection()->getConfiguredServer());
+        request->host(getSocketConnection()->getConfiguredServer());
 
         onRequestBegin(request);
+    }
+
+    template <typename Request, typename Response>
+    std::size_t SocketContext<Request, Response>::onReceivedFromPeer() {
+        return parser.parse();
     }
 
     template <typename Request, typename Response>

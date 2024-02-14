@@ -49,8 +49,8 @@ namespace web::websocket::client {
                                                               web::http::client::Response* response) {
         SocketContextUpgrade* socketContext = nullptr;
 
-        if (response->header("sec-websocket-accept") == base64::serverWebSocketKey(request->header("Sec-WebSocket-Key"))) {
-            const std::string subProtocolName = response->header("sec-websocket-protocol");
+        if (response->get("sec-websocket-accept") == base64::serverWebSocketKey(request->header("Sec-WebSocket-Key"))) {
+            const std::string subProtocolName = response->get("sec-websocket-protocol");
 
             socketContext = new SocketContextUpgrade(socketConnection, this);
             const std::string selectedSubProtocolName = socketContext->loadSubProtocol(subProtocolName);

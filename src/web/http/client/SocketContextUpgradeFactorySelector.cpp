@@ -91,7 +91,7 @@ namespace web::http::client {
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        std::string upgradeContextName = res.header("upgrade");
+        std::string upgradeContextName = res.get("upgrade");
 
         if (!upgradeContextName.empty()) {
             httputils::to_lower(upgradeContextName);

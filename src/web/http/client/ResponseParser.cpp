@@ -42,7 +42,6 @@ namespace web::http::client {
                                    const std::function<void(Response&)>& onParsed,
                                    const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
-        , response(socketContext)
         , onStart(onStart)
         , onParsed(onParsed)
         , onError(onError) {
@@ -89,6 +88,10 @@ namespace web::http::client {
             if (headerFieldName != "set-cookie") {
                 if (headerFieldName == "content-length") {
                     Parser::contentLength = static_cast<std::size_t>(std::stoi(headerFieldValue));
+                } else if (headerFieldName == "connection" && httputils::ci_contains(headerFieldValue, "close")) {
+                    response.connectionState = ConnectionState::Close;
+                } else if (headerFieldName == "connection" && httputils::ci_contains(headerFieldValue, "keep-alive")) {
+                    response.connectionState = ConnectionState::Keep;
                 }
             } else {
                 std::string cookiesLine = headerFieldValue;

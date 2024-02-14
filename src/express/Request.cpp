@@ -34,9 +34,6 @@ namespace express {
         extend();
     }
 
-    Request::~Request() {
-    }
-
     const std::string& Request::param(const std::string& id, const std::string& fallBack) {
         return params.contains(id) ? params[id] : fallBack;
     }

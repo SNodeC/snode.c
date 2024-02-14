@@ -56,13 +56,8 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    std::size_t SocketContext<Request, Response>::onReceivedFromPeer() {
-        return parser.parse();
-    }
-
-    template <typename Request, typename Response>
     void SocketContext<Request, Response>::requestParsed() {
-        if (request == nullptr && !requests.empty()) {
+        if (request == nullptr && !requests.empty()) { // cppcheck-suppress accessMoved
             request = requests.front();
             requests.pop_front();
 
@@ -78,28 +73,9 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::requestCompleted(bool success) {
+    void SocketContext<Request, Response>::sendToPeerCompleted(bool success) {
         if (success) {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
-            if (request != nullptr) {
-                bool close =
-                    response->connectionState == ConnectionState::Close ||
-                    (response->connectionState == ConnectionState::Default &&
-                     ((request->httpMajor == 0 && request->httpMinor == 9) || (request->httpMajor == 1 && request->httpMinor == 0)));
-
-                if (close) {
-                    shutdownWrite();
-                } else if (!requests.empty()) {
-                    core::EventReceiver::atNextTick([this]() -> void {
-                        requestParsed();
-                    });
-                }
-
-                request = nullptr;
-                response->reset();
-            } else {
-                shutdownWrite();
-            }
+            requestCompleted();
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request: wrong content length";
 
@@ -107,9 +83,34 @@ namespace web::http::server {
         }
     }
 
+    template <typename RequestT, typename ResponseT>
+    void SocketContext<RequestT, ResponseT>::requestCompleted() {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
+
+        bool close = response->connectionState == ConnectionState::Close ||
+                     (response->connectionState == ConnectionState::Default &&
+                      ((request->httpMajor == 0 && request->httpMinor == 9) || (request->httpMajor == 1 && request->httpMinor == 0)));
+
+        if (close) {
+            shutdownWrite();
+        } else if (!requests.empty()) {
+            core::EventReceiver::atNextTick([this]() -> void {
+                requestParsed();
+            });
+        }
+
+        request = nullptr;
+        response->reInit();
+    }
+
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onConnected() {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onConnected";
+    }
+
+    template <typename Request, typename Response>
+    std::size_t SocketContext<Request, Response>::onReceivedFromPeer() {
+        return parser.parse();
     }
 
     template <typename Request, typename Response>

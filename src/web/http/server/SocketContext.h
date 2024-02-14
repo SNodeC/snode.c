@@ -52,28 +52,23 @@ namespace web::http::server {
                       const std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)>& onRequestReady);
 
     private:
-        std::size_t onReceivedFromPeer() override;
-
-        void requestCompleted(bool success) override;
-
-        void onConnected() override;
-        void onDisconnected() override;
-
-        [[nodiscard]] bool onSignal(int signum) override;
-
         void requestParsed();
         void requestError(int status, const std::string& reason);
+        void sendToPeerCompleted(bool success) override;
+        void requestCompleted() override;
 
         std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onRequestReady;
 
-        std::shared_ptr<Response> response = nullptr;
-        std::shared_ptr<Request> request = nullptr;
+        void onConnected() override;
+        std::size_t onReceivedFromPeer() override;
+        void onDisconnected() override;
+        [[nodiscard]] bool onSignal(int signum) override;
 
+        std::shared_ptr<Request> request = nullptr;
+        std::shared_ptr<Response> response = nullptr;
         std::list<std::shared_ptr<Request>> requests;
 
         RequestParser parser;
-
-        bool connectionTerminated = false;
 
         friend Response;
     };

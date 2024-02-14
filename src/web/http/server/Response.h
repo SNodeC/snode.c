@@ -64,51 +64,57 @@ namespace web::http::server {
 
         ~Response() override;
 
-        Response& sendHeader();
-        Response& sendFragment(const char* junk, std::size_t junkLen);
-        Response& sendFragment(const std::string& junk);
+    private:
+        virtual void reInit();
+
+    public:
+        Response& status(int status);
+        Response& append(const std::string& field, const std::string& value);
+        Response& set(const std::string& field, const std::string& value, bool overwrite = true);
+        Response& set(const std::map<std::string, std::string>& headers, bool overwrite = true);
+        Response& type(const std::string& type);
+        Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
+        Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
+
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
-        void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
         void upgrade(std::shared_ptr<Request> req, const std::function<void(bool success)>& status);
         void end();
 
-        void sendResponseCompleted();
-
-        Response& status(int status);
-        Response& append(const std::string& field, const std::string& value);
-        Response& set(const std::string& field, const std::string& value, bool overwrite = false);
-        Response& set(const std::map<std::string, std::string>& headers, bool overwrite = false);
-        Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
-        Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
-        Response& type(const std::string& type);
-
-        web::http::SocketContext* getSocketContext() const;
-
-    protected:
-        virtual void reset();
-
-        web::http::SocketContext* socketContext = nullptr;
-
-        ConnectionState connectionState = ConnectionState::Default;
-
-        int responseStatus = 200;
-
-        std::map<std::string, std::string> headers;
-        std::map<std::string, web::http::CookieOptions> cookies;
-
-    private:
+        void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
         void stopResponse();
 
-        core::socket::stream::SocketContext* socketContextUpgrade = nullptr;
+        Response& sendHeader();
+        Response& sendFragment(const char* junk, std::size_t junkLen);
+        Response& sendFragment(const std::string& junk);
 
-        std::size_t contentSent = 0;
-        std::size_t contentLength = 0;
+    private:
+        void sendCompleted();
 
         void onSourceConnect(core::pipe::Source* source) override;
         void onSourceData(const char* junk, std::size_t junkLen) override;
         void onSourceEof() override;
         void onSourceError(int errnum) override;
+
+    public:
+        const std::string& header(const std::string& field);
+
+        web::http::SocketContext* getSocketContext() const;
+
+        int statusCode = 200;
+
+    protected:
+        std::map<std::string, std::string> headers;
+        std::map<std::string, web::http::CookieOptions> cookies;
+
+    private:
+        std::size_t contentSent = 0;
+        std::size_t contentLength = 0;
+
+        web::http::SocketContext* socketContext = nullptr;
+        core::socket::stream::SocketContext* socketContextUpgrade = nullptr;
+
+        ConnectionState connectionState = ConnectionState::Default;
 
         template <typename Request, typename Response>
         friend class SocketContext;

@@ -30,11 +30,7 @@
 
 namespace web::http::client {
 
-    Response::Response(core::socket::stream::SocketContext* clientContext)
-        : socketContext(clientContext) {
-    }
-
-    const std::string& Response::header(const std::string& key, int i) const {
+    const std::string& Response::get(const std::string& key, int i) const {
         std::string tmpKey = key;
         httputils::to_lower(tmpKey);
 

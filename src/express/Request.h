@@ -45,8 +45,6 @@ namespace express {
         Request& operator=(Request&) = delete;
         Request& operator=(Request&&) noexcept = default;
 
-        ~Request() override;
-
         const std::string& param(const std::string& id, const std::string& fallBack = "");
 
         std::string originalUrl;

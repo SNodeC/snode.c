@@ -42,7 +42,7 @@ namespace web::http::client {
         : socketContext(clientContext) {
     }
 
-    void Request::reset() {
+    void Request::reInit() {
         method = "GET";
         url.clear();
         httpMajor = 1;
@@ -55,8 +55,8 @@ namespace web::http::client {
         connectionState = ConnectionState::Default;
     }
 
-    Request& Request::setHost(const std::string& host) {
-        this->host = host;
+    Request& Request::host(const std::string& host) {
+        set("Host", host);
 
         return *this;
     }
@@ -65,9 +65,31 @@ namespace web::http::client {
         const std::map<std::string, std::string>::iterator it = headers.find(field);
 
         if (it != headers.end()) {
-            it->second += ", " + value;
+            set(field, it->second.append(", ").append(value));
         } else {
             set(field, value);
+        }
+
+        return *this;
+    }
+
+    Request& Request::set(const std::string& field, const std::string& value, bool overwrite) {
+        if (!value.empty()) {
+            if (overwrite) {
+                headers.insert_or_assign(field, value);
+            } else {
+                headers.insert({field, value});
+            }
+
+            if (field == "Content-Length") {
+                contentLength = std::stoul(value);
+            } else if (field == "Connection" && httputils::ci_contains(value, "close")) {
+                connectionState = ConnectionState::Close;
+            } else if (field == "Connection" && httputils::ci_contains(value, "keep-alive")) {
+                connectionState = ConnectionState::Keep;
+            }
+        } else {
+            headers.erase(field);
         }
 
         return *this;
@@ -81,20 +103,8 @@ namespace web::http::client {
         return *this;
     }
 
-    Request& Request::set(const std::string& field, const std::string& value, bool overwrite) {
-        if (overwrite) {
-            headers.insert_or_assign(field, value);
-        } else {
-            headers.insert({field, value});
-        }
-
-        if (field == "Content-Length") {
-            contentLength = std::stoul(value);
-        } else if (field == "Connection" && httputils::ci_contains(value, "close")) {
-            connectionState = ConnectionState::Close;
-        } else if (field == "Connection" && httputils::ci_contains(value, "keep-alive")) {
-            connectionState = ConnectionState::Keep;
-        }
+    Request& Request::type(const std::string& type) {
+        headers.insert({"Content-Type", type});
 
         return *this;
     }
@@ -109,69 +119,12 @@ namespace web::http::client {
         for (const auto& [name, value] : cookies) {
             cookie(name, value);
         }
-        return *this;
-    }
-
-    Request& Request::type(const std::string& type) {
-        headers.insert({"Content-Type", type});
 
         return *this;
     }
 
-    Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
-        socketContext->sendToPeer(junk, junkLen);
-
-        contentSent += junkLen;
-
-        return *this;
-    }
-
-    Request& Request::sendFragment(const std::string& data) {
-        return sendFragment(data.data(), data.size());
-    }
-
-    void Request::sendRequestCompleted() {
-        if (socketContext != nullptr) {
-            socketContext->requestCompleted(contentSent == contentLength);
-        }
-    }
-
-    Request& Request::sendHeader() {
-        const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
-
-        std::string queryString;
-        if (!queries.empty()) {
-            queryString += "?";
-            for (auto& [key, value] : queries) {
-                queryString += httputils::url_encode(key) + "=" + httputils::url_encode(value) + "&";
-            }
-            queryString.pop_back();
-        }
-
-        socketContext->sendToPeer(method + " " + url + queryString + " " + httpVersion + "\r\n");
-
-        if (!host.empty()) {
-            socketContext->sendToPeer("Host: " + host + "\r\n");
-        }
-        socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
-
-        set("X-Powered-By", "snode.c");
-
-        for (const auto& [field, value] : headers) {
-            socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
-        }
-
-        if (contentLength != 0) {
-            socketContext->sendToPeer(std::string("Content-Length: ").append(std::to_string(contentLength)).append("\r\n"));
-        }
-
-        for (const auto& [name, value] : cookies) {
-            socketContext->sendToPeer(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
-        }
-
-        socketContext->sendToPeer("\r\n");
-
-        return *this;
+    void Request::start() {
+        send("");
     }
 
     void Request::send(const char* junk, std::size_t junkLen) {
@@ -182,7 +135,7 @@ namespace web::http::client {
 
         sendHeader();
         sendFragment(junk, junkLen);
-        sendRequestCompleted();
+        sendCompleted();
     }
 
     void Request::send(const std::string& junk) {
@@ -211,7 +164,7 @@ namespace web::http::client {
     }
 
     void Request::upgrade(std::shared_ptr<Response>& response) {
-        if (httputils::ci_contains(response->header("connection"), "Upgrade")) {
+        if (httputils::ci_contains(response->get("connection"), "Upgrade")) {
             web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
                 web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
 
@@ -235,8 +188,56 @@ namespace web::http::client {
         }
     }
 
-    void Request::start() {
-        send("");
+    Request& Request::sendHeader() {
+        const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
+
+        std::string queryString;
+        if (!queries.empty()) {
+            queryString += "?";
+            for (auto& [key, value] : queries) {
+                queryString += httputils::url_encode(key) + "=" + httputils::url_encode(value) + "&";
+            }
+            queryString.pop_back();
+        }
+
+        socketContext->sendToPeer(method + " " + url + queryString + " " + httpVersion + "\r\n");
+        socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
+
+        set("X-Powered-By", "snode.c");
+
+        for (const auto& [field, value] : headers) {
+            socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+        }
+
+        if (contentLength != 0) {
+            socketContext->sendToPeer(std::string("Content-Length: ").append(std::to_string(contentLength)).append("\r\n"));
+        }
+
+        for (const auto& [name, value] : cookies) {
+            socketContext->sendToPeer(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
+        }
+
+        socketContext->sendToPeer("\r\n");
+
+        return *this;
+    }
+
+    Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
+        socketContext->sendToPeer(junk, junkLen);
+
+        contentSent += junkLen;
+
+        return *this;
+    }
+
+    Request& Request::sendFragment(const std::string& data) {
+        return sendFragment(data.data(), data.size());
+    }
+
+    void Request::sendCompleted() {
+        if (socketContext != nullptr) {
+            socketContext->sendToPeerCompleted(contentSent == contentLength);
+        }
     }
 
     const std::string& Request::header(const std::string& field) {

@@ -43,27 +43,25 @@ namespace web::http::server {
         Request& operator=(Request&) = delete;
         Request& operator=(Request&&) noexcept = default;
 
-        virtual ~Request() = default;
+        const std::string& get(const std::string& key, int i = 0) const;
+        const std::string& cookie(const std::string& key) const;
+        const std::string& query(const std::string& key) const;
 
     protected:
         ConnectionState connectionState = ConnectionState::Default;
 
     public:
-        const std::string& get(const std::string& key, int i = 0) const;
-        const std::string& cookie(const std::string& key) const;
-        const std::string& query(const std::string& key) const;
-
         // Properties
         std::string method;
         std::string url;
         std::string httpVersion;
         int httpMajor = 0;
         int httpMinor = 0;
-        std::vector<uint8_t> body;
 
         std::map<std::string, std::string> queries;
         std::map<std::string, std::string> headers;
         std::map<std::string, std::string> cookies;
+        std::vector<uint8_t> body;
 
     private:
         std::string nullstr;

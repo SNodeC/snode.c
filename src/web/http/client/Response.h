@@ -20,7 +20,8 @@
 #ifndef WEB_HTTP_CLIENT_RESPONSE_H
 #define WEB_HTTP_CLIENT_RESPONSE_H
 
-#include "web/http/CookieOptions.h" // IWYU pragma: export
+#include "web/http/ConnectionState.h" // IWYU pragma: export
+#include "web/http/CookieOptions.h"   // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,15 +32,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::stream {
-    class SocketContext;
-}
-
 namespace web::http::client {
 
     class Response {
     public:
-        explicit Response(core::socket::stream::SocketContext* clientContext);
+        Response() = default;
 
         explicit Response(Response&) = delete;
         explicit Response(Response&&) noexcept = default;
@@ -47,23 +44,23 @@ namespace web::http::client {
         Response& operator=(Response&) = delete;
         Response& operator=(Response&&) noexcept = default;
 
-    protected:
-        core::socket::stream::SocketContext* socketContext;
-
-    public:
-        const std::string& header(const std::string& key, int i = 0) const;
+        const std::string& get(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;
 
+    protected:
+        ConnectionState connectionState = ConnectionState::Default;
+
+    public:
         // Properties
         std::string httpVersion;
         std::string statusCode;
         std::string reason;
         int httpMajor = 0;
         int httpMinor = 0;
-        std::vector<uint8_t> body;
 
         std::map<std::string, std::string> headers;
         std::map<std::string, CookieOptions> cookies;
+        std::vector<uint8_t> body;
 
     private:
         std::string nullstr;

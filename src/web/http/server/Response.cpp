@@ -51,44 +51,17 @@ namespace web::http::server {
         }
     }
 
-    Response& Response::sendFragment(const char* junk, std::size_t junkLen) {
-        if (socketContext != nullptr) {
-            socketContext->sendToPeer(junk, junkLen);
-            contentSent += junkLen;
-        }
-
-        return *this;
-    }
-
-    Response& Response::sendFragment(const std::string& junk) {
-        return sendFragment(junk.data(), junk.size());
-    }
-
-    void Response::send(const char* junk, std::size_t junkLen) {
-        if (junkLen > 0) {
-            set("Content-Type", "application/octet-stream");
-        }
-        set("Content-Length", std::to_string(junkLen), true);
-
-        sendHeader();
-        sendFragment(junk, junkLen);
-        sendResponseCompleted();
-    }
-
-    void Response::send(const std::string& junk) {
-        if (!junk.empty()) {
-            set("Content-Type", "text/html; charset=utf-8");
-        }
-
-        send(junk.data(), junk.size());
-    }
-
-    void Response::end() {
-        send("");
+    void Response::reInit() {
+        statusCode = 200;
+        headers.clear();
+        cookies.clear();
+        contentLength = 0;
+        contentSent = 0;
+        connectionState = ConnectionState::Default;
     }
 
     Response& Response::status(int status) {
-        responseStatus = status;
+        statusCode = status;
 
         return *this;
     }
@@ -97,7 +70,7 @@ namespace web::http::server {
         const std::map<std::string, std::string>::iterator it = headers.find(field);
 
         if (it != headers.end()) {
-            it->second += ", " + value;
+            set(field, it->second.append(", ").append(value));
         } else {
             set(field, value);
         }
@@ -114,16 +87,20 @@ namespace web::http::server {
     }
 
     Response& Response::set(const std::string& field, const std::string& value, bool overwrite) {
-        if (overwrite || headers.find(field) == headers.end()) {
-            headers.insert_or_assign(field, value);
+        if (!value.empty()) {
+            if (overwrite || headers.find(field) == headers.end()) {
+                headers.insert_or_assign(field, value);
 
-            if (httputils::ci_contains(field, "Content-Length")) {
-                contentLength = std::stoul(value);
-            } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(value, "close")) {
-                connectionState = ConnectionState::Close;
-            } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(value, "keep-alive")) {
-                connectionState = ConnectionState::Keep;
+                if (httputils::ci_contains(field, "Content-Length")) {
+                    contentLength = std::stoul(value);
+                } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(value, "close")) {
+                    connectionState = ConnectionState::Close;
+                } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(value, "keep-alive")) {
+                    connectionState = ConnectionState::Keep;
+                }
             }
+        } else {
+            headers.erase(field);
         }
 
         return *this;
@@ -149,14 +126,31 @@ namespace web::http::server {
         return cookie(name, "", opts);
     }
 
-    /* Just an UML-Sequence diagram test */
+    void Response::send(const char* junk, std::size_t junkLen) {
+        if (junkLen > 0) {
+            set("Content-Type", "application/octet-stream", false);
+        }
+        set("Content-Length", std::to_string(junkLen));
 
+        sendHeader();
+        sendFragment(junk, junkLen);
+        sendCompleted();
+    }
+
+    void Response::send(const std::string& junk) {
+        if (!junk.empty()) {
+            set("Content-Type", "text/html; charset=utf-8", false);
+        }
+
+        send(junk.data(), junk.size());
+    }
+
+    /* Just an UML-Sequence diagram test */
     /** Sequence diagram of res.upgrade(req).
 @startuml
 !include web/http/server/pu/response_upgrade.pu
 @enduml
      */
-
     void Response::upgrade(std::shared_ptr<Request> req, const std::function<void(bool)>& status) {
         if (socketContext != nullptr) {
             if (httputils::ci_contains(req->get("connection"), "Upgrade")) {
@@ -166,19 +160,23 @@ namespace web::http::server {
                 if (socketContextUpgradeFactory != nullptr) {
                     socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
                     if (socketContextUpgrade == nullptr) {
-                        set("Connection", "close", true).status(404);
+                        set("Connection", "close").status(404);
                     }
                 } else {
-                    set("Connection", "close", true).status(404);
+                    set("Connection", "close").status(404);
                 }
             } else {
-                set("Connection", "close", true).status(400);
+                set("Connection", "close").status(400);
             }
         }
 
         end();
 
         status(socketContextUpgrade != nullptr);
+    }
+
+    void Response::end() {
+        send("");
     }
 
     void Response::sendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
@@ -194,9 +192,9 @@ namespace web::http::server {
                         callback(errnum);
 
                         if (errnum == 0) {
-                            set("Content-Type", web::http::MimeTypes::contentType(absolutFileName));
-                            set("Last-Modified", httputils::file_mod_http_date(absolutFileName));
-                            set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)), true);
+                            set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
+                            set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
+                            set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
                         } else {
                             source->stop();
                         }
@@ -211,36 +209,13 @@ namespace web::http::server {
         }
     }
 
-    SocketContext* Response::getSocketContext() const {
-        return socketContext;
-    }
-
-    void Response::reset() {
-        responseStatus = 200;
-        headers.clear();
-        cookies.clear();
-        contentLength = 0;
-        contentSent = 0;
-        connectionState = ConnectionState::Default;
-    }
-
-    void Response::sendResponseCompleted() {
-        if (socketContext != nullptr) {
-            if (socketContextUpgrade != nullptr) {
-                socketContext->switchSocketContext(socketContextUpgrade);
-            }
-
-            socketContext->requestCompleted(contentSent == contentLength);
-        }
-    }
-
     void Response::stopResponse() {
         stop();
         socketContext = nullptr;
     }
 
     Response& Response::sendHeader() {
-        socketContext->sendToPeer("HTTP/1.1 " + std::to_string(responseStatus) + " " + StatusCode::reason(responseStatus) + "\r\n");
+        socketContext->sendToPeer("HTTP/1.1 " + std::to_string(statusCode) + " " + StatusCode::reason(statusCode) + "\r\n");
         socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
 
         set("X-Powered-By", "snode.c");
@@ -265,6 +240,29 @@ namespace web::http::server {
         return *this;
     }
 
+    Response& Response::sendFragment(const char* junk, std::size_t junkLen) {
+        if (socketContext != nullptr) {
+            socketContext->sendToPeer(junk, junkLen);
+            contentSent += junkLen;
+        }
+
+        return *this;
+    }
+
+    Response& Response::sendFragment(const std::string& junk) {
+        return sendFragment(junk.data(), junk.size());
+    }
+
+    void Response::sendCompleted() {
+        if (socketContext != nullptr) {
+            if (socketContextUpgrade != nullptr) {
+                socketContext->switchSocketContext(socketContextUpgrade);
+            }
+
+            socketContext->sendToPeerCompleted(contentSent == contentLength);
+        }
+    }
+
     void Response::onSourceConnect(core::pipe::Source* source) {
         if (socketContext != nullptr && socketContext->streamToPeer(source)) {
             sendHeader();
@@ -284,7 +282,7 @@ namespace web::http::server {
             socketContext->streamEof();
         }
 
-        sendResponseCompleted();
+        sendCompleted();
     }
 
     void Response::onSourceError(int errnum) {
@@ -295,7 +293,15 @@ namespace web::http::server {
             socketContext->close();
         }
 
-        sendResponseCompleted();
+        sendCompleted();
+    }
+
+    const std::string& Response::header(const std::string& field) {
+        return headers[field];
+    }
+
+    SocketContext* Response::getSocketContext() const {
+        return socketContext;
     }
 
 } // namespace web::http::server

@@ -53,26 +53,26 @@ namespace web::http::client {
                       const std::function<void(int, const std::string&)>& onResponseError);
 
     private:
-        std::size_t onReceivedFromPeer() override;
-
-        void requestCompleted(bool success) override;
-
-        void onConnected() override;
-        void onDisconnected() override;
-
-        [[nodiscard]] bool onSignal(int signum) override;
-
+        void sendToPeerCompleted(bool success) override;
         void responseParsed();
         void responseError(int status, const std::string& reason);
+        void requestCompleted() override;
 
         std::function<void(std::shared_ptr<Request>&)> onRequestBegin;
         std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onResponseReady;
         std::function<void(int, const std::string&)> onResponseError;
 
-        std::shared_ptr<Response> response = nullptr;
+        void onConnected() override;
+        std::size_t onReceivedFromPeer() override;
+        void onDisconnected() override;
+        [[nodiscard]] bool onSignal(int signum) override;
+
         std::shared_ptr<Request> request = nullptr;
+        std::shared_ptr<Response> response = nullptr;
 
         ResponseParser parser;
+
+        friend class web::http::client::Request;
     };
 
 } // namespace web::http::client
