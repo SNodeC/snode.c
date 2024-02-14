@@ -79,15 +79,15 @@ int main(int argc, char* argv[]) {
         req->body.push_back(0);
         VLOG(0) << req->body.data();
 
-        res->send("<html>"
-                  "    <body>"
-                  "        <h1>Thank you, we received your file!</h1>"
-                  "        <h2>Content:</h2>"
-                  "<pre>" +
+        res->send("<html>\n"
+                  "    <body>\n"
+                  "        <h1>Thank you, we received your file!</h1>\n"
+                  "        <h2>Content:</h2>\n"
+                  "        <pre>\n" +
                   std::string(reinterpret_cast<char*>(req->body.data())) +
-                  "</pre>"
-                  "    </body>"
-                  "</html>");
+                  "        </pre>\n"
+                  "    </body>\n"
+                  "</html>\n");
     });
 
     legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, const core::socket::State& state) -> void {
