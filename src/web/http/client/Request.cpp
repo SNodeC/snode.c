@@ -34,7 +34,9 @@ namespace core::socket::stream {
 
 #include "log/Logger.h"
 
+#include <cerrno>
 #include <filesystem>
+#include <system_error>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -254,10 +256,6 @@ namespace web::http::client {
 
         for (const auto& [field, value] : headers) {
             socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
-        }
-
-        if (contentLength != 0) {
-            socketContext->sendToPeer(std::string("Content-Length: ").append(std::to_string(contentLength)).append("\r\n"));
         }
 
         for (const auto& [name, value] : cookies) {
