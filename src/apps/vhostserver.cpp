@@ -53,11 +53,17 @@ int main(int argc, char* argv[]) {
         router1.use(middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
         legacyApp.use(router1);
 
-        const Router& router2 = middleware::VHost("ceres.home.vchrist.at:8080");
+        const Router& router2 = middleware::VHost("atlas.home.vchrist.at:8080");
         router2.get("/", [] APPLICATION(req, res) {
-            res->send("Hello! I am VHOST ceres.home.vchrist.at.");
+            res->send("Hello! I am VHOST atlas.home.vchrist.at.");
         });
         legacyApp.use(router2);
+
+        const Router& router3 = middleware::VHost("ceres.home.vchrist.at:8080");
+        router3.get("/", [] APPLICATION(req, res) {
+            res->send("Hello! I am VHOST ceres.home.vchrist.at.");
+        });
+        legacyApp.use(router3);
 
         legacyApp.use([] APPLICATION(req, res) {
             res->status(404).send("The requested resource is not found.");
