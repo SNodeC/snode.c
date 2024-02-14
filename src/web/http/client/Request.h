@@ -20,15 +20,19 @@
 #ifndef WEB_HTTP_CLIENT_REQUEST_H
 #define WEB_HTTP_CLIENT_REQUEST_H
 
+#include "core/pipe/Sink.h"
 #include "web/http/ConnectionState.h"
+
+namespace core::pipe {
+    class Source;
+}
 
 namespace web::http {
     class SocketContext;
+    namespace client {
+        class Response;
+    }
 } // namespace web::http
-
-namespace web::http::client {
-    class Response;
-} // namespace web::http::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -42,7 +46,7 @@ namespace web::http::client {
 
 namespace web::http::client {
 
-    class Request {
+    class Request : public core::pipe::Sink {
     public:
         explicit Request(web::http::SocketContext* clientContext);
 
@@ -52,7 +56,7 @@ namespace web::http::client {
         Request& operator=(Request&) = delete;
         Request& operator=(Request&&) noexcept = default;
 
-        virtual ~Request() = default;
+        ~Request() override;
 
     private:
         virtual void reInit();
@@ -72,12 +76,20 @@ namespace web::http::client {
         void upgrade(const std::string& url, const std::string& protocols);
         void upgrade(std::shared_ptr<Response>& response, const std::function<void(bool success)>& status);
 
+        void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
+        void stopResponse();
+
         Request& sendHeader();
         Request& sendFragment(const char* junk, std::size_t junkLen);
         Request& sendFragment(const std::string& data);
 
     private:
         void sendCompleted();
+
+        void onSourceConnect(core::pipe::Source* source) override;
+        void onSourceData(const char* junk, std::size_t junkLen) override;
+        void onSourceEof() override;
+        void onSourceError(int errnum) override;
 
     public:
         const std::string& header(const std::string& field);

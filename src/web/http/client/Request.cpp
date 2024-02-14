@@ -19,6 +19,8 @@
 
 #include "web/http/client/Request.h"
 
+#include "core/file/FileReader.h"
+#include "web/http/MimeTypes.h"
 #include "web/http/SocketContext.h"
 #include "web/http/client/Response.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
@@ -32,6 +34,7 @@ namespace core::socket::stream {
 
 #include "log/Logger.h"
 
+#include <filesystem>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -40,6 +43,12 @@ namespace web::http::client {
 
     Request::Request(web::http::SocketContext* clientContext)
         : socketContext(clientContext) {
+    }
+
+    Request::~Request() {
+        if (socketContext != nullptr) {
+            socketContext->streamEof();
+        }
     }
 
     void Request::reInit() {
@@ -191,6 +200,41 @@ namespace web::http::client {
         status(newSocketContext != nullptr);
     }
 
+    void Request::sendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
+        std::string absolutFileName = file;
+
+        if (std::filesystem::exists(absolutFileName)) {
+            std::error_code ec;
+            absolutFileName = std::filesystem::canonical(absolutFileName);
+
+            if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
+                core::file::FileReader::open(absolutFileName)
+                    ->pipe(this, [this, &absolutFileName, &callback](core::pipe::Source* source, int errnum) -> void {
+                        callback(errnum);
+
+                        if (errnum == 0) {
+                            set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
+                            set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
+                            set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                        } else {
+                            source->stop();
+                        }
+                    });
+            } else {
+                errno = EEXIST;
+                callback(errno);
+            }
+        } else {
+            errno = ENOENT;
+            callback(errno);
+        }
+    }
+
+    void Request::stopResponse() {
+        stop();
+        socketContext = nullptr;
+    }
+
     Request& Request::sendHeader() {
         const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
@@ -241,6 +285,39 @@ namespace web::http::client {
         if (socketContext != nullptr) {
             socketContext->sendToPeerCompleted(contentSent == contentLength);
         }
+    }
+
+    void Request::onSourceConnect(core::pipe::Source* source) {
+        if (socketContext != nullptr && socketContext->streamToPeer(source)) {
+            sendHeader();
+
+            source->start();
+        } else {
+            source->stop();
+        }
+    }
+
+    void Request::onSourceData(const char* junk, std::size_t junkLen) {
+        sendFragment(junk, junkLen);
+    }
+
+    void Request::onSourceEof() {
+        if (socketContext != nullptr) {
+            socketContext->streamEof();
+        }
+
+        sendCompleted();
+    }
+
+    void Request::onSourceError(int errnum) {
+        errno = errnum;
+
+        if (socketContext != nullptr) {
+            socketContext->streamEof();
+            socketContext->close();
+        }
+
+        sendCompleted();
     }
 
     const std::string& Request::header(const std::string& field) {

@@ -90,6 +90,7 @@ namespace web::http::client {
             // TODO: Process next queued request
         }
 
+        response = nullptr;
         request->reInit();
     }
 
@@ -109,6 +110,10 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
+        if (request != nullptr) {
+            request->stopResponse();
+        }
+
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onDisconnected";
     }
 
