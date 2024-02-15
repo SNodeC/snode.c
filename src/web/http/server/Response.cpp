@@ -88,16 +88,18 @@ namespace web::http::server {
 
     Response& Response::set(const std::string& field, const std::string& value, bool overwrite) {
         if (!value.empty()) {
-            if (overwrite || headers.find(field) == headers.end()) {
+            if (overwrite) {
                 headers.insert_or_assign(field, value);
+            } else {
+                headers.insert({field, value});
+            }
 
-                if (httputils::ci_contains(field, "Content-Length")) {
-                    contentLength = std::stoul(value);
-                } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(value, "close")) {
-                    connectionState = ConnectionState::Close;
-                } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(value, "keep-alive")) {
-                    connectionState = ConnectionState::Keep;
-                }
+            if (httputils::ci_contains(field, "Content-Length")) {
+                contentLength = std::stoul(value);
+            } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(headers[field], "close")) {
+                connectionState = ConnectionState::Close;
+            } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(headers[field], "keep-alive")) {
+                connectionState = ConnectionState::Keep;
             }
         } else {
             headers.erase(field);

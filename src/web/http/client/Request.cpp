@@ -94,9 +94,9 @@ namespace web::http::client {
 
             if (field == "Content-Length") {
                 contentLength = std::stoul(value);
-            } else if (field == "Connection" && httputils::ci_contains(value, "close")) {
+            } else if (field == "Connection" && httputils::ci_contains(headers[field], "close")) {
                 connectionState = ConnectionState::Close;
-            } else if (field == "Connection" && httputils::ci_contains(value, "keep-alive")) {
+            } else if (field == "Connection" && httputils::ci_contains(headers[field], "keep-alive")) {
                 connectionState = ConnectionState::Keep;
             }
         } else {
