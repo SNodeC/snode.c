@@ -40,18 +40,20 @@
     }                                                                                                                                      \
     Route& RootRoute::METHOD(                                                                                                              \
         const std::string& relativeMountPath,                                                                                              \
-        const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res, Next & next)>& lambda) const {           \
+        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda) const {  \
         return routes().emplace_back(HTTP_METHOD, relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda));          \
     }                                                                                                                                      \
     Route& RootRoute::METHOD(                                                                                                              \
-        const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res, Next & next)>& lambda) const {           \
+        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda) const {  \
         return routes().emplace_back(HTTP_METHOD, "/", std::make_shared<dispatcher::MiddlewareDispatcher>(lambda));                        \
     }                                                                                                                                      \
     Route& RootRoute::METHOD(const std::string& relativeMountPath,                                                                         \
-                             const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res)>& lambda) const {   \
+                             const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda) \
+        const {                                                                                                                            \
         return routes().emplace_back(HTTP_METHOD, relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda));         \
     }                                                                                                                                      \
-    Route& RootRoute::METHOD(const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res)>& lambda) const {   \
+    Route& RootRoute::METHOD(const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda) \
+        const {                                                                                                                            \
         return routes().emplace_back(HTTP_METHOD, "/", std::make_shared<dispatcher::ApplicationDispatcher>(lambda));                       \
     }
 

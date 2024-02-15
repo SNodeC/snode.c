@@ -153,22 +153,26 @@ namespace web::http::server {
 !include web/http/server/pu/response_upgrade.pu
 @enduml
      */
-    void Response::upgrade(std::shared_ptr<Request> request, const std::function<void(bool)>& status) {
+    void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool)>& status) {
         if (socketContext != nullptr) {
-            if (httputils::ci_contains(request->get("connection"), "Upgrade")) {
-                web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                    web::http::server::SocketContextUpgradeFactorySelector::instance()->select(*request, *this);
+            if (request != nullptr) {
+                if (httputils::ci_contains(request->get("connection"), "Upgrade")) {
+                    web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                        web::http::server::SocketContextUpgradeFactorySelector::instance()->select(*request, *this);
 
-                if (socketContextUpgradeFactory != nullptr) {
-                    socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
-                    if (socketContextUpgrade == nullptr) {
+                    if (socketContextUpgradeFactory != nullptr) {
+                        socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
+                        if (socketContextUpgrade == nullptr) {
+                            set("Connection", "close").status(404);
+                        }
+                    } else {
                         set("Connection", "close").status(404);
                     }
                 } else {
-                    set("Connection", "close").status(404);
+                    set("Connection", "close").status(400);
                 }
             } else {
-                set("Connection", "close").status(400);
+                set("Connection", "close").status(500);
             }
         }
 
@@ -182,32 +186,34 @@ namespace web::http::server {
     }
 
     void Response::sendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
-        std::string absolutFileName = file;
+        if (socketContext != nullptr) {
+            std::string absolutFileName = file;
 
-        if (std::filesystem::exists(absolutFileName)) {
-            std::error_code ec;
-            absolutFileName = std::filesystem::canonical(absolutFileName);
+            if (std::filesystem::exists(absolutFileName)) {
+                std::error_code ec;
+                absolutFileName = std::filesystem::canonical(absolutFileName);
 
-            if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                core::file::FileReader::open(absolutFileName)
-                    ->pipe(this, [this, &absolutFileName, &callback](core::pipe::Source* source, int errnum) -> void {
-                        callback(errnum);
+                if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
+                    core::file::FileReader::open(absolutFileName)
+                        ->pipe(this, [this, &absolutFileName, &callback](core::pipe::Source* source, int errnum) -> void {
+                            callback(errnum);
 
-                        if (errnum == 0) {
-                            set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
-                            set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
-                            set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
-                        } else {
-                            source->stop();
-                        }
-                    });
+                            if (errnum == 0) {
+                                set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
+                                set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
+                                set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                            } else {
+                                source->stop();
+                            }
+                        });
+                } else {
+                    errno = EEXIST;
+                    callback(errno);
+                }
             } else {
-                errno = EEXIST;
+                errno = ENOENT;
                 callback(errno);
             }
-        } else {
-            errno = ENOENT;
-            callback(errno);
         }
     }
 
@@ -217,27 +223,29 @@ namespace web::http::server {
     }
 
     Response& Response::sendHeader() {
-        socketContext->sendToPeer("HTTP/1.1 " + std::to_string(statusCode) + " " + StatusCode::reason(statusCode) + "\r\n");
-        socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
+        if (socketContext != nullptr) {
+            socketContext->sendToPeer("HTTP/1.1 " + std::to_string(statusCode) + " " + StatusCode::reason(statusCode) + "\r\n");
+            socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
 
-        set("X-Powered-By", "snode.c");
+            set("X-Powered-By", "snode.c");
 
-        for (const auto& [field, value] : headers) {
-            socketContext->sendToPeer(std::string(field).append(": ").append(value).append("\r\n"));
+            for (const auto& [field, value] : headers) {
+                socketContext->sendToPeer(std::string(field).append(": ").append(value).append("\r\n"));
+            }
+
+            for (const auto& [cookie, cookieValue] : cookies) { // cppcheck-suppress shadowFunction
+                const std::string cookieString = std::accumulate(
+                    cookieValue.getOptions().begin(),
+                    cookieValue.getOptions().end(),
+                    cookie + "=" + cookieValue.getValue(),
+                    [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
+                        return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
+                    });
+                socketContext->sendToPeer("Set-Cookie: " + cookieString + "\r\n");
+            }
+
+            socketContext->sendToPeer("\r\n");
         }
-
-        for (const auto& [cookie, cookieValue] : cookies) { // cppcheck-suppress shadowFunction
-            const std::string cookieString =
-                std::accumulate(cookieValue.getOptions().begin(),
-                                cookieValue.getOptions().end(),
-                                cookie + "=" + cookieValue.getValue(),
-                                [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
-                                    return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
-                                });
-            socketContext->sendToPeer("Set-Cookie: " + cookieString + "\r\n");
-        }
-
-        socketContext->sendToPeer("\r\n");
 
         return *this;
     }
@@ -266,10 +274,14 @@ namespace web::http::server {
     }
 
     void Response::onSourceConnect(core::pipe::Source* source) {
-        if (socketContext != nullptr && socketContext->streamToPeer(source)) {
-            sendHeader();
+        if (socketContext != nullptr) {
+            if (socketContext->streamToPeer(source)) {
+                sendHeader();
 
-            source->start();
+                source->start();
+            } else {
+                source->stop();
+            }
         } else {
             source->stop();
         }

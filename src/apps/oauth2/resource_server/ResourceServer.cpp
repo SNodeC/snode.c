@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
             []([[maybe_unused]] web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "OnConnected";
             },
-            [queryAccessToken, queryClientId](std::shared_ptr<web::http::client::Request>& request) -> void {
+            [queryAccessToken, queryClientId](const std::shared_ptr<web::http::client::Request>& request) -> void {
                 VLOG(0) << "OnRequestBegin";
                 request->url = "/oauth2/token/validate?client_id=" + queryClientId;
                 request->method = "POST";
@@ -48,8 +48,8 @@ int main(int argc, char* argv[]) {
                 const std::string requestJsonString{requestJson.dump(4)};
                 request->send(requestJsonString);
             },
-            [res]([[maybe_unused]] std::shared_ptr<web::http::client::Request>& request,
-                  std::shared_ptr<web::http::client::Response>& response) -> void {
+            [res]([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& request,
+                  const std::shared_ptr<web::http::client::Response>& response) -> void {
                 VLOG(0) << "OnResponse";
                 response->body.push_back(0);
                 VLOG(0) << "Response: " << response->body.data();

@@ -53,11 +53,12 @@ namespace web::http::client {
         }
 
     public:
-        void setOnRequestBegin(const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin) {
+        void setOnRequestBegin(const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin) {
             this->onRequestBegin = onRequestBegin;
         }
 
-        void setOnResponseReady(const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady) {
+        void
+        setOnResponseReady(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReady) {
             this->onResponseReady = onResponseReady;
         }
 
@@ -66,8 +67,8 @@ namespace web::http::client {
         }
 
     private:
-        std::function<void(std::shared_ptr<Request>&)> onRequestBegin;
-        std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)> onResponseReady;
+        std::function<void(const std::shared_ptr<Request>&)> onRequestBegin;
+        std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReady;
         std::function<void(int, const std::string&)> onResponseError;
     };
 

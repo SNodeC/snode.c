@@ -174,61 +174,74 @@ namespace web::http::client {
         }
     }
 
-    void Request::upgrade(std::shared_ptr<Response>& response, const std::function<void(bool success)>& status) {
+    void Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool success)>& status) {
         core::socket::stream::SocketContext* newSocketContext = nullptr;
 
-        if (httputils::ci_contains(response->get("connection"), "Upgrade")) {
-            web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
+        if (socketContext != nullptr) {
+            if (response != nullptr) {
+                if (httputils::ci_contains(response->get("connection"), "Upgrade")) {
+                    web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                        web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
 
-            if (socketContextUpgradeFactory != nullptr) {
-                newSocketContext = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
+                    if (socketContextUpgradeFactory != nullptr) {
+                        newSocketContext = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
-                if (newSocketContext != nullptr) {
-                    socketContext->switchSocketContext(newSocketContext);
+                        if (newSocketContext != nullptr) {
+                            socketContext->switchSocketContext(newSocketContext);
+                        } else {
+                            LOG(DEBUG) << "HTTP: SocketContextUpgrade not created";
+                            socketContext->close();
+                        }
+                    } else {
+                        LOG(DEBUG) << "HTTP: SocketContextUpgradeFactory not existing";
+                        socketContext->close();
+                    }
                 } else {
-                    LOG(DEBUG) << "HTTP: SocketContextUpgrade not created";
+                    LOG(DEBUG) << "HTTP: Response did not contain upgrade";
                     socketContext->close();
                 }
             } else {
-                LOG(DEBUG) << "HTTP: SocketContextUpgradeFactory not existing";
+                LOG(DEBUG) << "HTTP: Upgrade internal error: Response has gone away";
                 socketContext->close();
             }
         } else {
-            LOG(DEBUG) << "HTTP: Response did not contain upgrade";
-            socketContext->close();
+            LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
         }
 
         status(newSocketContext != nullptr);
     }
 
     void Request::sendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
-        std::string absolutFileName = file;
+        if (socketContext != nullptr) {
+            std::string absolutFileName = file;
 
-        if (std::filesystem::exists(absolutFileName)) {
-            std::error_code ec;
-            absolutFileName = std::filesystem::canonical(absolutFileName);
+            if (std::filesystem::exists(absolutFileName)) {
+                std::error_code ec;
+                absolutFileName = std::filesystem::canonical(absolutFileName);
 
-            if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                core::file::FileReader::open(absolutFileName)
-                    ->pipe(this, [this, &absolutFileName, &callback](core::pipe::Source* source, int errnum) -> void {
-                        callback(errnum);
+                if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
+                    core::file::FileReader::open(absolutFileName)
+                        ->pipe(this, [this, &absolutFileName, &callback](core::pipe::Source* source, int errnum) -> void {
+                            callback(errnum);
 
-                        if (errnum == 0) {
-                            set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
-                            set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
-                            set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
-                        } else {
-                            source->stop();
-                        }
-                    });
+                            if (errnum == 0) {
+                                set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
+                                set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
+                                set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                            } else {
+                                source->stop();
+                            }
+                        });
+                } else {
+                    errno = EEXIST;
+                    callback(errno);
+                }
             } else {
-                errno = EEXIST;
+                errno = ENOENT;
                 callback(errno);
             }
         } else {
-            errno = ENOENT;
-            callback(errno);
+            LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
         }
     }
 
@@ -238,39 +251,46 @@ namespace web::http::client {
     }
 
     Request& Request::sendHeader() {
-        const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
+        if (socketContext != nullptr) {
+            const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
-        std::string queryString;
-        if (!queries.empty()) {
-            queryString += "?";
-            for (auto& [key, value] : queries) {
-                queryString += httputils::url_encode(key) + "=" + httputils::url_encode(value) + "&";
+            std::string queryString;
+            if (!queries.empty()) {
+                queryString += "?";
+                for (auto& [key, value] : queries) {
+                    queryString += httputils::url_encode(key) + "=" + httputils::url_encode(value) + "&";
+                }
+                queryString.pop_back();
             }
-            queryString.pop_back();
+
+            socketContext->sendToPeer(method + " " + url + queryString + " " + httpVersion + "\r\n");
+            socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
+
+            set("X-Powered-By", "snode.c");
+
+            for (const auto& [field, value] : headers) {
+                socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+            }
+
+            for (const auto& [name, value] : cookies) {
+                socketContext->sendToPeer(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
+            }
+
+            socketContext->sendToPeer("\r\n");
+        } else {
+            LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
         }
-
-        socketContext->sendToPeer(method + " " + url + queryString + " " + httpVersion + "\r\n");
-        socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
-
-        set("X-Powered-By", "snode.c");
-
-        for (const auto& [field, value] : headers) {
-            socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
-        }
-
-        for (const auto& [name, value] : cookies) {
-            socketContext->sendToPeer(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
-        }
-
-        socketContext->sendToPeer("\r\n");
-
         return *this;
     }
 
     Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
-        socketContext->sendToPeer(junk, junkLen);
+        if (socketContext != nullptr) {
+            socketContext->sendToPeer(junk, junkLen);
 
-        contentSent += junkLen;
+            contentSent += junkLen;
+        } else {
+            LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
+        }
 
         return *this;
     }

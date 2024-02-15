@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 
     const Client jsonClient(
         "legacy",
-        [](std::shared_ptr<Request>& req) -> void {
+        [](const std::shared_ptr<Request>& req) -> void {
             VLOG(0) << "-- OnRequest";
             req->method = "POST";
             req->url = "/index.html";
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
             req->set("Connection", "close");
             req->send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
-        []([[maybe_unused]] std::shared_ptr<Request>& req, std::shared_ptr<Response>& res) -> void {
+        []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
             VLOG(0) << "       " << res->httpVersion;

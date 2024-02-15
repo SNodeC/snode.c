@@ -46,12 +46,14 @@ namespace express {
 #define DECLARE_ROOTROUTE_REQUESTMETHOD(METHOD)                                                                                            \
     Route& METHOD(const RootRoute& rootRoute) const;                                                                                       \
     Route& METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute) const;                                                 \
-    Route& METHOD(const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res)>& lambda) const;               \
+    Route& METHOD(const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda) const;     \
     Route& METHOD(const std::string& relativeMountPath,                                                                                    \
-                  const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res)>& lambda) const;               \
-    Route& METHOD(const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res, Next & next)>& lambda) const;  \
-    Route& METHOD(const std::string& relativeMountPath,                                                                                    \
-                  const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res, Next & next)>& lambda) const;
+                  const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda) const;     \
+    Route& METHOD(                                                                                                                         \
+        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda) const;   \
+    Route& METHOD(                                                                                                                         \
+        const std::string& relativeMountPath,                                                                                              \
+        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda) const;
 
 namespace express {
 

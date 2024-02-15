@@ -52,12 +52,12 @@ namespace apps::http::legacy {
     Client getClient() {
         return Client(
             "httpclient",
-            [](std::shared_ptr<Request>& req) -> void {
+            [](const std::shared_ptr<Request>& req) -> void {
                 req->url = "/index.html";
                 req->set("Connection", "close", true);
                 req->start();
             },
-            []([[maybe_unused]] std::shared_ptr<Request>& req, std::shared_ptr<Response>& res) -> void {
+            []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                 LOG(INFO) << "-- OnResponse";
                 LOG(INFO) << "     Status:";
                 LOG(INFO) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
@@ -102,12 +102,12 @@ namespace apps::http::tls {
     Client getClient() {
         Client client(
             "httpclient",
-            [](std::shared_ptr<Request>& req) -> void {
+            [](const std::shared_ptr<Request>& req) -> void {
                 req->url = "/index.html";
                 req->set("Connection", "close");
                 req->start();
             },
-            []([[maybe_unused]] std::shared_ptr<Request>& req, std::shared_ptr<Response>& res) -> void {
+            []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                 LOG(INFO) << "-- OnResponse";
                 LOG(INFO) << "     Status:";
                 LOG(INFO) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;

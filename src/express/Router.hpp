@@ -30,24 +30,26 @@
 
 #define DEFINE_ROUTER_TEMPLATE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                          \
     template <typename... Lambdas>                                                                                                         \
-    Route& Router::METHOD(const std::string& relativeMountPath,                                                                            \
-                          const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res, Next & next)>& lambda, \
-                          Lambdas... lambdas) const {                                                                                      \
+    Route& Router::METHOD(                                                                                                                 \
+        const std::string& relativeMountPath,                                                                                              \
+        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda,          \
+        Lambdas... lambdas) const {                                                                                                        \
         return rootRoute->METHOD(relativeMountPath, lambda).METHOD(lambdas...);                                                            \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
-    Route& Router::METHOD(const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res, Next & next)>& lambda, \
-                          Lambdas... lambdas) const {                                                                                      \
+    Route& Router::METHOD(                                                                                                                 \
+        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda,          \
+        Lambdas... lambdas) const {                                                                                                        \
         return rootRoute->METHOD(lambda).METHOD(lambdas...);                                                                               \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
     Route& Router::METHOD(const std::string& relativeMountPath,                                                                            \
-                          const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res)>& lambda,              \
+                          const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda,    \
                           Lambdas... lambdas) const {                                                                                      \
         return rootRoute->METHOD(relativeMountPath, lambda).METHOD(lambdas...);                                                            \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
-    Route& Router::METHOD(const std::function<void(std::shared_ptr<Request> & req, std::shared_ptr<Response> & res)>& lambda,              \
+    Route& Router::METHOD(const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda,    \
                           Lambdas... lambdas) const {                                                                                      \
         return rootRoute->METHOD(lambda).METHOD(lambdas...);                                                                               \
     }

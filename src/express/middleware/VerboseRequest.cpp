@@ -158,8 +158,8 @@ namespace express::middleware {
 
             std::string requestString = requestStream.str();
             requestString.pop_back();
-            LOG(TRACE) << std::setw(prefixLength) << res->getSocketContext()->getSocketConnection()->getInstanceName() << " HTTP: '"
-                       << req->method << " " << req->url << " " << req->httpVersion << "'\n"
+            LOG(TRACE) << res->getSocketContext()->getSocketConnection()->getInstanceName() << " HTTP: '" << req->method << " " << req->url
+                       << " " << req->httpVersion << "'\n"
                        << requestString;
 
             next();

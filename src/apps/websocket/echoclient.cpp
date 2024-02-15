@@ -43,14 +43,14 @@ int main(int argc, char* argv[]) {
 
         const LegacyClient legacyClient(
             "legacy",
-            [](std::shared_ptr<Request>& req) -> void {
+            [](const std::shared_ptr<Request>& req) -> void {
                 VLOG(1) << "OnRequestBegin";
 
                 req->set("Sec-WebSocket-Protocol", "test, echo");
 
                 req->upgrade("/ws/", "hui, websocket");
             },
-            [](std::shared_ptr<Request>& req, std::shared_ptr<Response>& res) -> void {
+            [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                 VLOG(1) << "OnResponse";
                 VLOG(2) << "     Status:";
                 VLOG(2) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
@@ -107,14 +107,14 @@ int main(int argc, char* argv[]) {
 
         const TlsClient tlsClient(
             "tls",
-            [](std::shared_ptr<Request>& req) -> void {
+            [](const std::shared_ptr<Request>& req) -> void {
                 VLOG(1) << "OnRequestBegin";
 
                 req->set("Sec-WebSocket-Protocol", "test, echo");
 
                 req->upgrade("/ws/", "hui, websocket");
             },
-            [](std::shared_ptr<Request>& req, std::shared_ptr<Response>& res) -> void {
+            [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                 VLOG(1) << "OnResponse";
                 VLOG(2) << "     Status:";
                 VLOG(2) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
