@@ -33,13 +33,18 @@
 namespace web::http::server {
 
     template <template <typename SocketContextFactoryT, typename... Args> typename SocketServerT, typename RequestT, typename ResponseT>
-    class Server : public SocketServerT<web::http::server::SocketContextFactory<RequestT, ResponseT>> { // this makes it an HTTP server
+    class Server
+        : public SocketServerT<web::http::server::SocketContextFactory<RequestT, ResponseT>,
+                               std::function<void(const std::shared_ptr<RequestT>&, const std::shared_ptr<ResponseT>&)>> { // this makes
+                                                                                                                           // it an
+                                                                                                                           // HTTP server
     public:
         using Request = RequestT;
         using Response = ResponseT;
 
     private:
-        using Super = SocketServerT<web::http::server::SocketContextFactory<Request, Response>>;
+        using Super = SocketServerT<web::http::server::SocketContextFactory<Request, Response>,
+                                    std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>>;
 
     public:
         using SocketConnection = typename Super::SocketConnection;
@@ -48,27 +53,25 @@ namespace web::http::server {
         Server(const std::string& name,
                const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
-               const std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)>& onRequestReady,
-               const std::function<void(SocketConnection*)>& onDisconnect)
-            : Super(name, onConnect, onConnected, onDisconnect) {
-            Super::getSocketContextFactory()->setOnRequestReady(onRequestReady);
+               const std::function<void(SocketConnection*)>& onDisconnect,
+               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
+            : Super(name, onConnect, onConnected, onDisconnect, std::move(onRequestReady)) {
         }
 
         Server(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
-               const std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)>& onRequestReady,
-               const std::function<void(SocketConnection*)>& onDisconnect)
-            : Server("", onConnect, onConnected, onRequestReady, onDisconnect) {
+               const std::function<void(SocketConnection*)>& onDisconnect,
+               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
+            : Server("", onConnect, onConnected, onDisconnect, std::move(onRequestReady)) {
         }
 
         Server(const std::string& name,
-               const std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)>& onRequestReady)
-            : Super(name) {
-            Super::getSocketContextFactory()->setOnRequestReady(onRequestReady);
+               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
+            : Super(name, std::move(onRequestReady)) {
         }
 
-        explicit Server(const std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)>& onRequestReady)
-            : Server("", onRequestReady) {
+        explicit Server(std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
+            : Server("", std::move(onRequestReady)) {
         }
     };
 

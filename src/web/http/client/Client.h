@@ -33,13 +33,20 @@
 namespace web::http::client {
 
     template <template <typename SocketContextFactoryT, typename... Args> typename SocketClientT, typename RequestT, typename ResponseT>
-    class Client : public SocketClientT<web::http::client::SocketContextFactory<RequestT, ResponseT>> {
+    class Client
+        : public SocketClientT<web::http::client::SocketContextFactory<RequestT, ResponseT>,
+                               std::function<void(const std::shared_ptr<RequestT>&)>,
+                               std::function<void(const std::shared_ptr<RequestT>&, const std::shared_ptr<ResponseT>&)>,
+                               std::function<void(int, const std::string&)>> {
     public:
         using Request = RequestT;
         using Response = ResponseT;
 
     private:
-        using Super = SocketClientT<web::http::client::SocketContextFactory<Request, Response>>; // this makes it an HTTP client;
+        using Super = SocketClientT<web::http::client::SocketContextFactory<Request, Response>,
+                                    std::function<void(const std::shared_ptr<Request>&)>,
+                                    std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>,
+                                    std::function<void(int, const std::string&)>>; // this makes it an HTTP client;
 
     public:
         using SocketConnection = typename Super::SocketConnection;
@@ -48,39 +55,45 @@ namespace web::http::client {
         Client(const std::string& name,
                const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
-               const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
-               const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReady,
-               const std::function<void(int, const std::string&)>& onResponseError,
-               const std::function<void(SocketConnection*)>& onDisconnect)
-            : Super(name, onConnect, onConnected, onDisconnect) {
-            Super::getSocketContextFactory()->setOnRequestBegin(onRequestBegin);
-            Super::getSocketContextFactory()->setOnResponseReady(onResponseReady);
-            Super::getSocketContextFactory()->setOnResponseError(onResponseError);
+               const std::function<void(SocketConnection*)>& onDisconnect,
+               std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
+               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onResponseReady,
+               std::function<void(int, const std::string&)>&& onResponseError)
+            : Super(name,
+                    onConnect,
+                    onConnected,
+                    onDisconnect,
+                    std::move(onRequestBegin),
+                    std::move(onResponseReady),
+                    std::move(onResponseError)) {
         }
 
         Client(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
-               const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
-               const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReady,
-               const std::function<void(int, const std::string&)>& onResponseError,
-               const std::function<void(SocketConnection*)>& onDisconnect)
-            : Client("", onConnect, onConnected, onRequestBegin, onResponseReady, onResponseError, onDisconnect) {
+               const std::function<void(SocketConnection*)>& onDisconnect,
+               std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
+               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onResponseReady,
+               std::function<void(int, const std::string&)>&& onResponseError)
+            : Client("",
+                     onConnect,
+                     onConnected,
+                     onDisconnect,
+                     std::move(onRequestBegin),
+                     std::move(onResponseReady),
+                     std::move(onResponseError)) {
         }
 
         Client(const std::string& name,
-               const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
-               const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReady,
-               const std::function<void(int, const std::string&)>& onResponseError)
-            : Super(name) {
-            Super::getSocketContextFactory()->setOnRequestBegin(onRequestBegin);
-            Super::getSocketContextFactory()->setOnResponseReady(onResponseReady);
-            Super::getSocketContextFactory()->setOnResponseError(onResponseError);
+               std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
+               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onResponseReady,
+               std::function<void(int, const std::string&)>&& onResponseError)
+            : Super(name, std::move(onRequestBegin), std::move(onResponseReady), std::move(onResponseError)) {
         }
 
-        Client(const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
-               const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReady,
-               const std::function<void(int, const std::string&)>& onResponseError)
-            : Client("", onRequestBegin, onResponseReady, onResponseError) {
+        Client(std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
+               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onResponseReady,
+               std::function<void(int, const std::string&)>&& onResponseError)
+            : Client("", std::move(onRequestBegin), std::move(onResponseReady), std::move(onResponseError)) {
         }
     };
 

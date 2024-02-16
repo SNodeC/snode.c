@@ -39,7 +39,13 @@ namespace web::http::client {
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextFactory() = default;
+        SocketContextFactory(const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
+                             const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReady,
+                             const std::function<void(int, const std::string&)>& onResponseError)
+            : onRequestBegin(onRequestBegin)
+            , onResponseReady(onResponseReady)
+            , onResponseError(onResponseError) {
+        }
 
         ~SocketContextFactory() override = default;
 
@@ -52,21 +58,6 @@ namespace web::http::client {
                 socketConnection, onRequestBegin, onResponseReady, onResponseError);
         }
 
-    public:
-        void setOnRequestBegin(const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin) {
-            this->onRequestBegin = onRequestBegin;
-        }
-
-        void
-        setOnResponseReady(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReady) {
-            this->onResponseReady = onResponseReady;
-        }
-
-        void setOnResponseError(const std::function<void(int, const std::string&)>& onResponseError) {
-            this->onResponseError = onResponseError;
-        }
-
-    private:
         std::function<void(const std::shared_ptr<Request>&)> onRequestBegin;
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReady;
         std::function<void(int, const std::string&)> onResponseError;

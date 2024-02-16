@@ -38,6 +38,12 @@ int main(int argc, char* argv[]) {
             []([[maybe_unused]] web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "OnConnected";
             },
+            [](web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
+                VLOG(0) << "OnDisconnect";
+
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            },
             [queryAccessToken, queryClientId](const std::shared_ptr<web::http::client::Request>& request) -> void {
                 VLOG(0) << "OnRequestBegin";
                 request->url = "/oauth2/token/validate?client_id=" + queryClientId;
@@ -66,12 +72,6 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
                 res->sendStatus(401);
-            },
-            [](web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "OnDisconnect";
-
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             });
 
         legacyClient.connect(

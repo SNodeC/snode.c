@@ -39,23 +39,20 @@ namespace web::http::server {
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextFactory() = default;
-
-        ~SocketContextFactory() override = default;
+        explicit SocketContextFactory(
+            const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& onRequestReady)
+            : onRequestReady(onRequestReady) {
+        }
 
         SocketContextFactory(const SocketContextFactory&) = delete;
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;
-
-        void setOnRequestReady(const std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)>& onRequestReady) {
-            this->onRequestReady = onRequestReady;
-        }
 
     private:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             return new web::http::server::SocketContext<Request, Response>(socketConnection, onRequestReady);
         }
 
-        std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onRequestReady;
+        std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)> onRequestReady;
     };
 
 } // namespace web::http::server

@@ -26,14 +26,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <utility>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
     MiddlewareDispatcher::MiddlewareDispatcher(
-        const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&, express::Next&)>& lambda)
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, express::Next&)>& lambda)
         : lambda(lambda) {
     }
 
@@ -61,7 +59,7 @@ namespace express::dispatcher {
                 // If next() was called synchronously continue current route-tree traversal
                 if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
                     dispatched = false;
-                    controller = std::move(next.controller);
+                    controller = next.controller;
                 }
             }
         }

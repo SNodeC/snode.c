@@ -38,17 +38,17 @@ namespace express {
 
     class Controller {
     public:
-        Controller(std::shared_ptr<Request>& request, std::shared_ptr<Response>& response);
-        Controller(Controller&& controller) noexcept;
+        Controller(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
+        //        Controller(Controller&& controller) noexcept;
         Controller(const Controller& controller);
 
-        Controller& operator=(Controller&& controller) noexcept;
+        Controller& operator=(Controller& controller) noexcept;
 
         void setRootRoute(RootRoute* rootRoute);
         void setCurrentRoute(Route* currentRoute);
 
-        std::shared_ptr<Request>& getRequest() const;
-        std::shared_ptr<Response>& getResponse() const;
+        const std::shared_ptr<Request>& getRequest();
+        const std::shared_ptr<Response>& getResponse();
 
         int getFlags() const;
 
@@ -61,8 +61,8 @@ namespace express {
         enum Flags { NONE = 0, NEXT = 1 << 0, NEXT_ROUTE = 1 << 1, NEXT_ROUTER = 1 << 2 };
 
     private:
-        std::shared_ptr<Request>& request;
-        std::shared_ptr<Response>& response;
+        std::shared_ptr<Request> request;
+        std::shared_ptr<Response> response;
 
         RootRoute* rootRoute = nullptr;
 
