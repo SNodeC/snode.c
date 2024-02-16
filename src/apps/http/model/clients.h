@@ -80,9 +80,12 @@ namespace apps::http::legacy {
                           << res->body.data() << "\n------------ end body ------------" << std::endl;
             },
             [](int status, const std::string& reason) -> void {
-                LOG(INFO) << "-- OnResponseError";
+                LOG(INFO) << "-- OnResponseParseError";
                 LOG(INFO) << "     Status: " << status;
                 LOG(INFO) << "     Reason: " << reason;
+            },
+            []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
+                LOG(INFO) << " -- OnRequestEnd";
             });
     }
 
@@ -133,6 +136,9 @@ namespace apps::http::tls {
                 LOG(INFO) << "-- OnResponseError";
                 LOG(INFO) << "     Status: " << status;
                 LOG(INFO) << "     Reason: " << reason;
+            },
+            []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
+                LOG(INFO) << " -- OnRequestEnd";
             });
 
         client.setOnConnect([&client](SocketConnection* socketConnection) -> void { // onConnect

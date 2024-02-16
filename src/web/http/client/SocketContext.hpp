@@ -32,11 +32,13 @@ namespace web::http::client {
         core::socket::stream::SocketConnection* socketConnection,
         const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
         const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
-        const std::function<void(int, const std::string&)>& onResponseError)
+        const std::function<void(int, const std::string&)>& onResponseParseError,
+        const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
         : Super(socketConnection)
         , onRequestBegin(onRequestBegin)
         , onResponseReady(onResponseReady)
-        , onResponseError(onResponseError)
+        , onResponseParseError(onResponseParseError)
+        , onRequestEnd(onRequestEnd)
         , request(std::make_shared<Request>(this))
         , parser(
               this,
@@ -70,7 +72,7 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::responseError(int status, const std::string& reason) {
-        onResponseError(status, reason);
+        onResponseParseError(status, reason);
 
         shutdownWrite(true);
     }
@@ -110,9 +112,9 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
-        if (request != nullptr) {
-            request->stopResponse();
-        }
+        request->stopResponse();
+
+        onRequestEnd(request);
 
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onDisconnected";
     }

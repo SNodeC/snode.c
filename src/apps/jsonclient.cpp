@@ -76,6 +76,9 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "-- OnResponseError";
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
+        },
+        []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
+            LOG(INFO) << " -- OnRequestEnd";
         });
 
     jsonClient.connect("localhost",

@@ -80,6 +80,9 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "OnResponseError";
                 VLOG(1) << "     Status: " << status;
                 VLOG(1) << "     Reason: " << reason;
+            },
+            []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
+                LOG(INFO) << " -- OnRequestEnd";
             });
 
         legacyClient.connect([instanceName = legacyClient.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
@@ -144,6 +147,9 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "OnResponseError";
                 VLOG(1) << "     Status: " << status;
                 VLOG(1) << "     Reason: " << reason;
+            },
+            []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
+                LOG(INFO) << " -- OnRequestEnd";
             });
 
         tlsClient.connect([instanceName = tlsClient.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress,

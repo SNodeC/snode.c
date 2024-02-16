@@ -72,6 +72,9 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
                 res->sendStatus(401);
+            },
+            []([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& req) -> void {
+                LOG(INFO) << " -- OnRequestEnd";
             });
 
         legacyClient.connect(

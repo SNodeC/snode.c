@@ -50,7 +50,8 @@ namespace web::http::client {
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
                       const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
                       const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
-                      const std::function<void(int, const std::string&)>& onResponseError);
+                      const std::function<void(int, const std::string&)>& onResponseParseError,
+                      const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd);
 
     private:
         void sendToPeerCompleted(bool success) override;
@@ -60,7 +61,8 @@ namespace web::http::client {
 
         std::function<void(std::shared_ptr<Request>&)> onRequestBegin;
         std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onResponseReady;
-        std::function<void(int, const std::string&)> onResponseError;
+        std::function<void(int, const std::string&)> onResponseParseError;
+        std::function<void(const std::shared_ptr<Request>&)> onRequestEnd;
 
         void onConnected() override;
         std::size_t onReceivedFromPeer() override;
