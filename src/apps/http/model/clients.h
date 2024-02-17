@@ -55,7 +55,7 @@ namespace apps::http::legacy {
             [](const std::shared_ptr<Request>& req) -> void {
                 req->url = "/index.html";
                 req->set("Connection", "close", true);
-                req->start();
+                req->end();
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                 LOG(INFO) << "-- OnResponse";
@@ -108,7 +108,7 @@ namespace apps::http::tls {
             [](const std::shared_ptr<Request>& req) -> void {
                 req->url = "/index.html";
                 req->set("Connection", "close");
-                req->start();
+                req->end();
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                 LOG(INFO) << "-- OnResponse";

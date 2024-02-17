@@ -70,7 +70,7 @@ namespace web::http::client {
         Request& cookie(const std::string& name, const std::string& value);
         Request& cookie(const std::map<std::string, std::string>& cookies);
 
-        void start();
+        void end();
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
         void upgrade(const std::string& url, const std::string& protocols);

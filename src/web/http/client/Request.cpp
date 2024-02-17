@@ -134,7 +134,7 @@ namespace web::http::client {
         return *this;
     }
 
-    void Request::start() {
+    void Request::end() {
         send("");
     }
 
@@ -168,7 +168,7 @@ namespace web::http::client {
         if (socketContextUpgradeFactory != nullptr) {
             socketContextUpgradeFactory->checkRefCount();
 
-            start();
+            end();
         } else {
             socketContext->close();
         }
