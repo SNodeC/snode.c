@@ -71,6 +71,10 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
+    void SocketContext<Request, Response>::sendToPeerStarted() {
+    }
+
+    template <typename Request, typename Response>
     void SocketContext<Request, Response>::sendToPeerCompleted(bool success) {
         if (success) {
             requestCompleted();
@@ -85,16 +89,20 @@ namespace web::http::server {
     void SocketContext<RequestT, ResponseT>::requestCompleted() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
 
-        bool close = response->connectionState == ConnectionState::Close ||
-                     (response->connectionState == ConnectionState::Default &&
-                      ((request->httpMajor == 0 && request->httpMinor == 9) || (request->httpMajor == 1 && request->httpMinor == 0)));
+        if (request != nullptr) {
+            bool close = response->connectionState == ConnectionState::Close ||
+                         (response->connectionState == ConnectionState::Default &&
+                          ((request->httpMajor == 0 && request->httpMinor == 9) || (request->httpMajor == 1 && request->httpMinor == 0)));
 
-        if (close) {
+            if (close) {
+                shutdownWrite();
+            } else if (!requests.empty()) {
+                core::EventReceiver::atNextTick([this]() -> void {
+                    requestParsed();
+                });
+            }
+        } else {
             shutdownWrite();
-        } else if (!requests.empty()) {
-            core::EventReceiver::atNextTick([this]() -> void {
-                requestParsed();
-            });
         }
 
         request = nullptr;

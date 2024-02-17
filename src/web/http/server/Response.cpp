@@ -224,6 +224,8 @@ namespace web::http::server {
 
     Response& Response::sendHeader() {
         if (socketContext != nullptr) {
+            socketContext->sendToPeerStarted();
+
             socketContext->sendToPeer("HTTP/1.1 " + std::to_string(statusCode) + " " + StatusCode::reason(statusCode) + "\r\n");
             socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
 

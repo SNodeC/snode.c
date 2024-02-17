@@ -54,7 +54,10 @@ namespace apps::http::legacy {
             "httpclient",
             [](const std::shared_ptr<Request>& req) -> void {
                 req->url = "/index.html";
-                req->set("Connection", "close", true);
+                req->set("Connection", "keep-alive", true);
+                req->end();
+                req->url = "/";
+                req->set("Connection", "keep-alive", true);
                 req->end();
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
@@ -107,7 +110,10 @@ namespace apps::http::tls {
             "httpclient",
             [](const std::shared_ptr<Request>& req) -> void {
                 req->url = "/index.html";
-                req->set("Connection", "close");
+                req->set("Connection", "keep-alive");
+                req->end();
+                req->url = "/";
+                req->set("Connection", "keep-alive", true);
                 req->end();
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {

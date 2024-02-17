@@ -54,6 +54,7 @@ namespace web::http::server {
     private:
         void requestParsed();
         void requestError(int status, const std::string& reason);
+        void sendToPeerStarted() override;
         void sendToPeerCompleted(bool success) override;
         void requestCompleted() override;
 

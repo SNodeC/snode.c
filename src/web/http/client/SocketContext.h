@@ -31,6 +31,7 @@ namespace web::http::client {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <list>
 #include <memory> // IWYU pragma: export
 #include <string>
 
@@ -54,6 +55,7 @@ namespace web::http::client {
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd);
 
     private:
+        void sendToPeerStarted() override;
         void sendToPeerCompleted(bool success) override;
         void responseParsed();
         void responseError(int status, const std::string& reason);
@@ -69,8 +71,12 @@ namespace web::http::client {
         void onDisconnected() override;
         [[nodiscard]] bool onSignal(int signum) override;
 
-        std::shared_ptr<Request> request = nullptr;
-        std::shared_ptr<Response> response = nullptr;
+        std::shared_ptr<Request> currentRequest = nullptr;
+        std::shared_ptr<Response> currentResponse = nullptr;
+        std::list<std::shared_ptr<Request>> requests;
+        std::list<std::shared_ptr<Response>> responses;
+
+        std::shared_ptr<Request> masterRequest;
 
         ResponseParser parser;
 

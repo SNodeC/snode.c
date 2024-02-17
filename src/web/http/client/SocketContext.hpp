@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "core/EventReceiver.h"
 #include "web/http/client/SocketContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,11 +40,11 @@ namespace web::http::client {
         , onResponseReady(onResponseReady)
         , onResponseParseError(onResponseParseError)
         , onRequestEnd(onRequestEnd)
-        , request(std::make_shared<Request>(this))
+        , masterRequest(std::make_shared<Request>(this))
         , parser(
               this,
               [onResponseReady, this](web::http::client::Response& response) -> void {
-                  this->response = std::make_shared<Response>(std::move(response));
+                  responses.emplace_back(std::make_shared<Response>(std::move(response)));
 
                   responseParsed();
               },
@@ -53,9 +54,16 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
+    void SocketContext<Request, Response>::sendToPeerStarted() {
+    }
+
+    template <typename Request, typename Response>
     void SocketContext<Request, Response>::sendToPeerCompleted(bool success) {
         if (success) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent successful";
+
+            requests.emplace_back(std::make_shared<Request>(std::move(*masterRequest)));
+            masterRequest->reInit();
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent failed";
 
@@ -65,9 +73,16 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::responseParsed() {
-        onResponseReady(request, response);
+        if (currentResponse == nullptr && !responses.empty()) {
+            currentRequest = requests.front();
+            requests.pop_front();
+            currentResponse = responses.front();
+            responses.pop_front();
 
-        requestCompleted();
+            onResponseReady(currentRequest, currentResponse);
+
+            requestCompleted();
+        }
     }
 
     template <typename Request, typename Response>
@@ -81,28 +96,30 @@ namespace web::http::client {
     void SocketContext<RequestT, ResponseT>::requestCompleted() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
 
-        bool close = response->connectionState == ConnectionState::Close ||
-                     (response->connectionState == ConnectionState::Default &&
-                      ((request->httpMajor == 0 && request->httpMinor == 9) || (request->httpMajor == 1 && request->httpMinor == 0)));
+        bool close = currentResponse->connectionState == ConnectionState::Close ||
+                     (currentResponse->connectionState == ConnectionState::Default &&
+                      ((currentRequest->httpMajor == 0 && currentRequest->httpMinor == 9) ||
+                       (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0)));
 
         if (close) {
             shutdownWrite();
-        } else {
-            // TODO: Queue requests
-            // TODO: Process next queued request
+        } else if (!responses.empty()) {
+            core::EventReceiver::atNextTick([this]() -> void {
+                responseParsed();
+            });
         }
 
-        response = nullptr;
-        request->reInit();
+        currentRequest = nullptr;
+        currentResponse = nullptr;
     }
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onConnected() {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onConnected";
 
-        request->host(getSocketConnection()->getConfiguredServer());
+        masterRequest->host(getSocketConnection()->getConfiguredServer());
 
-        onRequestBegin(request);
+        onRequestBegin(masterRequest);
     }
 
     template <typename Request, typename Response>
@@ -112,9 +129,11 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
-        request->stopResponse();
+        if (currentRequest != nullptr) {
+            currentRequest->stopResponse();
+        }
 
-        onRequestEnd(request);
+        onRequestEnd(masterRequest);
 
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onDisconnected";
     }

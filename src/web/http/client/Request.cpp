@@ -252,6 +252,8 @@ namespace web::http::client {
 
     Request& Request::sendHeader() {
         if (socketContext != nullptr) {
+            socketContext->sendToPeerStarted();
+
             const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
             std::string queryString;
@@ -286,7 +288,6 @@ namespace web::http::client {
     Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
         if (socketContext != nullptr) {
             socketContext->sendToPeer(junk, junkLen);
-
             contentSent += junkLen;
         } else {
             LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
