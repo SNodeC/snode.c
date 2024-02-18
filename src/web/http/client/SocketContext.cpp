@@ -18,6 +18,8 @@
  */
 
 #include "core/EventReceiver.h"
+#include "core/socket/stream/SocketConnection.h"
+#include "web/http/client/Request.h"
 #include "web/http/client/SocketContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -28,13 +30,11 @@
 
 namespace web::http::client {
 
-    template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(
-        core::socket::stream::SocketConnection* socketConnection,
-        const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
-        const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
-        const std::function<void(int, const std::string&)>& onResponseParseError,
-        const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
+    SocketContext::SocketContext(core::socket::stream::SocketConnection* socketConnection,
+                                 const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
+                                 const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
+                                 const std::function<void(int, const std::string&)>& onResponseParseError,
+                                 const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
         : Super(socketConnection)
         , onRequestBegin(onRequestBegin)
         , onResponseReady(onResponseReady)
@@ -53,12 +53,10 @@ namespace web::http::client {
               }) {
     }
 
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::sendToPeerStarted() {
+    void SocketContext::sendToPeerStarted() {
     }
 
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::sendToPeerCompleted(bool success) {
+    void SocketContext::sendToPeerCompleted(bool success) {
         if (success) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent successful";
 
@@ -71,8 +69,7 @@ namespace web::http::client {
         }
     }
 
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::responseParsed() {
+    void SocketContext::responseParsed() {
         if (currentResponse == nullptr && !responses.empty()) {
             currentRequest = requests.front();
             requests.pop_front();
@@ -85,15 +82,13 @@ namespace web::http::client {
         }
     }
 
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::responseError(int status, const std::string& reason) {
+    void SocketContext::responseError(int status, const std::string& reason) {
         onResponseParseError(status, reason);
 
         shutdownWrite(true);
     }
 
-    template <typename RequestT, typename ResponseT>
-    void SocketContext<RequestT, ResponseT>::requestCompleted() {
+    void SocketContext::requestCompleted() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
 
         bool close = currentResponse->connectionState == ConnectionState::Close ||
@@ -113,8 +108,7 @@ namespace web::http::client {
         currentResponse = nullptr;
     }
 
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onConnected() {
+    void SocketContext::onConnected() {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onConnected";
 
         masterRequest->host(getSocketConnection()->getConfiguredServer());
@@ -122,13 +116,11 @@ namespace web::http::client {
         onRequestBegin(masterRequest);
     }
 
-    template <typename Request, typename Response>
-    std::size_t SocketContext<Request, Response>::onReceivedFromPeer() {
+    std::size_t SocketContext::onReceivedFromPeer() {
         return parser.parse();
     }
 
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onDisconnected() {
+    void SocketContext::onDisconnected() {
         if (currentRequest != nullptr) {
             currentRequest->stopResponse();
         }
@@ -138,8 +130,7 @@ namespace web::http::client {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onDisconnected";
     }
 
-    template <typename Request, typename Response>
-    bool SocketContext<Request, Response>::onSignal([[maybe_unused]] int signum) {
+    bool SocketContext::onSignal([[maybe_unused]] int signum) {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onSignal  " << signum;
 
         return true;

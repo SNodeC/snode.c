@@ -26,6 +26,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -37,7 +38,7 @@ namespace express {
         , public utils::MultibleAttributeInjector {
     public:
         Request() = default;
-        explicit Request(web::http::server::Request&& request) noexcept;
+        explicit Request(const std::shared_ptr<web::http::server::Request>& request) noexcept;
 
         explicit Request(Request&) = delete;
         explicit Request(Request&&) noexcept = default;
@@ -52,6 +53,8 @@ namespace express {
         std::map<std::string, std::string> params;
 
     private:
+        std::shared_ptr<web::http::server::Request> requestBase;
+
         Request& extend();
     };
 

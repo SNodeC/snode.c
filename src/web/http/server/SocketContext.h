@@ -39,13 +39,12 @@ namespace web::http::server {
 
 namespace web::http::server {
 
-    template <typename RequestT, typename ResponseT>
     class SocketContext : public web::http::SocketContext {
     private:
         using Super = web::http::SocketContext;
 
-        using Request = RequestT;
-        using Response = ResponseT;
+        using Request = web::http::server::Request;
+        using Response = web::http::server::Response;
 
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,

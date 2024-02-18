@@ -1,7 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) Volker Christian <me@vchrist.at>
- *               2020, 2021, 2022, 2023, 2024
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,20 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_LEGACY_UN_WEBAPP_H
-#define EXPRESS_LEGACY_UN_WEBAPP_H
+#ifndef WEB_HTTP_CLIENT_REQUESTCOMMANDS_H
+#define WEB_HTTP_CLIENT_REQUESTCOMMANDS_H
 
-#include "express/WebAppT.h"           // IWYU pragma: export
-#include "web/http/legacy/un/Server.h" // IWYU pragma: export
+namespace web::http::client {
+    class RequestCommand;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <list>
 
-namespace express::legacy::un {
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-    using WebApp = WebAppT<web::http::legacy::un::ServerBase<web::http::server::Request, web::http::server::Response>>;
+namespace web::http::client {
 
-} // namespace express::legacy::un
+    class RequestCommands {
+    public:
+        RequestCommands();
+        RequestCommands(const RequestCommands&) = default;
 
-#endif // EXPRESS_LEGACY_UN_WEBAPP_H
+        RequestCommands& operator=(const RequestCommands&) = default;
+
+        ~RequestCommands();
+
+    private:
+        std::list<RequestCommand*> requestCommands;
+    };
+
+} // namespace web::http::client
+
+#endif // WEB_HTTP_CLIENT_REQUESTCOMMANDS_H

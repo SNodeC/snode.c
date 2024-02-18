@@ -20,6 +20,11 @@
 #ifndef EXPRESS_DISPATCHER_CONTROLLER_H
 #define EXPRESS_DISPATCHER_CONTROLLER_H
 
+namespace web::http::server {
+    class Request;
+    class Response;
+} // namespace web::http::server
+
 namespace express {
     class Request;
     class Response;
@@ -38,7 +43,8 @@ namespace express {
 
     class Controller {
     public:
-        Controller(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
+        Controller(const std::shared_ptr<web::http::server::Request>& request,
+                   const std::shared_ptr<web::http::server::Response>& response);
         //        Controller(Controller&& controller) noexcept;
         Controller(const Controller& controller);
 

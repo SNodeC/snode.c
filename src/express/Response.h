@@ -38,7 +38,7 @@ namespace express {
     class Response : public web::http::server::Response {
     public:
         explicit Response(web::http::SocketContext* socketContext);
-        explicit Response(web::http::server::Response&& response) noexcept;
+        explicit Response(const std::shared_ptr<web::http::server::Response>& response) noexcept;
 
         explicit Response(Response&) = delete;
         explicit Response(Response&&) noexcept = default;
@@ -61,6 +61,9 @@ namespace express {
         Response& attachment(const std::string& fileName = "");
         Response& location(const std::string& loc);
         Response& vary(const std::string& field);
+
+    private:
+        std::shared_ptr<web::http::server::Response> responseBase;
     };
 
 } // namespace express

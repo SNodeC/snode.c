@@ -28,7 +28,7 @@
 
 namespace web::http {
 
-    template <template <typename RequestT, typename ResponseT> class SocketContextT, typename RequestT, typename ResponseT>
+    template <typename SocketContextT, typename RequestT, typename ResponseT>
     class SocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
         SocketContextFactory(const SocketContextFactory&) = delete;
@@ -37,7 +37,7 @@ namespace web::http {
     protected:
         using Request = RequestT;
         using Response = ResponseT;
-        using SocketContext = SocketContextT<Request, Response>;
+        using SocketContext = SocketContextT;
 
         SocketContextFactory() = default;
         ~SocketContextFactory() override = default;

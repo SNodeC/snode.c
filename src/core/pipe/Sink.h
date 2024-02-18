@@ -34,10 +34,10 @@ namespace core::pipe {
     public:
         Sink();
 
-        Sink(Sink&) = delete;
+        Sink(Sink&) = default;
         Sink(Sink&&) = default;
 
-        Sink& operator=(Sink&) = delete;
+        Sink& operator=(Sink&) = default;
         Sink& operator=(Sink&&) = default;
 
         virtual ~Sink();

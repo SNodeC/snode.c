@@ -1,7 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) Volker Christian <me@vchrist.at>
- *               2020, 2021, 2022, 2023, 2024
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,20 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_LEGACY_UN_WEBAPP_H
-#define EXPRESS_LEGACY_UN_WEBAPP_H
-
-#include "express/WebAppT.h"           // IWYU pragma: export
-#include "web/http/legacy/un/Server.h" // IWYU pragma: export
+#include "RequestCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace express::legacy::un {
+namespace web::http::client {
 
-    using WebApp = WebAppT<web::http::legacy::un::ServerBase<web::http::server::Request, web::http::server::Response>>;
+    RequestCommand::RequestCommand() {
 
-} // namespace express::legacy::un
+    }
 
-#endif // EXPRESS_LEGACY_UN_WEBAPP_H
+    RequestCommand::~RequestCommand() {
+
+    }
+
+} // web::http::client

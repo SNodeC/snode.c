@@ -29,8 +29,9 @@
 
 namespace express {
 
-    Request::Request(web::http::server::Request&& request) noexcept
-        : web::http::server::Request(std::move(request)) {
+    Request::Request(const std::shared_ptr<web::http::server::Request>& request) noexcept
+        : web::http::server::Request(*request)
+        , requestBase(request) {
         extend();
     }
 

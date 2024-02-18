@@ -36,8 +36,9 @@ namespace express {
         : web::http::server::Response(socketContext) {
     }
 
-    Response::Response(web::http::server::Response&& response) noexcept
-        : web::http::server::Response(std::move(response)) {
+    Response::Response(const std::shared_ptr<web::http::server::Response>& response) noexcept
+        : web::http::server::Response(*response)
+        , responseBase(response) {
     }
 
     Response::~Response() {

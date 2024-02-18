@@ -29,7 +29,7 @@
 
 namespace express::tls::in {
 
-    using WebApp = WebAppT<web::http::tls::in::ServerBase<express::Request, express::Response>>;
+    using WebApp = WebAppT<web::http::tls::in::ServerBase<web::http::server::Request, web::http::server::Response>>;
 
 } // namespace express::tls::in
 

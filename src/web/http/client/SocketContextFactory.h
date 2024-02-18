@@ -21,7 +21,7 @@
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 
 #include "web/http/SocketContextFactory.h"
-#include "web/http/client/SocketContext.hpp" // IWYU pragma: export
+#include "web/http/client/SocketContext.cpp" // IWYU pragma: export
 
 namespace core::socket::stream {
     class SocketConnection;
@@ -56,7 +56,7 @@ namespace web::http::client {
 
     private:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
-            return new web::http::client::SocketContext<Request, Response>(
+            return new web::http::client::SocketContext(
                 socketConnection, onRequestBegin, onResponseReady, onResponseParseError, onRequestEnd);
         }
 

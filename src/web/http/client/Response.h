@@ -65,7 +65,6 @@ namespace web::http::client {
     private:
         std::string nullstr;
 
-        template <typename Request, typename Response>
         friend class SocketContext;
 
         friend class ResponseParser;

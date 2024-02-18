@@ -29,7 +29,7 @@
 
 namespace express::legacy::in6 {
 
-    using WebApp = WebAppT<web::http::legacy::in6::ServerBase<express::Request, express::Response>>;
+    using WebApp = WebAppT<web::http::legacy::in6::ServerBase<web::http::server::Request, web::http::server::Response>>;
 
 } // namespace express::legacy::in6
 

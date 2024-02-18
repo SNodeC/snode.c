@@ -29,7 +29,7 @@
 
 namespace express::legacy::rc {
 
-    using WebApp = WebAppT<web::http::legacy::rc::ServerBase<express::Request, express::Response>>;
+    using WebApp = WebAppT<web::http::legacy::rc::ServerBase<web::http::server::Request, web::http::server::Response>>;
 
 } // namespace express::legacy::rc
 

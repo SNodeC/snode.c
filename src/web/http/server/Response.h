@@ -56,10 +56,10 @@ namespace web::http::server {
     public:
         explicit Response(web::http::SocketContext* socketContext);
 
-        explicit Response(Response&) = delete;
+        explicit Response(Response&) = default;
         explicit Response(Response&&) noexcept = default;
 
-        Response& operator=(Response&) = delete;
+        Response& operator=(Response&) = default;
         Response& operator=(Response&&) noexcept = default;
 
         ~Response() override;
@@ -116,7 +116,6 @@ namespace web::http::server {
 
         ConnectionState connectionState = ConnectionState::Default;
 
-        template <typename Request, typename Response>
         friend class SocketContext;
     };
 

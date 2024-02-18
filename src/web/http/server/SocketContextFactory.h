@@ -21,7 +21,7 @@
 #define WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 
 #include "web/http/SocketContextFactory.h"
-#include "web/http/server/SocketContext.hpp" // IWYU pragma: export
+#include "web/http/server/SocketContext.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketConnection;
@@ -49,7 +49,7 @@ namespace web::http::server {
 
     private:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
-            return new web::http::server::SocketContext<Request, Response>(socketConnection, onRequestReady);
+            return new web::http::server::SocketContext(socketConnection, onRequestReady);
         }
 
         std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)> onRequestReady;

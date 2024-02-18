@@ -41,6 +41,9 @@ namespace express {
         using Server = ServerT;
 
     public:
+        using Request = express::Request;
+        using Response = express::Response;
+
         using SocketConnection = typename Server::SocketConnection;
         using SocketAddress = typename Server::SocketAddress;
 
@@ -55,8 +58,8 @@ namespace express {
         WebAppT(const std::string& name, const Router& router)
             : WebApp(router)
             , Server(name,
-                     [rootRoute = this->rootRoute](const std::shared_ptr<Request>& req,
-                                                   const std::shared_ptr<Response>& res) -> void { // onRequestReady
+                     [rootRoute = this->rootRoute](const std::shared_ptr<web::http::server::Request>& req,
+                                                   const std::shared_ptr<web::http::server::Response>& res) -> void { // onRequestReady
                          rootRoute->dispatch(Controller(req, res));
                      }) {
         }

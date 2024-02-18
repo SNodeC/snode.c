@@ -37,10 +37,10 @@ namespace web::http::server {
     public:
         Request() = default;
 
-        explicit Request(Request&) = delete;
+        explicit Request(Request&) = default;
         explicit Request(Request&&) noexcept = default;
 
-        Request& operator=(Request&) = delete;
+        Request& operator=(Request&) = default;
         Request& operator=(Request&&) noexcept = default;
 
         const std::string& get(const std::string& key, int i = 0) const;
@@ -66,7 +66,6 @@ namespace web::http::server {
     private:
         std::string nullstr;
 
-        template <typename Request, typename Response>
         friend class SocketContext;
 
         friend class RequestParser;

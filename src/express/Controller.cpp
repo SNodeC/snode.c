@@ -21,6 +21,7 @@
 
 #include "core/EventLoop.h"
 #include "express/Request.h"
+#include "express/Response.h"
 #include "express/RootRoute.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,9 +30,10 @@
 
 namespace express {
 
-    Controller::Controller(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response)
-        : request(request)
-        , response(response)
+    Controller::Controller(const std::shared_ptr<web::http::server::Request>& request,
+                           const std::shared_ptr<web::http::server::Response>& response)
+        : request(std::make_shared<Request>(request))
+        , response(std::make_shared<Response>(response))
         , lastTick(core::EventLoop::getTickCounter()) {
     }
 
