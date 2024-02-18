@@ -21,12 +21,13 @@
 
 #include "core/EventReceiver.h"
 #include "core/socket/stream/SocketConnection.h"
-#include "web/http/http_utils.h"
 #include "web/http/server/Response.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

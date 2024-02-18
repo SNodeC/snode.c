@@ -17,14 +17,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "web/http/client/SocketContext.h" // IWYU pragma: export
+
 #include "core/EventReceiver.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/client/Request.h"
-#include "web/http/client/SocketContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -91,10 +94,10 @@ namespace web::http::client {
     void SocketContext::requestCompleted() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
 
-        bool close = currentResponse->connectionState == ConnectionState::Close ||
-                     (currentResponse->connectionState == ConnectionState::Default &&
-                      ((currentRequest->httpMajor == 0 && currentRequest->httpMinor == 9) ||
-                       (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0)));
+        const bool close = currentResponse->connectionState == ConnectionState::Close ||
+                           (currentResponse->connectionState == ConnectionState::Default &&
+                            ((currentRequest->httpMajor == 0 && currentRequest->httpMinor == 9) ||
+                             (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0)));
 
         if (close) {
             shutdownWrite();

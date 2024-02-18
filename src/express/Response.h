@@ -20,14 +20,17 @@
 #ifndef EXPRESS_RESPONSE_H
 #define EXPRESS_RESPONSE_H
 
+#include "express/Request.h"
 #include "web/http/server/Response.h" // IWYU pragma: export
 
-namespace web::http {
+namespace web::http::server {
     class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+#include <memory>
 #include <nlohmann/json_fwd.hpp>
 #include <string>
 
@@ -35,9 +38,8 @@ namespace web::http {
 
 namespace express {
 
-    class Response : public web::http::server::Response {
+    class Response {
     public:
-        explicit Response(web::http::SocketContext* socketContext);
         explicit Response(const std::shared_ptr<web::http::server::Response>& response) noexcept;
 
         explicit Response(Response&) = delete;
@@ -46,7 +48,7 @@ namespace express {
         Response& operator=(Response&) = delete;
         Response& operator=(Response&&) noexcept = default;
 
-        ~Response() override;
+        ~Response();
 
         void json(const nlohmann::json& json);
 
@@ -64,6 +66,30 @@ namespace express {
 
     private:
         std::shared_ptr<web::http::server::Response> responseBase;
+
+    public:
+        // Facade to web::http::server::Response (responseBase)
+        Response& status(int status);
+        Response& append(const std::string& field, const std::string& value);
+        Response& set(const std::string& field, const std::string& value, bool overwrite = true);
+        Response& set(const std::map<std::string, std::string>& headers, bool overwrite = true);
+        Response& type(const std::string& type);
+        Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
+        Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
+
+        void send(const char* junk, std::size_t junkLen);
+        void send(const std::string& junk);
+        void upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool success)>& status);
+        void end();
+        void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
+
+        Response& sendHeader();
+        Response& sendFragment(const char* junk, std::size_t junkLen);
+        Response& sendFragment(const std::string& junk);
+
+        const std::string& header(const std::string& field);
+
+        web::http::server::SocketContext* getSocketContext() const;
     };
 
 } // namespace express

@@ -37,7 +37,7 @@ namespace core::socket::stream {
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(const std::string& instanceName,
                                                                                      PhysicalSocket&& physicalSocket,
                                                                                      const std::function<void()>& onDisconnect,
-                                                                                     const std::string &configuredServer,
+                                                                                     const std::string& configuredServer,
                                                                                      const SocketAddress& localAddress,
                                                                                      const SocketAddress& remoteAddress,
                                                                                      const utils::Timeval& readTimeout,

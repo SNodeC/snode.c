@@ -25,11 +25,15 @@
 
 namespace web::http::client {
     class Request;
-    class Response;
 } // namespace web::http::client
+
+namespace core::socket::stream {
+    class SocketConnection;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <functional>
 #include <list>
 #include <memory> // IWYU pragma: export

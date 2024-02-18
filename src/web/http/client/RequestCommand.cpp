@@ -25,11 +25,9 @@
 namespace web::http::client {
 
     RequestCommand::RequestCommand() {
-
     }
 
     RequestCommand::~RequestCommand() {
-
     }
 
-} // web::http::client
+} // namespace web::http::client

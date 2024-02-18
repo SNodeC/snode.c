@@ -24,12 +24,16 @@
 #include "web/http/server/RequestParser.h" // IWYU pragma: export
 
 namespace web::http::server {
-    class Request;
     class Response;
 } // namespace web::http::server
 
+namespace core::socket::stream {
+    class SocketConnection;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <functional>
 #include <list>
 #include <memory> // IWYU pragma: export

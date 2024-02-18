@@ -25,17 +25,16 @@
 
 namespace web::http::client {
 
-    class RequestCommand
-    {
+    class RequestCommand {
     public:
         RequestCommand();
-        RequestCommand(const RequestCommand &) = default;
+        RequestCommand(const RequestCommand&) = default;
 
-        RequestCommand &operator=(const RequestCommand &) = default;
+        RequestCommand& operator=(const RequestCommand&) = default;
 
         ~RequestCommand();
     };
 
-} // web::http::client
+} // namespace web::http::client
 
 #endif // WEB_HTTP_CLIENT_REQUESTCOMMAND_H

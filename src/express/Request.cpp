@@ -30,8 +30,16 @@
 namespace express {
 
     Request::Request(const std::shared_ptr<web::http::server::Request>& request) noexcept
-        : web::http::server::Request(*request)
-        , requestBase(request) {
+        : requestBase(request)
+        , method(request->method)
+        , url(request->url)
+        , httpVersion(request->httpVersion)
+        , httpMajor(request->httpMajor)
+        , httpMinor(request->httpMinor)
+        , queries(request->queries)
+        , headers(request->headers)
+        , cookies(request->cookies)
+        , body(std::move(request->body)) {
         extend();
     }
 
@@ -48,6 +56,18 @@ namespace express {
         }
 
         return *this;
+    }
+
+    const std::string& Request::get(const std::string& key, int i) const {
+        return requestBase->get(key, i);
+    }
+
+    const std::string& Request::cookie(const std::string& key) const {
+        return requestBase->cookie(key);
+    }
+
+    const std::string& Request::query(const std::string& key) const {
+        return requestBase->query(key);
     }
 
 } // namespace express

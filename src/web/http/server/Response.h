@@ -34,9 +34,9 @@ namespace core {
 } // namespace core
 
 namespace web::http {
-    class SocketContext;
     namespace server {
         class Request;
+        class SocketContext;
     } // namespace server
 } // namespace web::http
 
@@ -54,15 +54,17 @@ namespace web::http::server {
 
     class Response : public core::pipe::Sink {
     public:
-        explicit Response(web::http::SocketContext* socketContext);
+        explicit Response(SocketContext* socketContext);
 
-        explicit Response(Response&) = default;
+        explicit Response(Response&) = delete;
         explicit Response(Response&&) noexcept = default;
 
-        Response& operator=(Response&) = default;
+        Response& operator=(Response&) = delete;
         Response& operator=(Response&&) noexcept = default;
 
         ~Response() override;
+
+        void stopResponse();
 
     private:
         virtual void reInit();
@@ -80,9 +82,7 @@ namespace web::http::server {
         void send(const std::string& junk);
         void upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool success)>& status);
         void end();
-
         void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
-        void stopResponse();
 
         Response& sendHeader();
         Response& sendFragment(const char* junk, std::size_t junkLen);
@@ -99,7 +99,7 @@ namespace web::http::server {
     public:
         const std::string& header(const std::string& field);
 
-        web::http::SocketContext* getSocketContext() const;
+        SocketContext* getSocketContext() const;
 
         int statusCode = 200;
 
@@ -111,7 +111,7 @@ namespace web::http::server {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        web::http::SocketContext* socketContext = nullptr;
+        SocketContext* socketContext = nullptr;
         core::socket::stream::SocketContext* socketContextUpgrade = nullptr;
 
         ConnectionState connectionState = ConnectionState::Default;

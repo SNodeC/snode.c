@@ -20,8 +20,12 @@ cmake_minimum_required(VERSION 3.18)
 set(HTTPCLIENT_CPP
     Request.cpp
     RequestCommand.cpp
-    RequestCommands.cpp Response.cpp ResponseParser.cpp SocketContextUpgradeFactory.cpp
-    SocketContext.cpp SocketContextUpgradeFactorySelector.cpp
+    RequestCommands.cpp
+    Response.cpp
+    ResponseParser.cpp
+    SocketContextUpgradeFactory.cpp
+    SocketContext.cpp
+    SocketContextUpgradeFactorySelector.cpp
 )
 
 set(HTTPCLIENT_H

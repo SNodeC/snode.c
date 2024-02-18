@@ -19,9 +19,9 @@
 
 #include "web/http/server/Response.h"
 
+#include "SocketContext.h"
 #include "core/file/FileReader.h"
 #include "web/http/MimeTypes.h"
-#include "web/http/SocketContext.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
@@ -49,6 +49,11 @@ namespace web::http::server {
         if (socketContext != nullptr) {
             socketContext->streamEof();
         }
+    }
+
+    void Response::stopResponse() {
+        stop();
+        socketContext = nullptr;
     }
 
     void Response::reInit() {
@@ -215,11 +220,6 @@ namespace web::http::server {
                 callback(errno);
             }
         }
-    }
-
-    void Response::stopResponse() {
-        stop();
-        socketContext = nullptr;
     }
 
     Response& Response::sendHeader() {

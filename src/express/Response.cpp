@@ -24,21 +24,14 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <filesystem>
-#include <map>
 #include <nlohmann/json.hpp>
-#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express {
 
-    Response::Response(web::http::SocketContext* socketContext)
-        : web::http::server::Response(socketContext) {
-    }
-
     Response::Response(const std::shared_ptr<web::http::server::Response>& response) noexcept
-        : web::http::server::Response(*response)
-        , responseBase(response) {
+        : responseBase(response) {
     }
 
     Response::~Response() {
@@ -84,6 +77,94 @@ namespace express {
     Response& Response::vary(const std::string& field) {
         append("Vary", field);
         return *this;
+    }
+
+    Response& Response::status(int status) {
+        responseBase->status(status);
+
+        return *this;
+    }
+
+    Response& Response::append(const std::string& field, const std::string& value) {
+        responseBase->append(field, value);
+
+        return *this;
+    }
+
+    Response& Response::set(const std::string& field, const std::string& value, bool overwrite) {
+        responseBase->set(field, value, overwrite);
+
+        return *this;
+    }
+
+    Response& Response::set(const std::map<std::string, std::string>& headers, bool overwrite) {
+        responseBase->set(headers, overwrite);
+
+        return *this;
+    }
+
+    Response& Response::type(const std::string& type) {
+        responseBase->type(type);
+
+        return *this;
+    }
+
+    Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {
+        responseBase->cookie(name, value, options);
+
+        return *this;
+    }
+
+    Response& Response::clearCookie(const std::string& name, const std::map<std::string, std::string>& options) {
+        responseBase->clearCookie(name, options);
+
+        return *this;
+    }
+
+    void Response::send(const char* junk, std::size_t junkLen) {
+        responseBase->send(junk, junkLen);
+    }
+
+    void Response::send(const std::string& junk) {
+        responseBase->send(junk);
+    }
+
+    void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool)>& status) {
+        responseBase->upgrade(request->requestBase, status);
+    }
+
+    void Response::end() {
+        responseBase->end();
+    }
+
+    void Response::sendFile(const std::string& file, const std::function<void(int)>& callback) {
+        responseBase->sendFile(file, callback);
+    }
+
+    Response& Response::sendHeader() {
+        responseBase->sendHeader();
+
+        return *this;
+    }
+
+    Response& Response::sendFragment(const char* junk, std::size_t junkLen) {
+        responseBase->sendFragment(junk, junkLen);
+
+        return *this;
+    }
+
+    Response& Response::sendFragment(const std::string& junk) {
+        responseBase->sendFragment(junk);
+
+        return *this;
+    }
+
+    const std::string& Response::header(const std::string& field) {
+        return responseBase->header(field);
+    }
+
+    web::http::server::SocketContext* Response::getSocketContext() const {
+        return responseBase->getSocketContext();
     }
 
 } // namespace express

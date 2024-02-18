@@ -33,9 +33,7 @@
 
 namespace express {
 
-    class Request
-        : public web::http::server::Request
-        , public utils::MultibleAttributeInjector {
+    class Request : public utils::MultibleAttributeInjector {
     public:
         Request() = default;
         explicit Request(const std::shared_ptr<web::http::server::Request>& request) noexcept;
@@ -53,9 +51,29 @@ namespace express {
         std::map<std::string, std::string> params;
 
     private:
+        Request& extend();
+
         std::shared_ptr<web::http::server::Request> requestBase;
 
-        Request& extend();
+        friend class Response;
+
+        // Facade to web::http::server::Request (requestBase)
+    public:
+        const std::string& get(const std::string& key, int i = 0) const;
+        const std::string& cookie(const std::string& key) const;
+        const std::string& query(const std::string& key) const;
+
+        // Properties
+        std::string method;
+        std::string url;
+        std::string httpVersion;
+        int httpMajor = 0;
+        int httpMinor = 0;
+
+        std::map<std::string, std::string> queries;
+        std::map<std::string, std::string> headers;
+        std::map<std::string, std::string> cookies;
+        std::vector<uint8_t> body;
     };
 
 } // namespace express

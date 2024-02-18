@@ -50,10 +50,10 @@ namespace web::http::client {
     public:
         explicit Request(web::http::SocketContext* clientContext);
 
-        explicit Request(Request&) = default;
+        explicit Request(Request&) = delete;
         explicit Request(Request&&) noexcept = default;
 
-        Request& operator=(Request&) = default;
+        Request& operator=(Request&) = delete;
         Request& operator=(Request&&) noexcept = default;
 
         ~Request() override;
