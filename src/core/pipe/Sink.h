@@ -35,10 +35,10 @@ namespace core::pipe {
         Sink();
 
         Sink(Sink&) = delete;
-        Sink(Sink&&) = default;
+        Sink(Sink&&) noexcept = default;
 
         Sink& operator=(Sink&) = delete;
-        Sink& operator=(Sink&&) = default;
+        Sink& operator=(Sink&&) noexcept = default;
 
         virtual ~Sink();
 

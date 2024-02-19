@@ -38,10 +38,10 @@ namespace core::pipe {
         Source() = default;
 
         Source(Source&) = delete;
-        Source(Source&&) = default;
+        Source(Source&&) noexcept = default;
 
         Source& operator=(Source&) = delete;
-        Source& operator=(Source&&) = default;
+        Source& operator=(Source&&) noexcept = default;
 
         virtual ~Source();
 

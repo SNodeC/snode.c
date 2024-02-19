@@ -58,6 +58,8 @@ namespace web::http::client {
 
         ~Request() override;
 
+        void stopResponse();
+
     private:
         virtual void reInit();
 
@@ -70,14 +72,12 @@ namespace web::http::client {
         Request& cookie(const std::string& name, const std::string& value);
         Request& cookie(const std::map<std::string, std::string>& cookies);
 
-        void end();
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
         void upgrade(const std::string& url, const std::string& protocols);
         void upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool success)>& status);
-
         void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
-        void stopResponse();
+        void end();
 
         Request& sendHeader();
         Request& sendFragment(const char* junk, std::size_t junkLen);

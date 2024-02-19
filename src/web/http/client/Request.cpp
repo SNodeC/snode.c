@@ -53,6 +53,11 @@ namespace web::http::client {
         }
     }
 
+    void Request::stopResponse() {
+        stop();
+        socketContext = nullptr;
+    }
+
     void Request::reInit() {
         method = "GET";
         url.clear();
@@ -132,10 +137,6 @@ namespace web::http::client {
         }
 
         return *this;
-    }
-
-    void Request::end() {
-        send("");
     }
 
     void Request::send(const char* junk, std::size_t junkLen) {
@@ -245,9 +246,8 @@ namespace web::http::client {
         }
     }
 
-    void Request::stopResponse() {
-        stop();
-        socketContext = nullptr;
+    void Request::end() {
+        send("");
     }
 
     Request& Request::sendHeader() {

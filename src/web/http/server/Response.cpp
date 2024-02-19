@@ -24,7 +24,6 @@
 #include "web/http/MimeTypes.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
-#include "web/http/server/Request.h"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -186,10 +185,6 @@ namespace web::http::server {
         status(socketContextUpgrade != nullptr);
     }
 
-    void Response::end() {
-        send("");
-    }
-
     void Response::sendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
         if (socketContext != nullptr) {
             std::string absolutFileName = file;
@@ -220,6 +215,10 @@ namespace web::http::server {
                 callback(errno);
             }
         }
+    }
+
+    void Response::end() {
+        send("");
     }
 
     Response& Response::sendHeader() {
