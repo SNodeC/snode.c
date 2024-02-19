@@ -58,11 +58,12 @@ namespace web::http::client {
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd);
 
     private:
-        void sendToPeerStarted() override;
-        void sendToPeerCompleted(bool success) override;
+        void requestPrepared(Request& request);
+        void dispatchNextRequest();
+        void sendToPeerCompleted(bool success);
         void responseParsed();
         void responseError(int status, const std::string& reason);
-        void requestCompleted() override;
+        void requestCompleted();
 
         std::function<void(std::shared_ptr<Request>&)> onRequestBegin;
         std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onResponseReady;
@@ -76,8 +77,9 @@ namespace web::http::client {
 
         std::shared_ptr<Request> currentRequest = nullptr;
         std::shared_ptr<Response> currentResponse = nullptr;
-        std::list<std::shared_ptr<Request>> requests;
-        std::list<std::shared_ptr<Response>> responses;
+
+        std::list<std::shared_ptr<Request>> preparedRequests;
+        std::list<std::shared_ptr<Request>> sentRequests;
 
         std::shared_ptr<Request> masterRequest;
 

@@ -47,7 +47,7 @@ namespace web::http::client {
         , parser(
               this,
               [onResponseReady, this](web::http::client::Response& response) -> void {
-                  responses.emplace_back(std::make_shared<Response>(std::move(response)));
+                  currentResponse = std::make_shared<Response>(std::move(response));
 
                   responseParsed();
               },
@@ -56,15 +56,32 @@ namespace web::http::client {
               }) {
     }
 
-    void SocketContext::sendToPeerStarted() {
+    void SocketContext::requestPrepared(Request& request) {
+        preparedRequests.emplace_back(std::make_shared<Request>(std::move(request)));
+
+        masterRequest->reInit();
+
+        if (preparedRequests.size() == 1) {
+            dispatchNextRequest();
+        }
+    }
+
+    void SocketContext::dispatchNextRequest() {
+        if (!preparedRequests.empty()) {
+            preparedRequests.front()->executeRequestCommands();
+        }
     }
 
     void SocketContext::sendToPeerCompleted(bool success) {
+        sentRequests.push_back(preparedRequests.front());
+        preparedRequests.pop_front();
+
         if (success) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent successful";
 
-            requests.emplace_back(std::make_shared<Request>(std::move(*masterRequest)));
-            masterRequest->reInit();
+            core::EventReceiver::atNextTick([this]() -> void {
+                dispatchNextRequest();
+            });
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent failed";
 
@@ -73,16 +90,12 @@ namespace web::http::client {
     }
 
     void SocketContext::responseParsed() {
-        if (currentResponse == nullptr && !responses.empty()) {
-            currentRequest = requests.front();
-            requests.pop_front();
-            currentResponse = responses.front();
-            responses.pop_front();
+        currentRequest = sentRequests.front();
+        sentRequests.pop_front();
 
-            onResponseReady(currentRequest, currentResponse);
+        onResponseReady(currentRequest, currentResponse);
 
-            requestCompleted();
-        }
+        requestCompleted();
     }
 
     void SocketContext::responseError(int status, const std::string& reason) {
@@ -101,10 +114,6 @@ namespace web::http::client {
 
         if (close) {
             shutdownWrite();
-        } else if (!responses.empty()) {
-            core::EventReceiver::atNextTick([this]() -> void {
-                responseParsed();
-            });
         }
 
         currentRequest = nullptr;

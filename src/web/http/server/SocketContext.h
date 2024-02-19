@@ -57,9 +57,9 @@ namespace web::http::server {
     private:
         void requestParsed();
         void requestError(int status, const std::string& reason);
-        void sendToPeerStarted() override;
-        void sendToPeerCompleted(bool success) override;
-        void requestCompleted() override;
+        void sendToPeerStarted();
+        void sendToPeerCompleted(bool success);
+        void requestCompleted();
 
         std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onRequestReady;
 

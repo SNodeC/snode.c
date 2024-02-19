@@ -1,5 +1,5 @@
 /*
- * SNode.C - a slim toolkit for network communication
+ * snode.c - a slim toolkit for network communication
  * Copyright (C) Volker Christian <me@vchrist.at>
  *               2020, 2021, 2022, 2023, 2024
  *
@@ -17,32 +17,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_SOCKETCONTEXT_H
-#define WEB_HTTP_SOCKETCONTEXT_H
+#include "EndCommand.h"
 
-#include "core/socket/stream/SocketContext.h"
+#include "web/http/client/Request.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace web::http {
+namespace web::http::client::commands {
 
-    class SocketContext : public core::socket::stream::SocketContext {
-    public:
-        SocketContext(const SocketContext&) = delete;
+    void EndCommand::dispatch(Request* request) {
+        request->dispatchEnd();
+    }
 
-        ~SocketContext() override;
-
-        SocketContext& operator=(const SocketContext&) = delete;
-
-    private:
-        using Super = core::socket::stream::SocketContext;
-        using Super::Super;
-
-    public:
-    };
-
-} // namespace web::http
-
-#endif // WEB_HTTP_SOCKETCONTEXT_H
+} // namespace web::http::client::commands

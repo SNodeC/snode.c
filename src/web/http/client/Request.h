@@ -28,16 +28,25 @@ namespace core::pipe {
 }
 
 namespace web::http {
-    class SocketContext;
     namespace client {
+        class RequestCommand;
         class Response;
-    }
+        class SocketContext;
+        namespace commands {
+            class SendFileCommand;
+            class SendFragmentCommand;
+            class SendHeaderCommand;
+            class UpgradeCommand;
+            class EndCommand;
+        } // namespace commands
+    }     // namespace client
 } // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // IWYU pragma: export
 #include <functional>
+#include <list>
 #include <map>
 #include <memory>
 #include <string>
@@ -48,7 +57,7 @@ namespace web::http::client {
 
     class Request : public core::pipe::Sink {
     public:
-        explicit Request(web::http::SocketContext* clientContext);
+        explicit Request(web::http::client::SocketContext* clientContext);
 
         explicit Request(Request&) = delete;
         explicit Request(Request&&) noexcept = default;
@@ -84,6 +93,18 @@ namespace web::http::client {
         Request& sendFragment(const std::string& data);
 
     private:
+        void dispatchSendHeader();
+        void dispatchSendFragment(const char* junk, std::size_t junkLen);
+        void dispatchSendFile(const std::string& file, const std::function<void(int errnum)>& callback);
+        void dispatchUpgrade(const std::string& url, const std::string& protocols);
+        void dispatchEnd();
+
+        friend class commands::SendFileCommand;
+        friend class commands::SendFragmentCommand;
+        friend class commands::SendHeaderCommand;
+        friend class commands::UpgradeCommand;
+        friend class commands::EndCommand;
+
         void sendCompleted();
 
         void onSourceConnect(core::pipe::Source* source) override;
@@ -94,9 +115,13 @@ namespace web::http::client {
     public:
         const std::string& header(const std::string& field);
 
-        web::http::SocketContext* getSocketContext() const;
+        web::http::client::SocketContext* getSocketContext() const;
 
     private:
+        void executeRequestCommands();
+
+        std::list<RequestCommand*> requestCommands;
+
     public:
         std::string method = "GET";
         std::string url;
@@ -112,7 +137,7 @@ namespace web::http::client {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        web::http::SocketContext* socketContext;
+        web::http::client::SocketContext* socketContext;
 
         ConnectionState connectionState = ConnectionState::Default;
 

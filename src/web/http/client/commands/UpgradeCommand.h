@@ -1,5 +1,5 @@
 /*
- * SNode.C - a slim toolkit for network communication
+ * snode.c - a slim toolkit for network communication
  * Copyright (C) Volker Christian <me@vchrist.at>
  *               2020, 2021, 2022, 2023, 2024
  *
@@ -17,32 +17,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_SOCKETCONTEXT_H
-#define WEB_HTTP_SOCKETCONTEXT_H
+#ifndef WEB_HTTP_CLIENT_COMMANDS_UPGRADE1COMMAND_H
+#define WEB_HTTP_CLIENT_COMMANDS_UPGRADE1COMMAND_H
 
-#include "core/socket/stream/SocketContext.h"
+#include "web/http/client/RequestCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <string>
 
-namespace web::http {
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-    class SocketContext : public core::socket::stream::SocketContext {
+namespace web::http::client::commands {
+
+    class UpgradeCommand : public web::http::client::RequestCommand {
     public:
-        SocketContext(const SocketContext&) = delete;
+        UpgradeCommand(const std::string& url, const std::string& protocols);
+        ~UpgradeCommand() override;
 
-        ~SocketContext() override;
-
-        SocketContext& operator=(const SocketContext&) = delete;
+        // RequestCommand interface
+        void dispatch(Request* request) override;
 
     private:
-        using Super = core::socket::stream::SocketContext;
-        using Super::Super;
-
-    public:
+        std::string url;
+        std::string protocols;
     };
 
-} // namespace web::http
+} // namespace web::http::client::commands
 
-#endif // WEB_HTTP_SOCKETCONTEXT_H
+#endif // WEB_HTTP_CLIENT_COMMANDS_UPGRADE1COMMAND_H

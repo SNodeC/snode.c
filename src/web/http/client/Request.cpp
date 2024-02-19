@@ -19,12 +19,19 @@
 
 #include "web/http/client/Request.h"
 
+#include "RequestCommand.h"
+#include "SocketContext.h"
 #include "core/file/FileReader.h"
 #include "web/http/MimeTypes.h"
-#include "web/http/SocketContext.h"
-#include "web/http/client/Response.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
+
+//
+
+#include "commands/SendFileCommand.h"
+#include "commands/SendFragmentCommand.h"
+#include "commands/SendHeaderCommand.h"
+#include "commands/UpgradeCommand.h"
 
 namespace core::socket::stream {
     class SocketContext;
@@ -43,13 +50,17 @@ namespace core::socket::stream {
 
 namespace web::http::client {
 
-    Request::Request(web::http::SocketContext* clientContext)
+    Request::Request(web::http::client::SocketContext* clientContext)
         : socketContext(clientContext) {
     }
 
     Request::~Request() {
         if (socketContext != nullptr) {
             socketContext->streamEof();
+        }
+
+        for (const RequestCommand* requestCommand : requestCommands) {
+            delete requestCommand;
         }
     }
 
@@ -69,6 +80,8 @@ namespace web::http::client {
         contentLength = 0;
         contentSent = 0;
         connectionState = ConnectionState::Default;
+
+        set("X-Powered-By", "snode.c");
     }
 
     Request& Request::host(const std::string& host) {
@@ -140,14 +153,17 @@ namespace web::http::client {
     }
 
     void Request::send(const char* junk, std::size_t junkLen) {
-        if (junkLen > 0) {
-            set("Content-Type", "application/octet-stream");
-        }
-        set("Content-Length", std::to_string(junkLen), true);
+        if (socketContext != nullptr) {
+            if (junkLen > 0) {
+                set("Content-Type", "application/octet-stream");
+            }
+            set("Content-Length", std::to_string(junkLen), true);
 
-        sendHeader();
-        sendFragment(junk, junkLen);
-        sendCompleted();
+            sendHeader();
+            sendFragment(junk, junkLen);
+
+            socketContext->requestPrepared(*this);
+        }
     }
 
     void Request::send(const std::string& junk) {
@@ -158,6 +174,14 @@ namespace web::http::client {
     }
 
     void Request::upgrade(const std::string& url, const std::string& protocols) {
+        if (socketContext != nullptr) {
+            requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
+
+            socketContext->requestPrepared(*this);
+        }
+    }
+
+    void Request::dispatchUpgrade(const std::string& url, const std::string& protocols) {
         this->url = url;
 
         set("Connection", "Upgrade", true);
@@ -169,7 +193,7 @@ namespace web::http::client {
         if (socketContextUpgradeFactory != nullptr) {
             socketContextUpgradeFactory->checkRefCount();
 
-            end();
+            dispatchSendHeader();
         } else {
             socketContext->close();
         }
@@ -214,6 +238,14 @@ namespace web::http::client {
 
     void Request::sendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
         if (socketContext != nullptr) {
+            requestCommands.push_back(new commands::SendFileCommand(file, callback));
+
+            socketContext->requestPrepared(*this);
+        }
+    }
+
+    void Request::dispatchSendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
+        if (socketContext != nullptr) {
             std::string absolutFileName = file;
 
             if (std::filesystem::exists(absolutFileName)) {
@@ -247,13 +279,25 @@ namespace web::http::client {
     }
 
     void Request::end() {
-        send("");
+        if (socketContext != nullptr) {
+            send("");
+        }
+    }
+
+    void Request::dispatchEnd() {
+        sendCompleted();
     }
 
     Request& Request::sendHeader() {
         if (socketContext != nullptr) {
-            socketContext->sendToPeerStarted();
+            requestCommands.push_back(new commands::SendHeaderCommand());
+        }
 
+        return *this;
+    }
+
+    void Request::dispatchSendHeader() {
+        if (socketContext != nullptr) {
             const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
             std::string queryString;
@@ -268,8 +312,6 @@ namespace web::http::client {
             socketContext->sendToPeer(method + " " + url + queryString + " " + httpVersion + "\r\n");
             socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
 
-            set("X-Powered-By", "snode.c");
-
             for (const auto& [field, value] : headers) {
                 socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
             }
@@ -280,20 +322,25 @@ namespace web::http::client {
 
             socketContext->sendToPeer("\r\n");
         } else {
-            LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
+            LOG(DEBUG) << "HTTP: dispatchSendHeader error: SocketContext has gone away";
         }
-        return *this;
     }
 
     Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
+        if (socketContext != nullptr) {
+            requestCommands.push_back(new commands::SendFragmentCommand(junk, junkLen));
+        }
+
+        return *this;
+    }
+
+    void Request::dispatchSendFragment(const char* junk, std::size_t junkLen) {
         if (socketContext != nullptr) {
             socketContext->sendToPeer(junk, junkLen);
             contentSent += junkLen;
         } else {
             LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
         }
-
-        return *this;
     }
 
     Request& Request::sendFragment(const std::string& data) {
@@ -308,7 +355,7 @@ namespace web::http::client {
 
     void Request::onSourceConnect(core::pipe::Source* source) {
         if (socketContext != nullptr && socketContext->streamToPeer(source)) {
-            sendHeader();
+            dispatchSendHeader();
 
             source->start();
         } else {
@@ -345,6 +392,14 @@ namespace web::http::client {
 
     SocketContext* Request::getSocketContext() const {
         return socketContext;
+    }
+
+    void Request::executeRequestCommands() {
+        for (RequestCommand* requestCommand : requestCommands) {
+            requestCommand->dispatch(this);
+            delete requestCommand;
+        }
+        requestCommands.clear();
     }
 
 } // namespace web::http::client

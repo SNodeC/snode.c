@@ -17,6 +17,8 @@
 
 cmake_minimum_required(VERSION 3.18)
 
+add_subdirectory(commands)
+
 set(HTTPCLIENT_CPP
     Request.cpp
     RequestCommand.cpp
@@ -57,7 +59,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(http-client PUBLIC http)
+target_link_libraries(http-client PRIVATE http-client-commands PUBLIC http)
 
 set_target_properties(
     http-client

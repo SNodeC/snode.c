@@ -1,5 +1,5 @@
 /*
- * SNode.C - a slim toolkit for network communication
+ * snode.c - a slim toolkit for network communication
  * Copyright (C) Volker Christian <me@vchrist.at>
  *               2020, 2021, 2022, 2023, 2024
  *
@@ -17,32 +17,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_SOCKETCONTEXT_H
-#define WEB_HTTP_SOCKETCONTEXT_H
+#include "SendFragmentCommand.h"
 
-#include "core/socket/stream/SocketContext.h"
+#include "web/http/client/Request.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <cstring>
 
-namespace web::http {
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-    class SocketContext : public core::socket::stream::SocketContext {
-    public:
-        SocketContext(const SocketContext&) = delete;
+namespace web::http::client::commands {
 
-        ~SocketContext() override;
+    SendFragmentCommand::SendFragmentCommand(const char* junk, std::size_t junkLen)
+        : junk(new char[junkLen])
+        , junkLen(junkLen) {
+        std::memcpy(this->junk, junk, junkLen);
+    }
 
-        SocketContext& operator=(const SocketContext&) = delete;
+    SendFragmentCommand::~SendFragmentCommand() {
+    }
 
-    private:
-        using Super = core::socket::stream::SocketContext;
-        using Super::Super;
+    void SendFragmentCommand::dispatch(Request* request) {
+        request->dispatchSendFragment(junk, junkLen);
+        if (junkLen > 0) {
+            delete[] junk;
+        }
+    }
 
-    public:
-    };
-
-} // namespace web::http
-
-#endif // WEB_HTTP_SOCKETCONTEXT_H
+} // namespace web::http::client::commands

@@ -16,33 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_CLIENT_REQUESTCOMMAND_H
-#define WEB_HTTP_CLIENT_REQUESTCOMMAND_H
+#ifndef WEB_HTTP_CLIENT_COMMANDS_SENDFRAGMENTCOMMAND_H
+#define WEB_HTTP_CLIENT_COMMANDS_SENDFRAGMENTCOMMAND_H
 
-namespace web::http::client {
-    class Request; // IWYU pragma: export
-}
+#include "web/http/client/RequestCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace web::http::client {
+namespace web::http::client::commands {
 
-    class RequestCommand {
+    class SendFragmentCommand : public web::http::client::RequestCommand {
     public:
-        RequestCommand();
-        RequestCommand(const RequestCommand&) = delete;
-        RequestCommand(RequestCommand&&) noexcept = delete;
+        SendFragmentCommand(const char* junk, std::size_t junkLen);
+        ~SendFragmentCommand() override;
 
-        RequestCommand& operator=(const RequestCommand&) = delete;
-        RequestCommand& operator=(RequestCommand&&) noexcept = delete;
+        // RequestCommand interface
+        void dispatch(Request* request) override;
 
-        virtual ~RequestCommand();
-
-        virtual void dispatch(Request* request) = 0;
+    private:
+        char* junk;
+        std::size_t junkLen;
     };
 
-} // namespace web::http::client
+} // namespace web::http::client::commands
 
-#endif // WEB_HTTP_CLIENT_REQUESTCOMMAND_H
+#endif // WEB_HTTP_CLIENT_COMMANDS_SENDFRAGMENTCOMMAND_H
