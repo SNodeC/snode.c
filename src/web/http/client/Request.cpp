@@ -154,7 +154,11 @@ namespace web::http::client {
         return *this;
     }
 
-    void Request::send(const char* junk, std::size_t junkLen) {
+    void Request::send(const char* junk,
+                       std::size_t junkLen,
+                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback) {
+        this->callback = callback;
+
         if (socketContext != nullptr) {
             if (junkLen > 0) {
                 set("Content-Type", "application/octet-stream");
@@ -168,39 +172,24 @@ namespace web::http::client {
         }
     }
 
-    void Request::send(const std::string& junk) {
+    void Request::send(const std::string& junk,
+                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback) {
         if (!junk.empty()) {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
-        send(junk.data(), junk.size());
+        send(junk.data(), junk.size(), callback);
     }
 
-    void Request::upgrade(const std::string& url, const std::string& protocols) {
+    void Request::upgrade(const std::string& url,
+                          const std::string& protocols,
+                          const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback) {
+        this->callback = callback;
+
         if (socketContext != nullptr) {
             requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
 
             socketContext->requestPrepared(*this);
         }
-    }
-
-    void Request::dispatchUpgrade(const std::string& url, const std::string& protocols) {
-        this->url = url;
-
-        set("Connection", "Upgrade", true);
-        set("Upgrade", protocols, true);
-
-        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
-
-        if (socketContextUpgradeFactory != nullptr) {
-            socketContextUpgradeFactory->checkRefCount();
-
-            dispatchSendHeader();
-        } else {
-            socketContext->close();
-        }
-
-        sendCompleted();
     }
 
     void Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool success)>& status) {
@@ -240,11 +229,90 @@ namespace web::http::client {
         status(newSocketContext != nullptr);
     }
 
-    void Request::sendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
+    void Request::sendFile(const std::string& file,
+                           const std::function<void(int)>& onStatus,
+                           const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback) {
+        this->callback = callback;
+
         if (socketContext != nullptr) {
-            requestCommands.push_back(new commands::SendFileCommand(file, callback));
+            requestCommands.push_back(new commands::SendFileCommand(file, onStatus));
 
             socketContext->requestPrepared(*this);
+        }
+    }
+
+    void Request::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback) {
+        this->callback = callback;
+
+        if (socketContext != nullptr) {
+            sendHeader();
+
+            requestCommands.push_back(new commands::EndCommand());
+
+            socketContext->requestPrepared(*this);
+        }
+    }
+
+    Request& Request::sendHeader() {
+        if (socketContext != nullptr) {
+            requestCommands.push_back(new commands::SendHeaderCommand());
+        }
+
+        return *this;
+    }
+
+    void Request::deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
+        callback(request, response);
+    }
+
+    Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
+        if (socketContext != nullptr) {
+            requestCommands.push_back(new commands::SendFragmentCommand(junk, junkLen));
+        }
+
+        return *this;
+    }
+
+    Request& Request::sendFragment(const std::string& data) {
+        return sendFragment(data.data(), data.size());
+    }
+
+    void Request::dispatchSendHeader() {
+        if (socketContext != nullptr) {
+            const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
+
+            std::string queryString;
+            if (!queries.empty()) {
+                queryString += "?";
+                for (auto& [key, value] : queries) {
+                    queryString += httputils::url_encode(key) + "=" + httputils::url_encode(value) + "&";
+                }
+                queryString.pop_back();
+            }
+
+            socketContext->sendToPeer(method + " " + url + queryString + " " + httpVersion + "\r\n");
+            socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
+
+            for (const auto& [field, value] : headers) {
+                socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+            }
+
+            for (const auto& [name, value] : cookies) {
+                socketContext->sendToPeer(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
+            }
+
+            socketContext->sendToPeer("\r\n");
+        } else {
+            LOG(DEBUG) << "HTTP: dispatchSendHeader error: SocketContext has gone away";
+        }
+    }
+
+    void Request::dispatchSendFragment(const char* junk, std::size_t junkLen) {
+        if (socketContext != nullptr) {
+            socketContext->sendToPeer(junk, junkLen);
+            contentSent += junkLen;
+        } else {
+            LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
         }
     }
 
@@ -282,80 +350,31 @@ namespace web::http::client {
         }
     }
 
-    void Request::end() {
-        if (socketContext != nullptr) {
-            sendHeader();
+    void Request::dispatchUpgrade(const std::string& url, const std::string& protocols) {
+        this->url = url;
 
-            requestCommands.push_back(new commands::EndCommand());
+        set("Connection", "Upgrade", true);
+        set("Upgrade", protocols, true);
 
-            socketContext->requestPrepared(*this);
+        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
+
+        if (socketContextUpgradeFactory != nullptr) {
+            socketContextUpgradeFactory->checkRefCount();
+
+            dispatchSendHeader();
+        } else {
+            socketContext->close();
         }
+
+        dispatchCompleted();
     }
 
     void Request::dispatchEnd() {
-        sendCompleted();
+        dispatchCompleted();
     }
 
-    Request& Request::sendHeader() {
-        if (socketContext != nullptr) {
-            requestCommands.push_back(new commands::SendHeaderCommand());
-        }
-
-        return *this;
-    }
-
-    void Request::dispatchSendHeader() {
-        if (socketContext != nullptr) {
-            const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
-
-            std::string queryString;
-            if (!queries.empty()) {
-                queryString += "?";
-                for (auto& [key, value] : queries) {
-                    queryString += httputils::url_encode(key) + "=" + httputils::url_encode(value) + "&";
-                }
-                queryString.pop_back();
-            }
-
-            socketContext->sendToPeer(method + " " + url + queryString + " " + httpVersion + "\r\n");
-            socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
-
-            for (const auto& [field, value] : headers) {
-                socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
-            }
-
-            for (const auto& [name, value] : cookies) {
-                socketContext->sendToPeer(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
-            }
-
-            socketContext->sendToPeer("\r\n");
-        } else {
-            LOG(DEBUG) << "HTTP: dispatchSendHeader error: SocketContext has gone away";
-        }
-    }
-
-    Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
-        if (socketContext != nullptr) {
-            requestCommands.push_back(new commands::SendFragmentCommand(junk, junkLen));
-        }
-
-        return *this;
-    }
-
-    void Request::dispatchSendFragment(const char* junk, std::size_t junkLen) {
-        if (socketContext != nullptr) {
-            socketContext->sendToPeer(junk, junkLen);
-            contentSent += junkLen;
-        } else {
-            LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
-        }
-    }
-
-    Request& Request::sendFragment(const std::string& data) {
-        return sendFragment(data.data(), data.size());
-    }
-
-    void Request::sendCompleted() {
+    void Request::dispatchCompleted() {
         if (socketContext != nullptr) {
             socketContext->requestSent(contentSent == contentLength);
         }
@@ -380,7 +399,7 @@ namespace web::http::client {
             socketContext->streamEof();
         }
 
-        sendCompleted();
+        dispatchCompleted();
     }
 
     void Request::onSourceError(int errnum) {
@@ -391,7 +410,7 @@ namespace web::http::client {
             socketContext->close();
         }
 
-        sendCompleted();
+        dispatchCompleted();
     }
 
     const std::string& Request::header(const std::string& field) {

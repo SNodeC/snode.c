@@ -81,31 +81,40 @@ namespace web::http::client {
         Request& cookie(const std::string& name, const std::string& value);
         Request& cookie(const std::map<std::string, std::string>& cookies);
 
-        void send(const char* junk, std::size_t junkLen);
-        void send(const std::string& junk);
-        void upgrade(const std::string& url, const std::string& protocols);
+        void send(const char* junk,
+                  std::size_t junkLen,
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback);
+        void send(const std::string& junk,
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback);
+        void upgrade(const std::string& url,
+                     const std::string& protocols,
+                     const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback);
         void upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool success)>& status);
-        void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
-        void end();
+        void sendFile(const std::string& file,
+                      const std::function<void(int errnum)>& onStatus,
+                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback);
+        void end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback);
 
         Request& sendHeader();
         Request& sendFragment(const char* junk, std::size_t junkLen);
         Request& sendFragment(const std::string& data);
 
     private:
+        void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
+
         void dispatchSendHeader();
         void dispatchSendFragment(const char* junk, std::size_t junkLen);
         void dispatchSendFile(const std::string& file, const std::function<void(int errnum)>& callback);
         void dispatchUpgrade(const std::string& url, const std::string& protocols);
         void dispatchEnd();
 
+        void dispatchCompleted();
+
         friend class commands::SendFileCommand;
         friend class commands::SendFragmentCommand;
         friend class commands::SendHeaderCommand;
         friend class commands::UpgradeCommand;
         friend class commands::EndCommand;
-
-        void sendCompleted();
 
         void onSourceConnect(core::pipe::Source* source) override;
         void onSourceData(const char* junk, std::size_t junkLen) override;
@@ -121,6 +130,8 @@ namespace web::http::client {
         void executeRequestCommands();
 
         std::list<RequestCommand*> requestCommands;
+
+        std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> callback;
 
     public:
         std::string method = "GET";

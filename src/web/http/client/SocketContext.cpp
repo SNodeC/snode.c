@@ -93,7 +93,7 @@ namespace web::http::client {
         currentRequest = sentRequests.front();
         sentRequests.pop_front();
 
-        onResponseReady(currentRequest, currentResponse);
+        currentRequest->deliverResponse(currentRequest, currentResponse);
 
         requestCompleted();
     }

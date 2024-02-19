@@ -48,7 +48,33 @@ int main(int argc, char* argv[]) {
 
                 req->set("Sec-WebSocket-Protocol", "test, echo");
 
-                req->upgrade("/ws/", "hui, websocket");
+                req->upgrade(
+                    "/ws/", "hui, websocket", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                        VLOG(1) << "OnResponse";
+                        VLOG(2) << "     Status:";
+                        VLOG(2) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
+
+                        VLOG(2) << "     Headers:";
+                        for (const auto& [field, value] : res->headers) {
+                            VLOG(2) << "       " << field + " = " + value;
+                        }
+
+                        VLOG(2) << "     Cookies:";
+                        for (const auto& [name, cookie] : res->cookies) {
+                            VLOG(2) << "       " + name + " = " + cookie.getValue();
+                            for (const auto& [option, value] : cookie.getOptions()) {
+                                VLOG(2) << "         " + option + " = " + value;
+                            }
+                        }
+
+                        req->upgrade(res, [&subProtocol = res->headers["upgrade"]](bool success) -> void {
+                            if (success) {
+                                VLOG(1) << "Successful upgrade to '" << subProtocol << "'";
+                            } else {
+                                VLOG(1) << "Can not upgrade to '" << subProtocol << "'";
+                            }
+                        });
+                    });
             },
             [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                 VLOG(1) << "OnResponse";
@@ -115,7 +141,33 @@ int main(int argc, char* argv[]) {
 
                 req->set("Sec-WebSocket-Protocol", "test, echo");
 
-                req->upgrade("/ws/", "hui, websocket");
+                req->upgrade(
+                    "/ws/", "hui, websocket", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                        VLOG(1) << "OnResponse";
+                        VLOG(2) << "     Status:";
+                        VLOG(2) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
+
+                        VLOG(2) << "     Headers:";
+                        for (const auto& [field, value] : res->headers) {
+                            VLOG(2) << "       " << field + " = " + value;
+                        }
+
+                        VLOG(2) << "     Cookies:";
+                        for (const auto& [name, cookie] : res->cookies) {
+                            VLOG(2) << "       " + name + " = " + cookie.getValue();
+                            for (const auto& [option, value] : cookie.getOptions()) {
+                                VLOG(2) << "         " + option + " = " + value;
+                            }
+                        }
+
+                        req->upgrade(res, [&subProtocol = res->headers["upgrade"]](bool success) -> void {
+                            if (success) {
+                                VLOG(1) << "Successful upgrade to '" << subProtocol << "'";
+                            } else {
+                                VLOG(1) << "Can not upgrade to '" << subProtocol << "'";
+                            }
+                        });
+                    });
             },
             [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                 VLOG(1) << "OnResponse";

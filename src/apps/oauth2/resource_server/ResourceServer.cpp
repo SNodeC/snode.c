@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
-            [queryAccessToken, queryClientId](const std::shared_ptr<web::http::client::Request>& request) -> void {
+            [queryAccessToken, queryClientId, res](const std::shared_ptr<web::http::client::Request>& request) -> void {
                 VLOG(0) << "OnRequestBegin";
                 request->url = "/oauth2/token/validate?client_id=" + queryClientId;
                 request->method = "POST";
@@ -52,7 +52,20 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "AccessToken: " << queryAccessToken;
                 const nlohmann::json requestJson = {{"access_token", queryAccessToken}, {"client_id", queryClientId}};
                 const std::string requestJsonString{requestJson.dump(4)};
-                request->send(requestJsonString);
+                request->send(requestJsonString,
+                              [res]([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& request,
+                                    const std::shared_ptr<web::http::client::Response>& response) -> void {
+                                  VLOG(0) << "OnResponse";
+                                  response->body.push_back(0);
+                                  VLOG(0) << "Response: " << response->body.data();
+                                  if (std::stoi(response->statusCode) != 200) {
+                                      const nlohmann::json errorJson = {{"error", "Invalid access token"}};
+                                      res->status(401).send(errorJson.dump(4));
+                                  } else {
+                                      const nlohmann::json successJson = {{"content", "🦆"}};
+                                      res->status(200).send(successJson.dump(4));
+                                  }
+                              });
             },
             [res]([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& request,
                   const std::shared_ptr<web::http::client::Response>& response) -> void {
