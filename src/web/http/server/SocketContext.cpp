@@ -69,10 +69,10 @@ namespace web::http::server {
         shutdownWrite(true);
     }
 
-    void SocketContext::sendToPeerStarted() {
+    void SocketContext::responseStarted() {
     }
 
-    void SocketContext::sendToPeerCompleted(bool success) {
+    void SocketContext::responseCompleted(bool success) {
         if (success) {
             requestCompleted();
         } else {
@@ -105,11 +105,13 @@ namespace web::http::server {
         }
 
         request = nullptr;
-        response->reInit();
+        response->init();
     }
 
     void SocketContext::onConnected() {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onConnected";
+
+        response->init();
     }
 
     std::size_t SocketContext::onReceivedFromPeer() {

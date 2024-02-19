@@ -67,7 +67,7 @@ namespace web::http::server {
         void stopResponse();
 
     private:
-        virtual void reInit();
+        virtual void init();
 
     public:
         Response& status(int status);

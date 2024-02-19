@@ -357,7 +357,7 @@ namespace web::http::client {
 
     void Request::sendCompleted() {
         if (socketContext != nullptr) {
-            socketContext->sendToPeerCompleted(contentSent == contentLength);
+            socketContext->requestSent(contentSent == contentLength);
         }
     }
 

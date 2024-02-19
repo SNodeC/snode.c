@@ -55,7 +55,7 @@ namespace web::http::server {
         socketContext = nullptr;
     }
 
-    void Response::reInit() {
+    void Response::init() {
         statusCode = 200;
         headers.clear();
         cookies.clear();
@@ -223,7 +223,7 @@ namespace web::http::server {
 
     Response& Response::sendHeader() {
         if (socketContext != nullptr) {
-            socketContext->sendToPeerStarted();
+            socketContext->responseStarted();
 
             socketContext->sendToPeer("HTTP/1.1 " + std::to_string(statusCode) + " " + StatusCode::reason(statusCode) + "\r\n");
             socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
@@ -270,7 +270,7 @@ namespace web::http::server {
                 socketContext->switchSocketContext(socketContextUpgrade);
             }
 
-            socketContext->sendToPeerCompleted(contentSent == contentLength);
+            socketContext->responseCompleted(contentSent == contentLength);
         }
     }
 

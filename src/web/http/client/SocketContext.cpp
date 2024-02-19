@@ -56,6 +56,12 @@ namespace web::http::client {
               }) {
     }
 
+    void SocketContext::dispatchNextRequest() {
+        if (!preparedRequests.empty()) {
+            preparedRequests.front()->executeRequestCommands();
+        }
+    }
+
     void SocketContext::requestPrepared(Request& request) {
         preparedRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
@@ -66,13 +72,7 @@ namespace web::http::client {
         }
     }
 
-    void SocketContext::dispatchNextRequest() {
-        if (!preparedRequests.empty()) {
-            preparedRequests.front()->executeRequestCommands();
-        }
-    }
-
-    void SocketContext::sendToPeerCompleted(bool success) {
+    void SocketContext::requestSent(bool success) {
         sentRequests.push_back(preparedRequests.front());
         preparedRequests.pop_front();
 

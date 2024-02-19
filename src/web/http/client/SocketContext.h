@@ -58,9 +58,10 @@ namespace web::http::client {
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd);
 
     private:
-        void requestPrepared(Request& request);
         void dispatchNextRequest();
-        void sendToPeerCompleted(bool success);
+
+        void requestPrepared(Request& request);
+        void requestSent(bool success);
         void responseParsed();
         void responseError(int status, const std::string& reason);
         void requestCompleted();
