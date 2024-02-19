@@ -35,18 +35,16 @@ namespace web::http::client {
 
     SocketContext::SocketContext(core::socket::stream::SocketConnection* socketConnection,
                                  const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
-                                 const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
                                  const std::function<void(int, const std::string&)>& onResponseParseError,
                                  const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
         : Super(socketConnection)
         , onRequestBegin(onRequestBegin)
-        , onResponseReady(onResponseReady)
         , onResponseParseError(onResponseParseError)
         , onRequestEnd(onRequestEnd)
         , masterRequest(std::make_shared<Request>(this))
         , parser(
               this,
-              [onResponseReady, this](web::http::client::Response& response) -> void {
+              [this](web::http::client::Response& response) -> void {
                   currentResponse = std::make_shared<Response>(std::move(response));
 
                   responseParsed();

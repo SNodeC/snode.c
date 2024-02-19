@@ -107,28 +107,6 @@ namespace apps::http::legacy {
                     logResponse(req, res);
                 });
             },
-            []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
-                LOG(INFO) << "-- OnResponse";
-                LOG(INFO) << "     Status:";
-                LOG(INFO) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
-
-                LOG(INFO) << "     Headers:";
-                for (const auto& [field, value] : res->headers) {
-                    LOG(INFO) << "       " << field + " = " + value;
-                }
-
-                LOG(INFO) << "     Cookies:";
-                for (const auto& [name, cookie] : res->cookies) {
-                    LOG(INFO) << "       " + name + " = " + cookie.getValue();
-                    for (const auto& [option, value] : cookie.getOptions()) {
-                        LOG(INFO) << "         " + option + " = " + value;
-                    }
-                }
-
-                res->body.push_back(0); // make it a c-string
-                std::cout << "Body:\n----------- start body -----------\n"
-                          << res->body.data() << "\n------------ end body ------------" << std::endl;
-            },
             [](int status, const std::string& reason) -> void {
                 LOG(INFO) << "-- OnResponseParseError";
                 LOG(INFO) << "     Status: " << status;
@@ -186,28 +164,6 @@ namespace apps::http::tls {
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                     logResponse(req, res);
                 });
-            },
-            []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
-                LOG(INFO) << "-- OnResponse";
-                LOG(INFO) << "     Status:";
-                LOG(INFO) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
-
-                LOG(INFO) << "     Headers:";
-                for (const auto& [field, value] : res->headers) {
-                    LOG(INFO) << "       " << field + " = " + value;
-                }
-
-                LOG(INFO) << "     Cookies:";
-                for (const auto& [name, cookie] : res->cookies) {
-                    LOG(INFO) << "       " + name + " = " + cookie.getValue();
-                    for (const auto& [option, value] : cookie.getOptions()) {
-                        LOG(INFO) << "         " + option + " = " + value;
-                    }
-                }
-
-                res->body.push_back(0); // make it a c-string
-                std::cout << "Body:\n----------- start body -----------\n"
-                          << res->body.data() << "\n------------ end body ------------" << std::endl;
             },
             [](int status, const std::string& reason) -> void {
                 LOG(INFO) << "-- OnResponseError";

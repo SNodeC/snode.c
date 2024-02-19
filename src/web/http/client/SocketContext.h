@@ -53,7 +53,6 @@ namespace web::http::client {
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
                       const std::function<void(std::shared_ptr<Request>&)>& onRequestBegin,
-                      const std::function<void(std::shared_ptr<Request>&, std::shared_ptr<Response>&)>& onResponseReady,
                       const std::function<void(int, const std::string&)>& onResponseParseError,
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd);
 
@@ -67,7 +66,6 @@ namespace web::http::client {
         void requestCompleted();
 
         std::function<void(std::shared_ptr<Request>&)> onRequestBegin;
-        std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onResponseReady;
         std::function<void(int, const std::string&)> onResponseParseError;
         std::function<void(const std::shared_ptr<Request>&)> onRequestEnd;
 

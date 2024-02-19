@@ -67,19 +67,6 @@ int main(int argc, char* argv[]) {
                                   }
                               });
             },
-            [res]([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& request,
-                  const std::shared_ptr<web::http::client::Response>& response) -> void {
-                VLOG(0) << "OnResponse";
-                response->body.push_back(0);
-                VLOG(0) << "Response: " << response->body.data();
-                if (std::stoi(response->statusCode) != 200) {
-                    const nlohmann::json errorJson = {{"error", "Invalid access token"}};
-                    res->status(401).send(errorJson.dump(4));
-                } else {
-                    const nlohmann::json successJson = {{"content", "🦆"}};
-                    res->status(200).send(successJson.dump(4));
-                }
-            },
             [res](int status, const std::string& reason) -> void {
                 VLOG(0) << "OnResponseError";
                 VLOG(0) << "     Status: " << status;
