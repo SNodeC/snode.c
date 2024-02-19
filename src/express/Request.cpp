@@ -36,9 +36,9 @@ namespace express {
         , httpVersion(request->httpVersion)
         , httpMajor(request->httpMajor)
         , httpMinor(request->httpMinor)
-        , queries(request->queries)
+        , queries(std::move(request->queries))
         , headers(request->headers)
-        , cookies(request->cookies)
+        , cookies(std::move(request->cookies))
         , body(std::move(request->body)) {
         extend();
     }
