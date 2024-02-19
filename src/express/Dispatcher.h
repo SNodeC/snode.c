@@ -49,7 +49,7 @@ namespace express {
         bool dispatchNext(Controller& controller, const std::string& parentMountPath);
 
     private:
-        std::shared_ptr<Route> next = nullptr;
+        std::shared_ptr<Route> nextRoute = nullptr;
 
         friend class Route;
     };

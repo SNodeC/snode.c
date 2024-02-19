@@ -33,8 +33,8 @@ namespace express {
     bool Dispatcher::dispatchNext(Controller& controller, const std::string& parentMountPath) {
         bool dispatched = false;
 
-        if (next != nullptr) {
-            dispatched = next->dispatch(controller, parentMountPath);
+        if (nextRoute != nullptr) {
+            dispatched = nextRoute->dispatch(controller, parentMountPath);
         }
 
         return dispatched;

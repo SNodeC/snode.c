@@ -33,13 +33,13 @@
 #define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                    \
     Route& Route::METHOD(                                                                                                                  \
         const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda) const {  \
-        return *(dispatcher->next = std::make_shared<Route>(                                                                               \
+        return *(dispatcher->nextRoute = std::make_shared<Route>(                                                                          \
                      HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)))               \
                     .get();                                                                                                                \
     }                                                                                                                                      \
     Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda)     \
         const {                                                                                                                            \
-        return *(dispatcher->next = std::make_shared<Route>(                                                                               \
+        return *(dispatcher->nextRoute = std::make_shared<Route>(                                                                          \
                      HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda)))              \
                     .get();                                                                                                                \
     }
