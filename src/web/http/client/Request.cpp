@@ -199,6 +199,8 @@ namespace web::http::client {
         } else {
             socketContext->close();
         }
+
+        sendCompleted();
     }
 
     void Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool success)>& status) {
