@@ -70,7 +70,7 @@ namespace web::http::client {
         void stopResponse();
 
     private:
-        virtual void reInit();
+        virtual void init(const std::string& host);
 
     public:
         Request& host(const std::string& host);

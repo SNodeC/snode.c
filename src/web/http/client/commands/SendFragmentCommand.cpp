@@ -40,9 +40,8 @@ namespace web::http::client::commands {
 
     void SendFragmentCommand::dispatch(Request* request) {
         request->dispatchSendFragment(junk, junkLen);
-        if (junkLen > 0) {
-            delete[] junk;
-        }
+
+        delete[] junk;
     }
 
 } // namespace web::http::client::commands

@@ -59,7 +59,7 @@ namespace web::http::client {
     void SocketContext::requestPrepared(Request& request) {
         preparedRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
-        masterRequest->reInit();
+        masterRequest->init(getSocketConnection()->getConfiguredServer());
 
         if (preparedRequests.size() == 1) {
             dispatchNextRequest();
@@ -123,7 +123,7 @@ namespace web::http::client {
     void SocketContext::onConnected() {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onConnected";
 
-        masterRequest->host(getSocketConnection()->getConfiguredServer());
+        masterRequest->init(getSocketConnection()->getConfiguredServer());
 
         onRequestBegin(masterRequest);
     }

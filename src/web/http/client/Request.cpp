@@ -28,6 +28,7 @@
 
 //
 
+#include "commands/EndCommand.h"
 #include "commands/SendFileCommand.h"
 #include "commands/SendFragmentCommand.h"
 #include "commands/SendHeaderCommand.h"
@@ -69,7 +70,7 @@ namespace web::http::client {
         socketContext = nullptr;
     }
 
-    void Request::reInit() {
+    void Request::init(const std::string& host) {
         method = "GET";
         url.clear();
         httpMajor = 1;
@@ -81,6 +82,7 @@ namespace web::http::client {
         contentSent = 0;
         connectionState = ConnectionState::Default;
 
+        set("Host", host);
         set("X-Powered-By", "snode.c");
     }
 
@@ -280,6 +282,8 @@ namespace web::http::client {
 
     void Request::end() {
         if (socketContext != nullptr) {
+            requestCommands.push_back(new commands::EndCommand());
+
             send("");
         }
     }
