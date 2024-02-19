@@ -50,6 +50,8 @@ namespace express {
 
         ~Response();
 
+        web::http::server::SocketContext* getSocketContext() const;
+
         void json(const nlohmann::json& json);
 
         void download(const std::string& file, const std::function<void(int err)>& onError);
@@ -88,8 +90,6 @@ namespace express {
         Response& sendFragment(const std::string& junk);
 
         const std::string& header(const std::string& field);
-
-        web::http::server::SocketContext* getSocketContext() const;
     };
 
 } // namespace express

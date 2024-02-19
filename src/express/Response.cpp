@@ -37,6 +37,10 @@ namespace express {
     Response::~Response() {
     }
 
+    web::http::server::SocketContext* Response::getSocketContext() const {
+        return responseBase->getSocketContext();
+    }
+
     void Response::json(const nlohmann::json& json) {
         set("Content-Type", "application/json");
         send(json.dump());
@@ -66,16 +70,19 @@ namespace express {
 
     Response& Response::attachment(const std::string& fileName) {
         set("Content-Disposition", "attachment" + ((!fileName.empty()) ? ("; filename=\"" + fileName + "\"") : ""));
+
         return *this;
     }
 
     Response& Response::location(const std::string& loc) {
         set("Location", loc);
+
         return *this;
     }
 
     Response& Response::vary(const std::string& field) {
         append("Vary", field);
+
         return *this;
     }
 
@@ -161,10 +168,6 @@ namespace express {
 
     const std::string& Response::header(const std::string& field) {
         return responseBase->header(field);
-    }
-
-    web::http::server::SocketContext* Response::getSocketContext() const {
-        return responseBase->getSocketContext();
     }
 
 } // namespace express
