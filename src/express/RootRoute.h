@@ -34,11 +34,6 @@ namespace express {
     } // namespace dispatcher
 } // namespace express
 
-namespace web::http::server {
-    class Request;
-    class Response;
-} // namespace web::http::server
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
@@ -67,8 +62,6 @@ namespace express {
         RootRoute() = default;
 
     protected:
-        void dispatch(const std::shared_ptr<web::http::server::Request>& req, const std::shared_ptr<web::http::server::Response>& res);
-
         void dispatch(Controller&& controller);
         void dispatch(Controller& controller);
 

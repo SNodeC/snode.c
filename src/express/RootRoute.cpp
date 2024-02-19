@@ -67,11 +67,6 @@ namespace express {
         return std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getRoutes();
     }
 
-    void RootRoute::dispatch(const std::shared_ptr<web::http::server::Request>& req,
-                             const std::shared_ptr<web::http::server::Response>& res) {
-        dispatch(Controller(req, res));
-    }
-
     void RootRoute::dispatch(Controller&& controller) {
         controller.setRootRoute(this);
 
