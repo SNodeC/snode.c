@@ -35,7 +35,7 @@ namespace web::http::client::commands {
     UpgradeCommand::~UpgradeCommand() {
     }
 
-    void UpgradeCommand::dispatch(Request *request) {
+    void UpgradeCommand::dispatch(Request* request) {
         request->dispatchUpgrade(url, protocols);
     }
 

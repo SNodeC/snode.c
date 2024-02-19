@@ -33,7 +33,7 @@ namespace web::http::client::commands {
     SendHeaderCommand::~SendHeaderCommand() {
     }
 
-    void SendHeaderCommand::dispatch(Request *request) {
+    void SendHeaderCommand::dispatch(Request* request) {
         request->dispatchSendHeader();
     }
 

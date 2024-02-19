@@ -33,7 +33,7 @@ namespace web::http::client::commands {
 
     class SendFileCommand : public web::http::client::RequestCommand {
     public:
-        SendFileCommand(const std::string& file, const std::function<void(int errnum)>& callback);
+        SendFileCommand(const std::string& file, const std::function<void(int errnum)>& onResponseReceived);
         ~SendFileCommand() override;
 
         // RequestCommand interface
@@ -41,7 +41,7 @@ namespace web::http::client::commands {
 
     private:
         std::string file;
-        std::function<void(int errnum)> callback;
+        std::function<void(int errnum)> onResponseReceived;
     };
 
 } // namespace web::http::client::commands

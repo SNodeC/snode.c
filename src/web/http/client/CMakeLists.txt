@@ -59,7 +59,11 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(http-client PRIVATE http-client-commands PUBLIC http)
+target_link_libraries(
+    http-client
+    PRIVATE http-client-commands
+    PUBLIC http
+)
 
 set_target_properties(
     http-client

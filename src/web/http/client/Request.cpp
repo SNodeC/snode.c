@@ -156,8 +156,8 @@ namespace web::http::client {
 
     void Request::send(const char* junk,
                        std::size_t junkLen,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback) {
-        this->callback = callback;
+                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived) {
+        this->onResponseReceived = onResponseReceived;
 
         if (socketContext != nullptr) {
             if (junkLen > 0) {
@@ -173,17 +173,18 @@ namespace web::http::client {
     }
 
     void Request::send(const std::string& junk,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback) {
+                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived) {
         if (!junk.empty()) {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
-        send(junk.data(), junk.size(), callback);
+        send(junk.data(), junk.size(), onResponseReceived);
     }
 
-    void Request::upgrade(const std::string& url,
-                          const std::string& protocols,
-                          const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback) {
-        this->callback = callback;
+    void
+    Request::upgrade(const std::string& url,
+                     const std::string& protocols,
+                     const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived) {
+        this->onResponseReceived = onResponseReceived;
 
         if (socketContext != nullptr) {
             requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
@@ -229,10 +230,11 @@ namespace web::http::client {
         status(newSocketContext != nullptr);
     }
 
-    void Request::sendFile(const std::string& file,
-                           const std::function<void(int)>& onStatus,
-                           const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback) {
-        this->callback = callback;
+    void
+    Request::sendFile(const std::string& file,
+                      const std::function<void(int)>& onStatus,
+                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived) {
+        this->onResponseReceived = onResponseReceived;
 
         if (socketContext != nullptr) {
             requestCommands.push_back(new commands::SendFileCommand(file, onStatus));
@@ -241,8 +243,8 @@ namespace web::http::client {
         }
     }
 
-    void Request::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& callback) {
-        this->callback = callback;
+    void Request::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived) {
+        this->onResponseReceived = onResponseReceived;
 
         if (socketContext != nullptr) {
             sendHeader();
@@ -262,7 +264,7 @@ namespace web::http::client {
     }
 
     void Request::deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
-        callback(request, response);
+        onResponseReceived(request, response);
     }
 
     Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
@@ -316,7 +318,7 @@ namespace web::http::client {
         }
     }
 
-    void Request::dispatchSendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
+    void Request::dispatchSendFile(const std::string& file, const std::function<void(int errnum)>& onResponseReceived) {
         if (socketContext != nullptr) {
             std::string absolutFileName = file;
 
@@ -326,8 +328,8 @@ namespace web::http::client {
 
                 if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
                     core::file::FileReader::open(absolutFileName)
-                        ->pipe(this, [this, &absolutFileName, &callback](core::pipe::Source* source, int errnum) -> void {
-                            callback(errnum);
+                        ->pipe(this, [this, &absolutFileName, &onResponseReceived](core::pipe::Source* source, int errnum) -> void {
+                            onResponseReceived(errnum);
 
                             if (errnum == 0) {
                                 set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
@@ -339,11 +341,11 @@ namespace web::http::client {
                         });
                 } else {
                     errno = EEXIST;
-                    callback(errno);
+                    onResponseReceived(errno);
                 }
             } else {
                 errno = ENOENT;
-                callback(errno);
+                onResponseReceived(errno);
             }
         } else {
             LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
