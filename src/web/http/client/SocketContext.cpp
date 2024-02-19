@@ -113,6 +113,8 @@ namespace web::http::client {
                              (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0)));
 
         if (close) {
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: 'Connection = Close'";
+
             shutdownWrite();
         }
 

@@ -41,13 +41,7 @@ namespace web::http::server {
         , parser(
               this,
               [this](web::http::server::Request& request) -> void {
-                  const std::string connection = request.get("Connection");
-                  if (!connection.empty()) {
-                      response->set("Connection", connection);
-                  }
-
                   requests.emplace_back(std::make_shared<Request>(std::move(request)));
-
                   requestParsed();
               },
               [this](int status, const std::string& reason) -> void {
@@ -56,9 +50,14 @@ namespace web::http::server {
     }
 
     void SocketContext::requestParsed() {
-        if (request == nullptr && !requests.empty()) { // cppcheck-suppress accessMoved
+        if (request == nullptr && !requests.empty()) {
             request = requests.front();
             requests.pop_front();
+
+            const std::string connection = request->get("Connection");
+            if (!connection.empty()) {
+                response->set("Connection", connection);
+            }
 
             onRequestReady(request, response);
         }
@@ -93,6 +92,8 @@ namespace web::http::server {
                  ((request->httpMajor == 0 && request->httpMinor == 9) || (request->httpMajor == 1 && request->httpMinor == 0)));
 
             if (close) {
+                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: 'Connection = Close'";
+
                 shutdownWrite();
             } else if (!requests.empty()) {
                 core::EventReceiver::atNextTick([this]() -> void {

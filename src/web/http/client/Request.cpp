@@ -282,9 +282,11 @@ namespace web::http::client {
 
     void Request::end() {
         if (socketContext != nullptr) {
+            sendHeader();
+
             requestCommands.push_back(new commands::EndCommand());
 
-            send("");
+            socketContext->requestPrepared(*this);
         }
     }
 
