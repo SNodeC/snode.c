@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
         VLOG(0) << "Content-Length: " << req->get("Content-Length");
 
         req->body.push_back(0);
-        VLOG(0) << req->body.data();
+        VLOG(0) << "Content:\n" << req->body.data();
 
         res->send("<html>\n"
                   "    <body>\n"
