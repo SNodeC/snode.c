@@ -45,11 +45,17 @@ namespace web::http::server {
                   requestParsed();
               },
               [this](int status, const std::string& reason) -> void {
-                  requestError(status, reason);
+                  requestParseError(status, reason);
               }) {
     }
 
+    void SocketContext::requestStarted() {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request started";
+    }
+
     void SocketContext::requestParsed() {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parsed";
+
         if (request == nullptr && !requests.empty()) {
             request = requests.front();
             requests.pop_front();
@@ -63,27 +69,30 @@ namespace web::http::server {
         }
     }
 
-    void SocketContext::requestError(int status, const std::string& reason) {
+    void SocketContext::requestParseError(int status, const std::string& reason) {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parse error: " << status << " : " << reason;
+
         response->status(status).send(reason);
 
         shutdownWrite(true);
     }
 
     void SocketContext::responseStarted() {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started";
     }
 
     void SocketContext::responseCompleted(bool success) {
         if (success) {
             requestCompleted();
         } else {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request: wrong content length";
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response wrong content length";
 
             shutdownWrite();
         }
     }
 
     void SocketContext::requestCompleted() {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed";
 
         if (request != nullptr) {
             const bool close =
@@ -92,13 +101,17 @@ namespace web::http::server {
                  ((request->httpMajor == 0 && request->httpMinor == 9) || (request->httpMajor == 1 && request->httpMinor == 0)));
 
             if (close) {
-                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: 'Connection = Close'";
+                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
 
                 shutdownWrite();
-            } else if (!requests.empty()) {
-                core::EventReceiver::atNextTick([this]() -> void {
-                    requestParsed();
-                });
+            } else {
+                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
+
+                if (!requests.empty()) {
+                    core::EventReceiver::atNextTick([this]() -> void {
+                        requestParsed();
+                    });
+                }
             }
         } else {
             shutdownWrite();

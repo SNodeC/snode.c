@@ -50,10 +50,6 @@ namespace core::socket::stream {
 
 namespace web::http::client {
 
-    void Request::responseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
-        LOG(INFO) << "HTTP Response parse error: " << request->url << " - " << message;
-    }
-
     Request::Request(web::http::client::SocketContext* clientContext)
         : socketContext(clientContext) {
     }
@@ -155,6 +151,10 @@ namespace web::http::client {
         }
 
         return *this;
+    }
+
+    void Request::responseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
+        LOG(INFO) << "HTTP Response parse error: " << request->url << " - " << message;
     }
 
     void Request::send(const char* junk,
@@ -437,9 +437,9 @@ namespace web::http::client {
         return socketContext;
     }
 
-    void Request::executeRequestCommands() {
+    void Request::execute() {
         for (RequestCommand* requestCommand : requestCommands) {
-            requestCommand->dispatch(this);
+            requestCommand->execute(this);
             delete requestCommand;
         }
         requestCommands.clear();

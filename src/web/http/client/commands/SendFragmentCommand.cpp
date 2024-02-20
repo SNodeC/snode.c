@@ -35,10 +35,7 @@ namespace web::http::client::commands {
         std::memcpy(this->junk, junk, junkLen);
     }
 
-    SendFragmentCommand::~SendFragmentCommand() {
-    }
-
-    void SendFragmentCommand::dispatch(Request* request) {
+    void SendFragmentCommand::execute(Request* request) {
         request->dispatchSendFragment(junk, junkLen);
 
         delete[] junk;

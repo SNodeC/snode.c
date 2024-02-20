@@ -69,8 +69,7 @@ namespace web::http::client {
 
     private:
         virtual void init(const std::string& host);
-
-        static void responseParseError(const std::shared_ptr<Request>& request, const std::string& message);
+        void execute();
 
     public:
         Request& host(const std::string& host);
@@ -80,6 +79,8 @@ namespace web::http::client {
         Request& type(const std::string& type);
         Request& cookie(const std::string& name, const std::string& value);
         Request& cookie(const std::map<std::string, std::string>& cookies);
+
+        static void responseParseError(const std::shared_ptr<Request>& request, const std::string& message);
 
         void send(const char* junk,
                   std::size_t junkLen,
@@ -138,8 +139,6 @@ namespace web::http::client {
         web::http::client::SocketContext* getSocketContext() const;
 
     private:
-        void executeRequestCommands();
-
         std::list<RequestCommand*> requestCommands;
 
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;

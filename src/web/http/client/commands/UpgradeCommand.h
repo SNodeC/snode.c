@@ -33,10 +33,10 @@ namespace web::http::client::commands {
     class UpgradeCommand : public web::http::client::RequestCommand {
     public:
         UpgradeCommand(const std::string& url, const std::string& protocols);
-        ~UpgradeCommand() override;
+        ~UpgradeCommand() override = default;
 
         // RequestCommand interface
-        void dispatch(Request* request) override;
+        void execute(Request* request) override;
 
     private:
         std::string url;

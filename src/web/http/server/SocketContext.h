@@ -55,8 +55,9 @@ namespace web::http::server {
                       const std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)>& onRequestReady);
 
     private:
+        void requestStarted();
         void requestParsed();
-        void requestError(int status, const std::string& reason);
+        void requestParseError(int status, const std::string& reason);
         void responseStarted();
         void responseCompleted(bool success);
         void requestCompleted();

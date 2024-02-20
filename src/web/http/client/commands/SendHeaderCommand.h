@@ -29,11 +29,11 @@ namespace web::http::client::commands {
 
     class SendHeaderCommand : public web::http::client::RequestCommand {
     public:
-        SendHeaderCommand();
-        ~SendHeaderCommand() override;
+        SendHeaderCommand() = default;
+        ~SendHeaderCommand() override = default;
 
         // RequestCommand interface
-        void dispatch(Request* request) override;
+        void execute(Request* request) override;
     };
 
 } // namespace web::http::client::commands

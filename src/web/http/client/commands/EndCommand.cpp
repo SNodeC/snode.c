@@ -27,7 +27,7 @@
 
 namespace web::http::client::commands {
 
-    void EndCommand::dispatch(Request* request) {
+    void EndCommand::execute(Request* request) {
         request->dispatchEnd();
     }
 

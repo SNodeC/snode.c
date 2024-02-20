@@ -34,10 +34,10 @@ namespace web::http::client::commands {
     class SendFileCommand : public web::http::client::RequestCommand {
     public:
         SendFileCommand(const std::string& file, const std::function<void(int errnum)>& onResponseReceived);
-        ~SendFileCommand() override;
+        ~SendFileCommand() override = default;
 
         // RequestCommand interface
-        void dispatch(Request* request) override;
+        void execute(Request* request) override;
 
     private:
         std::string file;

@@ -32,10 +32,7 @@ namespace web::http::client::commands {
         , onResponseReceived(onResponseReceived) {
     }
 
-    SendFileCommand::~SendFileCommand() {
-    }
-
-    void SendFileCommand::dispatch(Request* request) {
+    void SendFileCommand::execute(Request* request) {
         request->dispatchSendFile(file, onResponseReceived);
     }
 

@@ -27,13 +27,7 @@
 
 namespace web::http::client::commands {
 
-    SendHeaderCommand::SendHeaderCommand() {
-    }
-
-    SendHeaderCommand::~SendHeaderCommand() {
-    }
-
-    void SendHeaderCommand::dispatch(Request* request) {
+    void SendHeaderCommand::execute(Request* request) {
         request->dispatchSendHeader();
     }
 

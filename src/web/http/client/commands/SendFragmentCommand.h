@@ -32,10 +32,10 @@ namespace web::http::client::commands {
     class SendFragmentCommand : public web::http::client::RequestCommand {
     public:
         SendFragmentCommand(const char* junk, std::size_t junkLen);
-        ~SendFragmentCommand() override;
+        ~SendFragmentCommand() override = default;
 
         // RequestCommand interface
-        void dispatch(Request* request) override;
+        void execute(Request* request) override;
 
     private:
         char* junk;

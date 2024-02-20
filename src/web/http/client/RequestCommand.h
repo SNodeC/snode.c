@@ -40,7 +40,7 @@ namespace web::http::client {
 
         virtual ~RequestCommand();
 
-        virtual void dispatch(Request* request) = 0;
+        virtual void execute(Request* request) = 0;
     };
 
 } // namespace web::http::client

@@ -59,11 +59,15 @@ namespace web::http::client {
 
     void SocketContext::dispatchNextRequest() {
         if (!preparedRequests.empty()) {
-            preparedRequests.front()->executeRequestCommands();
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request dispatch next";
+
+            preparedRequests.front()->execute();
         }
     }
 
     void SocketContext::requestPrepared(Request& request) {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request prepared";
+
         preparedRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
         masterRequest->init(getSocketConnection()->getConfiguredServer());
@@ -80,9 +84,11 @@ namespace web::http::client {
         if (success) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent successful";
 
-            core::EventReceiver::atNextTick([this]() -> void {
-                dispatchNextRequest();
-            });
+            if (!preparedRequests.empty()) {
+                core::EventReceiver::atNextTick([this]() -> void {
+                    dispatchNextRequest();
+                });
+            }
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent failed";
 
@@ -91,17 +97,23 @@ namespace web::http::client {
     }
 
     void SocketContext::responseStarted() {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started";
+
         currentRequest = sentRequests.front();
         sentRequests.pop_front();
     }
 
     void SocketContext::responseParsed() {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parsed";
+
         currentRequest->deliverResponse(currentRequest, currentResponse);
 
         requestCompleted();
     }
 
-    void SocketContext::responseError([[maybe_unused]] int status, const std::string& reason) {
+    void SocketContext::responseError(int status, const std::string& reason) {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parse error: " << status << " : " << reason;
+
         currentRequest->deliverResponseParseError(currentRequest, reason);
 
         shutdownWrite(true);
@@ -116,9 +128,11 @@ namespace web::http::client {
                              (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0)));
 
         if (close) {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: 'Connection = Close'";
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
 
             shutdownWrite();
+        } else {
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
         }
 
         currentRequest = nullptr;
