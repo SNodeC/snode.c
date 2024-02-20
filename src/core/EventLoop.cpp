@@ -235,13 +235,13 @@ namespace core {
             signal = std::to_string(stopsig);
         }
 
-        eventLoopState = State::STOPPING;
-
         if (stopsig != 0) {
             LOG(TRACE) << "Core: Sending signal " << signal << " to all DescriptorEventReceivers";
 
             EventLoop::instance().eventMultiplexer.signal(stopsig);
         }
+
+        eventLoopState = State::STOPPING;
 
         utils::Timeval timeout = 2;
 

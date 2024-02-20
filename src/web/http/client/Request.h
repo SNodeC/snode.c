@@ -27,20 +27,18 @@ namespace core::pipe {
     class Source;
 }
 
-namespace web::http {
-    namespace client {
-        class RequestCommand;
-        class Response;
-        class SocketContext;
-        namespace commands {
-            class SendFileCommand;
-            class SendFragmentCommand;
-            class SendHeaderCommand;
-            class UpgradeCommand;
-            class EndCommand;
-        } // namespace commands
-    }     // namespace client
-} // namespace web::http
+namespace web::http::client {
+    class RequestCommand;
+    class Response;
+    class SocketContext;
+    namespace commands {
+        class SendFileCommand;
+        class SendFragmentCommand;
+        class SendHeaderCommand;
+        class UpgradeCommand;
+        class EndCommand;
+    } // namespace commands
+} // namespace web::http::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -72,6 +70,8 @@ namespace web::http::client {
     private:
         virtual void init(const std::string& host);
 
+        static void responseParseError(const std::shared_ptr<Request>& request, const std::string& message);
+
     public:
         Request& host(const std::string& host);
         Request& append(const std::string& field, const std::string& value);
@@ -83,17 +83,27 @@ namespace web::http::client {
 
         void send(const char* junk,
                   std::size_t junkLen,
-                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived);
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                  const std::function<void(const std::shared_ptr<Request>& request, const std::string& message)>& onResponseParseError =
+                      responseParseError);
         void send(const std::string& junk,
-                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived);
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                  const std::function<void(const std::shared_ptr<Request>& request, const std::string& message)>& onResponseParseError =
+                      responseParseError);
         void upgrade(const std::string& url,
                      const std::string& protocols,
-                     const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived);
+                     const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                     const std::function<void(const std::shared_ptr<Request>& request, const std::string& message)>& onResponseParseError =
+                         responseParseError);
         void upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool success)>& status);
         void sendFile(const std::string& file,
                       const std::function<void(int errnum)>& onStatus,
-                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived);
-        void end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived);
+                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                      const std::function<void(const std::shared_ptr<Request>& request, const std::string& message)>& onResponseParseError =
+                          responseParseError);
+        void end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                 const std::function<void(const std::shared_ptr<Request>& request, const std::string& message)>& onResponseParseError =
+                     responseParseError);
 
         Request& sendHeader();
         Request& sendFragment(const char* junk, std::size_t junkLen);
@@ -101,6 +111,7 @@ namespace web::http::client {
 
     private:
         void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
+        void deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message);
 
         void dispatchSendHeader();
         void dispatchSendFragment(const char* junk, std::size_t junkLen);
@@ -132,6 +143,7 @@ namespace web::http::client {
         std::list<RequestCommand*> requestCommands;
 
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
+        std::function<void(const std::shared_ptr<Request>& request, const std::string& message)> onResponseParseError;
 
     public:
         std::string method = "GET";

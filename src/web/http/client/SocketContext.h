@@ -61,6 +61,7 @@ namespace web::http::client {
 
         void requestPrepared(Request& request);
         void requestSent(bool success);
+        void responseStarted();
         void responseParsed();
         void responseError(int status, const std::string& reason);
         void requestCompleted();

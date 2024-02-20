@@ -50,6 +50,10 @@ namespace core::socket::stream {
 
 namespace web::http::client {
 
+    void Request::responseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
+        LOG(INFO) << "HTTP Response parse error: " << request->url << " - " << message;
+    }
+
     Request::Request(web::http::client::SocketContext* clientContext)
         : socketContext(clientContext) {
     }
@@ -155,8 +159,10 @@ namespace web::http::client {
 
     void Request::send(const char* junk,
                        std::size_t junkLen,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived) {
+                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         this->onResponseReceived = onResponseReceived;
+        this->onResponseParseError = onResponseParseError;
 
         if (socketContext != nullptr) {
             if (junkLen > 0) {
@@ -172,18 +178,20 @@ namespace web::http::client {
     }
 
     void Request::send(const std::string& junk,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived) {
+                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         if (!junk.empty()) {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
-        send(junk.data(), junk.size(), onResponseReceived);
+        send(junk.data(), junk.size(), onResponseReceived, onResponseParseError);
     }
 
-    void
-    Request::upgrade(const std::string& url,
-                     const std::string& protocols,
-                     const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived) {
+    void Request::upgrade(const std::string& url,
+                          const std::string& protocols,
+                          const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                          const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         this->onResponseReceived = onResponseReceived;
+        this->onResponseParseError = onResponseParseError;
 
         if (socketContext != nullptr) {
             requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
@@ -229,11 +237,12 @@ namespace web::http::client {
         status(newSocketContext != nullptr);
     }
 
-    void
-    Request::sendFile(const std::string& file,
-                      const std::function<void(int)>& onStatus,
-                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived) {
+    void Request::sendFile(const std::string& file,
+                           const std::function<void(int)>& onStatus,
+                           const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         this->onResponseReceived = onResponseReceived;
+        this->onResponseParseError = onResponseParseError;
 
         if (socketContext != nullptr) {
             requestCommands.push_back(new commands::SendFileCommand(file, onStatus));
@@ -242,8 +251,10 @@ namespace web::http::client {
         }
     }
 
-    void Request::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived) {
+    void Request::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                      const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         this->onResponseReceived = onResponseReceived;
+        this->onResponseParseError = onResponseParseError;
 
         if (socketContext != nullptr) {
             sendHeader();
@@ -264,6 +275,10 @@ namespace web::http::client {
 
     void Request::deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
         onResponseReceived(request, response);
+    }
+
+    void Request::deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
+        onResponseParseError(request, message);
     }
 
     Request& Request::sendFragment(const char* junk, std::size_t junkLen) {

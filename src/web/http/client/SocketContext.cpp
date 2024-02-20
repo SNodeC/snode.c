@@ -44,6 +44,9 @@ namespace web::http::client {
         , masterRequest(std::make_shared<Request>(this))
         , parser(
               this,
+              [this]() -> void {
+                  responseStarted();
+              },
               [this](web::http::client::Response& response) -> void {
                   currentResponse = std::make_shared<Response>(std::move(response));
 
@@ -87,17 +90,19 @@ namespace web::http::client {
         }
     }
 
-    void SocketContext::responseParsed() {
+    void SocketContext::responseStarted() {
         currentRequest = sentRequests.front();
         sentRequests.pop_front();
+    }
 
+    void SocketContext::responseParsed() {
         currentRequest->deliverResponse(currentRequest, currentResponse);
 
         requestCompleted();
     }
 
-    void SocketContext::responseError(int status, const std::string& reason) {
-        onResponseParseError(status, reason);
+    void SocketContext::responseError([[maybe_unused]] int status, const std::string& reason) {
+        currentRequest->deliverResponseParseError(currentRequest, reason);
 
         shutdownWrite(true);
     }
