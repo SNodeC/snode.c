@@ -71,6 +71,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     client::ResponseParser responseParser(
         nullptr,
+        []() -> void {
+            VLOG(0) << "++   OnStarted";
+        },
         []([[maybe_unused]] client::Response& response) -> void {
             VLOG(0) << "++   OnParsed";
         },
