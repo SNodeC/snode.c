@@ -19,7 +19,9 @@
 
 #include "express/Response.h"
 
+#include "express/Request.h"
 #include "web/http/StatusCodes.h"
+#include "web/http/server/Response.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

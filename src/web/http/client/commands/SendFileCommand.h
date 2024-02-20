@@ -20,12 +20,12 @@
 #ifndef WEB_HTTP_CLIENT_COMMANDS_SENDFILECOMMAND_H
 #define WEB_HTTP_CLIENT_COMMANDS_SENDFILECOMMAND_H
 
-#include "web/http/client/RequestCommand.h"
+#include "web/http/client/RequestCommand.h" // IWYU pragma: export
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
 #include <string>
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

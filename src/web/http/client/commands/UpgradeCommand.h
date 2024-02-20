@@ -20,7 +20,7 @@
 #ifndef WEB_HTTP_CLIENT_COMMANDS_UPGRADE1COMMAND_H
 #define WEB_HTTP_CLIENT_COMMANDS_UPGRADE1COMMAND_H
 
-#include "web/http/client/RequestCommand.h"
+#include "web/http/client/RequestCommand.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

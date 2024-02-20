@@ -31,7 +31,7 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include <functional> // IWYU pragma: export
 #include <memory>
 #include <string>
 

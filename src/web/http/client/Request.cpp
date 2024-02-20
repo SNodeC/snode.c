@@ -19,7 +19,6 @@
 
 #include "web/http/client/Request.h"
 
-#include "RequestCommand.h"
 #include "SocketContext.h"
 #include "core/file/FileReader.h"
 #include "web/http/MimeTypes.h"

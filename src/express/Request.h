@@ -21,13 +21,18 @@
 #define EXPRESS_REQUEST_H
 
 #include "utils/AttributeInjector.h"
-#include "web/http/server/Request.h" // IWYU pragma: export
+
+namespace web::http::server {
+    class Request;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

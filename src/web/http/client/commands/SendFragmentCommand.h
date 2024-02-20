@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_CLIENT_COMMANDS_SENDFRAGMENTCOMMAND_H
 #define WEB_HTTP_CLIENT_COMMANDS_SENDFRAGMENTCOMMAND_H
 
-#include "web/http/client/RequestCommand.h"
+#include "web/http/client/RequestCommand.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

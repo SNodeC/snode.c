@@ -22,8 +22,7 @@
 
 #include "express/Router.h"           // IWYU pragma: export
 #include "web/http/ConnectionState.h" // IWYU pragma: export
-
-// IWYU pragma: no_include "web/http/CookieOptions.h"
+#include "web/http/CookieOptions.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
