@@ -407,7 +407,7 @@ namespace web::http::client {
     }
 
     void Request::onSourceData(const char* junk, std::size_t junkLen) {
-        sendFragment(junk, junkLen);
+        dispatchSendFragment(junk, junkLen);
     }
 
     void Request::onSourceEof() {
