@@ -41,7 +41,7 @@ namespace net::in::stream::legacy {
     using SocketServer = net::in::stream::SocketServer<core::socket::stream::legacy::SocketAcceptor,
                                                        net::in::stream::legacy::config::ConfigSocketServer,
                                                        SocketContextFactoryT,
-                                                       Args&&...>;
+                                                       Args...>;
 
 } // namespace net::in::stream::legacy
 

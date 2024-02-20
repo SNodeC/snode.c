@@ -41,7 +41,7 @@ namespace net::l2::stream::tls {
     using SocketServer = net::l2::stream::SocketServer<core::socket::stream::tls::SocketAcceptor,
                                                        net::l2::stream::tls::config::ConfigSocketServer,
                                                        SocketContextFactoryT,
-                                                       Args&&...>;
+                                                       Args...>;
 
 } // namespace net::l2::stream::tls
 

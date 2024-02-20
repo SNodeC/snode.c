@@ -43,7 +43,7 @@ namespace net::un::stream::tls {
     using SocketServer = net::un::stream::SocketServer<core::socket::stream::tls::SocketAcceptor,
                                                        net::un::stream::tls::config::ConfigSocketServer,
                                                        SocketContextFactoryT,
-                                                       Args&&...>;
+                                                       Args...>;
 
 } // namespace net::un::stream::tls
 

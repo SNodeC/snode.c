@@ -40,11 +40,10 @@ namespace net::l2::stream {
     class SocketClient
         : public core::socket::stream::SocketClient<SocketConnectorT<net::l2::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
                                                     SocketContextFactoryT,
-                                                    Args&&...> {
+                                                    Args...> {
     private:
-        using Super = core::socket::stream::SocketClient<SocketConnectorT<net::l2::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
-                                                         SocketContextFactoryT,
-                                                         Args&&...>;
+        using Super = core::socket::stream::
+            SocketClient<SocketConnectorT<net::l2::phy::stream::PhysicalSocketClient, ConfigSocketClientT>, SocketContextFactoryT, Args...>;
 
     public:
         using Super::Super;

@@ -54,24 +54,24 @@ namespace web::http::server {
                const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(SocketConnection*)>& onDisconnect,
-               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
-            : Super(name, onConnect, onConnected, onDisconnect, std::move(onRequestReady)) {
+               const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
+            : Super(name, onConnect, onConnected, onDisconnect, onRequestReady) {
         }
 
         Server(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(SocketConnection*)>& onDisconnect,
-               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
-            : Server("", onConnect, onConnected, onDisconnect, std::move(onRequestReady)) {
+               const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
+            : Server("", onConnect, onConnected, onDisconnect, onRequestReady) {
         }
 
         Server(const std::string& name,
-               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
-            : Super(name, std::move(onRequestReady)) {
+               const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
+            : Super(name, onRequestReady) {
         }
 
-        explicit Server(std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
-            : Server("", std::move(onRequestReady)) {
+        explicit Server(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
+            : Server("", onRequestReady) {
         }
     };
 

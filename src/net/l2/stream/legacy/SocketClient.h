@@ -41,7 +41,7 @@ namespace net::l2::stream::legacy {
     using SocketClient = net::l2::stream::SocketClient<core::socket::stream::legacy::SocketConnector,
                                                        net::l2::stream::legacy::config::ConfigSocketClient,
                                                        SocketContextFactoryT,
-                                                       Args&&...>;
+                                                       Args...>;
 
 } // namespace net::l2::stream::legacy
 

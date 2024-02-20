@@ -40,11 +40,11 @@ namespace net::in6::stream {
     class SocketClient
         : public core::socket::stream::SocketClient<SocketConnectorT<net::in6::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
                                                     SocketContextFactoryT,
-                                                    Args&&...> {
+                                                    Args...> {
     private:
         using Super = core::socket::stream::SocketClient<SocketConnectorT<net::in6::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
                                                          SocketContextFactoryT,
-                                                         Args&&...>;
+                                                         Args...>;
 
     public:
         using Super::Super;

@@ -56,44 +56,32 @@ namespace web::http::client {
                const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(SocketConnection*)>& onDisconnect,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
-               std::function<void(int, const std::string&)>&& onResponseParseError,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
-            : Super(name,
-                    onConnect,
-                    onConnected,
-                    onDisconnect,
-                    std::move(onRequestBegin),
-                    std::move(onResponseParseError),
-                    std::move(onRequestEnd)) {
+               const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
+               const std::function<void(int, const std::string&)>& onResponseParseError,
+               const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
+            : Super(name, onConnect, onConnected, onDisconnect, onRequestBegin, onResponseParseError, onRequestEnd) {
         }
 
         Client(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(SocketConnection*)>& onDisconnect,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
-               std::function<void(int, const std::string&)>&& onResponseParseError,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
-            : Client("",
-                     onConnect,
-                     onConnected,
-                     onDisconnect,
-                     std::move(onRequestBegin),
-                     std::move(onResponseParseError),
-                     std::move(onRequestEnd)) {
+               const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
+               const std::function<void(int, const std::string&)>& onResponseParseError,
+               const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
+            : Client("", onConnect, onConnected, onDisconnect, onRequestBegin, onResponseParseError, onRequestEnd) {
         }
 
         Client(const std::string& name,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
-               std::function<void(int, const std::string&)>&& onResponseParseError,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
-            : Super(name, std::move(onRequestBegin), std::move(onResponseParseError), std::move(onRequestEnd)) {
+               const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
+               const std::function<void(int, const std::string&)>& onResponseParseError,
+               const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
+            : Super(name, onRequestBegin, onResponseParseError, onRequestEnd) {
         }
 
-        Client(std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
-               std::function<void(int, const std::string&)>&& onResponseParseError,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
-            : Client("", std::move(onRequestBegin), std::move(onResponseParseError), std::move(onRequestEnd)) {
+        Client(const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
+               const std::function<void(int, const std::string&)>& onResponseParseError,
+               const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
+            : Client("", onRequestBegin, onResponseParseError, onRequestEnd) {
         }
     };
 

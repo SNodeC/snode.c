@@ -41,7 +41,7 @@ namespace net::in::stream::tls {
     using SocketClient = net::in::stream::SocketClient<core::socket::stream::tls::SocketConnector,
                                                        net::in::stream::tls::config::ConfigSocketClient,
                                                        SocketContextFactoryT,
-                                                       Args&&...>;
+                                                       Args...>;
 
 } // namespace net::in::stream::tls
 

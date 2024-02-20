@@ -39,11 +39,10 @@ namespace net::un::stream {
     class SocketClient
         : public core::socket::stream::SocketClient<SocketConnectorT<net::un::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
                                                     SocketContextFactoryT,
-                                                    Args&&...> {
+                                                    Args...> {
     private:
-        using Super = core::socket::stream::SocketClient<SocketConnectorT<net::un::phy::stream::PhysicalSocketClient, ConfigSocketClientT>,
-                                                         SocketContextFactoryT,
-                                                         Args&&...>;
+        using Super = core::socket::stream::
+            SocketClient<SocketConnectorT<net::un::phy::stream::PhysicalSocketClient, ConfigSocketClientT>, SocketContextFactoryT, Args...>;
 
     public:
         using Super::Super;

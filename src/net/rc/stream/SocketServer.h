@@ -40,11 +40,10 @@ namespace net::rc::stream {
     class SocketServer
         : public core::socket::stream::SocketServer<SocketAcceptorT<net::rc::phy::stream::PhysicalSocketServer, ConfigSocketServerT>,
                                                     SocketContextFactoryT,
-                                                    Args&&...> {
+                                                    Args...> {
     private:
-        using Super = core::socket::stream::SocketServer<SocketAcceptorT<net::rc::phy::stream::PhysicalSocketServer, ConfigSocketServerT>,
-                                                         SocketContextFactoryT,
-                                                         Args&&...>;
+        using Super = core::socket::stream::
+            SocketServer<SocketAcceptorT<net::rc::phy::stream::PhysicalSocketServer, ConfigSocketServerT>, SocketContextFactoryT, Args...>;
 
     public:
         using Super::Super;
