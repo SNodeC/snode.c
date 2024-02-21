@@ -27,13 +27,13 @@
 
 namespace web::http::client::commands {
 
-    SendFileCommand::SendFileCommand(const std::string& file, const std::function<void(int errnum)>& onResponseReceived)
+    SendFileCommand::SendFileCommand(const std::string& file, const std::function<void(int errnum)>& onStatus)
         : file(file)
-        , onResponseReceived(onResponseReceived) {
+        , onStatus(onStatus) {
     }
 
     void SendFileCommand::execute(Request* request) {
-        request->dispatchSendFile(file, onResponseReceived);
+        request->dispatchSendFile(file, onStatus);
     }
 
 } // namespace web::http::client::commands

@@ -65,10 +65,10 @@ namespace web::http::client {
 
         ~Request() override;
 
+        virtual void init(const std::string& host);
         void stopResponse();
 
     private:
-        virtual void init(const std::string& host);
         void execute();
 
     public:
@@ -82,29 +82,28 @@ namespace web::http::client {
 
         static void responseParseError(const std::shared_ptr<Request>& request, const std::string& message);
 
-        void send(const char* junk,
-                  std::size_t junkLen,
-                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                  const std::function<void(const std::shared_ptr<Request>& request, const std::string& message)>& onResponseParseError =
-                      responseParseError);
-        void send(const std::string& junk,
-                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                  const std::function<void(const std::shared_ptr<Request>& request, const std::string& message)>& onResponseParseError =
-                      responseParseError);
-        void upgrade(const std::string& url,
-                     const std::string& protocols,
-                     const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                     const std::function<void(const std::shared_ptr<Request>& request, const std::string& message)>& onResponseParseError =
-                         responseParseError);
-        void upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool success)>& status);
-        void sendFile(const std::string& file,
-                      const std::function<void(int errnum)>& onStatus,
-                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                      const std::function<void(const std::shared_ptr<Request>& request, const std::string& message)>& onResponseParseError =
-                          responseParseError);
+        void
+        send(const char* junk,
+             std::size_t junkLen,
+             const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+             const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
+        void
+        send(const std::string& junk,
+             const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+             const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
+        void
+        upgrade(const std::string& url,
+                const std::string& protocols,
+                const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
+        void upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool)>& status);
+        void
+        sendFile(const std::string& file,
+                 const std::function<void(int errnum)>& onStatus,
+                 const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                 const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
         void end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                 const std::function<void(const std::shared_ptr<Request>& request, const std::string& message)>& onResponseParseError =
-                     responseParseError);
+                 const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
 
         Request& sendHeader();
         Request& sendFragment(const char* junk, std::size_t junkLen);
@@ -116,11 +115,11 @@ namespace web::http::client {
 
         void dispatchSendHeader();
         void dispatchSendFragment(const char* junk, std::size_t junkLen);
-        void dispatchSendFile(const std::string& file, const std::function<void(int errnum)>& onResponseReceived);
+        void dispatchSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus);
         void dispatchUpgrade(const std::string& url, const std::string& protocols);
         void dispatchEnd();
 
-        void dispatchCompleted();
+        void dispatchCompleted() const;
 
         friend class commands::SendFileCommand;
         friend class commands::SendFragmentCommand;
@@ -150,12 +149,12 @@ namespace web::http::client {
         int httpMajor = 1;
         int httpMinor = 1;
 
-    protected:
+        //    protected:
         std::map<std::string, std::string> queries;
         std::map<std::string, std::string> headers;
         std::map<std::string, std::string> cookies;
 
-    private:
+        //    private:
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 

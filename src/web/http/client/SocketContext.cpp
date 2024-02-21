@@ -96,6 +96,17 @@ namespace web::http::client {
         }
     }
 
+    void SocketContext::requestSendError() {
+        currentRequest = preparedRequests.front();
+        preparedRequests.pop_front();
+
+        if (!preparedRequests.empty()) {
+            core::EventReceiver::atNextTick([this]() -> void {
+                dispatchNextRequest();
+            });
+        }
+    }
+
     void SocketContext::responseStarted() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started";
 
@@ -106,9 +117,14 @@ namespace web::http::client {
     void SocketContext::responseParsed() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parsed";
 
+        const bool close = currentResponse->connectionState == ConnectionState::Close ||
+                           (currentResponse->connectionState == ConnectionState::Default &&
+                            ((currentRequest->httpMajor == 0 && currentRequest->httpMinor == 9) ||
+                             (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0)));
+
         currentRequest->deliverResponse(currentRequest, currentResponse);
 
-        requestCompleted();
+        requestCompleted(close);
     }
 
     void SocketContext::responseError(int status, const std::string& reason) {
@@ -119,13 +135,8 @@ namespace web::http::client {
         shutdownWrite(true);
     }
 
-    void SocketContext::requestCompleted() {
+    void SocketContext::requestCompleted(bool close) {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
-
-        const bool close = currentResponse->connectionState == ConnectionState::Close ||
-                           (currentResponse->connectionState == ConnectionState::Default &&
-                            ((currentRequest->httpMajor == 0 && currentRequest->httpMinor == 9) ||
-                             (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0)));
 
         if (close) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";

@@ -154,7 +154,7 @@ namespace web::http::client {
     }
 
     void Request::responseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
-        LOG(INFO) << "HTTP Response parse error: " << request->url << " - " << message;
+        LOG(TRACE) << "HTTP Response parse error: " << request->url << " - " << message;
     }
 
     void Request::send(const char* junk,
@@ -273,14 +273,6 @@ namespace web::http::client {
         return *this;
     }
 
-    void Request::deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
-        onResponseReceived(request, response);
-    }
-
-    void Request::deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
-        onResponseParseError(request, message);
-    }
-
     Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
         if (socketContext != nullptr) {
             requestCommands.push_back(new commands::SendFragmentCommand(junk, junkLen));
@@ -291,6 +283,14 @@ namespace web::http::client {
 
     Request& Request::sendFragment(const std::string& data) {
         return sendFragment(data.data(), data.size());
+    }
+
+    void Request::deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
+        onResponseReceived(request, response);
+    }
+
+    void Request::deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
+        onResponseParseError(request, message);
     }
 
     void Request::dispatchSendHeader() {
@@ -332,7 +332,7 @@ namespace web::http::client {
         }
     }
 
-    void Request::dispatchSendFile(const std::string& file, const std::function<void(int errnum)>& onResponseReceived) {
+    void Request::dispatchSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus) {
         if (socketContext != nullptr) {
             std::string absolutFileName = file;
 
@@ -342,8 +342,8 @@ namespace web::http::client {
 
                 if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
                     core::file::FileReader::open(absolutFileName)
-                        ->pipe(this, [this, &absolutFileName, &onResponseReceived](core::pipe::Source* source, int errnum) -> void {
-                            onResponseReceived(errnum);
+                        ->pipe(this, [this, &absolutFileName, &onStatus](core::pipe::Source* source, int errnum) -> void {
+                            onStatus(errnum);
 
                             if (errnum == 0) {
                                 set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
@@ -351,15 +351,21 @@ namespace web::http::client {
                                 set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
                             } else {
                                 source->stop();
+
+                                socketContext->requestSendError();
                             }
                         });
                 } else {
                     errno = EEXIST;
-                    onResponseReceived(errno);
+                    onStatus(errno);
+
+                    socketContext->requestSendError();
                 }
             } else {
                 errno = ENOENT;
-                onResponseReceived(errno);
+                onStatus(errno);
+
+                socketContext->requestSendError();
             }
         } else {
             LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
@@ -390,7 +396,7 @@ namespace web::http::client {
         dispatchCompleted();
     }
 
-    void Request::dispatchCompleted() {
+    void Request::dispatchCompleted() const {
         if (socketContext != nullptr) {
             socketContext->requestSent(contentSent == contentLength);
         }
