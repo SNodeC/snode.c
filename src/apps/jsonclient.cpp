@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
                        8080,
                        [instanceName = jsonClient.getConfig().getInstanceName()](
                            const SocketAddress& socketAddress,
-                           const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                           const core::socket::State& state) -> void { // example.com:81 simulate connect timeout
                            switch (state) {
                                case core::socket::State::OK:
                                    VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
@@ -102,28 +102,28 @@ int main(int argc, char* argv[]) {
                                    break;
                            }
                        });
-
-    jsonClient.connect("localhost",
-                       8080,
-                       [instanceName = jsonClient.getConfig().getInstanceName()](
-                           const SocketAddress& socketAddress,
-                           const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
-                           switch (state) {
-                               case core::socket::State::OK:
-                                   VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
-                                   break;
-                               case core::socket::State::DISABLED:
-                                   VLOG(1) << instanceName << ": disabled";
-                                   break;
-                               case core::socket::State::ERROR:
-                                   LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                   break;
-                               case core::socket::State::FATAL:
-                                   LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                   break;
-                           }
-                       });
-
+    /*
+        jsonClient.connect("localhost",
+                           8080,
+                           [instanceName = jsonClient.getConfig().getInstanceName()](
+                               const SocketAddress& socketAddress,
+                               const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                               switch (state) {
+                                   case core::socket::State::OK:
+                                       VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                       break;
+                                   case core::socket::State::DISABLED:
+                                       VLOG(1) << instanceName << ": disabled";
+                                       break;
+                                   case core::socket::State::ERROR:
+                                       LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                       break;
+                                   case core::socket::State::FATAL:
+                                       LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                       break;
+                               }
+                           });
+    */
     /*
         jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) -> void {
             if (err != 0) {
