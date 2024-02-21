@@ -173,6 +173,8 @@ namespace web::http::client {
             sendHeader();
             sendFragment(junk, junkLen);
 
+            requestCommands.push_back(new commands::EndCommand());
+
             socketContext->requestPrepared(*this);
         }
     }

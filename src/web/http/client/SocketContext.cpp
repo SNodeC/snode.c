@@ -97,6 +97,8 @@ namespace web::http::client {
     }
 
     void SocketContext::requestSendError() {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sending failed";
+
         currentRequest = preparedRequests.front();
         preparedRequests.pop_front();
 
