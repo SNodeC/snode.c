@@ -45,10 +45,9 @@ namespace express {
     public:
         Controller(const std::shared_ptr<web::http::server::Request>& request,
                    const std::shared_ptr<web::http::server::Response>& response);
-        //        Controller(Controller&& controller) noexcept;
         Controller(const Controller& controller);
 
-        Controller& operator=(const Controller &controller) noexcept;
+        Controller& operator=(const Controller& controller) noexcept;
 
         void setRootRoute(RootRoute* rootRoute);
         void setCurrentRoute(Route* currentRoute);

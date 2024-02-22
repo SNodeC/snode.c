@@ -33,10 +33,6 @@
 #include "commands/SendHeaderCommand.h"
 #include "commands/UpgradeCommand.h"
 
-namespace core::socket::stream {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"

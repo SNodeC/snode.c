@@ -20,8 +20,8 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXT_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXT_H
 
-#include "web/http/SocketContext.h"         // IWYU pragma: export
-#include "web/http/client/ResponseParser.h" // IWYU pragma: export
+#include "core/socket/stream/SocketContext.h" // IWYU pragma: export
+#include "web/http/client/ResponseParser.h"   // IWYU pragma: export
 
 namespace web::http::client {
     class Request;
@@ -43,9 +43,9 @@ namespace core::socket::stream {
 
 namespace web::http::client {
 
-    class SocketContext : public web::http::SocketContext {
+    class SocketContext : public core::socket::stream::SocketContext {
     private:
-        using Super = web::http::SocketContext;
+        using Super = core::socket::stream::SocketContext;
 
         using Request = web::http::client::Request;
         using Response = web::http::client::Response;

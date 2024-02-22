@@ -33,12 +33,10 @@ namespace core {
     }
 } // namespace core
 
-namespace web::http {
-    namespace server {
-        class Request;
-        class SocketContext;
-    } // namespace server
-} // namespace web::http
+namespace web::http::server {
+    class Request;
+    class SocketContext;
+} // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
