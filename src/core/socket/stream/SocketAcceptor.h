@@ -22,7 +22,10 @@
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
 #include "core/socket/State.h"
-#include "core/socket/stream/SocketContextFactory.h"
+
+namespace core::socket::stream {
+    class SocketContextFactory;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
