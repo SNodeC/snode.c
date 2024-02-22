@@ -47,14 +47,16 @@ namespace express {
         , flags(controller.flags) {
     }
 
-    Controller& Controller::operator=(Controller& controller) noexcept {
-        request = controller.request;
-        response = controller.response;
-        rootRoute = controller.rootRoute;
-        lastRoute = controller.lastRoute;
-        currentRoute = controller.currentRoute;
-        lastTick = controller.lastTick;
-        flags = controller.flags;
+    Controller& Controller::operator=(const Controller& controller) noexcept {
+        if (this != &controller) {
+            request = controller.request;
+            response = controller.response;
+            rootRoute = controller.rootRoute;
+            lastRoute = controller.lastRoute;
+            currentRoute = controller.currentRoute;
+            lastTick = controller.lastTick;
+            flags = controller.flags;
+        }
 
         return *this;
     }

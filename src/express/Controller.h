@@ -48,7 +48,7 @@ namespace express {
         //        Controller(Controller&& controller) noexcept;
         Controller(const Controller& controller);
 
-        Controller& operator=(Controller& controller) noexcept;
+        Controller& operator=(const Controller &controller) noexcept;
 
         void setRootRoute(RootRoute* rootRoute);
         void setCurrentRoute(Route* currentRoute);
