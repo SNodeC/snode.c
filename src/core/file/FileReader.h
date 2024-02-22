@@ -42,7 +42,7 @@ namespace core::file {
         , public core::pipe::Source
         , virtual public File {
     private:
-        FileReader(int fd, const std::string& name, std::size_t pufferSize);
+        FileReader(int fd, const std::string& name, std::size_t pufferSize, int openErrno);
 
     public:
         static FileReader* open(const std::string& path);
@@ -58,9 +58,12 @@ namespace core::file {
         void resume() final;
         void stop() final;
 
+    private:
         std::size_t pufferSize = 0;
 
         bool suspended = false;
+
+        int openErrno = 0;
     };
 
 } // namespace core::file

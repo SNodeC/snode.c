@@ -65,7 +65,7 @@ namespace web::http::client {
     }
 
     void Request::stopResponse() {
-        stop();
+        Sink::stop();
         socketContext = nullptr;
     }
 
@@ -161,14 +161,13 @@ namespace web::http::client {
                        std::size_t junkLen,
                        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        this->onResponseReceived = onResponseReceived;
-        this->onResponseParseError = onResponseParseError;
-
         if (socketContext != nullptr) {
+            this->onResponseReceived = onResponseReceived;
+            this->onResponseParseError = onResponseParseError;
+
             if (junkLen > 0) {
                 set("Content-Type", "application/octet-stream");
             }
-            set("Content-Length", std::to_string(junkLen), true);
 
             sendHeader();
             sendFragment(junk, junkLen);
@@ -192,13 +191,15 @@ namespace web::http::client {
                           const std::string& protocols,
                           const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        this->onResponseReceived = onResponseReceived;
-        this->onResponseParseError = onResponseParseError;
-
         if (socketContext != nullptr) {
-            requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
+            this->onResponseReceived = onResponseReceived;
+            this->onResponseParseError = onResponseParseError;
 
-            socketContext->requestPrepared(*this);
+            if (socketContext != nullptr) {
+                requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
+
+                socketContext->requestPrepared(*this);
+            }
         }
     }
 
@@ -243,10 +244,10 @@ namespace web::http::client {
                            const std::function<void(int)>& onStatus,
                            const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                            const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        this->onResponseReceived = onResponseReceived;
-        this->onResponseParseError = onResponseParseError;
-
         if (socketContext != nullptr) {
+            this->onResponseReceived = onResponseReceived;
+            this->onResponseParseError = onResponseParseError;
+
             requestCommands.push_back(new commands::SendFileCommand(file, onStatus));
 
             socketContext->requestPrepared(*this);
@@ -255,10 +256,10 @@ namespace web::http::client {
 
     void Request::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        this->onResponseReceived = onResponseReceived;
-        this->onResponseParseError = onResponseParseError;
-
         if (socketContext != nullptr) {
+            this->onResponseReceived = onResponseReceived;
+            this->onResponseParseError = onResponseParseError;
+
             sendHeader();
 
             requestCommands.push_back(new commands::EndCommand());
@@ -277,6 +278,9 @@ namespace web::http::client {
 
     Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
         if (socketContext != nullptr) {
+            contentLength += junkLen;
+            set("Content-Length", std::to_string(contentLength));
+
             requestCommands.push_back(new commands::SendFragmentCommand(junk, junkLen));
         }
 
@@ -345,6 +349,7 @@ namespace web::http::client {
                 if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
                     core::file::FileReader::open(absolutFileName)
                         ->pipe(this, [this, &absolutFileName, &onStatus](core::pipe::Source* source, int errnum) -> void {
+                            errno = errnum;
                             onStatus(errnum);
 
                             if (errnum == 0) {
@@ -375,23 +380,25 @@ namespace web::http::client {
     }
 
     void Request::dispatchUpgrade(const std::string& url, const std::string& protocols) {
-        this->url = url;
+        if (socketContext != nullptr) {
+            this->url = url;
 
-        set("Connection", "Upgrade", true);
-        set("Upgrade", protocols, true);
+            set("Connection", "Upgrade", true);
+            set("Upgrade", protocols, true);
 
-        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
+            web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
 
-        if (socketContextUpgradeFactory != nullptr) {
-            socketContextUpgradeFactory->checkRefCount();
+            if (socketContextUpgradeFactory != nullptr) {
+                socketContextUpgradeFactory->checkRefCount();
 
-            dispatchSendHeader();
-        } else {
-            socketContext->close();
+                dispatchSendHeader();
+            } else {
+                socketContext->close();
+            }
+
+            dispatchCompleted();
         }
-
-        dispatchCompleted();
     }
 
     void Request::dispatchEnd() {
@@ -421,9 +428,9 @@ namespace web::http::client {
     void Request::onSourceEof() {
         if (socketContext != nullptr) {
             socketContext->streamEof();
-        }
 
-        dispatchCompleted();
+            dispatchCompleted();
+        }
     }
 
     void Request::onSourceError(int errnum) {
@@ -432,9 +439,9 @@ namespace web::http::client {
         if (socketContext != nullptr) {
             socketContext->streamEof();
             socketContext->close();
-        }
 
-        dispatchCompleted();
+            dispatchCompleted();
+        }
     }
 
     const std::string& Request::header(const std::string& field) {

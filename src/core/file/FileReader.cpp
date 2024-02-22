@@ -34,10 +34,11 @@ constexpr int MF_READSIZE = 16384;
 
 namespace core::file {
 
-    FileReader::FileReader(int fd, const std::string& name, std::size_t pufferSize)
+    FileReader::FileReader(int fd, const std::string& name, std::size_t pufferSize, int openErrno)
         : core::Descriptor(fd)
         , EventReceiver(name)
-        , pufferSize(pufferSize) {
+        , pufferSize(pufferSize)
+        , openErrno(openErrno) {
     }
 
     FileReader* FileReader::open(const std::string& path) {
@@ -45,7 +46,7 @@ namespace core::file {
 
         const int fd = core::system::open(path.c_str(), O_RDONLY);
 
-        return new FileReader(fd, "FileReader: " + path, MF_READSIZE);
+        return new FileReader(fd, "FileReader: " + path, MF_READSIZE, fd < 0 ? errno : 0);
     }
 
     bool FileReader::isOpen() {
@@ -53,24 +54,28 @@ namespace core::file {
     }
 
     void FileReader::read() {
-        if (!suspended) {
-            std::vector<char> puffer(pufferSize);
+        if (openErrno == 0) {
+            if (!suspended) {
+                std::vector<char> puffer(pufferSize);
 
-            const ssize_t ret = core::system::read(getFd(), puffer.data(), puffer.capacity());
-            if (ret > 0) {
-                if (this->send(puffer.data(), static_cast<std::size_t>(ret)) < 0) {
-                    this->error(errno);
-                }
-                span();
-            } else {
-                if (ret == 0) {
-                    this->eof();
+                const ssize_t ret = core::system::read(getFd(), puffer.data(), puffer.capacity());
+                if (ret > 0) {
+                    if (this->send(puffer.data(), static_cast<std::size_t>(ret)) < 0) {
+                        this->error(errno);
+                    }
+                    span();
                 } else {
-                    this->error(errno);
-                }
+                    if (ret == 0) {
+                        this->eof();
+                    } else {
+                        this->error(errno);
+                    }
 
-                delete this;
+                    delete this;
+                }
             }
+        } else {
+            this->error(openErrno);
         }
     }
 
@@ -86,8 +91,6 @@ namespace core::file {
 
     void FileReader::suspend() {
         suspended = true;
-
-        relax();
     }
 
     void FileReader::resume() {
