@@ -55,10 +55,10 @@ namespace web::http::client {
 
     class Request : public core::pipe::Sink {
     public:
-        explicit Request(web::http::client::SocketContext* clientContext);
+        explicit Request(web::http::client::SocketContext* clientContext, const std::string& host);
 
         explicit Request(Request&) = delete;
-        explicit Request(Request&&) noexcept = default;
+        explicit Request(Request&&) noexcept;
 
         Request& operator=(Request&) = delete;
         Request& operator=(Request&&) noexcept = default;
@@ -137,15 +137,8 @@ namespace web::http::client {
 
         web::http::client::SocketContext* getSocketContext() const;
 
-    private:
-        std::list<RequestCommand*> requestCommands;
-
-        std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
-        std::function<void(const std::shared_ptr<Request>& request, const std::string& message)> onResponseParseError;
-
-    public:
         std::string method = "GET";
-        std::string url;
+        std::string url = "/";
         int httpMajor = 1;
         int httpMinor = 1;
 
@@ -157,6 +150,12 @@ namespace web::http::client {
         //    private:
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
+
+    private:
+        std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
+        std::function<void(const std::shared_ptr<Request>& request, const std::string& message)> onResponseParseError;
+
+        std::list<RequestCommand*> requestCommands;
 
         web::http::client::SocketContext* socketContext;
 

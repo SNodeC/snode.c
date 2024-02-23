@@ -57,10 +57,13 @@ namespace web::http::server {
 
     void Response::init() {
         statusCode = 200;
+        httpMajor = 1;
+        httpMinor = 1;
         headers.clear();
         cookies.clear();
         contentLength = 0;
         contentSent = 0;
+        socketContextUpgrade = nullptr;
         connectionState = ConnectionState::Default;
     }
 
@@ -225,7 +228,14 @@ namespace web::http::server {
         if (socketContext != nullptr) {
             socketContext->responseStarted();
 
-            socketContext->sendToPeer("HTTP/1.1 " + std::to_string(statusCode) + " " + StatusCode::reason(statusCode) + "\r\n");
+            socketContext->sendToPeer("HTTP/" + std::to_string(httpMajor)
+                                                    .append(".")
+                                                    .append(std::to_string(httpMinor))
+                                                    .append(" ")
+                                                    .append(std::to_string(statusCode))
+                                                    .append(" ")
+                                                    .append(StatusCode::reason(statusCode))
+                                                    .append("\r\n"));
             socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
 
             set("X-Powered-By", "snode.c");

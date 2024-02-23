@@ -46,8 +46,27 @@
 
 namespace web::http::client {
 
-    Request::Request(web::http::client::SocketContext* clientContext)
+    Request::Request(web::http::client::SocketContext* clientContext, const std::string& host)
         : socketContext(clientContext) {
+        this->host(host);
+    }
+
+    Request::Request(Request&& request) noexcept
+        : method(std::move(request.method))
+        , url(std::move(request.url))
+        , httpMajor(request.httpMajor)
+        , httpMinor(request.httpMinor)
+        , queries(std::move(request.queries))
+        , headers(std::move(request.headers))
+        , cookies(std::move(request.cookies))
+        , contentSent(request.contentSent)
+        , contentLength(request.contentLength)
+        , onResponseReceived(std::move(request.onResponseReceived))
+        , onResponseParseError(std::move(request.onResponseParseError))
+        , requestCommands(std::move(request.requestCommands))
+        , socketContext(request.socketContext)
+        , connectionState(request.connectionState) {
+        request.init(headers["Host"]);
     }
 
     Request::~Request() {
@@ -67,7 +86,7 @@ namespace web::http::client {
 
     void Request::init(const std::string& host) {
         method = "GET";
-        url.clear();
+        url = "/";
         httpMajor = 1;
         httpMinor = 1;
         queries.clear();
@@ -77,7 +96,7 @@ namespace web::http::client {
         contentSent = 0;
         connectionState = ConnectionState::Default;
 
-        set("Host", host);
+        this->host(host);
         set("X-Powered-By", "snode.c");
     }
 

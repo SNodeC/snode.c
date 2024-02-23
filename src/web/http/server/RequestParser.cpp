@@ -32,7 +32,7 @@
 namespace web::http::server {
 
     RequestParser::RequestParser(core::socket::stream::SocketContext* socketContext,
-                                 const std::function<void(Request&)>& onParsed,
+                                 const std::function<void(Request&&)>& onParsed,
                                  const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
         , onParsed(onParsed)
@@ -142,7 +142,7 @@ namespace web::http::server {
     }
 
     Parser::ParserState RequestParser::parsingFinished() {
-        onParsed(request);
+        onParsed(std::move(request));
 
         return ParserState::BEGIN;
     }

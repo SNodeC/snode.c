@@ -40,7 +40,7 @@ namespace web::http::server {
         , response(std::make_shared<Response>(this))
         , parser(
               this,
-              [this](web::http::server::Request& request) -> void {
+              [this](web::http::server::Request&& request) -> void {
                   requests.emplace_back(std::make_shared<Request>(std::move(request)));
                   requestParsed();
               },
@@ -64,6 +64,8 @@ namespace web::http::server {
             if (!connection.empty()) {
                 response->set("Connection", connection);
             }
+            response->httpMajor = request->httpMajor;
+            response->httpMinor = request->httpMinor;
 
             onRequestReady(request, response);
         }
@@ -83,23 +85,25 @@ namespace web::http::server {
 
     void SocketContext::responseCompleted(bool success) {
         if (success) {
-            requestCompleted();
+            const bool close =
+                response->connectionState == ConnectionState::Close ||
+                (response->connectionState == ConnectionState::Default &&
+                 ((response->httpMajor == 0 && response->httpMinor == 9) || (response->httpMajor == 1 && response->httpMinor == 0)));
+
+            requestCompleted(close);
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response wrong content length";
 
             shutdownWrite();
         }
+
+        response->init();
     }
 
-    void SocketContext::requestCompleted() {
+    void SocketContext::requestCompleted(bool close) {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed";
 
         if (request != nullptr) {
-            const bool close =
-                response->connectionState == ConnectionState::Close ||
-                (response->connectionState == ConnectionState::Default &&
-                 ((request->httpMajor == 0 && request->httpMinor == 9) || (request->httpMajor == 1 && request->httpMinor == 0)));
-
             if (close) {
                 LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
 
@@ -118,7 +122,6 @@ namespace web::http::server {
         }
 
         request = nullptr;
-        response->init();
     }
 
     void SocketContext::onConnected() {

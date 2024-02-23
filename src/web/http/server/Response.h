@@ -100,6 +100,8 @@ namespace web::http::server {
         SocketContext* getSocketContext() const;
 
         int statusCode = 200;
+        int httpMajor = 1;
+        int httpMinor = 1;
 
     protected:
         std::map<std::string, std::string> headers;

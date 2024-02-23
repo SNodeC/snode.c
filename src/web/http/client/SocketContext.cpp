@@ -41,13 +41,13 @@ namespace web::http::client {
         , onRequestBegin(onRequestBegin)
         , onResponseParseError(onResponseParseError)
         , onRequestEnd(onRequestEnd)
-        , masterRequest(std::make_shared<Request>(this))
+        , masterRequest(std::make_shared<Request>(this, getSocketConnection()->getConfiguredServer()))
         , parser(
               this,
               [this]() -> void {
                   responseStarted();
               },
-              [this](web::http::client::Response& response) -> void {
+              [this](web::http::client::Response&& response) -> void {
                   currentResponse = std::make_shared<Response>(std::move(response));
 
                   responseParsed();
@@ -70,15 +70,13 @@ namespace web::http::client {
 
         preparedRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
-        masterRequest->init(getSocketConnection()->getConfiguredServer());
-
         if (preparedRequests.size() == 1) {
             dispatchNextRequest();
         }
     }
 
     void SocketContext::requestSent(bool success) {
-        sentRequests.push_back(preparedRequests.front());
+        sentRequests.emplace_back(preparedRequests.front());
         preparedRequests.pop_front();
 
         if (success) {
@@ -121,8 +119,8 @@ namespace web::http::client {
 
         const bool close = currentResponse->connectionState == ConnectionState::Close ||
                            (currentResponse->connectionState == ConnectionState::Default &&
-                            ((currentRequest->httpMajor == 0 && currentRequest->httpMinor == 9) ||
-                             (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0)));
+                            ((currentResponse->httpMajor == 0 && currentResponse->httpMinor == 9) ||
+                             (currentResponse->httpMajor == 1 && currentResponse->httpMinor == 0)));
 
         currentRequest->deliverResponse(currentRequest, currentResponse);
 

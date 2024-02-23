@@ -48,7 +48,7 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
         []() -> void {
             VLOG(0) << "++   OnStarted";
         },
-        []([[maybe_unused]] web::http::client::Response& res) -> void {
+        []([[maybe_unused]] web::http::client::Response&& res) -> void {
             VLOG(0) << "++   OnParsed";
         },
         [](int status, const std::string& reason) -> void {
