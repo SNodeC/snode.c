@@ -27,10 +27,8 @@ add_library(snodec::net-un-phy ALIAS net-un-phy)
 target_link_libraries(net-un-phy PUBLIC net-un)
 
 target_include_directories(
-    net-un-phy
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    net-un-phy PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                      "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(

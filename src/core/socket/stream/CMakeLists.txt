@@ -43,10 +43,8 @@ add_library(
 add_library(snodec::core-socket-stream ALIAS core-socket-stream)
 
 target_include_directories(
-    core-socket-stream
-    INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-              "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-              "$<INSTALL_INTERFACE:include/snode.c>"
+    core-socket-stream INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                                 "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(core-socket-stream PUBLIC core-socket)

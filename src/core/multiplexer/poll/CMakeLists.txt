@@ -25,10 +25,8 @@ add_library(mux-poll SHARED ${MUX_POLL_CPP} ${MUX_POLL_H})
 add_library(snodec::mux-poll ALIAS mux-poll)
 
 target_include_directories(
-    mux-poll
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    mux-poll PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                    "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(

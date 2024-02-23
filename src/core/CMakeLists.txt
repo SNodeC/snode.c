@@ -108,10 +108,8 @@ add_library(core SHARED ${CORE_CPP} ${CORE_H})
 add_library(snodec::core ALIAS core)
 
 target_include_directories(
-    core
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    core PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(

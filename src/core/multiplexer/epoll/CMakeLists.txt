@@ -25,10 +25,8 @@ add_library(mux-epoll SHARED ${MUX_EPOLL_CPP} ${MUX_EPOLL_H})
 add_library(snodec::mux-epoll ALIAS mux-epoll)
 
 target_include_directories(
-    mux-epoll
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    mux-epoll PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                     "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(

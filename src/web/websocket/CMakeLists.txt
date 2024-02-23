@@ -50,10 +50,8 @@ add_library(websocket SHARED ${WEBSOCKETBASE_CPP} ${WEBSOCKETBASE_H})
 add_library(snodec::websocket ALIAS websocket)
 
 target_include_directories(
-    websocket
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    websocket PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                     "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(websocket PUBLIC logger)

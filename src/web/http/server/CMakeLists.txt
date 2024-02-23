@@ -45,10 +45,8 @@ set_source_files_properties(
 )
 
 target_include_directories(
-    http-server
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    http-server PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                       "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(http-server PUBLIC http)

@@ -31,8 +31,6 @@ add_library(http-client-commands STATIC ${REQCOMMANDS_CPP} ${REQCOMMANDS_H})
 set_property(TARGET http-client-commands PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(
-    http-client-commands
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    http-client-commands PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                                "$<INSTALL_INTERFACE:include/snode.c>"
 )

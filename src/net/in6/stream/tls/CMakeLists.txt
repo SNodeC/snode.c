@@ -37,10 +37,8 @@ target_link_libraries(
 )
 
 target_include_directories(
-    net-in6-stream-tls
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    net-in6-stream-tls PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                              "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(

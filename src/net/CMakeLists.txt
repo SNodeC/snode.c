@@ -168,10 +168,8 @@ add_library(net SHARED ${NET_CPP} ${NET_H})
 add_library(snodec::net ALIAS net)
 
 target_include_directories(
-    net
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    net PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+               "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(net PUBLIC utils)

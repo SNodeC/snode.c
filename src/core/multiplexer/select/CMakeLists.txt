@@ -25,10 +25,8 @@ add_library(mux-select SHARED ${MUX_SELECT_CPP} ${MUX_SELECT_H})
 add_library(snodec::mux-select ALIAS mux-select)
 
 target_include_directories(
-    mux-select
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    mux-select PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                      "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(

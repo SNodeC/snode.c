@@ -27,10 +27,8 @@ add_library(snodec::net-un-dgram ALIAS net-un-dgram)
 target_link_libraries(net-un-dgram PUBLIC net-un)
 
 target_include_directories(
-    net-un-dgram
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    net-un-dgram PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                        "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(

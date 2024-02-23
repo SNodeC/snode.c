@@ -58,10 +58,8 @@ add_library(utils SHARED ${UTILS_CPP} ${UTILS_H})
 add_library(snodec::utils ALIAS utils)
 
 target_include_directories(
-    utils
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
+    utils PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                 "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(utils PUBLIC logger)
