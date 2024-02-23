@@ -35,10 +35,10 @@
 
 namespace core::socket::stream::tls {
 
-    ssize_t SocketReader::read(char* junk, std::size_t junkLen) {
+    ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
         const int sslShutdownState = SSL_get_shutdown(ssl);
 
-        int ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
+        int ret = SSL_read(ssl, chunk, static_cast<int>(chunkLen));
 
         if (ret <= 0) {
             const int ssl_err = SSL_get_error(ssl, ret);

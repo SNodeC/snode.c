@@ -47,14 +47,14 @@ namespace core::pipe {
     private:
         void pipe(Source* source);
 
-        void streamData(const char* junk, std::size_t junkLen);
+        void streamData(const char* chunk, std::size_t chunkLen);
         void streamEof();
         void streamError(int errnum);
 
         void disconnect(const Source* source);
 
         virtual void onSourceConnect(Source* source) = 0;
-        virtual void onSourceData(const char* junk, std::size_t junkLen) = 0;
+        virtual void onSourceData(const char* chunk, std::size_t chunkLen) = 0;
         virtual void onSourceEof() = 0;
         virtual void onSourceError(int errnum) = 0;
 

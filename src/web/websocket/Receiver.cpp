@@ -36,7 +36,7 @@ namespace web::websocket {
         std::size_t ret = 0;
         std::size_t consumed = 0;
 
-        // dumpFrame(junk, junkLen);
+        // dumpFrame(chunk, chunkLen);
 
         do {
             switch (parserState) {

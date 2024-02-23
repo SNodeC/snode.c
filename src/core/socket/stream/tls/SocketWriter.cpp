@@ -35,8 +35,8 @@
 
 namespace core::socket::stream::tls {
 
-    ssize_t SocketWriter::write(const char* junk, std::size_t junkLen) {
-        int ret = SSL_write(ssl, junk, static_cast<int>(junkLen));
+    ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
+        int ret = SSL_write(ssl, chunk, static_cast<int>(chunkLen));
 
         if (ret <= 0) {
             const int ssl_err = SSL_get_error(ssl, ret);

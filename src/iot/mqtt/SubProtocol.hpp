@@ -53,10 +53,10 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    std::size_t SubProtocol<WSSubProtocolRole>::recv(char* junk, std::size_t junklen) {
-        std::size_t maxReturn = std::min(junklen, size);
+    std::size_t SubProtocol<WSSubProtocolRole>::recv(char* chunk, std::size_t chunklen) {
+        std::size_t maxReturn = std::min(chunklen, size);
 
-        std::copy(buffer.data() + cursor, buffer.data() + cursor + maxReturn, junk);
+        std::copy(buffer.data() + cursor, buffer.data() + cursor + maxReturn, chunk);
 
         cursor += maxReturn;
         size -= maxReturn;
@@ -65,8 +65,8 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::send(const char* junk, std::size_t junklen) {
-        WSSubProtocolRole::sendMessage(junk, junklen);
+    void SubProtocol<WSSubProtocolRole>::send(const char* chunk, std::size_t chunklen) {
+        WSSubProtocolRole::sendMessage(chunk, chunklen);
     }
 
     template <typename WSSubProtocolRole>
@@ -96,13 +96,13 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::onMessageData(const char* junk, std::size_t junkLen) {
-        data += std::string(junk, junkLen);
+    void SubProtocol<WSSubProtocolRole>::onMessageData(const char* chunk, std::size_t chunkLen) {
+        data += std::string(chunk, chunkLen);
 
         std::stringstream ss;
 
         unsigned long i = 0;
-        for (const char ch : std::string(junk, junkLen)) {
+        for (const char ch : std::string(chunk, chunkLen)) {
             if (i != 0 && i % 8 == 0 && i != data.size()) {
                 ss << std::endl;
                 ss << "                                                    ";

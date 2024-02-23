@@ -85,15 +85,15 @@ namespace express {
         Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
 
-        void send(const char* junk, std::size_t junkLen);
-        void send(const std::string& junk);
+        void send(const char* chunk, std::size_t chunkLen);
+        void send(const std::string& chunk);
         void upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool success)>& status);
         void end();
         void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
 
         Response& sendHeader();
-        Response& sendFragment(const char* junk, std::size_t junkLen);
-        Response& sendFragment(const std::string& junk);
+        Response& sendFragment(const char* chunk, std::size_t chunkLen);
+        Response& sendFragment(const std::string& chunk);
 
         const std::string& header(const std::string& field);
     };

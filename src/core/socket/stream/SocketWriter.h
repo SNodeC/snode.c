@@ -52,7 +52,7 @@ namespace core::socket::stream {
                               const utils::Timeval& terminateTimeout);
 
     private:
-        virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
+        virtual ssize_t write(const char* chunk, std::size_t chunkLen) = 0;
 
         void writeEvent() final;
 
@@ -66,7 +66,7 @@ namespace core::socket::stream {
     protected:
         void setBlockSize(std::size_t writeBlockSize);
 
-        void sendToPeer(const char* junk, std::size_t junkLen);
+        void sendToPeer(const char* chunk, std::size_t chunkLen);
         [[nodiscard]] bool streamToPeer(core::pipe::Source* source);
         void streamEof();
 

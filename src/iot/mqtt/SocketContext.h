@@ -53,8 +53,8 @@ namespace iot::mqtt {
 
         core::socket::stream::SocketConnection* getSocketConnection() override;
 
-        std::size_t recv(char* junk, std::size_t junklen) override;
-        void send(const char* junk, std::size_t junklen) override;
+        std::size_t recv(char* chunk, std::size_t chunklen) override;
+        void send(const char* chunk, std::size_t chunklen) override;
 
         void end(bool fatal) override;
         void close() override;

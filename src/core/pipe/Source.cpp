@@ -62,11 +62,11 @@ namespace core::pipe {
         }
     }
 
-    ssize_t Source::send(const char* junk, std::size_t junkLen) {
-        ssize_t ret = static_cast<ssize_t>(junkLen);
+    ssize_t Source::send(const char* chunk, std::size_t chunkLen) {
+        ssize_t ret = static_cast<ssize_t>(chunkLen);
 
         if (this->sink != nullptr) {
-            sink->streamData(junk, junkLen);
+            sink->streamData(chunk, chunkLen);
         } else {
             ret = -1;
             errno = EPIPE;

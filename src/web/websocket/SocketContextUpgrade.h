@@ -161,24 +161,24 @@ namespace web::websocket {
             }
         }
 
-        void onMessageData(const char* junk, uint64_t junkLen) override {
+        void onMessageData(const char* chunk, uint64_t chunkLen) override {
             switch (receivedOpCode) {
                 case SubProtocolContext::OpCode::CLOSE:
                     [[fallthrough]];
                 case SubProtocolContext::OpCode::PING:
                     [[fallthrough]];
                 case SubProtocolContext::OpCode::PONG:
-                    pongCloseData += std::string(junk, static_cast<std::size_t>(junkLen));
+                    pongCloseData += std::string(chunk, static_cast<std::size_t>(chunkLen));
                     break;
                 default:
-                    std::size_t junkOffset = 0;
+                    std::size_t chunkOffset = 0;
 
                     do {
                         std::size_t sendJunkLen =
-                            (junkLen - junkOffset <= SIZE_MAX) ? static_cast<std::size_t>(junkLen - junkOffset) : SIZE_MAX;
-                        subProtocol->onMessageData(junk + junkOffset, sendJunkLen);
-                        junkOffset += sendJunkLen;
-                    } while (junkLen - junkOffset > 0);
+                            (chunkLen - chunkOffset <= SIZE_MAX) ? static_cast<std::size_t>(chunkLen - chunkOffset) : SIZE_MAX;
+                        subProtocol->onMessageData(chunk + chunkOffset, sendJunkLen);
+                        chunkOffset += sendJunkLen;
+                    } while (chunkLen - chunkOffset > 0);
                     break;
             }
         }
@@ -214,8 +214,8 @@ namespace web::websocket {
             sendClose(errnum);
         }
 
-        std::size_t readFrameData(char* junk, std::size_t junkLen) override {
-            return readFromPeer(junk, junkLen);
+        std::size_t readFrameData(char* chunk, std::size_t chunkLen) override {
+            return readFromPeer(chunk, chunkLen);
         }
 
         /* Callbacks (API) socketConnection -> WSProtocol */

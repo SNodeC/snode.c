@@ -77,7 +77,7 @@ namespace web::websocket {
 
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
         virtual void onMessageStart(int opCode) = 0;
-        virtual void onMessageData(const char* junk, std::size_t junkLen) = 0;
+        virtual void onMessageData(const char* chunk, std::size_t chunkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
 

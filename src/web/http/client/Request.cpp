@@ -172,20 +172,20 @@ namespace web::http::client {
         LOG(TRACE) << "HTTP Response parse error: " << request->url << " - " << message;
     }
 
-    void Request::send(const char* junk,
-                       std::size_t junkLen,
+    void Request::send(const char* chunk,
+                       std::size_t chunkLen,
                        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         if (socketContext != nullptr) {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
-            if (junkLen > 0) {
+            if (chunkLen > 0) {
                 set("Content-Type", "application/octet-stream");
             }
 
             sendHeader();
-            sendFragment(junk, junkLen);
+            sendFragment(chunk, chunkLen);
 
             requestCommands.push_back(new commands::EndCommand());
 
@@ -193,13 +193,13 @@ namespace web::http::client {
         }
     }
 
-    void Request::send(const std::string& junk,
+    void Request::send(const std::string& chunk,
                        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        if (!junk.empty()) {
+        if (!chunk.empty()) {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
-        send(junk.data(), junk.size(), onResponseReceived, onResponseParseError);
+        send(chunk.data(), chunk.size(), onResponseReceived, onResponseParseError);
     }
 
     void Request::upgrade(const std::string& url,
@@ -291,12 +291,12 @@ namespace web::http::client {
         return *this;
     }
 
-    Request& Request::sendFragment(const char* junk, std::size_t junkLen) {
+    Request& Request::sendFragment(const char* chunk, std::size_t chunkLen) {
         if (socketContext != nullptr) {
-            contentLength += junkLen;
+            contentLength += chunkLen;
             set("Content-Length", std::to_string(contentLength));
 
-            requestCommands.push_back(new commands::SendFragmentCommand(junk, junkLen));
+            requestCommands.push_back(new commands::SendFragmentCommand(chunk, chunkLen));
         }
 
         return *this;
@@ -344,10 +344,10 @@ namespace web::http::client {
         }
     }
 
-    void Request::dispatchSendFragment(const char* junk, std::size_t junkLen) {
+    void Request::dispatchSendFragment(const char* chunk, std::size_t chunkLen) {
         if (socketContext != nullptr) {
-            socketContext->sendToPeer(junk, junkLen);
-            contentSent += junkLen;
+            socketContext->sendToPeer(chunk, chunkLen);
+            contentSent += chunkLen;
         } else {
             LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
         }
@@ -436,8 +436,8 @@ namespace web::http::client {
         }
     }
 
-    void Request::onSourceData(const char* junk, std::size_t junkLen) {
-        dispatchSendFragment(junk, junkLen);
+    void Request::onSourceData(const char* chunk, std::size_t chunkLen) {
+        dispatchSendFragment(chunk, chunkLen);
     }
 
     void Request::onSourceEof() {

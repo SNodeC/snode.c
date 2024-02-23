@@ -51,9 +51,9 @@ namespace core::socket {
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
         void sendToPeer(const std::string& data) const;
-        virtual void sendToPeer(const char* junk, std::size_t junkLen) const = 0;
+        virtual void sendToPeer(const char* chunk, std::size_t chunkLen) const = 0;
 
-        virtual std::size_t readFromPeer(char* junk, std::size_t junklen) const = 0;
+        virtual std::size_t readFromPeer(char* chunk, std::size_t chunklen) const = 0;
 
         virtual void close() = 0;
 

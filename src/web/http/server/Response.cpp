@@ -135,23 +135,23 @@ namespace web::http::server {
         return cookie(name, "", opts);
     }
 
-    void Response::send(const char* junk, std::size_t junkLen) {
-        if (junkLen > 0) {
+    void Response::send(const char* chunk, std::size_t chunkLen) {
+        if (chunkLen > 0) {
             set("Content-Type", "application/octet-stream", false);
         }
-        set("Content-Length", std::to_string(junkLen));
+        set("Content-Length", std::to_string(chunkLen));
 
         sendHeader();
-        sendFragment(junk, junkLen);
+        sendFragment(chunk, chunkLen);
         sendCompleted();
     }
 
-    void Response::send(const std::string& junk) {
-        if (!junk.empty()) {
+    void Response::send(const std::string& chunk) {
+        if (!chunk.empty()) {
             set("Content-Type", "text/html; charset=utf-8", false);
         }
 
-        send(junk.data(), junk.size());
+        send(chunk.data(), chunk.size());
     }
 
     /* Just an UML-Sequence diagram test */
@@ -244,7 +244,7 @@ namespace web::http::server {
                 socketContext->sendToPeer(std::string(field).append(": ").append(value).append("\r\n"));
             }
 
-            for (const auto& [cookie, cookieValue] : cookies) { // cppcheck-suppress shadowFunction
+            for (const auto& [cookie, cookieValue] : cookies) {
                 const std::string cookieString = std::accumulate(
                     cookieValue.getOptions().begin(),
                     cookieValue.getOptions().end(),
@@ -261,17 +261,17 @@ namespace web::http::server {
         return *this;
     }
 
-    Response& Response::sendFragment(const char* junk, std::size_t junkLen) {
+    Response& Response::sendFragment(const char* chunk, std::size_t chunkLen) {
         if (socketContext != nullptr) {
-            socketContext->sendToPeer(junk, junkLen);
-            contentSent += junkLen;
+            socketContext->sendToPeer(chunk, chunkLen);
+            contentSent += chunkLen;
         }
 
         return *this;
     }
 
-    Response& Response::sendFragment(const std::string& junk) {
-        return sendFragment(junk.data(), junk.size());
+    Response& Response::sendFragment(const std::string& chunk) {
+        return sendFragment(chunk.data(), chunk.size());
     }
 
     void Response::sendCompleted() {
@@ -298,8 +298,8 @@ namespace web::http::server {
         }
     }
 
-    void Response::onSourceData(const char* junk, std::size_t junkLen) {
-        sendFragment(junk, junkLen);
+    void Response::onSourceData(const char* chunk, std::size_t chunkLen) {
+        sendFragment(chunk, chunkLen);
     }
 
     void Response::onSourceEof() {

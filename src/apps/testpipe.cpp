@@ -18,10 +18,10 @@ int main(int argc, char* argv[]) {
 
     const core::pipe::Pipe pipe(
         []([[maybe_unused]] core::pipe::PipeSource& pipeSource, [[maybe_unused]] core::pipe::PipeSink& pipeSink) -> void {
-            pipeSink.setOnData([&pipeSource](const char* junk, std::size_t junkLen) -> void {
-                const std::string string(junk, junkLen);
+            pipeSink.setOnData([&pipeSource](const char* chunk, std::size_t chunkLen) -> void {
+                const std::string string(chunk, chunkLen);
                 VLOG(0) << "Pipe Data: " << string;
-                pipeSource.send(junk, junkLen);
+                pipeSource.send(chunk, chunkLen);
                 // pipeSink.disable();
                 // pipeSource.disable();
             });

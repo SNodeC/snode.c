@@ -57,11 +57,11 @@ namespace web::websocket {
         std::size_t readPayload();
 
         virtual void onMessageStart(int opCode) = 0;
-        virtual void onMessageData(const char* junk, uint64_t junkLen) = 0;
+        virtual void onMessageData(const char* chunk, uint64_t chunkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
 
-        virtual std::size_t readFrameData(char* junk, std::size_t junkLen) = 0;
+        virtual std::size_t readFrameData(char* chunk, std::size_t chunkLen) = 0;
 
         void reset();
 

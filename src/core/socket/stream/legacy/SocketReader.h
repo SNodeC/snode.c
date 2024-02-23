@@ -36,7 +36,7 @@ namespace core::socket::stream::legacy {
         using Super = core::socket::stream::SocketReader;
         using Super::Super;
 
-        ssize_t read(char* junk, std::size_t junkLen) override;
+        ssize_t read(char* chunk, std::size_t chunkLen) override;
     };
 
 } // namespace core::socket::stream::legacy

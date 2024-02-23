@@ -47,13 +47,13 @@ namespace core::pipe {
 
     void PipeSink::readEvent() {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static char junk[MAX_READ_JUNKSIZE];
+        static char chunk[MAX_READ_JUNKSIZE];
 
-        const ssize_t ret = core::system::read(getRegisteredFd(), junk, MAX_READ_JUNKSIZE);
+        const ssize_t ret = core::system::read(getRegisteredFd(), chunk, MAX_READ_JUNKSIZE);
 
         if (ret > 0) {
             if (onData) {
-                onData(junk, static_cast<std::size_t>(ret));
+                onData(chunk, static_cast<std::size_t>(ret));
             }
         } else {
             ReadEventReceiver::disable();
@@ -70,7 +70,7 @@ namespace core::pipe {
         }
     }
 
-    void PipeSink::setOnData(const std::function<void(const char* junk, std::size_t junkLen)>& onData) {
+    void PipeSink::setOnData(const std::function<void(const char* chunk, std::size_t chunkLen)>& onData) {
         this->onData = onData;
     }
 

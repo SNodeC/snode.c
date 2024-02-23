@@ -51,8 +51,8 @@ namespace core::pipe {
         this->onError = onError;
     }
 
-    void PipeSource::send(const char* junk, std::size_t junkLen) {
-        writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
+    void PipeSource::send(const char* chunk, std::size_t chunkLen) {
+        writeBuffer.insert(writeBuffer.end(), chunk, chunk + chunkLen);
 
         if (WriteEventReceiver::isSuspended()) {
             WriteEventReceiver::resume();

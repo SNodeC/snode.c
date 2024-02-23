@@ -72,8 +72,8 @@ namespace iot::mqtt {
         SubProtocol(web::websocket::SubProtocolContext* subProtocolContext, const std::string& name, iot::mqtt::Mqtt* mqtt);
         ~SubProtocol() override = default;
 
-        std::size_t recv(char* junk, std::size_t junklen) override;
-        void send(const char* junk, std::size_t junklen) override;
+        std::size_t recv(char* chunk, std::size_t chunklen) override;
+        void send(const char* chunk, std::size_t chunklen) override;
 
         void end(bool fatal = false) override;
         void close() override;
@@ -81,7 +81,7 @@ namespace iot::mqtt {
     private:
         void onConnected() override;
         void onMessageStart(int opCode) override;
-        void onMessageData(const char* junk, std::size_t junkLen) override;
+        void onMessageData(const char* chunk, std::size_t chunkLen) override;
         void onMessageEnd() override;
         void onMessageError(uint16_t errnum) override;
         void onDisconnected() override;

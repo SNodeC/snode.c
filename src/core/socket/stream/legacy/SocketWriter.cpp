@@ -27,8 +27,8 @@
 
 namespace core::socket::stream::legacy {
 
-    ssize_t SocketWriter::write(const char* junk, std::size_t junkLen) {
-        return core::system::send(this->getRegisteredFd(), junk, junkLen, MSG_NOSIGNAL);
+    ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
+        return core::system::send(this->getRegisteredFd(), chunk, chunkLen, MSG_NOSIGNAL);
     }
 
 } // namespace core::socket::stream::legacy

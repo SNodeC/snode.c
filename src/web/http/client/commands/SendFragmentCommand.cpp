@@ -29,16 +29,16 @@
 
 namespace web::http::client::commands {
 
-    SendFragmentCommand::SendFragmentCommand(const char* junk, std::size_t junkLen)
-        : junk(new char[junkLen])
-        , junkLen(junkLen) {
-        std::memcpy(this->junk, junk, junkLen);
+    SendFragmentCommand::SendFragmentCommand(const char* chunk, std::size_t chunkLen)
+        : chunk(new char[chunkLen])
+        , chunkLen(chunkLen) {
+        std::memcpy(this->chunk, chunk, chunkLen);
     }
 
     void SendFragmentCommand::execute(Request* request) {
-        request->dispatchSendFragment(junk, junkLen);
+        request->dispatchSendFragment(chunk, chunkLen);
 
-        delete[] junk;
+        delete[] chunk;
     }
 
 } // namespace web::http::client::commands

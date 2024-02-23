@@ -45,10 +45,10 @@ namespace apps::websocket::subprotocol::echo::client {
         VLOG(2) << "Message Start - OpCode: " << opCode;
     }
 
-    void Echo::onMessageData(const char* junk, std::size_t junkLen) {
-        data += std::string(junk, junkLen);
+    void Echo::onMessageData(const char* chunk, std::size_t chunkLen) {
+        data += std::string(chunk, chunkLen);
 
-        VLOG(2) << "Message Fragment: " << std::string(junk, junkLen);
+        VLOG(2) << "Message Fragment: " << std::string(chunk, chunkLen);
     }
 
     void Echo::onMessageEnd() {

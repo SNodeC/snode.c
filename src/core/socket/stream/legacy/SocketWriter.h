@@ -36,7 +36,7 @@ namespace core::socket::stream::legacy {
         using Super = core::socket::stream::SocketWriter;
         using Super::Super;
 
-        ssize_t write(const char* junk, std::size_t junkLen) override;
+        ssize_t write(const char* chunk, std::size_t chunkLen) override;
     };
 
 } // namespace core::socket::stream::legacy

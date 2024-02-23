@@ -83,12 +83,12 @@ namespace web::http::client {
         static void responseParseError(const std::shared_ptr<Request>& request, const std::string& message);
 
         void
-        send(const char* junk,
-             std::size_t junkLen,
+        send(const char* chunk,
+             std::size_t chunkLen,
              const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
              const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
         void
-        send(const std::string& junk,
+        send(const std::string& chunk,
              const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
              const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
         void
@@ -106,7 +106,7 @@ namespace web::http::client {
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
 
         Request& sendHeader();
-        Request& sendFragment(const char* junk, std::size_t junkLen);
+        Request& sendFragment(const char* chunk, std::size_t chunkLen);
         Request& sendFragment(const std::string& data);
 
     private:
@@ -114,7 +114,7 @@ namespace web::http::client {
         void deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message);
 
         void dispatchSendHeader();
-        void dispatchSendFragment(const char* junk, std::size_t junkLen);
+        void dispatchSendFragment(const char* chunk, std::size_t chunkLen);
         void dispatchSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus);
         void dispatchUpgrade(const std::string& url, const std::string& protocols);
         void dispatchEnd();
@@ -128,7 +128,7 @@ namespace web::http::client {
         friend class commands::EndCommand;
 
         void onSourceConnect(core::pipe::Source* source) override;
-        void onSourceData(const char* junk, std::size_t junkLen) override;
+        void onSourceData(const char* chunk, std::size_t chunkLen) override;
         void onSourceEof() override;
         void onSourceError(int errnum) override;
 

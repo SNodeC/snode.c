@@ -38,7 +38,7 @@ namespace core::socket::stream::tls {
         using Super = core::socket::stream::SocketReader;
         using Super::Super;
 
-        ssize_t read(char* junk, std::size_t junkLen) override;
+        ssize_t read(char* chunk, std::size_t chunkLen) override;
 
     protected:
         virtual void doSSLShutdown() = 0;

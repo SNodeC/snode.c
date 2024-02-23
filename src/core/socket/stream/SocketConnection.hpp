@@ -115,11 +115,11 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readFromPeer(char* junk, std::size_t junkLen) {
+    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readFromPeer(char* chunk, std::size_t chunkLen) {
         std::size_t ret = 0;
 
         if (newSocketContext == nullptr) {
-            ret = SocketReader::readFromPeer(junk, junkLen);
+            ret = SocketReader::readFromPeer(chunk, chunkLen);
         } else {
             LOG(TRACE) << instanceName << ": ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
         }
@@ -128,8 +128,8 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::sendToPeer(const char* junk, std::size_t junkLen) {
-        SocketWriter::sendToPeer(junk, junkLen);
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::sendToPeer(const char* chunk, std::size_t chunkLen) {
+        SocketWriter::sendToPeer(chunk, chunkLen);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>

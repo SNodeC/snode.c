@@ -130,12 +130,12 @@ namespace express {
         return *this;
     }
 
-    void Response::send(const char* junk, std::size_t junkLen) {
-        responseBase->send(junk, junkLen);
+    void Response::send(const char* chunk, std::size_t chunkLen) {
+        responseBase->send(chunk, chunkLen);
     }
 
-    void Response::send(const std::string& junk) {
-        responseBase->send(junk);
+    void Response::send(const std::string& chunk) {
+        responseBase->send(chunk);
     }
 
     void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool)>& status) {
@@ -156,14 +156,14 @@ namespace express {
         return *this;
     }
 
-    Response& Response::sendFragment(const char* junk, std::size_t junkLen) {
-        responseBase->sendFragment(junk, junkLen);
+    Response& Response::sendFragment(const char* chunk, std::size_t chunkLen) {
+        responseBase->sendFragment(chunk, chunkLen);
 
         return *this;
     }
 
-    Response& Response::sendFragment(const std::string& junk) {
-        responseBase->sendFragment(junk);
+    Response& Response::sendFragment(const std::string& chunk) {
+        responseBase->sendFragment(chunk);
 
         return *this;
     }

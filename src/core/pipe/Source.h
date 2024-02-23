@@ -56,7 +56,7 @@ namespace core::pipe {
         virtual void stop() = 0;
 
     protected:
-        ssize_t send(const char* junk, std::size_t junkLen);
+        ssize_t send(const char* chunk, std::size_t chunkLen);
         void eof();
         void error(int errnum);
 

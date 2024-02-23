@@ -31,15 +31,15 @@ namespace web::http::client::commands {
 
     class SendFragmentCommand : public web::http::client::RequestCommand {
     public:
-        SendFragmentCommand(const char* junk, std::size_t junkLen);
+        SendFragmentCommand(const char* chunk, std::size_t chunkLen);
         ~SendFragmentCommand() override = default;
 
         // RequestCommand interface
         void execute(Request* request) override;
 
     private:
-        char* junk;
-        std::size_t junkLen;
+        char* chunk;
+        std::size_t chunkLen;
     };
 
 } // namespace web::http::client::commands

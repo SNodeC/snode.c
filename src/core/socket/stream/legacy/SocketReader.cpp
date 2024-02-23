@@ -27,8 +27,8 @@
 
 namespace core::socket::stream::legacy {
 
-    ssize_t SocketReader::read(char* junk, std::size_t junkLen) {
-        return core::system::recv(this->getRegisteredFd(), junk, junkLen, 0);
+    ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
+        return core::system::recv(this->getRegisteredFd(), chunk, chunkLen, 0);
     }
 
 } // namespace core::socket::stream::legacy

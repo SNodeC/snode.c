@@ -93,14 +93,14 @@ namespace core::socket::stream {
         blockSize = writeBlockSize;
     }
 
-    void SocketWriter::sendToPeer(const char* junk, std::size_t junkLen) {
+    void SocketWriter::sendToPeer(const char* chunk, std::size_t chunkLen) {
         if (!shutdownInProgress && !markShutdown) {
             if (isEnabled()) {
                 if (writePuffer.empty()) {
                     resume();
                 }
 
-                writePuffer.insert(writePuffer.end(), junk, junk + junkLen);
+                writePuffer.insert(writePuffer.end(), chunk, chunk + chunkLen);
 
                 if (source != nullptr && writePuffer.size() > 5 * blockSize) {
                     source->suspend();

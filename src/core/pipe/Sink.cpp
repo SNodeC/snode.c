@@ -44,8 +44,8 @@ namespace core::pipe {
         }
     }
 
-    void Sink::streamData(const char* junk, std::size_t junkLen) {
-        onSourceData(junk, junkLen);
+    void Sink::streamData(const char* chunk, std::size_t chunkLen) {
+        onSourceData(chunk, chunkLen);
     }
 
     void Sink::streamEof() {

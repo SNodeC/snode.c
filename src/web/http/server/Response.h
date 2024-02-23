@@ -76,21 +76,21 @@ namespace web::http::server {
         Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
 
-        void send(const char* junk, std::size_t junkLen);
-        void send(const std::string& junk);
+        void send(const char* chunk, std::size_t chunkLen);
+        void send(const std::string& chunk);
         void upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool success)>& status);
         void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
         void end();
 
         Response& sendHeader();
-        Response& sendFragment(const char* junk, std::size_t junkLen);
-        Response& sendFragment(const std::string& junk);
+        Response& sendFragment(const char* chunk, std::size_t chunkLen);
+        Response& sendFragment(const std::string& chunk);
 
     private:
         void sendCompleted();
 
         void onSourceConnect(core::pipe::Source* source) override;
-        void onSourceData(const char* junk, std::size_t junkLen) override;
+        void onSourceData(const char* chunk, std::size_t chunkLen) override;
         void onSourceEof() override;
         void onSourceError(int errnum) override;
 

@@ -51,16 +51,16 @@ namespace apps::echo::model {
     }
 
     std::size_t EchoSocketContext::onReceivedFromPeer() {
-        char junk[4096];
+        char chunk[4096];
 
-        const std::size_t junklen = readFromPeer(junk, 4096);
+        const std::size_t chunklen = readFromPeer(chunk, 4096);
 
-        if (junklen > 0) {
-            VLOG(0) << "Data to reflect: " << std::string(junk, junklen);
-            sendToPeer(junk, junklen);
+        if (chunklen > 0) {
+            VLOG(0) << "Data to reflect: " << std::string(chunk, chunklen);
+            sendToPeer(chunk, chunklen);
         }
 
-        return junklen;
+        return chunklen;
     }
 
     core::socket::stream::SocketContext* EchoServerSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {

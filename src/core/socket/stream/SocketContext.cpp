@@ -39,8 +39,8 @@ namespace core::socket::stream {
         return socketConnection;
     }
 
-    void SocketContext::sendToPeer(const char* junk, std::size_t junkLen) const {
-        socketConnection->sendToPeer(junk, junkLen);
+    void SocketContext::sendToPeer(const char* chunk, std::size_t chunkLen) const {
+        socketConnection->sendToPeer(chunk, chunkLen);
     }
 
     bool SocketContext::streamToPeer(pipe::Source* source) const {
@@ -51,8 +51,8 @@ namespace core::socket::stream {
         socketConnection->streamEof();
     }
 
-    std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) const {
-        return socketConnection->readFromPeer(junk, junklen);
+    std::size_t SocketContext::readFromPeer(char* chunk, std::size_t chunklen) const {
+        return socketConnection->readFromPeer(chunk, chunklen);
     }
 
     void SocketContext::setTimeout(const utils::Timeval& timeout) {

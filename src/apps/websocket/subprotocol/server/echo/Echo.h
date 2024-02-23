@@ -43,7 +43,7 @@ namespace apps::websocket::subprotocol::echo::server {
     private:
         void onConnected() override;
         void onMessageStart(int opCode) override;
-        void onMessageData(const char* junk, std::size_t junkLen) override;
+        void onMessageData(const char* chunk, std::size_t chunkLen) override;
         void onMessageEnd() override;
         void onMessageError(uint16_t errnum) override;
         void onDisconnected() override;

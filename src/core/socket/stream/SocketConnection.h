@@ -62,7 +62,7 @@ namespace core::socket::stream {
     public:
         void switchSocketContext(SocketContext* newSocketContext);
 
-        virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
+        virtual void sendToPeer(const char* chunk, std::size_t chunkLen) = 0;
         void sendToPeer(const std::string& data);
         void sentToPeer(const std::vector<uint8_t>& data);
         void sentToPeer(const std::vector<char>& data);
@@ -70,7 +70,7 @@ namespace core::socket::stream {
         [[nodiscard]] virtual bool streamToPeer(core::pipe::Source* source) = 0;
         virtual void streamEof() = 0;
 
-        virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
+        virtual std::size_t readFromPeer(char* chunk, std::size_t chunkLen) = 0;
 
         virtual void shutdownRead() = 0;
         virtual void shutdownWrite(bool forceClose) = 0;
@@ -136,10 +136,10 @@ namespace core::socket::stream {
         const SocketAddress& getLocalAddress() const final;
         const SocketAddress& getRemoteAddress() const final;
 
-        std::size_t readFromPeer(char* junk, std::size_t junkLen) final;
+        std::size_t readFromPeer(char* chunk, std::size_t chunkLen) final;
 
         using Super::sendToPeer;
-        void sendToPeer(const char* junk, std::size_t junkLen) final;
+        void sendToPeer(const char* chunk, std::size_t chunkLen) final;
 
         [[nodiscard]] bool streamToPeer(core::pipe::Source* source) final;
         void streamEof() final;

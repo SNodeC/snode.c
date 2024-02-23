@@ -87,10 +87,10 @@ namespace core::socket::stream {
         blockSize = readBlockSize;
     }
 
-    std::size_t SocketReader::readFromPeer(char* junk, std::size_t junkLen) {
-        const std::size_t maxReturn = std::min(junkLen, size);
+    std::size_t SocketReader::readFromPeer(char* chunk, std::size_t chunkLen) {
+        const std::size_t maxReturn = std::min(chunkLen, size);
 
-        std::copy(readBuffer.data() + cursor, readBuffer.data() + cursor + maxReturn, junk);
+        std::copy(readBuffer.data() + cursor, readBuffer.data() + cursor + maxReturn, chunk);
 
         cursor += maxReturn;
         size -= maxReturn;
