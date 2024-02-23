@@ -22,8 +22,6 @@
 
 #include "net/phy/stream/PhysicalSocket.h"
 
-// IWYU pragma: no_include "net/phy/stream/PhysicalSocket.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

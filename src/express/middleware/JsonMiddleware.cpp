@@ -25,10 +25,10 @@
 
 #include <map>
 #include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
 #include <vector>
 
 // IWYU pragma: no_include <nlohmann/detail/exceptions.hpp>
+// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

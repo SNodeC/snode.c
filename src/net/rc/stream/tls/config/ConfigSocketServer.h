@@ -23,8 +23,6 @@
 #include "net/config/stream/tls/ConfigSocketServer.h" // IWYU pragma: export
 #include "net/rc/stream/config/ConfigSocketServer.h"  // IWYU pragma: export
 
-// IWYU pragma: no_include "net/config/stream/tls/ConfigSocketServer.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>

@@ -21,6 +21,10 @@
 
 #include "net/config/stream/ConfigSocketServer.hpp"
 
+namespace net::config {
+    class ConfigInstance;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #ifdef __GNUC__

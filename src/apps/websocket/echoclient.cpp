@@ -51,19 +51,18 @@ int main(int argc, char* argv[]) {
                 req->upgrade(
                     "/ws/", "hui, websocket", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                         VLOG(1) << "OnResponse";
-                        VLOG(2) << "     Status:";
+                        VLOG(2) << "  Status:";
                         VLOG(2) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
-
-                        VLOG(2) << "     Headers:";
+                        VLOG(2) << "  Headers:";
                         for (const auto& [field, value] : res->headers) {
-                            VLOG(2) << "       " << field + " = " + value;
+                            VLOG(2) << "    " << field + " = " + value;
                         }
 
                         VLOG(2) << "     Cookies:";
                         for (const auto& [name, cookie] : res->cookies) {
-                            VLOG(2) << "       " + name + " = " + cookie.getValue();
+                            VLOG(2) << "    " + name + " = " + cookie.getValue();
                             for (const auto& [option, value] : cookie.getOptions()) {
-                                VLOG(2) << "         " + option + " = " + value;
+                                VLOG(2) << "      " + option + " = " + value;
                             }
                         }
 
@@ -81,11 +80,11 @@ int main(int argc, char* argv[]) {
             },
             [](int status, const std::string& reason) -> void {
                 VLOG(1) << "OnResponseError";
-                VLOG(1) << "     Status: " << status;
-                VLOG(1) << "     Reason: " << reason;
+                VLOG(1) << "  Status: " << status;
+                VLOG(1) << "  Reason: " << reason;
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
-                LOG(INFO) << " -- OnRequestEnd";
+                LOG(INFO) << "OnRequestEnd";
             });
 
         legacyClient.connect([instanceName = legacyClient.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
@@ -121,29 +120,31 @@ int main(int argc, char* argv[]) {
                 req->upgrade(
                     "/ws/", "hui, websocket", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                         VLOG(1) << "OnResponse";
-                        VLOG(2) << "     Status:";
+                        VLOG(2) << "  Status:";
                         VLOG(2) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
-
-                        VLOG(2) << "     Headers:";
+                        VLOG(2) << "  Headers:";
                         for (const auto& [field, value] : res->headers) {
-                            VLOG(2) << "       " << field + " = " + value;
+                            VLOG(2) << "    " << field + " = " + value;
                         }
 
                         VLOG(2) << "     Cookies:";
                         for (const auto& [name, cookie] : res->cookies) {
-                            VLOG(2) << "       " + name + " = " + cookie.getValue();
+                            VLOG(2) << "    " + name + " = " + cookie.getValue();
                             for (const auto& [option, value] : cookie.getOptions()) {
-                                VLOG(2) << "         " + option + " = " + value;
+                                VLOG(2) << "      " + option + " = " + value;
                             }
                         }
 
-                        req->upgrade(res, [&subProtocol = res->headers["upgrade"]](bool success) -> void {
-                            if (success) {
-                                VLOG(1) << "Successful upgrade to '" << subProtocol << "'";
-                            } else {
-                                VLOG(1) << "Can not upgrade to '" << subProtocol << "'";
-                            }
-                        });
+                        req->upgrade(res,
+                                     [&subProtocolsRequested = req->headers["Upgrade"],
+                                      &subProtocol = res->headers["upgrade"]](bool success) -> void {
+                                         if (success) {
+                                             VLOG(1)
+                                                 << "Successful upgrade to '" << subProtocol << "' requested: " << subProtocolsRequested;
+                                         } else {
+                                             VLOG(1) << "Can not upgrade to '" << subProtocol << "' requested: " << subProtocolsRequested;
+                                         }
+                                     });
                     });
             },
             [](int status, const std::string& reason) -> void {
@@ -152,7 +153,7 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "     Reason: " << reason;
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
-                LOG(INFO) << " -- OnRequestEnd";
+                LOG(INFO) << "OnRequestEnd";
             });
 
         tlsClient.connect([instanceName = tlsClient.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress,

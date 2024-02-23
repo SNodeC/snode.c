@@ -31,8 +31,6 @@ namespace web::websocket {
     } // namespace server
 } // namespace web::websocket
 
-// IWYU pragma: no_include "web/websocket/SubProtocolFactory.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
