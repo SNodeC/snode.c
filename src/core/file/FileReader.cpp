@@ -53,8 +53,8 @@ namespace core::file {
         return getFd() >= 0;
     }
 
-    void FileReader::read() {
-        if (openErrno == 0) {
+    void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
+        if (core::eventLoopState() != core::State::STOPPING) {
             if (!suspended) {
                 std::vector<char> puffer(pufferSize);
 
@@ -74,14 +74,6 @@ namespace core::file {
                     delete this;
                 }
             }
-        } else {
-            this->error(openErrno);
-        }
-    }
-
-    void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
-        if (core::eventLoopState() != core::State::STOPPING) {
-            read();
         }
     }
 

@@ -49,16 +49,14 @@ namespace core::file {
 
         bool isOpen() override;
 
-        void read();
-
-        void onEvent(const utils::Timeval& currentTime) override;
-
         void start() final;
         void suspend() final;
         void resume() final;
         void stop() final;
 
     private:
+        void onEvent(const utils::Timeval& currentTime) override;
+
         std::size_t pufferSize = 0;
 
         bool suspended = false;
