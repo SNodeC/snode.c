@@ -78,6 +78,7 @@ namespace web::http::client {
         Request& type(const std::string& type);
         Request& cookie(const std::string& name, const std::string& value);
         Request& cookie(const std::map<std::string, std::string>& cookies);
+        Request& query(const std::string& key, const std::string& value);
 
         static void responseParseError(const std::shared_ptr<Request>& request, const std::string& message);
 
@@ -140,6 +141,10 @@ namespace web::http::client {
     public:
         const std::string& header(const std::string& field);
 
+        const std::map<std::string, std::string, httputils::ciLess>& getQueries() const;
+        const std::map<std::string, std::string, httputils::ciLess>& getHeaders() const;
+        const std::map<std::string, std::string, httputils::ciLess>& getCookies() const;
+
         web::http::client::SocketContext* getSocketContext() const;
 
         std::string method = "GET";
@@ -147,6 +152,7 @@ namespace web::http::client {
         int httpMajor = 1;
         int httpMinor = 1;
 
+    protected:
         std::map<std::string, std::string, httputils::ciLess> queries;
         std::map<std::string, std::string, httputils::ciLess> headers;
         std::map<std::string, std::string, httputils::ciLess> cookies;

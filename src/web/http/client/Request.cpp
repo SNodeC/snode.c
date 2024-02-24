@@ -173,6 +173,12 @@ namespace web::http::client {
         return *this;
     }
 
+    Request& Request::query(const std::string& key, const std::string& value) {
+        queries.insert({key, value});
+
+        return *this;
+    }
+
     void Request::responseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
         LOG(TRACE) << "HTTP Response parse error: " << request->url << " - " << message;
     }
@@ -188,7 +194,7 @@ namespace web::http::client {
             this->onResponseParseError = onResponseParseError;
 
             if (chunkLen > 0) {
-                set("Content-Type", "application/octet-stream");
+                set("Content-Type", "application/octet-stream", false);
             }
 
             sendHeader();
@@ -208,7 +214,7 @@ namespace web::http::client {
                        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         if (!chunk.empty()) {
-            headers.insert({"Content-Type", "text/html; charset=utf-8"});
+            set("Content-Type", "text/html; charset=utf-8", false);
         }
         return send(chunk.data(), chunk.size(), onResponseReceived, onResponseParseError);
     }
@@ -502,6 +508,18 @@ namespace web::http::client {
 
     const std::string& Request::header(const std::string& field) {
         return headers[field];
+    }
+
+    const std::map<std::string, std::string, httputils::ciLess>& Request::getQueries() const {
+        return queries;
+    }
+
+    const std::map<std::string, std::string, httputils::ciLess>& Request::getHeaders() const {
+        return headers;
+    }
+
+    const std::map<std::string, std::string, httputils::ciLess>& Request::getCookies() const {
+        return cookies;
     }
 
     SocketContext* Request::getSocketContext() const {

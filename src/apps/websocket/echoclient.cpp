@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
                         }
 
                         req->upgrade(res,
-                                     [&subProtocolsRequested = req->headers["Upgrade"],
+                                     [&subProtocolsRequested = req->header("Upgrade"),
                                       &subProtocol = res->headers["upgrade"]](bool success) -> void {
                                          if (success) {
                                              VLOG(1)
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
                         }
 
                         req->upgrade(res,
-                                     [&subProtocolsRequested = req->headers["Upgrade"],
+                                     [&subProtocolsRequested = req->header("Upgrade"),
                                       &subProtocol = res->headers["upgrade"]](bool success) -> void {
                                          if (success) {
                                              VLOG(1)
