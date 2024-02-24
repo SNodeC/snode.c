@@ -24,8 +24,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
 #include <cctype>
-#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -157,9 +157,7 @@ namespace web::http {
 
     void Parser::splitHeaderLine(const std::string& line) {
         if (!line.empty()) {
-            std::string headerFieldName;
-            std::string headerFieldValue;
-            std::tie(headerFieldName, headerFieldValue) = httputils::str_split(line, ':');
+            auto [headerFieldName, headerFieldValue] = httputils::str_split(line, ':');
 
             if (headerFieldName.empty()) {
                 parserState = parsingError(400, "Header-field empty");
