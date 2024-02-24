@@ -19,7 +19,6 @@
 
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
 
-#include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
 

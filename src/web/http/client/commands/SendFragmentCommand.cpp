@@ -35,10 +35,12 @@ namespace web::http::client::commands {
         std::memcpy(this->chunk, chunk, chunkLen);
     }
 
+    SendFragmentCommand::~SendFragmentCommand() {
+        delete[] chunk;
+    }
+
     void SendFragmentCommand::execute(Request* request) {
         request->executeSendFragment(chunk, chunkLen);
-
-        delete[] chunk;
     }
 
 } // namespace web::http::client::commands
