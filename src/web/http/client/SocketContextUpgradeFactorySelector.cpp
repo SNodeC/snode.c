@@ -30,8 +30,6 @@
 #include <cstdlib>
 #endif
 
-#include "web/http/http_utils.h"
-
 #include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

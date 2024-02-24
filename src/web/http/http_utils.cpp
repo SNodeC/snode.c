@@ -26,8 +26,9 @@
 #include <algorithm>
 #include <cctype>
 #include <cerrno>
-#include <iomanip> // std::setw
+#include <iomanip>
 #include <sstream>
+#include <strings.h>
 #include <sys/stat.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -160,6 +161,16 @@ namespace httputils {
         });
 
         return (it != str1.end());
+    }
+
+    bool ci_equals(const std::string& str1, const std::string& str2) {
+        return std::equal(str1.begin(), str1.end(), str2.begin(), str2.end(), [](char ch1, char ch2) {
+            return std::toupper(ch1) == std::toupper(ch2);
+        });
+    }
+
+    bool ciLess::operator()(const std::string& a, const std::string& b) const {
+        return ::strcasecmp(a.c_str(), b.c_str()) < 0;
     }
 
 } // namespace httputils

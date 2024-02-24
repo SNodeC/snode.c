@@ -40,6 +40,8 @@ namespace web::http::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "web/http/http_utils.h" // IWYU pragma: export
+
 #include <cstddef>    // for size_t
 #include <functional> // IWYU pragma: export
 #include <map>
@@ -104,8 +106,8 @@ namespace web::http::server {
         int httpMinor = 1;
 
     protected:
-        std::map<std::string, std::string> headers;
-        std::map<std::string, web::http::CookieOptions> cookies;
+        std::map<std::string, std::string, httputils::ciLess> headers;
+        std::map<std::string, web::http::CookieOptions, httputils::ciLess> cookies;
 
     private:
         std::size_t contentSent = 0;

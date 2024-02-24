@@ -31,12 +31,9 @@
 namespace web::http::client {
 
     const std::string& Response::get(const std::string& key, int i) const {
-        std::string tmpKey = key;
-        httputils::to_lower(tmpKey);
-
-        if (headers.find(tmpKey) != headers.end()) {
+        if (headers.find(key) != headers.end()) {
             std::pair<std::multimap<std::string, std::string>::const_iterator, std::multimap<std::string, std::string>::const_iterator>
-                range = headers.equal_range(tmpKey);
+                range = headers.equal_range(key);
 
             if (std::distance(range.first, range.second) >= i) {
                 std::advance(range.first, i);

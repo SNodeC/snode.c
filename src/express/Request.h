@@ -28,6 +28,8 @@ namespace web::http::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "web/http/http_utils.h" // IWYU pragma: export
+
 #include <cstdint>
 #include <map>
 #include <memory>
@@ -75,9 +77,9 @@ namespace express {
         int httpMajor = 0;
         int httpMinor = 0;
 
-        std::map<std::string, std::string> queries;
-        std::map<std::string, std::string> headers;
-        std::map<std::string, std::string> cookies;
+        std::map<std::string, std::string, httputils::ciLess> queries;
+        std::map<std::string, std::string, httputils::ciLess> headers;
+        std::map<std::string, std::string, httputils::ciLess> cookies;
         std::vector<uint8_t> body;
     };
 

@@ -113,13 +113,13 @@ namespace express::middleware {
 
             if ((details & Details::W_REQUEST) != 0) {
                 requestStream << std::setw(prefixLength) << "Request"
-                              << ": " << std::setw(keyLength) << "method"
+                              << ": " << std::setw(keyLength) << "Method"
                               << " : " << req->method << "\n";
                 requestStream << std::setw(prefixLength) << ""
-                              << ": " << std::setw(keyLength) << "url"
+                              << ": " << std::setw(keyLength) << "Url"
                               << " : " << req->url << "\n";
                 requestStream << std::setw(prefixLength) << ""
-                              << ": " << std::setw(keyLength) << "http-version"
+                              << ": " << std::setw(keyLength) << "Version"
                               << " : " << req->httpVersion << "\n";
             }
 

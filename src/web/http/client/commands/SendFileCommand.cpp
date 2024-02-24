@@ -33,7 +33,7 @@ namespace web::http::client::commands {
     }
 
     void SendFileCommand::execute(Request* request) {
-        request->dispatchSendFile(file, onStatus);
+        request->executeSendFile(file, onStatus);
     }
 
 } // namespace web::http::client::commands

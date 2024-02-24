@@ -20,7 +20,6 @@
 #include "web/http/client/ResponseParser.h"
 
 #include "web/http/StatusCodes.h"
-#include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -85,12 +84,12 @@ namespace web::http::client {
 
     Parser::ParserState ResponseParser::parseHeader() {
         for (const auto& [headerFieldName, headerFieldValue] : Parser::headers) {
-            if (headerFieldName != "set-cookie") {
-                if (headerFieldName == "content-length") {
+            if (!httputils::ci_equals(headerFieldName, "set-cookie")) {
+                if (httputils::ci_equals(headerFieldName, "content-length")) {
                     Parser::contentLength = static_cast<std::size_t>(std::stoi(headerFieldValue));
-                } else if (headerFieldName == "connection" && httputils::ci_contains(headerFieldValue, "close")) {
+                } else if (httputils::ci_equals(headerFieldName, "connection") && httputils::ci_contains(headerFieldValue, "close")) {
                     response.connectionState = ConnectionState::Close;
-                } else if (headerFieldName == "connection" && httputils::ci_contains(headerFieldValue, "keep-alive")) {
+                } else if (httputils::ci_equals(headerFieldName, "connection") && httputils::ci_contains(headerFieldValue, "keep-alive")) {
                     response.connectionState = ConnectionState::Keep;
                 }
             } else {

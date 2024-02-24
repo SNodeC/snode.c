@@ -42,6 +42,8 @@ namespace web::http::client {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "web/http/http_utils.h" // IWYU pragma: export
+
 #include <cstddef> // IWYU pragma: export
 #include <functional>
 #include <list>
@@ -68,10 +70,6 @@ namespace web::http::client {
         virtual void init(const std::string& host);
         void stopResponse();
 
-    private:
-        void execute();
-
-    public:
         Request& host(const std::string& host);
         Request& append(const std::string& field, const std::string& value);
         Request& set(const std::string& field, const std::string& value, bool overwrite = true);
@@ -82,6 +80,11 @@ namespace web::http::client {
 
         static void responseParseError(const std::shared_ptr<Request>& request, const std::string& message);
 
+    private:
+        std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
+        std::function<void(const std::shared_ptr<Request>& request, const std::string& message)> onResponseParseError;
+
+    public:
         void
         send(const char* chunk,
              std::size_t chunkLen,
@@ -102,24 +105,25 @@ namespace web::http::client {
                  const std::function<void(int errnum)>& onStatus,
                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
-        void end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                 const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
-
         Request& sendHeader();
         Request& sendFragment(const char* chunk, std::size_t chunkLen);
         Request& sendFragment(const std::string& data);
+        void end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                 const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
 
     private:
+        void execute();
+
+        void executeSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus);
+        void executeUpgrade(const std::string& url, const std::string& protocols);
+        void executeEnd();
+        void executeSendHeader();
+        void executeSendFragment(const char* chunk, std::size_t chunkLen);
+
         void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
         void deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message);
 
-        void dispatchSendHeader();
-        void dispatchSendFragment(const char* chunk, std::size_t chunkLen);
-        void dispatchSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus);
-        void dispatchUpgrade(const std::string& url, const std::string& protocols);
-        void dispatchEnd();
-
-        void dispatchCompleted() const;
+        void requestSent() const;
 
         friend class commands::SendFileCommand;
         friend class commands::SendFragmentCommand;
@@ -142,18 +146,13 @@ namespace web::http::client {
         int httpMajor = 1;
         int httpMinor = 1;
 
-        //    protected:
-        std::map<std::string, std::string> queries;
-        std::map<std::string, std::string> headers;
-        std::map<std::string, std::string> cookies;
-
-        //    private:
-        std::size_t contentSent = 0;
-        std::size_t contentLength = 0;
+        std::map<std::string, std::string, httputils::ciLess> queries;
+        std::map<std::string, std::string, httputils::ciLess> headers;
+        std::map<std::string, std::string, httputils::ciLess> cookies;
 
     private:
-        std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
-        std::function<void(const std::shared_ptr<Request>& request, const std::string& message)> onResponseParseError;
+        std::size_t contentSent = 0;
+        std::size_t contentLength = 0;
 
         std::list<RequestCommand*> requestCommands;
 

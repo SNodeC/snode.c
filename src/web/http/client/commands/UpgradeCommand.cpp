@@ -33,7 +33,7 @@ namespace web::http::client::commands {
     }
 
     void UpgradeCommand::execute(Request* request) {
-        request->dispatchUpgrade(url, protocols);
+        request->executeUpgrade(url, protocols);
     }
 
 } // namespace web::http::client::commands

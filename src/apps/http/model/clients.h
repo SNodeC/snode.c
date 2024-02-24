@@ -44,6 +44,16 @@
 static void logResponse([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& req,
                         const std::shared_ptr<web::http::client::Response>& res) {
     LOG(INFO) << "-- OnResponse";
+    LOG(INFO) << "   Request: " << req->method << " " << req->url << " HTTP/" << req->httpMajor << "." << req->httpMinor;
+    LOG(INFO) << "     Headers:";
+    for (const auto& [field, value] : req->headers) {
+        LOG(INFO) << "       " << field + " = " + value;
+    }
+    LOG(INFO) << "     Cookies:";
+    for (const auto& [name, cookie] : req->cookies) {
+        LOG(INFO) << "       " + name + " = " + cookie;
+    }
+    LOG(INFO) << "   Response:";
     LOG(INFO) << "     Status:";
     LOG(INFO) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
 
@@ -76,6 +86,8 @@ namespace apps::http::legacy {
         return Client(
             "httpclient",
             [](const std::shared_ptr<Request>& req) -> void {
+                LOG(INFO) << " -- OnRequestStart";
+
                 req->url = "/index.html";
                 req->set("Connection", "keep-alive");
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
@@ -102,10 +114,158 @@ namespace apps::http::legacy {
                     logResponse(req, res);
                 });
                 req->url = "/";
-                req->set("Connection", "close");
+                req->set("Connection", "keep-alive");
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                     logResponse(req, res);
                 });
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+
+                req->method = "POST";
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->sendFile(
+                    "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
+                    [req](int ret) -> void {
+                        PLOG(INFO) << "HTTP-Client: POST /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+
+                        if (ret == 0) {
+                            LOG(INFO) << "Send /home/voc/projects/snodec/snode.c/CMakeLists.txt started";
+                        } else {
+                            LOG(INFO) << "Send /home/voc/projects/snodec/snode.c/CMakeLists.txt failed";
+
+                            req->set("Connection", "close");
+                            req->end([]([[maybe_unused]] const std::shared_ptr<Request>& req,
+                                        [[maybe_unused]] const std::shared_ptr<Response>& res) -> void {
+                            });
+                        }
+                    },
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                        logResponse(req, res);
+
+                        req->init(req->getSocketContext()->getSocketConnection()->getConfiguredServer());
+                        req->method = "POST";
+                        req->url = "/";
+                        req->set("Connection", "keep-alive");
+                        req->sendFile(
+                            "/home/voc/projects/snodec/snode.c/CMakeLists.tt",
+                            [req](int ret) -> void {
+                                if (ret == 0) {
+                                    LOG(INFO) << "HTTP-Client: POST  /home/voc/projects/snodec/snode.c/CMakeLists.tt started";
+                                } else {
+                                    PLOG(INFO) << "HTTP-Client: POST  /home/voc/projects/snodec/snode.c/CMakeLists.tt failed";
+
+                                    req->init(req->getSocketContext()->getSocketConnection()->getConfiguredServer());
+                                    req->method = "GET";
+                                    req->url = "/";
+                                    req->set("Connection", "close");
+                                    req->end([]([[maybe_unused]] const std::shared_ptr<Request>& req,
+                                                [[maybe_unused]] const std::shared_ptr<Response>& res) -> void {
+                                        logResponse(req, res);
+                                    });
+                                }
+                            },
+                            [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                                logResponse(req, res);
+                            });
+                    });
+                /*
+                core::EventReceiver::atNextTick([req]() -> void {
+                    req->method = "POST";
+                    req->url = "/";
+                    req->set("Connection", "keep-alive");
+                    req->sendFile(
+                        "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
+                        [req](int ret) -> void {
+                            PLOG(INFO) << "HTTP-Client: POST /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+
+                            if (ret == 0) {
+                                LOG(INFO) << "Send /home/voc/projects/snodec/snode.c/CMakeLists.txt started";
+                            } else {
+                                LOG(INFO) << "Send /home/voc/projects/snodec/snode.c/CMakeLists.txt failed";
+                            }
+                        },
+                        [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                            logResponse(req, res);
+                        });
+
+                    req->method = "POST";
+                    req->url = "/";
+                    req->set("Connection", "keep-alive");
+                    req->sendFile(
+                        "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
+                        [req](int ret) -> void {
+                            PLOG(INFO) << "HTTP-Client: POST /home/voc/projects/snodec/snode.c/CMakeLists.txt ";
+
+                            if (ret == 0) {
+                                LOG(INFO) << "Send /home/voc/projects/snodec/snode.c/CMakeLists.txt started ";
+                            } else {
+                                LOG(INFO) << " Send /home/voc/projects/snodec/snode.c/CMakeLists.txt failed";
+                            }
+                        },
+                        [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                            logResponse(req, res);
+                        });
+                });
+                */
             },
             [](int status, const std::string& reason) -> void {
                 LOG(INFO) << "-- OnResponseParseError";
@@ -134,6 +294,68 @@ namespace apps::http::tls {
         Client client(
             "httpclient",
             [](const std::shared_ptr<Request>& req) -> void {
+                LOG(INFO) << " -- OnRequestStart";
+
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/index.html";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
+                req->url = "/";
+                req->set("Connection", "keep-alive");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                    logResponse(req, res);
+                });
                 req->url = "/index.html";
                 req->set("Connection", "keep-alive");
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {

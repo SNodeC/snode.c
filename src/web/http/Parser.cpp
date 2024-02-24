@@ -24,7 +24,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>
 #include <cctype>
 #include <tuple>
 
@@ -169,11 +168,10 @@ namespace web::http {
             } else if (headerFieldValue.empty()) {
                 parserState = parsingError(400, "Header-value of field \"" + headerFieldName + "\" empty");
             } else {
-                httputils::to_lower(headerFieldName);
                 httputils::str_trimm(headerFieldValue);
 
                 if (headers.find(headerFieldName) == headers.end()) {
-                    headers.insert({headerFieldName, headerFieldValue});
+                    headers.emplace(headerFieldName, headerFieldValue);
                 } else {
                     headers[headerFieldName] += "," + headerFieldValue;
                 }

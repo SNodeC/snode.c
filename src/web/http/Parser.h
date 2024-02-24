@@ -26,6 +26,8 @@ namespace core::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "web/http/http_utils.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <map>
@@ -77,7 +79,7 @@ namespace web::http {
     protected:
         // Data common to all HTTP messages (Request/Response)
         std::size_t contentLength = 0;
-        std::map<std::string, std::string> headers;
+        std::map<std::string, std::string, httputils::ciLess> headers;
         std::vector<uint8_t> content;
 
         int httpMajor = 0;

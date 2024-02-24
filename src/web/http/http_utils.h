@@ -50,6 +50,11 @@ namespace httputils {
     std::string::iterator to_lower(std::string& string);
 
     bool ci_contains(const std::string& str1, const std::string& str2);
+    bool ci_equals(const std::string& str1, const std::string& str2);
+
+    struct ciLess {
+        bool operator()(const std::string& a, const std::string& b) const;
+    };
 
 } // namespace httputils
 

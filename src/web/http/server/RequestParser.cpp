@@ -19,8 +19,6 @@
 
 #include "web/http/server/RequestParser.h"
 
-#include "web/http/http_utils.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <regex>
@@ -88,12 +86,12 @@ namespace web::http::server {
 
     Parser::ParserState RequestParser::parseHeader() {
         for (auto& [headerFieldName, headerFieldValue] : Parser::headers) {
-            if (headerFieldName != "cookie") {
-                if (headerFieldName == "content-length") {
+            if (!httputils::ci_equals(headerFieldName, "cookie")) {
+                if (httputils::ci_equals(headerFieldName, "content-length")) {
                     Parser::contentLength = std::stoul(headerFieldValue);
-                } else if (headerFieldName == "connection" && httputils::ci_contains(headerFieldValue, "close")) {
+                } else if (httputils::ci_equals(headerFieldName, "connection") && httputils::ci_contains(headerFieldValue, "close")) {
                     request.connectionState = ConnectionState::Close;
-                } else if (headerFieldName == "connection" && httputils::ci_contains(headerFieldValue, "keep-alive")) {
+                } else if (httputils::ci_equals(headerFieldName, "connection") && httputils::ci_contains(headerFieldValue, "keep-alive")) {
                     request.connectionState = ConnectionState::Keep;
                 }
             } else {
