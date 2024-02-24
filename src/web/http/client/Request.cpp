@@ -65,12 +65,13 @@ namespace web::http::client {
         , contentLength(request.contentLength)
         , requestCommands(std::move(request.requestCommands))
         , socketContext(request.socketContext)
-        , connectionState(request.connectionState) {
+        , connectionState(request.connectionState)
+        , masterRequest(request.masterRequest) { // NOLINT
         request.init(headers["Host"]);
     }
 
     Request::~Request() {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             socketContext->streamEof();
         }
 
@@ -79,9 +80,8 @@ namespace web::http::client {
         }
     }
 
-    void Request::stopResponse() {
-        Sink::stop();
-        socketContext = nullptr;
+    void Request::setMasterRequest(const std::shared_ptr<Request>& masterRequest) {
+        this->masterRequest = masterRequest;
     }
 
     void Request::init(const std::string& host) {
@@ -98,6 +98,11 @@ namespace web::http::client {
 
         this->host(host);
         set("X-Powered-By", "snode.c");
+    }
+
+    void Request::stopResponse() {
+        Sink::stop();
+        socketContext = nullptr;
     }
 
     Request& Request::host(const std::string& host) {
@@ -176,7 +181,7 @@ namespace web::http::client {
                        std::size_t chunkLen,
                        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
@@ -206,7 +211,7 @@ namespace web::http::client {
                           const std::string& protocols,
                           const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
@@ -221,7 +226,7 @@ namespace web::http::client {
     void Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool success)>& status) {
         core::socket::stream::SocketContext* newSocketContext = nullptr;
 
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             if (response != nullptr) {
                 if (httputils::ci_contains(response->get("connection"), "Upgrade")) {
                     web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
@@ -258,7 +263,7 @@ namespace web::http::client {
                            const std::function<void(int)>& onStatus,
                            const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                            const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
@@ -269,7 +274,7 @@ namespace web::http::client {
     }
 
     Request& Request::sendHeader() {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             requestCommands.push_back(new commands::SendHeaderCommand());
         }
 
@@ -277,7 +282,7 @@ namespace web::http::client {
     }
 
     Request& Request::sendFragment(const char* chunk, std::size_t chunkLen) {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             contentLength += chunkLen;
             set("Content-Length", std::to_string(contentLength));
 
@@ -289,7 +294,7 @@ namespace web::http::client {
 
     void Request::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
@@ -314,7 +319,7 @@ namespace web::http::client {
     }
 
     void Request::executeSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus) {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             std::string absolutFileName = file;
 
             if (std::filesystem::exists(absolutFileName)) {
@@ -355,7 +360,7 @@ namespace web::http::client {
     }
 
     void Request::executeUpgrade(const std::string& url, const std::string& protocols) {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             this->url = url;
 
             set("Connection", "Upgrade", true);
@@ -381,7 +386,7 @@ namespace web::http::client {
     }
 
     void Request::executeSendHeader() {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
             std::string queryString;
@@ -411,7 +416,7 @@ namespace web::http::client {
     }
 
     void Request::executeSendFragment(const char* chunk, std::size_t chunkLen) {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             socketContext->sendToPeer(chunk, chunkLen);
             contentSent += chunkLen;
         } else {
@@ -428,13 +433,13 @@ namespace web::http::client {
     }
 
     void Request::requestSent() const {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             socketContext->requestSent(contentSent == contentLength);
         }
     }
 
     void Request::onSourceConnect(core::pipe::Source* source) {
-        if (socketContext != nullptr && socketContext->streamToPeer(source)) {
+        if (masterRequest.lock() != nullptr && socketContext->streamToPeer(source)) {
             executeSendHeader();
 
             source->start();
@@ -448,7 +453,7 @@ namespace web::http::client {
     }
 
     void Request::onSourceEof() {
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             socketContext->streamEof();
 
             requestSent();
@@ -458,7 +463,7 @@ namespace web::http::client {
     void Request::onSourceError(int errnum) {
         errno = errnum;
 
-        if (socketContext != nullptr) {
+        if (masterRequest.lock() != nullptr) {
             socketContext->streamEof();
             socketContext->close();
 

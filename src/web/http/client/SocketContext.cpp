@@ -55,6 +55,7 @@ namespace web::http::client {
               [this](int status, const std::string& reason) -> void {
                   responseError(status, reason);
               }) {
+        masterRequest->setMasterRequest(masterRequest);
     }
 
     void SocketContext::dispatchNextRequest() {

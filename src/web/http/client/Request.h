@@ -67,6 +67,7 @@ namespace web::http::client {
 
         ~Request() override;
 
+        void setMasterRequest(const std::shared_ptr<Request>& masterRequest);
         virtual void init(const std::string& host);
         void stopResponse();
 
@@ -159,6 +160,8 @@ namespace web::http::client {
         web::http::client::SocketContext* socketContext;
 
         ConnectionState connectionState = ConnectionState::Default;
+
+        std::weak_ptr<Request> masterRequest;
 
         friend class SocketContext;
     };
