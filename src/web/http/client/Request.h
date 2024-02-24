@@ -86,22 +86,22 @@ namespace web::http::client {
         std::function<void(const std::shared_ptr<Request>& request, const std::string& message)> onResponseParseError;
 
     public:
-        void
+        bool
         send(const char* chunk,
              std::size_t chunkLen,
              const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
              const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
-        void
+        bool
         send(const std::string& chunk,
              const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
              const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
-        void
+        bool
         upgrade(const std::string& url,
                 const std::string& protocols,
                 const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                 const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
-        void upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool)>& status);
-        void
+        bool upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool)>& status);
+        bool
         sendFile(const std::string& file,
                  const std::function<void(int errnum)>& onStatus,
                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
@@ -109,7 +109,7 @@ namespace web::http::client {
         Request& sendHeader();
         Request& sendFragment(const char* chunk, std::size_t chunkLen);
         Request& sendFragment(const std::string& data);
-        void end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+        bool end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
 
     private:
