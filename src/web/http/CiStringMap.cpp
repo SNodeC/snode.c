@@ -20,11 +20,26 @@
 
 #include "CiStringMap.h"
 
+#include <algorithm>
 #include <strings.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http {
+
+    bool ciContains(const std::string& str1, const std::string& str2) {
+        auto it = std::search(str1.begin(), str1.end(), str2.begin(), str2.end(), [](char ch1, char ch2) {
+            return std::toupper(ch1) == std::toupper(ch2);
+        });
+
+        return (it != str1.end());
+    }
+
+    bool ciEquals(const std::string& str1, const std::string& str2) {
+        return std::equal(str1.begin(), str1.end(), str2.begin(), str2.end(), [](char ch1, char ch2) {
+            return std::toupper(ch1) == std::toupper(ch2);
+        });
+    }
 
     bool ciLess::operator()(const std::string& a, const std::string& b) const {
         return ::strcasecmp(a.c_str(), b.c_str()) < 0;

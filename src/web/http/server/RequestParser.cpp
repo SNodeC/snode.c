@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "web/http/CiStringMap.h"
 #include "web/http/http_utils.h"
 
 #include <regex>
@@ -88,12 +89,12 @@ namespace web::http::server {
 
     Parser::ParserState RequestParser::parseHeader() {
         for (auto& [headerFieldName, headerFieldValue] : Parser::headers) {
-            if (!httputils::ci_equals(headerFieldName, "cookie")) {
-                if (httputils::ci_equals(headerFieldName, "content-length")) {
+            if (!web::http::ciEquals(headerFieldName, "Cookie")) {
+                if (web::http::ciEquals(headerFieldName, "Content-Length")) {
                     Parser::contentLength = std::stoul(headerFieldValue);
-                } else if (httputils::ci_equals(headerFieldName, "connection") && httputils::ci_contains(headerFieldValue, "close")) {
+                } else if (web::http::ciEquals(headerFieldName, "Connection") && web::http::ciContains(headerFieldValue, "close")) {
                     request.connectionState = ConnectionState::Close;
-                } else if (httputils::ci_equals(headerFieldName, "connection") && httputils::ci_contains(headerFieldValue, "keep-alive")) {
+                } else if (web::http::ciEquals(headerFieldName, "Connection") && web::http::ciContains(headerFieldValue, "keep-alive")) {
                     request.connectionState = ConnectionState::Keep;
                 }
             } else {

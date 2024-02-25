@@ -131,11 +131,11 @@ namespace web::http::client {
                 headers.insert({field, value});
             }
 
-            if (httputils::ci_equals(field, "content-length")) {
+            if (web::http::ciEquals(field, "Content-Length")) {
                 contentLength = std::stoul(value);
-            } else if (httputils::ci_equals(field, "connection") && httputils::ci_contains(headers[field], "close")) {
+            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "close")) {
                 connectionState = ConnectionState::Close;
-            } else if (httputils::ci_equals(field, "connection") && httputils::ci_contains(headers[field], "keep-alive")) {
+            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "keep-alive")) {
                 connectionState = ConnectionState::Keep;
             }
         } else {
@@ -248,7 +248,7 @@ namespace web::http::client {
 
         if (masterRequest.lock()) {
             if (response != nullptr) {
-                if (httputils::ci_contains(response->get("connection"), "Upgrade")) {
+                if (web::http::ciContains(response->get("connection"), "Upgrade")) {
                     web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
                         web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
 

@@ -49,9 +49,6 @@ namespace httputils {
 
     std::string::iterator to_lower(std::string& string);
 
-    bool ci_contains(const std::string& str1, const std::string& str2);
-    bool ci_equals(const std::string& str1, const std::string& str2);
-
 } // namespace httputils
 
 #endif // WEB_HTTP_UTILS_H

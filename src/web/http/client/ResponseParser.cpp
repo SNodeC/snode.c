@@ -23,6 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "web/http/CiStringMap.h"
 #include "web/http/http_utils.h"
 
 #include <cstddef>
@@ -86,12 +87,12 @@ namespace web::http::client {
 
     Parser::ParserState ResponseParser::parseHeader() {
         for (const auto& [headerFieldName, headerFieldValue] : Parser::headers) {
-            if (!httputils::ci_equals(headerFieldName, "set-cookie")) {
-                if (httputils::ci_equals(headerFieldName, "content-length")) {
+            if (!web::http::ciEquals(headerFieldName, "Set-Cookie")) {
+                if (web::http::ciEquals(headerFieldName, "Content-Length")) {
                     Parser::contentLength = static_cast<std::size_t>(std::stoi(headerFieldValue));
-                } else if (httputils::ci_equals(headerFieldName, "connection") && httputils::ci_contains(headerFieldValue, "close")) {
+                } else if (web::http::ciEquals(headerFieldName, "Connection") && web::http::ciContains(headerFieldValue, "close")) {
                     response.connectionState = ConnectionState::Close;
-                } else if (httputils::ci_equals(headerFieldName, "connection") && httputils::ci_contains(headerFieldValue, "keep-alive")) {
+                } else if (web::http::ciEquals(headerFieldName, "Connection") && web::http::ciContains(headerFieldValue, "keep-alive")) {
                     response.connectionState = ConnectionState::Keep;
                 }
             } else {

@@ -29,6 +29,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/system/time.h"
+#include "web/http/CiStringMap.h"
 
 #include <cerrno>
 #include <filesystem>
@@ -101,11 +102,11 @@ namespace web::http::server {
                 headers.insert({field, value});
             }
 
-            if (httputils::ci_contains(field, "Content-Length")) {
+            if (web::http::ciEquals(field, "Content-Length")) {
                 contentLength = std::stoul(value);
-            } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(headers[field], "close")) {
+            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "close")) {
                 connectionState = ConnectionState::Close;
-            } else if (httputils::ci_contains(field, "Connection") && httputils::ci_contains(headers[field], "keep-alive")) {
+            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "keep-alive")) {
                 connectionState = ConnectionState::Keep;
             }
         } else {
@@ -163,7 +164,7 @@ namespace web::http::server {
     void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool)>& status) {
         if (socketContext != nullptr) {
             if (request != nullptr) {
-                if (httputils::ci_contains(request->get("connection"), "Upgrade")) {
+                if (web::http::ciContains(request->get("connection"), "Upgrade")) {
                     web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
                         web::http::server::SocketContextUpgradeFactorySelector::instance()->select(*request, *this);
 
