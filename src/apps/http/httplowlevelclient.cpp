@@ -74,7 +74,7 @@ public:
         VLOG(0) << "SimpleSocketProtocol disconnected";
     }
 
-    [[nodiscard]] bool onSignal([[maybe_unused]] int signum) override {
+    bool onSignal([[maybe_unused]] int signum) override {
         return true;
     }
 

@@ -79,7 +79,7 @@ namespace iot::mqtt::server {
         void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
     protected:
-        [[nodiscard]] bool onSignal(int sig) override;
+        bool onSignal(int sig) override;
 
     private:
         using Super::initSession;

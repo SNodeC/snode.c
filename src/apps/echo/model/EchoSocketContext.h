@@ -45,7 +45,7 @@ namespace apps::echo::model {
         void onConnected() override;
         void onDisconnected() override;
 
-        [[nodiscard]] bool onSignal(int signum) override;
+        bool onSignal(int signum) override;
 
         std::size_t onReceivedFromPeer() override;
 

@@ -49,7 +49,7 @@ namespace iot::mqtt {
         void onConnected() override;
         std::size_t onReceivedFromPeer() override;
         void onDisconnected() override;
-        [[nodiscard]] bool onSignal(int sig) override;
+        bool onSignal(int sig) override;
 
         core::socket::stream::SocketConnection* getSocketConnection() override;
 

@@ -24,6 +24,7 @@
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
+#include <iomanip>
 #include <string>
 #include <utility>
 
@@ -40,15 +41,15 @@ namespace core::socket::stream {
         if (physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
             try {
                 localPeerAddress = config->Local::getSocketAddress(localSockAddr, localSockAddrLen);
-                LOG(TRACE) << config->getInstanceName() << " PeerAddress (local): " << localPeerAddress.toString();
+                LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local): " << localPeerAddress.toString();
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(TRACE) << config->getInstanceName() << " PeerAddress (local): " << badSocketAddress.what();
+                LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local): " << badSocketAddress.what();
 
                 try {
                     localPeerAddress = config->Local::Super::getSocketAddress(localSockAddr, localSockAddrLen);
-                    LOG(TRACE) << config->getInstanceName() << " PeerAddress (local): " << localPeerAddress.toString();
+                    LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local): " << localPeerAddress.toString();
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                    LOG(TRACE) << config->getInstanceName() << " PeerAddress (local): " << badSocketAddress.what();
+                    LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local): " << badSocketAddress.what();
                 }
             }
         }
@@ -65,15 +66,15 @@ namespace core::socket::stream {
         if (physicalSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
             try {
                 remotePeerAddress = config->Remote::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                LOG(TRACE) << config->getInstanceName() << " PeerAddress (remote): " << remotePeerAddress.toString();
+                LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote): " << remotePeerAddress.toString();
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(TRACE) << config->getInstanceName() << " PeerAddress (remote): " << badSocketAddress.what();
+                LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote): " << badSocketAddress.what();
 
                 try {
                     remotePeerAddress = config->Remote::Super::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                    LOG(TRACE) << config->getInstanceName() << " PeerAddress (remote): " << remotePeerAddress.toString();
+                    LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote): " << remotePeerAddress.toString();
                 } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                    LOG(TRACE) << config->getInstanceName() << " PeerAddress (remote): " << badSocketAddress.what();
+                    LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote): " << badSocketAddress.what();
                 }
             }
         }
@@ -135,13 +136,12 @@ namespace core::socket::stream {
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::init() {
         if (!config->getDisabled()) {
             try {
-                LOG(TRACE) << config->getInstanceName() << ": starting";
+                LOG(TRACE) << config->getInstanceName() << ": Starting";
 
+                remoteAddress = config->Remote::getSocketAddress();
                 SocketAddress localAddress = config->Local::getSocketAddress();
 
                 try {
-                    remoteAddress = config->Remote::getSocketAddress();
-
                     if (physicalClientSocket.open(config->getSocketOptions(), PhysicalClientSocket::Flags::NONBLOCK) < 0) {
                         core::socket::State state = core::socket::STATE_OK;
 
@@ -225,7 +225,7 @@ namespace core::socket::stream {
                             new SocketConnection(config->getInstanceName(),
                                                  std::move(physicalClientSocket),
                                                  onDisconnect,
-                                                 config->Remote::getSocketAddress().toString(false),
+                                                 remoteAddress.toString(false),
                                                  getLocalSocketAddress<SocketAddress>(physicalClientSocket, config),
                                                  getRemoteSocketAddress<SocketAddress>(physicalClientSocket, config),
                                                  config->getReadTimeout(),
@@ -275,7 +275,7 @@ namespace core::socket::stream {
                     new SocketConnection(config->getInstanceName(),
                                          std::move(physicalClientSocket),
                                          onDisconnect,
-                                         config->Remote::getSocketAddress().toString(false),
+                                         remoteAddress.toString(false),
                                          getLocalSocketAddress<SocketAddress>(physicalClientSocket, config),
                                          getRemoteSocketAddress<SocketAddress>(physicalClientSocket, config),
                                          config->getReadTimeout(),

@@ -60,14 +60,14 @@ namespace core::socket::stream {
 
         void doWrite();
 
-        [[nodiscard]] virtual bool onSignal(int sigNum) = 0;
+        virtual bool onSignal(int sigNum) = 0;
         virtual void doWriteShutdown(const std::function<void()>& onShutdown) = 0;
 
     protected:
         void setBlockSize(std::size_t writeBlockSize);
 
         void sendToPeer(const char* chunk, std::size_t chunkLen);
-        [[nodiscard]] bool streamToPeer(core::pipe::Source* source);
+        bool streamToPeer(core::pipe::Source* source);
         void streamEof();
 
         void shutdownWrite(const std::function<void()>& onShutdown);

@@ -25,10 +25,13 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #if !defined(NDEBUG)
+
 #include "log/Logger.h"
 
 #include <cstdlib>
 #endif
+
+#include "web/http/http_utils.h"
 
 #include <tuple>
 

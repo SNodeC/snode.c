@@ -21,7 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "web/http/CiStringMap.h"
 #include "web/http/http_utils.h"
 
 #include <regex>

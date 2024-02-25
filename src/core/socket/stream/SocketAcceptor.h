@@ -79,6 +79,7 @@ namespace core::socket::stream {
 
     private:
         PhysicalServerSocket physicalServerSocket;
+        SocketAddress localAddress;
 
     protected:
         std::shared_ptr<core::socket::stream::SocketContextFactory> socketContextFactory = nullptr;

@@ -67,7 +67,7 @@ namespace web::http::server {
         void onConnected() override;
         std::size_t onReceivedFromPeer() override;
         void onDisconnected() override;
-        [[nodiscard]] bool onSignal(int signum) override;
+        bool onSignal(int signum) override;
 
         std::shared_ptr<Request> request = nullptr;
         std::shared_ptr<Response> response = nullptr;

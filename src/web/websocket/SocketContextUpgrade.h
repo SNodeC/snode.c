@@ -229,7 +229,7 @@ namespace web::websocket {
             LOG(INFO) << "WebSocket: disconnected";
         }
 
-        [[nodiscard]] bool onSignal(int sig) override {
+        bool onSignal(int sig) override {
             return subProtocol->onSignal(sig);
         }
 

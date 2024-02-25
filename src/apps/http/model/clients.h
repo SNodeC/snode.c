@@ -45,12 +45,17 @@ static void logResponse([[maybe_unused]] const std::shared_ptr<web::http::client
                         const std::shared_ptr<web::http::client::Response>& res) {
     LOG(INFO) << "-- OnResponse";
     LOG(INFO) << "   Request: " << req->method << " " << req->url << " HTTP/" << req->httpMajor << "." << req->httpMinor;
+
+    LOG(INFO) << "     Queries:";
+    for (const auto& [field, value] : req->getQueries()) {
+        LOG(INFO) << "       " << field + " = " + value;
+    }
     LOG(INFO) << "     Headers:";
-    for (const auto& [field, value] : req->headers) {
+    for (const auto& [field, value] : req->getHeaders()) {
         LOG(INFO) << "       " << field + " = " + value;
     }
     LOG(INFO) << "     Cookies:";
-    for (const auto& [name, cookie] : req->cookies) {
+    for (const auto& [name, cookie] : req->getCookies()) {
         LOG(INFO) << "       " + name + " = " + cookie;
     }
     LOG(INFO) << "   Response:";
@@ -88,7 +93,7 @@ namespace apps::http::legacy {
             [](const std::shared_ptr<Request>& req) -> void {
                 LOG(INFO) << " -- OnRequestStart";
 
-                req->url = "/index.html";
+                req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                     logResponse(req, res);
@@ -182,6 +187,8 @@ namespace apps::http::legacy {
                 req->method = "POST";
                 req->url = "/";
                 req->set("Connection", "keep-alive");
+                req->query("Query1", "QueryValue1");
+                req->query("Query2", "QueryValue2");
                 req->sendFile(
                     "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
                     [req](int ret) -> void {
@@ -217,8 +224,7 @@ namespace apps::http::legacy {
                                     req->method = "GET";
                                     req->url = "/";
                                     req->set("Connection", "close");
-                                    req->end([]([[maybe_unused]] const std::shared_ptr<Request>& req,
-                                                [[maybe_unused]] const std::shared_ptr<Response>& res) -> void {
+                                    req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                                         logResponse(req, res);
                                     });
                                 }
@@ -296,7 +302,7 @@ namespace apps::http::tls {
             [](const std::shared_ptr<Request>& req) -> void {
                 LOG(INFO) << " -- OnRequestStart";
 
-                req->url = "/index.html";
+                req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                     logResponse(req, res);

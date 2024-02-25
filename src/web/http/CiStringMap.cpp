@@ -21,6 +21,7 @@
 #include "CiStringMap.h"
 
 #include <algorithm>
+#include <cctype>
 #include <strings.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

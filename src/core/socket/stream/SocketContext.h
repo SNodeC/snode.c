@@ -53,7 +53,7 @@ namespace core::socket::stream {
         using Super::sendToPeer;
 
         void sendToPeer(const char* chunk, std::size_t chunkLen) const final;
-        [[nodiscard]] bool streamToPeer(core::pipe::Source* source) const;
+        bool streamToPeer(core::pipe::Source* source) const;
         void streamEof();
 
         std::size_t readFromPeer(char* chunk, std::size_t chunklen) const final;

@@ -19,10 +19,11 @@
 
 #include "express/Request.h"
 
-#include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "web/http/http_utils.h"
 
 #include <utility>
 

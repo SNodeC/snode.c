@@ -192,16 +192,15 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReceivedFromPeer(std::size_t available) {
         std::size_t consumed = socketContext->onReceivedFromPeer();
 
-        if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-            disconnectCurrentSocketContext();
-            setSocketContext(newSocketContext);
-            newSocketContext = nullptr;
-        }
-
         if (available != 0 && consumed == 0) {
             close();
 
             delete newSocketContext; // delete of nullptr is valid since C++14!
+            newSocketContext = nullptr;
+        } else if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
+            disconnectCurrentSocketContext();
+            setSocketContext(newSocketContext);
+            newSocketContext = nullptr;
         }
     }
 

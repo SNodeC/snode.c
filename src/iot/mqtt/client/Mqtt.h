@@ -72,7 +72,7 @@ namespace iot::mqtt::client {
         void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
 
     protected:
-        [[nodiscard]] bool onSignal(int sig) override;
+        bool onSignal(int sig) override;
 
     private:
         virtual void onConnack(const iot::mqtt::packets::Connack& connack);

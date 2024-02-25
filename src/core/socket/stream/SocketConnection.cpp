@@ -72,7 +72,7 @@ namespace core::socket::stream {
     }
 
     void SocketConnection::connectSocketContext(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory) {
-        SocketContext* socketContext = socketContextFactory->create(this);
+        SocketContext* socketContext = socketContextFactory->create(this); // cppcheck-suppress shadowVariable
 
         if (socketContext != nullptr) {
             setSocketContext(socketContext);
