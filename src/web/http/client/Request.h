@@ -42,12 +42,11 @@ namespace web::http::client {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "web/http/http_utils.h" // IWYU pragma: export
+#include "web/http/CiStringMap.h" // IWYU pragma: export
 
-#include <cstddef> // IWYU pragma: export
+#include <cstddef>
 #include <functional>
 #include <list>
-#include <map>
 #include <memory>
 #include <string>
 
@@ -141,9 +140,9 @@ namespace web::http::client {
     public:
         const std::string& header(const std::string& field);
 
-        const std::map<std::string, std::string, httputils::ciLess>& getQueries() const;
-        const std::map<std::string, std::string, httputils::ciLess>& getHeaders() const;
-        const std::map<std::string, std::string, httputils::ciLess>& getCookies() const;
+        const CiStringMap<std::string>& getQueries() const;
+        const CiStringMap<std::string>& getHeaders() const;
+        const CiStringMap<std::string>& getCookies() const;
 
         web::http::client::SocketContext* getSocketContext() const;
 
@@ -153,9 +152,9 @@ namespace web::http::client {
         int httpMinor = 1;
 
     protected:
-        std::map<std::string, std::string, httputils::ciLess> queries;
-        std::map<std::string, std::string, httputils::ciLess> headers;
-        std::map<std::string, std::string, httputils::ciLess> cookies;
+        CiStringMap<std::string> queries;
+        CiStringMap<std::string> headers;
+        CiStringMap<std::string> cookies;
 
     private:
         std::size_t contentSent = 0;

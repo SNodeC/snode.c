@@ -19,8 +19,6 @@
 
 #include "web/http/client/Response.h"
 
-#include "web/http/http_utils.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <iterator>
@@ -47,7 +45,7 @@ namespace web::http::client {
     }
 
     const std::string& Response::cookie(const std::string& key) const {
-        const std::map<std::string, CookieOptions>::const_iterator it = cookies.find(key);
+        const CiStringMap<CookieOptions>::const_iterator it = cookies.find(key);
 
         if (it != cookies.end()) {
             return it->second.getValue();

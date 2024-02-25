@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "web/http/http_utils.h"
+
 #include <regex>
 #include <tuple>
 #include <utility>

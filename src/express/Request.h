@@ -28,10 +28,9 @@ namespace web::http::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "web/http/http_utils.h" // IWYU pragma: export
+#include "web/http/CiStringMap.h" // IWYU pragma: export
 
 #include <cstdint>
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -77,9 +76,9 @@ namespace express {
         int httpMajor = 0;
         int httpMinor = 0;
 
-        std::map<std::string, std::string, httputils::ciLess> queries;
-        std::map<std::string, std::string, httputils::ciLess> headers;
-        std::map<std::string, std::string, httputils::ciLess> cookies;
+        web::http::CiStringMap<std::string> queries;
+        web::http::CiStringMap<std::string> headers;
+        web::http::CiStringMap<std::string> cookies;
         std::vector<uint8_t> body;
     };
 

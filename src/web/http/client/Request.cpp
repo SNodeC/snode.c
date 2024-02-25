@@ -510,15 +510,15 @@ namespace web::http::client {
         return headers[field];
     }
 
-    const std::map<std::string, std::string, httputils::ciLess>& Request::getQueries() const {
+    const web::http::CiStringMap<std::string>& Request::getQueries() const {
         return queries;
     }
 
-    const std::map<std::string, std::string, httputils::ciLess>& Request::getHeaders() const {
+    const web::http::CiStringMap<std::string>& Request::getHeaders() const {
         return headers;
     }
 
-    const std::map<std::string, std::string, httputils::ciLess>& Request::getCookies() const {
+    const web::http::CiStringMap<std::string>& Request::getCookies() const {
         return cookies;
     }
 

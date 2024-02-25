@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "web/http/http_utils.h"
+
 #include <cstddef>
 #include <regex>
 #include <tuple>

@@ -25,6 +25,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/base64.h"
+#include "web/http/http_utils.h"
 
 #include <list>
 #include <tuple>

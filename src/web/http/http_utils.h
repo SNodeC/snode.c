@@ -52,10 +52,6 @@ namespace httputils {
     bool ci_contains(const std::string& str1, const std::string& str2);
     bool ci_equals(const std::string& str1, const std::string& str2);
 
-    struct ciLess {
-        bool operator()(const std::string& a, const std::string& b) const;
-    };
-
 } // namespace httputils
 
 #endif // WEB_HTTP_UTILS_H

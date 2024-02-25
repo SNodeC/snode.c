@@ -26,11 +26,10 @@ namespace core::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "web/http/http_utils.h"
+#include "web/http/CiStringMap.h"
 
 #include <cstddef>
 #include <cstdint>
-#include <map>
 #include <regex>
 #include <string>
 #include <vector>
@@ -79,7 +78,7 @@ namespace web::http {
     protected:
         // Data common to all HTTP messages (Request/Response)
         std::size_t contentLength = 0;
-        std::map<std::string, std::string, httputils::ciLess> headers;
+        CiStringMap<std::string> headers;
         std::vector<uint8_t> content;
 
         int httpMajor = 0;

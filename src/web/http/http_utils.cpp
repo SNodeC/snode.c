@@ -28,7 +28,6 @@
 #include <cerrno>
 #include <iomanip>
 #include <sstream>
-#include <strings.h>
 #include <sys/stat.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -167,10 +166,6 @@ namespace httputils {
         return std::equal(str1.begin(), str1.end(), str2.begin(), str2.end(), [](char ch1, char ch2) {
             return std::toupper(ch1) == std::toupper(ch2);
         });
-    }
-
-    bool ciLess::operator()(const std::string& a, const std::string& b) const {
-        return ::strcasecmp(a.c_str(), b.c_str()) < 0;
     }
 
 } // namespace httputils

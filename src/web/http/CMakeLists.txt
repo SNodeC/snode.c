@@ -31,9 +31,10 @@ set(HTTP_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR})
 
 pkg_check_modules(LIBMAGIC libmagic)
 
-set(HTTP_CPP MimeTypes.cpp Parser.cpp StatusCodes.cpp http_utils.cpp)
+set(HTTP_CPP CiStringMap.cpp MimeTypes.cpp Parser.cpp StatusCodes.cpp http_utils.cpp)
 
 set(HTTP_H
+    CiStringMap.h
     ConnectionState.h
     CookieOptions.h
     MimeTypes.h

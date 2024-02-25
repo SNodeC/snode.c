@@ -21,6 +21,7 @@
 
 #include "core/EventReceiver.h"
 #include "core/socket/stream/SocketConnection.h"
+#include "web/http/CookieOptions.h"
 #include "web/http/client/Request.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
