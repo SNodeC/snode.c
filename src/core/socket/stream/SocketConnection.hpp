@@ -146,6 +146,8 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
         LOG(TRACE) << instanceName << ": Do syscall shutdown (RD)";
 
+        SocketReader::shutdownRead();
+
         physicalSocket.shutdown(PhysicalSocket::SHUT::RD);
     }
 

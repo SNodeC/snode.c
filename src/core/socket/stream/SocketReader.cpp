@@ -56,9 +56,11 @@ namespace core::socket::stream {
         if (size == 0) {
             cursor = 0;
 
-            const std::size_t readLen = blockSize - size;
-            const ssize_t retRead = read(readBuffer.data() + size, readLen);
-
+            ssize_t retRead = 0;
+            if (!shutdownInProgress) {
+                const std::size_t readLen = blockSize - size;
+                retRead = read(readBuffer.data() + size, readLen);
+            }
             if (retRead > 0) {
                 size += static_cast<std::size_t>(retRead);
 
@@ -73,6 +75,7 @@ namespace core::socket::stream {
             } else {
                 const int errnum = errno;
                 onStatus(errnum);
+
                 disable();
             }
         } else {
@@ -96,6 +99,15 @@ namespace core::socket::stream {
         size -= maxReturn;
 
         return maxReturn;
+    }
+
+    void SocketReader::shutdownRead() {
+        readBuffer.clear();
+
+        size = 0;
+        cursor = 0;
+
+        shutdownInProgress = true;
     }
 
 } // namespace core::socket::stream

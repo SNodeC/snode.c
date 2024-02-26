@@ -62,6 +62,8 @@ namespace core::socket::stream {
 
         std::size_t readFromPeer(char* chunk, std::size_t chunkLen);
 
+        void shutdownRead();
+
     private:
         std::function<void(int)> onStatus;
 
@@ -70,6 +72,8 @@ namespace core::socket::stream {
 
         std::size_t size = 0;
         std::size_t cursor = 0;
+
+        bool shutdownInProgress = false;
 
         utils::Timeval terminateTimeout;
     };
