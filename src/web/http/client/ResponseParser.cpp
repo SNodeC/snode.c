@@ -133,7 +133,7 @@ namespace web::http::client {
             }
         }
 
-        headers.erase("set-cookie");
+        headers.erase("Set-Cookie");
 
         response.headers = std::move(Parser::headers);
 
