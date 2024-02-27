@@ -39,6 +39,7 @@
 
 #include <cerrno>
 #include <filesystem>
+#include <format>
 #include <system_error>
 #include <utility>
 
@@ -66,6 +67,7 @@ namespace web::http::client {
         , requestCommands(std::move(request.requestCommands))
         , socketContext(request.socketContext)
         , connectionState(request.connectionState)
+        , transfereEncoding(request.transfereEncoding)
         , masterRequest(request.masterRequest) { // NOLINT
         request.init(headers["Host"]);
     }
@@ -95,6 +97,7 @@ namespace web::http::client {
         contentLength = 0;
         contentSent = 0;
         connectionState = ConnectionState::Default;
+        transfereEncoding = TransfereEncoding::HTTP10;
 
         this->host(host);
         set("X-Powered-By", "snode.c");
@@ -133,6 +136,19 @@ namespace web::http::client {
 
             if (web::http::ciEquals(field, "Content-Length")) {
                 contentLength = std::stoul(value);
+            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "close")) {
+                connectionState = ConnectionState::Close;
+            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "keep-alive")) {
+                connectionState = ConnectionState::Keep;
+            }
+
+            if (web::http::ciEquals(field, "Content-Length")) {
+                contentLength = std::stoul(value);
+                transfereEncoding = TransfereEncoding::Identity;
+                headers.erase("Transfer-Encoding");
+            } else if (web::http::ciEquals(field, "Transfer-Encoding") && web::http::ciContains(headers[field], "chunked")) {
+                transfereEncoding = TransfereEncoding::Chunked;
+                headers.erase("Content-Length");
             } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "close")) {
                 connectionState = ConnectionState::Close;
             } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "keep-alive")) {
@@ -313,7 +329,10 @@ namespace web::http::client {
     Request& Request::sendFragment(const char* chunk, std::size_t chunkLen) {
         if (masterRequest.lock()) {
             contentLength += chunkLen;
-            set("Content-Length", std::to_string(contentLength));
+
+            if (!headers.contains("Transfer-Encoding")) {
+                set("Content-Length", std::to_string(contentLength));
+            }
 
             requestCommands.push_back(new commands::SendFragmentCommand(chunk, chunkLen));
         }
@@ -370,7 +389,7 @@ namespace web::http::client {
                             if (errnum == 0) {
                                 set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
                                 set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
-                                set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                                set("Transfer-Encoding", "chunked");
                             } else {
                                 source->stop();
 
@@ -452,8 +471,18 @@ namespace web::http::client {
 
     void Request::executeSendFragment(const char* chunk, std::size_t chunkLen) {
         if (masterRequest.lock()) {
+            if (transfereEncoding == TransfereEncoding::Chunked) {
+                socketContext->sendToPeer(std::format("{:X}\r\n", chunkLen));
+            }
+
             socketContext->sendToPeer(chunk, chunkLen);
             contentSent += chunkLen;
+
+            if (transfereEncoding == TransfereEncoding::Chunked) {
+                socketContext->sendToPeer("\r\n");
+                contentLength += chunkLen;
+            }
+
         } else {
             LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
         }
@@ -467,7 +496,11 @@ namespace web::http::client {
         onResponseParseError(request, message);
     }
 
-    void Request::requestSent() const {
+    void Request::requestSent() {
+        if (transfereEncoding == TransfereEncoding::Chunked) {
+            executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
+        }
+
         if (masterRequest.lock()) {
             socketContext->requestSent(contentSent == contentLength);
         }

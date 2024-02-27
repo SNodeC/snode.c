@@ -124,7 +124,7 @@ namespace web::http::client {
         void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
         void deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message);
 
-        void requestSent() const;
+        void requestSent();
 
         friend class commands::SendFileCommand;
         friend class commands::SendFragmentCommand;
@@ -165,6 +165,7 @@ namespace web::http::client {
         web::http::client::SocketContext* socketContext;
 
         ConnectionState connectionState = ConnectionState::Default;
+        TransfereEncoding transfereEncoding = TransfereEncoding::HTTP10;
 
         std::weak_ptr<Request> masterRequest;
 

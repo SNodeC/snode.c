@@ -117,6 +117,7 @@ namespace web::http::server {
         core::socket::stream::SocketContext* socketContextUpgrade = nullptr;
 
         ConnectionState connectionState = ConnectionState::Default;
+        TransfereEncoding transfereEncoding = TransfereEncoding::HTTP10;
 
         friend class SocketContext;
     };

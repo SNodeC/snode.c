@@ -23,6 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "web/http/http_utils.h"
 
 #include <algorithm>
@@ -187,6 +188,8 @@ namespace web::http {
 
         if (httpMinor == 0 && contentLength == 0) {
             consumed = socketContext->readFromPeer(contentJunk, MAX_CONTENT_JUNK_LEN);
+
+            VLOG(0) << std::string(contentJunk, consumed);
 
             const std::size_t contentJunkLen = static_cast<std::size_t>(consumed);
             if (contentJunkLen > 0) {

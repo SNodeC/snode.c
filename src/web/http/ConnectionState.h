@@ -28,6 +28,8 @@ namespace web::http {
 
     enum ConnectionState { Default, Keep, Close };
 
+    enum struct TransfereEncoding { HTTP10, Identity, Chunked, Compressed, GZip, Deflat };
+
 } // namespace web::http
 
 #endif // WEB_HTTP_CONNECTIONSTATE_H
