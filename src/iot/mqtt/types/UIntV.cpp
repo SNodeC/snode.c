@@ -60,7 +60,7 @@ namespace iot::mqtt::types {
 
     UIntV& UIntV::operator=(const uint32_t& newValue) {
         uint32_t remainingValue = newValue;
-        value.resize(0);
+        value.clear();
 
         do {
             uint8_t encodedByte = static_cast<uint8_t>(remainingValue % 0x80);
