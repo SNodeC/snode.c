@@ -115,8 +115,9 @@ namespace web::http::decoder {
                     }
                 } while (ret > 0 && !(CR && LF) && chunkLenTotalS.size() <= maxChunkLenTotalS);
 
-                if (chunkLenTotalS.size() > maxChunkLenTotalS) {
-                    error = true;
+                error = chunkLenTotalS.size() > maxChunkLenTotalS;
+
+                if (error) {
                     state = -1;
                 } else if (!(CR && LF)) {
                     break;

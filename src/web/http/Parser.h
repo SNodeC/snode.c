@@ -66,7 +66,7 @@ namespace web::http {
 
         std::size_t parse();
 
-        virtual void reset();
+        void reset();
 
     protected:
         // Parser state
@@ -77,7 +77,7 @@ namespace web::http {
         virtual void begin() = 0;
         virtual enum ParserState parseStartLine(const std::string& line) = 0;
         virtual enum ParserState parseHeader() = 0;
-        virtual enum ParserState parseContent(std::vector<uint8_t>& vContent) = 0;
+        virtual enum ParserState parseContent(std::vector<uint8_t>& content) = 0;
         virtual enum ParserState parsingError(int code, const std::string& reason) = 0;
 
     protected:
