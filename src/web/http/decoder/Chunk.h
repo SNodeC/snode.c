@@ -20,6 +20,8 @@
 #ifndef WEB_HTTP_DECODER_CHUNK_H
 #define WEB_HTTP_DECODER_CHUNK_H
 
+#include "web/http/ContentDecoder.h"
+
 namespace core::socket::stream {
     class SocketContext;
 }
@@ -27,6 +29,7 @@ namespace core::socket::stream {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -34,34 +37,32 @@ namespace core::socket::stream {
 
 namespace web::http::decoder {
 
-    class Chunk { // Extends decoder
+    class Chunk : public web::http::ContentDecoder { // Extends decoder
     private:
         class ChunkImpl {
         public:
-            explicit ChunkImpl(core::socket::stream::SocketContext* socketContext)
-                : socketContext(socketContext) {
-            }
+            ChunkImpl() = default;
 
             ChunkImpl(const ChunkImpl&) = delete;
-            ChunkImpl(ChunkImpl&&) noexcept = delete;
+            ChunkImpl(ChunkImpl&&) noexcept = default;
 
             ChunkImpl& operator=(const ChunkImpl&) = delete;
-            ChunkImpl& operator=(ChunkImpl&&) noexcept = delete;
+            ChunkImpl& operator=(ChunkImpl&&) noexcept = default;
 
             ~ChunkImpl();
 
-            std::size_t read();
+            std::size_t read(const core::socket::stream::SocketContext* socketContext);
 
             bool isError() const;
             bool isComplete() const;
 
-            std::vector<char>::iterator begin();
-            std::vector<char>::iterator end();
+            std::vector<uint8_t>::iterator begin();
+            std::vector<uint8_t>::iterator end();
 
             std::size_t size();
 
         private:
-            std::vector<char> chunk;
+            std::vector<uint8_t> chunk;
 
             std::string chunkLenTotalS;
             std::size_t chunkLenTotal = 0;
@@ -74,27 +75,23 @@ namespace web::http::decoder {
 
             bool error = false;
             bool completed = false;
-
-            core::socket::stream::SocketContext* socketContext;
         };
 
     public:
-        explicit Chunk(core::socket::stream::SocketContext* socketContext);
+        explicit Chunk(const core::socket::stream::SocketContext* socketContext);
 
-        std::size_t read();
+        Chunk(const Chunk&) = delete;
+        Chunk(Chunk&&) noexcept = default;
 
-        bool isCompleted() const;
-
-        bool isError() const;
-
-        std::vector<char> getContent();
+        Chunk& operator=(const Chunk&) = delete;
+        Chunk& operator=(Chunk&&) noexcept = default;
 
     private:
-        ChunkImpl chunkImpl;
-        std::vector<char> content;
+        std::size_t read() override;
 
-        bool completed = false;
-        bool error = false;
+        const core::socket::stream::SocketContext* socketContext;
+
+        ChunkImpl chunkImpl;
 
         int state = 0;
     };

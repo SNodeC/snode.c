@@ -17,9 +17,9 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(DECODER_CPP Chunk.cpp)
+set(DECODER_CPP Chunk.cpp HTTP10.cpp Identity.cpp)
 
-set(DECODER_H Chunk.h)
+set(DECODER_H Chunk.h HTTP10.h Identity.h)
 
 add_library(http-decoder STATIC ${DECODER_CPP} ${DECODER_H})
 

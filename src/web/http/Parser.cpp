@@ -20,6 +20,7 @@
 #include "web/http/Parser.h"
 
 #include "core/socket/stream/SocketContext.h"
+#include "web/http/ContentDecoder.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,6 +29,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -45,12 +47,23 @@ namespace web::http {
         , socketContext(socketContext) {
     }
 
+    Parser::~Parser() {
+        reset();
+    }
+
     void Parser::reset() {
+        VLOG(0) << "====================== reset";
         parserState = ParserState::BEGIN;
         contentLength = 0;
         contentRead = 0;
         httpMinor = 0;
         httpMajor = 0;
+
+        for (ContentDecoder* contentDecoder : decoderQueue) {
+            delete contentDecoder;
+        }
+
+        decoderQueue.resize(0);
     }
 
     std::size_t Parser::parse() {
@@ -60,7 +73,6 @@ namespace web::http {
         do {
             switch (parserState) {
                 case ParserState::BEGIN:
-                    reset();
                     begin();
                     parserState = ParserState::FIRSTLINE;
                     [[fallthrough]];
@@ -78,6 +90,7 @@ namespace web::http {
             }
             consumed += ret;
         } while (ret > 0 && parserState != ParserState::BEGIN && parserState != ParserState::ERROR);
+
         return consumed;
     }
 
@@ -159,21 +172,21 @@ namespace web::http {
 
     void Parser::splitHeaderLine(const std::string& line) {
         if (!line.empty()) {
-            auto [headerFieldName, headerFieldValue] = httputils::str_split(line, ':');
+            auto [headerFieldName, value] = httputils::str_split(line, ':');
 
             if (headerFieldName.empty()) {
                 parserState = parsingError(400, "Header-field empty");
             } else if ((std::isblank(headerFieldName.back()) != 0) || (std::isblank(headerFieldName.front()) != 0)) {
                 parserState = parsingError(400, "White space before or after header-field");
-            } else if (headerFieldValue.empty()) {
+            } else if (value.empty()) {
                 parserState = parsingError(400, "Header-value of field \"" + headerFieldName + "\" empty");
             } else {
-                httputils::str_trimm(headerFieldValue);
+                httputils::str_trimm(value);
 
                 if (headers.find(headerFieldName) == headers.end()) {
-                    headers.emplace(headerFieldName, headerFieldValue);
+                    headers.emplace(headerFieldName, value);
                 } else {
-                    headers[headerFieldName] += "," + headerFieldValue;
+                    headers[headerFieldName] += "," + value;
                 }
             }
         } else {
@@ -182,6 +195,28 @@ namespace web::http {
     }
 
     std::size_t Parser::readContent() {
+        ContentDecoder* contentDecoder = decoderQueue.front();
+
+        const std::size_t consumed = contentDecoder->read();
+
+        VLOG(0) << "#################äääääääääääääääääääääää";
+
+        if (contentDecoder->isCompleted()) {
+            contentDecoder = decoderQueue.back();
+
+            std::vector<uint8_t> chunk = std::move(contentDecoder->getContent());
+
+            content.insert(content.end(), chunk.begin(), chunk.end());
+
+            parserState = parseContent(content);
+        } else if (contentDecoder->isError()) {
+            parserState = parsingError(400, "Wrong content encoding");
+        }
+
+        return consumed;
+    }
+
+    std::size_t Parser::readContent1() {
         static char contentJunk[MAX_CONTENT_JUNK_LEN];
 
         std::size_t consumed = 0;

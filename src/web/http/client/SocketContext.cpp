@@ -112,13 +112,14 @@ namespace web::http::client {
     void SocketContext::responseStarted() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started: " << sentRequests.size();
 
-        if (sentRequests.size() > 0) {
-            VLOG(0) << "#########: " << (currentRequest == nullptr);
+        if (!sentRequests.empty()) {
+            VLOG(0) << "######### 1: " << (currentRequest == nullptr);
             currentRequest = sentRequests.front();
 
-            VLOG(0) << "#########: " << (currentRequest == nullptr);
+            VLOG(0) << "######### 2:" << (currentRequest == nullptr);
             sentRequests.pop_front();
         } else {
+            VLOG(0) << "######### 3:" << (currentRequest == nullptr);
             shutdownWrite(true);
         }
     }

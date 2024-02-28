@@ -97,7 +97,7 @@ namespace web::http::client {
         contentLength = 0;
         contentSent = 0;
         connectionState = ConnectionState::Default;
-        transfereEncoding = TransfereEncoding::HTTP10;
+        transfereEncoding = TransferEncoding::HTTP10;
 
         this->host(host);
         set("X-Powered-By", "snode.c");
@@ -144,10 +144,10 @@ namespace web::http::client {
 
             if (web::http::ciEquals(field, "Content-Length")) {
                 contentLength = std::stoul(value);
-                transfereEncoding = TransfereEncoding::Identity;
+                transfereEncoding = TransferEncoding::Identity;
                 headers.erase("Transfer-Encoding");
             } else if (web::http::ciEquals(field, "Transfer-Encoding") && web::http::ciContains(headers[field], "chunked")) {
-                transfereEncoding = TransfereEncoding::Chunked;
+                transfereEncoding = TransferEncoding::Chunked;
                 headers.erase("Content-Length");
             } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "close")) {
                 connectionState = ConnectionState::Close;
@@ -471,14 +471,14 @@ namespace web::http::client {
 
     void Request::executeSendFragment(const char* chunk, std::size_t chunkLen) {
         if (masterRequest.lock()) {
-            if (transfereEncoding == TransfereEncoding::Chunked) {
+            if (transfereEncoding == TransferEncoding::Chunked) {
                 socketContext->sendToPeer(std::format("{:X}\r\n", chunkLen));
             }
 
             socketContext->sendToPeer(chunk, chunkLen);
             contentSent += chunkLen;
 
-            if (transfereEncoding == TransfereEncoding::Chunked) {
+            if (transfereEncoding == TransferEncoding::Chunked) {
                 socketContext->sendToPeer("\r\n");
                 contentLength += chunkLen;
             }
@@ -497,7 +497,7 @@ namespace web::http::client {
     }
 
     void Request::requestSent() {
-        if (transfereEncoding == TransfereEncoding::Chunked) {
+        if (transfereEncoding == TransferEncoding::Chunked) {
             executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
         }
 

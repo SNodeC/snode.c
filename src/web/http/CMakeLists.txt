@@ -17,8 +17,6 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-add_subdirectory(decoder)
-
 find_package(PkgConfig REQUIRED)
 
 set(HTTP_COMPILE_DIR snode.c/http)
@@ -33,13 +31,15 @@ set(HTTP_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR})
 
 pkg_check_modules(LIBMAGIC libmagic)
 
-set(HTTP_CPP CiStringMap.cpp MimeTypes.cpp Parser.cpp StatusCodes.cpp
-             http_utils.cpp
+set(HTTP_CPP CiStringMap.cpp ContentDecoder.cpp MimeTypes.cpp Parser.cpp
+             StatusCodes.cpp http_utils.cpp  decoder/Chunk.cpp
+             decoder/Identity.cpp decoder/HTTP10.cpp
 )
 
 set(HTTP_H
     CiStringMap.h
     ConnectionState.h
+    ContentDecoder.h
     CookieOptions.h
     MimeTypes.h
     Parser.h
@@ -49,6 +49,9 @@ set(HTTP_H
     SocketContextUpgradeFactory.hpp
     SocketContextUpgradeFactorySelector.h
     SocketContextUpgradeFactorySelector.hpp
+    decoder/Chunk.h
+    decoder/Identity.h
+    decoder/HTTP10.h
     legacy/in/Client.h
     legacy/in/Server.h
     legacy/in6/Client.h
@@ -92,7 +95,6 @@ target_include_directories(
 target_link_libraries(
     http
     PUBLIC core-socket-stream ${LIBMAGIC_LIBRARIES}
-    PRIVATE http-decoder
 )
 
 set_target_properties(

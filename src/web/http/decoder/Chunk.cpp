@@ -23,19 +23,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::decoder {
 
-    Chunk::Chunk(core::socket::stream::SocketContext* socketContext)
-        : chunkImpl(socketContext) {
+    Chunk::Chunk(const core::socket::stream::SocketContext* socketContext)
+        : socketContext(socketContext) {
     }
 
     std::size_t Chunk::read() {
-        std::size_t ret = 0;
         std::size_t consumed = 0;
+        std::size_t ret = 0;
 
         switch (state) {
             case -1:
@@ -48,7 +46,7 @@ namespace web::http::decoder {
                 [[fallthrough]];
             case 0:
                 do {
-                    ret = chunkImpl.read();
+                    ret = chunkImpl.read(socketContext);
                     consumed += ret;
 
                     if (chunkImpl.isComplete()) {
@@ -56,38 +54,30 @@ namespace web::http::decoder {
 
                         completed = chunkImpl.size() == 0;
 
-                        state = completed ? -1 : 0;
+                    } else if (chunkImpl.isError()) {
+                        error = true;
                     }
 
-                } while (ret > 0);
+                    state = (completed || error) ? -1 : state;
+                } while (ret > 0 && !completed);
                 break;
         }
 
         return consumed;
     }
 
-    bool Chunk::isCompleted() const {
-        return completed;
-    }
-
-    bool Chunk::isError() const {
-        return error;
-    }
-
-    std::vector<char> Chunk::getContent() {
-        return content;
-    }
-
     Chunk::ChunkImpl::~ChunkImpl() {
     }
 
-    std::size_t Chunk::ChunkImpl::read() {
+    std::size_t Chunk::ChunkImpl::read(const core::socket::stream::SocketContext* socketContext) {
         std::size_t consumed = 0;
         std::size_t ret = 0;
         std::size_t pos = 0;
 
+        const static int maxChunkLenTotalS = sizeof(std::size_t) * 2;
+
         switch (state) {
-            case -1:
+            case -1: // Re-init
                 CR = false;
                 LF = false;
                 chunkLenTotalS.clear();
@@ -105,51 +95,79 @@ namespace web::http::decoder {
                     char ch = '\0';
 
                     ret = socketContext->readFromPeer(&ch, 1);
-                    consumed++;
+                    if (ret > 0) {
+                        consumed++;
 
-                    if (CR) {
-                        if (ch == '\n') {
-                            LF = true;
-                        } else {
-                            chunkLenTotalS += '\r';
-                            chunkLenTotalS += ch;
+                        if (CR) {
+                            if (ch == '\n') {
+                                LF = true;
+                            } else {
+                                chunkLenTotalS += '\r';
+                                chunkLenTotalS += ch;
 
-                            if (ch != '\r') {
-                                CR = false;
+                                CR = ch == '\r';
                             }
+                        } else if (ch == '\r') {
+                            CR = true;
+                        } else {
+                            chunkLenTotalS += ch;
                         }
-                    } else if (ch == '\r') {
-                        CR = true;
-                    } else {
-                        chunkLenTotalS += ch;
                     }
-                } while (ret > 0 && !(CR && LF));
+                } while (ret > 0 && !(CR && LF) && chunkLenTotalS.size() <= maxChunkLenTotalS);
 
-                if (!CR && !LF) {
+                if (chunkLenTotalS.size() > maxChunkLenTotalS) {
+                    error = true;
+                    state = -1;
+                } else if (!(CR && LF)) {
                     break;
+                } else {
+                    chunkLenTotal = std::stoul(chunkLenTotalS, &pos, 16);
+
+                    chunk.resize(chunkLenTotal);
+
+                    state = 1;
                 }
-
-                chunkLenTotal = std::stoul(chunkLenTotalS, &pos, 16);
-
-                chunk.resize(chunkLenTotal);
-
-                VLOG(0) << "#####: Length of ChunkLenTotalS: " << chunkLenTotalS.size() << " - processed: " << pos;
-                VLOG(0) << "#####:            ChunkLenTotal: " << chunkLenTotal;
-
-                state = 1;
 
                 [[fallthrough]];
             case 1: // ChunkData
                 do {
-                    ret = socketContext->readFromPeer(chunk.data() + chunkLenRead, chunkLenTotal - chunkLenRead);
+                    ret = socketContext->readFromPeer(reinterpret_cast<char*>(chunk.data()) + chunkLenRead, chunkLenTotal - chunkLenRead);
                     chunkLenRead += ret;
                     consumed += ret;
-                } while (ret > 0 || chunkLenTotal == chunkLenRead);
+                } while (ret > 0 && (chunkLenTotal != chunkLenRead));
 
-                completed = chunkLenTotal == chunkLenRead;
+                if (chunkLenTotal != chunkLenRead) {
+                    break;
+                }
 
-                if (completed) {
-                    state = -1;
+                state = 2;
+
+                CR = false;
+                LF = false;
+
+                [[fallthrough]];
+            case 2: // Closing "\r\n"
+                char ch = '\0';
+
+                ret = socketContext->readFromPeer(&ch, 1);
+                consumed += ret;
+
+                if (ret > 0) {
+                    if (CR || ch == '\r') {
+                        if (CR && ch == '\n') {
+                            LF = true;
+                            completed = true;
+                            state = -1;
+                        } else if (CR) {
+                            error = true;
+                            state = -1;
+                        } else {
+                            CR = true;
+                        }
+                    } else {
+                        error = true;
+                        state = -1;
+                    }
                 }
 
                 break;
@@ -166,11 +184,11 @@ namespace web::http::decoder {
         return completed;
     }
 
-    std::vector<char>::iterator Chunk::ChunkImpl::begin() {
+    std::vector<uint8_t>::iterator Chunk::ChunkImpl::begin() {
         return chunk.begin();
     }
 
-    std::vector<char>::iterator Chunk::ChunkImpl::end() {
+    std::vector<uint8_t>::iterator Chunk::ChunkImpl::end() {
         return chunk.end();
     }
 

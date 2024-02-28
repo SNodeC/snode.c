@@ -165,7 +165,7 @@ namespace web::http::client {
         web::http::client::SocketContext* socketContext;
 
         ConnectionState connectionState = ConnectionState::Default;
-        TransfereEncoding transfereEncoding = TransfereEncoding::HTTP10;
+        TransferEncoding transfereEncoding = TransferEncoding::HTTP10;
 
         std::weak_ptr<Request> masterRequest;
 
