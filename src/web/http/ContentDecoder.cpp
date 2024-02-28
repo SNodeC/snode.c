@@ -1,5 +1,5 @@
 /*
- * SNode.C - a slim toolkit for network communication
+ * snode.c - a slim toolkit for network communication
  * Copyright (C) Volker Christian <me@vchrist.at>
  *               2020, 2021, 2022, 2023, 2024
  *
@@ -17,19 +17,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_CONNECTIONSTATE_H
-#define WEB_HTTP_CONNECTIONSTATE_H
+#include "ContentDecoder.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <utility>
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http {
 
-    enum ConnectionState { Default, Keep, Close };
+    ContentDecoder::~ContentDecoder() {
+    }
 
-    enum struct TransferEncoding { HTTP10, Identity, Chunked, Compressed, GZip, Deflat };
+    bool ContentDecoder::isCompleted() const {
+        return completed;
+    }
+
+    bool ContentDecoder::isError() const {
+        return error;
+    }
+
+    std::vector<uint8_t> &&ContentDecoder::getContent() {
+        return std::move(content);
+    }
 
 } // namespace web::http
-
-#endif // WEB_HTTP_CONNECTIONSTATE_H

@@ -20,6 +20,10 @@
 #ifndef WEB_HTTP_PARSER_H
 #define WEB_HTTP_PARSER_H
 
+namespace web::http {
+    class ContentDecoder;
+}
+
 namespace core::socket::stream {
     class SocketContext;
 } // namespace core::socket::stream
@@ -30,6 +34,7 @@ namespace core::socket::stream {
 
 #include <cstddef>
 #include <cstdint>
+#include <list> // IWYU pragma: export
 #include <regex>
 #include <string>
 #include <vector>
@@ -57,11 +62,11 @@ namespace web::http {
         explicit Parser(core::socket::stream::SocketContext* socketContext,
                         const enum HTTPCompliance& compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230);
 
-        virtual ~Parser() = default;
+        virtual ~Parser();
 
         std::size_t parse();
 
-        virtual void reset();
+        void reset();
 
     protected:
         // Parser state
@@ -72,7 +77,7 @@ namespace web::http {
         virtual void begin() = 0;
         virtual enum ParserState parseStartLine(const std::string& line) = 0;
         virtual enum ParserState parseHeader() = 0;
-        virtual enum ParserState parseContent(std::vector<uint8_t>& vContent) = 0;
+        virtual enum ParserState parseContent(std::vector<uint8_t>& content) = 0;
         virtual enum ParserState parsingError(int code, const std::string& reason) = 0;
 
     protected:
@@ -84,12 +89,15 @@ namespace web::http {
         int httpMajor = 0;
         int httpMinor = 0;
 
-    private:
+        std::list<web::http::ContentDecoder*> decoderQueue;
+
         core::socket::stream::SocketContext* socketContext = nullptr;
 
+    private:
         std::size_t readStartLine();
         std::size_t readHeaderLine();
         void splitHeaderLine(const std::string& line);
+        std::size_t readContent1();
         std::size_t readContent();
 
         // Line state

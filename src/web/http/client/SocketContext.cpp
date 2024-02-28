@@ -110,10 +110,18 @@ namespace web::http::client {
     }
 
     void SocketContext::responseStarted() {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started";
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started: " << sentRequests.size();
 
-        currentRequest = sentRequests.front();
-        sentRequests.pop_front();
+        if (!sentRequests.empty()) {
+            VLOG(0) << "######### 1: " << (currentRequest == nullptr);
+            currentRequest = sentRequests.front();
+
+            VLOG(0) << "######### 2:" << (currentRequest == nullptr);
+            sentRequests.pop_front();
+        } else {
+            VLOG(0) << "######### 3:" << (currentRequest == nullptr);
+            shutdownWrite(true);
+        }
     }
 
     void SocketContext::responseParsed() {
@@ -161,7 +169,13 @@ namespace web::http::client {
     }
 
     std::size_t SocketContext::onReceivedFromPeer() {
-        return parser.parse();
+        std::size_t consumed = 0;
+
+        if (!sentRequests.empty()) {
+            consumed = parser.parse();
+        }
+
+        return consumed;
     }
 
     void SocketContext::onDisconnected() {
