@@ -34,16 +34,16 @@ namespace core::socket::stream {
 
 namespace web::http::decoder {
 
-    class HTTP10 : public web::http::ContentDecoder {
+    class HTTP10Response : public web::http::ContentDecoder {
     public:
-        explicit HTTP10(const core::socket::stream::SocketContext* socketContext);
-        HTTP10(const HTTP10&) = delete;
-        HTTP10(HTTP10&&) noexcept = default;
+        explicit HTTP10Response(const core::socket::stream::SocketContext* socketContext);
+        HTTP10Response(const HTTP10Response&) = delete;
+        HTTP10Response(HTTP10Response&&) noexcept = default;
 
-        HTTP10& operator=(const HTTP10&) = delete;
-        HTTP10& operator=(HTTP10&&) noexcept = default;
+        HTTP10Response& operator=(const HTTP10Response&) = delete;
+        HTTP10Response& operator=(HTTP10Response&&) noexcept = default;
 
-        ~HTTP10() override;
+        ~HTTP10Response() override;
 
     private:
         std::size_t read() override;

@@ -391,7 +391,14 @@ namespace web::http::client {
                             if (errnum == 0) {
                                 set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
                                 set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
-                                set("Transfer-Encoding", "chunked");
+
+                                if (httpMajor == 1) {
+                                    if (httpMinor == 1) {
+                                        set("Transfer-Encoding", "chunked");
+                                    } else {
+                                        set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                                    }
+                                }
                             } else {
                                 source->stop();
 

@@ -70,7 +70,12 @@ namespace web::http {
 
     protected:
         // Parser state
-        enum struct ParserState { BEGIN, FIRSTLINE, HEADER, BODY, ERROR } parserState = ParserState::BEGIN;
+        enum struct ParserState { BEGIN, FIRSTLINE, HEADER, BODY, ERROR };
+
+    private:
+        ParserState parserState = ParserState::BEGIN;
+
+    protected:
         static const std::regex httpVersionRegex;
 
     private:

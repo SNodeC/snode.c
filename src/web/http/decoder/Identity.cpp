@@ -29,7 +29,7 @@
 
 namespace web::http::decoder {
 
-    Identity::Identity(const core::socket::stream::SocketContext *socketContext, std::size_t contentLength)
+    Identity::Identity(const core::socket::stream::SocketContext* socketContext, std::size_t contentLength)
         : socketContext(socketContext)
         , contentLength(contentLength) {
         content.resize(contentLength);
@@ -44,7 +44,7 @@ namespace web::http::decoder {
 
         switch (state) {
             case -1:
-                content.resize(0);
+                content.clear();
                 completed = false;
                 error = false;
 

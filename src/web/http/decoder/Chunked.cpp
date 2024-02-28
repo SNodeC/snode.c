@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/http/decoder/Chunk.h"
+#include "web/http/decoder/Chunked.h"
 
 #include "core/socket/stream/SocketContext.h"
 
@@ -27,17 +27,17 @@
 
 namespace web::http::decoder {
 
-    Chunk::Chunk(const core::socket::stream::SocketContext* socketContext)
+    Chunked::Chunked(const core::socket::stream::SocketContext* socketContext)
         : socketContext(socketContext) {
     }
 
-    std::size_t Chunk::read() {
+    std::size_t Chunked::read() {
         std::size_t consumed = 0;
         std::size_t ret = 0;
 
         switch (state) {
             case -1:
-                content.resize(0);
+                content.clear();
                 completed = false;
                 error = false;
 
@@ -46,15 +46,15 @@ namespace web::http::decoder {
                 [[fallthrough]];
             case 0:
                 do {
-                    ret = chunkImpl.read(socketContext);
+                    ret = chunk.read(socketContext);
                     consumed += ret;
 
-                    if (chunkImpl.isComplete()) {
-                        content.insert(content.end(), chunkImpl.begin(), chunkImpl.end());
+                    if (chunk.isComplete()) {
+                        content.insert(content.end(), chunk.begin(), chunk.end());
 
-                        completed = chunkImpl.size() == 0;
+                        completed = chunk.size() == 0;
 
-                    } else if (chunkImpl.isError()) {
+                    } else if (chunk.isError()) {
                         error = true;
                     }
 
@@ -66,10 +66,10 @@ namespace web::http::decoder {
         return consumed;
     }
 
-    Chunk::ChunkImpl::~ChunkImpl() {
+    Chunked::Chunk::~Chunk() {
     }
 
-    std::size_t Chunk::ChunkImpl::read(const core::socket::stream::SocketContext* socketContext) {
+    inline std::size_t Chunked::Chunk::read(const core::socket::stream::SocketContext* socketContext) {
         std::size_t consumed = 0;
         std::size_t ret = 0;
         std::size_t pos = 0;
@@ -102,10 +102,7 @@ namespace web::http::decoder {
                             if (ch == '\n') {
                                 LF = true;
                             } else {
-                                chunkLenTotalS += '\r';
-                                chunkLenTotalS += ch;
-
-                                CR = ch == '\r';
+                                error = true;
                             }
                         } else if (ch == '\r') {
                             CR = true;
@@ -113,21 +110,25 @@ namespace web::http::decoder {
                             chunkLenTotalS += ch;
                         }
                     }
-                } while (ret > 0 && !(CR && LF) && chunkLenTotalS.size() <= maxChunkLenTotalS);
+                } while (!error && ret > 0 && !(CR && LF) && chunkLenTotalS.size() <= maxChunkLenTotalS);
 
-                error = chunkLenTotalS.size() > maxChunkLenTotalS;
+                if (!(CR && LF)) {
+                    error = !error ? chunkLenTotalS.size() > maxChunkLenTotalS : error;
 
-                if (error) {
-                    state = -1;
-                } else if (!(CR && LF)) {
+                    if (error) {
+                        state = -1;
+                    }
+
                     break;
-                } else {
-                    chunkLenTotal = std::stoul(chunkLenTotalS, &pos, 16);
-
-                    chunk.resize(chunkLenTotal);
-
-                    state = 1;
                 }
+
+                CR = false;
+                LF = false;
+
+                chunkLenTotal = std::stoul(chunkLenTotalS, &pos, 16);
+                chunk.resize(chunkLenTotal);
+
+                state = 1;
 
                 [[fallthrough]];
             case 1: // ChunkData
@@ -142,9 +143,6 @@ namespace web::http::decoder {
                 }
 
                 state = 2;
-
-                CR = false;
-                LF = false;
 
                 [[fallthrough]];
             case 2: // Closing "\r\n"
@@ -177,23 +175,23 @@ namespace web::http::decoder {
         return consumed;
     }
 
-    bool Chunk::ChunkImpl::isError() const {
+    inline bool Chunked::Chunk::isError() const {
         return error;
     }
 
-    bool Chunk::ChunkImpl::isComplete() const {
+    inline bool Chunked::Chunk::isComplete() const {
         return completed;
     }
 
-    std::vector<uint8_t>::iterator Chunk::ChunkImpl::begin() {
+    std::vector<uint8_t>::iterator Chunked::Chunk::begin() {
         return chunk.begin();
     }
 
-    std::vector<uint8_t>::iterator Chunk::ChunkImpl::end() {
+    std::vector<uint8_t>::iterator Chunked::Chunk::end() {
         return chunk.end();
     }
 
-    std::size_t Chunk::ChunkImpl::size() {
+    std::size_t Chunked::Chunk::size() {
         return chunk.size();
     }
 

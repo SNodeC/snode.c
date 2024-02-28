@@ -20,8 +20,8 @@
 #include "web/http/client/ResponseParser.h"
 
 #include "web/http/StatusCodes.h"
-#include "web/http/decoder/Chunk.h"
-#include "web/http/decoder/HTTP10.h"
+#include "web/http/decoder/Chunked.h"
+#include "web/http/decoder/HTTP10Response.h"
 #include "web/http/decoder/Identity.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -104,7 +104,7 @@ namespace web::http::client {
                         response.transferEncoding = TransferEncoding::Chunked;
                         headers.erase("Content-Length");
 
-                        decoderQueue.emplace_back(new web::http::decoder::Chunk(socketContext));
+                        decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext));
                     }
                     if (web::http::ciContains(headers[field], "compressed")) {
                         //  decoderQueue.emplace_back(new web::http::decoder::Compress(socketContext));
@@ -170,7 +170,7 @@ namespace web::http::client {
 
         if (decoderQueue.empty()) {
             if (response.httpMajor == 1 && response.httpMinor == 0) {
-                decoderQueue.emplace_back(new web::http::decoder::HTTP10(socketContext));
+                decoderQueue.emplace_back(new web::http::decoder::HTTP10Response(socketContext));
                 response.transferEncoding = TransferEncoding::HTTP10;
             } else if (response.httpMajor == 1 && response.httpMinor == 1) {
                 decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, 0));

@@ -37,21 +37,21 @@ namespace core::socket::stream {
 
 namespace web::http::decoder {
 
-    class Chunk : public web::http::ContentDecoder { // Extends decoder
+    class Chunked : public web::http::ContentDecoder { // Extends decoder
     private:
-        class ChunkImpl {
+        class Chunk {
         public:
-            ChunkImpl() = default;
+            Chunk() = default;
 
-            ChunkImpl(const ChunkImpl&) = delete;
-            ChunkImpl(ChunkImpl&&) noexcept = default;
+            Chunk(const Chunk&) = delete;
+            Chunk(Chunk&&) noexcept = default;
 
-            ChunkImpl& operator=(const ChunkImpl&) = delete;
-            ChunkImpl& operator=(ChunkImpl&&) noexcept = default;
+            Chunk& operator=(const Chunk&) = delete;
+            Chunk& operator=(Chunk&&) noexcept = default;
 
-            ~ChunkImpl();
+            ~Chunk();
 
-            std::size_t read(const core::socket::stream::SocketContext* socketContext);
+            inline std::size_t read(const core::socket::stream::SocketContext* socketContext);
 
             bool isError() const;
             bool isComplete() const;
@@ -78,20 +78,20 @@ namespace web::http::decoder {
         };
 
     public:
-        explicit Chunk(const core::socket::stream::SocketContext* socketContext);
+        explicit Chunked(const core::socket::stream::SocketContext* socketContext);
 
-        Chunk(const Chunk&) = delete;
-        Chunk(Chunk&&) noexcept = default;
+        Chunked(const Chunked&) = delete;
+        Chunked(Chunked&&) noexcept = default;
 
-        Chunk& operator=(const Chunk&) = delete;
-        Chunk& operator=(Chunk&&) noexcept = default;
+        Chunked& operator=(const Chunked&) = delete;
+        Chunked& operator=(Chunked&&) noexcept = default;
 
     private:
         std::size_t read() override;
 
         const core::socket::stream::SocketContext* socketContext;
 
-        ChunkImpl chunkImpl;
+        Chunk chunk;
 
         int state = 0;
     };

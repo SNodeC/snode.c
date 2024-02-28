@@ -32,8 +32,8 @@ set(HTTP_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${HTTP_INSTALL_LIBDIR})
 pkg_check_modules(LIBMAGIC libmagic)
 
 set(HTTP_CPP CiStringMap.cpp ContentDecoder.cpp MimeTypes.cpp Parser.cpp
-             StatusCodes.cpp http_utils.cpp  decoder/Chunk.cpp
-             decoder/Identity.cpp decoder/HTTP10.cpp
+             StatusCodes.cpp http_utils.cpp  decoder/Chunked.cpp
+             decoder/HTTP10Response.cpp decoder/Identity.cpp
 )
 
 set(HTTP_H
@@ -49,9 +49,9 @@ set(HTTP_H
     SocketContextUpgradeFactory.hpp
     SocketContextUpgradeFactorySelector.h
     SocketContextUpgradeFactorySelector.hpp
-    decoder/Chunk.h
+    decoder/Chunked.h
+    decoder/HTTP10Response.h
     decoder/Identity.h
-    decoder/HTTP10.h
     legacy/in/Client.h
     legacy/in/Server.h
     legacy/in6/Client.h

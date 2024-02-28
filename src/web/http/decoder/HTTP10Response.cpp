@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HTTP10.h"
+#include "HTTP10Response.h"
 
 #include "core/socket/stream/SocketContext.h"
 
@@ -33,14 +33,14 @@
 
 namespace web::http::decoder {
 
-    HTTP10::HTTP10(const core::socket::stream::SocketContext *socketContext)
+    HTTP10Response::HTTP10Response(const core::socket::stream::SocketContext *socketContext)
         : socketContext(socketContext) {
     }
 
-    HTTP10::~HTTP10() {
+    HTTP10Response::~HTTP10Response() {
     }
 
-    std::size_t HTTP10::read() {
+    std::size_t HTTP10Response::read() {
         std::size_t consumed = 0;
         std::size_t ret = 0;
         static char contentChunk[MAX_CONTENT_CHUNK_LEN];

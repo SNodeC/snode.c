@@ -19,8 +19,7 @@
 
 #include "web/http/server/RequestParser.h"
 
-#include "web/http/decoder/Chunk.h"
-#include "web/http/decoder/HTTP10.h"
+#include "web/http/decoder/Chunked.h"
 #include "web/http/decoder/Identity.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -109,7 +108,7 @@ namespace web::http::server {
                         request.transferEncoding = TransferEncoding::Chunked;
                         headers.erase("Content-Length");
 
-                        decoderQueue.emplace_back(new web::http::decoder::Chunk(socketContext));
+                        decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext));
                     }
                     if (web::http::ciContains(headers[field], "compressed")) {
                         //  decoderQueue.emplace_back(new web::http::decoder::Compress(socketContext));
@@ -160,19 +159,13 @@ namespace web::http::server {
         Parser::headers.erase("Cookie");
         request.headers = std::move(Parser::headers);
 
-        if (decoderQueue.empty()) {
-            if (request.httpMajor == 1 && request.httpMinor == 0) {
-                decoderQueue.emplace_back(new web::http::decoder::HTTP10(socketContext));
-                request.transferEncoding = TransferEncoding::HTTP10;
-            } else if (request.httpMajor == 1 && request.httpMinor == 1) {
-                decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, 0));
-                request.transferEncoding = TransferEncoding::Identity;
-            }
-        }
-
         enum Parser::ParserState parserState = Parser::ParserState::BODY;
-        if (request.transferEncoding == TransferEncoding::Identity && contentLength == 0) {
+
+        if (request.transferEncoding == TransferEncoding::HTTP10 ||
+            (request.transferEncoding == TransferEncoding::Identity && contentLength == 0)) {
             parserState = parsingFinished();
+        } else if (decoderQueue.empty()) {
+            decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, contentLength));
         }
 
         return parserState;

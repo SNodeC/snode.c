@@ -61,7 +61,7 @@ namespace web::http {
             delete contentDecoder;
         }
 
-        decoderQueue.resize(0);
+        decoderQueue.clear();
     }
 
     std::size_t Parser::parse() {
