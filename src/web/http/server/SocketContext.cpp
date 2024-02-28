@@ -103,22 +103,18 @@ namespace web::http::server {
     void SocketContext::requestCompleted(bool close) {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed";
 
-        if (request != nullptr) {
-            if (close) {
-                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
+        if (close) {
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
 
-                shutdownWrite();
-            } else {
-                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
-
-                if (!requests.empty()) {
-                    core::EventReceiver::atNextTick([this]() -> void {
-                        requestParsed();
-                    });
-                }
-            }
-        } else {
             shutdownWrite();
+        } else {
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
+
+            if (!requests.empty()) {
+                core::EventReceiver::atNextTick([this]() -> void {
+                    requestParsed();
+                });
+            }
         }
 
         request = nullptr;

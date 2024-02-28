@@ -117,12 +117,16 @@ namespace web::http::client {
                     }
                 } else if (web::http::ciEquals(field, "Content-Encoding")) {
                     if (web::http::ciContains(headers[field], "compressed")) {
+                        //  decoderQueue.emplace_back(new web::http::decoder::Compress(socketContext));
                     }
                     if (web::http::ciContains(headers[field], "deflate")) {
+                        //  decoderQueue.emplace_back(new web::http::decoder::Deflate(socketContext));
                     }
                     if (web::http::ciContains(headers[field], "gzip")) {
+                        //  decoderQueue.emplace_back(new web::http::decoder::GZip(socketContext));
                     }
                     if (web::http::ciContains(headers[field], "br")) {
+                        //  decoderQueue.emplace_back(new web::http::decoder::Br(socketContext));
                     }
                 }
             } else {

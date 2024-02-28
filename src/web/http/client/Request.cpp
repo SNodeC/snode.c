@@ -39,11 +39,13 @@
 
 #include <cerrno>
 #include <filesystem>
-#include <format>
+#include <sstream>
 #include <system_error>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#define to_hex_str(int_val) (static_cast<std::ostringstream const&>(std::ostringstream() << std::uppercase << std::hex << int_val)).str()
 
 namespace web::http::client {
 
@@ -472,7 +474,7 @@ namespace web::http::client {
     void Request::executeSendFragment(const char* chunk, std::size_t chunkLen) {
         if (masterRequest.lock()) {
             if (transfereEncoding == TransferEncoding::Chunked) {
-                socketContext->sendToPeer(std::format("{:X}\r\n", chunkLen));
+                socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
             }
 
             socketContext->sendToPeer(chunk, chunkLen);

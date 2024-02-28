@@ -33,12 +33,14 @@
 
 #include <cerrno>
 #include <filesystem>
-#include <format>
 #include <numeric>
+#include <sstream>
 #include <system_error>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#define to_hex_str(int_val) (static_cast<std::ostringstream const&>(std::ostringstream() << std::uppercase << std::hex << int_val)).str()
 
 namespace web::http::server {
 
@@ -271,7 +273,7 @@ namespace web::http::server {
                 socketContext->sendToPeer(std::string(field).append(": ").append(value).append("\r\n"));
             }
 
-            for (const auto& [cookie, cookieValue] : cookies) {
+            for (const auto& [cookie, cookieValue] : cookies) { // cppcheck-suppress shadowFunction
                 const std::string cookieString = std::accumulate(
                     cookieValue.getOptions().begin(),
                     cookieValue.getOptions().end(),
@@ -291,7 +293,7 @@ namespace web::http::server {
     Response& Response::sendFragment(const char* chunk, std::size_t chunkLen) {
         if (socketContext != nullptr) {
             if (transferEncoding == TransferEncoding::Chunked) {
-                socketContext->sendToPeer(std::format("{:X}\r\n", chunkLen));
+                socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
             }
 
             socketContext->sendToPeer(chunk, chunkLen);
