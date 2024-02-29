@@ -168,26 +168,17 @@ namespace web::http::client {
             }
         }
 
-        if (decoderQueue.empty()) {
-            if (response.httpMajor == 1 && response.httpMinor == 0) {
-                decoderQueue.emplace_back(new web::http::decoder::HTTP10Response(socketContext));
-                response.transferEncoding = TransferEncoding::HTTP10;
-            } else if (response.httpMajor == 1 && response.httpMinor == 1) {
-                decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, 0));
-                response.transferEncoding = TransferEncoding::Identity;
-            }
-        }
-
+        httpMajor = response.httpMajor;
+        httpMinor = response.httpMinor;
         Parser::headers.erase("Set-Cookie");
-
         response.headers = std::move(Parser::headers);
 
         ParserState parserState = Parser::ParserState::BODY;
+
         if (response.transferEncoding == TransferEncoding::Identity && contentLength == 0) {
             parserState = parsingFinished();
-        } else {
-            httpMajor = response.httpMajor;
-            httpMinor = response.httpMinor;
+        } else if (decoderQueue.empty()) {
+            decoderQueue.emplace_back(new web::http::decoder::HTTP10Response(socketContext));
         }
 
         return parserState;
