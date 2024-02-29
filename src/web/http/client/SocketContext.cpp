@@ -123,14 +123,14 @@ namespace web::http::client {
     void SocketContext::responseParsed() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parsed";
 
-        const bool close = currentResponse->connectionState == ConnectionState::Close ||
-                           (currentResponse->connectionState == ConnectionState::Default &&
-                            ((currentResponse->httpMajor == 0 && currentResponse->httpMinor == 9) ||
-                             (currentResponse->httpMajor == 1 && currentResponse->httpMinor == 0)));
+        httpClose = currentResponse->connectionState == ConnectionState::Close ||
+                    (currentResponse->connectionState == ConnectionState::Default &&
+                     ((currentResponse->httpMajor == 0 && currentResponse->httpMinor == 9) ||
+                      (currentResponse->httpMajor == 1 && currentResponse->httpMinor == 0)));
 
         currentRequest->deliverResponse(currentRequest, currentResponse);
 
-        requestCompleted(close);
+        requestCompleted();
     }
 
     void SocketContext::responseError(int status, const std::string& reason) {
@@ -141,10 +141,10 @@ namespace web::http::client {
         shutdownWrite(true);
     }
 
-    void SocketContext::requestCompleted(bool close) {
+    void SocketContext::requestCompleted() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
 
-        if (close) {
+        if (httpClose) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
 
             shutdownWrite();
@@ -175,7 +175,12 @@ namespace web::http::client {
     }
 
     void SocketContext::onDisconnected() {
-        if (currentRequest != nullptr) {
+        if (currentRequest) {
+            if (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0) {
+                currentResponse = std::make_shared<Response>(std::move(parser.getResponse()));
+                responseParsed();
+            }
+
             currentRequest->stopResponse();
         }
 

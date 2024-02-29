@@ -65,7 +65,7 @@ namespace web::http::client {
         void responseStarted();
         void responseParsed();
         void responseError(int status, const std::string& reason);
-        void requestCompleted(bool close);
+        void requestCompleted();
 
         std::function<void(std::shared_ptr<Request>&)> onRequestBegin;
         std::function<void(int, const std::string&)> onResponseParseError;
@@ -85,6 +85,8 @@ namespace web::http::client {
         std::shared_ptr<Request> masterRequest;
 
         ResponseParser parser;
+
+        bool httpClose = false;
 
         friend class web::http::client::Request;
     };

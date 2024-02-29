@@ -50,6 +50,10 @@ namespace web::http::client {
         , onError(onError) {
     }
 
+    Response&& ResponseParser::getResponse() {
+        return std::move(response);
+    }
+
     void ResponseParser::begin() {
         onResponseStart();
     }

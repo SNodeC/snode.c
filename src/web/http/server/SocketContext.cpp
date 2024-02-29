@@ -56,7 +56,7 @@ namespace web::http::server {
     void SocketContext::requestParsed() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parsed";
 
-        if (request == nullptr && !requests.empty()) {
+        if (!request && !requests.empty()) {
             request = requests.front();
             requests.pop_front();
 
@@ -85,12 +85,11 @@ namespace web::http::server {
 
     void SocketContext::responseCompleted(bool success) {
         if (success) {
-            const bool close =
-                response->connectionState == ConnectionState::Close ||
-                (response->connectionState == ConnectionState::Default &&
-                 ((response->httpMajor == 0 && response->httpMinor == 9) || (response->httpMajor == 1 && response->httpMinor == 0)));
+            httpClose = response->connectionState == ConnectionState::Close ||
+                        (response->connectionState == ConnectionState::Default && ((response->httpMajor == 0 && response->httpMinor == 9) ||
+                                                                                   (response->httpMajor == 1 && response->httpMinor == 0)));
 
-            requestCompleted(close);
+            requestCompleted();
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response wrong content length";
 
@@ -100,10 +99,10 @@ namespace web::http::server {
         response->init();
     }
 
-    void SocketContext::requestCompleted(bool close) {
+    void SocketContext::requestCompleted() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed";
 
-        if (close) {
+        if (httpClose) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
 
             shutdownWrite();
@@ -127,7 +126,13 @@ namespace web::http::server {
     }
 
     std::size_t SocketContext::onReceivedFromPeer() {
-        return parser.parse();
+        std::size_t consumed = 0;
+
+        if (!httpClose) {
+            consumed = parser.parse();
+        }
+
+        return consumed;
     }
 
     void SocketContext::onDisconnected() {

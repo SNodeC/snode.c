@@ -60,7 +60,7 @@ namespace web::http::server {
         void requestParseError(int status, const std::string& reason);
         void responseStarted();
         void responseCompleted(bool success);
-        void requestCompleted(bool close);
+        void requestCompleted();
 
         std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onRequestReady;
 
@@ -74,6 +74,8 @@ namespace web::http::server {
         std::list<std::shared_ptr<Request>> requests;
 
         RequestParser parser;
+
+        bool httpClose = false;
 
         friend Response;
     };
