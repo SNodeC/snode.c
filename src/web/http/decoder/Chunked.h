@@ -20,7 +20,7 @@
 #ifndef WEB_HTTP_DECODER_CHUNK_H
 #define WEB_HTTP_DECODER_CHUNK_H
 
-#include "web/http/ContentDecoder.h"
+#include "web/http/ContentDecoder.h" // IWYU pragma: export
 
 namespace core::socket::stream {
     class SocketContext;

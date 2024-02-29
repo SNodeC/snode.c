@@ -20,9 +20,6 @@
 #include "web/http/client/ResponseParser.h"
 
 #include "web/http/StatusCodes.h"
-#include "web/http/decoder/Chunked.h"
-#include "web/http/decoder/HTTP10Response.h"
-#include "web/http/decoder/Identity.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -89,100 +86,62 @@ namespace web::http::client {
     }
 
     Parser::ParserState ResponseParser::parseHeader() {
-        for (const auto& [field, value] : Parser::headers) {
-            if (!web::http::ciEquals(field, "Set-Cookie")) {
-                if (web::http::ciEquals(field, "Connection")) {
-                    if (web::http::ciContains(headers[field], "keep-alive")) {
-                        response.connectionState = ConnectionState::Keep;
-                    } else if (web::http::ciContains(headers[field], "close")) {
-                        response.connectionState = ConnectionState::Close;
-                    }
-                } else if (web::http::ciEquals(field, "Content-Length")) {
-                    contentLength = std::stoul(value);
-                    response.transferEncoding = TransferEncoding::Identity;
-                    headers.erase("Transfer-Encoding");
-
-                    decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, contentLength));
-                } else if (web::http::ciEquals(field, "Transfer-Encoding")) {
-                    if (web::http::ciContains(headers[field], "chunked")) {
-                        response.transferEncoding = TransferEncoding::Chunked;
-                        headers.erase("Content-Length");
-
-                        decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext));
-                    }
-                    if (web::http::ciContains(headers[field], "compressed")) {
-                        //  decoderQueue.emplace_back(new web::http::decoder::Compress(socketContext));
-                    }
-                    if (web::http::ciContains(headers[field], "deflate")) {
-                        //  decoderQueue.emplace_back(new web::http::decoder::Deflate(socketContext));
-                    }
-                    if (web::http::ciContains(headers[field], "gzip")) {
-                        //  decoderQueue.emplace_back(new web::http::decoder::GZip(socketContext));
-                    }
-                } else if (web::http::ciEquals(field, "Content-Encoding")) {
-                    if (web::http::ciContains(headers[field], "compressed")) {
-                        //  decoderQueue.emplace_back(new web::http::decoder::Compress(socketContext));
-                    }
-                    if (web::http::ciContains(headers[field], "deflate")) {
-                        //  decoderQueue.emplace_back(new web::http::decoder::Deflate(socketContext));
-                    }
-                    if (web::http::ciContains(headers[field], "gzip")) {
-                        //  decoderQueue.emplace_back(new web::http::decoder::GZip(socketContext));
-                    }
-                    if (web::http::ciContains(headers[field], "br")) {
-                        //  decoderQueue.emplace_back(new web::http::decoder::Br(socketContext));
-                    }
-                }
-            } else {
-                std::string cookiesLine = value;
-
-                while (!cookiesLine.empty()) {
-                    std::string cookieLine;
-                    std::tie(cookieLine, cookiesLine) = httputils::str_split(cookiesLine, ',');
-
-                    std::string cookieOptions;
-                    std::string cookie;
-                    std::tie(cookie, cookieOptions) = httputils::str_split(cookieLine, ';');
-
-                    std::string cookieName;
-                    std::string cookieValue;
-                    std::tie(cookieName, cookieValue) = httputils::str_split(cookie, '=');
-
-                    httputils::str_trimm(cookieName);
-                    httputils::str_trimm(cookieValue);
-
-                    std::map<std::string, CookieOptions>::iterator cookieElement;
-                    bool inserted = false;
-                    std::tie(cookieElement, inserted) = response.cookies.insert({cookieName, CookieOptions(cookieValue)});
-
-                    while (!cookieOptions.empty()) {
-                        std::string option;
-                        std::tie(option, cookieOptions) = httputils::str_split(cookieOptions, ';');
-
-                        std::string optionName;
-                        std::string optionValue;
-                        std::tie(optionName, optionValue) = httputils::str_split(option, '=');
-
-                        httputils::str_trimm(optionName);
-                        httputils::str_trimm(optionValue);
-
-                        cookieElement->second.setOption(optionName, optionValue);
-                    }
-                }
+        if (headers.contains("Connection")) {
+            const std::string& connection = headers["Connection"];
+            if (web::http::ciContains(connection, "keep-alive")) {
+                response.connectionState = ConnectionState::Keep;
+            } else if (web::http::ciContains(connection, "close")) {
+                response.connectionState = ConnectionState::Close;
             }
         }
+        if (headers.contains("Set-Cookie")) {
+            std::string cookiesLine = headers["Set-Cookie"];
+
+            while (!cookiesLine.empty()) {
+                std::string cookieLine;
+                std::tie(cookieLine, cookiesLine) = httputils::str_split(cookiesLine, ',');
+
+                std::string cookieOptions;
+                std::string cookie;
+                std::tie(cookie, cookieOptions) = httputils::str_split(cookieLine, ';');
+
+                std::string cookieName;
+                std::string cookieValue;
+                std::tie(cookieName, cookieValue) = httputils::str_split(cookie, '=');
+
+                httputils::str_trimm(cookieName);
+                httputils::str_trimm(cookieValue);
+
+                std::map<std::string, CookieOptions>::iterator cookieElement;
+                bool inserted = false;
+                std::tie(cookieElement, inserted) = response.cookies.insert({cookieName, CookieOptions(cookieValue)});
+
+                while (!cookieOptions.empty()) {
+                    std::string option;
+                    std::tie(option, cookieOptions) = httputils::str_split(cookieOptions, ';');
+
+                    std::string optionName;
+                    std::string optionValue;
+                    std::tie(optionName, optionValue) = httputils::str_split(option, '=');
+
+                    httputils::str_trimm(optionName);
+                    httputils::str_trimm(optionValue);
+
+                    cookieElement->second.setOption(optionName, optionValue);
+                }
+            }
+
+            Parser::headers.erase("Set-Cookie");
+        }
+
+        response.headers = std::move(Parser::headers);
 
         httpMajor = response.httpMajor;
         httpMinor = response.httpMinor;
-        Parser::headers.erase("Set-Cookie");
-        response.headers = std::move(Parser::headers);
 
         ParserState parserState = Parser::ParserState::BODY;
-
-        if (response.transferEncoding == TransferEncoding::Identity && contentLength == 0) {
+        if (transferEncoding == TransferEncoding::Identity && contentLength == 0) {
             parserState = parsingFinished();
-        } else if (decoderQueue.empty()) {
-            decoderQueue.emplace_back(new web::http::decoder::HTTP10Response(socketContext));
         }
 
         return parserState;

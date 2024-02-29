@@ -20,6 +20,8 @@
 #ifndef WEB_HTTP_PARSER_H
 #define WEB_HTTP_PARSER_H
 
+#include "web/http/TransferEncoding.h" // IWYU pragma: export
+
 namespace web::http {
     class ContentDecoder;
 }
@@ -76,14 +78,16 @@ namespace web::http {
         ParserState parserState = ParserState::BEGIN;
 
     protected:
+        TransferEncoding transferEncoding = TransferEncoding::HTTP10;
+
         static const std::regex httpVersionRegex;
 
     private:
         virtual void begin() = 0;
-        virtual enum ParserState parseStartLine(const std::string& line) = 0;
-        virtual enum ParserState parseHeader() = 0;
-        virtual enum ParserState parseContent(std::vector<uint8_t>& content) = 0;
-        virtual enum ParserState parsingError(int code, const std::string& reason) = 0;
+        virtual ParserState parseStartLine(const std::string& line) = 0;
+        virtual ParserState parseHeader() = 0;
+        virtual ParserState parseContent(std::vector<uint8_t>& content) = 0;
+        virtual ParserState parsingError(int code, const std::string& reason) = 0;
 
     protected:
         // Data common to all HTTP messages (Request/Response)
@@ -102,7 +106,7 @@ namespace web::http {
         std::size_t readStartLine();
         std::size_t readHeaderLine();
         void splitHeaderLine(const std::string& line);
-        std::size_t readContent1();
+        ParserState analyzeHeaders();
         std::size_t readContent();
 
         // Line state

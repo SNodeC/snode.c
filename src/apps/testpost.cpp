@@ -75,6 +75,7 @@ int main(int argc, char* argv[]) {
     legacyApp.post("/", [] APPLICATION(req, res) {
         VLOG(0) << "Content-Type: " << req->get("Content-Type");
         VLOG(0) << "Content-Length: " << req->get("Content-Length");
+        VLOG(0) << "Transfer-Encoding: " << req->get("Transfer-Encoding");
 
         req->body.push_back(0);
         VLOG(0) << "Content:\n" << req->body.data();

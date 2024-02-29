@@ -178,6 +178,7 @@ namespace web::http::client {
         if (currentRequest) {
             if (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0) {
                 currentResponse = std::make_shared<Response>(std::move(parser.getResponse()));
+
                 responseParsed();
             }
 

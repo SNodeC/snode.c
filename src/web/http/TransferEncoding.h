@@ -1,7 +1,6 @@
 /*
- * SNode.C - a slim toolkit for network communication
- * Copyright (C) Volker Christian <me@vchrist.at>
- *               2020, 2021, 2022, 2023, 2024
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,17 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_CONNECTIONSTATE_H
-#define WEB_HTTP_CONNECTIONSTATE_H
+#ifndef WEB_HTTP_TRANSFERENCODING_H
+#define WEB_HTTP_TRANSFERENCODING_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http {
 
-    enum ConnectionState { Default, Keep, Close };
+    enum struct TransferEncoding { HTTP10, Identity, Chunked, Compressed, GZip, Deflat };
 
 } // namespace web::http
 
-#endif // WEB_HTTP_CONNECTIONSTATE_H
+#endif // WEB_HTTP_TRANSFERENCODING_H

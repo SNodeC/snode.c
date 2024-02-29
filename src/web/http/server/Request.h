@@ -51,7 +51,6 @@ namespace web::http::server {
 
     protected:
         ConnectionState connectionState = ConnectionState::Default;
-        TransferEncoding transferEncoding = TransferEncoding::HTTP10;
 
     public:
         // Properties

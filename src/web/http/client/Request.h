@@ -22,6 +22,7 @@
 
 #include "core/pipe/Sink.h"
 #include "web/http/ConnectionState.h"
+#include "web/http/TransferEncoding.h"
 
 namespace core::pipe {
     class Source;

@@ -19,9 +19,6 @@
 
 #include "web/http/server/RequestParser.h"
 
-#include "web/http/decoder/Chunked.h"
-#include "web/http/decoder/Identity.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "web/http/http_utils.h"
@@ -89,83 +86,48 @@ namespace web::http::server {
     }
 
     Parser::ParserState RequestParser::parseHeader() {
-        for (auto& [field, value] : Parser::headers) {
-            if (!web::http::ciEquals(field, "Cookie")) {
-                if (web::http::ciEquals(field, "Connection")) {
-                    if (web::http::ciContains(headers[field], "keep-alive")) {
-                        request.connectionState = ConnectionState::Keep;
-                    } else if (web::http::ciContains(headers[field], "close")) {
-                        request.connectionState = ConnectionState::Close;
-                    }
-                } else if (web::http::ciEquals(field, "Content-Length")) {
-                    contentLength = std::stoul(value);
-                    request.transferEncoding = TransferEncoding::Identity;
-                    headers.erase("Transfer-Encoding");
-
-                    decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, contentLength));
-                } else if (web::http::ciEquals(field, "Transfer-Encoding")) {
-                    if (web::http::ciContains(headers[field], "chunked")) {
-                        request.transferEncoding = TransferEncoding::Chunked;
-                        headers.erase("Content-Length");
-
-                        decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext));
-                    }
-                    if (web::http::ciContains(headers[field], "compressed")) {
-                        //  decoderQueue.emplace_back(new web::http::decoder::Compress(socketContext));
-                    }
-                    if (web::http::ciContains(headers[field], "deflate")) {
-                        //  decoderQueue.emplace_back(new web::http::decoder::Deflate(socketContext));
-                    }
-                    if (web::http::ciContains(headers[field], "gzip")) {
-                        //  decoderQueue.emplace_back(new web::http::decoder::GZip(socketContext));
-                    }
-                } else if (web::http::ciEquals(field, "Content-Encoding")) {
-                    if (web::http::ciContains(headers[field], "compressed")) {
-                    }
-                    if (web::http::ciContains(headers[field], "deflate")) {
-                    }
-                    if (web::http::ciContains(headers[field], "gzip")) {
-                    }
-                    if (web::http::ciContains(headers[field], "br")) {
-                    }
-                }
-
-            } else {
-                std::string cookiesLine = value;
-
-                while (!cookiesLine.empty()) {
-                    std::string cookieLine;
-                    std::tie(cookieLine, cookiesLine) = httputils::str_split(cookiesLine, ',');
-
-                    while (!cookieLine.empty()) {
-                        std::string cookie;
-                        std::tie(cookie, cookieLine) = httputils::str_split(cookieLine, ';');
-
-                        std::string cookieName;
-                        std::string cookieValue;
-                        std::tie(cookieName, cookieValue) = httputils::str_split(cookie, '=');
-
-                        httputils::str_trimm(cookieName);
-                        httputils::str_trimm(cookieValue);
-
-                        request.cookies.insert({cookieName, cookieValue});
-                    }
-                }
+        if (headers.contains("Connection")) {
+            const std::string& connection = headers["Connection"];
+            if (web::http::ciContains(connection, "keep-alive")) {
+                request.connectionState = ConnectionState::Keep;
+            } else if (web::http::ciContains(connection, "close")) {
+                request.connectionState = ConnectionState::Close;
             }
         }
 
-        httpMajor = request.httpMajor;
-        httpMinor = request.httpMinor;
-        Parser::headers.erase("Cookie");
+        if (headers.contains("Cookie")) {
+            std::string& cookiesLine = headers["Cookie"];
+
+            while (!cookiesLine.empty()) {
+                std::string cookieLine;
+                std::tie(cookieLine, cookiesLine) = httputils::str_split(cookiesLine, ',');
+
+                while (!cookieLine.empty()) {
+                    std::string cookie;
+                    std::tie(cookie, cookieLine) = httputils::str_split(cookieLine, ';');
+
+                    std::string cookieName;
+                    std::string cookieValue;
+                    std::tie(cookieName, cookieValue) = httputils::str_split(cookie, '=');
+
+                    httputils::str_trimm(cookieName);
+                    httputils::str_trimm(cookieValue);
+
+                    request.cookies.insert({cookieName, cookieValue});
+                }
+            }
+
+            headers.erase("Cookie");
+        }
+
         request.headers = std::move(Parser::headers);
 
-        ParserState parserState = Parser::ParserState::BODY;
+        httpMajor = request.httpMajor;
+        httpMinor = request.httpMinor;
 
-        if (request.transferEncoding == TransferEncoding::HTTP10 ||
-            (request.transferEncoding == TransferEncoding::Identity && contentLength == 0)) {
+        ParserState parserState = Parser::ParserState::BODY;
+        if (transferEncoding != TransferEncoding::Chunked && contentLength == 0) {
             parserState = parsingFinished();
-        } else if (decoderQueue.empty()) {
-            decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, contentLength));
         }
 
         return parserState;

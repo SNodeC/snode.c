@@ -20,7 +20,9 @@
 #include "web/http/Parser.h"
 
 #include "core/socket/stream/SocketContext.h"
-#include "web/http/ContentDecoder.h"
+#include "web/http/decoder/Chunked.h"
+#include "web/http/decoder/HTTP10Response.h"
+#include "web/http/decoder/Identity.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -125,42 +127,39 @@ namespace web::http {
             ret = socketContext->readFromPeer(&ch, 1);
 
             if (ret > 0) {
+                consumed++;
+
                 if (ch == '\r' || ch == '\n') {
-                    consumed++;
                     if (ch == '\n') {
-                        if (EOL) {
-                            splitHeaderLine(line);
-                            line.clear();
+                        if (EOL || line.empty()) {
+                            if (!line.empty()) {
+                                splitHeaderLine(line);
+                                line.clear();
+                            }
                             if (parserState != ParserState::ERROR) {
-                                parserState = parseHeader();
+                                parserState = analyzeHeaders();
                             }
                             EOL = false;
-                        } else if (line.empty()) {
-                            if (parserState != ParserState::ERROR) {
-                                parserState = parseHeader();
-                            }
                         } else {
                             EOL = true;
                         }
                     }
                 } else if (EOL) {
+                    EOL = false;
+
                     if (std::isblank(ch) != 0) {
                         if ((hTTPCompliance & HTTPCompliance::RFC7230) == HTTPCompliance::RFC7230) {
                             parserState = parsingError(400, "Header Folding");
                         } else {
                             line += ch;
-                            consumed++;
                         }
                     } else {
                         splitHeaderLine(line);
                         line.clear();
                         line += ch;
-                        consumed++;
                     }
-                    EOL = false;
                 } else {
                     line += ch;
-                    consumed++;
                 }
             }
         } while (ret > 0 && parserState == ParserState::HEADER);
@@ -192,6 +191,54 @@ namespace web::http {
         }
     }
 
+    Parser::ParserState Parser::analyzeHeaders() {
+        if (headers.contains("Content-Length")) {
+            contentLength = std::stoul(headers["Content-Length"]);
+            transferEncoding = TransferEncoding::Identity;
+            decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, contentLength));
+        }
+        if (headers.contains("Transfer-Encoding")) {
+            const std::string& encoding = headers["Transfer-Encoding"];
+
+            if (web::http::ciContains(encoding, "chunked")) {
+                transferEncoding = TransferEncoding::Chunked;
+                decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext));
+            }
+            if (web::http::ciContains(encoding, "compressed")) {
+                //  decoderQueue.emplace_back(new web::http::decoder::Compress(socketContext));
+            }
+            if (web::http::ciContains(encoding, "deflate")) {
+                //  decoderQueue.emplace_back(new web::http::decoder::Deflate(socketContext));
+            }
+            if (web::http::ciContains(encoding, "gzip")) {
+                //  decoderQueue.emplace_back(new web::http::decoder::GZip(socketContext));
+            }
+        }
+        if (decoderQueue.empty()) {
+            transferEncoding = TransferEncoding::HTTP10;
+            decoderQueue.emplace_back(new web::http::decoder::HTTP10Response(socketContext));
+        }
+
+        if (headers.contains("Content-Encoding")) {
+            const std::string& encoding = headers["Content-Encoding"];
+
+            if (web::http::ciContains(encoding, "compressed")) {
+                //  decoderQueue.emplace_back(new web::http::decoder::Compress(socketContext));
+            }
+            if (web::http::ciContains(encoding, "deflate")) {
+                //  decoderQueue.emplace_back(new web::http::decoder::Deflate(socketContext));
+            }
+            if (web::http::ciContains(encoding, "gzip")) {
+                //  decoderQueue.emplace_back(new web::http::decoder::GZip(socketContext));
+            }
+            if (web::http::ciContains(encoding, "br")) {
+                //  decoderQueue.emplace_back(new web::http::decoder::Br(socketContext));
+            }
+        }
+
+        return parseHeader();
+    }
+
     std::size_t Parser::readContent() {
         ContentDecoder* contentDecoder = decoderQueue.front();
 
@@ -207,44 +254,6 @@ namespace web::http {
             parserState = parseContent(content);
         } else if (contentDecoder->isError()) {
             parserState = parsingError(400, "Wrong content encoding");
-        }
-
-        return consumed;
-    }
-
-    std::size_t Parser::readContent1() {
-        static char contentJunk[MAX_CONTENT_JUNK_LEN];
-
-        std::size_t consumed = 0;
-
-        if (httpMinor == 0 && contentLength == 0) {
-            consumed = socketContext->readFromPeer(contentJunk, MAX_CONTENT_JUNK_LEN);
-
-            const std::size_t contentJunkLen = static_cast<std::size_t>(consumed);
-            if (contentJunkLen > 0) {
-                content.insert(content.end(), contentJunk, contentJunk + contentJunkLen);
-            } else {
-                parserState = parseContent(content);
-            }
-        } else if (httpMinor == 1) {
-            const std::size_t contentJunkLenLeft =
-                (contentLength - contentRead < MAX_CONTENT_JUNK_LEN) ? contentLength - contentRead : MAX_CONTENT_JUNK_LEN;
-
-            consumed = socketContext->readFromPeer(contentJunk, contentJunkLenLeft);
-
-            const std::size_t contentJunkLen = static_cast<std::size_t>(consumed);
-            if (contentJunkLen > 0) {
-                if (contentRead + contentJunkLen <= contentLength) {
-                    content.insert(content.end(), contentJunk, contentJunk + contentJunkLen);
-
-                    contentRead += contentJunkLen;
-                    if (contentRead == contentLength) {
-                        parserState = parseContent(content);
-                    }
-                } else {
-                    parserState = parsingError(400, "Content to long");
-                }
-            }
         }
 
         return consumed;
