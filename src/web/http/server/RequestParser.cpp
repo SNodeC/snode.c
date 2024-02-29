@@ -159,7 +159,7 @@ namespace web::http::server {
         Parser::headers.erase("Cookie");
         request.headers = std::move(Parser::headers);
 
-        enum Parser::ParserState parserState = Parser::ParserState::BODY;
+        ParserState parserState = Parser::ParserState::BODY;
 
         if (request.transferEncoding == TransferEncoding::HTTP10 ||
             (request.transferEncoding == TransferEncoding::Identity && contentLength == 0)) {
