@@ -63,14 +63,14 @@ namespace iot::mqtt::types {
         value.clear();
 
         do {
-            uint8_t encodedByte = static_cast<uint8_t>(remainingValue % 0x80);
+            char encodedByte = static_cast<char>(remainingValue % 0x80);
 
             remainingValue /= 0x80;
             if (remainingValue > 0) {
-                encodedByte |= 0x80;
+                encodedByte |= static_cast<char>(0x80);
             }
 
-            value.push_back(static_cast<char>(encodedByte));
+            value.push_back(encodedByte);
         } while (remainingValue > 0);
 
         return *this;

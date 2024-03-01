@@ -53,8 +53,7 @@ namespace web::http::decoder {
                 [[fallthrough]];
             case 0:
                 do {
-                    ret = socketContext->readFromPeer(reinterpret_cast<char*>(content.data()) + contentLengthRead,
-                                                      contentLength - contentLengthRead);
+                    ret = socketContext->readFromPeer(content.data() + contentLengthRead, contentLength - contentLengthRead);
                     contentLengthRead += ret;
                     consumed += ret;
                     completed = contentLength == contentLengthRead;

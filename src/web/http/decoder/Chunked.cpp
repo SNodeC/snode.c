@@ -133,7 +133,7 @@ namespace web::http::decoder {
                 [[fallthrough]];
             case 1: // ChunkData
                 do {
-                    ret = socketContext->readFromPeer(reinterpret_cast<char*>(chunk.data()) + chunkLenRead, chunkLenTotal - chunkLenRead);
+                    ret = socketContext->readFromPeer(chunk.data() + chunkLenRead, chunkLenTotal - chunkLenRead);
                     chunkLenRead += ret;
                     consumed += ret;
                 } while (ret > 0 && (chunkLenTotal != chunkLenRead));
@@ -183,11 +183,11 @@ namespace web::http::decoder {
         return completed;
     }
 
-    std::vector<uint8_t>::iterator Chunked::Chunk::begin() {
+    std::vector<char>::iterator Chunked::Chunk::begin() {
         return chunk.begin();
     }
 
-    std::vector<uint8_t>::iterator Chunked::Chunk::end() {
+    std::vector<char>::iterator Chunked::Chunk::end() {
         return chunk.end();
     }
 

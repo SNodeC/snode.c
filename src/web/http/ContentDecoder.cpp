@@ -38,7 +38,7 @@ namespace web::http {
         return error;
     }
 
-    std::vector<uint8_t>&& ContentDecoder::getContent() {
+    std::vector<char>&& ContentDecoder::getContent() {
         return std::move(content);
     }
 

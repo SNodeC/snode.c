@@ -23,7 +23,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <cstdint>
 #include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -49,10 +48,10 @@ namespace web::http {
 
         bool isError() const;
 
-        std::vector<uint8_t>&& getContent();
+        std::vector<char>&& getContent();
 
     protected:
-        std::vector<uint8_t> content;
+        std::vector<char> content;
 
         bool completed = false;
         bool error = false;

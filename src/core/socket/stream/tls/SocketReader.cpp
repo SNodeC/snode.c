@@ -26,6 +26,7 @@
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
+#include <limits>
 #include <openssl/ssl.h> // IWYU pragma: keep
 #include <string>
 
@@ -38,6 +39,7 @@ namespace core::socket::stream::tls {
     ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
         const int sslShutdownState = SSL_get_shutdown(ssl);
 
+        chunkLen = chunkLen > std::numeric_limits<int>::max() ? std::numeric_limits<int>::max() : chunkLen;
         int ret = SSL_read(ssl, chunk, static_cast<int>(chunkLen));
 
         if (ret <= 0) {

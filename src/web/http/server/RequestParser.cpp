@@ -136,7 +136,7 @@ namespace web::http::server {
         return parserState;
     }
 
-    Parser::ParserState RequestParser::parseContent(std::vector<uint8_t>& content) {
+    Parser::ParserState RequestParser::parseContent(std::vector<char>& content) {
         request.body = std::move(content);
 
         return parsingFinished();

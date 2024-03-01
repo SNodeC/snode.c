@@ -63,7 +63,7 @@ namespace web::http::server {
         CiStringMap<std::string> queries;
         CiStringMap<std::string> headers;
         CiStringMap<std::string> cookies;
-        std::vector<uint8_t> body;
+        std::vector<char> body;
 
     private:
         std::string nullstr;

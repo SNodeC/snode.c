@@ -29,7 +29,6 @@ namespace core::socket::stream {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -56,13 +55,13 @@ namespace web::http::decoder {
             bool isError() const;
             bool isComplete() const;
 
-            std::vector<uint8_t>::iterator begin();
-            std::vector<uint8_t>::iterator end();
+            std::vector<char>::iterator begin();
+            std::vector<char>::iterator end();
 
             std::size_t size();
 
         private:
-            std::vector<uint8_t> chunk;
+            std::vector<char> chunk;
 
             std::string chunkLenTotalS;
             std::size_t chunkLenTotal = 0;

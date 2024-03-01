@@ -57,7 +57,7 @@ namespace web::http::client {
         // Parsers and Validators
         ParserState parseStartLine(const std::string& line) override;
         ParserState parseHeader() override;
-        ParserState parseContent(std::vector<uint8_t>& content) override;
+        ParserState parseContent(std::vector<char>& content) override;
 
         // Exits
         ParserState parsingFinished();

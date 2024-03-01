@@ -35,7 +35,6 @@ namespace core::socket::stream {
 #include "web/http/CiStringMap.h"
 
 #include <cstddef>
-#include <cstdint>
 #include <list> // IWYU pragma: export
 #include <regex>
 #include <string>
@@ -86,14 +85,14 @@ namespace web::http {
         virtual void begin() = 0;
         virtual ParserState parseStartLine(const std::string& line) = 0;
         virtual ParserState parseHeader() = 0;
-        virtual ParserState parseContent(std::vector<uint8_t>& content) = 0;
+        virtual ParserState parseContent(std::vector<char>& content) = 0;
         virtual ParserState parsingError(int code, const std::string& reason) = 0;
 
     protected:
         // Data common to all HTTP messages (Request/Response)
         std::size_t contentLength = 0;
         CiStringMap<std::string> headers;
-        std::vector<uint8_t> content;
+        std::vector<char> content;
 
         int httpMajor = 0;
         int httpMinor = 0;

@@ -30,7 +30,6 @@ namespace web::http::server {
 
 #include "web/http/CiStringMap.h" // IWYU pragma: export
 
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -79,7 +78,7 @@ namespace express {
         web::http::CiStringMap<std::string> queries;
         web::http::CiStringMap<std::string> headers;
         web::http::CiStringMap<std::string> cookies;
-        std::vector<uint8_t> body;
+        std::vector<char> body;
     };
 
 } // namespace express

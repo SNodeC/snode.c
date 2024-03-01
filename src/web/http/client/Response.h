@@ -61,7 +61,7 @@ namespace web::http::client {
 
         CiStringMap<std::string> headers;
         CiStringMap<CookieOptions> cookies;
-        std::vector<uint8_t> body;
+        std::vector<char> body;
 
     private:
         std::string nullstr;

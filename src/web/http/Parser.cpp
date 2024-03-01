@@ -243,7 +243,7 @@ namespace web::http {
         if (contentDecoder->isCompleted()) {
             contentDecoder = decoderQueue.back();
 
-            std::vector<uint8_t> chunk = std::move(contentDecoder->getContent());
+            std::vector<char> chunk = std::move(contentDecoder->getContent());
             content.insert(content.end(), chunk.begin(), chunk.end());
 
             parserState = parseContent(content);
