@@ -174,10 +174,10 @@ namespace web::websocket {
                     std::size_t chunkOffset = 0;
 
                     do {
-                        std::size_t sendJunkLen =
+                        std::size_t sendChunkLen =
                             (chunkLen - chunkOffset <= SIZE_MAX) ? static_cast<std::size_t>(chunkLen - chunkOffset) : SIZE_MAX;
-                        subProtocol->onMessageData(chunk + chunkOffset, sendJunkLen);
-                        chunkOffset += sendJunkLen;
+                        subProtocol->onMessageData(chunk + chunkOffset, sendChunkLen);
+                        chunkOffset += sendChunkLen;
                     } while (chunkLen - chunkOffset > 0);
                     break;
             }
@@ -266,10 +266,10 @@ namespace web::websocket {
                 uint64_t frameOffset = 0;
 
                 do {
-                    std::size_t sendJunkLen =
+                    std::size_t sendChunkLen =
                         (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
-                    sendToPeer(frame + frameOffset, sendJunkLen);
-                    frameOffset += sendJunkLen;
+                    sendToPeer(frame + frameOffset, sendChunkLen);
+                    frameOffset += sendChunkLen;
                 } while (frameLength - frameOffset > 0);
             }
         }

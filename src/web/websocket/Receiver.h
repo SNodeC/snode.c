@@ -87,9 +87,9 @@ namespace web::websocket {
 
         uint16_t errorState = 0;
 
-        char elengthJunk[8]{};
-        char maskingKeyJunk[4]{};
-        char payloadJunk[MAX_PAYLOAD_JUNK_LEN]{};
+        char elengthChunk[8]{};
+        char maskingKeyChunk[4]{};
+        char payloadChunk[MAX_PAYLOAD_JUNK_LEN]{};
     };
 
 } // namespace web::websocket

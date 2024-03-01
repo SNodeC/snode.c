@@ -134,10 +134,10 @@ namespace web::websocket {
     }
 
     std::size_t Receiver::readELength() {
-        const std::size_t ret = readFrameData(elengthJunk, elengthNumBytesLeft);
+        const std::size_t ret = readFrameData(elengthChunk, elengthNumBytesLeft);
 
         for (std::size_t i = 0; i < ret; i++) {
-            payLoadNumBytes |= *reinterpret_cast<uint64_t*>(elengthJunk + i) << (elengthNumBytes - elengthNumBytesLeft) * 8;
+            payLoadNumBytes |= *reinterpret_cast<uint64_t*>(elengthChunk + i) << (elengthNumBytes - elengthNumBytesLeft) * 8;
 
             elengthNumBytesLeft--;
         }
@@ -166,10 +166,10 @@ namespace web::websocket {
     }
 
     std::size_t Receiver::readMaskingKey() {
-        const std::size_t ret = readFrameData(maskingKeyJunk, maskingKeyNumBytesLeft);
+        const std::size_t ret = readFrameData(maskingKeyChunk, maskingKeyNumBytesLeft);
 
         for (std::size_t i = 0; i < ret; i++) {
-            maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(maskingKeyJunk + i))
+            maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(maskingKeyChunk + i))
                           << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
             maskingKeyNumBytesLeft--;
         }
@@ -191,24 +191,24 @@ namespace web::websocket {
     }
 
     std::size_t Receiver::readPayload() {
-        const std::size_t payloadJunkLeft = (MAX_PAYLOAD_JUNK_LEN <= payLoadNumBytesLeft) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
+        const std::size_t payloadChunkLeft = (MAX_PAYLOAD_JUNK_LEN <= payLoadNumBytesLeft) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
                                                                                           : static_cast<std::size_t>(payLoadNumBytesLeft);
 
-        const std::size_t ret = readFrameData(payloadJunk, payloadJunkLeft);
+        const std::size_t ret = readFrameData(payloadChunk, payloadChunkLeft);
 
         if (ret > 0) {
-            const std::size_t payloadJunkLen = static_cast<std::size_t>(ret);
+            const std::size_t payloadChunkLen = static_cast<std::size_t>(ret);
 
             if (masked) {
-                for (std::size_t i = 0; i < payloadJunkLen; i++) {
-                    *(payloadJunk + i) =
-                        *(payloadJunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payLoadNumBytes - payLoadNumBytesLeft) % 4);
+                for (std::size_t i = 0; i < payloadChunkLen; i++) {
+                    *(payloadChunk + i) =
+                        *(payloadChunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payLoadNumBytes - payLoadNumBytesLeft) % 4);
                 }
             }
 
-            onMessageData(payloadJunk, payloadJunkLen);
+            onMessageData(payloadChunk, payloadChunkLen);
 
-            payLoadNumBytesLeft -= payloadJunkLen;
+            payLoadNumBytesLeft -= payloadChunkLen;
         }
 
         if (payLoadNumBytesLeft == 0) {
