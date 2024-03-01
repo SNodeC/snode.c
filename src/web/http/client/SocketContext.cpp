@@ -49,9 +49,7 @@ namespace web::http::client {
                   responseStarted();
               },
               [this](web::http::client::Response&& response) -> void {
-                  currentResponse = std::make_shared<Response>(std::move(response));
-
-                  responseParsed();
+                  deliverResponse(std::move(response));
               },
               [this](int status, const std::string& reason) -> void {
                   responseError(status, reason);
@@ -116,21 +114,19 @@ namespace web::http::client {
 
         if (!sentRequests.empty()) {
             currentRequest = sentRequests.front();
-            sentRequests.pop_front();
         } else {
             shutdownWrite(true);
         }
     }
 
-    void SocketContext::responseParsed() {
+    void SocketContext::deliverResponse(Response&& response) {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parsed";
 
-        httpClose = currentResponse->connectionState == ConnectionState::Close ||
-                    (currentResponse->connectionState == ConnectionState::Default &&
-                     ((currentResponse->httpMajor == 0 && currentResponse->httpMinor == 9) ||
-                      (currentResponse->httpMajor == 1 && currentResponse->httpMinor == 0)));
+        httpClose = response.connectionState == ConnectionState::Close ||
+                    (response.connectionState == ConnectionState::Default &&
+                     ((response.httpMajor == 0 && response.httpMinor == 9) || (response.httpMajor == 1 && response.httpMinor == 0)));
 
-        currentRequest->deliverResponse(currentRequest, currentResponse);
+        currentRequest->deliverResponse(currentRequest, std::make_shared<Response>(std::move(response)));
 
         requestCompleted();
     }
@@ -155,8 +151,8 @@ namespace web::http::client {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
         }
 
+        sentRequests.pop_front();
         currentRequest = nullptr;
-        currentResponse = nullptr;
     }
 
     void SocketContext::onConnected() {
@@ -182,9 +178,7 @@ namespace web::http::client {
             currentRequest->stopRequest();
 
             if (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0) {
-                currentResponse = std::make_shared<Response>(parser.getResponse());
-
-                responseParsed();
+                deliverResponse(parser.getResponse());
             }
         }
 

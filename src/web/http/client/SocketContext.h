@@ -62,7 +62,7 @@ namespace web::http::client {
         void requestPrepared(Request& request);
         void requestSent(bool success);
         void responseStarted();
-        void responseParsed();
+        void deliverResponse(Response&& response);
         void responseError(int status, const std::string& reason);
         void requestCompleted();
 
@@ -76,7 +76,6 @@ namespace web::http::client {
         bool onSignal(int signum) override;
 
         std::shared_ptr<Request> currentRequest = nullptr;
-        std::shared_ptr<Response> currentResponse = nullptr;
 
         std::list<std::shared_ptr<Request>> preparedRequests;
         std::list<std::shared_ptr<Request>> sentRequests;

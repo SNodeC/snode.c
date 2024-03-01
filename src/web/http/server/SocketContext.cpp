@@ -33,8 +33,9 @@
 
 namespace web::http::server {
 
-    SocketContext::SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                                 const std::function<void (const std::shared_ptr<Request> &, const std::shared_ptr<Response> &)> &onRequestReady)
+    SocketContext::SocketContext(
+        core::socket::stream::SocketConnection* socketConnection,
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
         : Super(socketConnection)
         , onRequestReady(onRequestReady)
         , response(std::make_shared<Response>(this))
@@ -44,8 +45,7 @@ namespace web::http::server {
                   requestStarted();
               },
               [this](web::http::server::Request&& request) -> void {
-                  requests.emplace_back(std::make_shared<Request>(std::move(request)));
-                  requestParsed();
+                  requestParsed(std::move(request));
               },
               [this](int status, const std::string& reason) -> void {
                   requestParseError(status, reason);
@@ -56,21 +56,11 @@ namespace web::http::server {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request started";
     }
 
-    void SocketContext::requestParsed() {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parsed";
-
-        if (!request && !requests.empty()) {
-            request = requests.front();
-            requests.pop_front();
-
-            const std::string connection = request->get("Connection");
-            if (!connection.empty()) {
-                response->set("Connection", connection);
-            }
-            response->httpMajor = request->httpMajor;
-            response->httpMinor = request->httpMinor;
-
-            onRequestReady(request, response);
+    void SocketContext::requestParsed(web::http::server::Request&& request) {
+        if (requests.empty()) {
+            deliverRequest(std::move(request));
+        } else {
+            requests.emplace_back(std::move(request));
         }
     }
 
@@ -80,6 +70,19 @@ namespace web::http::server {
         response->status(status).send(reason);
 
         shutdownWrite(true);
+    }
+
+    void SocketContext::deliverRequest(web::http::server::Request&& request) {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parsed";
+
+        const std::string connection = request.get("Connection");
+        if (!connection.empty()) {
+            response->set("Connection", connection);
+        }
+        response->httpMajor = request.httpMajor;
+        response->httpMinor = request.httpMinor;
+
+        onRequestReady(std::make_shared<Request>(std::move(request)), response);
     }
 
     void SocketContext::responseStarted() {
@@ -114,12 +117,11 @@ namespace web::http::server {
 
             if (!requests.empty()) {
                 core::EventReceiver::atNextTick([this]() -> void {
-                    requestParsed();
+                    deliverRequest(std::move(requests.front()));
+                    requests.pop_front();
                 });
             }
         }
-
-        request = nullptr;
     }
 
     void SocketContext::onConnected() {
@@ -130,6 +132,8 @@ namespace web::http::server {
 
     std::size_t SocketContext::onReceivedFromPeer() {
         std::size_t consumed = 0;
+
+        VLOG(0) << "+++++++++++++++++++++++++++++";
 
         if (!httpClose) {
             consumed = parser.parse();
