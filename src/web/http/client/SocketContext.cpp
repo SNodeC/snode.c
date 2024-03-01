@@ -35,7 +35,7 @@
 namespace web::http::client {
 
     SocketContext::SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                                 const std::function<void (const std::shared_ptr<Request> &)> &onRequestBegin,
+                                 const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
                                  const std::function<void(int, const std::string&)>& onResponseParseError,
                                  const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
         : Super(socketConnection)
@@ -179,13 +179,13 @@ namespace web::http::client {
 
     void SocketContext::onDisconnected() {
         if (currentRequest) {
+            currentRequest->stopRequest();
+
             if (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0) {
-                currentResponse = std::make_shared<Response>(std::move(parser.getResponse()));
+                currentResponse = std::make_shared<Response>(parser.getResponse());
 
                 responseParsed();
             }
-
-            currentRequest->stopResponse();
         }
 
         onRequestEnd(masterRequest);

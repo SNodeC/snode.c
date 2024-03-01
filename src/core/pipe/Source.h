@@ -48,7 +48,7 @@ namespace core::pipe {
         virtual bool isOpen() = 0;
 
         void pipe(Sink* sink, const std::function<void(int errnum)>& callback);
-        void pipe(std::shared_ptr<Sink> sink, const std::function<void(int errnum)>& callback);
+        void pipe(const std::shared_ptr<Sink>& sink, const std::function<void(int errnum)>& callback);
 
         virtual void start() = 0;
         virtual void suspend() = 0;

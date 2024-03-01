@@ -81,7 +81,9 @@ namespace web::http::server {
 
         void send(const char* chunk, std::size_t chunkLen);
         void send(const std::string& chunk);
-        void upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool success)>& status);
+        void upgrade(const std::shared_ptr<Request>& request,
+                     const std::function<void(bool success)>& status,
+                     const std::function<void()>& response = nullptr);
         void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
         void end();
 

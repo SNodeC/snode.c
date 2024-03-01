@@ -56,7 +56,6 @@ namespace web::http::server {
 
     void Response::stopResponse() {
         stop();
-        socketContext = nullptr;
     }
 
     void Response::init() {
@@ -189,7 +188,11 @@ namespace web::http::server {
 !include web/http/server/pu/response_upgrade.pu
 @enduml
      */
-    void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool)>& status) {
+    void Response::upgrade(const std::shared_ptr<Request>& request,
+                           const std::function<void(bool)>& status,
+                           const std::function<void()>& response) {
+        bool success = false;
+
         if (socketContext != nullptr) {
             if (request != nullptr) {
                 if (web::http::ciContains(request->get("connection"), "Upgrade")) {
@@ -198,7 +201,9 @@ namespace web::http::server {
 
                     if (socketContextUpgradeFactory != nullptr) {
                         socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
-                        if (socketContextUpgrade == nullptr) {
+                        if (socketContextUpgrade != nullptr) {
+                            success = true;
+                        } else {
                             set("Connection", "close").status(404);
                         }
                     } else {
@@ -212,9 +217,13 @@ namespace web::http::server {
             }
         }
 
-        end();
+        if (response) {
+            response();
+        } else {
+            end();
+        }
 
-        status(socketContextUpgrade != nullptr);
+        status(success);
     }
 
     void Response::sendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
@@ -325,7 +334,7 @@ namespace web::http::server {
                 socketContext->switchSocketContext(socketContextUpgrade);
             }
 
-            socketContext->responseCompleted(contentSent == contentLength);
+            socketContext->responseCompleted(contentSent == contentLength || (httpMajor == 1 && httpMinor == 0));
         }
     }
 

@@ -52,7 +52,7 @@ namespace core::pipe {
         }
     }
 
-    void Source::pipe(std::shared_ptr<Sink> sink, const std::function<void(int)>& callback) {
+    void Source::pipe(const std::shared_ptr<Sink>& sink, const std::function<void(int)>& callback) {
         pipe(sink.get(), callback);
     }
 

@@ -244,7 +244,6 @@ namespace web::http {
             contentDecoder = decoderQueue.back();
 
             std::vector<uint8_t> chunk = std::move(contentDecoder->getContent());
-
             content.insert(content.end(), chunk.begin(), chunk.end());
 
             parserState = parseContent(content);

@@ -105,9 +105,8 @@ namespace web::http::client {
         set("X-Powered-By", "snode.c");
     }
 
-    void Request::stopResponse() {
+    void Request::stopRequest() {
         Sink::stop();
-        socketContext = nullptr;
     }
 
     Request& Request::host(const std::string& host) {
@@ -198,7 +197,8 @@ namespace web::http::client {
     }
 
     void Request::responseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
-        LOG(TRACE) << "HTTP Response parse error: " << request->url << " - " << message;
+        LOG(TRACE) << "HTTP response parse error: " << request->method << " " << request->url << " "
+                   << "HTTP/" << request->httpMajor << "." << request->httpMinor << ": " << message;
     }
 
     bool Request::send(const char* chunk,
@@ -241,22 +241,20 @@ namespace web::http::client {
                           const std::string& protocols,
                           const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        bool queued = true;
+        bool success = true;
 
         if (masterRequest.lock()) {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
-            if (socketContext != nullptr) {
-                requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
+            requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
 
-                socketContext->requestPrepared(*this);
-            }
+            socketContext->requestPrepared(*this);
         } else {
-            queued = false;
+            success = false;
         }
 
-        return queued;
+        return success;
     }
 
     bool Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool success)>& status) {
@@ -273,6 +271,7 @@ namespace web::http::client {
                     if (socketContextUpgradeFactory != nullptr) {
                         newSocketContext = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
                         if (newSocketContext != nullptr) {
+                            LOG(DEBUG) << "HTTP: SocketContextUpgrade created";
                             socketContext->switchSocketContext(newSocketContext);
                             upgraded = true;
                         } else {

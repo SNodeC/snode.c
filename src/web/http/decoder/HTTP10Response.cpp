@@ -33,7 +33,7 @@
 
 namespace web::http::decoder {
 
-    HTTP10Response::HTTP10Response(const core::socket::stream::SocketContext *socketContext)
+    HTTP10Response::HTTP10Response(const core::socket::stream::SocketContext* socketContext)
         : socketContext(socketContext) {
     }
 

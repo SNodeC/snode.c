@@ -76,7 +76,7 @@ static void logResponse([[maybe_unused]] const std::shared_ptr<web::http::client
     }
 
     res->body.push_back(0); // make it a c-string
-    std::cout << "Body:\n----------- start body -----------\n" << res->body.data() << "------------ end body ------------" << std::endl;
+    LOG(INFO) << "Body:\n----------- start body -----------\n" << res->body.data() << "------------ end body ------------";
 }
 
 #if (STREAM_TYPE == LEGACY) // legacy
@@ -93,8 +93,9 @@ namespace apps::http::legacy {
             [](const std::shared_ptr<Request>& req) -> void {
                 LOG(INFO) << " -- OnRequestStart";
 
+                req->httpMinor = 0;
                 req->url = "/";
-                req->set("Connection", "keep-alive");
+                //                req->set("Connection", "keep-alive");
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                     logResponse(req, res);
                 });

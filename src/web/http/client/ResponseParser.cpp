@@ -19,6 +19,7 @@
 
 #include "web/http/client/ResponseParser.h"
 
+#include "web/http/ContentDecoder.h"
 #include "web/http/StatusCodes.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -44,6 +45,8 @@ namespace web::http::client {
     }
 
     Response&& ResponseParser::getResponse() {
+        response.body = decoderQueue.back()->getContent();
+
         return std::move(response);
     }
 
