@@ -392,7 +392,7 @@ namespace web::http::client {
 
                 if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
                     core::file::FileReader::open(absolutFileName)
-                        ->pipe(this, [this, &success, &absolutFileName, &onStatus](core::pipe::Source* source, int errnum) -> void {
+                        ->pipe(this, [this, &success, &absolutFileName, &onStatus](int errnum) -> void {
                             errno = errnum;
                             onStatus(errnum);
 
@@ -409,9 +409,6 @@ namespace web::http::client {
                                         set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
                                     }
                                 }
-
-                            } else {
-                                source->stop();
                             }
                         });
                 } else {

@@ -56,21 +56,21 @@ int main(int argc, char* argv[]) {
                           VLOG(0) << "       " << res->reason;
 
                           VLOG(0) << "     Headers:";
-                          for (auto& [field, value] : res->headers) {
+                          for (const auto& [field, value] : res->headers) {
                               VLOG(0) << "       " << field + " = " + value;
                           }
 
                           VLOG(0) << "     Cookies:";
                           for (const auto& [name, cookie] : res->cookies) {
                               VLOG(0) << "       " + name + " = " + cookie.getValue();
-                              for (auto& [option, value] : cookie.getOptions()) {
+                              for (const auto& [option, value] : cookie.getOptions()) {
                                   VLOG(0) << "         " + option + " = " + value;
                               }
                           }
 
                           res->body.push_back(0);
                           VLOG(0) << "     Body:\n----------- start body -----------" << res->body.data()
-                                  << "\n------------ end body ------------";
+                                  << "------------ end body ------------";
                       });
         },
         [](int status, const std::string& reason) -> void {

@@ -32,11 +32,13 @@
 namespace web::http::server {
 
     RequestParser::RequestParser(core::socket::stream::SocketContext* socketContext,
-                                 const std::function<void(Request&&)>& onParsed,
-                                 const std::function<void(int, const std::string&)>& onError)
+                                 const std::function<void()>& onRequestStart,
+                                 const std::function<void(Request&&)>& onRequestParsed,
+                                 const std::function<void(int, const std::string&)>& onRequestParseError)
         : Parser(socketContext)
-        , onParsed(onParsed)
-        , onError(onError) {
+        , onRequestStart(onRequestStart)
+        , onRequestParsed(onRequestParsed)
+        , onRequestParseError(onRequestParseError) {
     }
 
     bool RequestParser::methodSupported(const std::string& method) const {
@@ -44,6 +46,7 @@ namespace web::http::server {
     }
 
     void RequestParser::begin() {
+        onRequestStart();
     }
 
     Parser::ParserState RequestParser::parseStartLine(const std::string& line) {
@@ -140,7 +143,7 @@ namespace web::http::server {
     }
 
     Parser::ParserState RequestParser::parsingFinished() {
-        onParsed(std::move(request));
+        onRequestParsed(std::move(request));
 
         reset();
 
@@ -148,7 +151,7 @@ namespace web::http::server {
     }
 
     Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {
-        onError(code, reason + "\r\n");
+        onRequestParseError(code, reason + "\r\n");
 
         reset();
 

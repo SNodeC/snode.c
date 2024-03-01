@@ -40,8 +40,9 @@ namespace web::http::server {
     class RequestParser : public web::http::Parser {
     public:
         RequestParser(core::socket::stream::SocketContext* socketContext,
-                      const std::function<void(Request&&)>& onParsed,
-                      const std::function<void(int, const std::string&)>& onError);
+                      const std::function<void()>& onRequestStart,
+                      const std::function<void(Request&&)>& onRequestParsed,
+                      const std::function<void(int, const std::string&)>& onRequestParseError);
 
         RequestParser(const RequestParser&) = delete;
         RequestParser& operator=(const RequestParser&) = delete;
@@ -68,8 +69,9 @@ namespace web::http::server {
         Request request;
 
         // Callbacks
-        std::function<void(Request&&)> onParsed;
-        std::function<void(int, const std::string&)> onError;
+        std::function<void()> onRequestStart;
+        std::function<void(Request&&)> onRequestParsed;
+        std::function<void(int, const std::string&)> onRequestParseError;
     };
 
 } // namespace web::http::server

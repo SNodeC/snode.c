@@ -40,6 +40,9 @@ namespace web::http::server {
         , response(std::make_shared<Response>(this))
         , parser(
               this,
+              [this]() -> void {
+                  requestStarted();
+              },
               [this](web::http::server::Request&& request) -> void {
                   requests.emplace_back(std::make_shared<Request>(std::move(request)));
                   requestParsed();

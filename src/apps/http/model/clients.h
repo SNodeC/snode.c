@@ -76,7 +76,7 @@ static void logResponse([[maybe_unused]] const std::shared_ptr<web::http::client
     }
 
     res->body.push_back(0); // make it a c-string
-    std::cout << "Body:\n----------- start body -----------\n" << res->body.data() << "\n------------ end body ------------" << std::endl;
+    std::cout << "Body:\n----------- start body -----------\n" << res->body.data() << "------------ end body ------------" << std::endl;
 }
 
 #if (STREAM_TYPE == LEGACY) // legacy

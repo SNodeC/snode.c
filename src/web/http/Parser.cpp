@@ -40,8 +40,8 @@
 
 namespace web::http {
 
-    // HTTP/x.x
-    const std::regex Parser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
+    // HTTP/1.0 and HTTP/1.1
+    const std::regex Parser::httpVersionRegex("^HTTP/([1])[.]([0-1])$");
 
     Parser::Parser(core::socket::stream::SocketContext* socketContext, const enum Parser::HTTPCompliance& compliance)
         : hTTPCompliance(compliance)

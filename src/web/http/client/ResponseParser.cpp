@@ -31,20 +31,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-// ************** TWO LINER ***************
-// openssl s_server -CAfile snode.c_-_Root_CA.crt -cert snode.c_-_server.pem -CAfile snode.c_-_Root_CA.crt -key
-// snode.c_-_server.key.encrypted.pem -www -port 8088 -msg -Verify 1
-
 namespace web::http::client {
 
     ResponseParser::ResponseParser(core::socket::stream::SocketContext* socketContext,
                                    const std::function<void()>& onResponseStart,
                                    const std::function<void(Response&&)>& onResponseParsed,
-                                   const std::function<void(int, const std::string&)>& onError)
+                                   const std::function<void(int, const std::string&)>& onResponseParseError)
         : Parser(socketContext)
         , onResponseStart(onResponseStart)
         , onResponseParsed(onResponseParsed)
-        , onError(onError) {
+        , onResponseParseError(onResponseParseError) {
     }
 
     Response&& ResponseParser::getResponse() {
@@ -162,7 +158,7 @@ namespace web::http::client {
     }
 
     Parser::ParserState ResponseParser::parsingError(int code, const std::string& reason) {
-        onError(code, reason);
+        onResponseParseError(code, reason);
 
         reset();
 

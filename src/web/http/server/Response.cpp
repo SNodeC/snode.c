@@ -226,24 +226,21 @@ namespace web::http::server {
                 absolutFileName = std::filesystem::canonical(absolutFileName);
 
                 if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                    core::file::FileReader::open(absolutFileName)
-                        ->pipe(this, [this, &absolutFileName, &callback](core::pipe::Source* source, int errnum) -> void {
-                            callback(errnum);
+                    core::file::FileReader::open(absolutFileName)->pipe(this, [this, &absolutFileName, &callback](int errnum) -> void {
+                        callback(errnum);
 
-                            if (errnum == 0) {
-                                set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
-                                set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
-                                if (httpMajor == 1) {
-                                    if (httpMinor == 1) {
-                                        set("Transfer-Encoding", "chunked");
-                                    } else {
-                                        set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
-                                    }
+                        if (errnum == 0) {
+                            set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
+                            set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
+                            if (httpMajor == 1) {
+                                if (httpMinor == 1) {
+                                    set("Transfer-Encoding", "chunked");
+                                } else {
+                                    set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
                                 }
-                            } else {
-                                source->stop();
                             }
-                        });
+                        }
+                    });
                 } else {
                     errno = EEXIST;
                     callback(errno);
