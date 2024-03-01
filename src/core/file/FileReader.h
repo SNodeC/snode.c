@@ -61,6 +61,7 @@ namespace core::file {
 
         bool suspended = false;
 
+    protected:
         int openErrno = 0;
     };
 

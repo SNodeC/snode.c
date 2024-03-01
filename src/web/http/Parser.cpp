@@ -34,10 +34,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef MAX_CONTENT_JUNK_LEN
-#define MAX_CONTENT_JUNK_LEN 16384
-#endif
-
 namespace web::http {
 
     // HTTP/1.0 and HTTP/1.1

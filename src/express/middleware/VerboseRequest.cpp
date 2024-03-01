@@ -38,7 +38,7 @@
 namespace express::middleware {
 
     // From: https://gist.github.com/shreyasbharath/32a8092666303a916e24a81b18af146b
-    std::string hexDump(const std::vector<uint8_t>& bytes, int prefixLength = 0) {
+    static std::string hexDump(const std::vector<uint8_t>& bytes, int prefixLength = 0) {
         std::stringstream hexStream;
 
         uint8_t buff[17];
