@@ -52,7 +52,7 @@ namespace web::http::server {
 
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                      const std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)>& onRequestReady);
+                      const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& onRequestReady);
 
     private:
         void requestStarted();
@@ -62,7 +62,7 @@ namespace web::http::server {
         void responseCompleted(bool success);
         void requestCompleted();
 
-        std::function<void(std::shared_ptr<Request>& req, std::shared_ptr<Response>& res)> onRequestReady;
+        std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)> onRequestReady;
 
         void onConnected() override;
         std::size_t onReceivedFromPeer() override;
