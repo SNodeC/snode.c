@@ -39,8 +39,8 @@ namespace web::http::client::commands {
         delete[] chunk;
     }
 
-    void SendFragmentCommand::execute(Request* request) {
-        request->executeSendFragment(chunk, chunkLen);
+    bool SendFragmentCommand::execute(Request* request) {
+        return request->executeSendFragment(chunk, chunkLen);
     }
 
 } // namespace web::http::client::commands

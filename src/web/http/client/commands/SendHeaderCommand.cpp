@@ -27,8 +27,8 @@
 
 namespace web::http::client::commands {
 
-    void SendHeaderCommand::execute(Request* request) {
-        request->executeSendHeader();
+    bool SendHeaderCommand::execute(Request* request) {
+        return request->executeSendHeader();
     }
 
 } // namespace web::http::client::commands

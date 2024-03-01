@@ -366,15 +366,23 @@ namespace web::http::client {
         return sendFragment(data.data(), data.size());
     }
 
-    void Request::execute() {
+    bool Request::execute() {
+        bool success = true;
+
         for (RequestCommand* requestCommand : requestCommands) {
-            requestCommand->execute(this);
+            if (success) {
+                success = requestCommand->execute(this);
+            }
             delete requestCommand;
         }
         requestCommands.clear();
+
+        return success;
     }
 
-    void Request::executeSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus) {
+    bool Request::executeSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus) {
+        bool success = false;
+
         if (masterRequest.lock()) {
             std::string absolutFileName = file;
 
@@ -384,11 +392,13 @@ namespace web::http::client {
 
                 if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
                     core::file::FileReader::open(absolutFileName)
-                        ->pipe(this, [this, &absolutFileName, &onStatus](core::pipe::Source* source, int errnum) -> void {
+                        ->pipe(this, [this, &success, &absolutFileName, &onStatus](core::pipe::Source* source, int errnum) -> void {
                             errno = errnum;
                             onStatus(errnum);
 
                             if (errnum == 0) {
+                                success = true;
+
                                 set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
                                 set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
 
@@ -399,31 +409,32 @@ namespace web::http::client {
                                         set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
                                     }
                                 }
+
                             } else {
                                 source->stop();
-
-                                socketContext->requestSendError();
                             }
                         });
                 } else {
                     errno = EEXIST;
                     onStatus(errno);
-
-                    socketContext->requestSendError();
                 }
             } else {
                 errno = ENOENT;
                 onStatus(errno);
-
-                socketContext->requestSendError();
             }
         } else {
             LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
         }
+
+        return success;
     }
 
-    void Request::executeUpgrade(const std::string& url, const std::string& protocols) {
+    bool Request::executeUpgrade(const std::string& url, const std::string& protocols) {
+        bool success = false;
+
         if (masterRequest.lock()) {
+            success = true;
+
             this->url = url;
 
             set("Connection", "Upgrade", true);
@@ -436,20 +447,29 @@ namespace web::http::client {
                 socketContextUpgradeFactory->checkRefCount();
 
                 executeSendHeader();
+
             } else {
                 socketContext->close();
             }
 
             requestSent();
         }
+
+        return success;
     }
 
-    void Request::executeEnd() {
+    bool Request::executeEnd() {
         requestSent();
+
+        return true;
     }
 
-    void Request::executeSendHeader() {
+    bool Request::executeSendHeader() {
+        bool success = false;
+
         if (masterRequest.lock()) {
+            success = true;
+
             const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
             std::string queryString;
@@ -473,13 +493,20 @@ namespace web::http::client {
             }
 
             socketContext->sendToPeer("\r\n");
+
         } else {
             LOG(DEBUG) << "HTTP: dispatchSendHeader error: SocketContext has gone away";
         }
+
+        return success;
     }
 
-    void Request::executeSendFragment(const char* chunk, std::size_t chunkLen) {
+    bool Request::executeSendFragment(const char* chunk, std::size_t chunkLen) {
+        bool success = false;
+
         if (masterRequest.lock()) {
+            success = true;
+
             if (transfereEncoding == TransferEncoding::Chunked) {
                 socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
             }
@@ -495,6 +522,8 @@ namespace web::http::client {
         } else {
             LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
         }
+
+        return success;
     }
 
     void Request::deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {

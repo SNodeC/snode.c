@@ -32,8 +32,8 @@ namespace web::http::client::commands {
         , protocols(protocols) {
     }
 
-    void UpgradeCommand::execute(Request* request) {
-        request->executeUpgrade(url, protocols);
+    bool UpgradeCommand::execute(Request* request) {
+        return request->executeUpgrade(url, protocols);
     }
 
 } // namespace web::http::client::commands

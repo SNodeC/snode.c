@@ -63,7 +63,22 @@ namespace web::http::client {
         if (!preparedRequests.empty()) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request dispatch next";
 
-            preparedRequests.front()->execute();
+            Request* request = preparedRequests.front().get();
+            if (request->execute()) {
+                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request start success: " << request->method << " "
+                           << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+            } else {
+                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request start failed: " << request->method << " "
+                           << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+
+                preparedRequests.pop_front();
+
+                if (!preparedRequests.empty()) {
+                    core::EventReceiver::atNextTick([this]() -> void {
+                        dispatchNextRequest();
+                    });
+                }
+            }
         }
     }
 
@@ -93,19 +108,6 @@ namespace web::http::client {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent failed";
 
             shutdownWrite();
-        }
-    }
-
-    void SocketContext::requestSendError() {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sending failed";
-
-        currentRequest = preparedRequests.front();
-        preparedRequests.pop_front();
-
-        if (!preparedRequests.empty()) {
-            core::EventReceiver::atNextTick([this]() -> void {
-                dispatchNextRequest();
-            });
         }
     }
 
@@ -142,7 +144,8 @@ namespace web::http::client {
     }
 
     void SocketContext::requestCompleted() {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful";
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful: " << currentRequest->method << " "
+                   << currentRequest->url << " HTTP/" << currentRequest->httpMajor << "." << currentRequest->httpMinor;
 
         if (httpClose) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";

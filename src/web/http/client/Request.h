@@ -114,13 +114,13 @@ namespace web::http::client {
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
 
     private:
-        void execute();
+        bool execute();
 
-        void executeSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus);
-        void executeUpgrade(const std::string& url, const std::string& protocols);
-        void executeEnd();
-        void executeSendHeader();
-        void executeSendFragment(const char* chunk, std::size_t chunkLen);
+        bool executeSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus);
+        bool executeUpgrade(const std::string& url, const std::string& protocols);
+        bool executeEnd();
+        bool executeSendHeader();
+        bool executeSendFragment(const char* chunk, std::size_t chunkLen);
 
         void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
         void deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message);

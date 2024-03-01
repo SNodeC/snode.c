@@ -27,8 +27,8 @@
 
 namespace web::http::client::commands {
 
-    void EndCommand::execute(Request* request) {
-        request->executeEnd();
+    bool EndCommand::execute(Request* request) {
+        return request->executeEnd();
     }
 
 } // namespace web::http::client::commands

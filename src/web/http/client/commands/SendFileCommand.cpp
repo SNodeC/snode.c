@@ -32,8 +32,8 @@ namespace web::http::client::commands {
         , onStatus(onStatus) {
     }
 
-    void SendFileCommand::execute(Request* request) {
-        request->executeSendFile(file, onStatus);
+    bool SendFileCommand::execute(Request* request) {
+        return request->executeSendFile(file, onStatus);
     }
 
 } // namespace web::http::client::commands

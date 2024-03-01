@@ -35,7 +35,7 @@ namespace web::http::client::commands {
         ~SendFragmentCommand() override;
 
         // RequestCommand interface
-        void execute(Request* request) override;
+        bool execute(Request* request) override;
 
     private:
         char* chunk;

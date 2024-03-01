@@ -36,7 +36,7 @@ namespace web::http::client::commands {
         ~UpgradeCommand() override = default;
 
         // RequestCommand interface
-        void execute(Request* request) override;
+        bool execute(Request* request) override;
 
     private:
         std::string url;

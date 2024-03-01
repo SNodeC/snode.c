@@ -33,7 +33,7 @@ namespace web::http::client::commands {
         ~SendHeaderCommand() override = default;
 
         // RequestCommand interface
-        void execute(Request* request) override;
+        bool execute(Request* request) override;
     };
 
 } // namespace web::http::client::commands
