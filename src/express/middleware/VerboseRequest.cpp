@@ -75,7 +75,7 @@ namespace express::middleware {
             if ((bytes[i] < 0x20) || (bytes[i] > 0x7e)) {
                 buff[i % 16] = '.';
             } else {
-                buff[i % 16] = bytes[i];
+                buff[i % 16] = static_cast<uint8_t>(bytes[i]);
             }
             buff[(i % 16) + 1] = '\0';
         }
