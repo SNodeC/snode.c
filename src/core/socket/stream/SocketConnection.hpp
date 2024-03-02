@@ -195,6 +195,8 @@ namespace core::socket::stream {
         std::size_t consumed = socketContext->onReceivedFromPeer();
 
         if (available != 0 && consumed == 0) {
+            LOG(TRACE) << instanceName << ": Data available: " << available << " but nothing read";
+
             close();
 
             delete newSocketContext; // delete of nullptr is valid since C++14!
