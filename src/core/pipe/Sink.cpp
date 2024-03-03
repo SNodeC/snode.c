@@ -43,7 +43,7 @@ namespace core::pipe {
 
     void Sink::stop() {
         if (source != nullptr) {
-            source->stop();
+            source->disconnect(this);
             source = nullptr;
         }
     }
