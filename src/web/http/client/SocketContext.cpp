@@ -57,6 +57,16 @@ namespace web::http::client {
         masterRequest->setMasterRequest(masterRequest);
     }
 
+    void SocketContext::requestPrepared(Request& request) {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request prepared";
+
+        preparedRequests.emplace_back(std::make_shared<Request>(std::move(request)));
+
+        if (preparedRequests.size() == 1) {
+            dispatchNextRequest();
+        }
+    }
+
     void SocketContext::dispatchNextRequest() {
         if (!preparedRequests.empty()) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request dispatch next";
@@ -69,24 +79,18 @@ namespace web::http::client {
                 LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request start failed: " << request->method << " "
                            << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
 
-                preparedRequests.pop_front();
+                if (request->httpMajor == 1 && request->httpMinor == 1) {
+                    preparedRequests.pop_front();
 
-                if (!preparedRequests.empty()) {
-                    core::EventReceiver::atNextTick([this]() -> void {
-                        dispatchNextRequest();
-                    });
+                    if (!preparedRequests.empty()) {
+                        core::EventReceiver::atNextTick([this]() -> void {
+                            dispatchNextRequest();
+                        });
+                    }
+                } else {
+                    shutdownWrite();
                 }
             }
-        }
-    }
-
-    void SocketContext::requestPrepared(Request& request) {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request prepared";
-
-        preparedRequests.emplace_back(std::make_shared<Request>(std::move(request)));
-
-        if (preparedRequests.size() == 1) {
-            dispatchNextRequest();
         }
     }
 
@@ -98,9 +102,13 @@ namespace web::http::client {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent successful";
 
             if (!preparedRequests.empty()) {
-                core::EventReceiver::atNextTick([this]() -> void {
-                    dispatchNextRequest();
-                });
+                if (sentRequests.front()->httpMajor == 1 && sentRequests.front()->httpMinor == 1) {
+                    core::EventReceiver::atNextTick([this]() -> void {
+                        dispatchNextRequest();
+                    });
+                } else {
+                    shutdownWrite();
+                }
             }
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent failed";

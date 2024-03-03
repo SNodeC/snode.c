@@ -57,9 +57,8 @@ namespace web::http::client {
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd);
 
     private:
-        void dispatchNextRequest();
-
         void requestPrepared(Request& request);
+        void dispatchNextRequest();
         void requestSent(bool success);
         void responseStarted();
         void deliverResponse(Response&& response);
@@ -83,6 +82,8 @@ namespace web::http::client {
         std::shared_ptr<Request> masterRequest;
 
         ResponseParser parser;
+
+        uint64_t dispatchedRequests;
 
         bool httpClose = false;
 
