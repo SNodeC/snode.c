@@ -69,7 +69,6 @@ namespace web::http::client {
 
         void setMasterRequest(const std::shared_ptr<Request>& masterRequest);
         virtual void init(const std::string& host);
-        void stopRequest();
 
         Request& host(const std::string& host);
         Request& append(const std::string& field, const std::string& value);

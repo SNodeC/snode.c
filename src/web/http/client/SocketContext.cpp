@@ -185,7 +185,7 @@ namespace web::http::client {
             currentRequest = std::move(sentRequests.front());
             sentRequests.pop_front();
 
-            currentRequest->stopRequest();
+            //            currentRequest->stopRequest();
 
             if (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0) {
                 deliverResponse(parser.getResponse());

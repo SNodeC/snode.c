@@ -105,10 +105,6 @@ namespace web::http::client {
         set("X-Powered-By", "snode.c");
     }
 
-    void Request::stopRequest() {
-        Sink::stop();
-    }
-
     Request& Request::host(const std::string& host) {
         set("Host", host);
 
