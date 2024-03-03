@@ -45,7 +45,9 @@ namespace web::http::client {
     }
 
     Response&& ResponseParser::getResponse() {
-        response.body = decoderQueue.back()->getContent();
+        if (!decoderQueue.empty()) {
+            response.body = decoderQueue.back()->getContent();
+        }
 
         return std::move(response);
     }
