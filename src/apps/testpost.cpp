@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     using LegacyWebApp = express::legacy::in::WebApp;
     using LegacySocketAddress = LegacyWebApp::SocketAddress;
 
-    const LegacyWebApp legacyApp;
+    const LegacyWebApp legacyApp("legacy");
     legacyApp.getConfig().setReuseAddress();
 
     legacyApp.use(express::middleware::VerboseRequest());
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
     using TLSWebApp = express::tls::in::WebApp;
     using TLSSocketAddress = TLSWebApp::SocketAddress;
 
-    const TLSWebApp tlsApp;
+    const TLSWebApp tlsApp("tls");
     tlsApp.getConfig().setReuseAddress();
 
     tlsApp.getConfig()
