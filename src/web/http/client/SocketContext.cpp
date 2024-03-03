@@ -113,7 +113,6 @@ namespace web::http::client {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started: " << sentRequests.size();
 
         if (!sentRequests.empty()) {
-            currentRequest = sentRequests.front();
         } else {
             shutdownWrite(true);
         }
@@ -121,6 +120,11 @@ namespace web::http::client {
 
     void SocketContext::deliverResponse(Response&& response) {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parsed";
+
+        VLOG(0) << "Change currentRequest: Old = " << (currentRequest != nullptr ? currentRequest->method : "---")
+                << ", new = " << sentRequests.front()->method;
+        currentRequest = sentRequests.front();
+        sentRequests.pop_front();
 
         httpClose = response.connectionState == ConnectionState::Close ||
                     (response.connectionState == ConnectionState::Default &&
@@ -150,9 +154,6 @@ namespace web::http::client {
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
         }
-
-        sentRequests.pop_front();
-        currentRequest = nullptr;
     }
 
     void SocketContext::onConnected() {
@@ -174,7 +175,10 @@ namespace web::http::client {
     }
 
     void SocketContext::onDisconnected() {
-        if (currentRequest) {
+        VLOG(0) << "SentRequestSize: " << sentRequests.size();
+        if (sentRequests.size() > 0) {
+            VLOG(0) << "--------- " << sentRequests.front()->method;
+            VLOG(0) << "--------- " << masterRequest->method;
             currentRequest->stopRequest();
 
             if (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0) {
@@ -183,7 +187,6 @@ namespace web::http::client {
         }
 
         onRequestEnd(masterRequest);
-
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onDisconnected";
     }
 

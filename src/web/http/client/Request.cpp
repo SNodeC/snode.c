@@ -506,7 +506,7 @@ namespace web::http::client {
             if (transfereEncoding == TransferEncoding::Chunked) {
                 socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
             }
-
+            VLOG(0) << "Send to Peer: " << std::string(chunk, chunkLen);
             socketContext->sendToPeer(chunk, chunkLen);
             contentSent += chunkLen;
 
@@ -555,7 +555,9 @@ namespace web::http::client {
     }
 
     void Request::onSourceEof() {
+        VLOG(0) << "Stream EOF";
         if (masterRequest.lock()) {
+            VLOG(0) << "   --- " << masterRequest.lock()->method;
             socketContext->streamEof();
 
             requestSent();
@@ -565,7 +567,9 @@ namespace web::http::client {
     void Request::onSourceError(int errnum) {
         errno = errnum;
 
+        VLOG(0) << "Stream ERROR";
         if (masterRequest.lock()) {
+            VLOG(0) << "   --- " << masterRequest.lock()->method;
             socketContext->streamEof();
             socketContext->close();
 

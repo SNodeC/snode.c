@@ -24,6 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "web/http/http_utils.h"
 
 #include <regex>
@@ -45,6 +46,7 @@ namespace web::http::client {
     }
 
     Response&& ResponseParser::getResponse() {
+        VLOG(0) << "DecoderQueue: " << decoderQueue.size();
         response.body = decoderQueue.back()->getContent();
 
         return std::move(response);
@@ -85,6 +87,7 @@ namespace web::http::client {
     }
 
     Parser::ParserState ResponseParser::parseHeader() {
+        VLOG(0) << "+++++++++++++++++++++++++++++++ Decoder Queue: " << decoderQueue.size();
         if (headers.contains("Connection")) {
             const std::string& connection = headers["Connection"];
             if (web::http::ciContains(connection, "keep-alive")) {
