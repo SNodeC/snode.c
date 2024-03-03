@@ -138,7 +138,7 @@ namespace web::http::client {
         void onSourceError(int errnum) override;
 
     public:
-        const std::string& header(const std::string& field);
+        std::string header(const std::string& field);
 
         const CiStringMap<std::string>& getQueries() const;
         const CiStringMap<std::string>& getHeaders() const;

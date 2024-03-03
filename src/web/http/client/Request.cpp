@@ -552,8 +552,8 @@ namespace web::http::client {
         }
     }
 
-    const std::string& Request::header(const std::string& field) {
-        return headers[field];
+    std::string Request::header(const std::string& field) {
+        return headers.contains(field) ? headers[field] : "";
     }
 
     const web::http::CiStringMap<std::string>& Request::getQueries() const {
