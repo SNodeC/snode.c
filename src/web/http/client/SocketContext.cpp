@@ -118,16 +118,23 @@ namespace web::http::client {
     }
 
     void SocketContext::deliverResponse(Response&& response) {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parsed";
-
         currentRequest = std::move(sentRequests.front());
         sentRequests.pop_front();
+
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parsed - deliver response: " << currentRequest->method
+                   << " " << currentRequest->url << " HTTP/" << currentRequest->httpMajor << "." << currentRequest->httpMinor;
 
         httpClose = response.connectionState == ConnectionState::Close ||
                     (response.connectionState == ConnectionState::Default &&
                      ((response.httpMajor == 0 && response.httpMinor == 9) || (response.httpMajor == 1 && response.httpMinor == 0)));
 
         currentRequest->deliverResponse(currentRequest, std::make_shared<Response>(std::move(response)));
+
+        // Starting from here the currentRequest may be invalid, due to reuse in user code during deliverResponse(...). This is completely
+        // fine as the currentRequest is no more used anyway. An optional solution would be to pass the currentRequest as
+        // std::shared_ptr<const Request> to not allow modifications in user code. In user code the masterRequest has to be used instead in
+        // that case.
+        // Current decision is to allow reuse of the currentRequest in user code - why not?
 
         requestCompleted();
     }
@@ -141,9 +148,6 @@ namespace web::http::client {
     }
 
     void SocketContext::requestCompleted() {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed successful: " << currentRequest->method << " "
-                   << currentRequest->url << " HTTP/" << currentRequest->httpMajor << "." << currentRequest->httpMinor;
-
         if (httpClose) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
 
