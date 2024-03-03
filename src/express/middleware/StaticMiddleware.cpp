@@ -33,12 +33,8 @@ namespace express::middleware {
     StaticMiddleware::StaticMiddleware(const std::string& root)
         : root(root) {
         use(
-            [&stdHeaders = this->stdHeaders,
-             &stdCookies = this->stdCookies,
-             &connectionState = this->defaultConnectionState] MIDDLEWARE( // cppcheck-suppress assignBoolToPointer
-                req,
-                res,
-                next) {
+            [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
+                req, res, next) {
                 if (req->method == "GET") {
                     if (connectionState == web::http::ConnectionState::Close) {
                         res->set("Connection", "close");
@@ -52,7 +48,11 @@ namespace express::middleware {
                     next();
                 } else {
                     LOG(INFO) << "Express StaticMiddleware: Wrong method " << req->method;
-                    res->set("Connection", "Close");
+                    if (connectionState == web::http::ConnectionState::Close) {
+                        res->set("Connection", "close");
+                    } else if (connectionState == web::http::ConnectionState::Keep) {
+                        res->set("Connection", "keep-alive");
+                    }
                     res->sendStatus(400);
                 }
             },
