@@ -75,7 +75,7 @@ namespace web::http::client {
     }
 
     Request::~Request() {
-        if (masterRequest.lock()) {
+        if (masterRequest.lock() && Sink::isStreaming()) {
             socketContext->streamEof();
         }
 
@@ -234,6 +234,7 @@ namespace web::http::client {
         if (!chunk.empty()) {
             set("Content-Type", "text/html; charset=utf-8", false);
         }
+
         return send(chunk.data(), chunk.size(), onResponseReceived, onResponseParseError);
     }
 
@@ -331,14 +332,14 @@ namespace web::http::client {
         if (masterRequest.lock()) {
             contentLength += chunkLen;
 
-            if (!headers.contains("Transfer-Encoding")) {
-                set("Content-Length", std::to_string(contentLength));
-            }
-
             requestCommands.push_back(new commands::SendFragmentCommand(chunk, chunkLen));
         }
 
         return *this;
+    }
+
+    Request& Request::sendFragment(const std::string& data) {
+        return sendFragment(data.data(), data.size());
     }
 
     bool Request::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
@@ -361,165 +362,145 @@ namespace web::http::client {
         return queued;
     }
 
-    Request& Request::sendFragment(const std::string& data) {
-        return sendFragment(data.data(), data.size());
-    }
-
     bool Request::execute() {
-        bool success = true;
-
-        for (RequestCommand* requestCommand : requestCommands) {
-            if (success) {
-                success = requestCommand->execute(this);
-            }
-            delete requestCommand;
-        }
-        requestCommands.clear();
-
-        return success;
-    }
-
-    bool Request::executeSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus) {
         bool success = false;
-
-        if (masterRequest.lock()) {
-            std::string absolutFileName = file;
-
-            if (std::filesystem::exists(absolutFileName)) {
-                std::error_code ec;
-                absolutFileName = std::filesystem::canonical(absolutFileName);
-
-                if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                    core::file::FileReader::open(absolutFileName)
-                        ->pipe(this, [this, &success, &absolutFileName, &onStatus](int errnum) -> void {
-                            errno = errnum;
-                            onStatus(errnum);
-
-                            if (errnum == 0) {
-                                success = true;
-
-                                set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
-                                set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
-
-                                if (httpMajor == 1) {
-                                    if (httpMinor == 1) {
-                                        set("Transfer-Encoding", "chunked");
-                                    } else {
-                                        set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
-                                    }
-                                }
-                            }
-                        });
-                } else {
-                    errno = EEXIST;
-                    onStatus(errno);
-                }
-            } else {
-                errno = ENOENT;
-                onStatus(errno);
-            }
-        } else {
-            LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
-        }
-
-        return success;
-    }
-
-    bool Request::executeUpgrade(const std::string& url, const std::string& protocols) {
-        bool success = false;
+        bool commandError = false;
 
         if (masterRequest.lock()) {
             success = true;
 
-            this->url = url;
+            bool atomar = true;
+            for (RequestCommand* requestCommand : requestCommands) {
+                if (atomar) {
+                    atomar = requestCommand->execute(this);
+                }
 
-            set("Connection", "Upgrade", true);
-            set("Upgrade", protocols, true);
+                commandError = commandError ? commandError : requestCommand->getError();
 
-            web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
-
-            if (socketContextUpgradeFactory != nullptr) {
-                socketContextUpgradeFactory->checkRefCount();
-
-                executeSendHeader();
-
-            } else {
-                socketContext->close();
+                delete requestCommand;
             }
+            requestCommands.clear();
 
-            requestSent();
+            if (atomar && !commandError) {
+                requestSent();
+            }
         }
 
-        return success;
+        return success && !commandError;
     }
 
-    bool Request::executeEnd() {
-        requestSent();
+    bool Request::executeSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus) {
+        bool atomar = true;
+
+        std::string absolutFileName = file;
+
+        if (std::filesystem::exists(absolutFileName)) {
+            std::error_code ec;
+            absolutFileName = std::filesystem::canonical(absolutFileName);
+
+            if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
+                core::file::FileReader::open(absolutFileName)->pipe(this, [this, &atomar, &absolutFileName, &onStatus](int errnum) -> void {
+                    errno = errnum;
+                    onStatus(errnum);
+
+                    if (errnum == 0) {
+                        atomar = false;
+
+                        set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
+                        set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
+
+                        if (httpMajor == 1) {
+                            if (httpMinor == 1) {
+                                set("Transfer-Encoding", "chunked");
+                            } else {
+                                set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                            }
+                        }
+                    }
+                });
+            } else {
+                errno = EEXIST;
+                onStatus(errno);
+            }
+        } else {
+            errno = ENOENT;
+            onStatus(errno);
+        }
+
+        return atomar;
+    }
+
+    bool Request::executeUpgrade(const std::string& url, const std::string& protocols) {
+        this->url = url;
+
+        set("Connection", "Upgrade", true);
+        set("Upgrade", protocols, true);
+
+        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
+
+        if (socketContextUpgradeFactory != nullptr) {
+            socketContextUpgradeFactory->checkRefCount();
+
+            executeSendHeader();
+
+        } else {
+            socketContext->close();
+        }
 
         return true;
     }
 
+    bool Request::executeEnd() { // NOLINT
+        return true;
+    }
+
     bool Request::executeSendHeader() {
-        bool success = false;
+        const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
-        if (masterRequest.lock()) {
-            success = true;
-
-            const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
-
-            std::string queryString;
-            if (!queries.empty()) {
-                queryString += "?";
-                for (auto& [key, value] : queries) {
-                    queryString += httputils::url_encode(key) + "=" + httputils::url_encode(value) + "&";
-                }
-                queryString.pop_back();
+        std::string queryString;
+        if (!queries.empty()) {
+            queryString += "?";
+            for (auto& [key, value] : queries) {
+                queryString += httputils::url_encode(key) + "=" + httputils::url_encode(value) + "&";
             }
-
-            socketContext->sendToPeer(method + " " + url + queryString + " " + httpVersion + "\r\n");
-            socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
-
-            for (const auto& [field, value] : headers) {
-                socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
-            }
-
-            for (const auto& [name, value] : cookies) {
-                socketContext->sendToPeer(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
-            }
-
-            socketContext->sendToPeer("\r\n");
-
-        } else {
-            LOG(DEBUG) << "HTTP: dispatchSendHeader error: SocketContext has gone away";
+            queryString.pop_back();
         }
 
-        return success;
+        socketContext->sendToPeer(method + " " + url + queryString + " " + httpVersion + "\r\n");
+        socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
+
+        if (!headers.contains("Transfer-Encoding") && contentLength > 0) {
+            set("Content-Length", std::to_string(contentLength));
+        }
+
+        for (const auto& [field, value] : headers) {
+            socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+        }
+
+        for (const auto& [name, value] : cookies) {
+            socketContext->sendToPeer(std::string("Cookie:").append(name).append("=").append(value).append("\r\n"));
+        }
+
+        socketContext->sendToPeer("\r\n");
+
+        return true;
     }
 
     bool Request::executeSendFragment(const char* chunk, std::size_t chunkLen) {
-        bool success = false;
+        if (transfereEncoding == TransferEncoding::Chunked) {
+            socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
+        }
+        VLOG(0) << "Send to Peer: " << std::string(chunk, chunkLen);
+        socketContext->sendToPeer(chunk, chunkLen);
+        contentSent += chunkLen;
 
-        if (masterRequest.lock()) {
-            success = true;
-
-            if (transfereEncoding == TransferEncoding::Chunked) {
-                socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
-            }
-            VLOG(0) << "Send to Peer: " << std::string(chunk, chunkLen);
-            socketContext->sendToPeer(chunk, chunkLen);
-            contentSent += chunkLen;
-
-            if (transfereEncoding == TransferEncoding::Chunked) {
-                socketContext->sendToPeer("\r\n");
-                contentLength += chunkLen;
-            }
-
-        } else {
-            LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
+        if (transfereEncoding == TransferEncoding::Chunked) {
+            socketContext->sendToPeer("\r\n");
+            contentLength += chunkLen;
         }
 
-        return success;
+        return true;
     }
 
     void Request::deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {

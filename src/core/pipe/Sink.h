@@ -42,6 +42,8 @@ namespace core::pipe {
 
         virtual ~Sink();
 
+        bool isStreaming();
+
         void stop();
 
     private:

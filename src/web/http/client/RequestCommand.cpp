@@ -30,4 +30,8 @@ namespace web::http::client {
     RequestCommand::~RequestCommand() {
     }
 
+    bool RequestCommand::getError() const {
+        return error;
+    }
+
 } // namespace web::http::client

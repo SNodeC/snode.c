@@ -37,6 +37,10 @@ namespace core::pipe {
         }
     }
 
+    bool Sink::isStreaming() {
+        return source != nullptr;
+    }
+
     void Sink::stop() {
         if (source != nullptr) {
             source->stop();
@@ -49,9 +53,9 @@ namespace core::pipe {
     }
 
     void Sink::streamEof() {
-        onSourceEof();
-
         this->source = nullptr;
+
+        onSourceEof();
     }
 
     void Sink::streamError(int errnum) {

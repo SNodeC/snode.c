@@ -41,6 +41,11 @@ namespace web::http::client {
         virtual ~RequestCommand();
 
         virtual bool execute(Request* request) = 0;
+
+        bool getError() const;
+
+    protected:
+        bool error = false;
     };
 
 } // namespace web::http::client

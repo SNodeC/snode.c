@@ -70,8 +70,10 @@ namespace web::http::client {
                            << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
 
                 preparedRequests.pop_front();
+                VLOG(0) << "PreparedRequests size: " << preparedRequests.size();
 
                 if (!preparedRequests.empty()) {
+                    VLOG(0) << "######################## AtNextTick ###################";
                     core::EventReceiver::atNextTick([this]() -> void {
                         dispatchNextRequest();
                     });
@@ -112,8 +114,7 @@ namespace web::http::client {
     void SocketContext::responseStarted() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started: " << sentRequests.size();
 
-        if (!sentRequests.empty()) {
-        } else {
+        if (sentRequests.empty()) {
             shutdownWrite(true);
         }
     }
@@ -123,7 +124,7 @@ namespace web::http::client {
 
         VLOG(0) << "Change currentRequest: Old = " << (currentRequest != nullptr ? currentRequest->method : "---")
                 << ", new = " << sentRequests.front()->method;
-        currentRequest = sentRequests.front();
+        currentRequest = std::move(sentRequests.front());
         sentRequests.pop_front();
 
         httpClose = response.connectionState == ConnectionState::Close ||
@@ -176,9 +177,14 @@ namespace web::http::client {
 
     void SocketContext::onDisconnected() {
         VLOG(0) << "SentRequestSize: " << sentRequests.size();
-        if (sentRequests.size() > 0) {
+        if (!sentRequests.empty()) {
             VLOG(0) << "--------- " << sentRequests.front()->method;
             VLOG(0) << "--------- " << masterRequest->method;
+            VLOG(0) << "--------- " << currentRequest;
+
+            currentRequest = std::move(sentRequests.front());
+            sentRequests.pop_front();
+
             currentRequest->stopRequest();
 
             if (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0) {
