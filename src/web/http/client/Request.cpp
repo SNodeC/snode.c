@@ -386,7 +386,7 @@ namespace web::http::client {
     }
 
     bool Request::executeSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus) {
-        bool atomar = true;
+        bool error = true;
 
         std::string absolutFileName = file;
 
@@ -395,12 +395,12 @@ namespace web::http::client {
             absolutFileName = std::filesystem::canonical(absolutFileName);
 
             if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                core::file::FileReader::open(absolutFileName)->pipe(this, [this, &atomar, &absolutFileName, &onStatus](int errnum) -> void {
+                core::file::FileReader::open(absolutFileName)->pipe(this, [this, &error, &absolutFileName, &onStatus](int errnum) -> void {
                     errno = errnum;
                     onStatus(errnum);
 
                     if (errnum == 0) {
-                        atomar = false;
+                        error = false;
 
                         set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
                         set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
@@ -411,6 +411,10 @@ namespace web::http::client {
                             } else {
                                 set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
                             }
+
+                            executeSendHeader();
+                        } else {
+                            error = true;
                         }
                     }
                 });
@@ -423,7 +427,7 @@ namespace web::http::client {
             onStatus(errno);
         }
 
-        return atomar;
+        return error;
     }
 
     bool Request::executeUpgrade(const std::string& url, const std::string& protocols) {
@@ -487,7 +491,7 @@ namespace web::http::client {
         if (transfereEncoding == TransferEncoding::Chunked) {
             socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
         }
-        VLOG(0) << "Send to Peer: " << std::string(chunk, chunkLen);
+
         socketContext->sendToPeer(chunk, chunkLen);
         contentSent += chunkLen;
 
@@ -519,8 +523,6 @@ namespace web::http::client {
 
     void Request::onSourceConnect(core::pipe::Source* source) {
         if (masterRequest.lock() && socketContext->streamToPeer(source)) {
-            executeSendHeader();
-
             source->start();
         } else {
             source->stop();
@@ -532,9 +534,7 @@ namespace web::http::client {
     }
 
     void Request::onSourceEof() {
-        VLOG(0) << "Stream EOF";
         if (masterRequest.lock()) {
-            VLOG(0) << "   --- " << masterRequest.lock()->method;
             socketContext->streamEof();
 
             requestSent();
@@ -544,9 +544,7 @@ namespace web::http::client {
     void Request::onSourceError(int errnum) {
         errno = errnum;
 
-        VLOG(0) << "Stream ERROR";
         if (masterRequest.lock()) {
-            VLOG(0) << "   --- " << masterRequest.lock()->method;
             socketContext->streamEof();
             socketContext->close();
 
