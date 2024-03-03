@@ -58,7 +58,8 @@ namespace web::http::client {
     }
 
     void SocketContext::requestPrepared(Request& request) {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request prepared";
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request enqueued: " << request.method << " " << request.url
+                   << " HTTP/" << request.httpMajor << "." << request.httpMinor;
 
         preparedRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
@@ -69,19 +70,19 @@ namespace web::http::client {
 
     void SocketContext::dispatchNextRequest() {
         if (!preparedRequests.empty()) {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request dispatch next";
-
             Request* request = preparedRequests.front().get();
             if (request->execute()) {
-                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request start success: " << request->method << " "
+                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request execute success: " << request->method << " "
                            << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
             } else {
-                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request start failed: " << request->method << " "
+                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request execute failed: " << request->method << " "
                            << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
 
-                if (request->httpMajor == 1 && request->httpMinor == 1) {
-                    preparedRequests.pop_front();
+                const bool http11 = request->httpMajor == 1 && request->httpMinor == 1;
 
+                preparedRequests.pop_front();
+
+                if (http11) {
                     if (!preparedRequests.empty()) {
                         core::EventReceiver::atNextTick([this]() -> void {
                             dispatchNextRequest();
@@ -99,7 +100,7 @@ namespace web::http::client {
         preparedRequests.pop_front();
 
         if (success) {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent successful";
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent success";
 
             if (!preparedRequests.empty()) {
                 if (sentRequests.front()->httpMajor == 1 && sentRequests.front()->httpMinor == 1) {
@@ -118,9 +119,16 @@ namespace web::http::client {
     }
 
     void SocketContext::responseStarted() {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started: " << sentRequests.size();
-
-        if (sentRequests.empty()) {
+        if (!sentRequests.empty()) {
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started: "
+                       << std::string(sentRequests.front()->method)
+                              .append(" ")
+                              .append(sentRequests.front()->url)
+                              .append(" HTTP/")
+                              .append(std::to_string(sentRequests.front()->httpMajor))
+                              .append(".")
+                              .append(std::to_string(sentRequests.front()->httpMinor));
+        } else {
             shutdownWrite(true);
         }
     }
@@ -129,14 +137,23 @@ namespace web::http::client {
         currentRequest = std::move(sentRequests.front());
         sentRequests.pop_front();
 
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parsed - deliver response: " << currentRequest->method
-                   << " " << currentRequest->url << " HTTP/" << currentRequest->httpMajor << "." << currentRequest->httpMinor;
+        const std::string requestMethod = std::string(currentRequest->method)
+                                              .append(" ")
+                                              .append(currentRequest->url)
+                                              .append(" HTTP/")
+                                              .append(std::to_string(currentRequest->httpMajor))
+                                              .append(".")
+                                              .append(std::to_string(currentRequest->httpMinor));
+
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parsed: " << requestMethod;
 
         httpClose = response.connectionState == ConnectionState::Close ||
                     (response.connectionState == ConnectionState::Default &&
                      ((response.httpMajor == 0 && response.httpMinor == 9) || (response.httpMajor == 1 && response.httpMinor == 0)));
 
         currentRequest->deliverResponse(currentRequest, std::make_shared<Response>(std::move(response)));
+
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response delivered: " << requestMethod;
 
         // Starting from here the currentRequest may be invalid, due to reuse in user code during deliverResponse(...). This is completely
         // fine as the currentRequest is no more used anyway. An optional solution would be to pass the currentRequest as
@@ -166,7 +183,7 @@ namespace web::http::client {
     }
 
     void SocketContext::onConnected() {
-        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onConnected";
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: connected";
 
         masterRequest->init(getSocketConnection()->getConfiguredServer());
 
@@ -194,11 +211,12 @@ namespace web::http::client {
         }
 
         onRequestEnd(masterRequest);
-        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onDisconnected";
+
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: disconnected";
     }
 
     bool SocketContext::onSignal([[maybe_unused]] int signum) {
-        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onSignal  " << signum;
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: received signal  " << signum;
 
         return true;
     }
