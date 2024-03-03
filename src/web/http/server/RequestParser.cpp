@@ -21,7 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "web/http/http_utils.h"
 
 #include <regex>
@@ -129,12 +128,9 @@ namespace web::http::server {
         httpMajor = request.httpMajor;
         httpMinor = request.httpMinor;
 
-        VLOG(0) << "Header Parsed: " << request.method;
-
         ParserState parserState = Parser::ParserState::BODY;
         if (transferEncoding != TransferEncoding::Chunked && contentLength == 0) {
             parserState = parsingFinished();
-            VLOG(0) << "#########################";
         }
 
         return parserState;

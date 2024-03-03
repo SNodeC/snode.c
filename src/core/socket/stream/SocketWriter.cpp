@@ -69,8 +69,6 @@ namespace core::socket::stream {
                 if (!isSuspended()) {
                     suspend();
                 }
-                //                VLOG(0) << "WritePuffer size 1: " << writePuffer.size() << ", source = " << source;
-                //                VLOG(0) << "WritePuffer: " << std::string(writePuffer.begin(), writePuffer.end());
                 span();
             } else if ((errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) && isSuspended()) {
                 resume();
@@ -79,7 +77,6 @@ namespace core::socket::stream {
                 disable();
             }
         } else {
-            VLOG(0) << "WritePuffer size 2: " << writePuffer.size() << ", source = " << source;
             if (!isSuspended()) {
                 suspend();
             }
