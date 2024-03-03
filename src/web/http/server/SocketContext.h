@@ -56,9 +56,8 @@ namespace web::http::server {
 
     private:
         void requestStarted();
-        void deliverRequest(Request&& request);
+        void requestParsed();
         void requestParseError(int status, const std::string& reason);
-        void requestParsed(web::http::server::Request&& request);
         void responseStarted();
         void responseCompleted(bool success);
         void requestCompleted();
@@ -70,8 +69,9 @@ namespace web::http::server {
         void onDisconnected() override;
         bool onSignal(int signum) override;
 
+        std::shared_ptr<Request> request = nullptr;
         std::shared_ptr<Response> response = nullptr;
-        std::list<Request> requests;
+        std::list<std::shared_ptr<Request>> requests;
 
         RequestParser parser;
 
