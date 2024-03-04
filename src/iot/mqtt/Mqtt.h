@@ -82,10 +82,7 @@ namespace iot::mqtt {
     protected:
         void initSession(Session* session, utils::Timeval keepAlive);
 
-    public:
         void sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
-
-    protected:
         void sendPuback(uint16_t packetIdentifier) const;
         void sendPubrec(uint16_t packetIdentifier) const;
         void sendPubrel(uint16_t packetIdentifier) const;
