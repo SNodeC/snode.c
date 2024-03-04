@@ -215,10 +215,7 @@ namespace web::http::client {
 
     void SocketContext::onDisconnected() {
         if (!sentRequests.empty()) {
-            currentRequest = std::move(sentRequests.front());
-            sentRequests.pop_front();
-
-            if (currentRequest->httpMajor == 1 && currentRequest->httpMinor == 0) {
+            if (sentRequests.front()->httpMajor == 1 && sentRequests.front()->httpMinor == 0) {
                 deliverResponse(parser.getResponse());
             }
         }
