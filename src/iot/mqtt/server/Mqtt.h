@@ -37,7 +37,6 @@ namespace iot::mqtt {
     namespace server {
         namespace broker {
             class Broker;
-            class Session;
         } // namespace broker
 
         namespace packets {
@@ -154,8 +153,6 @@ namespace iot::mqtt::server {
         friend class iot::mqtt::server::packets::Pubrec;
         friend class iot::mqtt::server::packets::Puback;
         friend class iot::mqtt::server::packets::Pubrel;
-
-        friend class iot::mqtt::server::broker::Session;
     };
 
 } // namespace iot::mqtt::server
