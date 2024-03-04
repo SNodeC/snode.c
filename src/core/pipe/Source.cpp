@@ -47,7 +47,7 @@ namespace core::pipe {
                 stop();
             }
         } else {
-            callback(EFAULT);
+            callback(EINVAL);
             stop();
         }
     }
@@ -58,6 +58,7 @@ namespace core::pipe {
 
     void Source::disconnect(const Sink* sink) {
         if (sink == this->sink) {
+            this->sink->disconnect(this);
             this->sink = nullptr;
 
             stop();
@@ -67,7 +68,7 @@ namespace core::pipe {
     ssize_t Source::send(const char* chunk, std::size_t chunkLen) {
         ssize_t ret = static_cast<ssize_t>(chunkLen);
 
-        if (this->sink != nullptr) {
+        if (sink != nullptr) {
             sink->streamData(chunk, chunkLen);
         } else {
             ret = -1;
@@ -77,15 +78,15 @@ namespace core::pipe {
         return ret;
     }
 
-    void Source::error(int errnum) {
-        if (this->sink != nullptr) {
-            sink->streamError(errnum);
+    void Source::eof() {
+        if (sink != nullptr) {
+            sink->streamEof();
         }
     }
 
-    void Source::eof() {
-        if (this->sink != nullptr) {
-            sink->streamEof();
+    void Source::error(int errnum) {
+        if (sink != nullptr) {
+            sink->streamError(errnum);
         }
     }
 

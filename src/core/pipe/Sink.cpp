@@ -27,14 +27,16 @@
 
 namespace core::pipe {
 
-    Sink::Sink()
-        : source(nullptr) {
-    }
-
     Sink::~Sink() {
         if (source != nullptr) {
             source->disconnect(this);
         }
+    }
+
+    void Sink::pipe(Source* source) {
+        this->source = source;
+
+        onSourceConnect(source);
     }
 
     bool Sink::isStreaming() {
@@ -44,7 +46,6 @@ namespace core::pipe {
     void Sink::stop() {
         if (source != nullptr) {
             source->disconnect(this);
-            source = nullptr;
         }
     }
 
@@ -53,21 +54,19 @@ namespace core::pipe {
     }
 
     void Sink::streamEof() {
-        this->source = nullptr;
+        if (source != nullptr) {
+            source->disconnect(this);
+        }
 
         onSourceEof();
     }
 
     void Sink::streamError(int errnum) {
+        if (source != nullptr) {
+            source->disconnect(this);
+        }
+
         onSourceError(errnum);
-
-        this->source = nullptr;
-    }
-
-    void Sink::pipe(Source* source) {
-        this->source = source;
-
-        onSourceConnect(source);
     }
 
     void Sink::disconnect(const Source* source) {

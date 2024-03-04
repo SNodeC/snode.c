@@ -32,26 +32,28 @@ namespace core::pipe {
 
 namespace core::pipe {
 
-    class Source;
-
     class Sink {
     public:
-        Sink();
-
         Sink(Sink&) = delete;
+        Sink& operator=(Sink&) = delete;
+
+    protected:
+        Sink() = default;
+
         Sink(Sink&&) noexcept = default;
 
-        Sink& operator=(Sink&) = delete;
         Sink& operator=(Sink&&) noexcept = default;
 
         virtual ~Sink();
 
-        bool isStreaming();
+    private:
+        void pipe(Source* source);
 
+    protected:
+        bool isStreaming();
         void stop();
 
     private:
-        void pipe(Source* source);
 
         void streamData(const char* chunk, std::size_t chunkLen);
         void streamEof();
@@ -64,7 +66,7 @@ namespace core::pipe {
         virtual void onSourceEof() = 0;
         virtual void onSourceError(int errnum) = 0;
 
-        Source* source;
+        Source* source = nullptr;
 
         friend class Source;
     };

@@ -70,8 +70,6 @@ namespace core::file {
                     } else {
                         this->error(errno);
                     }
-
-                    delete this;
                 }
             }
         }
