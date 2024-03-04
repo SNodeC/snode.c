@@ -95,7 +95,7 @@ namespace apps::http::legacy {
 
                 req->httpMinor = 1;
                 req->url = "/";
-                //                req->set("Connection", "keep-alive");
+                //                req->set("Connection", "close");
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                     logResponse(req, res);
                 });
@@ -106,8 +106,10 @@ namespace apps::http::legacy {
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                     logResponse(req, res);
                 });
+
+                req->httpMinor = 1;
                 req->url = "/index.html";
-                req->set("Connection", "keep-alive");
+                //                req->set("Connection", "keep-alive");
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                     logResponse(req, res);
                 });
@@ -237,7 +239,6 @@ namespace apps::http::legacy {
                                 logResponse(req, res);
                             });
                     });
-#endif
 
                 core::EventReceiver::atNextTick([req]() -> void {
                     req->method = "POST";
@@ -278,6 +279,7 @@ namespace apps::http::legacy {
                             logResponse(req, res);
                         });
                 });
+#endif
             },
             [](int status, const std::string& reason) -> void {
                 LOG(INFO) << "-- OnResponseParseError";
