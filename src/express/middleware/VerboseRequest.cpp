@@ -25,9 +25,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/hexdump.h"
 
 #include <algorithm>
-#include <cstddef>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -36,63 +36,6 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace express::middleware {
-
-    // From: https://gist.github.com/shreyasbharath/32a8092666303a916e24a81b18af146b
-    static std::string hexDump(const std::vector<char>& bytes, int prefixLength = 0) {
-        std::stringstream hexStream;
-
-        uint8_t buff[17];
-        size_t i = 0;
-
-        hexStream << std::hex;
-
-        int currentPrefixLength = 0;
-
-        // Process every byte in the data.
-        for (i = 0; i < bytes.size(); i++) {
-            // Multiple of 16 means new line (with line offset).
-
-            if ((i % 16) == 0) {
-                // Just don't print ASCII for the zeroth line.
-                if (i != 0) {
-                    hexStream << "  " << buff << std::endl;
-                }
-
-                // Output the offset.
-                hexStream << Color::Code::FG_BLUE;
-                hexStream << std::setw(currentPrefixLength) << std::setfill(' ') << ""
-                          << ": " << std::setw(4) << std::setfill('0') << static_cast<unsigned int>(i);
-                hexStream << Color::Code::FG_DEFAULT << " ";
-                currentPrefixLength = prefixLength;
-            }
-
-            // Now the hex code for the specific character.
-            hexStream << Color::Code::FG_GREEN;
-            hexStream << " " << std::setw(2) << std::setfill('0') << static_cast<unsigned int>(bytes[i]);
-            hexStream << Color::Code::FG_DEFAULT;
-
-            // And store a printable ASCII character for later.
-            if ((bytes[i] < 0x20) || (bytes[i] > 0x7e)) {
-                buff[i % 16] = '.';
-            } else {
-                buff[i % 16] = static_cast<uint8_t>(bytes[i]);
-            }
-            buff[(i % 16) + 1] = '\0';
-        }
-
-        hexStream << std::dec;
-
-        // Pad out last line if not exactly 16 characters.
-        while ((i % 16) != 0) {
-            hexStream << "   ";
-            i++;
-        }
-
-        // And print the final ASCII bit.
-        hexStream << "  " << buff;
-
-        return hexStream.str();
-    }
 
     VerboseRequest::VerboseRequest(Details details) {
         use([details] MIDDLEWARE(req, res, next) {
@@ -152,11 +95,12 @@ namespace express::middleware {
             if ((details & Details::W_CONTENT) != 0) {
                 if (!req->body.empty()) {
                     prefix = "Body";
-                    requestStream << std::setw(prefixLength) << prefix << hexDump(req->body, prefixLength) << "\n";
+                    requestStream << std::setw(prefixLength) << prefix << utils::hexDump(req->body, prefixLength) << "\n";
                 }
             }
 
             std::string requestString = requestStream.str();
+
             requestString.pop_back();
             LOG(TRACE) << res->getSocketContext()->getSocketConnection()->getInstanceName() << " HTTP: '" << req->method << " " << req->url
                        << " " << req->httpVersion << "'\n"
