@@ -62,7 +62,7 @@ namespace web::http::server {
         void responseCompleted(bool success);
         void requestCompleted();
 
-        std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)> onRequestReady;
+        std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onRequestReady;
 
         void onConnected() override;
         std::size_t onReceivedFromPeer() override;

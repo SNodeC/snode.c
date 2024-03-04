@@ -44,16 +44,14 @@ namespace express {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DECLARE_ROUTE_REQUESTMETHOD(METHOD)                                                                                                \
-    Route& METHOD(const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda) const;     \
-    Route& METHOD(                                                                                                                         \
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda) const;   \
+    Route& METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda) const;             \
+    Route& METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda) const;      \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda,            \
+    Route& METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda,                    \
                   Lambdas... lambdas) const;                                                                                               \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(                                                                                                                         \
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda,          \
-        Lambdas... lambdas) const;
+    Route& METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda,             \
+                  Lambdas... lambdas) const;
 
 namespace express {
 

@@ -36,7 +36,7 @@ namespace core::timer {
         return Timer(new SingleshotTimer(dispatcher, timeout));
     }
 
-    Timer Timer::intervalTimer(const std::function<void(const std::function<void()>& stop)>& dispatcher, const utils::Timeval& timeout) {
+    Timer Timer::intervalTimer(const std::function<void(const std::function<void()>&)>& dispatcher, const utils::Timeval& timeout) {
         return Timer(new IntervalTimerStopable(dispatcher, timeout));
     }
 

@@ -27,7 +27,7 @@
 
 namespace web::http::client::commands {
 
-    SendFileCommand::SendFileCommand(const std::string& file, const std::function<void(int errnum)>& onStatus)
+    SendFileCommand::SendFileCommand(const std::string& file, const std::function<void(int)>& onStatus)
         : file(file)
         , onStatus(onStatus) {
     }

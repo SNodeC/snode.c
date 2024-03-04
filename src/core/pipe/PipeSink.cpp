@@ -70,7 +70,7 @@ namespace core::pipe {
         }
     }
 
-    void PipeSink::setOnData(const std::function<void(const char* chunk, std::size_t chunkLen)>& onData) {
+    void PipeSink::setOnData(const std::function<void(const char*, std::size_t)>& onData) {
         this->onData = onData;
     }
 
@@ -78,7 +78,7 @@ namespace core::pipe {
         this->onEof = onEof;
     }
 
-    void PipeSink::setOnError(const std::function<void(int errnum)>& onError) {
+    void PipeSink::setOnError(const std::function<void(int)>& onError) {
         this->onError = onError;
     }
 

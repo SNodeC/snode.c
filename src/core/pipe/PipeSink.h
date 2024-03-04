@@ -40,15 +40,15 @@ namespace core::pipe {
         explicit PipeSink(int fd);
         ~PipeSink() override;
 
-        void setOnData(const std::function<void(const char* chunk, std::size_t chunkLen)>& onData);
+        void setOnData(const std::function<void(const char*, std::size_t)>& onData);
         void setOnEof(const std::function<void()>& onEof);
-        void setOnError(const std::function<void(int errnum)>& onError);
+        void setOnError(const std::function<void(int)>& onError);
 
     private:
         void readEvent() override;
         void unobservedEvent() override;
 
-        std::function<void(const char* chunk, std::size_t chunkLen)> onData;
+        std::function<void(const char*, std::size_t)> onData;
         std::function<void()> onEof;
         std::function<void(int errnum)> onError;
     };

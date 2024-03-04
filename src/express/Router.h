@@ -48,31 +48,27 @@ namespace express {
 #define DECLARE_ROUTER_REQUESTMETHOD(METHOD)                                                                                               \
     Route& METHOD(const Router& router) const;                                                                                             \
     Route& METHOD(const std::string& relativeMountPath, const Router& router) const;                                                       \
-    Route& METHOD(const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda) const;     \
+    Route& METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda) const;             \
     Route& METHOD(const std::string& relativeMountPath,                                                                                    \
-                  const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda) const;     \
-    Route& METHOD(                                                                                                                         \
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda) const;   \
-    Route& METHOD(                                                                                                                         \
-        const std::string& relativeMountPath,                                                                                              \
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda) const;   \
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda) const;             \
+    Route& METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda) const;      \
+    Route& METHOD(const std::string& relativeMountPath,                                                                                    \
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda) const;      \
                                                                                                                                            \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda,            \
+    Route& METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda,                    \
                   Lambdas... lambdas) const;                                                                                               \
     template <typename... Lambdas>                                                                                                         \
     Route& METHOD(const std::string& relativeMountPath,                                                                                    \
-                  const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda,            \
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda,                    \
                   Lambdas... lambdas) const;                                                                                               \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(                                                                                                                         \
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda,          \
-        Lambdas... lambdas) const;                                                                                                         \
+    Route& METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda,             \
+                  Lambdas... lambdas) const;                                                                                               \
     template <typename... Lambdas>                                                                                                         \
-    Route& METHOD(                                                                                                                         \
-        const std::string& relativeMountPath,                                                                                              \
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda,          \
-        Lambdas... lambdas) const;
+    Route& METHOD(const std::string& relativeMountPath,                                                                                    \
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda,             \
+                  Lambdas... lambdas) const;
 
 namespace express {
 

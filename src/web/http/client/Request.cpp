@@ -391,7 +391,7 @@ namespace web::http::client {
         return success && !commandError;
     }
 
-    bool Request::executeSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus) {
+    bool Request::executeSendFile(const std::string& file, const std::function<void(int)>& onStatus) {
         bool error = true;
 
         std::string absolutFileName = file;

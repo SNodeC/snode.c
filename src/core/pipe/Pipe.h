@@ -37,7 +37,7 @@ namespace core::pipe {
 
         Pipe& operator=(const Pipe& pipe) = delete;
 
-        Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess, const std::function<void(int err)>& onError);
+        Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess, const std::function<void(int)>& onError);
 
     private:
         int pipeFd[2]{};

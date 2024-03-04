@@ -47,7 +47,7 @@ namespace core::pipe {
         close(getRegisteredFd());
     }
 
-    void PipeSource::setOnError(const std::function<void(int errnum)>& onError) {
+    void PipeSource::setOnError(const std::function<void(int)>& onError) {
         this->onError = onError;
     }
 

@@ -43,13 +43,12 @@ namespace express::dispatcher {
     class MiddlewareDispatcher : public express::Dispatcher {
     public:
         explicit MiddlewareDispatcher(
-            const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, express::Next& next)>&
-                lambda);
+            const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, express::Next&)>& lambda);
 
     private:
         bool dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
 
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, express::Next& next)> lambda;
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, express::Next&)> lambda;
     };
 
 } // namespace express::dispatcher

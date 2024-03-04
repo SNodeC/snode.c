@@ -42,12 +42,12 @@ namespace express::dispatcher {
     class ApplicationDispatcher : public express::Dispatcher {
     public:
         explicit ApplicationDispatcher(
-            const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda);
+            const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda);
 
     private:
         bool dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
 
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)> lambda;
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> lambda;
     };
 
 } // namespace express::dispatcher

@@ -65,6 +65,7 @@ set(HTTP_SERVER_EXPRESS_H
     Route.h
     Route.hpp
     Router.h
+    Router.hpp
     RootRoute.h
     WebApp.h
     WebAppT.h

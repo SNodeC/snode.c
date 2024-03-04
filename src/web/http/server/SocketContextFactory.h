@@ -40,7 +40,7 @@ namespace web::http::server {
         using Response = ResponseT;
 
         explicit SocketContextFactory(
-            const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& onRequestReady)
+            const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
             : onRequestReady(onRequestReady) {
         }
 
@@ -52,7 +52,7 @@ namespace web::http::server {
             return new web::http::server::SocketContext(socketConnection, onRequestReady);
         }
 
-        std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)> onRequestReady;
+        std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onRequestReady;
     };
 
 } // namespace web::http::server

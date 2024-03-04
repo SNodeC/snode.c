@@ -33,7 +33,7 @@ namespace web::http::client::commands {
 
     class SendFileCommand : public web::http::client::RequestCommand {
     public:
-        SendFileCommand(const std::string& file, const std::function<void(int errnum)>& onStatus);
+        SendFileCommand(const std::string& file, const std::function<void(int)>& onStatus);
         ~SendFileCommand() override = default;
 
         // RequestCommand interface

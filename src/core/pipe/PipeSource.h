@@ -46,7 +46,7 @@ namespace core::pipe {
         void send(const std::string& data);
         void eof();
 
-        void setOnError(const std::function<void(int errnum)>& onError);
+        void setOnError(const std::function<void(int)>& onError);
 
     protected:
         void writeEvent() override;

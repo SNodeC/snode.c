@@ -226,7 +226,7 @@ namespace web::http::server {
         status(success);
     }
 
-    void Response::sendFile(const std::string& file, const std::function<void(int errnum)>& callback) {
+    void Response::sendFile(const std::string& file, const std::function<void(int)>& callback) {
         if (socketContext != nullptr) {
             std::string absolutFileName = file;
 

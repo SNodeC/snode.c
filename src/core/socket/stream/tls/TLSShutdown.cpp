@@ -33,7 +33,7 @@ namespace core::socket::stream::tls {
                                  SSL* ssl,
                                  const std::function<void(void)>& onSuccess,
                                  const std::function<void(void)>& onTimeout,
-                                 const std::function<void(int err)>& onStatus,
+                                 const std::function<void(int)>& onStatus,
                                  const utils::Timeval& timeout) {
         new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout);
     }
@@ -42,7 +42,7 @@ namespace core::socket::stream::tls {
                              SSL* ssl,
                              const std::function<void(void)>& onSuccess,
                              const std::function<void(void)>& onTimeout,
-                             const std::function<void(int err)>& onStatus,
+                             const std::function<void(int)>& onStatus,
                              const utils::Timeval& timeout)
         : ReadEventReceiver(instanceName + " SSL/TLS shutdown:", timeout)
         , WriteEventReceiver(instanceName + " SSL/TLS shutdown:", timeout)

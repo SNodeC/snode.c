@@ -84,7 +84,7 @@ namespace web::http::server {
         void upgrade(const std::shared_ptr<Request>& request,
                      const std::function<void(bool)>& status,
                      const std::function<void()>& response = nullptr);
-        void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
+        void sendFile(const std::string& file, const std::function<void(int)>& callback);
         void end();
 
         Response& sendHeader();

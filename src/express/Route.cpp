@@ -31,14 +31,13 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                    \
-    Route& Route::METHOD(                                                                                                                  \
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda) const {  \
+    Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda)      \
+        const {                                                                                                                            \
         return *(dispatcher->nextRoute = std::make_shared<Route>(                                                                          \
                      HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)))               \
                     .get();                                                                                                                \
     }                                                                                                                                      \
-    Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda)     \
-        const {                                                                                                                            \
+    Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda) const {     \
         return *(dispatcher->nextRoute = std::make_shared<Route>(                                                                          \
                      HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda)))              \
                     .get();                                                                                                                \

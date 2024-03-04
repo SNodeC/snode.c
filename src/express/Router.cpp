@@ -30,22 +30,20 @@
     Route& Router::METHOD(const std::string& relativeMountPath, const Router& router) const {                                              \
         return rootRoute->METHOD(relativeMountPath, *router.rootRoute.get());                                                              \
     }                                                                                                                                      \
-    Route& Router::METHOD(                                                                                                                 \
-        const std::string& relativeMountPath,                                                                                              \
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda) const {  \
+    Route& Router::METHOD(const std::string& relativeMountPath,                                                                            \
+                          const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda)     \
+        const {                                                                                                                            \
         return rootRoute->METHOD(relativeMountPath, lambda);                                                                               \
     }                                                                                                                                      \
-    Route& Router::METHOD(                                                                                                                 \
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda) const {  \
+    Route& Router::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda)     \
+        const {                                                                                                                            \
         return rootRoute->METHOD(lambda);                                                                                                  \
     }                                                                                                                                      \
     Route& Router::METHOD(const std::string& relativeMountPath,                                                                            \
-                          const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda)    \
-        const {                                                                                                                            \
+                          const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda) const {    \
         return rootRoute->METHOD(relativeMountPath, lambda);                                                                               \
     }                                                                                                                                      \
-    Route& Router::METHOD(const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda)    \
-        const {                                                                                                                            \
+    Route& Router::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda) const {    \
         return rootRoute->METHOD(lambda);                                                                                                  \
     }
 

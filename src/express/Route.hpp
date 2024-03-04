@@ -38,14 +38,13 @@ namespace express {
 
 #define DEFINE_ROUTE_TEMPLATE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                           \
     template <typename... Lambdas>                                                                                                         \
-    Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& lambda,     \
+    Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda,             \
                          Lambdas... lambdas) const {                                                                                       \
         return this->METHOD(lambda).METHOD(lambdas...);                                                                                    \
     }                                                                                                                                      \
     template <typename... Lambdas>                                                                                                         \
-    Route& Route::METHOD(                                                                                                                  \
-        const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res, Next& next)>& lambda,          \
-        Lambdas... lambdas) const {                                                                                                        \
+    Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda,      \
+                         Lambdas... lambdas) const {                                                                                       \
         return this->METHOD(lambda).METHOD(lambdas...);                                                                                    \
     }
 

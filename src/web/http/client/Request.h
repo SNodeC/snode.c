@@ -115,7 +115,7 @@ namespace web::http::client {
     private:
         bool execute();
 
-        bool executeSendFile(const std::string& file, const std::function<void(int errnum)>& onStatus);
+        bool executeSendFile(const std::string& file, const std::function<void(int)>& onStatus);
         bool executeUpgrade(const std::string& url, const std::string& protocols);
         bool executeEnd();
         bool executeSendHeader();
