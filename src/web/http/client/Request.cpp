@@ -89,6 +89,8 @@ namespace web::http::client {
     }
 
     void Request::init(const std::string& host) {
+        onResponseReceived = nullptr;
+        onResponseParseError = nullptr;
         method = "GET";
         url = "/";
         httpMajor = 1;
@@ -96,8 +98,9 @@ namespace web::http::client {
         queries.clear();
         headers.clear();
         cookies.clear();
-        contentLength = 0;
         contentSent = 0;
+        contentLength = 0;
+        requestCommands.clear();
         connectionState = ConnectionState::Default;
         transfereEncoding = TransferEncoding::HTTP10;
 
