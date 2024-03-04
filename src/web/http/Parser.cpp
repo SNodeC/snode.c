@@ -132,9 +132,7 @@ namespace web::http {
                                 splitHeaderLine(line);
                                 line.clear();
                             }
-                            if (parserState != ParserState::ERROR) {
-                                parserState = analyzeHeaders();
-                            }
+                            parserState = analyzeHeaders();
                             EOL = false;
                         } else {
                             EOL = true;
@@ -145,7 +143,7 @@ namespace web::http {
 
                     if (std::isblank(ch) != 0) {
                         if ((hTTPCompliance & HTTPCompliance::RFC7230) == HTTPCompliance::RFC7230) {
-                            parserState = parsingError(400, "Header Folding");
+                            parserState = parseError(400, "Header Folding");
                         } else {
                             line += ch;
                         }
@@ -168,11 +166,11 @@ namespace web::http {
             auto [headerFieldName, value] = httputils::str_split(line, ':');
 
             if (headerFieldName.empty()) {
-                parserState = parsingError(400, "Header-field empty");
+                parserState = parseError(400, "Header-field empty");
             } else if ((std::isblank(headerFieldName.back()) != 0) || (std::isblank(headerFieldName.front()) != 0)) {
-                parserState = parsingError(400, "White space before or after header-field");
+                parserState = parseError(400, "White space before or after header-field");
             } else if (value.empty()) {
-                parserState = parsingError(400, "Header-value of field \"" + headerFieldName + "\" empty");
+                parserState = parseError(400, "Header-value of field \"" + headerFieldName + "\" empty");
             } else {
                 httputils::str_trimm(value);
 
@@ -183,7 +181,7 @@ namespace web::http {
                 }
             }
         } else {
-            parserState = parsingError(400, "Header-line empty");
+            parserState = parseError(400, "Header-line empty");
         }
     }
 
@@ -248,7 +246,7 @@ namespace web::http {
 
             parserState = parseContent(content);
         } else if (contentDecoder->isError()) {
-            parserState = parsingError(400, "Wrong content encoding");
+            parserState = parseError(400, "Wrong content encoding");
         }
 
         return consumed;
