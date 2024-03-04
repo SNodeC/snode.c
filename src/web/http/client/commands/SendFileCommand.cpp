@@ -33,9 +33,7 @@ namespace web::http::client::commands {
     }
 
     bool SendFileCommand::execute(Request* request) {
-        error = request->executeSendFile(file, onStatus);
-
-        return error;
+        return error = request->executeSendFile(file, onStatus);
     }
 
 } // namespace web::http::client::commands

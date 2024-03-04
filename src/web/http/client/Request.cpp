@@ -75,12 +75,12 @@ namespace web::http::client {
     }
 
     Request::~Request() {
-        if (masterRequest.lock() && Sink::isStreaming()) {
-            socketContext->streamEof();
-        }
-
         for (const RequestCommand* requestCommand : requestCommands) {
             delete requestCommand;
+        }
+
+        if (masterRequest.lock() && Sink::isStreaming()) {
+            socketContext->streamEof();
         }
     }
 
