@@ -48,11 +48,11 @@ namespace express {
         send(json.dump());
     }
 
-    void Response::download(const std::string& file, const std::function<void(int err)>& onError) {
+    void Response::download(const std::string& file, const std::function<void(int)>& onError) {
         download(file, std::filesystem::path(file).filename(), onError);
     }
 
-    void Response::download(const std::string& file, const std::string& fileName, const std::function<void(int err)>& onError) {
+    void Response::download(const std::string& file, const std::string& fileName, const std::function<void(int)>& onError) {
         attachment(fileName);
         sendFile(file, onError);
     }

@@ -52,7 +52,7 @@ namespace web::http::server {
 
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                      const std::function<void(const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res)>& onRequestReady);
+                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady);
 
     private:
         void requestStarted();

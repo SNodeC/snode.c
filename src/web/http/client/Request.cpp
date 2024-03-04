@@ -257,7 +257,7 @@ namespace web::http::client {
         return success;
     }
 
-    bool Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool success)>& status) {
+    bool Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool)>& status) {
         bool upgraded = false;
 
         core::socket::stream::SocketContext* newSocketContext = nullptr;

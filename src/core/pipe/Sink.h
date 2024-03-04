@@ -20,6 +20,10 @@
 #ifndef CORE_PIPE_SINK_H
 #define CORE_PIPE_SINK_H
 
+namespace core::pipe {
+    class Source;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>

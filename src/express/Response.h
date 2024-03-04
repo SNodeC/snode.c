@@ -60,8 +60,8 @@ namespace express {
 
         void json(const nlohmann::json& json);
 
-        void download(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::string& fileName, const std::function<void(int err)>& onError);
+        void download(const std::string& file, const std::function<void(int)>& onError);
+        void download(const std::string& file, const std::string& fileName, const std::function<void(int)>& onError);
 
         void redirect(const std::string& loc);
         void redirect(int state, const std::string& loc);
@@ -87,9 +87,9 @@ namespace express {
 
         void send(const char* chunk, std::size_t chunkLen);
         void send(const std::string& chunk);
-        void upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool success)>& status);
+        void upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool)>& status);
         void end();
-        void sendFile(const std::string& file, const std::function<void(int errnum)>& callback);
+        void sendFile(const std::string& file, const std::function<void(int)>& callback);
 
         Response& sendHeader();
         Response& sendFragment(const char* chunk, std::size_t chunkLen);

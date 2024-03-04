@@ -20,6 +20,10 @@
 #ifndef CORE_PIPE_SOURCE_H
 #define CORE_PIPE_SOURCE_H
 
+namespace core::pipe {
+    class Sink;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -30,8 +34,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::pipe {
-
-    class Sink;
 
     class Source {
     public:
@@ -47,8 +49,8 @@ namespace core::pipe {
 
         virtual bool isOpen() = 0;
 
-        void pipe(Sink* sink, const std::function<void(int errnum)>& callback);
-        void pipe(const std::shared_ptr<Sink>& sink, const std::function<void(int errnum)>& callback);
+        void pipe(Sink* sink, const std::function<void(int)>& callback);
+        void pipe(const std::shared_ptr<Sink>& sink, const std::function<void(int)>& callback);
 
         virtual void start() = 0;
         virtual void suspend() = 0;

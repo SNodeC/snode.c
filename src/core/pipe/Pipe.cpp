@@ -32,8 +32,7 @@
 
 namespace core::pipe {
 
-    Pipe::Pipe(const std::function<void(PipeSource& pipeSource, PipeSink& pipsSink)>& onSuccess,
-               const std::function<void(int err)>& onError) {
+    Pipe::Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess, const std::function<void(int err)>& onError) {
         const int ret = core::system::pipe2(pipeFd, O_NONBLOCK);
 
         if (ret == 0) {
