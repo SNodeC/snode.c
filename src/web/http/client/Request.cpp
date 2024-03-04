@@ -406,12 +406,11 @@ namespace web::http::client {
                     onStatus(errnum);
 
                     if (errnum == 0) {
-                        error = false;
-
-                        set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
-                        set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
-
                         if (httpMajor == 1) {
+                            error = false;
+
+                            set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
+                            set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
                             if (httpMinor == 1) {
                                 set("Transfer-Encoding", "chunked");
                             } else {
@@ -419,13 +418,11 @@ namespace web::http::client {
                             }
 
                             executeSendHeader();
-                        } else {
-                            error = true;
                         }
                     }
                 });
             } else {
-                errno = EEXIST;
+                errno = EINVAL;
                 onStatus(errno);
             }
         } else {

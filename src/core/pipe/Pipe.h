@@ -20,6 +20,11 @@
 #ifndef CORE_PIPE_PIPE_H
 #define CORE_PIPE_PIPE_H
 
+namespace core::pipe {
+    class PipeSink;
+    class PipeSource;
+} // namespace core::pipe
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
@@ -27,9 +32,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::pipe {
-
-    class PipeSink;
-    class PipeSource;
 
     class Pipe {
     public:
