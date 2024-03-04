@@ -63,7 +63,7 @@ namespace web::http::client {
         void responseStarted();
         void deliverResponse(Response&& response);
         void responseError(int status, const std::string& reason);
-        void requestCompleted();
+        void requestCompleted(bool httpClose);
 
         std::function<void(const std::shared_ptr<Request>&)> onRequestBegin;
         std::function<void(int, const std::string&)> onResponseParseError;
@@ -83,9 +83,16 @@ namespace web::http::client {
 
         ResponseParser parser;
 
-        uint64_t dispatchedRequests;
+        enum Flags { //
+            NONE = 0b00000000,
+            HTTP10 = 0b00000001,
+            HTTP11 = 0b00000010,
+            KEEPALIVE = 0b00000100
+        };
+        int flags = Flags::NONE;
 
-        bool httpClose = false;
+        //        uint64_t preparedRequestsCount = 0;
+        //        uint64_t preparedRequestsRejectesCount = 0;
 
         friend class web::http::client::Request;
     };
