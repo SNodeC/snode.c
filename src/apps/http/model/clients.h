@@ -93,9 +93,9 @@ namespace apps::http::legacy {
             [](const std::shared_ptr<Request>& req) -> void {
                 LOG(INFO) << " -- OnRequestStart";
 
-                req->httpMinor = 1;
+                req->httpMinor = 0;
                 req->url = "/";
-                //                req->set("Connection", "close");
+                req->set("Connection", "keep-alive");
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                     logResponse(req, res);
                 });

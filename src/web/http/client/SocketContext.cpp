@@ -215,7 +215,8 @@ namespace web::http::client {
 
     void SocketContext::onDisconnected() {
         if (!sentRequests.empty()) {
-            if (sentRequests.front()->httpMajor == 1 && sentRequests.front()->httpMinor == 0) {
+            const Request* request = sentRequests.front().get();
+            if (request->httpMajor == 1 && request->httpMinor == 0) {
                 deliverResponse(parser.getResponse());
             }
         }
