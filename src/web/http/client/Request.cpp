@@ -370,11 +370,14 @@ namespace web::http::client {
 
             bool atomar = true;
             for (RequestCommand* requestCommand : requestCommands) {
-                if (atomar) {
-                    atomar = requestCommand->execute(this);
-                }
+                if (!commandError) {
+                    const bool commandAtomar = requestCommand->execute(this);
+                    if (atomar) {
+                        atomar = commandAtomar;
+                    }
 
-                commandError = commandError ? commandError : requestCommand->getError();
+                    commandError = requestCommand->getError();
+                }
 
                 delete requestCommand;
             }
