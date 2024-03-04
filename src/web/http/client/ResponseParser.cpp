@@ -66,7 +66,7 @@ namespace web::http::client {
 
             std::smatch httpVersionMatch;
             if (!std::regex_match(response.httpVersion, httpVersionMatch, httpVersionRegex)) {
-                parserState = parsingError(400, "Wrong protocol version");
+                parserState = parseError(400, "Wrong protocol version");
             } else {
                 response.httpMajor = std::stoi(httpVersionMatch.str(1));
                 response.httpMinor = std::stoi(httpVersionMatch.str(2));
@@ -74,14 +74,14 @@ namespace web::http::client {
                 std::tie(response.statusCode, response.reason) = httputils::str_split(remaining, ' ');
                 if (StatusCode::contains(std::stoi(response.statusCode))) {
                     if (response.reason.empty()) {
-                        parserState = parsingError(400, "No reason phrase");
+                        parserState = parseError(400, "No reason phrase");
                     }
                 } else {
-                    parserState = parsingError(400, "Unknown status code");
+                    parserState = parseError(400, "Unknown status code");
                 }
             }
         } else {
-            parserState = parsingError(400, "Response line empty");
+            parserState = parseError(400, "Response line empty");
         }
         return parserState;
     }
@@ -162,7 +162,7 @@ namespace web::http::client {
         return ParserState::BEGIN;
     }
 
-    Parser::ParserState ResponseParser::parsingError(int code, const std::string& reason) {
+    Parser::ParserState ResponseParser::parseError(int code, const std::string& reason) {
         onResponseParseError(code, reason);
 
         reset();

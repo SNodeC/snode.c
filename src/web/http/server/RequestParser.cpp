@@ -62,13 +62,13 @@ namespace web::http::server {
             std::tie(std::ignore, queriesLine) = httputils::str_split(request.url, '?');
 
             if (!methodSupported(request.method)) {
-                parserState = parsingError(400, "Bad request method");
+                parserState = parseError(400, "Bad request method");
             } else if (request.url.empty() || request.url.front() != '/') {
-                parserState = parsingError(400, "Malformed request");
+                parserState = parseError(400, "Malformed request");
             } else {
                 std::smatch httpVersionMatch;
                 if (!std::regex_match(request.httpVersion, httpVersionMatch, httpVersionRegex)) {
-                    parserState = parsingError(400, "Wrong protocol-version");
+                    parserState = parseError(400, "Wrong protocol-version");
                 } else {
                     request.httpMajor = std::stoi(httpVersionMatch.str(1));
                     request.httpMinor = std::stoi(httpVersionMatch.str(2));
@@ -82,7 +82,7 @@ namespace web::http::server {
                 }
             }
         } else {
-            parserState = parsingError(400, "Request-line empty");
+            parserState = parseError(400, "Request-line empty");
         }
 
         return parserState;
@@ -150,7 +150,7 @@ namespace web::http::server {
         return ParserState::BEGIN;
     }
 
-    Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {
+    Parser::ParserState RequestParser::parseError(int code, const std::string& reason) {
         onRequestParseError(code, reason + "\r\n");
 
         reset();

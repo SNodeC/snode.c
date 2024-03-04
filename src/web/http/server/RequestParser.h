@@ -64,7 +64,7 @@ namespace web::http::server {
 
         // Exits
         ParserState parsingFinished();
-        ParserState parsingError(int code, const std::string& reason) override;
+        ParserState parseError(int code, const std::string& reason) override;
 
         Request request;
 

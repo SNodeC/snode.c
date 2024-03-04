@@ -86,7 +86,7 @@ namespace web::http {
         virtual ParserState parseStartLine(const std::string& line) = 0;
         virtual ParserState parseHeader() = 0;
         virtual ParserState parseContent(std::vector<char>& content) = 0;
-        virtual ParserState parsingError(int code, const std::string& reason) = 0;
+        virtual ParserState parseError(int code, const std::string& reason) = 0;
 
     protected:
         // Data common to all HTTP messages (Request/Response)
