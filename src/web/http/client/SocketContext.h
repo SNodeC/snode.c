@@ -87,7 +87,8 @@ namespace web::http::client {
             NONE = 0b00000000,
             HTTP10 = 0b00000001,
             HTTP11 = 0b00000010,
-            KEEPALIVE = 0b00000100
+            KEEPALIVE = 0b00000100,
+            CLOSE = 0b00001000
         };
         int flags = Flags::NONE;
 

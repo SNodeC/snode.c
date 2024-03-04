@@ -58,13 +58,16 @@ namespace web::http::client {
     }
 
     void SocketContext::requestPrepared(Request& request) {
-        if (flags == Flags::NONE || (flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) {
+        if ((flags == Flags::NONE || (flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) &&
+            (flags & Flags::CLOSE) != Flags::CLOSE) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request accepted: " << request.method << " " << request.url
                        << " HTTP/" << request.httpMajor << "." << request.httpMinor;
 
-            flags |= (request.httpMajor == 1 && request.httpMinor == 1) ? Flags::HTTP11 : Flags::NONE;
-            flags |= (request.httpMajor == 1 && request.httpMinor == 0) ? Flags::HTTP10 : Flags::NONE;
-            flags |= web::http::ciContains(request.header("Connection"), "keep-alive") ? Flags::KEEPALIVE : Flags::NONE;
+            flags = (flags & ~Flags::HTTP11) | ((request.httpMajor == 1 && request.httpMinor == 1) ? Flags::HTTP11 : Flags::NONE);
+            flags = (flags & ~Flags::HTTP10) | ((request.httpMajor == 1 && request.httpMinor == 0) ? Flags::HTTP10 : Flags::NONE);
+            flags = (flags & ~Flags::KEEPALIVE) |
+                    (web::http::ciContains(request.header("Connection"), "keep-alive") ? Flags::KEEPALIVE : Flags::NONE);
+            flags = (flags & ~Flags::CLOSE) | (web::http::ciContains(request.header("Connection"), "close") ? Flags::CLOSE : Flags::NONE);
 
             preparedRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
@@ -81,7 +84,7 @@ namespace web::http::client {
         if (!preparedRequests.empty()) {
             Request* request = preparedRequests.front().get();
             if (request->execute()) {
-                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request execute success: " << request->method << " "
+                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request executed: " << request->method << " "
                            << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
             } else {
                 LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request execute failed: " << request->method << " "
@@ -89,12 +92,10 @@ namespace web::http::client {
 
                 preparedRequests.pop_front();
 
-                if ((flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) {
-                    if (!preparedRequests.empty()) {
-                        core::EventReceiver::atNextTick([this]() -> void {
-                            dispatchNextRequest();
-                        });
-                    }
+                if (!preparedRequests.empty()) {
+                    core::EventReceiver::atNextTick([this]() -> void {
+                        dispatchNextRequest();
+                    });
                 } else {
                     shutdownWrite();
                 }
@@ -107,9 +108,12 @@ namespace web::http::client {
         preparedRequests.pop_front();
 
         if (success) {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent success";
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent: " << sentRequests.front()->method << " "
+                       << sentRequests.front()->url << " HTTP/" << sentRequests.front()->httpMajor << "."
+                       << sentRequests.front()->httpMinor;
 
-            if ((flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) {
+            if (((flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) &&
+                (flags & Flags::CLOSE) != Flags::CLOSE) {
                 if (!preparedRequests.empty()) {
                     core::EventReceiver::atNextTick([this]() -> void {
                         dispatchNextRequest();
