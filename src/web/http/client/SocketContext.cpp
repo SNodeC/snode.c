@@ -77,6 +77,8 @@ namespace web::http::client {
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request rejected: " << request.method << " " << request.url
                        << " HTTP/" << request.httpMajor << "." << request.httpMinor;
+
+            std::make_shared<Request>(std::move(request)); // Just to prevent memory leak
         }
     }
 
