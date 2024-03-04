@@ -192,7 +192,7 @@ namespace web::websocket {
 
     std::size_t Receiver::readPayload() {
         const std::size_t payloadChunkLeft = (MAX_PAYLOAD_JUNK_LEN <= payLoadNumBytesLeft) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
-                                                                                          : static_cast<std::size_t>(payLoadNumBytesLeft);
+                                                                                           : static_cast<std::size_t>(payLoadNumBytesLeft);
 
         const std::size_t ret = readFrameData(payloadChunk, payloadChunkLeft);
 

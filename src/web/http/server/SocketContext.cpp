@@ -33,8 +33,9 @@
 
 namespace web::http::server {
 
-    SocketContext::SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                                 const std::function<void (const std::shared_ptr<Request> &, const std::shared_ptr<Response> &)> &onRequestReady)
+    SocketContext::SocketContext(
+        core::socket::stream::SocketConnection* socketConnection,
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
         : Super(socketConnection)
         , onRequestReady(onRequestReady)
         , response(std::make_shared<Response>(this))
