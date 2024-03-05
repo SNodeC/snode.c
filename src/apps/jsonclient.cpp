@@ -73,11 +73,6 @@ int main(int argc, char* argv[]) {
                                   << "------------ end body ------------";
                       });
         },
-        [](int status, const std::string& reason) -> void {
-            VLOG(0) << "-- OnResponseError";
-            VLOG(0) << "     Status: " << status;
-            VLOG(0) << "     Reason: " << reason;
-        },
         []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
             LOG(INFO) << " -- OnRequestEnd";
         });

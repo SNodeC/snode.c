@@ -77,11 +77,6 @@ int main(int argc, char* argv[]) {
                             });
                     });
             },
-            [](int status, const std::string& reason) -> void {
-                VLOG(1) << "OnResponseError";
-                VLOG(1) << "  Status: " << status;
-                VLOG(1) << "  Reason: " << reason;
-            },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
                 LOG(INFO) << "OnRequestEnd";
             });
@@ -144,11 +139,6 @@ int main(int argc, char* argv[]) {
                                 }
                             });
                     });
-            },
-            [](int status, const std::string& reason) -> void {
-                VLOG(1) << "OnResponseError";
-                VLOG(1) << "     Status: " << status;
-                VLOG(1) << "     Reason: " << reason;
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
                 LOG(INFO) << "OnRequestEnd";

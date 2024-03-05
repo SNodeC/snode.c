@@ -53,7 +53,6 @@ namespace web::http::client {
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
-                      const std::function<void(int, const std::string&)>& onResponseParseError,
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd);
 
     private:
@@ -66,7 +65,6 @@ namespace web::http::client {
         void requestCompleted(bool httpClose);
 
         std::function<void(const std::shared_ptr<Request>&)> onRequestBegin;
-        std::function<void(int, const std::string&)> onResponseParseError1;
         std::function<void(const std::shared_ptr<Request>&)> onRequestEnd;
 
         void onConnected() override;
@@ -91,9 +89,6 @@ namespace web::http::client {
             CLOSE = 0b00001000
         };
         int flags = Flags::NONE;
-
-        //        uint64_t preparedRequestsCount = 0;
-        //        uint64_t preparedRequestsRejectesCount = 0;
 
         friend class web::http::client::Request;
     };

@@ -281,11 +281,6 @@ namespace apps::http::legacy {
                 });
 #endif
             },
-            [](int status, const std::string& reason) -> void {
-                LOG(INFO) << "-- OnResponseParseError";
-                LOG(INFO) << "     Status: " << status;
-                LOG(INFO) << "     Reason: " << reason;
-            },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
                 LOG(INFO) << " -- OnRequestEnd";
             });
@@ -400,11 +395,6 @@ namespace apps::http::tls {
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                     logResponse(req, res);
                 });
-            },
-            [](int status, const std::string& reason) -> void {
-                LOG(INFO) << "-- OnResponseError";
-                LOG(INFO) << "     Status: " << status;
-                LOG(INFO) << "     Reason: " << reason;
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
                 LOG(INFO) << " -- OnRequestEnd";
