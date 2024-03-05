@@ -54,7 +54,6 @@ namespace core::pipe {
         void stop();
 
     private:
-
         void streamData(const char* chunk, std::size_t chunkLen);
         void streamEof();
         void streamError(int errnum);

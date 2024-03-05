@@ -196,7 +196,7 @@ namespace web::http::client {
     }
 
     void Request::responseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
-        LOG(TRACE) << "HTTP response parse error: " << request->method << " " << request->url << " "
+        LOG(TRACE) << "HTTP: Response parse error: " << request->method << " " << request->url << " "
                    << "HTTP/" << request->httpMajor << "." << request->httpMinor << ": " << message;
     }
 
@@ -510,7 +510,8 @@ namespace web::http::client {
         onResponseReceived(request, response);
     }
 
-    void Request::deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
+    void Request::deliverResponseParseError([[maybe_unused]] const std::shared_ptr<Request>& request,
+                                            [[maybe_unused]] const std::string& message) {
         onResponseParseError(request, message);
     }
 
@@ -525,8 +526,10 @@ namespace web::http::client {
     }
 
     void Request::onSourceConnect(core::pipe::Source* source) {
-        if (masterRequest.lock() && socketContext->streamToPeer(source)) {
-            source->start();
+        if (masterRequest.lock()) {
+            if (socketContext->streamToPeer(source)) {
+                source->start();
+            }
         } else {
             source->stop();
         }

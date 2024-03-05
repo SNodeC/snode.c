@@ -21,6 +21,7 @@
 #define WEB_HTTP_PARSER_H
 
 #include "web/http/TransferEncoding.h" // IWYU pragma: export
+#include "web/http/decoder/Header.h"
 
 namespace web::http {
     class ContentDecoder;
@@ -102,14 +103,12 @@ namespace web::http {
         core::socket::stream::SocketContext* socketContext = nullptr;
 
     private:
+        web::http::decoder::Header headerDecoder;
+
         std::size_t readStartLine();
-        std::size_t readHeaderLine();
-        void splitHeaderLine(const std::string& line);
+        std::size_t readHeader();
         ParserState analyzeHeaders();
         std::size_t readContent();
-
-        // Line state
-        bool EOL{false};
 
         // Used during parseing data
         std::string line;

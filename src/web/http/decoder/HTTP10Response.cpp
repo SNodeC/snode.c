@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HTTP10Response.h"
+#include "web/http/decoder/HTTP10Response.h"
 
 #include "core/socket/stream/SocketContext.h"
 

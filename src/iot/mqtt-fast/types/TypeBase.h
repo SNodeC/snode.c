@@ -46,7 +46,7 @@ namespace iot::mqtt_fast::types {
 
         virtual std::size_t construct() = 0;
 
-        bool isCompleted() const;
+        bool isComplete() const;
         bool isError() const;
 
     protected:

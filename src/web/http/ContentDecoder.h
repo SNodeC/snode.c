@@ -44,7 +44,7 @@ namespace web::http {
 
         virtual std::size_t read() = 0;
 
-        bool isCompleted() const;
+        bool isComplete() const;
 
         bool isError() const;
 

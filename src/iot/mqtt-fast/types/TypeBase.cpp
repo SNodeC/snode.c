@@ -31,7 +31,7 @@ namespace iot::mqtt_fast::types {
         : socketContext(socketContext) {
     }
 
-    bool TypeBase::isCompleted() const {
+    bool TypeBase::isComplete() const {
         return completed;
     }
 

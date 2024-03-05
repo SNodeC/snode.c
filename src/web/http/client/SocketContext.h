@@ -66,7 +66,7 @@ namespace web::http::client {
         void requestCompleted(bool httpClose);
 
         std::function<void(const std::shared_ptr<Request>&)> onRequestBegin;
-        std::function<void(int, const std::string&)> onResponseParseError;
+        std::function<void(int, const std::string&)> onResponseParseError1;
         std::function<void(const std::shared_ptr<Request>&)> onRequestEnd;
 
         void onConnected() override;

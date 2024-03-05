@@ -39,7 +39,7 @@ namespace iot::mqtt_fast {
         switch (state) {
             case 0: // Type - Flags
                 consumed = typeFlags.construct();
-                if (typeFlags.isCompleted()) {
+                if (typeFlags.isComplete()) {
                     state++;
                 } else {
                     error = typeFlags.isError();
@@ -47,7 +47,7 @@ namespace iot::mqtt_fast {
                 break;
             case 1: // Remaining length
                 consumed = remainingLength.construct();
-                if (remainingLength.isCompleted()) {
+                if (remainingLength.isComplete()) {
                     data.setLength(remainingLength.getValue());
                     completed = remainingLength.getValue() == 0;
                     state++;
@@ -57,7 +57,7 @@ namespace iot::mqtt_fast {
                 break;
             case 2: // Var-Header + Payload
                 consumed = data.construct();
-                if (data.isCompleted()) {
+                if (data.isComplete()) {
                     completed = true;
                     state++;
                 } else {

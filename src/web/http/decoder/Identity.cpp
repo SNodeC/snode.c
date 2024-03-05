@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Identity.h"
+#include "web/http/decoder/Identity.h"
 
 #include "core/socket/stream/SocketContext.h"
 

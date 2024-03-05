@@ -26,10 +26,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "web/http/http_utils.h"
-
 #include <algorithm>
-#include <cctype>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -41,7 +38,8 @@ namespace web::http {
 
     Parser::Parser(core::socket::stream::SocketContext* socketContext, const enum Parser::HTTPCompliance& compliance)
         : hTTPCompliance(compliance)
-        , socketContext(socketContext) {
+        , socketContext(socketContext)
+        , headerDecoder(socketContext) {
     }
 
     Parser::~Parser() {
@@ -76,7 +74,7 @@ namespace web::http {
                     ret = readStartLine();
                     break;
                 case ParserState::HEADER:
-                    ret = readHeaderLine();
+                    ret = readHeader();
                     break;
                 case ParserState::BODY:
                     ret = readContent();
@@ -114,75 +112,17 @@ namespace web::http {
         return consumed;
     }
 
-    std::size_t Parser::readHeaderLine() {
-        std::size_t consumed = 0;
-        std::size_t ret = 0;
+    std::size_t Parser::readHeader() {
+        const std::size_t consumed = headerDecoder.read();
 
-        do {
-            char ch = 0;
-            ret = socketContext->readFromPeer(&ch, 1);
-
-            if (ret > 0) {
-                consumed++;
-
-                if (ch == '\r' || ch == '\n') {
-                    if (ch == '\n') {
-                        if (EOL || line.empty()) {
-                            if (!line.empty()) {
-                                splitHeaderLine(line);
-                                line.clear();
-                            }
-                            parserState = analyzeHeaders();
-                            EOL = false;
-                        } else {
-                            EOL = true;
-                        }
-                    }
-                } else if (EOL) {
-                    EOL = false;
-
-                    if (std::isblank(ch) != 0) {
-                        if ((hTTPCompliance & HTTPCompliance::RFC7230) == HTTPCompliance::RFC7230) {
-                            parserState = parseError(400, "Header Folding");
-                        } else {
-                            line += ch;
-                        }
-                    } else {
-                        splitHeaderLine(line);
-                        line.clear();
-                        line += ch;
-                    }
-                } else {
-                    line += ch;
-                }
-            }
-        } while (ret > 0 && parserState == ParserState::HEADER);
+        if (headerDecoder.isComplete()) {
+            headers = std::move(headerDecoder.getHeader());
+            parserState = analyzeHeaders();
+        } else if (headerDecoder.isError()) {
+            parserState = parseError(headerDecoder.getErrorCode(), headerDecoder.getErrorReason());
+        }
 
         return consumed;
-    }
-
-    void Parser::splitHeaderLine(const std::string& line) {
-        if (!line.empty()) {
-            auto [headerFieldName, value] = httputils::str_split(line, ':');
-
-            if (headerFieldName.empty()) {
-                parserState = parseError(400, "Header-field empty");
-            } else if ((std::isblank(headerFieldName.back()) != 0) || (std::isblank(headerFieldName.front()) != 0)) {
-                parserState = parseError(400, "White space before or after header-field");
-            } else if (value.empty()) {
-                parserState = parseError(400, "Header-value of field \"" + headerFieldName + "\" empty");
-            } else {
-                httputils::str_trimm(value);
-
-                if (headers.find(headerFieldName) == headers.end()) {
-                    headers.emplace(headerFieldName, value);
-                } else {
-                    headers[headerFieldName] += "," + value;
-                }
-            }
-        } else {
-            parserState = parseError(400, "Header-line empty");
-        }
     }
 
     Parser::ParserState Parser::analyzeHeaders() {
@@ -238,10 +178,10 @@ namespace web::http {
 
         const std::size_t consumed = contentDecoder->read();
 
-        if (contentDecoder->isCompleted()) {
+        if (contentDecoder->isComplete()) {
             contentDecoder = decoderQueue.back();
 
-            std::vector<char> chunk = std::move(contentDecoder->getContent());
+            std::vector<char> chunk = contentDecoder->getContent();
             content.insert(content.end(), chunk.begin(), chunk.end());
 
             parserState = parseContent(content);

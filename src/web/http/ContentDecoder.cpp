@@ -30,7 +30,7 @@ namespace web::http {
     ContentDecoder::~ContentDecoder() {
     }
 
-    bool ContentDecoder::isCompleted() const {
+    bool ContentDecoder::isComplete() const {
         return completed;
     }
 

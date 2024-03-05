@@ -138,6 +138,7 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::streamEof() {
+        LOG(TRACE) << getName() << ": streamEOF()";
         this->source = nullptr;
     }
 

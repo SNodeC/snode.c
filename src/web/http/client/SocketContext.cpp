@@ -40,7 +40,7 @@ namespace web::http::client {
                                  const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
         : Super(socketConnection)
         , onRequestBegin(onRequestBegin)
-        , onResponseParseError(onResponseParseError)
+        , onResponseParseError1(onResponseParseError)
         , onRequestEnd(onRequestEnd)
         , masterRequest(std::make_shared<Request>(this, getSocketConnection()->getConfiguredServer()))
         , parser(
@@ -95,8 +95,10 @@ namespace web::http::client {
                 preparedRequests.pop_front();
 
                 if (!preparedRequests.empty()) {
-                    core::EventReceiver::atNextTick([this]() -> void {
-                        dispatchNextRequest();
+                    core::EventReceiver::atNextTick([this, weak = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
+                        if (weak.lock()) {
+                            dispatchNextRequest();
+                        }
                     });
                 } else {
                     shutdownWrite();
@@ -117,8 +119,10 @@ namespace web::http::client {
             if (((flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) &&
                 (flags & Flags::CLOSE) != Flags::CLOSE) {
                 if (!preparedRequests.empty()) {
-                    core::EventReceiver::atNextTick([this]() -> void {
-                        dispatchNextRequest();
+                    core::EventReceiver::atNextTick([this, weak = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
+                        if (weak.lock()) {
+                            dispatchNextRequest();
+                        }
                     });
                 }
             } else {
@@ -178,7 +182,17 @@ namespace web::http::client {
     }
 
     void SocketContext::responseError(int status, const std::string& reason) {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parse error: " << status << " : " << reason;
+        currentRequest = std::move(sentRequests.front());
+        sentRequests.pop_front();
+
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parse error: " << status << "(" << reason << ") "
+                   << std::string(sentRequests.front()->method)
+                          .append(" ")
+                          .append(sentRequests.front()->url)
+                          .append(" HTTP/")
+                          .append(std::to_string(sentRequests.front()->httpMajor))
+                          .append(".")
+                          .append(std::to_string(sentRequests.front()->httpMinor));
 
         currentRequest->deliverResponseParseError(currentRequest, reason);
 
