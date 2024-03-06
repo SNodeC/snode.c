@@ -35,6 +35,8 @@ namespace express {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+// The RouterDispatcher is a complex implementation of the composite pattern (https://en.wikipedia.org/wiki/Composite_pattern)
+
 namespace express::dispatcher {
 
     class RouterDispatcher : public express::Dispatcher {
