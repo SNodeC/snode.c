@@ -20,6 +20,7 @@
 #include "web/http/decoder/Chunked.h"
 
 #include "core/socket/stream/SocketContext.h"
+#include <stdexcept>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -125,10 +126,15 @@ namespace web::http::decoder {
                 CR = false;
                 LF = false;
 
-                chunkLenTotal = std::stoul(chunkLenTotalS, &pos, 16);
-                chunk.resize(chunkLenTotal);
+                try {
+                    chunkLenTotal = std::stoul(chunkLenTotalS, &pos, 16);
+                    chunk.resize(chunkLenTotal);
 
-                state = 1;
+                    state = 1;
+                } catch (std::invalid_argument&) {
+                    error = true;
+                    break;
+                }
 
                 [[fallthrough]];
             case 1: // ChunkData
