@@ -34,7 +34,7 @@ namespace web::http::decoder {
 
     Header::Header(core::socket::stream::SocketContext* socketContext)
         : socketContext(socketContext)
-        , maxLineLength(0) {
+        , maxLineLength(8192) {
     }
 
     Header::~Header() {
@@ -55,57 +55,55 @@ namespace web::http::decoder {
             errorReason = "";
         }
 
-        if (errorCode == 0) {
-            std::size_t ret = 0;
+        std::size_t ret = 0;
 
-            do {
-                char ch = '\0';
+        do {
+            char ch = '\0';
 
-                ret = socketContext->readFromPeer(&ch, 1);
-                consumed += ret;
+            ret = socketContext->readFromPeer(&ch, 1);
+            consumed += ret;
 
-                if (!line.empty() || ch != ' ') {
-                    line += ch;
+            if (!line.empty() || ch != ' ') {
+                line += ch;
 
-                    if (maxLineLength == 0 || line.size() <= maxLineLength) {
-                        lastButOne = last;
-                        last = ch;
+                if (maxLineLength == 0 || line.size() <= maxLineLength) {
+                    lastButOne = last;
+                    last = ch;
 
-                        if (lastButOne == '\r' && last == '\n') {
-                            line.pop_back(); // Remove \n
-                            line.pop_back(); // Remove \r
-                            completed = line.empty();
+                    if (lastButOne == '\r' && last == '\n') {
+                        line.pop_back(); // Remove \n
+                        line.pop_back(); // Remove \r
+                        completed = line.empty();
 
-                            splitLine(line);
+                        splitLine(line);
 
-                            line.clear();
-                            lastButOne = '\0';
-                            last = '\0';
-                        }
-                    } else {
-                        errorCode = 400;
-                        errorReason = "Header: Line too long";
+                        line.clear();
+                        lastButOne = '\0';
+                        last = '\0';
                     }
                 } else {
                     errorCode = 400;
-                    errorReason = "Header Folding";
+                    errorReason = "Header: Line too long";
                 }
-            } while (ret > 0                                                        //
-                     && !completed                                                  //
-                     && (fieldCountExpected == 0 || fieldCountExpected > lineCount) //
-                     && errorCode == 0);
-
-            if (completed && fieldCountExpected != 0 && fieldCountExpected != lineCount) {
+            } else {
                 errorCode = 400;
-                errorReason = "Header: Too many fields";
-
-                completed = false;
-            } else if (fieldCountExpected != 0 && fieldCountExpected == lineCount) {
-                errorCode = 400;
-                errorReason = "Header: Too view fields";
-
-                completed = false;
+                errorReason = "Header Folding";
             }
+        } while (ret > 0                                                        //
+                 && !completed                                                  //
+                 && (fieldCountExpected == 0 || fieldCountExpected > lineCount) //
+                 && errorCode == 0);
+
+        if (completed && fieldCountExpected != 0 && fieldCountExpected != lineCount) {
+            errorCode = 400;
+            errorReason = "Header: Too many fields";
+
+            completed = false;
+        } else if (fieldCountExpected != 0 && fieldCountExpected == lineCount) {
+            errorCode = 400;
+            errorReason = "Header: Too view fields";
+
+            completed = false;
         }
 
         return consumed;
