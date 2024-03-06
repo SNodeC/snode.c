@@ -151,7 +151,7 @@ namespace web::http::server {
     }
 
     Parser::ParserState RequestParser::parseError(int code, const std::string& reason) {
-        onRequestParseError(code, reason + "\r\n");
+        onRequestParseError(code, reason);
 
         reset();
 

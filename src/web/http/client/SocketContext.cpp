@@ -183,14 +183,14 @@ namespace web::http::client {
         currentRequest = std::move(sentRequests.front());
         sentRequests.pop_front();
 
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parse error: " << status << "(" << reason << ") "
-                   << std::string(sentRequests.front()->method)
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parse error: " << reason << " (" << status << ") "
+                   << std::string(currentRequest->method)
                           .append(" ")
-                          .append(sentRequests.front()->url)
+                          .append(currentRequest->url)
                           .append(" HTTP/")
-                          .append(std::to_string(sentRequests.front()->httpMajor))
+                          .append(std::to_string(currentRequest->httpMajor))
                           .append(".")
-                          .append(std::to_string(sentRequests.front()->httpMinor));
+                          .append(std::to_string(currentRequest->httpMinor));
 
         currentRequest->deliverResponseParseError(currentRequest, reason);
 
@@ -242,6 +242,10 @@ namespace web::http::client {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: received signal  " << signum;
 
         return true;
+    }
+
+    void SocketContext::onWriteError([[maybe_unused]] int errnum) {
+        // Do nothing in case of an write error
     }
 
 } // namespace web::http::client

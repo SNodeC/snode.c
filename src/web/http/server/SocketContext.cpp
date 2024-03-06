@@ -76,7 +76,7 @@ namespace web::http::server {
     }
 
     void SocketContext::requestParseError(int status, const std::string& reason) {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parse error: " << status << " : " << reason;
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parse error: " << reason << " (" << status << ") ";
 
         response->status(status).send(reason);
 
@@ -114,8 +114,10 @@ namespace web::http::server {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
 
             if (!requests.empty()) {
-                core::EventReceiver::atNextTick([this]() -> void {
-                    requestParsed();
+                core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->response)]() -> void {
+                    if (!response.expired()) {
+                        requestParsed();
+                    }
                 });
             }
         }
@@ -151,6 +153,10 @@ namespace web::http::server {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onSignal " << signum;
 
         return true;
+    }
+
+    void SocketContext::onWriteError([[maybe_unused]] int errnum) {
+        // Do nothing in case of an write error
     }
 
 } // namespace web::http::server
