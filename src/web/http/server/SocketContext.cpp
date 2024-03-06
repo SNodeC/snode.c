@@ -114,8 +114,10 @@ namespace web::http::server {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
 
             if (!requests.empty()) {
-                core::EventReceiver::atNextTick([this]() -> void {
-                    requestParsed();
+                core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->response)]() -> void {
+                    if (!response.expired()) {
+                        requestParsed();
+                    }
                 });
             }
         }
