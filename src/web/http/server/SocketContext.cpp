@@ -38,7 +38,7 @@ namespace web::http::server {
         const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
         : Super(socketConnection)
         , onRequestReady(onRequestReady)
-        , response(std::make_shared<Response>(this))
+        , masterResponse(std::make_shared<Response>(this))
         , parser(
               this,
               [this]() -> void {
@@ -60,25 +60,25 @@ namespace web::http::server {
     void SocketContext::requestParsed() {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parsed";
 
-        if (!request && !requests.empty()) {
-            request = requests.front();
+        if (!currentRequest && !requests.empty()) {
+            currentRequest = requests.front();
             requests.pop_front();
 
-            const std::string connection = request->get("Connection");
+            const std::string connection = currentRequest->get("Connection");
             if (!connection.empty()) {
-                response->set("Connection", connection);
+                masterResponse->set("Connection", connection);
             }
-            response->httpMajor = request->httpMajor;
-            response->httpMinor = request->httpMinor;
+            masterResponse->httpMajor = currentRequest->httpMajor;
+            masterResponse->httpMinor = currentRequest->httpMinor;
 
-            onRequestReady(request, response);
+            onRequestReady(currentRequest, masterResponse);
         }
     }
 
     void SocketContext::requestParseError(int status, const std::string& reason) {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parse error: " << reason << " (" << status << ") ";
 
-        response->status(status).send(reason);
+        masterResponse->status(status).send(reason);
 
         shutdownWrite(true);
     }
@@ -89,9 +89,10 @@ namespace web::http::server {
 
     void SocketContext::responseCompleted(bool success) {
         if (success) {
-            httpClose = response->connectionState == ConnectionState::Close ||
-                        (response->connectionState == ConnectionState::Default && ((response->httpMajor == 0 && response->httpMinor == 9) ||
-                                                                                   (response->httpMajor == 1 && response->httpMinor == 0)));
+            httpClose = masterResponse->connectionState == ConnectionState::Close ||
+                        (masterResponse->connectionState == ConnectionState::Default &&
+                         ((masterResponse->httpMajor == 0 && masterResponse->httpMinor == 9) ||
+                          (masterResponse->httpMajor == 1 && masterResponse->httpMinor == 0)));
 
             requestCompleted();
         } else {
@@ -100,10 +101,12 @@ namespace web::http::server {
             shutdownWrite();
         }
 
-        response->init();
+        masterResponse->init();
     }
 
     void SocketContext::requestCompleted() {
+        currentRequest = nullptr;
+
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed";
 
         if (httpClose) {
@@ -114,21 +117,19 @@ namespace web::http::server {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
 
             if (!requests.empty()) {
-                core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->response)]() -> void {
+                core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->masterResponse)]() -> void {
                     if (!response.expired()) {
                         requestParsed();
                     }
                 });
             }
         }
-
-        request = nullptr;
     }
 
     void SocketContext::onConnected() {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onConnected";
 
-        response->init();
+        masterResponse->init();
     }
 
     std::size_t SocketContext::onReceivedFromPeer() {
@@ -142,8 +143,8 @@ namespace web::http::server {
     }
 
     void SocketContext::onDisconnected() {
-        if (response != nullptr) {
-            response->stopResponse();
+        if (masterResponse != nullptr) {
+            masterResponse->stopResponse();
         }
 
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onDisconnected";

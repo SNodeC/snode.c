@@ -70,8 +70,8 @@ namespace web::http::server {
         bool onSignal(int signum) override;
         void onWriteError(int errnum) override;
 
-        std::shared_ptr<Request> request = nullptr;
-        std::shared_ptr<Response> response = nullptr;
+        std::shared_ptr<Request> currentRequest = nullptr;
+        std::shared_ptr<Response> masterResponse = nullptr;
         std::list<std::shared_ptr<Request>> requests;
 
         RequestParser parser;
