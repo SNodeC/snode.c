@@ -183,7 +183,7 @@ namespace web::http::client {
         currentRequest = std::move(sentRequests.front());
         sentRequests.pop_front();
 
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parse error: " << status << " (" << reason << ") "
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parse error: " << reason << " (" << status << ") "
                    << std::string(currentRequest->method)
                           .append(" ")
                           .append(currentRequest->url)

@@ -76,7 +76,7 @@ namespace web::http::server {
     }
 
     void SocketContext::requestParseError(int status, const std::string& reason) {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parse error: " << status << " : " << reason;
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parse error: " << reason << " (" << status << ") ";
 
         response->status(status).send(reason);
 
