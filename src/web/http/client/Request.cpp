@@ -79,7 +79,7 @@ namespace web::http::client {
             delete requestCommand;
         }
 
-        if (masterRequest.lock() && Sink::isStreaming()) {
+        if (!masterRequest.expired() && Sink::isStreaming()) {
             socketContext->streamEof();
         }
     }
@@ -206,7 +206,7 @@ namespace web::http::client {
                        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         bool queued = true;
 
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
@@ -243,7 +243,7 @@ namespace web::http::client {
                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         bool success = true;
 
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
@@ -262,7 +262,7 @@ namespace web::http::client {
 
         core::socket::stream::SocketContext* newSocketContext = nullptr;
 
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             if (response != nullptr) {
                 if (web::http::ciContains(response->get("connection"), "Upgrade")) {
                     web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
@@ -305,7 +305,7 @@ namespace web::http::client {
                            const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         bool queued = true;
 
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
@@ -320,7 +320,7 @@ namespace web::http::client {
     }
 
     Request& Request::sendHeader() {
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             requestCommands.push_back(new commands::SendHeaderCommand());
         }
 
@@ -328,7 +328,7 @@ namespace web::http::client {
     }
 
     Request& Request::sendFragment(const char* chunk, std::size_t chunkLen) {
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             contentLength += chunkLen;
 
             requestCommands.push_back(new commands::SendFragmentCommand(chunk, chunkLen));
@@ -345,7 +345,7 @@ namespace web::http::client {
                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         bool queued = true;
 
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
@@ -365,7 +365,7 @@ namespace web::http::client {
         bool success = false;
         bool commandError = false;
 
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             success = true;
 
             bool atomar = true;
@@ -520,13 +520,13 @@ namespace web::http::client {
             executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
         }
 
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             socketContext->requestSent(contentSent == contentLength);
         }
     }
 
     void Request::onSourceConnect(core::pipe::Source* source) {
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             if (socketContext->streamToPeer(source)) {
                 source->start();
             }
@@ -540,7 +540,7 @@ namespace web::http::client {
     }
 
     void Request::onSourceEof() {
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             socketContext->streamEof();
 
             requestSent();
@@ -550,7 +550,7 @@ namespace web::http::client {
     void Request::onSourceError(int errnum) {
         errno = errnum;
 
-        if (masterRequest.lock()) {
+        if (!masterRequest.expired()) {
             socketContext->streamEof();
             socketContext->close();
 

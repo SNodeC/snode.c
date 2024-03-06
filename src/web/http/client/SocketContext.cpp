@@ -94,7 +94,7 @@ namespace web::http::client {
 
                 if (!preparedRequests.empty()) {
                     core::EventReceiver::atNextTick([this, weak = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
-                        if (weak.lock()) {
+                        if (!weak.expired()) {
                             dispatchNextRequest();
                         }
                     });
@@ -118,7 +118,7 @@ namespace web::http::client {
                 (flags & Flags::CLOSE) != Flags::CLOSE) {
                 if (!preparedRequests.empty()) {
                     core::EventReceiver::atNextTick([this, weak = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
-                        if (weak.lock()) {
+                        if (!weak.expired()) {
                             dispatchNextRequest();
                         }
                     });
