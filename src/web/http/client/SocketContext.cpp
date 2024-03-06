@@ -40,7 +40,6 @@ namespace web::http::client {
         : Super(socketConnection)
         , onRequestBegin(onRequestBegin)
         , onRequestEnd(onRequestEnd)
-        , masterRequest(std::make_shared<Request>(this, getSocketConnection()->getConfiguredServer()))
         , parser(
               this,
               [this]() -> void {
@@ -50,8 +49,9 @@ namespace web::http::client {
                   deliverResponse(std::move(response));
               },
               [this](int status, const std::string& reason) -> void {
-                  responseError(status, reason);
-              }) {
+                  deliverResponseError(status, reason);
+              })
+        , masterRequest(std::make_shared<Request>(this, getSocketConnection()->getConfiguredServer())) {
         masterRequest->setMasterRequest(masterRequest);
     }
 
@@ -70,7 +70,7 @@ namespace web::http::client {
             preparedRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
             if (preparedRequests.size() == 1) {
-                dispatchNextRequest();
+                dispatchRequest();
             }
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request rejected: " << request.method << " " << request.url
@@ -80,7 +80,7 @@ namespace web::http::client {
         }
     }
 
-    void SocketContext::dispatchNextRequest() {
+    void SocketContext::dispatchRequest() {
         if (!preparedRequests.empty()) {
             Request* request = preparedRequests.front().get();
             if (request->execute()) {
@@ -93,9 +93,9 @@ namespace web::http::client {
                 preparedRequests.pop_front();
 
                 if (!preparedRequests.empty()) {
-                    core::EventReceiver::atNextTick([this, weak = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
-                        if (!weak.expired()) {
-                            dispatchNextRequest();
+                    core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
+                        if (!masterRequest.expired()) {
+                            dispatchRequest();
                         }
                     });
                 } else {
@@ -117,9 +117,9 @@ namespace web::http::client {
             if (((flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) &&
                 (flags & Flags::CLOSE) != Flags::CLOSE) {
                 if (!preparedRequests.empty()) {
-                    core::EventReceiver::atNextTick([this, weak = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
-                        if (!weak.expired()) {
-                            dispatchNextRequest();
+                    core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
+                        if (!masterRequest.expired()) {
+                            dispatchRequest();
                         }
                     });
                 }
@@ -179,7 +179,7 @@ namespace web::http::client {
         requestCompleted(httpClose);
     }
 
-    void SocketContext::responseError(int status, const std::string& reason) {
+    void SocketContext::deliverResponseError(int status, const std::string& reason) {
         currentRequest = std::move(sentRequests.front());
         sentRequests.pop_front();
 

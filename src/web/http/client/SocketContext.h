@@ -57,11 +57,11 @@ namespace web::http::client {
 
     private:
         void requestPrepared(Request& request);
-        void dispatchNextRequest();
+        void dispatchRequest();
         void requestSent(bool success);
         void responseStarted();
         void deliverResponse(Response&& response);
-        void responseError(int status, const std::string& reason);
+        void deliverResponseError(int status, const std::string& reason);
         void requestCompleted(bool httpClose);
 
         std::function<void(const std::shared_ptr<Request>&)> onRequestBegin;
@@ -72,14 +72,13 @@ namespace web::http::client {
         void onDisconnected() override;
         bool onSignal(int signum) override;
 
-        std::shared_ptr<Request> currentRequest = nullptr;
+        ResponseParser parser;
 
         std::list<std::shared_ptr<Request>> preparedRequests;
         std::list<std::shared_ptr<Request>> sentRequests;
 
+        std::shared_ptr<Request> currentRequest = nullptr;
         std::shared_ptr<Request> masterRequest;
-
-        ResponseParser parser;
 
         enum Flags { //
             NONE = 0b00000000,
