@@ -30,11 +30,14 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
+// #define MAX_LINE_LENGTH 8192
+#define MAX_LINE_LENGTH 1
+
 namespace web::http::decoder {
 
     Header::Header(core::socket::stream::SocketContext* socketContext)
         : socketContext(socketContext)
-        , maxLineLength(8192) {
+        , maxLineLength(MAX_LINE_LENGTH) {
     }
 
     Header::~Header() {
@@ -83,7 +86,7 @@ namespace web::http::decoder {
                     }
                 } else {
                     errorCode = 400;
-                    errorReason = "Header: Line too long";
+                    errorReason = "Line too long";
                 }
             } else {
                 errorCode = 400;
@@ -96,12 +99,12 @@ namespace web::http::decoder {
 
         if (completed && fieldCountExpected != 0 && fieldCountExpected != lineCount) {
             errorCode = 400;
-            errorReason = "Header: Too many fields";
+            errorReason = "Too many fields";
 
             completed = false;
         } else if (fieldCountExpected != 0 && fieldCountExpected == lineCount) {
             errorCode = 400;
-            errorReason = "Header: Too view fields";
+            errorReason = "Too view fields";
 
             completed = false;
         }
