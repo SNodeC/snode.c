@@ -71,6 +71,7 @@ namespace web::http::client {
         std::size_t onReceivedFromPeer() override;
         void onDisconnected() override;
         bool onSignal(int signum) override;
+        void onWriteError(int errnum) override;
 
         ResponseParser parser;
 

@@ -244,4 +244,8 @@ namespace web::http::client {
         return true;
     }
 
+    void SocketContext::onWriteError([[maybe_unused]] int errnum) {
+        // Do nothing in case of an write error
+    }
+
 } // namespace web::http::client
