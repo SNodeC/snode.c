@@ -70,7 +70,7 @@ namespace web::http::server {
 
         std::shared_ptr<Request> currentRequest = nullptr;
         std::shared_ptr<Response> masterResponse = nullptr;
-        std::list<Request> requests;
+        std::list<Request> pendingRequests;
 
         RequestParser parser;
 

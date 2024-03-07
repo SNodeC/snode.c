@@ -31,6 +31,7 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #define MAX_LINE_LENGTH 8192
+// #define MAX_LINE_LENGTH 1
 
 namespace web::http::decoder {
 

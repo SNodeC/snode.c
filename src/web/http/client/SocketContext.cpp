@@ -92,15 +92,11 @@ namespace web::http::client {
 
                 preparedRequests.pop_front();
 
-                if (!preparedRequests.empty()) {
-                    core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
-                        if (!masterRequest.expired()) {
-                            dispatchRequest();
-                        }
-                    });
-                } else {
-                    shutdownWrite();
-                }
+                core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
+                    if (!masterRequest.expired() && !preparedRequests.empty()) {
+                        dispatchRequest();
+                    }
+                });
             }
         }
     }
@@ -118,7 +114,7 @@ namespace web::http::client {
                 (flags & Flags::CLOSE) != Flags::CLOSE) {
                 if (!preparedRequests.empty()) {
                     core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
-                        if (!masterRequest.expired()) {
+                        if (!masterRequest.expired() && !preparedRequests.empty()) {
                             dispatchRequest();
                         }
                     });
