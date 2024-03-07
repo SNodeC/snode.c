@@ -69,7 +69,7 @@ namespace web::http::server {
         void onWriteError(int errnum) override;
 
         std::shared_ptr<Request> currentRequest = nullptr;
-        std::shared_ptr<Response> masterResponse = nullptr;
+        std::shared_ptr<Response> masterResponse;
         std::list<Request> pendingRequests;
 
         RequestParser parser;
