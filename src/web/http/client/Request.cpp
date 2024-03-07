@@ -49,28 +49,28 @@
 
 namespace web::http::client {
 
-    Request::Request(web::http::client::SocketContext* clientContext, const std::string& host)
-        : socketContext(clientContext) {
+    Request::Request(web::http::client::SocketContext* socketContext, const std::string& host)
+        : socketContext(socketContext) {
         this->host(host);
     }
 
     Request::Request(Request&& request) noexcept
-        : onResponseReceived(std::move(request.onResponseReceived))
-        , onResponseParseError(std::move(request.onResponseParseError))
-        , method(std::move(request.method))
+        : method(std::move(request.method))
         , url(std::move(request.url))
         , httpMajor(request.httpMajor)
         , httpMinor(request.httpMinor)
         , queries(std::move(request.queries))
         , headers(std::move(request.headers))
         , cookies(std::move(request.cookies))
-        , contentSent(request.contentSent)
-        , contentLength(request.contentLength)
         , requestCommands(std::move(request.requestCommands))
-        , socketContext(request.socketContext)
-        , connectionState(request.connectionState)
         , transfereEncoding(request.transfereEncoding)
-        , masterRequest(request.masterRequest) { // NOLINT
+        , contentLength(request.contentLength)
+        , contentLengthSent(request.contentLengthSent)
+        , connectionState(request.connectionState)
+        , onResponseReceived(std::move(request.onResponseReceived))
+        , onResponseParseError(std::move(request.onResponseParseError))
+        , masterRequest(request.masterRequest) // NOLINT
+        , socketContext(request.socketContext) {
         request.init(headers["Host"]);
     }
 
@@ -89,8 +89,6 @@ namespace web::http::client {
     }
 
     void Request::init(const std::string& host) {
-        onResponseReceived = nullptr;
-        onResponseParseError = nullptr;
         method = "GET";
         url = "/";
         httpMajor = 1;
@@ -98,11 +96,13 @@ namespace web::http::client {
         queries.clear();
         headers.clear();
         cookies.clear();
-        contentSent = 0;
-        contentLength = 0;
         requestCommands.clear();
-        connectionState = ConnectionState::Default;
         transfereEncoding = TransferEncoding::HTTP10;
+        contentLength = 0;
+        contentLengthSent = 0;
+        connectionState = ConnectionState::Default;
+        onResponseReceived = nullptr;
+        onResponseParseError = nullptr;
 
         this->host(host);
         set("X-Powered-By", "snode.c");
@@ -496,7 +496,7 @@ namespace web::http::client {
         }
 
         socketContext->sendToPeer(chunk, chunkLen);
-        contentSent += chunkLen;
+        contentLengthSent += chunkLen;
 
         if (transfereEncoding == TransferEncoding::Chunked) {
             socketContext->sendToPeer("\r\n");
@@ -521,7 +521,7 @@ namespace web::http::client {
         }
 
         if (!masterRequest.expired()) {
-            socketContext->requestSent(contentSent == contentLength);
+            socketContext->requestSent(contentLengthSent == contentLength);
         }
     }
 

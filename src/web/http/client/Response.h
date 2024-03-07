@@ -43,7 +43,7 @@ namespace web::http::client {
         explicit Response(Response&&) noexcept = default;
 
         Response& operator=(Response&) = delete;
-        Response& operator=(Response&&) noexcept = default;
+        Response& operator=(Response&&) noexcept = delete;
 
         const std::string& get(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;
