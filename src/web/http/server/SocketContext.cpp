@@ -112,11 +112,13 @@ namespace web::http::server {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
 
             core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->masterResponse)]() -> void {
-                if (!response.expired() && !pendingRequests.empty()) {
-                    deliverRequest(std::move(pendingRequests.front()));
-                    pendingRequests.pop_front();
-                } else {
-                    currentRequest = nullptr;
+                if (!response.expired()) {
+                    if (!pendingRequests.empty()) {
+                        deliverRequest(std::move(pendingRequests.front()));
+                        pendingRequests.pop_front();
+                    } else {
+                        currentRequest = nullptr;
+                    }
                 }
             });
         }
