@@ -53,7 +53,7 @@ namespace express::middleware {
                     } else if (connectionState == web::http::ConnectionState::Keep) {
                         res->set("Connection", "keep-alive");
                     }
-                    res->sendStatus(400);
+                    res->sendStatus(405);
                 }
             },
             [] MIDDLEWARE(req, res, next) {
