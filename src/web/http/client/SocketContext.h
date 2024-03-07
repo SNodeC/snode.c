@@ -21,11 +21,8 @@
 #define WEB_HTTP_CLIENT_SOCKETCONTEXT_H
 
 #include "core/socket/stream/SocketContext.h" // IWYU pragma: export
-#include "web/http/client/ResponseParser.h"   // IWYU pragma: export
-
-namespace web::http::client {
-    class Request;
-} // namespace web::http::client
+#include "web/http/client/Request.h"
+#include "web/http/client/ResponseParser.h" // IWYU pragma: export
 
 namespace core::socket::stream {
     class SocketConnection;
@@ -61,7 +58,7 @@ namespace web::http::client {
         void requestSent(bool success);
         void responseStarted();
         void deliverResponse(Response&& response);
-        void deliverResponseError(int status, const std::string& reason);
+        void deliverResponseParseError(int status, const std::string& reason);
         void requestCompleted(bool httpClose);
 
         std::function<void(const std::shared_ptr<Request>&)> onRequestBegin;
@@ -73,13 +70,13 @@ namespace web::http::client {
         bool onSignal(int signum) override;
         void onWriteError(int errnum) override;
 
-        ResponseParser parser;
-
-        std::list<std::shared_ptr<Request>> preparedRequests;
-        std::list<std::shared_ptr<Request>> sentRequests;
+        std::list<Request> preparedRequests;
+        std::list<Request> sentRequests;
 
         std::shared_ptr<Request> currentRequest = nullptr;
         std::shared_ptr<Request> masterRequest;
+
+        ResponseParser parser;
 
         enum Flags { //
             NONE = 0b00000000,

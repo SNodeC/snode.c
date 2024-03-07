@@ -22,7 +22,6 @@
 #include "core/EventReceiver.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/CookieOptions.h"
-#include "web/http/client/Request.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,6 +39,7 @@ namespace web::http::client {
         : Super(socketConnection)
         , onRequestBegin(onRequestBegin)
         , onRequestEnd(onRequestEnd)
+        , masterRequest(std::make_shared<Request>(this, getSocketConnection()->getConfiguredServer()))
         , parser(
               this,
               [this]() -> void {
@@ -49,13 +49,14 @@ namespace web::http::client {
                   deliverResponse(std::move(response));
               },
               [this](int status, const std::string& reason) -> void {
-                  deliverResponseError(status, reason);
-              })
-        , masterRequest(std::make_shared<Request>(this, getSocketConnection()->getConfiguredServer())) {
+                  deliverResponseParseError(status, reason);
+              }) {
         masterRequest->setMasterRequest(masterRequest);
     }
 
     void SocketContext::requestPrepared(Request& request) {
+        preparedRequests.emplace_back(std::move(request));
+
         if ((flags == Flags::NONE || (flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) &&
             (flags & Flags::CLOSE) != Flags::CLOSE) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request accepted: " << request.method << " " << request.url
@@ -67,8 +68,6 @@ namespace web::http::client {
                     (web::http::ciContains(request.header("Connection"), "keep-alive") ? Flags::KEEPALIVE : Flags::NONE);
             flags = (flags & ~Flags::CLOSE) | (web::http::ciContains(request.header("Connection"), "close") ? Flags::CLOSE : Flags::NONE);
 
-            preparedRequests.emplace_back(std::make_shared<Request>(std::move(request)));
-
             if (preparedRequests.size() == 1) {
                 dispatchRequest();
             }
@@ -76,19 +75,21 @@ namespace web::http::client {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request rejected: " << request.method << " " << request.url
                        << " HTTP/" << request.httpMajor << "." << request.httpMinor;
 
-            std::make_shared<Request>(std::move(request)); // Just to prevent memory leak
+            preparedRequests.pop_back();
         }
     }
 
     void SocketContext::dispatchRequest() {
         if (!preparedRequests.empty()) {
-            Request* request = preparedRequests.front().get();
-            if (request->execute()) {
-                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request executed: " << request->method << " "
-                           << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+            Request& request = preparedRequests.front();
+
+            const std::string requestLine =
+                request.url + " HTTP/" + std::to_string(request.httpMajor) + "." + std::to_string(request.httpMinor);
+
+            if (request.execute()) {
+                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request executed: " << requestLine;
             } else {
-                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request execute failed: " << request->method << " "
-                           << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request execute failed: " << requestLine;
 
                 preparedRequests.pop_front();
 
@@ -102,13 +103,12 @@ namespace web::http::client {
     }
 
     void SocketContext::requestSent(bool success) {
-        sentRequests.emplace_back(preparedRequests.front());
+        sentRequests.emplace_back(std::move(preparedRequests.front()));
         preparedRequests.pop_front();
 
         if (success) {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent: " << sentRequests.front()->method << " "
-                       << sentRequests.front()->url << " HTTP/" << sentRequests.front()->httpMajor << "."
-                       << sentRequests.front()->httpMinor;
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent: " << sentRequests.front().method << " "
+                       << sentRequests.front().url << " HTTP/" << sentRequests.front().httpMajor << "." << sentRequests.front().httpMinor;
 
             if (((flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) &&
                 (flags & Flags::CLOSE) != Flags::CLOSE) {
@@ -132,20 +132,20 @@ namespace web::http::client {
     void SocketContext::responseStarted() {
         if (!sentRequests.empty()) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started: "
-                       << std::string(sentRequests.front()->method)
+                       << std::string(sentRequests.front().method)
                               .append(" ")
-                              .append(sentRequests.front()->url)
+                              .append(sentRequests.front().url)
                               .append(" HTTP/")
-                              .append(std::to_string(sentRequests.front()->httpMajor))
+                              .append(std::to_string(sentRequests.front().httpMajor))
                               .append(".")
-                              .append(std::to_string(sentRequests.front()->httpMinor));
+                              .append(std::to_string(sentRequests.front().httpMinor));
         } else {
             shutdownWrite(true);
         }
     }
 
     void SocketContext::deliverResponse(Response&& response) {
-        currentRequest = std::move(sentRequests.front());
+        currentRequest = std::make_shared<Request>(std::move(sentRequests.front()));
         sentRequests.pop_front();
 
         const std::string requestMethod = std::string(currentRequest->method)
@@ -175,8 +175,8 @@ namespace web::http::client {
         requestCompleted(httpClose);
     }
 
-    void SocketContext::deliverResponseError(int status, const std::string& reason) {
-        currentRequest = std::move(sentRequests.front());
+    void SocketContext::deliverResponseParseError(int status, const std::string& reason) {
+        currentRequest = std::make_shared<Request>(std::move(sentRequests.front()));
         sentRequests.pop_front();
 
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response parse error: " << reason << " (" << status << ") "
@@ -223,8 +223,8 @@ namespace web::http::client {
 
     void SocketContext::onDisconnected() {
         if (!sentRequests.empty()) {
-            const Request* request = sentRequests.front().get();
-            if (request->httpMajor == 1 && request->httpMinor == 0) {
+            const Request& request = sentRequests.front();
+            if (request.httpMajor == 1 && request.httpMinor == 0) {
                 deliverResponse(parser.getResponse());
             }
         }
