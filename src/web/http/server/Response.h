@@ -58,10 +58,10 @@ namespace web::http::server {
         explicit Response(SocketContext* socketContext);
 
         explicit Response(Response&) = delete;
-        explicit Response(Response&&) noexcept = default;
+        explicit Response(Response&&) noexcept = delete;
 
         Response& operator=(Response&) = delete;
-        Response& operator=(Response&&) noexcept = default;
+        Response& operator=(Response&&) noexcept = delete;
 
         ~Response() override;
 

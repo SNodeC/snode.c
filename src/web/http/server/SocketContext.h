@@ -37,7 +37,6 @@ namespace core::socket::stream {
 #include <functional>
 #include <list>
 #include <memory> // IWYU pragma: export
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -56,8 +55,7 @@ namespace web::http::server {
 
     private:
         void requestStarted();
-        void requestParsed();
-        void requestParseError(int status, const std::string& reason);
+        void deliverRequest(web::http::server::Request&& request);
         void responseStarted();
         void responseCompleted(bool success);
         void requestCompleted();
@@ -72,7 +70,7 @@ namespace web::http::server {
 
         std::shared_ptr<Request> currentRequest = nullptr;
         std::shared_ptr<Response> masterResponse = nullptr;
-        std::list<std::shared_ptr<Request>> requests;
+        std::list<Request> requests;
 
         RequestParser parser;
 

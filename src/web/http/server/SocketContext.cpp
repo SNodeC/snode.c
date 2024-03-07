@@ -27,6 +27,7 @@
 
 #include "log/Logger.h"
 
+#include <string>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -45,11 +46,19 @@ namespace web::http::server {
                   requestStarted();
               },
               [this](web::http::server::Request&& request) -> void {
-                  requests.emplace_back(std::make_shared<Request>(std::move(request)));
-                  requestParsed();
+                  if (!currentRequest) {
+                      deliverRequest(std::move(request));
+                  } else {
+                      requests.emplace_back(std::move(request));
+                  }
               },
               [this](int status, const std::string& reason) -> void {
-                  requestParseError(status, reason);
+                  LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parse error: " << reason << " (" << status
+                             << ") ";
+
+                  masterResponse->status(status).send(reason);
+
+                  shutdownWrite(true);
               }) {
     }
 
@@ -57,30 +66,20 @@ namespace web::http::server {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request started";
     }
 
-    void SocketContext::requestParsed() {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parsed";
+    void SocketContext::deliverRequest(web::http::server::Request&& request) {
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parsed " << request.method << " " << request.url;
 
-        if (!currentRequest && !requests.empty()) {
-            currentRequest = requests.front();
-            requests.pop_front();
+        currentRequest = std::make_shared<Request>(std::move(request));
 
-            const std::string connection = currentRequest->get("Connection");
-            if (!connection.empty()) {
-                masterResponse->set("Connection", connection);
-            }
-            masterResponse->httpMajor = currentRequest->httpMajor;
-            masterResponse->httpMinor = currentRequest->httpMinor;
-
-            onRequestReady(currentRequest, masterResponse);
+        masterResponse->init();
+        const std::string connection = currentRequest->get("Connection");
+        if (!connection.empty()) {
+            masterResponse->set("Connection", connection);
         }
-    }
+        masterResponse->httpMajor = currentRequest->httpMajor;
+        masterResponse->httpMinor = currentRequest->httpMinor;
 
-    void SocketContext::requestParseError(int status, const std::string& reason) {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parse error: " << reason << " (" << status << ") ";
-
-        masterResponse->status(status).send(reason);
-
-        shutdownWrite(true);
+        onRequestReady(currentRequest, masterResponse);
     }
 
     void SocketContext::responseStarted() {
@@ -100,13 +99,9 @@ namespace web::http::server {
 
             shutdownWrite();
         }
-
-        masterResponse->init();
     }
 
     void SocketContext::requestCompleted() {
-        currentRequest = nullptr;
-
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed";
 
         if (httpClose) {
@@ -116,13 +111,14 @@ namespace web::http::server {
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
 
-            if (!requests.empty()) {
-                core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->masterResponse)]() -> void {
-                    if (!response.expired()) {
-                        requestParsed();
-                    }
-                });
-            }
+            core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->masterResponse)]() -> void {
+                if (!response.expired() && !requests.empty()) {
+                    deliverRequest(std::move(requests.front()));
+                    requests.pop_front();
+                } else {
+                    currentRequest = nullptr;
+                }
+            });
         }
     }
 
