@@ -63,6 +63,7 @@ namespace core::file {
 
     protected:
         int openErrno = 0;
+        bool running = false;
     };
 
 } // namespace core::file
