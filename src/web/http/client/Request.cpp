@@ -417,10 +417,10 @@ namespace web::http::client {
 
                             set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
                             set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
-                            if (httpMinor == 1) {
+                            if (httpMinor == 1 && contentLength == 0) {
                                 set("Transfer-Encoding", "chunked");
                             } else {
-                                set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                                set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName) + contentLength));
                             }
 
                             executeSendHeader();
