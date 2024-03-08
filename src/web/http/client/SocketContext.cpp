@@ -138,7 +138,7 @@ namespace web::http::client {
                               .append(".")
                               .append(std::to_string(deliveredRequests.front().httpMinor));
         } else {
-            VLOG(0) << "##################### 3";
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started without delivered request";
             shutdownWrite(true);
         }
     }

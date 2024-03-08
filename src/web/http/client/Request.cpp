@@ -362,37 +362,32 @@ namespace web::http::client {
     }
 
     bool Request::execute() {
-        bool success = false;
-        bool commandError = false;
+        bool error = false;
+        bool atomar = true;
 
-        if (!masterRequest.expired()) {
-            success = true;
-
-            bool atomar = true;
-            for (RequestCommand* requestCommand : requestCommands) {
-                if (!commandError) {
-                    const bool commandAtomar = requestCommand->execute(this);
-                    if (atomar) {
-                        atomar = commandAtomar;
-                    }
-
-                    commandError = requestCommand->getError();
+        for (RequestCommand* requestCommand : requestCommands) {
+            if (!error) {
+                const bool atomarCommand = requestCommand->execute(this);
+                if (atomar) {
+                    atomar = atomarCommand;
                 }
 
-                delete requestCommand;
+                error = requestCommand->getError();
             }
-            requestCommands.clear();
 
-            if (atomar && !commandError) {
-                requestSent();
-            }
+            delete requestCommand;
+        }
+        requestCommands.clear();
+
+        if (atomar && !error) {
+            requestSent();
         }
 
-        return success && !commandError;
+        return !error;
     }
 
     bool Request::executeSendFile(const std::string& file, const std::function<void(int)>& onStatus) {
-        bool error = true;
+        bool atomar = true;
 
         std::string absolutFileName = file;
 
@@ -401,13 +396,13 @@ namespace web::http::client {
             absolutFileName = std::filesystem::canonical(absolutFileName);
 
             if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                core::file::FileReader::open(absolutFileName)->pipe(this, [this, &error, &absolutFileName, &onStatus](int errnum) -> void {
+                core::file::FileReader::open(absolutFileName)->pipe(this, [this, &atomar, &absolutFileName, &onStatus](int errnum) -> void {
                     errno = errnum;
                     onStatus(errnum);
 
                     if (errnum == 0) {
                         if (httpMajor == 1) {
-                            error = false;
+                            atomar = false;
 
                             set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
                             set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
@@ -430,7 +425,7 @@ namespace web::http::client {
             onStatus(errno);
         }
 
-        return error;
+        return atomar;
     }
 
     bool Request::executeUpgrade(const std::string& url, const std::string& protocols) {
@@ -516,11 +511,11 @@ namespace web::http::client {
     }
 
     void Request::requestSent() {
-        if (transfereEncoding == TransferEncoding::Chunked) {
-            executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
-        }
-
         if (!masterRequest.expired()) {
+            if (transfereEncoding == TransferEncoding::Chunked) {
+                executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
+            }
+
             socketContext->requestDelivered(std::move(*this), contentLengthSent == contentLength);
         }
     }
