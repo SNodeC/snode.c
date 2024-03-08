@@ -361,7 +361,7 @@ namespace web::http::client {
         return queued;
     }
 
-    bool Request::execute() {
+    bool Request::initiate() {
         bool error = false;
         bool atomar = true;
 

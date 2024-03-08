@@ -108,7 +108,7 @@ namespace web::http::client {
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
 
     private:
-        bool execute();
+        bool initiate();
 
         friend class commands::SendFileCommand;
         friend class commands::SendFragmentCommand;

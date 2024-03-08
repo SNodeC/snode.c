@@ -55,10 +55,12 @@ namespace web::http::client {
     }
 
     void SocketContext::requestPrepared(Request& request) {
+        const std::string requestLine =
+            request.method + " " + request.url + " HTTP/" + std::to_string(request.httpMajor) + "." + std::to_string(request.httpMinor);
+
         if ((flags == Flags::NONE || (flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) &&
             (flags & Flags::CLOSE) != Flags::CLOSE) {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request accepted: " << request.method << " " << request.url
-                       << " HTTP/" << request.httpMajor << "." << request.httpMinor;
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request accepted: " << requestLine;
 
             flags = (flags & ~Flags::HTTP11) | ((request.httpMajor == 1 && request.httpMinor == 1) ? Flags::HTTP11 : Flags::NONE);
             flags = (flags & ~Flags::HTTP10) | ((request.httpMajor == 1 && request.httpMinor == 0) ? Flags::HTTP10 : Flags::NONE);
@@ -69,25 +71,28 @@ namespace web::http::client {
             if (!currentRequest) {
                 deliverRequest(std::move(request));
             } else {
+                LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request queued: " << requestLine;
                 pendingRequests.emplace_back(std::move(request));
             }
         } else {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request rejected: " << request.method << " " << request.url
-                       << " HTTP/" << request.httpMajor << "." << request.httpMinor;
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request rejected: " << requestLine;
+
             std::make_shared<Request>(std::move(request));
         }
     }
 
     void SocketContext::deliverRequest(Request&& request) {
+        const std::string requestLine =
+            request.method + " " + request.url + " HTTP/" + std::to_string(request.httpMajor) + "." + std::to_string(request.httpMinor);
+
         currentRequest = std::make_shared<Request>(std::move(request));
 
-        const std::string requestLine = currentRequest->method + " " + currentRequest->url + " HTTP/" +
-                                        std::to_string(currentRequest->httpMajor) + "." + std::to_string(currentRequest->httpMinor);
+        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request initiating: " << requestLine;
 
-        if (currentRequest->execute()) {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request executed: " << requestLine;
+        if (currentRequest->initiate()) {
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request initiated: " << requestLine;
         } else {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request execute failed: " << requestLine;
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request initiating failed: " << requestLine;
 
             core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
                 if (!masterRequest.expired()) {
@@ -103,12 +108,13 @@ namespace web::http::client {
     }
 
     void SocketContext::requestDelivered(Request&& request, bool success) {
+        const std::string requestLine =
+            request.method + " " + request.url + " HTTP/" + std::to_string(request.httpMajor) + "." + std::to_string(request.httpMinor);
+
         deliveredRequests.emplace_back(std::move(request));
 
         if (success) {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request delivered: " << deliveredRequests.front().method
-                       << " " << deliveredRequests.front().url << " HTTP/" << deliveredRequests.front().httpMajor << "."
-                       << deliveredRequests.front().httpMinor;
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request delivered: " << requestLine;
 
             core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
                 if (!masterRequest.expired()) {
@@ -121,7 +127,7 @@ namespace web::http::client {
                 }
             });
         } else {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request sent failed";
+            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request delivering failed: " << requestLine;
 
             shutdownWrite();
         }
@@ -144,7 +150,6 @@ namespace web::http::client {
     }
 
     void SocketContext::deliverResponse(Response&& response) {
-        VLOG(0) << "FlyingSize: size = " << deliveredRequests.size();
         const std::shared_ptr<Request> request = std::make_shared<Request>(std::move(deliveredRequests.front()));
         deliveredRequests.pop_front();
 
@@ -190,7 +195,6 @@ namespace web::http::client {
 
         request->deliverResponseParseError(request, reason);
 
-        VLOG(0) << "##################### 4";
         shutdownWrite(true);
     }
 
@@ -198,7 +202,6 @@ namespace web::http::client {
         if (httpClose) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
 
-            VLOG(0) << "##################### 5";
             shutdownWrite();
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
