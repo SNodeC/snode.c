@@ -154,7 +154,7 @@ namespace web::http::client {
     private:
         std::list<RequestCommand*> requestCommands;
 
-        TransferEncoding transfereEncoding = TransferEncoding::HTTP10;
+        TransferEncoding transferEncoding = TransferEncoding::HTTP10;
 
         std::size_t contentLength = 0;
         std::size_t contentLengthSent = 0;

@@ -63,7 +63,7 @@ namespace web::http::client {
         , headers(std::move(request.headers))
         , cookies(std::move(request.cookies))
         , requestCommands(std::move(request.requestCommands))
-        , transfereEncoding(request.transfereEncoding)
+        , transferEncoding(request.transferEncoding)
         , contentLength(request.contentLength)
         , contentLengthSent(request.contentLengthSent)
         , connectionState(request.connectionState)
@@ -97,7 +97,7 @@ namespace web::http::client {
         headers.clear();
         cookies.clear();
         requestCommands.clear();
-        transfereEncoding = TransferEncoding::HTTP10;
+        transferEncoding = TransferEncoding::HTTP10;
         contentLength = 0;
         contentLengthSent = 0;
         connectionState = ConnectionState::Default;
@@ -134,25 +134,36 @@ namespace web::http::client {
                 headers.insert({field, value});
             }
 
-            if (web::http::ciEquals(field, "Content-Length")) {
+            if (web::http::ciEquals(field, "Connection")) {
+                if (web::http::ciContains(headers[field], "close")) {
+                    connectionState = ConnectionState::Close;
+                } else if (web::http::ciContains(headers[field], "keep-alive")) {
+                    connectionState = ConnectionState::Keep;
+                }
+            } else if (web::http::ciEquals(field, "Content-Length")) {
                 contentLength = std::stoul(value);
-            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "close")) {
-                connectionState = ConnectionState::Close;
-            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "keep-alive")) {
-                connectionState = ConnectionState::Keep;
-            }
-
-            if (web::http::ciEquals(field, "Content-Length")) {
-                contentLength = std::stoul(value);
-                transfereEncoding = TransferEncoding::Identity;
+                transferEncoding = TransferEncoding::Identity;
                 headers.erase("Transfer-Encoding");
-            } else if (web::http::ciEquals(field, "Transfer-Encoding") && web::http::ciContains(headers[field], "chunked")) {
-                transfereEncoding = TransferEncoding::Chunked;
-                headers.erase("Content-Length");
-            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "close")) {
-                connectionState = ConnectionState::Close;
-            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "keep-alive")) {
-                connectionState = ConnectionState::Keep;
+            } else if (web::http::ciEquals(field, "Transfer-Encoding")) {
+                if (web::http::ciContains(headers[field], "chunked")) {
+                    transferEncoding = TransferEncoding::Chunked;
+                    headers.erase("Content-Length");
+                }
+                if (web::http::ciContains(headers[field], "compressed")) {
+                }
+                if (web::http::ciContains(headers[field], "deflate")) {
+                }
+                if (web::http::ciContains(headers[field], "gzip")) {
+                }
+            } else if (web::http::ciEquals(field, "Content-Encoding")) {
+                if (web::http::ciContains(headers[field], "compressed")) {
+                }
+                if (web::http::ciContains(headers[field], "deflate")) {
+                }
+                if (web::http::ciContains(headers[field], "gzip")) {
+                }
+                if (web::http::ciContains(headers[field], "br")) {
+                }
             }
         } else {
             headers.erase(field);
@@ -486,14 +497,14 @@ namespace web::http::client {
     }
 
     bool Request::executeSendFragment(const char* chunk, std::size_t chunkLen) {
-        if (transfereEncoding == TransferEncoding::Chunked) {
+        if (transferEncoding == TransferEncoding::Chunked) {
             socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
         }
 
         socketContext->sendToPeer(chunk, chunkLen);
         contentLengthSent += chunkLen;
 
-        if (transfereEncoding == TransferEncoding::Chunked) {
+        if (transferEncoding == TransferEncoding::Chunked) {
             socketContext->sendToPeer("\r\n");
             contentLength += chunkLen;
         }
@@ -512,7 +523,7 @@ namespace web::http::client {
 
     void Request::requestSent() {
         if (!masterRequest.expired()) {
-            if (transfereEncoding == TransferEncoding::Chunked) {
+            if (transferEncoding == TransferEncoding::Chunked) {
                 executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
             }
 
