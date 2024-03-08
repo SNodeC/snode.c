@@ -56,14 +56,14 @@ namespace utils {
                 // Output the offset.
                 hexStream << Color::Code::FG_BLUE;
                 hexStream << std::setw(currentPrefixLength) << std::setfill(' ') << ""
-                          << ": " << std::setw(4) << std::setfill('0') << static_cast<unsigned int>(i);
+                          << ": " << std::setw(8) << std::setfill('0') << static_cast<unsigned int>(i);
                 hexStream << Color::Code::FG_DEFAULT << " ";
                 currentPrefixLength = prefixLength;
             }
 
             // Now the hex code for the specific character.
             hexStream << Color::Code::FG_GREEN;
-            hexStream << " " << std::setw(2) << std::setfill('0') << static_cast<unsigned int>(bytes[i]);
+            hexStream << " " << std::setw(2) << std::setfill('0') << static_cast<unsigned int>(static_cast<unsigned char>(bytes[i]));
             hexStream << Color::Code::FG_DEFAULT;
 
             // And store a printable ASCII character for later.
