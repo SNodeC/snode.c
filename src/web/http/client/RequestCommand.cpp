@@ -24,9 +24,6 @@
 
 namespace web::http::client {
 
-    RequestCommand::RequestCommand() {
-    }
-
     RequestCommand::~RequestCommand() {
     }
 

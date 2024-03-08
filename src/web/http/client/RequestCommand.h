@@ -31,7 +31,7 @@ namespace web::http::client {
 
     class RequestCommand {
     public:
-        RequestCommand();
+        RequestCommand() = default;
         RequestCommand(const RequestCommand&) = delete;
         RequestCommand(RequestCommand&&) noexcept = delete;
 
