@@ -521,7 +521,7 @@ namespace web::http::client {
         }
 
         if (!masterRequest.expired()) {
-            socketContext->requestSent(contentLengthSent == contentLength);
+            socketContext->requestDelivered(std::move(*this), contentLengthSent == contentLength);
         }
     }
 

@@ -54,8 +54,8 @@ namespace web::http::client {
 
     private:
         void requestPrepared(Request& request);
-        void dispatchRequest();
-        void requestSent(bool success);
+        void deliverRequest(Request&& request);
+        void requestDelivered(Request&& request, bool success);
         void responseStarted();
         void deliverResponse(Response&& response);
         void deliverResponseParseError(int status, const std::string& reason);
@@ -70,8 +70,8 @@ namespace web::http::client {
         bool onSignal(int signum) override;
         void onWriteError(int errnum) override;
 
-        std::list<Request> preparedRequests;
-        std::list<Request> sentRequests;
+        std::list<Request> pendingRequests;
+        std::list<Request> deliveredRequests;
 
         std::shared_ptr<Request> currentRequest = nullptr;
         std::shared_ptr<Request> masterRequest;
