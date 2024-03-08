@@ -54,12 +54,12 @@ namespace web::http::client {
 
     private:
         void requestPrepared(Request& request);
-        void deliverRequest(Request&& request);
+        void initiateRequest(Request &request);
         void requestDelivered(Request&& request, bool success);
         void responseStarted();
         void deliverResponse(Response&& response);
         void deliverResponseParseError(int status, const std::string& reason);
-        void requestCompleted(bool httpClose);
+        void responseDelivered(bool httpClose);
 
         std::function<void(const std::shared_ptr<Request>&)> onRequestBegin;
         std::function<void(const std::shared_ptr<Request>&)> onRequestEnd;

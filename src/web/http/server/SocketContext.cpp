@@ -72,12 +72,12 @@ namespace web::http::server {
         currentRequest = std::make_shared<Request>(std::move(request));
 
         masterResponse->init();
+        masterResponse->httpMajor = currentRequest->httpMajor;
+        masterResponse->httpMinor = currentRequest->httpMinor;
         const std::string connection = currentRequest->get("Connection");
         if (!connection.empty()) {
             masterResponse->set("Connection", connection);
         }
-        masterResponse->httpMajor = currentRequest->httpMajor;
-        masterResponse->httpMinor = currentRequest->httpMinor;
 
         onRequestReady(currentRequest, masterResponse);
     }
