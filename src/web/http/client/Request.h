@@ -122,7 +122,7 @@ namespace web::http::client {
         bool executeSendHeader();
         bool executeSendFragment(const char* chunk, std::size_t chunkLen);
 
-        void requestSent();
+        void requestDelivered();
 
         void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
         void deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message);

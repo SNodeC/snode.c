@@ -390,11 +390,11 @@ namespace web::http::client {
         }
         requestCommands.clear();
 
-        if (atomar && !error) {
-            requestSent();
+        if (atomar && (!error || contentLengthSent != 0)) {
+            requestDelivered();
         }
 
-        return !error;
+        return !error || contentLengthSent != 0;
     }
 
     bool Request::executeSendFile(const std::string& file, const std::function<void(int)>& onStatus) {
@@ -521,7 +521,7 @@ namespace web::http::client {
         onResponseParseError(request, message);
     }
 
-    void Request::requestSent() {
+    void Request::requestDelivered() {
         if (!masterRequest.expired()) {
             if (transferEncoding == TransferEncoding::Chunked) {
                 executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
@@ -549,7 +549,7 @@ namespace web::http::client {
         if (!masterRequest.expired()) {
             socketContext->streamEof();
 
-            requestSent();
+            requestDelivered();
         }
     }
 
@@ -560,7 +560,7 @@ namespace web::http::client {
             socketContext->streamEof();
             socketContext->close();
 
-            requestSent();
+            requestDelivered();
         }
     }
 
