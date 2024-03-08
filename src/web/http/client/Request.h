@@ -57,13 +57,13 @@ namespace web::http::client {
 
     class Request : public core::pipe::Sink {
     public:
-        explicit Request(web::http::client::SocketContext* clientContext, const std::string& host);
+        explicit Request(web::http::client::SocketContext* socketContext, const std::string& host);
 
         explicit Request(Request&) = delete;
         explicit Request(Request&&) noexcept;
 
         Request& operator=(Request&) = delete;
-        Request& operator=(Request&&) noexcept = default;
+        Request& operator=(Request&&) noexcept = delete;
 
         ~Request() override;
 
@@ -81,11 +81,6 @@ namespace web::http::client {
 
         static void responseParseError(const std::shared_ptr<Request>& request, const std::string& message);
 
-    private:
-        std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
-        std::function<void(const std::shared_ptr<Request>& request, const std::string& message)> onResponseParseError;
-
-    public:
         bool
         send(const char* chunk,
              std::size_t chunkLen,
@@ -113,7 +108,13 @@ namespace web::http::client {
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
 
     private:
-        bool execute();
+        bool initiate();
+
+        friend class commands::SendFileCommand;
+        friend class commands::SendFragmentCommand;
+        friend class commands::SendHeaderCommand;
+        friend class commands::UpgradeCommand;
+        friend class commands::EndCommand;
 
         bool executeSendFile(const std::string& file, const std::function<void(int)>& onStatus);
         bool executeUpgrade(const std::string& url, const std::string& protocols);
@@ -121,16 +122,10 @@ namespace web::http::client {
         bool executeSendHeader();
         bool executeSendFragment(const char* chunk, std::size_t chunkLen);
 
+        void requestDelivered();
+
         void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
         void deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message);
-
-        void requestSent();
-
-        friend class commands::SendFileCommand;
-        friend class commands::SendFragmentCommand;
-        friend class commands::SendHeaderCommand;
-        friend class commands::UpgradeCommand;
-        friend class commands::EndCommand;
 
         void onSourceConnect(core::pipe::Source* source) override;
         void onSourceData(const char* chunk, std::size_t chunkLen) override;
@@ -157,17 +152,21 @@ namespace web::http::client {
         CiStringMap<std::string> cookies;
 
     private:
-        std::size_t contentSent = 0;
-        std::size_t contentLength = 0;
-
         std::list<RequestCommand*> requestCommands;
 
-        web::http::client::SocketContext* socketContext;
+        TransferEncoding transferEncoding = TransferEncoding::HTTP10;
+
+        std::size_t contentLength = 0;
+        std::size_t contentLengthSent = 0;
 
         ConnectionState connectionState = ConnectionState::Default;
-        TransferEncoding transfereEncoding = TransferEncoding::HTTP10;
+
+        std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
+        std::function<void(const std::shared_ptr<Request>& request, const std::string& message)> onResponseParseError;
 
         std::weak_ptr<Request> masterRequest;
+
+        web::http::client::SocketContext* socketContext;
 
         friend class SocketContext;
     };

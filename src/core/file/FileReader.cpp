@@ -54,7 +54,7 @@ namespace core::file {
     }
 
     void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
-        if (core::eventLoopState() != core::State::STOPPING) {
+        if (running && core::eventLoopState() != core::State::STOPPING) {
             if (!suspended) {
                 std::vector<char> puffer(pufferSize);
 
@@ -67,15 +67,21 @@ namespace core::file {
                 } else {
                     if (ret == 0) {
                         this->eof();
+                        delete this;
                     } else {
                         this->error(errno);
+                        delete this;
                     }
                 }
             }
+        } else {
+            this->eof();
+            delete this;
         }
     }
 
     void FileReader::start() {
+        running = true;
         span();
     }
 
@@ -85,14 +91,12 @@ namespace core::file {
 
     void FileReader::resume() {
         suspended = false;
-
         span();
     }
 
     void FileReader::stop() {
-        suspend();
-
-        delete this;
+        running = false;
+        span();
     }
 
 } // namespace core::file

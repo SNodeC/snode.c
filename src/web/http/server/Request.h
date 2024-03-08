@@ -43,7 +43,7 @@ namespace web::http::server {
         explicit Request(Request&&) noexcept = default;
 
         Request& operator=(Request&) = delete;
-        Request& operator=(Request&&) noexcept = default;
+        Request& operator=(Request&&) noexcept = delete;
 
         const std::string& get(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;

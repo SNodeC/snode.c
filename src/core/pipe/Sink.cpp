@@ -54,17 +54,13 @@ namespace core::pipe {
     }
 
     void Sink::streamEof() {
-        if (source != nullptr) {
-            source->disconnect(this);
-        }
+        stop();
 
         onSourceEof();
     }
 
     void Sink::streamError(int errnum) {
-        if (source != nullptr) {
-            source->disconnect(this);
-        }
+        stop();
 
         onSourceError(errnum);
     }

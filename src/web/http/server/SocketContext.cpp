@@ -49,7 +49,7 @@ namespace web::http::server {
                   if (!currentRequest) {
                       deliverRequest(std::move(request));
                   } else {
-                      requests.emplace_back(std::move(request));
+                      pendingRequests.emplace_back(std::move(request));
                   }
               },
               [this](int status, const std::string& reason) -> void {
@@ -72,12 +72,12 @@ namespace web::http::server {
         currentRequest = std::make_shared<Request>(std::move(request));
 
         masterResponse->init();
+        masterResponse->httpMajor = currentRequest->httpMajor;
+        masterResponse->httpMinor = currentRequest->httpMinor;
         const std::string connection = currentRequest->get("Connection");
         if (!connection.empty()) {
             masterResponse->set("Connection", connection);
         }
-        masterResponse->httpMajor = currentRequest->httpMajor;
-        masterResponse->httpMinor = currentRequest->httpMinor;
 
         onRequestReady(currentRequest, masterResponse);
     }
@@ -112,11 +112,13 @@ namespace web::http::server {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
 
             core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->masterResponse)]() -> void {
-                if (!response.expired() && !requests.empty()) {
-                    deliverRequest(std::move(requests.front()));
-                    requests.pop_front();
-                } else {
-                    currentRequest = nullptr;
+                if (!response.expired()) {
+                    if (!pendingRequests.empty()) {
+                        deliverRequest(std::move(pendingRequests.front()));
+                        pendingRequests.pop_front();
+                    } else {
+                        currentRequest = nullptr;
+                    }
                 }
             });
         }

@@ -49,28 +49,28 @@
 
 namespace web::http::client {
 
-    Request::Request(web::http::client::SocketContext* clientContext, const std::string& host)
-        : socketContext(clientContext) {
+    Request::Request(web::http::client::SocketContext* socketContext, const std::string& host)
+        : socketContext(socketContext) {
         this->host(host);
     }
 
     Request::Request(Request&& request) noexcept
-        : onResponseReceived(std::move(request.onResponseReceived))
-        , onResponseParseError(std::move(request.onResponseParseError))
-        , method(std::move(request.method))
+        : method(std::move(request.method))
         , url(std::move(request.url))
         , httpMajor(request.httpMajor)
         , httpMinor(request.httpMinor)
         , queries(std::move(request.queries))
         , headers(std::move(request.headers))
         , cookies(std::move(request.cookies))
-        , contentSent(request.contentSent)
-        , contentLength(request.contentLength)
         , requestCommands(std::move(request.requestCommands))
-        , socketContext(request.socketContext)
+        , transferEncoding(request.transferEncoding)
+        , contentLength(request.contentLength)
+        , contentLengthSent(request.contentLengthSent)
         , connectionState(request.connectionState)
-        , transfereEncoding(request.transfereEncoding)
-        , masterRequest(request.masterRequest) { // NOLINT
+        , onResponseReceived(std::move(request.onResponseReceived))
+        , onResponseParseError(std::move(request.onResponseParseError))
+        , masterRequest(request.masterRequest) // NOLINT
+        , socketContext(request.socketContext) {
         request.init(headers["Host"]);
     }
 
@@ -89,8 +89,6 @@ namespace web::http::client {
     }
 
     void Request::init(const std::string& host) {
-        onResponseReceived = nullptr;
-        onResponseParseError = nullptr;
         method = "GET";
         url = "/";
         httpMajor = 1;
@@ -98,11 +96,13 @@ namespace web::http::client {
         queries.clear();
         headers.clear();
         cookies.clear();
-        contentSent = 0;
-        contentLength = 0;
         requestCommands.clear();
+        transferEncoding = TransferEncoding::HTTP10;
+        contentLength = 0;
+        contentLengthSent = 0;
         connectionState = ConnectionState::Default;
-        transfereEncoding = TransferEncoding::HTTP10;
+        onResponseReceived = nullptr;
+        onResponseParseError = nullptr;
 
         this->host(host);
         set("X-Powered-By", "snode.c");
@@ -134,25 +134,36 @@ namespace web::http::client {
                 headers.insert({field, value});
             }
 
-            if (web::http::ciEquals(field, "Content-Length")) {
+            if (web::http::ciEquals(field, "Connection")) {
+                if (web::http::ciContains(headers[field], "close")) {
+                    connectionState = ConnectionState::Close;
+                } else if (web::http::ciContains(headers[field], "keep-alive")) {
+                    connectionState = ConnectionState::Keep;
+                }
+            } else if (web::http::ciEquals(field, "Content-Length")) {
                 contentLength = std::stoul(value);
-            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "close")) {
-                connectionState = ConnectionState::Close;
-            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "keep-alive")) {
-                connectionState = ConnectionState::Keep;
-            }
-
-            if (web::http::ciEquals(field, "Content-Length")) {
-                contentLength = std::stoul(value);
-                transfereEncoding = TransferEncoding::Identity;
+                transferEncoding = TransferEncoding::Identity;
                 headers.erase("Transfer-Encoding");
-            } else if (web::http::ciEquals(field, "Transfer-Encoding") && web::http::ciContains(headers[field], "chunked")) {
-                transfereEncoding = TransferEncoding::Chunked;
-                headers.erase("Content-Length");
-            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "close")) {
-                connectionState = ConnectionState::Close;
-            } else if (web::http::ciEquals(field, "Connection") && web::http::ciContains(headers[field], "keep-alive")) {
-                connectionState = ConnectionState::Keep;
+            } else if (web::http::ciEquals(field, "Transfer-Encoding")) {
+                if (web::http::ciContains(headers[field], "chunked")) {
+                    transferEncoding = TransferEncoding::Chunked;
+                    headers.erase("Content-Length");
+                }
+                if (web::http::ciContains(headers[field], "compressed")) {
+                }
+                if (web::http::ciContains(headers[field], "deflate")) {
+                }
+                if (web::http::ciContains(headers[field], "gzip")) {
+                }
+            } else if (web::http::ciEquals(field, "Content-Encoding")) {
+                if (web::http::ciContains(headers[field], "compressed")) {
+                }
+                if (web::http::ciContains(headers[field], "deflate")) {
+                }
+                if (web::http::ciContains(headers[field], "gzip")) {
+                }
+                if (web::http::ciContains(headers[field], "br")) {
+                }
             }
         } else {
             headers.erase(field);
@@ -361,38 +372,33 @@ namespace web::http::client {
         return queued;
     }
 
-    bool Request::execute() {
-        bool success = false;
-        bool commandError = false;
+    bool Request::initiate() {
+        bool error = false;
+        bool atomar = true;
 
-        if (!masterRequest.expired()) {
-            success = true;
-
-            bool atomar = true;
-            for (RequestCommand* requestCommand : requestCommands) {
-                if (!commandError) {
-                    const bool commandAtomar = requestCommand->execute(this);
-                    if (atomar) {
-                        atomar = commandAtomar;
-                    }
-
-                    commandError = requestCommand->getError();
+        for (RequestCommand* requestCommand : requestCommands) {
+            if (!error) {
+                const bool atomarCommand = requestCommand->execute(this);
+                if (atomar) {
+                    atomar = atomarCommand;
                 }
 
-                delete requestCommand;
+                error = requestCommand->getError();
             }
-            requestCommands.clear();
 
-            if (atomar && !commandError) {
-                requestSent();
-            }
+            delete requestCommand;
+        }
+        requestCommands.clear();
+
+        if (atomar && (!error || contentLengthSent != 0)) {
+            requestDelivered();
         }
 
-        return success && !commandError;
+        return !error || contentLengthSent != 0;
     }
 
     bool Request::executeSendFile(const std::string& file, const std::function<void(int)>& onStatus) {
-        bool error = true;
+        bool atomar = true;
 
         std::string absolutFileName = file;
 
@@ -401,20 +407,20 @@ namespace web::http::client {
             absolutFileName = std::filesystem::canonical(absolutFileName);
 
             if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                core::file::FileReader::open(absolutFileName)->pipe(this, [this, &error, &absolutFileName, &onStatus](int errnum) -> void {
+                core::file::FileReader::open(absolutFileName)->pipe(this, [this, &atomar, &absolutFileName, &onStatus](int errnum) -> void {
                     errno = errnum;
                     onStatus(errnum);
 
                     if (errnum == 0) {
                         if (httpMajor == 1) {
-                            error = false;
+                            atomar = false;
 
                             set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
                             set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
-                            if (httpMinor == 1) {
+                            if (httpMinor == 1 && contentLength == 0) {
                                 set("Transfer-Encoding", "chunked");
                             } else {
-                                set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                                set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName) + contentLength));
                             }
 
                             executeSendHeader();
@@ -430,7 +436,7 @@ namespace web::http::client {
             onStatus(errno);
         }
 
-        return error;
+        return atomar;
     }
 
     bool Request::executeUpgrade(const std::string& url, const std::string& protocols) {
@@ -491,14 +497,14 @@ namespace web::http::client {
     }
 
     bool Request::executeSendFragment(const char* chunk, std::size_t chunkLen) {
-        if (transfereEncoding == TransferEncoding::Chunked) {
+        if (transferEncoding == TransferEncoding::Chunked) {
             socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
         }
 
         socketContext->sendToPeer(chunk, chunkLen);
-        contentSent += chunkLen;
+        contentLengthSent += chunkLen;
 
-        if (transfereEncoding == TransferEncoding::Chunked) {
+        if (transferEncoding == TransferEncoding::Chunked) {
             socketContext->sendToPeer("\r\n");
             contentLength += chunkLen;
         }
@@ -515,13 +521,13 @@ namespace web::http::client {
         onResponseParseError(request, message);
     }
 
-    void Request::requestSent() {
-        if (transfereEncoding == TransferEncoding::Chunked) {
-            executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
-        }
-
+    void Request::requestDelivered() {
         if (!masterRequest.expired()) {
-            socketContext->requestSent(contentSent == contentLength);
+            if (transferEncoding == TransferEncoding::Chunked) {
+                executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
+            }
+
+            socketContext->requestDelivered(std::move(*this), contentLengthSent == contentLength);
         }
     }
 
@@ -543,7 +549,7 @@ namespace web::http::client {
         if (!masterRequest.expired()) {
             socketContext->streamEof();
 
-            requestSent();
+            requestDelivered();
         }
     }
 
@@ -554,7 +560,7 @@ namespace web::http::client {
             socketContext->streamEof();
             socketContext->close();
 
-            requestSent();
+            requestDelivered();
         }
     }
 
