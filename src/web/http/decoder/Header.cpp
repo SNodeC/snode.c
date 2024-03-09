@@ -56,7 +56,6 @@ namespace web::http::decoder {
         }
 
         std::size_t ret = 0;
-
         do {
             char ch = '\0';
 

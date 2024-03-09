@@ -88,6 +88,7 @@ namespace web::http {
                     ret = readContent();
                     break;
                 case ParserState::TRAILER:
+                    ret = readTrailer();
                     break;
                 case ParserState::ERROR:
                     break;

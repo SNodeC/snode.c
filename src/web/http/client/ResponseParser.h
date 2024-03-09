@@ -58,6 +58,7 @@ namespace web::http::client {
         ParserState parseStartLine(const std::string& line) override;
         ParserState parseHeader() override;
         ParserState parseContent(std::vector<char>& content) override;
+        ParserState parseTrailer(web::http::CiStringMap<std::string>&& trailer) override;
 
         // Exits
         ParserState parsingFinished();

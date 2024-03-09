@@ -78,6 +78,7 @@ namespace web::http::client {
         Request& cookie(const std::string& name, const std::string& value);
         Request& cookie(const std::map<std::string, std::string>& cookies);
         Request& query(const std::string& key, const std::string& value);
+        Request& setTrailer(const std::string& field, const std::string& value, bool overwrite = true);
 
         static void responseParseError(const std::shared_ptr<Request>& request, const std::string& message);
 
@@ -150,6 +151,7 @@ namespace web::http::client {
         CiStringMap<std::string> queries;
         CiStringMap<std::string> headers;
         CiStringMap<std::string> cookies;
+        CiStringMap<std::string> trailer;
 
     private:
         std::list<RequestCommand*> requestCommands;

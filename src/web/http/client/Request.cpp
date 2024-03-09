@@ -62,6 +62,7 @@ namespace web::http::client {
         , queries(std::move(request.queries))
         , headers(std::move(request.headers))
         , cookies(std::move(request.cookies))
+        , trailer(std::move(request.trailer))
         , requestCommands(std::move(request.requestCommands))
         , transferEncoding(request.transferEncoding)
         , contentLength(request.contentLength)
@@ -96,6 +97,7 @@ namespace web::http::client {
         queries.clear();
         headers.clear();
         cookies.clear();
+        trailer.clear();
         requestCommands.clear();
         transferEncoding = TransferEncoding::HTTP10;
         contentLength = 0;
@@ -202,6 +204,25 @@ namespace web::http::client {
 
     Request& Request::query(const std::string& key, const std::string& value) {
         queries.insert({key, value});
+
+        return *this;
+    }
+
+    Request& Request::setTrailer(const std::string& field, const std::string& value, bool overwrite) {
+        if (!value.empty()) {
+            if (overwrite) {
+                trailer.insert_or_assign(field, value);
+            } else {
+                trailer.insert({field, value});
+            }
+            if (!headers.contains("Trailer")) {
+                set("Trailer", field);
+            } else {
+                headers["Trailer"].append("," + field);
+            }
+        } else {
+            trailer.erase(field);
+        }
 
         return *this;
     }
@@ -525,6 +546,14 @@ namespace web::http::client {
         if (!masterRequest.expired()) {
             if (transferEncoding == TransferEncoding::Chunked) {
                 executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
+            }
+
+            if (!trailer.empty()) {
+                for (auto& [field, value] : trailer) {
+                    socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+                }
+
+                socketContext->sendToPeer("\r\n");
             }
 
             socketContext->requestDelivered(std::move(*this), contentLengthSent == contentLength);

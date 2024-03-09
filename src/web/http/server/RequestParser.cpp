@@ -139,6 +139,17 @@ namespace web::http::server {
     Parser::ParserState RequestParser::parseContent(std::vector<char>& content) {
         request.body = std::move(content);
 
+        ParserState parserState = Parser::ParserState::TRAILER;
+        if (!request.headers.contains("Trailer")) {
+            parserState = parsingFinished();
+        }
+
+        return parserState;
+    }
+
+    Parser::ParserState RequestParser::parseTrailer(web::http::CiStringMap<std::string>&& trailer) {
+        request.headers.insert(trailer.begin(), trailer.end());
+
         return parsingFinished();
     }
 

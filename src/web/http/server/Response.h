@@ -111,6 +111,7 @@ namespace web::http::server {
     protected:
         web::http::CiStringMap<std::string> headers;
         web::http::CiStringMap<web::http::CookieOptions> cookies;
+        web::http::CiStringMap<std::string> trailer;
 
     private:
         std::size_t contentSent = 0;

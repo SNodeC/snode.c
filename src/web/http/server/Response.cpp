@@ -64,6 +64,7 @@ namespace web::http::server {
         httpMinor = 1;
         headers.clear();
         cookies.clear();
+        trailer.clear();
         contentLength = 0;
         contentSent = 0;
         socketContextUpgrade = nullptr;

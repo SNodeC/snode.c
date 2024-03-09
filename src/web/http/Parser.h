@@ -88,6 +88,7 @@ namespace web::http {
         virtual ParserState parseStartLine(const std::string& line) = 0;
         virtual ParserState parseHeader() = 0;
         virtual ParserState parseContent(std::vector<char>& content) = 0;
+        virtual ParserState parseTrailer(web::http::CiStringMap<std::string>&& trailer) = 0;
         virtual ParserState parseError(int code, const std::string& reason) = 0;
 
     protected:
@@ -104,7 +105,7 @@ namespace web::http {
 
     private:
         web::http::decoder::Header headerDecoder;
-        
+
         std::set<std::string> trailerFieldsExpected;
         web::http::decoder::Header trailerDecoder;
 
