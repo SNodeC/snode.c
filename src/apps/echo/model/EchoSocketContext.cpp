@@ -57,7 +57,7 @@ namespace apps::echo::model {
 
         if (chunklen > 0) {
             VLOG(0) << "Data to reflect: " << std::string(chunk, chunklen);
-            sendToPeer(chunk, chunklen);
+            //            sendToPeer(chunk, chunklen);
         }
 
         return chunklen;

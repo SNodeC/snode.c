@@ -62,7 +62,7 @@ namespace web::http::server {
             std::tie(std::ignore, queriesLine) = httputils::str_split(request.url, '?');
 
             if (!methodSupported(request.method)) {
-                parserState = parseError(400, "Bad request method");
+                parserState = parseError(400, "Bad request method: " + request.method);
             } else if (request.url.empty() || request.url.front() != '/') {
                 parserState = parseError(400, "Malformed request");
             } else {

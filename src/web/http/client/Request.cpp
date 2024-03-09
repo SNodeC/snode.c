@@ -546,14 +546,14 @@ namespace web::http::client {
         if (!masterRequest.expired()) {
             if (transferEncoding == TransferEncoding::Chunked) {
                 executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
-            }
 
-            if (!trailer.empty()) {
-                for (auto& [field, value] : trailer) {
-                    socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+                if (!trailer.empty()) {
+                    for (auto& [field, value] : trailer) {
+                        socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+                    }
+
+                    socketContext->sendToPeer("\r\n");
                 }
-
-                socketContext->sendToPeer("\r\n");
             }
 
             socketContext->requestDelivered(std::move(*this), contentLengthSent == contentLength);

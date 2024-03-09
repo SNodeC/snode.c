@@ -164,6 +164,25 @@ namespace web::http::server {
         return cookie(name, "", opts);
     }
 
+    Response& Response::setTrailer(const std::string& field, const std::string& value, bool overwrite) {
+        if (!value.empty()) {
+            if (overwrite) {
+                trailer.insert_or_assign(field, value);
+            } else {
+                trailer.insert({field, value});
+            }
+            if (!headers.contains("Trailer")) {
+                set("Trailer", field);
+            } else {
+                headers["Trailer"].append("," + field);
+            }
+        } else {
+            trailer.erase(field);
+        }
+
+        return *this;
+    }
+
     void Response::send(const char* chunk, std::size_t chunkLen) {
         if (chunkLen > 0) {
             set("Content-Type", "application/octet-stream", false);
@@ -328,6 +347,14 @@ namespace web::http::server {
     void Response::sendCompleted() {
         if (transferEncoding == TransferEncoding::Chunked) {
             sendFragment(""); // For transfere encoding chunked. Terminate the chunk sequence.
+
+            if (!trailer.empty()) {
+                for (auto& [field, value] : trailer) {
+                    socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+                }
+
+                socketContext->sendToPeer("\r\n");
+            }
         }
 
         if (socketContext != nullptr) {

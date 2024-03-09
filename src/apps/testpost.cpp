@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
                   "        <h1>Thank you, we received your file!</h1>\n"
                   "        <h2>Content:</h2>\n"
                   "        <pre>\n" +
-                  std::string(reinterpret_cast<char*>(req->body.data())) +
+                  std::string(req->body.begin(), req->body.end()) +
                   "        </pre>\n"
                   "    </body>\n"
                   "</html>\n");

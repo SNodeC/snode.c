@@ -152,7 +152,7 @@ namespace web::http::client {
         response.body = std::move(content);
 
         ParserState parserState = Parser::ParserState::TRAILER;
-        if (!headers.contains("Trailer")) {
+        if (!response.headers.contains("Trailer")) {
             parserState = parsingFinished();
         }
 
@@ -160,7 +160,8 @@ namespace web::http::client {
     }
 
     Parser::ParserState ResponseParser::parseTrailer(web::http::CiStringMap<std::string>&& trailer) {
-        headers.insert(trailer.begin(), trailer.end());
+        response.headers.insert(trailer.begin(), trailer.end());
+
         return parsingFinished();
     }
 

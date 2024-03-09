@@ -78,6 +78,7 @@ namespace web::http::server {
         Response& type(const std::string& type);
         Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
+        Response& setTrailer(const std::string& field, const std::string& value, bool overwrite = true);
 
         void send(const char* chunk, std::size_t chunkLen);
         void send(const std::string& chunk);

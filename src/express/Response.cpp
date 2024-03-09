@@ -130,6 +130,12 @@ namespace express {
         return *this;
     }
 
+    Response& Response::setTrailer(const std::string& field, const std::string& value, bool overwrite) {
+        responseBase->setTrailer(field, value, overwrite);
+
+        return *this;
+    }
+
     void Response::send(const char* chunk, std::size_t chunkLen) {
         responseBase->send(chunk, chunkLen);
     }
