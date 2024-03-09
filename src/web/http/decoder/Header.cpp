@@ -35,16 +35,14 @@
 
 namespace web::http::decoder {
 
-    Header::Header(core::socket::stream::SocketContext* socketContext)
+    Header::Header(core::socket::stream::SocketContext* socketContext, std::set<std::string> fieldsExpected)
         : socketContext(socketContext)
+        , fieldsExpected(std::move(fieldsExpected))
         , maxLineLength(MAX_LINE_LENGTH) {
     }
 
-    Header::~Header() {
-    }
-
-    void Header::setFieldCountExpected(std::size_t fieldCountExpected) {
-        this->fieldCountExpected = fieldCountExpected + 1;
+    void Header::setFieldsExpected(std::set<std::string> fieldsExpected) {
+        this->fieldsExpected = std::move(fieldsExpected);
     }
 
     std::size_t Header::read() {
@@ -52,7 +50,6 @@ namespace web::http::decoder {
 
         if (completed || errorCode != 0) {
             completed = false;
-            lineCount = 0;
             mapToFill.clear();
             errorCode = 0;
             errorReason = "";
@@ -66,48 +63,46 @@ namespace web::http::decoder {
             ret = socketContext->readFromPeer(&ch, 1);
             consumed += ret;
 
-            if (!line.empty() || ch != ' ') {
-                line += ch;
+            if (ret > 0) {
+                if (!line.empty() || ch != ' ') {
+                    line += ch;
 
-                if (maxLineLength == 0 || line.size() <= maxLineLength) {
-                    lastButOne = last;
-                    last = ch;
+                    if (maxLineLength == 0 || line.size() <= maxLineLength) {
+                        lastButOne = last;
+                        last = ch;
 
-                    if (lastButOne == '\r' && last == '\n') {
-                        line.pop_back(); // Remove \n
-                        line.pop_back(); // Remove \r
-                        completed = line.empty();
+                        if (lastButOne == '\r' && last == '\n') {
+                            line.pop_back(); // Remove \n
+                            line.pop_back(); // Remove \r#
 
-                        splitLine(line);
+                            completed = line.empty();
+                            if (!completed) {
+                                splitLine(line);
 
-                        line.clear();
-                        lastButOne = '\0';
-                        last = '\0';
+                                if (!fieldsExpected.empty() && mapToFill.size() > fieldsExpected.size()) {
+                                    errorCode = 400;
+                                    errorReason = "Too many fields";
+                                }
+                            } else if (!fieldsExpected.empty() && mapToFill.size() < fieldsExpected.size()) {
+                                errorCode = 400;
+                                errorReason = "Too view fields";
+
+                                completed = false;
+                            }
+                            line.clear();
+                            lastButOne = '\0';
+                            last = '\0';
+                        }
+                    } else {
+                        errorCode = 400;
+                        errorReason = "Line too long";
                     }
                 } else {
                     errorCode = 400;
-                    errorReason = "Line too long";
+                    errorReason = "Header Folding";
                 }
-            } else {
-                errorCode = 400;
-                errorReason = "Header Folding";
             }
-        } while (ret > 0                                                        //
-                 && !completed                                                  //
-                 && (fieldCountExpected == 0 || fieldCountExpected > lineCount) //
-                 && errorCode == 0);
-
-        if (completed && fieldCountExpected != 0 && fieldCountExpected != lineCount) {
-            errorCode = 400;
-            errorReason = "Too many fields";
-
-            completed = false;
-        } else if (fieldCountExpected != 0 && fieldCountExpected == lineCount) {
-            errorCode = 400;
-            errorReason = "Too view fields";
-
-            completed = false;
-        }
+        } while (ret > 0 && !completed && errorCode == 0);
 
         return consumed;
     }

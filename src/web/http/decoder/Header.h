@@ -29,6 +29,7 @@ namespace core::socket::stream {
 #include "web/http/CiStringMap.h"
 
 #include <cstddef>
+#include <set>
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -37,14 +38,14 @@ namespace web::http::decoder {
 
     class Header {
     public:
-        explicit Header(core::socket::stream::SocketContext* socketContext);
-        Header(const Header&) = default;
+        explicit Header(core::socket::stream::SocketContext* socketContext, std::set<std::string> fieldsExpected = {});
+        Header(Header&) = delete;
+        Header(Header&&) = delete;
 
-        Header& operator=(const Header&) = default;
+        Header& operator=(Header&) = delete;
+        Header& operator=(Header&&) = delete;
 
-        ~Header();
-
-        void setFieldCountExpected(std::size_t fieldCountExpected);
+        void setFieldsExpected(std::set<std::string> fieldsExpected);
 
         std::size_t read();
 
@@ -62,6 +63,7 @@ namespace web::http::decoder {
         core::socket::stream::SocketContext* socketContext;
 
         web::http::CiStringMap<std::string> mapToFill;
+        std::set<std::string> fieldsExpected;
 
         std::string line;
         std::size_t maxLineLength;
@@ -70,8 +72,7 @@ namespace web::http::decoder {
         int errorCode = 0;
         std::string errorReason;
 
-        std::size_t fieldCountExpected = 0;
-        std::size_t lineCount = 0;
+        //        std::size_t fieldCountExpected = 0;
 
         char lastButOne = '\0';
         char last = '\0';
