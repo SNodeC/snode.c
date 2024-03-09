@@ -26,7 +26,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "web/http/http_utils.h"
+
 #include <algorithm>
+#include <tuple>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -39,7 +42,8 @@ namespace web::http {
     Parser::Parser(core::socket::stream::SocketContext* socketContext, const enum Parser::HTTPCompliance& compliance)
         : hTTPCompliance(compliance)
         , socketContext(socketContext)
-        , headerDecoder(socketContext) {
+        , headerDecoder(socketContext)
+        , trailerDecoder(socketContext) {
     }
 
     Parser::~Parser() {
@@ -48,16 +52,20 @@ namespace web::http {
 
     void Parser::reset() {
         parserState = ParserState::BEGIN;
-        contentLength = 0;
-        contentRead = 0;
+        headers.clear();
+        content.clear();
         httpMinor = 0;
         httpMajor = 0;
+        line.clear();
+        contentLength = 0;
+        contentLengthRead = 0;
 
         for (ContentDecoder* contentDecoder : decoderQueue) {
             delete contentDecoder;
         }
-
         decoderQueue.clear();
+
+        trailerFieldsExpected.clear();
     }
 
     std::size_t Parser::parse() {
@@ -78,6 +86,8 @@ namespace web::http {
                     break;
                 case ParserState::BODY:
                     ret = readContent();
+                    break;
+                case ParserState::TRAILER:
                     break;
                 case ParserState::ERROR:
                     break;
@@ -115,11 +125,11 @@ namespace web::http {
     std::size_t Parser::readHeader() {
         const std::size_t consumed = headerDecoder.read();
 
-        if (headerDecoder.isComplete()) {
+        if (headerDecoder.isError()) {
+            parserState = parseError(headerDecoder.getErrorCode(), headerDecoder.getErrorReason());
+        } else if (headerDecoder.isComplete()) {
             headers = std::move(headerDecoder.getHeader());
             parserState = analyzeHeaders();
-        } else if (headerDecoder.isError()) {
-            parserState = parseError(headerDecoder.getErrorCode(), headerDecoder.getErrorReason());
         }
 
         return consumed;
@@ -137,6 +147,18 @@ namespace web::http {
             if (web::http::ciContains(encoding, "chunked")) {
                 transferEncoding = TransferEncoding::Chunked;
                 decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext));
+                if (headers.contains("Trailer")) {
+                    std::string trailers = headers["Trailer"];
+
+                    while (!trailers.empty()) {
+                        std::string trailerField;
+                        std::tie(trailerField, trailers) = httputils::str_split(trailers, ',');
+                        httputils::str_trimm(trailerField);
+                        trailerFieldsExpected.insert(trailerField);
+                        trailerField.clear();
+                    }
+                    trailerDecoder.setFieldsExpected(trailerFieldsExpected);
+                }
             }
             if (web::http::ciContains(encoding, "compressed")) {
                 //  decoderQueue.emplace_back(new web::http::decoder::Compress(socketContext));
@@ -187,6 +209,18 @@ namespace web::http {
             parserState = parseContent(content);
         } else if (contentDecoder->isError()) {
             parserState = parseError(400, "Wrong content encoding");
+        }
+
+        return consumed;
+    }
+
+    std::size_t Parser::readTrailer() {
+        const std::size_t consumed = trailerDecoder.read();
+
+        if (trailerDecoder.isError()) {
+            parserState = parseError(trailerDecoder.getErrorCode(), trailerDecoder.getErrorReason());
+        } else if (trailerDecoder.isComplete()) {
+            parserState = parseTrailer(trailerDecoder.getHeader());
         }
 
         return consumed;

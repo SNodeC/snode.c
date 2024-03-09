@@ -38,6 +38,7 @@ namespace core::socket::stream {
 #include <cstddef>
 #include <list> // IWYU pragma: export
 #include <regex>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -72,7 +73,7 @@ namespace web::http {
 
     protected:
         // Parser state
-        enum struct ParserState { BEGIN, FIRSTLINE, HEADER, BODY, ERROR };
+        enum struct ParserState { BEGIN, FIRSTLINE, HEADER, BODY, TRAILER, ERROR };
 
     private:
         ParserState parserState = ParserState::BEGIN;
@@ -91,7 +92,6 @@ namespace web::http {
 
     protected:
         // Data common to all HTTP messages (Request/Response)
-        std::size_t contentLength = 0;
         CiStringMap<std::string> headers;
         std::vector<char> content;
 
@@ -104,15 +104,21 @@ namespace web::http {
 
     private:
         web::http::decoder::Header headerDecoder;
+        
+        std::set<std::string> trailerFieldsExpected;
+        web::http::decoder::Header trailerDecoder;
 
         std::size_t readStartLine();
         std::size_t readHeader();
         ParserState analyzeHeaders();
         std::size_t readContent();
+        std::size_t readTrailer();
 
+    protected:
         // Used during parseing data
         std::string line;
-        std::size_t contentRead = 0;
+        std::size_t contentLength = 0;
+        std::size_t contentLengthRead = 0;
 
         friend enum HTTPCompliance operator|(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
         friend enum HTTPCompliance operator&(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
