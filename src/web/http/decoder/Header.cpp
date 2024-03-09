@@ -94,8 +94,8 @@ namespace web::http::decoder {
                             last = '\0';
                         }
                     } else {
-                        errorCode = 400;
-                        errorReason = "Line too long";
+                        errorCode = 431;
+                        errorReason = "Line too long: " + line;
                     }
                 } else {
                     errorCode = 400;
@@ -115,17 +115,22 @@ namespace web::http::decoder {
             errorReason = "Header field empty";
         } else if ((std::isblank(headerFieldName.back()) != 0) || (std::isblank(headerFieldName.front()) != 0)) {
             errorCode = 400;
-            errorReason = "White space before or after header-field";
+            errorReason = "White space before or after field";
         } else if (value.empty()) {
             errorCode = 400;
-            errorReason = "Header-value of field \"" + headerFieldName + "\" empty";
+            errorReason = "Value of field \"" + headerFieldName + "\" empty";
         } else {
-            httputils::str_trimm(value);
+            if (fieldsExpected.empty() || fieldsExpected.contains(headerFieldName)) {
+                httputils::str_trimm(value);
 
-            if (mapToFill.find(headerFieldName) == mapToFill.end()) {
-                mapToFill.emplace(headerFieldName, value);
-            } else {
-                mapToFill[headerFieldName] += "," + value;
+                if (mapToFill.find(headerFieldName) == mapToFill.end()) {
+                    mapToFill.emplace(headerFieldName, value);
+                } else {
+                    mapToFill[headerFieldName] += "," + value;
+                }
+            } else if (!fieldsExpected.empty() && !fieldsExpected.contains(headerFieldName)) {
+                errorCode = 400;
+                errorReason = "Field '" + headerFieldName + "' not in expected fields";
             }
         }
     }
