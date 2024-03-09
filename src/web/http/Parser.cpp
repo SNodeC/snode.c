@@ -111,7 +111,7 @@ namespace web::http {
                 consumed += ret;
                 if (ch == '\r' || ch == '\n') {
                     if (ch == '\n') {
-                        parserState = parseStartLine(line);
+                        parseStartLine(line);
                         line.clear();
                     }
                 } else {
@@ -127,16 +127,16 @@ namespace web::http {
         const std::size_t consumed = headerDecoder.read();
 
         if (headerDecoder.isError()) {
-            parserState = parseError(headerDecoder.getErrorCode(), headerDecoder.getErrorReason());
+            parseError(headerDecoder.getErrorCode(), headerDecoder.getErrorReason());
         } else if (headerDecoder.isComplete()) {
             headers = std::move(headerDecoder.getHeader());
-            parserState = analyzeHeaders();
+            analyzeHeader();
         }
 
         return consumed;
     }
 
-    Parser::ParserState Parser::analyzeHeaders() {
+    void Parser::analyzeHeader() {
         if (headers.contains("Content-Length")) {
             contentLength = std::stoul(headers["Content-Length"]);
             transferEncoding = TransferEncoding::Identity;
@@ -192,8 +192,6 @@ namespace web::http {
                 //  decoderQueue.emplace_back(new web::http::decoder::Br(socketContext));
             }
         }
-
-        return parseHeader();
     }
 
     std::size_t Parser::readContent() {
@@ -207,9 +205,13 @@ namespace web::http {
             std::vector<char> chunk = contentDecoder->getContent();
             content.insert(content.end(), chunk.begin(), chunk.end());
 
-            parserState = parseContent(content);
+            if (transferEncoding == TransferEncoding::Chunked && headers.contains("Trailer")) {
+                parserState = Parser::ParserState::TRAILER;
+            } else {
+                parsingFinished();
+            }
         } else if (contentDecoder->isError()) {
-            parserState = parseError(400, "Wrong content encoding");
+            parseError(400, "Wrong content encoding");
         }
 
         return consumed;
@@ -219,9 +221,11 @@ namespace web::http {
         const std::size_t consumed = trailerDecoder.read();
 
         if (trailerDecoder.isError()) {
-            parserState = parseError(trailerDecoder.getErrorCode(), trailerDecoder.getErrorReason());
+            parseError(trailerDecoder.getErrorCode(), trailerDecoder.getErrorReason());
         } else if (trailerDecoder.isComplete()) {
-            parserState = parseTrailer(trailerDecoder.getHeader());
+            web::http::CiStringMap<std::string>&& trailer = trailerDecoder.getHeader();
+            headers.insert(trailer.begin(), trailer.end());
+            parsingFinished();
         }
 
         return consumed;

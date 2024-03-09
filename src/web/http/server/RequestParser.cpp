@@ -49,8 +49,8 @@ namespace web::http::server {
         onRequestStart();
     }
 
-    Parser::ParserState RequestParser::parseStartLine(const std::string& line) {
-        Parser::ParserState parserState = Parser::ParserState::HEADER;
+    void RequestParser::parseStartLine(const std::string& line) {
+        parserState = Parser::ParserState::HEADER;
 
         if (!line.empty()) {
             std::string remaining;
@@ -62,16 +62,16 @@ namespace web::http::server {
             std::tie(std::ignore, queriesLine) = httputils::str_split(request.url, '?');
 
             if (!methodSupported(request.method)) {
-                parserState = parseError(400, "Bad request method: " + request.method);
+                parseError(400, "Bad request method: " + request.method);
             } else if (request.url.empty() || request.url.front() != '/') {
-                parserState = parseError(400, "Malformed request");
+                parseError(400, "Malformed request");
             } else {
                 std::smatch httpVersionMatch;
                 if (!std::regex_match(request.httpVersion, httpVersionMatch, httpVersionRegex)) {
-                    parserState = parseError(400, "Wrong protocol-version");
+                    parseError(400, "Wrong protocol-version: " + request.httpVersion);
                 } else {
-                    request.httpMajor = std::stoi(httpVersionMatch.str(1));
-                    request.httpMinor = std::stoi(httpVersionMatch.str(2));
+                    httpMajor = std::stoi(httpVersionMatch.str(1));
+                    httpMinor = std::stoi(httpVersionMatch.str(2));
 
                     while (!queriesLine.empty()) {
                         std::string query;
@@ -82,13 +82,13 @@ namespace web::http::server {
                 }
             }
         } else {
-            parserState = parseError(400, "Request-line empty");
+            parseError(400, "Request-line empty");
         }
-
-        return parserState;
     }
 
-    Parser::ParserState RequestParser::parseHeader() {
+    void RequestParser::analyzeHeader() {
+        Parser::analyzeHeader();
+
         if (headers.contains("Connection")) {
             const std::string& connection = headers["Connection"];
             if (web::http::ciContains(connection, "keep-alive")) {
@@ -123,50 +123,32 @@ namespace web::http::server {
             headers.erase("Cookie");
         }
 
-        request.headers = std::move(Parser::headers);
-
-        httpMajor = request.httpMajor;
-        httpMinor = request.httpMinor;
-
-        ParserState parserState = Parser::ParserState::BODY;
         if (transferEncoding != TransferEncoding::Chunked && contentLength == 0) {
-            parserState = parsingFinished();
+            parsingFinished();
+        } else {
+            parserState = Parser::ParserState::BODY;
         }
-
-        return parserState;
     }
 
-    Parser::ParserState RequestParser::parseContent(std::vector<char>& content) {
+    void RequestParser::parsingFinished() {
+        request.httpMajor = httpMajor;
+        request.httpMinor = httpMinor;
+        request.headers = std::move(Parser::headers);
         request.body = std::move(content);
 
-        ParserState parserState = Parser::ParserState::TRAILER;
-        if (!request.headers.contains("Trailer")) {
-            parserState = parsingFinished();
-        }
-
-        return parserState;
-    }
-
-    Parser::ParserState RequestParser::parseTrailer(web::http::CiStringMap<std::string>&& trailer) {
-        request.headers.insert(trailer.begin(), trailer.end());
-
-        return parsingFinished();
-    }
-
-    Parser::ParserState RequestParser::parsingFinished() {
         onRequestParsed(std::move(request));
 
         reset();
 
-        return ParserState::BEGIN;
+        parserState = ParserState::BEGIN;
     }
 
-    Parser::ParserState RequestParser::parseError(int code, const std::string& reason) {
+    void RequestParser::parseError(int code, const std::string& reason) {
         onRequestParseError(code, reason);
 
         reset();
 
-        return ParserState::ERROR;
+        parserState = ParserState::ERROR;
     }
 
 } // namespace web::http::server

@@ -58,14 +58,12 @@ namespace web::http::server {
         void begin() override;
 
         // Parsers and Validators
-        ParserState parseStartLine(const std::string& line) override;
-        ParserState parseHeader() override;
-        ParserState parseContent(std::vector<char>& content) override;
-        ParserState parseTrailer(web::http::CiStringMap<std::string>&& trailer) override;
+        void parseStartLine(const std::string& line) override;
+        void analyzeHeader() override;
 
         // Exits
-        ParserState parsingFinished();
-        ParserState parseError(int code, const std::string& reason) override;
+        void parsingFinished() override;
+        void parseError(int code, const std::string& reason) override;
 
         Request request;
 

@@ -56,8 +56,8 @@ namespace web::http::client {
         onResponseStart();
     }
 
-    Parser::ParserState ResponseParser::parseStartLine(const std::string& line) {
-        Parser::ParserState parserState = Parser::ParserState::HEADER;
+    void ResponseParser::parseStartLine(const std::string& line) {
+        parserState = Parser::ParserState::HEADER;
 
         if (!line.empty()) {
             std::string remaining;
@@ -66,27 +66,28 @@ namespace web::http::client {
 
             std::smatch httpVersionMatch;
             if (!std::regex_match(response.httpVersion, httpVersionMatch, httpVersionRegex)) {
-                parserState = parseError(400, "Wrong protocol version");
+                parseError(400, "Wrong protocol version: " + response.httpVersion);
             } else {
-                response.httpMajor = std::stoi(httpVersionMatch.str(1));
-                response.httpMinor = std::stoi(httpVersionMatch.str(2));
+                httpMajor = std::stoi(httpVersionMatch.str(1));
+                httpMinor = std::stoi(httpVersionMatch.str(2));
 
                 std::tie(response.statusCode, response.reason) = httputils::str_split(remaining, ' ');
                 if (StatusCode::contains(std::stoi(response.statusCode))) {
                     if (response.reason.empty()) {
-                        parserState = parseError(400, "No reason phrase");
+                        parseError(400, "No reason phrase");
                     }
                 } else {
-                    parserState = parseError(400, "Unknown status code");
+                    parseError(400, "Unknown status code");
                 }
             }
         } else {
-            parserState = parseError(400, "Response line empty");
+            parseError(400, "Response line empty");
         }
-        return parserState;
     }
 
-    Parser::ParserState ResponseParser::parseHeader() {
+    void ResponseParser::analyzeHeader() {
+        Parser::analyzeHeader();
+
         if (headers.contains("Connection")) {
             const std::string& connection = headers["Connection"];
             if (web::http::ciContains(connection, "keep-alive")) {
@@ -135,50 +136,32 @@ namespace web::http::client {
             Parser::headers.erase("Set-Cookie");
         }
 
-        response.headers = std::move(Parser::headers);
-
-        httpMajor = response.httpMajor;
-        httpMinor = response.httpMinor;
-
-        ParserState parserState = Parser::ParserState::BODY;
         if (transferEncoding == TransferEncoding::Identity && contentLength == 0) {
-            parserState = parsingFinished();
+            parsingFinished();
+        } else {
+            parserState = Parser::ParserState::BODY;
         }
-
-        return parserState;
     }
 
-    Parser::ParserState ResponseParser::parseContent(std::vector<char>& content) {
+    void ResponseParser::parsingFinished() {
+        response.httpMajor = httpMajor;
+        response.httpMinor = httpMinor;
+        response.headers = std::move(headers);
         response.body = std::move(content);
 
-        ParserState parserState = Parser::ParserState::TRAILER;
-        if (!response.headers.contains("Trailer")) {
-            parserState = parsingFinished();
-        }
-
-        return parserState;
-    }
-
-    Parser::ParserState ResponseParser::parseTrailer(web::http::CiStringMap<std::string>&& trailer) {
-        response.headers.insert(trailer.begin(), trailer.end());
-
-        return parsingFinished();
-    }
-
-    Parser::ParserState ResponseParser::parsingFinished() {
         onResponseParsed(std::move(response));
 
         reset();
 
-        return ParserState::BEGIN;
+        parserState = ParserState::BEGIN;
     }
 
-    Parser::ParserState ResponseParser::parseError(int code, const std::string& reason) {
+    void ResponseParser::parseError(int code, const std::string& reason) {
         onResponseParseError(code, reason);
 
         reset();
 
-        return ParserState::ERROR;
+        parserState = ParserState::ERROR;
     }
 
 } // namespace web::http::client

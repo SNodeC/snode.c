@@ -75,21 +75,22 @@ namespace web::http {
         // Parser state
         enum struct ParserState { BEGIN, FIRSTLINE, HEADER, BODY, TRAILER, ERROR };
 
-    private:
         ParserState parserState = ParserState::BEGIN;
 
-    protected:
         TransferEncoding transferEncoding = TransferEncoding::HTTP10;
 
         static const std::regex httpVersionRegex;
 
     private:
         virtual void begin() = 0;
-        virtual ParserState parseStartLine(const std::string& line) = 0;
-        virtual ParserState parseHeader() = 0;
-        virtual ParserState parseContent(std::vector<char>& content) = 0;
-        virtual ParserState parseTrailer(web::http::CiStringMap<std::string>&& trailer) = 0;
-        virtual ParserState parseError(int code, const std::string& reason) = 0;
+        virtual void parseStartLine(const std::string& line) = 0;
+
+    protected:
+        virtual void analyzeHeader();
+
+    private:
+        virtual void parseError(int code, const std::string& reason) = 0;
+        virtual void parsingFinished() = 0;
 
     protected:
         // Data common to all HTTP messages (Request/Response)
@@ -111,7 +112,6 @@ namespace web::http {
 
         std::size_t readStartLine();
         std::size_t readHeader();
-        ParserState analyzeHeaders();
         std::size_t readContent();
         std::size_t readTrailer();
 
