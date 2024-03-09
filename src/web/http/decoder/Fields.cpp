@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/http/decoder/Header.h"
+#include "web/http/decoder/Fields.h"
 
 #include "core/socket/stream/SocketContext.h"
 
@@ -35,22 +35,22 @@
 
 namespace web::http::decoder {
 
-    Header::Header(core::socket::stream::SocketContext* socketContext, std::set<std::string> fieldsExpected)
+    Fields::Fields(core::socket::stream::SocketContext* socketContext, std::set<std::string> fieldsExpected)
         : socketContext(socketContext)
         , fieldsExpected(std::move(fieldsExpected))
         , maxLineLength(MAX_LINE_LENGTH) {
     }
 
-    void Header::setFieldsExpected(std::set<std::string> fieldsExpected) {
+    void Fields::setFieldsExpected(std::set<std::string> fieldsExpected) {
         this->fieldsExpected = std::move(fieldsExpected);
     }
 
-    std::size_t Header::read() {
+    std::size_t Fields::read() {
         std::size_t consumed = 0;
 
         if (completed || errorCode != 0) {
             completed = false;
-            mapToFill.clear();
+            fields.clear();
             errorCode = 0;
             errorReason = "";
         }
@@ -78,11 +78,11 @@ namespace web::http::decoder {
                             if (!completed) {
                                 splitLine(line);
 
-                                if (!fieldsExpected.empty() && mapToFill.size() > fieldsExpected.size()) {
+                                if (!fieldsExpected.empty() && fields.size() > fieldsExpected.size()) {
                                     errorCode = 400;
                                     errorReason = "Too many fields";
                                 }
-                            } else if (!fieldsExpected.empty() && mapToFill.size() < fieldsExpected.size()) {
+                            } else if (!fieldsExpected.empty() && fields.size() < fieldsExpected.size()) {
                                 errorCode = 400;
                                 errorReason = "Too view fields";
 
@@ -106,7 +106,7 @@ namespace web::http::decoder {
         return consumed;
     }
 
-    void Header::splitLine(const std::string& line) {
+    void Fields::splitLine(const std::string& line) {
         auto [headerFieldName, value] = httputils::str_split(line, ':');
 
         if (headerFieldName.empty()) {
@@ -122,10 +122,10 @@ namespace web::http::decoder {
             if (fieldsExpected.empty() || fieldsExpected.contains(headerFieldName)) {
                 httputils::str_trimm(value);
 
-                if (mapToFill.find(headerFieldName) == mapToFill.end()) {
-                    mapToFill.emplace(headerFieldName, value);
+                if (fields.find(headerFieldName) == fields.end()) {
+                    fields.emplace(headerFieldName, value);
                 } else {
-                    mapToFill[headerFieldName] += "," + value;
+                    fields[headerFieldName] += "," + value;
                 }
             } else if (!fieldsExpected.empty() && !fieldsExpected.contains(headerFieldName)) {
                 errorCode = 400;
@@ -134,23 +134,23 @@ namespace web::http::decoder {
         }
     }
 
-    web::http::CiStringMap<std::string>&& Header::getHeader() {
-        return std::move(mapToFill);
+    web::http::CiStringMap<std::string>&& Fields::getHeader() {
+        return std::move(fields);
     }
 
-    bool Header::isComplete() const {
+    bool Fields::isComplete() const {
         return completed;
     }
 
-    bool Header::isError() const {
+    bool Fields::isError() const {
         return errorCode != 0;
     }
 
-    int Header::getErrorCode() const {
+    int Fields::getErrorCode() const {
         return errorCode;
     }
 
-    std::string Header::getErrorReason() {
+    std::string Fields::getErrorReason() {
         return errorReason;
     }
 

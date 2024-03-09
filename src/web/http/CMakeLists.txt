@@ -39,7 +39,7 @@ set(HTTP_CPP
     StatusCodes.cpp
     http_utils.cpp
     decoder/Chunked.cpp
-    decoder/Header.cpp
+    decoder/Fields.cpp
     decoder/HTTP10Response.cpp
     decoder/Identity.cpp
 )
@@ -58,7 +58,7 @@ set(HTTP_H
     SocketContextUpgradeFactorySelector.h
     SocketContextUpgradeFactorySelector.hpp
     decoder/Chunked.h
-    decoder/Header.h
+    decoder/Fields.h
     decoder/HTTP10Response.h
     decoder/Identity.h
     legacy/in/Client.h

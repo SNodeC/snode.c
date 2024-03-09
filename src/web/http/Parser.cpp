@@ -148,6 +148,7 @@ namespace web::http {
             if (web::http::ciContains(encoding, "chunked")) {
                 transferEncoding = TransferEncoding::Chunked;
                 decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext));
+
                 if (headers.contains("Trailer")) {
                     std::string trailers = headers["Trailer"];
 

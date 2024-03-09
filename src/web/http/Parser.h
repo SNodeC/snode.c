@@ -21,7 +21,7 @@
 #define WEB_HTTP_PARSER_H
 
 #include "web/http/TransferEncoding.h" // IWYU pragma: export
-#include "web/http/decoder/Header.h"
+#include "web/http/decoder/Fields.h"
 
 namespace web::http {
     class ContentDecoder;
@@ -105,10 +105,10 @@ namespace web::http {
         core::socket::stream::SocketContext* socketContext = nullptr;
 
     private:
-        web::http::decoder::Header headerDecoder;
+        web::http::decoder::Fields headerDecoder;
 
         std::set<std::string> trailerFieldsExpected;
-        web::http::decoder::Header trailerDecoder;
+        web::http::decoder::Fields trailerDecoder;
 
         std::size_t readStartLine();
         std::size_t readHeader();

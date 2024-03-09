@@ -36,14 +36,14 @@ namespace core::socket::stream {
 
 namespace web::http::decoder {
 
-    class Header {
+    class Fields {
     public:
-        explicit Header(core::socket::stream::SocketContext* socketContext, std::set<std::string> fieldsExpected = {});
-        Header(Header&) = delete;
-        Header(Header&&) = delete;
+        explicit Fields(core::socket::stream::SocketContext* socketContext, std::set<std::string> fieldsExpected = {});
+        Fields(Fields&) = delete;
+        Fields(Fields&&) = delete;
 
-        Header& operator=(Header&) = delete;
-        Header& operator=(Header&&) = delete;
+        Fields& operator=(Fields&) = delete;
+        Fields& operator=(Fields&&) = delete;
 
         void setFieldsExpected(std::set<std::string> fieldsExpected);
 
@@ -62,7 +62,7 @@ namespace web::http::decoder {
 
         core::socket::stream::SocketContext* socketContext;
 
-        web::http::CiStringMap<std::string> mapToFill;
+        web::http::CiStringMap<std::string> fields;
         std::set<std::string> fieldsExpected;
 
         std::string line;
@@ -71,8 +71,6 @@ namespace web::http::decoder {
         bool completed = false;
         int errorCode = 0;
         std::string errorReason;
-
-        //        std::size_t fieldCountExpected = 0;
 
         char lastButOne = '\0';
         char last = '\0';

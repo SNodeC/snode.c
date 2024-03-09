@@ -54,7 +54,7 @@ namespace web::http::client {
 
     private:
         void requestPrepared(Request& request);
-        void initiateRequest(Request &request);
+        void initiateRequest(Request& request);
         void requestDelivered(Request&& request, bool success);
         void responseStarted();
         void deliverResponse(Response&& response);
