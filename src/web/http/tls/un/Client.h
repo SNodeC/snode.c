@@ -22,7 +22,6 @@
 
 #include "net/un/stream/tls/SocketClient.h" // IWYU pragma: export
 #include "web/http/client/Client.h"         // IWYU pragma: export
-#include "web/http/client/Request.h"        // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

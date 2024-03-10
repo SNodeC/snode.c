@@ -19,9 +19,9 @@
 
 #include "web/http/client/Request.h"
 
-#include "SocketContext.h"
 #include "core/file/FileReader.h"
 #include "web/http/MimeTypes.h"
+#include "web/http/client/SocketContext.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
 //

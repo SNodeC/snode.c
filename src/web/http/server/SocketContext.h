@@ -68,9 +68,10 @@ namespace web::http::server {
         bool onSignal(int signum) override;
         void onWriteError(int errnum) override;
 
+        std::list<Request> pendingRequests;
+
         std::shared_ptr<Request> currentRequest = nullptr;
         std::shared_ptr<Response> masterResponse;
-        std::list<Request> pendingRequests;
 
         RequestParser parser;
 
