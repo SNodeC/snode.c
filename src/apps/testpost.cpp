@@ -73,9 +73,6 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.post("/", [] APPLICATION(req, res) {
-        req->body.push_back(0);
-        VLOG(0) << "Content:\n" << req->body.data();
-
         res->send("<html>\n"
                   "    <body>\n"
                   "        <h1>Thank you, we received your file!</h1>\n"

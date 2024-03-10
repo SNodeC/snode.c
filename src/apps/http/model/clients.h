@@ -74,7 +74,9 @@ namespace apps::http::legacy {
                 req->httpMinor = 0;
                 req->url = "/";
                 req->set("Connection", "keep-alive");
-                req->setTrailer("MyTrailer", "MyTrailerValue");
+                req->setTrailer("MyTrailer",
+                                "MyTrailerValue"); // The "Trailer" header field should be populated but the Trailer itself should not be
+                                                   // send here because there is no content which is send using "Transfer-Encoding:chunked"
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                     logResponse(req, res);
                 });
@@ -173,14 +175,16 @@ namespace apps::http::legacy {
                 req->url = "/";
                 //                req->set("Connection", "keep-alive");
                 req->set("Test", "aaa");
-                //                req->setTrailer("MyTrailer", "MyTrailerValue");
-                //                req->setTrailer("MyTrailer2", "MyTrailerValue2");
-                //                req->setTrailer("MyTrailer3", "MyTrailerValue3");
-                //                req->setTrailer("MyTrailer4", "MyTrailerValue4");
-                //                req->setTrailer("MyTrailer5", "MyTrailerValue5");
-                //                req->setTrailer("MyTrailer6", "MyTrailerValue6");
-                //               req->query("Query1", "QueryValue1");
-                //                req->query("Query2", "QueryValue2");
+                req->setTrailer("MyTrailer1",
+                                "MyTrailerValue1"); // Full trailer processing. Header field "Trailer" set and the Trailer itself is also
+                                                    // sent because here content will be sent with "Transfer-Encoding:chunked"
+                req->setTrailer("MyTrailer2", "MyTrailerValue2");
+                req->setTrailer("MyTrailer3", "MyTrailerValue3");
+                req->setTrailer("MyTrailer4", "MyTrailerValue4");
+                req->setTrailer("MyTrailer5", "MyTrailerValue5");
+                req->setTrailer("MyTrailer6", "MyTrailerValue6");
+                req->query("Query1", "QueryValue1");
+                req->query("Query2", "QueryValue2");
                 req->sendFile(
                     "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
                     [req](int ret) -> void {
@@ -218,6 +222,7 @@ namespace apps::http::legacy {
                                     req->url = "/";
                                     req->set("Connection", "close");
                                     req->set("Test", "ccc");
+                                    req->set("Trailer", "Hallodu");
                                     req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                                         logResponse(req, res);
                                     });
@@ -251,6 +256,8 @@ namespace apps::http::legacy {
                     req->url = "/";
                     req->set("Connection", "keep-alive");
                     req->set("Test", "eee");
+                    req->setTrailer("MyTrailer1", "MyTrailerValue1");
+                    req->setTrailer("MyTrailer2", "MyTrailerValue2");
                     req->sendFile(
                         "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
                         [req](int ret) -> void {
