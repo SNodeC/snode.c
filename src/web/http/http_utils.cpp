@@ -17,11 +17,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/http/http_utils.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "web/http/http_utils.h"
+
+#include "utils/hexdump.h"
 #include "utils/system/time.h"
+#include "web/http/CiStringMap.h"
+#include "web/http/CookieOptions.h"
 
 #include <algorithm>
 #include <cctype>
@@ -152,6 +155,142 @@ namespace httputils {
 
     std::string::iterator to_lower(std::string& string) {
         return std::transform(string.begin(), string.end(), string.begin(), ::tolower);
+    }
+
+    std::string toString(const std::string& method,
+                         const std::string& url,
+                         const std::string& version,
+                         const web::http::CiStringMap<std::string>& queries,
+                         const web::http::CiStringMap<std::string>& header,
+                         const web::http::CiStringMap<std::string>& cookies,
+                         const std::vector<char>& body) {
+        const int prefixLength = 9;
+        int keyLength = 0;
+
+        for (const auto& [key, value] : queries) {
+            keyLength = std::max(keyLength, static_cast<int>(key.size()));
+        }
+        for (const auto& [key, value] : header) {
+            keyLength = std::max(keyLength, static_cast<int>(key.size()));
+        }
+        for (const auto& [key, value] : cookies) {
+            keyLength = std::max(keyLength, static_cast<int>(key.size()));
+        }
+
+        std::stringstream requestStream;
+
+        requestStream << std::setw(prefixLength) << "Request"
+                      << ": " << std::setw(keyLength) << "Method"
+                      << " : " << method << "\n";
+        requestStream << std::setw(prefixLength) << ""
+                      << ": " << std::setw(keyLength) << "Url"
+                      << " : " << url << "\n";
+        requestStream << std::setw(prefixLength) << ""
+                      << ": " << std::setw(keyLength) << "Version"
+                      << " : " << version << "\n";
+
+        std::string prefix;
+
+        if (!queries.empty()) {
+            prefix = "Queries";
+            for (const auto& [query, value] : queries) {
+                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << query << " : " << value << "\n";
+                prefix = "";
+            }
+        }
+
+        if (!header.empty()) {
+            prefix = "Header";
+            for (const auto& [field, value] : header) {
+                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << field << " : " << value << "\n";
+                prefix = "";
+            }
+        }
+
+        if (!cookies.empty()) {
+            prefix = "Cookies";
+            for (const auto& [cookie, value] : cookies) {
+                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << cookie << " : " << value << "\n";
+                prefix = "";
+            }
+        }
+
+        if (!body.empty()) {
+            prefix = "Body";
+            requestStream << std::setw(prefixLength) << prefix << utils::hexDump(body, prefixLength) << "\n";
+        }
+
+        std::string string = requestStream.str();
+        if (!string.empty()) {
+            string.pop_back();
+        }
+
+        return string;
+    }
+
+    std::string toString(const std::string& version,
+                         const std::string& statusCode,
+                         const std::string& reason,
+                         const web::http::CiStringMap<std::string>& header,
+                         const web::http::CiStringMap<web::http::CookieOptions>& cookies,
+                         const std::vector<char>& body) {
+        const int prefixLength = 9;
+        int keyLength = 0;
+
+        for (const auto& [key, value] : header) {
+            keyLength = std::max(keyLength, static_cast<int>(key.size()));
+        }
+        for (const auto& [key, value] : cookies) {
+            keyLength = std::max(keyLength, static_cast<int>(key.size()));
+        }
+
+        std::stringstream requestStream;
+
+        requestStream << std::setw(prefixLength) << "Response"
+                      << ": " << std::setw(keyLength) << "Version"
+                      << " : " << version << "\n";
+        requestStream << std::setw(prefixLength) << ""
+                      << ": " << std::setw(keyLength) << "Status"
+                      << " : " << statusCode << "\n";
+        requestStream << std::setw(prefixLength) << ""
+                      << ": " << std::setw(keyLength) << "Reason"
+                      << " : " << reason << "\n";
+
+        std::string prefix;
+
+        if (!header.empty()) {
+            prefix = "Header";
+            for (const auto& [field, value] : header) {
+                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << field << " : " << value << "\n";
+                prefix = "";
+            }
+        }
+
+        if (!cookies.empty()) {
+            prefix = "Cookies";
+            for (const auto& [cookie, options] : cookies) {
+                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << cookie << " : " << options.getValue()
+                              << "\n";
+                for (const auto& [optionKey, optionValue] : options.getOptions()) {
+                    requestStream << std::setw(prefixLength) << ""
+                                  << ":" << std::setw(keyLength) << ""
+                                  << " : " << optionKey << "=" << optionValue << "\n";
+                }
+                prefix = "";
+            }
+        }
+
+        if (!body.empty()) {
+            prefix = "Body";
+            requestStream << std::setw(prefixLength) << prefix << utils::hexDump(body, prefixLength) << "\n";
+        }
+
+        std::string string = requestStream.str();
+        if (!string.empty()) {
+            string.pop_back();
+        }
+
+        return string;
     }
 
 } // namespace httputils

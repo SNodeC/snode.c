@@ -32,6 +32,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "web/http/http_utils.h"
 
 #if (STREAM_TYPE == TLS) // tls
 #include <cstddef>
@@ -44,39 +45,16 @@
 static void logResponse([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& req,
                         const std::shared_ptr<web::http::client::Response>& res) {
     LOG(INFO) << "-- OnResponse";
-    LOG(INFO) << "   Request: " << req->method << " " << req->url << " HTTP/" << req->httpMajor << "." << req->httpMinor;
-
-    LOG(INFO) << "     Queries:";
-    for (const auto& [field, value] : req->getQueries()) {
-        LOG(INFO) << "       " << field + " = " + value;
-    }
-    LOG(INFO) << "     Headers:";
-    for (const auto& [field, value] : req->getHeaders()) {
-        LOG(INFO) << "       " << field + " = " + value;
-    }
-    LOG(INFO) << "     Cookies:";
-    for (const auto& [name, cookie] : req->getCookies()) {
-        LOG(INFO) << "       " + name + " = " + cookie;
-    }
-    LOG(INFO) << "   Response:";
-    LOG(INFO) << "     Status:";
-    LOG(INFO) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
-
-    LOG(INFO) << "     Headers:";
-    for (const auto& [field, value] : res->headers) {
-        LOG(INFO) << "       " << field + " = " + value;
-    }
-
-    LOG(INFO) << "     Cookies:";
-    for (const auto& [name, cookie] : res->cookies) {
-        LOG(INFO) << "       " + name + " = " + cookie.getValue();
-        for (const auto& [option, value] : cookie.getOptions()) {
-            LOG(INFO) << "         " + option + " = " + value;
-        }
-    }
-
-    res->body.push_back(0); // make it a c-string
-    LOG(INFO) << "Body:\n----------- start body -----------\n" << res->body.data() << "\n------------ end body ------------";
+    LOG(INFO) << "   Request: " << req->method << " " << req->url << " HTTP/" << req->httpMajor << "." << req->httpMinor << "\n"
+              << httputils::toString(req->method,
+                                     req->url,
+                                     "HTTP/" + std::to_string(req->httpMajor) + "." + std::to_string(req->httpMinor),
+                                     req->getQueries(),
+                                     req->getHeaders(),
+                                     req->getCookies(),
+                                     {})
+              << "\n"
+              << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
 }
 
 #if (STREAM_TYPE == LEGACY) // legacy

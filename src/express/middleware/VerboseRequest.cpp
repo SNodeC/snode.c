@@ -25,13 +25,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-#include "utils/hexdump.h"
+#include "web/http/http_utils.h"
 
-#include <algorithm>
-#include <iomanip>
-#include <sstream>
 #include <string>
-#include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,72 +35,16 @@ namespace express::middleware {
 
     VerboseRequest::VerboseRequest(Details details) {
         use([details] MIDDLEWARE(req, res, next) {
-            const int prefixLength = 9;
-            int keyLength = 0;
-
-            for (const auto& [key, value] : req->queries) {
-                keyLength = std::max(keyLength, static_cast<int>(key.size()));
-            }
-            for (const auto& [key, value] : req->headers) {
-                keyLength = std::max(keyLength, static_cast<int>(key.size()));
-            }
-            for (const auto& [key, value] : req->cookies) {
-                keyLength = std::max(keyLength, static_cast<int>(key.size()));
-            }
-
-            std::stringstream requestStream;
-
-            if ((details & Details::W_REQUEST) != 0) {
-                requestStream << std::setw(prefixLength) << "Request"
-                              << ": " << std::setw(keyLength) << "Method"
-                              << " : " << req->method << "\n";
-                requestStream << std::setw(prefixLength) << ""
-                              << ": " << std::setw(keyLength) << "Url"
-                              << " : " << req->url << "\n";
-                requestStream << std::setw(prefixLength) << ""
-                              << ": " << std::setw(keyLength) << "Version"
-                              << " : " << req->httpVersion << "\n";
-            }
-
-            std::string prefix;
-
-            if ((details & Details::W_QUERIES) != 0) {
-                prefix = "Queries";
-                for (const auto& [key, value] : req->queries) {
-                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << key << " : " << value << "\n";
-                    prefix = "";
-                }
-            }
-
-            if ((details & Details::W_HEADERS) != 0) {
-                prefix = "Header";
-                for (const auto& [key, value] : req->headers) {
-                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << key << " : " << value << "\n";
-                    prefix = "";
-                }
-            }
-
-            if ((details & Details::W_COOKIES) != 0) {
-                prefix = "Cookies";
-                for (const auto& [key, value] : req->cookies) {
-                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << key << " : " << value << "\n";
-                    prefix = "";
-                }
-            }
-
-            if ((details & Details::W_CONTENT) != 0) {
-                if (!req->body.empty()) {
-                    prefix = "Body";
-                    requestStream << std::setw(prefixLength) << prefix << utils::hexDump(req->body, prefixLength) << "\n";
-                }
-            }
-
-            std::string requestString = requestStream.str();
-
-            requestString.pop_back();
             LOG(TRACE) << res->getSocketContext()->getSocketConnection()->getInstanceName() << " HTTP: '" << req->method << " " << req->url
                        << " " << req->httpVersion << "'\n"
-                       << requestString;
+                       << httputils::toString(
+                              req->method,
+                              req->url,
+                              req->httpVersion,
+                              (details & Details::W_QUERIES) == Details::W_QUERIES ? req->queries : web::http::CiStringMap<std::string>(),
+                              (details & Details::W_HEADERS) == Details::W_HEADERS ? req->headers : web::http::CiStringMap<std::string>(),
+                              (details & Details::W_COOKIES) == Details::W_COOKIES ? req->cookies : web::http::CiStringMap<std::string>(),
+                              (details & Details::W_CONTENT) == Details::W_CONTENT ? req->body : std::vector<char>());
 
             next();
         });

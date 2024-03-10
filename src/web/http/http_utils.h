@@ -21,9 +21,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace web::http {
+    class CookieOptions;
+    template <typename ValueT>
+    class CiStringMap;
+} // namespace web::http
+
 #include <string>
 #include <time.h>
 #include <utility>
+#include <vector>
 
 // IWYU pragma: no_include <bits/types/struct_tm.h>
 
@@ -48,6 +55,21 @@ namespace httputils {
     std::string file_mod_http_date(const std::string& filePath);
 
     std::string::iterator to_lower(std::string& string);
+
+    std::string toString(const std::string& method,
+                         const std::string& url,
+                         const std::string& version,
+                         const web::http::CiStringMap<std::string>& queries,
+                         const web::http::CiStringMap<std::string>& header,
+                         const web::http::CiStringMap<std::string>& cookies,
+                         const std::vector<char>& body);
+
+    std::string toString(const std::string& version,
+                         const std::string& statusCode,
+                         const std::string& reason,
+                         const web::http::CiStringMap<std::string>& header,
+                         const web::http::CiStringMap<web::http::CookieOptions>& cookies,
+                         const std::vector<char>& body);
 
 } // namespace httputils
 
