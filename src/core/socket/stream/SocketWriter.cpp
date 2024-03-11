@@ -106,10 +106,10 @@ namespace core::socket::stream {
                     source->suspend();
                 }
             } else {
-                LOG(TRACE) << getName() << ": Send to peer while not enabled";
+                LOG(TRACE) << getName() << ": Send request while not enabled";
             }
         } else {
-            LOG(TRACE) << getName() << ": sendToPeer() while shutdown in progress";
+            LOG(TRACE) << getName() << ": Send request while shutdown in progress";
         }
     }
 
@@ -121,15 +121,15 @@ namespace core::socket::stream {
                 success = source != nullptr;
 
                 if (success) {
-                    LOG(TRACE) << getName() << ": streamToPeer() started";
+                    LOG(TRACE) << getName() << ": Stream started";
                 } else {
-                    LOG(TRACE) << getName() << ": streamToPeer() source is nullptr";
+                    LOG(TRACE) << getName() << ": Stream source is nullptr";
                 }
             } else {
-                LOG(TRACE) << getName() << ": streamToPeer() while not enabled";
+                LOG(TRACE) << getName() << ": Stream request while not enabled";
             }
         } else {
-            LOG(TRACE) << getName() << ": streamToPeer() while shutdown in progress";
+            LOG(TRACE) << getName() << ": Stream request while shutdown in progress";
         }
 
         this->source = source;
@@ -138,7 +138,7 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::streamEof() {
-        LOG(TRACE) << getName() << ": streamEOF()";
+        LOG(TRACE) << getName() << ": Stream EOF";
         this->source = nullptr;
     }
 

@@ -30,7 +30,7 @@ namespace core::eventreceiver {
 
     AcceptEventReceiver::AcceptEventReceiver(const std::string& name, const utils::Timeval& timeout)
         : core::DescriptorEventReceiver(
-              name + " accept",
+              name + " Accept",
               core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD),
               timeout) {
     }
