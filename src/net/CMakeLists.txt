@@ -109,14 +109,14 @@ append_source_file_config(
 append_source_file_config(config/ConfigListen.cpp BACKLOG "Listen backlog" 5)
 
 append_source_file_config(
-    config/ConfigPhysicalSocket.cpp REUSE_ADDRESS "Reuse address" false true
+    config/ConfigPhysicalSocket.cpp REUSE_ADDRESS "Reuse address" false
 )
 append_source_file_config(
-    config/ConfigPhysicalSocket.cpp RETRY "Retry listen and connect" false true
+    config/ConfigPhysicalSocket.cpp RETRY "Retry listen and connect" false
 )
 append_source_file_config(
     config/ConfigPhysicalSocket.cpp RETRY_ON_FATAL "Retry also on fatal errors"
-    false true
+    false
 )
 append_source_file_config(
     config/ConfigPhysicalSocket.cpp RETRY_TIMEOUT "Retry interval in seconds" 1
@@ -144,7 +144,7 @@ append_source_file_config(
 
 append_source_file_config(
     config/ConfigPhysicalSocketClient.cpp RECONNECT
-    "Reconnect after disconnect" false true
+    "Reconnect after disconnect" false
 )
 append_source_file_config(
     config/ConfigPhysicalSocketClient.cpp RECONNECT_TIME

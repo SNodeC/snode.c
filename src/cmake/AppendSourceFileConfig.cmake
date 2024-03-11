@@ -15,15 +15,29 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 function(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT_VALUE)
-    if ("${${CONFIG_OPTION}}" STREQUAL "")
+    if (DEFINED ${CONFIG_OPTION})
+        if (NOT "${${CONFIG_OPTION}}" STREQUAL "")
+            set(VALUE "${${CONFIG_OPTION}}")
+        else (NOT "${${CONFIG_OPTION}}" STREQUAL "")
+            if ("${DEFAULT_VALUE}" STREQUAL "true")
+                set (VALUE false)
+            else ("${DEFAULT_VALUE}" STREQUAL "true")
+                set(VALUE "${DEFAULT_VALUE}")
+            endif ("${DEFAULT_VALUE}" STREQUAL "true")
+        endif (NOT "${${CONFIG_OPTION}}" STREQUAL "")
+    else (DEFINED ${CONFIG_OPTION})
         set(VALUE "${DEFAULT_VALUE}")
-    elseif("${ARGN}" STREQUAL "")
-        set(VALUE "${${CONFIG_OPTION}}")
-    else("${ARGN}" STREQUAL "")
-        set(VALUE "${ARGN}")
-    endif("${${CONFIG_OPTION}}" STREQUAL "")
+    endif (DEFINED ${CONFIG_OPTION})
 
-    set(SNODEC_${CONFIG_OPTION}
+    if (("${DEFAULT_VALUE}" STREQUAL "true" OR "${DEFAULT_VALUE}" STREQUAL "false"))
+        if ("${VALUE}" STREQUAL "y")
+            set(VALUE "true")
+        elseif ("${VALUE}" STREQUAL "n")
+            set(VALUE "false")
+        endif ("${VALUE}" STREQUAL "y")
+    endif (("${DEFAULT_VALUE}" STREQUAL "true" OR "${DEFAULT_VALUE}" STREQUAL "false"))
+
+    set (SNODEC_${CONFIG_OPTION}
         "${VALUE}"
         CACHE STRING "${DESCRIPTION}"
     )
@@ -32,10 +46,9 @@ function(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT
         set_property(CACHE SNODEC_${CONFIG_OPTION} PROPERTY STRINGS "true" "false")
     endif("${SNODEC_${CONFIG_OPTION}}" STREQUAL "true" OR "${SNODEC_${CONFIG_OPTION}}" STREQUAL "false")
 
-    message(STATUS "Adding compile definition '" ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}} "' for '${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}'")
-    set_property(
+    message (STATUS "Adding compile definition '" ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}} "' for '${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}'")
+    set_property (
       SOURCE ${SOURCE_FILE}
       APPEND PROPERTY COMPILE_DEFINITIONS ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}}
     )
-
 endfunction(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT_VALUE)

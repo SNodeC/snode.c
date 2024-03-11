@@ -23,12 +23,11 @@ set(NET-IN_H SocketAddress.h SocketAddrInfo.h config/ConfigAddress.h)
 
 append_source_file_config(
     config/ConfigAddress.cpp IPV4_NUMERIC "Suppress host name lookup" false
-    true
 )
 
 append_source_file_config(
     config/ConfigAddress.cpp IPV4_NUMERIC_REVERSE
-    "Suppress reverse host name lookup" false true
+    "Suppress reverse host name lookup" false
 )
 
 add_library(net-in SHARED ${NET-IN_CPP} ${NET-IN_H})

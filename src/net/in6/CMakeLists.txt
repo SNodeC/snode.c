@@ -23,17 +23,15 @@ set(NET-IN6_H SocketAddress.h SocketAddrInfo.h config/ConfigAddress.h)
 
 append_source_file_config(
     config/ConfigAddress.cpp IPV6_NUMERIC "Suppress host name lookup" false
-    true
 )
 
 append_source_file_config(
     config/ConfigAddress.cpp IPV6_NUMERIC_REVERSE
-    "Suppress reverse host name lookup" false true
+    "Suppress reverse host name lookup" false
 )
 
 append_source_file_config(
     config/ConfigAddress.cpp IPV4_MAPPED "IPv4-mapped IPv6 addresses" false
-    true
 )
 
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})

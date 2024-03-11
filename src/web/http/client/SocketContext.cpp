@@ -31,6 +31,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define TRUE 1
+#define FALSE 0
+
 namespace web::http::client {
 
     SocketContext::SocketContext(core::socket::stream::SocketConnection* socketConnection,
@@ -126,11 +129,12 @@ namespace web::http::client {
                                             .append(".")
                                             .append(std::to_string(request.httpMinor));
 
-        deliveredRequests.emplace_back(std::move(request));
-
         if (success) {
+            deliveredRequests.emplace_back(std::move(request));
+
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request delivered: " << requestLine;
 
+#if (HTTP_REQUEST_PIPELINED == TRUE)
             core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
                 if (!masterRequest.expired()) {
                     if (!pendingRequests.empty()) {
@@ -141,6 +145,7 @@ namespace web::http::client {
                     }
                 }
             });
+#endif // (HTTP_REQUEST_PIPELINED == TRUE)
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request delivering failed: " << requestLine;
 
@@ -216,6 +221,19 @@ namespace web::http::client {
             shutdownWrite();
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
+
+#if (HTTP_REQUEST_PIPELINED == FALSE)
+            core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
+                if (!masterRequest.expired()) {
+                    if (!pendingRequests.empty()) {
+                        initiateRequest(pendingRequests.front());
+                        pendingRequests.pop_front();
+                    } else {
+                        currentRequest = nullptr;
+                    }
+                }
+            });
+#endif // (HTTP_REQUEST_PIPELINED == FALSE)
         }
     }
 

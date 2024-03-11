@@ -27,7 +27,6 @@ set(NET-IN-STREAM_H SocketClient.h SocketServer.h config/ConfigSocketClient.h
 
 append_source_file_config(
     config/ConfigSocketServer.cpp REUSE_PORT "Reuse port (IPv4/IPv6)" false
-    true
 )
 
 add_library(net-in-stream SHARED ${NET-IN-STREAM_CPP} ${NET-IN-STREAM_H})
