@@ -1,5 +1,6 @@
 # SNode.C - a slim toolkit for network communication
-# Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
+# Copyright (C) Volker Christian <me@vchrist.at>
+#               2020, 2021, 2022, 2023, 2024
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published
@@ -29,13 +30,13 @@ function(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT
         set(VALUE "${DEFAULT_VALUE}")
     endif (DEFINED ${CONFIG_OPTION})
 
-    if (("${DEFAULT_VALUE}" STREQUAL "true" OR "${DEFAULT_VALUE}" STREQUAL "false"))
+    if ("${DEFAULT_VALUE}" STREQUAL "true" OR "${DEFAULT_VALUE}" STREQUAL "false")
         if ("${VALUE}" STREQUAL "y")
             set(VALUE "true")
         elseif ("${VALUE}" STREQUAL "n")
             set(VALUE "false")
         endif ("${VALUE}" STREQUAL "y")
-    endif (("${DEFAULT_VALUE}" STREQUAL "true" OR "${DEFAULT_VALUE}" STREQUAL "false"))
+    endif ("${DEFAULT_VALUE}" STREQUAL "true" OR "${DEFAULT_VALUE}" STREQUAL "false")
 
     set (SNODEC_${CONFIG_OPTION}
         "${VALUE}"
