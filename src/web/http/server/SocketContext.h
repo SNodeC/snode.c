@@ -55,7 +55,7 @@ namespace web::http::server {
 
     private:
         void requestStarted();
-        void deliverRequest(web::http::server::Request&& request);
+        void deliverRequest(web::http::server::Request& request);
         void responseStarted();
         void responseCompleted(bool success);
         void requestCompleted();

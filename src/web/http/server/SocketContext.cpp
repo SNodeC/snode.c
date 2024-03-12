@@ -47,7 +47,7 @@ namespace web::http::server {
               },
               [this](web::http::server::Request&& request) -> void {
                   if (!currentRequest) {
-                      deliverRequest(std::move(request));
+                      deliverRequest(request);
                   } else {
                       pendingRequests.emplace_back(std::move(request));
                   }
@@ -66,7 +66,7 @@ namespace web::http::server {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request started";
     }
 
-    void SocketContext::deliverRequest(web::http::server::Request&& request) {
+    void SocketContext::deliverRequest(web::http::server::Request& request) {
         LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parsed " << request.method << " " << request.url;
 
         currentRequest = std::make_shared<Request>(std::move(request));
@@ -114,7 +114,7 @@ namespace web::http::server {
             core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->masterResponse)]() -> void {
                 if (!response.expired()) {
                     if (!pendingRequests.empty()) {
-                        deliverRequest(std::move(pendingRequests.front()));
+                        deliverRequest(pendingRequests.front());
                         pendingRequests.pop_front();
                     } else {
                         currentRequest = nullptr;
