@@ -130,9 +130,9 @@ namespace web::http::client {
                                             .append(std::to_string(request.httpMinor));
 
         if (success) {
-            deliveredRequests.emplace_back(std::move(request));
-
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request delivered: " << requestLine;
+
+            deliveredRequests.emplace_back(std::move(request));
 
 #if (HTTP_REQUEST_PIPELINED == TRUE)
             core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {

@@ -44,8 +44,8 @@ namespace core::socket::stream::tls {
                                const std::function<void(void)>& onTimeout,
                                const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout)
-        : ReadEventReceiver(instanceName + " SSL/TLS handshake:", timeout)
-        , WriteEventReceiver(instanceName + " SSL/TLS handshake:", timeout)
+        : ReadEventReceiver(instanceName + " SSL/TLS: Handshake", timeout)
+        , WriteEventReceiver(instanceName + " SSL/TLS: Handshake", timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)
