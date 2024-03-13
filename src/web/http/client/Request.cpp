@@ -98,6 +98,9 @@ namespace web::http::client {
         headers.clear();
         cookies.clear();
         trailer.clear();
+        for (const RequestCommand* requestCommand : requestCommands) {
+            delete requestCommand;
+        }
         requestCommands.clear();
         transferEncoding = TransferEncoding::HTTP10;
         contentLength = 0;
