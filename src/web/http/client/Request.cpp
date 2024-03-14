@@ -50,12 +50,14 @@
 namespace web::http::client {
 
     Request::Request(web::http::client::SocketContext* socketContext, const std::string& host)
-        : socketContext(socketContext) {
-        this->host(host);
+        : hostFieldValue(host)
+        , socketContext(socketContext) {
+        this->host(hostFieldValue);
     }
 
     Request::Request(Request&& request) noexcept
-        : method(std::move(request.method))
+        : hostFieldValue(request.hostFieldValue) // NOLINT
+        , method(std::move(request.method))
         , url(std::move(request.url))
         , httpMajor(request.httpMajor)
         , httpMinor(request.httpMinor)
@@ -72,7 +74,7 @@ namespace web::http::client {
         , onResponseParseError(std::move(request.onResponseParseError))
         , masterRequest(request.masterRequest) // NOLINT
         , socketContext(request.socketContext) {
-        request.init(headers["Host"]);
+        request.init();
     }
 
     Request::~Request() {
@@ -89,7 +91,7 @@ namespace web::http::client {
         this->masterRequest = masterRequest;
     }
 
-    void Request::init(const std::string& host) {
+    void Request::init() {
         method = "GET";
         url = "/";
         httpMajor = 1;
@@ -109,12 +111,12 @@ namespace web::http::client {
         onResponseReceived = nullptr;
         onResponseParseError = nullptr;
 
-        this->host(host);
+        this->host(hostFieldValue);
         set("X-Powered-By", "snode.c");
     }
 
-    Request& Request::host(const std::string& host) {
-        set("Host", host);
+    Request& Request::host(const std::string& hostFieldValue) {
+        set("Host", hostFieldValue);
 
         return *this;
     }
@@ -254,7 +256,7 @@ namespace web::http::client {
 
             requestCommands.push_back(new commands::EndCommand());
 
-            socketContext->requestPrepared(*this);
+            requestPrepared();
         } else {
             queued = false;
         }
@@ -284,7 +286,7 @@ namespace web::http::client {
 
             requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
 
-            socketContext->requestPrepared(*this);
+            requestPrepared();
         } else {
             success = false;
         }
@@ -346,7 +348,7 @@ namespace web::http::client {
 
             requestCommands.push_back(new commands::SendFileCommand(file, onStatus));
 
-            socketContext->requestPrepared(*this);
+            requestPrepared();
         } else {
             queued = false;
         }
@@ -388,7 +390,7 @@ namespace web::http::client {
 
             requestCommands.push_back(new commands::EndCommand());
 
-            socketContext->requestPrepared(*this);
+            requestPrepared();
         } else {
             queued = false;
         }
@@ -536,25 +538,28 @@ namespace web::http::client {
         return true;
     }
 
+    void Request::requestPrepared() {
+        socketContext->requestPrepared(std::move(*this));
+        init();
+    }
+
     void Request::deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
         onResponseReceived(request, response);
     }
 
-    void Request::deliverResponseParseError([[maybe_unused]] const std::shared_ptr<Request>& request,
-                                            [[maybe_unused]] const std::string& message) {
+    void Request::deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
         onResponseParseError(request, message);
     }
 
     void Request::requestDelivered() {
         if (!masterRequest.expired()) {
             if (transferEncoding == TransferEncoding::Chunked) {
-                executeSendFragment("", 0); // For transfere encoding chunked. Terminate the chunk sequence.
+                executeSendFragment("", 0); // For transfer encoding chunked. Terminate the chunk sequence.
 
                 if (!trailer.empty()) {
                     for (auto& [field, value] : trailer) {
                         socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
                     }
-
                     socketContext->sendToPeer("\r\n");
                 }
             }

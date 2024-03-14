@@ -139,7 +139,7 @@ namespace net::config::stream::tls {
             }
         }
 
-        LOG(TRACE) << getInstanceName() << " SSL/TLS: Search for sni='" << serverNameIndication << "' in sni certificates";
+        LOG(TRACE) << getInstanceName() << " SSL/TLS: Lookup for sni='" << serverNameIndication << "' in sni certificates";
 
         std::map<std::string, SSL_CTX*>::iterator sniPairIt = std::find_if(
             sniCtxMap.begin(), sniCtxMap.end(), [&serverNameIndication, this](const std::pair<std::string, SSL_CTX*>& sniPair) -> bool {

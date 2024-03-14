@@ -68,9 +68,9 @@ namespace web::http::client {
         ~Request() override;
 
         void setMasterRequest(const std::shared_ptr<Request>& masterRequest);
-        virtual void init(const std::string& host);
+        virtual void init();
 
-        Request& host(const std::string& host);
+        Request& host(const std::string& hostFieldValue);
         Request& append(const std::string& field, const std::string& value);
         Request& set(const std::string& field, const std::string& value, bool overwrite = true);
         Request& set(const std::map<std::string, std::string>& headers, bool overwrite = true);
@@ -123,6 +123,7 @@ namespace web::http::client {
         bool executeSendHeader();
         bool executeSendFragment(const char* chunk, std::size_t chunkLen);
 
+        void requestPrepared();
         void requestDelivered();
 
         void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
@@ -142,6 +143,7 @@ namespace web::http::client {
 
         web::http::client::SocketContext* getSocketContext() const;
 
+        std::string hostFieldValue;
         std::string method = "GET";
         std::string url = "/";
         int httpMajor = 1;

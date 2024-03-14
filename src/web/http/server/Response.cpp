@@ -346,7 +346,7 @@ namespace web::http::server {
 
     void Response::sendCompleted() {
         if (transferEncoding == TransferEncoding::Chunked) {
-            sendFragment(""); // For transfere encoding chunked. Terminate the chunk sequence.
+            sendFragment(""); // For transfer encoding chunked. Terminate the chunk sequence.
 
             if (!trailer.empty()) {
                 for (auto& [field, value] : trailer) {

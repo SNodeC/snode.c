@@ -53,7 +53,7 @@ namespace web::http::client {
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd);
 
     private:
-        void requestPrepared(Request& request);
+        void requestPrepared(Request&& request);
         void initiateRequest(Request& request);
         void requestDelivered(Request&& request, bool success);
         void responseStarted();

@@ -57,7 +57,7 @@ namespace web::http::client {
         masterRequest->setMasterRequest(masterRequest);
     }
 
-    void SocketContext::requestPrepared(Request& request) {
+    void SocketContext::requestPrepared(Request&& request) {
         const std::string requestLine = std::string(request.method)
                                             .append(" ")
                                             .append(request.url)
@@ -84,8 +84,6 @@ namespace web::http::client {
             }
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request rejected: " << requestLine;
-
-            std::make_shared<Request>(std::move(request));
         }
     }
 
@@ -239,8 +237,6 @@ namespace web::http::client {
 
     void SocketContext::onConnected() {
         LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: connected";
-
-        masterRequest->init(getSocketConnection()->getConfiguredServer());
 
         onRequestBegin(masterRequest);
     }
