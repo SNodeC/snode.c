@@ -258,15 +258,15 @@ namespace core {
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED));
 
-        LOG(TRACE) << "Core: Terminating all stalled  DescriptorEventReceivers";
+        LOG(TRACE) << "Core: Terminate all stalled DescriptorEventReceivers";
 
         EventLoop::instance().eventMultiplexer.terminate();
 
-        LOG(TRACE) << "Core: Closing all libraries opened during runtime";
+        LOG(TRACE) << "Core: Close all libraries opened during runtime";
 
         DynamicLoader::execDlCloseAll();
 
-        LOG(TRACE) << "Core:: Cleaning up filesystem";
+        LOG(TRACE) << "Core:: Clean up the filesystem";
 
         utils::Config::terminate();
 

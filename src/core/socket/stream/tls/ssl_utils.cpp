@@ -191,14 +191,10 @@ namespace core::socket::stream::tls {
                 if (!sslConfig.cipherList.empty()) {
                     SSL_CTX_set_cipher_list(ctx, sslConfig.cipherList.c_str());
                 }
-
-                LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: SSL CTX created";
             } else {
                 SSL_CTX_free(ctx);
                 ctx = nullptr;
             }
-        } else {
-            ssl_log_error(sslConfig.instanceName + " SSL CTX not created");
         }
 
         return ctx;
