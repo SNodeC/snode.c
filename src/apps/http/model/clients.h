@@ -204,7 +204,7 @@ namespace apps::http::legacy {
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                         logResponse(req, res);
 
-                        req->init(req->getSocketContext()->getSocketConnection()->getConfiguredServer());
+                        req->init();
                         req->method = "POST";
                         req->url = "/";
                         req->set("Connection", "keep-alive");
@@ -217,7 +217,7 @@ namespace apps::http::legacy {
                                 } else {
                                     PLOG(INFO) << "HTTP-Client: POST  /home/voc/projects/snodec/snode.c/CMakeLists.tt failed";
 
-                                    req->init(req->getSocketContext()->getSocketConnection()->getConfiguredServer());
+                                    req->init();
                                     req->method = "GET";
                                     req->url = "/";
                                     req->set("Connection", "close");
