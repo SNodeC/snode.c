@@ -31,6 +31,7 @@
 
 #include "express/middleware/StaticMiddleware.h"
 #include "express/middleware/VerboseRequest.h"
+#include "net/config/ConfigSection.hpp" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -44,11 +45,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-express::Router getRouter(const std::string& rootPath) {
+express::Router getRouter() {
     express::Router router;
 
     router.use(express::middleware::VerboseRequest());
-    router.use(express::middleware::StaticMiddleware(rootPath));
 
     return router;
 }
@@ -58,9 +58,18 @@ express::Router getRouter(const std::string& rootPath) {
 namespace apps::http::legacy {
 
     using WebApp = express::legacy::NET::WebApp;
+    using SocketConnection = WebApp::SocketConnection;
 
-    WebApp getWebApp(const std::string& name, const std::string& rootPath) {
-        return WebApp(name, getRouter(rootPath));
+    WebApp getWebApp(const std::string& name, CLI::Option*& htmlRoot) {
+        WebApp webApp = WebApp(name, getRouter());
+
+        webApp.setOnConnected([&webApp, &htmlRoot]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnect
+            LOG(INFO) << "OnConnected " << webApp.getConfig().getInstanceName();
+
+            webApp.use(express::middleware::StaticMiddleware(htmlRoot->as<std::string>()));
+        });
+
+        return webApp;
     }
 
 } // namespace apps::http::legacy
@@ -74,8 +83,8 @@ namespace apps::http::tls {
     using WebApp = express::tls::NET::WebApp;
     using SocketConnection = WebApp::SocketConnection;
 
-    WebApp getWebApp(const std::string& name, const std::string& rootPath) {
-        WebApp webApp(name, getRouter(rootPath));
+    WebApp getWebApp(const std::string& name, [[maybe_unused]] CLI::Option*& htmlRoot) {
+        WebApp webApp(name, getRouter());
 
         webApp.setOnConnect([&webApp](SocketConnection* socketConnection) -> void { // onConnect
             LOG(INFO) << "OnConnect " << webApp.getConfig().getInstanceName();
@@ -93,8 +102,10 @@ namespace apps::http::tls {
             // }
         });
 
-        webApp.setOnConnected([&webApp](SocketConnection* socketConnection) -> void { // onConnected
+        webApp.setOnConnected([&webApp, &htmlRoot](SocketConnection* socketConnection) -> void { // onConnected
             LOG(INFO) << "OnConnected " << webApp.getConfig().getInstanceName();
+
+            webApp.use(express::middleware::StaticMiddleware(htmlRoot->as<std::string>()));
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {

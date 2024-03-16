@@ -20,6 +20,7 @@ cmake_minimum_required(VERSION 3.18)
 add_subdirectory(commands)
 
 set(HTTPCLIENT_CPP
+    ConfigHTTP.cpp
     Request.cpp
     RequestCommand.cpp
     Response.cpp
@@ -31,6 +32,7 @@ set(HTTPCLIENT_CPP
 
 set(HTTPCLIENT_H
     Client.h
+    ConfigHTTP.h
     Request.h
     RequestCommand.h
     Response.h
@@ -42,7 +44,7 @@ set(HTTPCLIENT_H
 )
 
 append_source_file_config(
-    SocketContext.cpp HTTP_REQUEST_PIPELINED "HTTP pipelined requests" true
+    ConfigHTTP.cpp HTTP_REQUEST_PIPELINED "HTTP pipelined requests" true
 )
 
 add_library(http-client SHARED ${HTTPCLIENT_CPP} ${HTTPCLIENT_H})

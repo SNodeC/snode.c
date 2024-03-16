@@ -50,7 +50,8 @@ namespace web::http::client {
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
-                      const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd);
+                      const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd,
+                      bool pipelinedRequests);
 
     private:
         void requestPrepared(Request&& request);
@@ -72,6 +73,8 @@ namespace web::http::client {
 
         std::list<Request> pendingRequests;
         std::list<Request> deliveredRequests;
+
+        bool pipelinedRequests = false;
 
         std::shared_ptr<Request> currentRequest = nullptr;
         std::shared_ptr<Request> masterRequest;

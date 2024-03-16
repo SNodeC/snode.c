@@ -21,6 +21,7 @@
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 
 #include "web/http/SocketContextFactory.h"
+#include "web/http/client/ConfigHTTP.h"
 #include "web/http/client/SocketContext.h" // IWYU pragma: export
 
 namespace core::socket::stream {
@@ -28,6 +29,8 @@ namespace core::socket::stream {
 } // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,23 +43,34 @@ namespace web::http::client {
         using Response = ResponseT;
 
         SocketContextFactory(const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
-                             const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
+                             const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd,
+                             const std::function<net::config::ConfigInstance&()>& getConfigInstance)
             : onRequestBegin(onRequestBegin)
-            , onRequestEnd(onRequestEnd) {
+            , onRequestEnd(onRequestEnd)
+            , configHttp(web::http::client::ConfigHTTP(getConfigInstance())) {
         }
 
-        ~SocketContextFactory() override = default;
+        SocketContextFactory(SocketContextFactory&) = delete;
+        SocketContextFactory& operator=(SocketContextFactory&) = delete;
 
-        SocketContextFactory(const SocketContextFactory&) = delete;
-        SocketContextFactory& operator=(const SocketContextFactory&) = delete;
+        SocketContextFactory(SocketContextFactory&&) = delete;
+        SocketContextFactory& operator=(SocketContextFactory&&) = delete;
+
+        void setPipelinedRequests(bool pipelinedRequests) {
+            configHttp.setPipelinedRequests(pipelinedRequests);
+        }
 
     private:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
-            return new web::http::client::SocketContext(socketConnection, onRequestBegin, onRequestEnd);
+            VLOG(0) << "PipelinedRequests: " << configHttp.getPipelinedRequests();
+
+            return new web::http::client::SocketContext(socketConnection, onRequestBegin, onRequestEnd, configHttp.getPipelinedRequests());
         }
 
         std::function<void(const std::shared_ptr<Request>&)> onRequestBegin;
         std::function<void(const std::shared_ptr<Request>&)> onRequestEnd;
+
+        ConfigHTTP configHttp;
     };
 
 } // namespace web::http::client
