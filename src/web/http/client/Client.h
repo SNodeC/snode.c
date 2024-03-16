@@ -35,7 +35,8 @@ namespace web::http::client {
     class Client
         : public SocketClientT<web::http::client::SocketContextFactory<RequestT, ResponseT>,
                                std::function<void(const std::shared_ptr<RequestT>&)>,
-                               std::function<void(const std::shared_ptr<RequestT>&)>> {
+                               std::function<void(const std::shared_ptr<RequestT>&)>,
+                               std::function<net::config::ConfigInstance&()>> {
     public:
         using Request = RequestT;
         using Response = ResponseT;
@@ -43,7 +44,8 @@ namespace web::http::client {
     private:
         using Super = SocketClientT<web::http::client::SocketContextFactory<Request, Response>,
                                     std::function<void(const std::shared_ptr<Request>&)>,
-                                    std::function<void(const std::shared_ptr<RequestT>&)>>; // this makes it an HTTP client;
+                                    std::function<void(const std::shared_ptr<RequestT>&)>,
+                                    std::function<net::config::ConfigInstance&()>>; // this makes it an HTTP client;
 
     public:
         using SocketConnection = typename Super::SocketConnection;
@@ -55,7 +57,9 @@ namespace web::http::client {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
                const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
-            : Super(name, onConnect, onConnected, onDisconnect, onRequestBegin, onRequestEnd) {
+            : Super(name, onConnect, onConnected, onDisconnect, onRequestBegin, onRequestEnd, [this]() -> net::config::ConfigInstance& {
+                return Super::getConfig();
+            }) {
         }
 
         Client(const std::function<void(SocketConnection*)>& onConnect,
@@ -69,12 +73,18 @@ namespace web::http::client {
         Client(const std::string& name,
                const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
                const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
-            : Super(name, onRequestBegin, onRequestEnd) {
+            : Super(name, onRequestBegin, onRequestEnd, [this]() -> net::config::ConfigInstance& {
+                return Super::getConfig();
+            }) {
         }
 
         Client(const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
                const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd)
             : Client("", onRequestBegin, onRequestEnd) {
+        }
+
+        void setPipelinedRequests(bool pipelinedRequests) {
+            Super::getSocketContextFactory()->setPipelinedRequests(pipelinedRequests);
         }
     };
 

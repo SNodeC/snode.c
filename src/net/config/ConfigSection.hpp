@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/config/ConfigSection.h"
+#include "net/config/ConfigSection.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,6 +31,9 @@
 #endif
 #if __has_warning("-Wcovered-switch-default")
 #pragma GCC diagnostic ignored "-Wcovered-switch-default"
+#endif
+#if __has_warning("-Wunsafe-buffer-usage")
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
 #endif
 #endif
 #include "utils/CLI11.hpp" // IWYU pragma: export
