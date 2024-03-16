@@ -49,7 +49,6 @@ namespace net::config {
         ConfigSection& operator=(const ConfigSection&) = delete;
         ConfigSection& operator=(ConfigSection&&) = delete;
 
-    protected:
         CLI::Option* add_option(CLI::Option*& opt, const std::string& name, const std::string& description);
 
         CLI::Option* add_option(CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName);
