@@ -18,7 +18,6 @@
  */
 
 #include "apps/http/model/servers.h"
-#include "utils/Config.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,15 +30,18 @@
 using namespace express;
 
 int main(int argc, char* argv[]) {
-    std::string webRoot;
-    utils::Config::add_string_option("--web-root", webRoot, "Root directory of the web site", "[path]");
-
     WebApp::init(argc, argv);
 
     using WebApp = apps::http::STREAM::WebApp;
     using SocketAddress = WebApp::SocketAddress;
 
-    const WebApp webApp(apps::http::STREAM::getWebApp("httpserver", webRoot));
+    CLI::Option* htmlRoot = nullptr;
+
+    const WebApp webApp(apps::http::STREAM::getWebApp("httpserver", htmlRoot));
+
+    net::config::ConfigSection configWeb = net::config::ConfigSection(&webApp.getConfig(), "www", "Web behavior of httpserver");
+    htmlRoot = configWeb.add_option(htmlRoot, "--html-root", "HTML root directory", "path", "");
+    configWeb.required(htmlRoot);
 
 #if (STREAM_TYPE == TLS)
     //    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
