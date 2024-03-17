@@ -32,12 +32,12 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/hexdump.h"
 
 #include <functional>
 #include <iomanip>
 #include <map>
 #include <set>
-#include <sstream>
 #include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -178,7 +178,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::send(const std::vector<char>& data) const {
-        LOG(TRACE) << "MQTT: Send data:\n" << dataToHexString(data);
+        LOG(TRACE) << "MQTT: Send data:\n" << toHexString(data);
 
         mqttContext->send(data.data(), data.size());
     }
@@ -231,7 +231,7 @@ namespace iot::mqtt {
         bool deliver = true;
 
         LOG(DEBUG) << "MQTT:   Topic: " << publish.getTopic();
-        LOG(DEBUG) << "MQTT:   Message:\n" << stringToHexString(publish.getMessage());
+        LOG(DEBUG) << "MQTT:   Message:\n" << toHexString(publish.getMessage());
         LOG(DEBUG) << "MQTT:   QoS: " << static_cast<uint16_t>(publish.getQoS());
         LOG(DEBUG) << "MQTT:   PacketIdentifier: " << publish.getPacketIdentifier();
         LOG(DEBUG) << "MQTT:   DUP: " << publish.getDup();
@@ -324,7 +324,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::printVP(const iot::mqtt::ControlPacket& packet) const {
-        LOG(TRACE) << "MQTT: Received data (variable header and payload):\n" << dataToHexString(packet.serializeVP());
+        LOG(TRACE) << "MQTT: Received data (variable header and payload):\n" << toHexString(packet.serializeVP());
 
         LOG(INFO) << "MQTT: " << packet.getName() << " received: " << clientId;
     }
@@ -332,7 +332,7 @@ namespace iot::mqtt {
     void Mqtt::printFixedHeader(const FixedHeader& fixedHeader) {
         LOG(DEBUG) << "MQTT: ======================================================";
 
-        LOG(TRACE) << "MQTT: Received data (fixed header):\n" << dataToHexString(fixedHeader.serialize());
+        LOG(TRACE) << "MQTT: Received data (fixed header):\n" << toHexString(fixedHeader.serialize());
 
         LOG(DEBUG) << "MQTT: Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
                    << static_cast<uint16_t>(fixedHeader.getType()) << " (" << iot::mqtt::mqttPackageName[fixedHeader.getType()] << ")";
@@ -341,31 +341,12 @@ namespace iot::mqtt {
         LOG(DEBUG) << "MQTT:   RemainingLength: " << fixedHeader.getRemainingLength();
     }
 
-    std::string Mqtt::dataToHexString(const std::vector<char>& data) {
-        std::stringstream ss;
-
-        ss << "                                               ";
-
-        if (!data.empty()) {
-            unsigned long i = 0;
-            for (const char ch : data) {
-                if (i != 0 && i % 8 == 0 && i != data.size()) {
-                    ss << std::endl;
-                    ss << "                                               ";
-                }
-                ++i;
-                ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
-                   << " "; // << " | ";
-            }
-        } else {
-            ss << "<EMPTY>";
-        }
-
-        return ss.str();
+    std::string Mqtt::toHexString(const std::vector<char>& data) {
+        return std::string(32, ' ').append(utils::hexDump(data, 32));
     }
 
-    std::string Mqtt::stringToHexString(const std::string& data) {
-        return dataToHexString(std::vector<char>(data.begin(), data.end()));
+    std::string Mqtt::toHexString(const std::string& data) {
+        return toHexString(std::vector<char>(data.begin(), data.end()));
     }
 
     uint16_t Mqtt::getPacketIdentifier() {

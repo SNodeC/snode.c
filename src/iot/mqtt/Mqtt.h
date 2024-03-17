@@ -107,8 +107,8 @@ namespace iot::mqtt {
         void send(const iot::mqtt::ControlPacket& controlPacket) const;
 
     public:
-        static std::string dataToHexString(const std::vector<char>& data);
-        static std::string stringToHexString(const std::string& data);
+        static std::string toHexString(const std::vector<char>& data);
+        static std::string toHexString(const std::string& data);
 
     private:
         void send(const std::vector<char>& data) const;

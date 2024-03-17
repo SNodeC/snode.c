@@ -86,7 +86,7 @@ namespace iot::mqtt::server::broker {
             if (!message.getTopic().empty()) {
                 LOG(DEBUG) << "MQTT Broker: Retaining:";
                 LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();
-                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
                 LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
                 this->message = message;
             }
@@ -114,7 +114,7 @@ namespace iot::mqtt::server::broker {
             if (!message.getTopic().empty()) {
                 LOG(DEBUG) << "MQTT Broker: Retained Topic found:";
                 LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();
-                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
                 LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
                 LOG(DEBUG) << "MQTT Broker:   Client:";
                 LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(qoS);
@@ -146,7 +146,7 @@ namespace iot::mqtt::server::broker {
         if (!message.getTopic().empty()) {
             LOG(DEBUG) << "MQTT Broker: Retained Topic found:";
             LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();
-            LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+            LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
             LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
             LOG(DEBUG) << "MQTT Broker:   Client:";
             LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(clientQoS);

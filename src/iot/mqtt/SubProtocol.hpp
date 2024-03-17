@@ -24,10 +24,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/hexdump.h"
+
 #include <algorithm>
-#include <cstring>
-#include <iomanip>
-#include <ostream>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -96,22 +95,10 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageData(const char* chunk, std::size_t chunkLen) {
-        data += std::string(chunk, chunkLen);
-
-        std::stringstream ss;
-
-        unsigned long i = 0;
-        for (const char ch : std::string(chunk, chunkLen)) {
-            if (i != 0 && i % 8 == 0 && i != data.size()) {
-                ss << std::endl;
-                ss << "                                                    ";
-            }
-            ++i;
-            ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch)) << " ";
-        }
+        data.append(std::string(chunk, chunkLen));
 
         LOG(TRACE) << "WebSocket: Frame Data:\n"
-                   << "                                                    " << ss.str();
+                   << std::string(32, ' ').append(utils::hexDump(std::vector<char>(chunk, chunk + chunkLen), 32));
     }
 
     template <typename WSSubProtocolRole>

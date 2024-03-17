@@ -43,7 +43,7 @@ namespace iot::mqtt::server::broker {
 
     void Session::sendPublish(Message& message, uint8_t qoS, bool retain) {
         LOG(DEBUG) << "MQTT Broker:   TopicName: " << message.getTopic();
-        LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+        LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
         LOG(DEBUG) << "MQTT Broker:   QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {

@@ -116,7 +116,7 @@ namespace web::http::server {
                     httputils::str_trimm(cookieName);
                     httputils::str_trimm(cookieValue);
 
-                    request.cookies.insert({cookieName, cookieValue});
+                    request.cookies.emplace(cookieName, cookieValue);
                 }
             }
 

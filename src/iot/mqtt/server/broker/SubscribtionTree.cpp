@@ -101,7 +101,7 @@ namespace iot::mqtt::server::broker {
         if (leafFound) {
             LOG(DEBUG) << "MQTT Broker: Found match:";
             LOG(DEBUG) << "MQTT Broker:   Topic: '" << message.getTopic() << "';";
-            LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+            LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
             LOG(DEBUG) << "MQTT Broker: Distribute Publish for match ...";
 
             for (auto& [clientId, clientQoS] : clientIds) {
@@ -114,7 +114,7 @@ namespace iot::mqtt::server::broker {
             if (nextHashLevel != topicLevels.end()) {
                 LOG(DEBUG) << "MQTT Broker: Found parent match:";
                 LOG(DEBUG) << "MQTT Broker:   Topic: '" << message.getTopic() << "'";
-                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
                 LOG(DEBUG) << "MQTT Broker: Distribute Publish for match ...";
 
                 for (auto& [clientId, clientQoS] : nextHashLevel->second.clientIds) {
@@ -143,7 +143,7 @@ namespace iot::mqtt::server::broker {
             if (foundNode != topicLevels.end()) {
                 LOG(DEBUG) << "MQTT: Found match:";
                 LOG(DEBUG) << "MQTT Broker:   Topic: '" << message.getTopic() << "';";
-                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::stringToHexString(message.getMessage());
+                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
                 LOG(DEBUG) << "MQTT Broker: Distribute Publish for match ...";
 
                 for (auto& [clientId, clientQoS] : foundNode->second.clientIds) {
