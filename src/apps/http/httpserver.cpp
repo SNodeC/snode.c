@@ -37,48 +37,50 @@ using namespace express;
 
 int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
+    {
+        using WebApp = apps::http::STREAM::WebApp;
+        using SocketAddress = WebApp::SocketAddress;
 
-    using WebApp = apps::http::STREAM::WebApp;
-    using SocketAddress = WebApp::SocketAddress;
+        //    CLI::Option* htmlRoot = nullptr;
 
-    CLI::Option* htmlRoot = nullptr;
+        const WebApp webApp(apps::http::STREAM::getWebApp("httpserver"));
 
-    const WebApp webApp(apps::http::STREAM::getWebApp("httpserver", htmlRoot));
+        //    net::config::ConfigSection configWeb = net::config::ConfigSection(&webApp.getConfig(), "www", "Web behavior of httpserver");
+        //    htmlRoot = configWeb.add_option(htmlRoot, "--html-root", "HTML root directory", "path", "");
+        //    configWeb.required(htmlRoot);
 
-    net::config::ConfigSection configWeb = net::config::ConfigSection(&webApp.getConfig(), "www", "Web behavior of httpserver");
-    htmlRoot = configWeb.add_option(htmlRoot, "--html-root", "HTML root directory", "path", "");
-    configWeb.required(htmlRoot);
+        LOG(INFO) << " ------------- 1: " << &webApp;
 
 #if (STREAM_TYPE == TLS)
-    std::string cert = "/home/voc/projects/snodec/snode.c/certs/snode.c_-_server.pem";
-    std::string key = "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem";
-    std::string pass = "snode.c";
+        std::string cert = "/home/voc/projects/snodec/snode.c/certs/snode.c_-_server.pem";
+        std::string key = "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem";
+        std::string pass = "snode.c";
 
-    std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>> sniCerts = {
-        {"snodec.home.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}},
-        {"www.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}}};
+        std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>> sniCerts = {
+            {"snodec.home.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}},
+            {"www.vchrist.at", {{"CertChain", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}}};
 
-    webApp.getConfig().addSniCerts(sniCerts);
+        webApp.getConfig().addSniCerts(sniCerts);
 #endif
 
-    webApp.listen([instanceName = webApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
-                                                                        const core::socket::State& state) -> void {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << instanceName << ": disabled";
-                break;
-            case core::socket::State::ERROR:
-                LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                break;
-            case core::socket::State::FATAL:
-                LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                break;
-        }
-    });
-
+        webApp.listen([instanceName = webApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
+                                                                            const core::socket::State& state) -> void {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << instanceName << ": disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    break;
+                case core::socket::State::FATAL:
+                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    break;
+            }
+        });
+    }
     return WebApp::start();
 }
 

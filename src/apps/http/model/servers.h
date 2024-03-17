@@ -60,10 +60,14 @@ namespace apps::http::legacy {
     using WebApp = express::legacy::NET::WebApp;
     using SocketConnection = WebApp::SocketConnection;
 
-    WebApp getWebApp(const std::string& name, CLI::Option*& htmlRoot) {
+    WebApp getWebApp(const std::string& name) {
         WebApp webApp = WebApp(name, getRouter());
 
-        webApp.setOnConnected([&webApp, &htmlRoot]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnect
+        net::config::ConfigSection configWeb = net::config::ConfigSection(&webApp.getConfig(), "www", "Web behavior of httpserver");
+        CLI::Option* htmlRoot = configWeb.add_option(htmlRoot, "--html-root", "HTML root directory", "path", "");
+        configWeb.required(htmlRoot);
+
+        webApp.setOnConnected([webApp, htmlRoot]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnect
             LOG(INFO) << "OnConnected " << webApp.getConfig().getInstanceName();
 
             webApp.use(express::middleware::StaticMiddleware(htmlRoot->as<std::string>()));
@@ -83,10 +87,14 @@ namespace apps::http::tls {
     using WebApp = express::tls::NET::WebApp;
     using SocketConnection = WebApp::SocketConnection;
 
-    WebApp getWebApp(const std::string& name, [[maybe_unused]] CLI::Option*& htmlRoot) {
+    WebApp getWebApp(const std::string& name) {
         WebApp webApp(name, getRouter());
 
-        webApp.setOnConnect([&webApp](SocketConnection* socketConnection) -> void { // onConnect
+        net::config::ConfigSection configWeb = net::config::ConfigSection(&webApp.getConfig(), "www", "Web behavior of httpserver");
+        CLI::Option* htmlRoot = configWeb.add_option(htmlRoot, "--html-root", "HTML root directory", "path", "");
+        configWeb.required(htmlRoot);
+
+        webApp.setOnConnect([webApp](SocketConnection* socketConnection) -> void { // onConnect
             LOG(INFO) << "OnConnect " << webApp.getConfig().getInstanceName();
 
             LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
@@ -102,7 +110,7 @@ namespace apps::http::tls {
             // }
         });
 
-        webApp.setOnConnected([&webApp, &htmlRoot](SocketConnection* socketConnection) -> void { // onConnected
+        webApp.setOnConnected([webApp, htmlRoot](SocketConnection* socketConnection) -> void { // onConnected
             LOG(INFO) << "OnConnected " << webApp.getConfig().getInstanceName();
 
             webApp.use(express::middleware::StaticMiddleware(htmlRoot->as<std::string>()));
@@ -184,7 +192,7 @@ namespace apps::http::tls {
             }
         });
 
-        webApp.setOnDisconnect([&webApp](SocketConnection* socketConnection) -> void { // onDisconnect
+        webApp.setOnDisconnect([webApp](SocketConnection* socketConnection) -> void { // onDisconnect
             LOG(INFO) << "OnDisconnect " << webApp.getConfig().getInstanceName();
 
             LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
