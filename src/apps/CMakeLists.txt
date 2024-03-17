@@ -78,20 +78,6 @@ install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                    COMPONENT apps
 )
 
-#add_executable(testparser testparsers.cpp)
-#target_link_libraries(
-#    testparser PRIVATE http-server http-client core core-socket-stream logger
-#)
-#set_target_properties(
-#    testparser
-#    PROPERTIES
-#        INSTALL_RPATH
-#        "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
-#)
-#install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-#                                   COMPONENT apps
-#)
-
 if(LIBMARIADB_FOUND)
     add_executable(testregex testregex.cpp)
     target_link_libraries(
