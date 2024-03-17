@@ -31,10 +31,10 @@
 #include "log/Logger.h"
 #include "utils/Random.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <cstddef>
 #include <functional> // IWYU pragma: export
-// #include <memory>
 #include <random>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
