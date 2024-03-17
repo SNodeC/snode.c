@@ -29,7 +29,6 @@
 #include "log/Logger.h"
 #include "utils/Timeval.h"
 
-#include <algorithm>
 #include <mysql.h>
 #include <string>
 #include <utility>
