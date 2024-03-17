@@ -41,15 +41,7 @@ int main(int argc, char* argv[]) {
         using WebApp = apps::http::STREAM::WebApp;
         using SocketAddress = WebApp::SocketAddress;
 
-        //    CLI::Option* htmlRoot = nullptr;
-
         const WebApp webApp(apps::http::STREAM::getWebApp("httpserver"));
-
-        //    net::config::ConfigSection configWeb = net::config::ConfigSection(&webApp.getConfig(), "www", "Web behavior of httpserver");
-        //    htmlRoot = configWeb.add_option(htmlRoot, "--html-root", "HTML root directory", "path", "");
-        //    configWeb.required(htmlRoot);
-
-        LOG(INFO) << " ------------- 1: " << &webApp;
 
 #if (STREAM_TYPE == TLS)
         std::string cert = "/home/voc/projects/snodec/snode.c/certs/snode.c_-_server.pem";
