@@ -49,7 +49,7 @@ namespace web::http::server {
     }
 
     Response::~Response() {
-        if (socketContext != nullptr) {
+        if (socketContext != nullptr && Sink::isStreaming()) {
             socketContext->streamEof();
         }
     }
