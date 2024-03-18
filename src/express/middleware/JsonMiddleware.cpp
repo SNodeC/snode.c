@@ -24,6 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <nlohmann/json.hpp>
+#include <string>
 #include <vector>
 
 // IWYU pragma: no_include <nlohmann/detail/exceptions.hpp>
@@ -40,8 +41,8 @@ namespace express::middleware {
                 // store it as type json from nlohmann library
                 //                nlohmann::json json = nlohmann::json::parse(req.body, req.body + req.contentLength);
 
-                req->body.push_back(0);
-                const nlohmann::json json = nlohmann::json::parse(req->body);
+                //                req->body.push_back(0);
+                const nlohmann::json json = nlohmann::json::parse(std::string(req->body.begin(), req->body.end()));
 
                 // set all the json data as attributes in the request object
                 req->setAttribute<nlohmann::json>(json);

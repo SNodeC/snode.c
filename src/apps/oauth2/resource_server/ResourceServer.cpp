@@ -56,8 +56,7 @@ int main(int argc, char* argv[]) {
                               [res]([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& request,
                                     const std::shared_ptr<web::http::client::Response>& response) -> void {
                                   VLOG(0) << "OnResponse";
-                                  response->body.push_back(0);
-                                  VLOG(0) << "Response: " << response->body.data();
+                                  VLOG(0) << "Response: " << std::string(response->body.begin(), response->body.end());
                                   if (std::stoi(response->statusCode) != 200) {
                                       const nlohmann::json errorJson = {{"error", "Invalid access token"}};
                                       res->status(401).send(errorJson.dump(4));
