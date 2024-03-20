@@ -61,6 +61,9 @@ namespace net::config {
 
         bool getRequired() const;
 
+        bool hasSection(const std::string& name) const;
+        CLI::App* getSection(const std::string& name) const;
+
     private:
         uint8_t requiredCount = 0;
 

@@ -49,10 +49,11 @@ namespace net::config {
 
     ConfigSection::ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description)
         : instance(instance) {
-        section = instance //
-                      ->add_section(name, description + " for instance '" + instance->getInstanceName() + "'")
-                      ->disabled()
-                      ->group("Sections");
+        section = instance->hasSection(name) ? instance->getSection(name)
+                                             : instance //
+                                                   ->add_section(name, description + " for instance '" + instance->getInstanceName() + "'")
+                                                   ->disabled()
+                                                   ->group("Sections");
     }
 
     void ConfigSection::required(CLI::Option* opt, bool req) {

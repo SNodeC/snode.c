@@ -22,7 +22,6 @@
 
 namespace net::config {
     class ConfigInstance;
-    class ConfigSection;
 } // namespace net::config
 
 namespace CLI {
@@ -44,14 +43,11 @@ namespace web::http::client {
         ConfigHTTP(ConfigHTTP&&) noexcept = default;
         ConfigHTTP& operator=(ConfigHTTP&&) = delete;
 
-        ~ConfigHTTP();
-
         void setPipelinedRequests(bool pipelinedRequests);
 
         bool getPipelinedRequests() const;
 
     private:
-        net::config::ConfigSection* configHttp = nullptr;
         CLI::Option* pipelinedRequestsOpt = nullptr;
     };
 

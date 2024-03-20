@@ -138,6 +138,22 @@ namespace net::config {
         return requiredCount > 0;
     }
 
+    bool ConfigInstance::hasSection(const std::string& name) const {
+        CLI::App* sectionSc = nullptr;
+
+        try {
+            sectionSc = instanceSc->get_subcommand(name);
+        } catch (CLI::OptionNotFound&) {
+            sectionSc = nullptr;
+        }
+
+        return sectionSc;
+    }
+
+    CLI::App* ConfigInstance::getSection(const std::string& name) const {
+        return hasSection(name) ? instanceSc->get_subcommand(name) : nullptr;
+    }
+
     bool ConfigInstance::getDisabled() const {
         return disableOpt //
             ->as<bool>();

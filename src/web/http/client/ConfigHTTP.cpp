@@ -33,18 +33,13 @@
 namespace web::http::client {
 
     ConfigHTTP::ConfigHTTP(net::config::ConfigInstance& configInstance) {
-        configHttp = new net::config::ConfigSection(&configInstance, "http", "HTTP behavior");
-
-        pipelinedRequestsOpt = configHttp->add_flag(pipelinedRequestsOpt,
-                                                    "--pipelined-requests",
-                                                    "Pipelined requests",
-                                                    "bool",
-                                                    XSTR(HTTP_REQUEST_PIPELINED),
-                                                    CLI::IsMember({"true", "false"}));
-    }
-
-    ConfigHTTP::~ConfigHTTP() {
-        delete configHttp;
+        pipelinedRequestsOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
+                                   .add_flag(pipelinedRequestsOpt,
+                                             "--pipelined-requests",
+                                             "Pipelined requests",
+                                             "bool",
+                                             XSTR(HTTP_REQUEST_PIPELINED),
+                                             CLI::IsMember({"true", "false"}));
     }
 
     void ConfigHTTP::setPipelinedRequests(bool pipelinedRequests) {
