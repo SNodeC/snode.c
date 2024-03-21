@@ -36,7 +36,7 @@ namespace web::http::decoder {
 
     class Identity : public web::http::ContentDecoder {
     public:
-        Identity(const core::socket::stream::SocketContext* socketContext, std::size_t contentLength);
+        Identity(const core::socket::stream::SocketContext* socketContext, std::size_t contentLengthExpected);
         Identity(const Identity&) = delete;
         Identity(Identity&&) noexcept = default;
 
@@ -49,7 +49,7 @@ namespace web::http::decoder {
         std::size_t read() override;
 
         const core::socket::stream::SocketContext* socketContext;
-        std::size_t contentLength = 0;
+        std::size_t contentLengthExpected = 0;
         std::size_t contentLengthRead = 0;
 
         int state = 0;

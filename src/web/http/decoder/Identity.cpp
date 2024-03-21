@@ -29,10 +29,10 @@
 
 namespace web::http::decoder {
 
-    Identity::Identity(const core::socket::stream::SocketContext* socketContext, std::size_t contentLength)
+    Identity::Identity(const core::socket::stream::SocketContext* socketContext, std::size_t contentLengthExpected)
         : socketContext(socketContext)
-        , contentLength(contentLength) {
-        content.resize(contentLength);
+        , contentLengthExpected(contentLengthExpected) {
+        content.resize(contentLengthExpected);
     }
 
     Identity::~Identity() {
@@ -40,7 +40,6 @@ namespace web::http::decoder {
 
     std::size_t Identity::read() {
         std::size_t consumed = 0;
-        std::size_t ret = 0;
 
         switch (state) {
             case -1:
@@ -52,11 +51,12 @@ namespace web::http::decoder {
 
                 [[fallthrough]];
             case 0:
+                std::size_t ret = 0;
                 do {
-                    ret = socketContext->readFromPeer(content.data() + contentLengthRead, contentLength - contentLengthRead);
+                    ret = socketContext->readFromPeer(content.data() + contentLengthRead, contentLengthExpected - contentLengthRead);
                     contentLengthRead += ret;
                     consumed += ret;
-                    completed = contentLength == contentLengthRead;
+                    completed = contentLengthExpected == contentLengthRead;
                 } while (ret > 0 && !completed);
 
                 if (completed) {

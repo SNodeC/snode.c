@@ -72,7 +72,7 @@ namespace web::http::decoder {
 
                         if (lastButOne == '\r' && last == '\n') {
                             line.pop_back(); // Remove \n
-                            line.pop_back(); // Remove \r#
+                            line.pop_back(); // Remove \r
 
                             completed = line.empty();
                             if (!completed) {
@@ -122,7 +122,7 @@ namespace web::http::decoder {
             if (fieldsExpected.empty() || fieldsExpected.contains(headerFieldName)) {
                 httputils::str_trimm(value);
 
-                if (fields.find(headerFieldName) == fields.end()) {
+                if (!fields.contains(headerFieldName)) {
                     fields.emplace(headerFieldName, value);
                 } else {
                     fields[headerFieldName] += "," + value;

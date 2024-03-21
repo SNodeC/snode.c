@@ -147,7 +147,7 @@ namespace net::config {
             sectionSc = nullptr;
         }
 
-        return sectionSc;
+        return sectionSc != nullptr;
     }
 
     CLI::App* ConfigInstance::getSection(const std::string& name) const {
