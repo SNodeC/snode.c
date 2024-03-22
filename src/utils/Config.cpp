@@ -330,6 +330,7 @@ namespace utils {
 
             proceed = parse1(); // for stopDaemon and pre init application options
 
+            app->set_version_flag("--version", "1.0-rc1", "Framework version");
             add_help_flags(app.get());
         }
 
@@ -550,7 +551,7 @@ namespace utils {
             } catch (const CLI::CallForAllHelp&) {
                 std::cout << app->help("", CLI::AppFormatMode::All) << std::endl;
             } catch (const CLI::CallForVersion&) {
-                std::cout << "SNode.C-Version: " << app->version() << std::endl << std::endl;
+                std::cout << app->version() << std::endl << std::endl;
             } catch (const CLI::CallForCommandline& e) {
                 std::cout << e.what() << ":" << std::endl;
                 std::cout << std::endl
