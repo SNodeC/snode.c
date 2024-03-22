@@ -2,12 +2,13 @@
 
 [SNode.C](https://snodec.github.io/snode.c-doc/html/index.html) is a very simple to use lightweight highly extensible event driven layer-based framework for network applications in the spirit of node.js written entirely in C\+\+.
 
-The development of the  framework started during the summer semester 2020 in the context of the course **Network and Distributed Systems** of the masters program [**Interactive Media**](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [**Informatics, Communications and Media**](https://www.fh-ooe.at/en/hagenberg-campus/) at the [**University of Applied Sciences Upper Austria, Campus Hagenberg**](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network and web frameworks.
+The development of the  framework started during the summer semester 2020 in the context of the course **Network and Distributed Systems** of the masters program [Interactive Media](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [Informatics, Communications and Media](https://www.fh-ooe.at/en/hagenberg-campus/) at the [University of Applied Sciences Upper Austria, Campus Hagenberg](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network and web frameworks.
 
 Main focus (but not only) of the framework is *Machine to Machine* (M2M) communication and here especially the field of *Internet of Things* (IoT). As such a reference project [MQTT-Suite](https://github.com/SNodeC/mqttsuite) exists, providing *mqttbroker*, *mqttintegrator*, and *wsmqttintegrator*, *mqttbridge*, and *wsmqttbridge* applications.
 
 # Table of Content
 <!--ts-->
+
 * [Simple NODE in C++ (SNode.C)](#simple-node-in-c-snodec)
 * [Table of Content](#table-of-content)
 * [License](#license)
@@ -131,7 +132,7 @@ Main focus (but not only) of the framework is *Machine to Machine* (M2M) communi
 
 # License
 
-SNode.C is released under the **GNU Lesser General Public License, Version 3** ([<https://www.gnu.org/licenses/lgpl-3.0.html.en>](https://www.gnu.org/licenses/lgpl-3.0.html.en))
+SNode.C is released under the [GNU Lesser General Public License, Version 3](https://www.gnu.org/licenses/lgpl-3.0.html.en).
 
 # Copyright
 
@@ -171,15 +172,15 @@ Some components are also copyrighted by Students
 
 Basically the architecture of every server and client application is the same and consists of three components.
 
--   *SocketServer* respective *SocketClient* instance
--   *SocketContextFactory*
--   *SocketContext*
+-   `SocketServer` respective `SocketClient` instance
+-   `SocketContextFactory`
+-   `SocketContext`
 
 Let\'s have a look at how these three components are related to each other by implementing a simple networking application.
 
 ## An "Echo" Application
 
-Imagine we want to create a very basic TCP (**stream**)/IPv4 (**in**) server/client pair which sends some plain text data unencrypted (**legacy**) to each other in a ping-pong way.
+Imagine we want to create a very basic TCP (`stream`)/IPv4 (`in`) server/client pair which sends some plain text data unencrypted (`legacy`) to each other in a ping-pong way.
 
 The client shall start sending text data to the server and the server shall reflect that data back to the client. The client receives the reflected data and sends it back to the server again. This data ping-pong shall last infinitely long.
 
@@ -209,7 +210,7 @@ Both, `SocketServer` and `SocketClient` classes have, among others, a default co
 - In contrast to a named instance if the constructors expecting a `std::string` is used for instance creation. 
 - For named instances command line arguments and configuration file entries are created automatically.
 
-Therefore, for our echo application, we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (**stream**) application protocols and factories derived from `core::socket::stream::SocketContextFactory`.
+Therefore, for our echo application, we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (`stream`) application protocols and factories derived from `core::socket::stream::SocketContextFactory`.
 
 ### SocketContextFactories
 
@@ -262,8 +263,8 @@ That\'s easy, isn\'t it?
 It is also not difficult to implement the `SocketContext` classes for the server and the client.
 
 -   Remember, the required functionality: 
-    -   The client shall start sending data to the server.
-    -   The server shall reflect the received data back to the client.
+    -   The *client shall start* sending data to the server.
+    -   The *server shall reflect* the received data back to the client.
     -   Also, the client shall reflect the received data back to the server.
 
 -   Also remember: 
@@ -273,7 +274,7 @@ It is also not difficult to implement the `SocketContext` classes for the server
     -    The base class  `core::socket::stream::SocketContext` needs a `core::socket::stream::SocketConnection`  to handle the physical data exchange. Thus, we have to pass the pointer to the `core::socket::stream::SocketConnection` to the constructor of the base class `core::socket::stream::SocketContext`.
 
 
-The base class `core::socket::stream::SocketContext` provides *some virtual methods* which can be overridden in an concrete *SocketContext* class. These methods will be *called by the framework automatically*.
+The base class `core::socket::stream::SocketContext` provides some *virtual methods* which can be *overridden* in an concrete `SocketContext` class. These methods will be *called by the framework automatically*.
 
 #### Echo-Server SocketContext
 
@@ -388,7 +389,7 @@ At the very beginning SNode.C must be *initialized* by calling
 
 - `core::SNodeC::init(argc, argv)`
 
-and at the end of the main applications the *event-loop* of SNode.C is started by calling
+and at the end of the main applications the *event-loop* of SNode.C is *started* by calling
 
 - `core::SNodeC::start()`.
 
@@ -401,6 +402,7 @@ SNode.C provides a view [overloaded *listen*](#listen-methods) methods whose arg
 ``` c++
 #include "EchoServerContextFactory.h"
 #include <core/SNodeC.h>
+#include <log/Logger.h>
 #include <net/in/stream/legacy/SocketServer.h>
 
 int main(int argc, char* argv[]) {
@@ -418,16 +420,16 @@ int main(int argc, char* argv[]) {
     echoServer.listen(8001, 5, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoServer: connected to '" << socketAddress.toString() << "'";
+                VLOG(1) << "EchoServer: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
                 VLOG(1) << "EchoServer: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoServer: non critical error occurred";
+                LOG(ERROR) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoServer: critical error occurred";
+                LOG(FATAL) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -436,7 +438,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-If we would have created a named server instance than a *special* *listen* method which only expects the *lambda function* as argument can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
+If we would have created a *named server instance* than a *special* *listen* method which only expects the *lambda* as argument can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
 
 #### Echo-Client Main Application
 
@@ -470,10 +472,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "EchoClient: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoClient: non critical error occurred";
+                LOG(ERROR) << "EchoClient: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoClient: critical error occurred";
+                LOG(FATAL) << "EchoClient: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -482,19 +484,19 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-If we would have created a named client instance than a special *connect* method which only expects the *lambda function* can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
+If we would have created a *named client instance* than a special *connect* method which only expects the *lambda* can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
 
 ### CMakeLists.txt file for Building and Installing our *echoserver* and *echoclient*
 
-In the `CMakeLists.txt` file used to build the Echo server/client application one finds nothing special. Both executables, `echoserver` and `echoclient` are defined using *add_executable* of *CMake*.
+In the `CMakeLists.txt` file used to build the Echo server/client application one finds nothing special. Both executables, `echoserver` and `echoclient` are defined using `add_executable` of *CMake*.
 
-But a bit attention should be payed to the two lines *target_link_libraries*. In our application we need support for an unencrypted (**legacy**), IPv4 (**ip**), TCP (**stream**) connection. Thus we need to link the `echoserver` and `echoclient` executable against the `libsnodec-net-in-stream-legacy.so` library. To get the *CMake* configuration of that library we need to include the target `net-in-stream-legacy` which is a component of the `snodec` framework using
+But a bit attention should be payed to the two lines `target_link_libraries`. In our application we need support for an unencrypted (`legacy`), IPv4 (`in`), TCP (`stream`) connection. Thus we need to link the *echoserver* and *echoclient* executable against the `libsnodec-net-in-stream-legacy.so` library. To get the *CMake* configuration of that library we need to include the target `net-in-stream-legacy` which is a *component* of the `snodec` framework using
 
 ```cmake
 find_package(snodec COMPONENTS net-in-stream-legacy)
 ```
 
-This library transitively depends on all other necessary and only necessary SNode.C, third party, and system libraries to get a fully linked an runnable application.
+This library *transitively depends* on all other necessary and only necessary SNode.C, third party, and system libraries to get a fully linked and runnable application.
 
 Thus, the `CMakeLists.txt` file looks like
 
@@ -525,12 +527,12 @@ install(TARGETS echoserver echoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR
 
 ## Summary
 
-The echo application shows the typical architecture of servers and clients using SNode.C.
+The echo application shows the *typical architecture* of servers and clients using SNode.C.
 
 - The user needs to provide the application protocol layer by implementing the classe
 
-  - *SocketContextFactory* and
-  - *SocketContext*
+  - `SocketContextFactory` and
+  - `SocketContext`
 
   which need be be derived from the base classes
 
@@ -540,27 +542,28 @@ The echo application shows the typical architecture of servers and clients using
 
 - The framework provides
 
-  - ready to use *SocketServer* and *SocktClient* template classes for each network/transport layer combination.
+  - ready to use `SocketServer` and `SocktClient` template classes for each network/transport layer combination.
 
 # Installation
 
-The installation of SNode.C is straight forward. In the first step all necessary tools and libraries are installed. Afterwards SNode.C can be cloned and compiled.
+The installation of SNode.C is straight forward:
+
+- In a first step all necessary tools and libraries are installed.
+- Afterwards SNode.C can be cloned, compiled, and installed.
 
 ## Supported Systems and Hardware
 
-The main development of SNode.C takes place on an Debian *sid* style linux system. Since debian *bookworm* SNode.C compiles on *stable*. Though, it should compile cleanly on every linux system provided that all required tools and libraries are installed.
+The main development of SNode.C takes place on an *Debian Sid* style Linux system. Since *Debian Bookworm* SNode.C compiles also on *stable*. Though, it should compile cleanly on every Linux system provided that all required tools and libraries are installed.
 
-SNode.C is known to compile and run successfull on
+SNode.C is known to compile and run successfull, tested on
 
--   x86-64 architecture
-    -   Tested on HP ZBook 15 G8
--   Arm architecture (32 and 64 bit)
-    -   Tested on Raspberry Pi 3 and 4
--   OpenWrt 23.05.0-rc1 and later
-    -   Tested architectures (all others are supposed to be supported also)
-        -   arm_cortex-a7_neon-vfpv4 (tested on socs ipq806x-generic and ipq40xx-generic)
-        -   aarch64_cortext-a54 (tested on soc mediatek-filogic)
-        -   mips_24kc (tested on soc ath79)
+-   **x86-64** architecture
+    -   HP ZBook Fury 15 G8
+    -   HP ZBook Fury 16 G9 
+-   **Arm** architecture (32 and 64 bit)
+    -    Raspberry Pi 3, 4, and 5
+-   **OpenWrt** 23.05.0-rc1 and later
+    -   All architectures
 
 ## Minimum required Compiler Versions
 
@@ -573,7 +576,7 @@ Either *GCC* or *clang* can be used but they need to be of an up to date version
 
 ## Requirements and Dependencies
 
-SNode.C requires some external tools and depends on some external libraries. Some of the libraries are directly included in the framework.
+SNode.C requires some external tools and depends on some external libraries. Some of these libraries are directly included in the framework.
 
 ### Tools
 
@@ -599,13 +602,13 @@ SNode.C requires some external tools and depends on some external libraries. Som
 
 #### Mandatory
 
--   Easylogging (v9.97.0) development files ([<https://github.com/amrayn/easyloggingpp/>](https://github.com/amrayn/easyloggingpp/))
--   OpenSSL (v1.1, v3.0, v3.1) development files ([<https://www.openssl.org/>](https://www.openssl.org/))
--   Nlohmann-JSON (v3.11.2) development files ([<https://json.nlohmann.me/>](https://json.nlohmann.me/))
+-   Easylogging++ (v9.97.0 or later) development files ([<https://github.com/amrayn/easyloggingpp/>](https://github.com/amrayn/easyloggingpp/))
+-   OpenSSL (v1.1, v3.0, or v3.1) development files ([<https://www.openssl.org/>](https://www.openssl.org/))
+-   Nlohmann-JSON (v3.11.2 or later) development files ([<https://json.nlohmann.me/>](https://json.nlohmann.me/))
 
 #### Optional
 
--   Bluez (version belonging to target version) development files ([<http://www.bluez.org/>](http://www.bluez.org/))
+-   BlueZ (version belonging to target Linux version) development files ([<http://www.bluez.org/>](http://www.bluez.org/))
 -   LibMagic (v5.37 and later) development files ([<https://www.darwinsys.com/file/>](https://www.darwinsys.com/file/))
 -   LibMariaDB (v2.1.0 and later) client MariaDB Connector/C development files ([<https://mariadb.org/>](https://mariadb.org/))
 
@@ -651,35 +654,33 @@ sudo usermod -a -G snodec root
 
 As SNode.C uses C++ templates a lot the compilation process will take some time. At least on a Raspberry Pi you can go for a coffee - it will take up to one and a half hour (on a Raspberry Pi 3 if just one core is activated for compilation).
 
-It is a good idea to utilize all processor cores and threads for compilation. Thus e.g. on a Raspberry Pi append `-j4` to the `make`  or `ninja` command.
+It is a good idea to utilize all processor cores and threads for compilation. Thus e.g. on a Raspberry Pi append `-j5` to the `make`  or `ninja` command.
 
 ## Deploment on OpenWRT
 
-As starting point it is assumed that local **ssh** and **sftp** access to the router exist and that the router is connected to the **Internet** via the **WAN** port.
+As starting point it is assumed that local *ssh* and *sftp* access to the router exist and that the router is connected to the Internet via the WAN port.
 
-Deploying SNode.C **for the first time** on an OpenWRT router involves two tasks:
+Deploying SNode.C on an OpenWRT router involves two tasks:
 
 1. Cross Compile SNode.C
 3. Deploy SNode.C
 
-***Note:*** All two must be finished successfully in the given order.
-
 ### Cross Compile SNode.C
 
-SNode.C needs to be cross compiled on an host linux system to be deployed on OpenWRT. Don't be afraid about cross compiling it is strait forward.
+SNode.C needs to be *cross compiled* on a Linux host system to be deployable on OpenWRT. Don't be afraid about cross compiling it is strait forward.
 
 #### Download SDK
 
-First, download and extract an SDK-package of version  **23.05.0-rc1** or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory **\<DIR\>**.
+First, download and extract a SDK-package of version  23.05.0-rc1 or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory \<DIR\>.
 
-For example to download and use the SDK version 23.05.0-rc1 for the Netgear MR8300 Wireless Router (soc: **IPQ4019**) run 
+For example to download and use the SDK version 23.05.0-rc1 for the Netgear MR8300 Wireless Router (soc: IPQ4019) run 
 
 ```sh
 cd <DIR>
 wget -qO - https://downloads.openwrt.org/releases/23.05.0-rc2/targets/ipq40xx/generic/openwrt-sdk-23.05.0-rc2-ipq40xx-generic_gcc-12.3.0_musl_eabi.Linux-x86_64.tar.xz | tar Jx
 ```
 
-to create the sdk directory **openwrt-sdk-\<version\>-\<architecture\>-\<atype\>\_\<compiler\>-\<cverstion\>\_\<libc\>\_\<abi\>.Linux-x86_64** what from now on is referred as **<SDK_DIR>**.
+to create the SDK directory `openwrt-sdk-<version>-<architecture>-<atype>_<compiler>-<cverstion>_<libc>_<abi>.Linux-x86_64` what from now on is referred as <SDK_DIR>.
 
 In this example the values of the placeholder are:
 
@@ -706,9 +707,17 @@ cd <SDK_DIR>
 echo "src-git snodec https://github.com/VolkerChristian/owrt-packages.git;vopenwrt-23.05" >> feeds.conf.default
 ```
 
+In case you want to try the latest development state of SNode.C you should run
+
+```sh
+echo "src-git snodec https://github.com/VolkerChristian/owrt-packages.git;vopenwrt-23.05-HEAD" >> feeds.conf.default
+```
+
+instead.
+
 #### Install Packages
 
-The third step is to install all source packages needed to compile SNode.C from the correct feeds.
+The third step is to install all source packages needed to compile SNode.C.
 
 ```sh
 cd <SDK_DIR>
