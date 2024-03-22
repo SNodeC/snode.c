@@ -42,11 +42,11 @@ Main focus (but not only) of the framework is *Machine to Machine* (M2M) communi
       * [SNode.C](#snodec)
    * [Deploment on OpenWRT](#deploment-on-openwrt)
       * [Cross Compile SNode.C](#cross-compile-snodec)
-         * [Download SDK](#download-sdk)
+         * [Download a SDK](#download-a-sdk)
          * [Patch Feeds](#patch-feeds)
-         * [Install Packages](#install-packages)
+         * [Install the SNode.C Package and its Dependencies](#install-the-snodec-package-and-its-dependencies)
          * [Configure the SDK](#configure-the-sdk)
-         * [Cross Compile](#cross-compile)
+         * [Cross Compile SNode.C](#cross-compile-snodec-1)
       * [Deploy SNode.C](#deploy-snodec)
 * [Design Decisions and Features](#design-decisions-and-features)
    * [Network Layer](#network-layer)
@@ -55,12 +55,12 @@ Main focus (but not only) of the framework is *Machine to Machine* (M2M) communi
    * [Application Layer](#application-layer)
 * [Existing <em>SocketServer</em> and <em>SocketClient</em> Classes](#existing-socketserver-and-socketclient-classes)
    * [Common Aspects of Server and Client Classes](#common-aspects-of-server-and-client-classes)
-      * [<em>SocketAddress</em>](#socketaddress)
-      * [<em>SocketConnection</em>](#socketconnection)
-         * [Most Important common <em>SocketConnection</em> Methods](#most-important-common-socketconnection-methods)
-      * [Constructors of <em>SocketServer</em> and <em>SocketClient</em> Classes](#constructors-of-socketserver-and-socketclient-classes)
-         * [Constructors of <em>SocketServer</em> Classes](#constructors-of-socketserver-classes)
-         * [Constructors of <em>SocketClient</em> Classes](#constructors-of-socketclient-classes)
+      * [SocketAddress](#socketaddress)
+      * [SocketConnection](#socketconnection)
+         * [Most Important common SocketConnection Methods](#most-important-common-socketconnection-methods)
+      * [Constructors of SocketServer and SocketClient Classes](#constructors-of-socketserver-and-socketclient-classes)
+         * [All Constructors of SocketServer Classes](#all-constructors-of-socketserver-classes)
+         * [All Constructors of SocketClient Classes](#all-constructors-of-socketclient-classes)
       * [Constructor Callbacks](#constructor-callbacks)
          * [The <em>onConnect</em> Callback](#the-onconnect-callback)
          * [The <em>onConnected</em> Callback](#the-onconnected-callback)
@@ -125,7 +125,7 @@ Main focus (but not only) of the framework is *Machine to Machine* (M2M) communi
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: runner, at: Fri Mar 22 09:49:40 UTC 2024 -->
+<!-- Added by: runner, at: Fri Mar 22 12:51:43 UTC 2024 -->
 
 <!--te-->
 
