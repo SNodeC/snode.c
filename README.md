@@ -2,7 +2,7 @@
 
 [SNode.C](https://snodec.github.io/snode.c-doc/html/index.html) is a very simple to use lightweight highly extensible event driven layer-based framework for network applications in the spirit of node.js written entirely in C\+\+.
 
-The development of the  framework started during the summer semester 2020 in the context of the course **Network and Distributed Systems** of the masters program [Interactive Media](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [Informatics, Communications and Media](https://www.fh-ooe.at/en/hagenberg-campus/) at the [University of Applied Sciences Upper Austria, Campus Hagenberg](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network and web frameworks.
+The development of the  framework started during the summer semester 2020 in the context of the course *Network and Distributed Systems* in the master's program [Interactive Media](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [Informatics, Communications and Media](https://www.fh-ooe.at/en/hagenberg-campus/) at the [University of Applied Sciences Upper Austria, Campus Hagenberg](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network and web frameworks.
 
 Main focus (but not only) of the framework is *Machine to Machine* (M2M) communication and here especially the field of *Internet of Things* (IoT). As such a reference project [MQTT-Suite](https://github.com/SNodeC/mqttsuite) exists, providing *mqttbroker*, *mqttintegrator*, and *wsmqttintegrator*, *mqttbridge*, and *wsmqttbridge* applications.
 
@@ -396,7 +396,7 @@ and at the end of the main applications the *event-loop* of SNode.C is *started*
 
 The server instance `echoServer` must be *activated* by calling `echoServer.listen()`.
 
-SNode.C provides a view [overloaded *listen*](#listen-methods) methods whose arguments vary depending on the network layer (IPv4, IPv6, RFCOMM, L2CAP, or unix domain sockets) used. Though, every *listen* method expects a *lambda function* as one of its arguments. Here we use IPv4 and the *listen* method which expects a port number - here *8001* - as argument. Note that we do not bind the `echoServer` to a specific network interface. Thus it can be contacted via all active physical network interfaces.
+SNode.C provides a view [overloaded `listen()`](#listen-methods) methods whose arguments vary depending on the network layer (IPv4, IPv6, RFCOMM, L2CAP, or unix domain sockets) used. Though, every `listen()` method expects a *lambda function* as one of its arguments. Here we use IPv4 and the `listen()` method which expects a port number -- here *8001* -- as argument. Note that we do not bind the `echoServer` to a specific network interface. Thus it can be contacted via all active physical network interfaces.
 
 ``` c++
 #include "EchoServerContextFactory.h"
@@ -437,13 +437,13 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-If we would have created a *named server instance* than a *special* *listen* method which only expects the *lambda* as argument can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
+If we would have created a *named server instance* than a *special* `listen()` method which only expects the *lambda* as argument can be used. In that case the configuration of this named instance would be done using *command line arguments* and/or a *configuration file*.
 
 #### Echo-Client Main Application
 
 The client instance `echoClient` must be *activated* by calling `echoClient.connect()`.
 
-Equivalent to the server instance a client instance provides a view [overloaded *connect*](#connect-methods) methods whose arguments also vary depending on the network layer used. Here it is assumed that we talk to an IPv4 server which runs on the same machine (*localhost*) as the client. Thus we pass the host name *localhost* and port number *8001* as arguments to the *connect* method.
+Equivalent to the server instance a client instance provides a view [overloaded `connect()`](#connect-methods) methods whose arguments also vary depending on the network layer used. Here it is assumed that we talk to an IPv4 server which runs on the same machine (*localhost*) as the client. Thus we pass the host name *localhost* and port number *8001* as arguments to the `connect()` method.
 
 ``` cpp
 #include "EchoClientContextFactory.h"
@@ -483,7 +483,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-If we would have created a *named client instance* than a special *connect* method which only expects the *lambda* can be used. In that case the configuration of this named instance would be done using command line arguments and/or a configuration file.
+If we would have created a *named client instance* than a special `connect()` method which only expects the *lambda* can be used. In that case the configuration of this named instance would be done using *command line arguments* and/or a *configuration file*.
 
 ### CMakeLists.txt file for Building and Installing our *echoserver* and *echoclient*
 
@@ -497,7 +497,7 @@ find_package(snodec COMPONENTS net-in-stream-legacy)
 
 This library *transitively depends* on all other necessary and only necessary SNode.C, third party, and system libraries to get a fully linked and runnable application.
 
-Thus, the `CMakeLists.txt` file looks like
+Thus, the `CMakeLists.txt` file for our server and client applications looks like
 
 ```cmake
 cmake_minimum_required(VERSION 3.3)
@@ -539,9 +539,12 @@ The echo application shows the *typical architecture* of servers and clients usi
 
   - [`core::socket::stream::SocketContext`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1SocketContext.html)
 
-- The framework provides
+- The framework provides ready to use
 
-  - ready to use `SocketServer` and `SocktClient` template classes for each network/transport layer combination.
+  - `SocketServer` and
+  - `SocktClient`
+  
+  template classes for each network/transport layer combination.
 
 # Installation
 
@@ -558,7 +561,7 @@ SNode.C is known to compile and run successfull, tested on
 
 -   **x86-64** architecture
     -   HP ZBook Fury 15 G8
-    -   HP ZBook Fury 16 G9 
+    -   HP ZBook Fury 16 G9
 -   **Arm** architecture (32 and 64 bit)
     -    Raspberry Pi 3, 4, and 5
 -   **OpenWrt** 23.05.0-rc1 and later
@@ -651,7 +654,7 @@ sudo groupadd --system snodec
 sudo usermod -a -G snodec root
 ```
 
-As SNode.C uses C++ templates a lot the compilation process will take some time. At least on a Raspberry Pi you can go for a coffee - it will take up to one and a half hour (on a Raspberry Pi 3 if just one core is activated for compilation).
+As SNode.C uses C++ templates a lot, the compilation process will take some time. At least on a Raspberry Pi you can go for a coffee - it will take up to one and a half hour (on a Raspberry Pi 3 if just one core is activated for compilation).
 
 It is a good idea to utilize all processor cores and threads for compilation. Thus e.g. on a Raspberry Pi append `-j5` to the `make`  or `ninja` command.
 
@@ -659,16 +662,20 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 
 As starting point it is assumed that local *ssh* and *sftp* access to the router exist and that the router is connected to the Internet via the WAN port.
 
-Deploying SNode.C on an OpenWRT router involves two tasks:
+Deploying SNode.C on an OpenWRT router involves a view tasks:
 
-1. Cross Compile SNode.C
-3. Deploy SNode.C
+1. Choose and download a OpenWRT-SDK
+2. Patch the SDK to integrate the SNode.C feeds
+3. Install the SNode.C package and its dependencies
+4. Configure the SDK
+5. Cross compile SNode.C
+6. Deploy SNode.C
 
 ### Cross Compile SNode.C
 
 SNode.C needs to be *cross compiled* on a Linux host system to be deployable on OpenWRT. Don't be afraid about cross compiling it is strait forward.
 
-#### Download SDK
+#### Download a SDK
 
 First, download and extract a SDK-package of version  23.05.0-rc1 or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory \<DIR\>.
 
@@ -714,7 +721,7 @@ echo "src-git snodec https://github.com/VolkerChristian/owrt-packages.git;vopenw
 
 instead.
 
-#### Install Packages
+#### Install the SNode.C Package and its Dependencies
 
 The third step is to install all source packages needed to compile SNode.C.
 
@@ -735,7 +742,7 @@ make defconfig
 
 is configured. Default values for all configuration options can be used safely.
 
-#### Cross Compile
+#### Cross Compile SNode.C
 
 The last step is to
 
@@ -746,7 +753,7 @@ make package/snode.c/compile
 
 cross compiled SNode.C.
 
-The last two steps, **Install Packages**, and **Cross Compile** (at most the last one) take some time as 
+The two steps, *Install Packages*, and *Cross Compile* (at most the last one) take some time as 
 
 1. all feed and package definitions necessary to cross compile SNode.C are downloaded and installed locally from the OpenWRT servers and from github,
 2. the sources of all dependent and indirect dependent packages are downloaded from upstream and build recursively and
@@ -754,13 +761,13 @@ The last two steps, **Install Packages**, and **Cross Compile** (at most the las
 
 To parallelize the compilation use the switch `-j<thread-count>`  of make where \<thread-count\> is the number of CPU-threads dedicated to cross compile SNode.C and its dependencies.
 
-***Note:*** For SNode.C and all it's build dependencies **ipk-packages** will be created which can be found in the directory **<SDK_DIR>bin/packages/\<architecture\>**.
+***Note:*** For SNode.C and all it's build dependencies *ipk-packages* will be created which can be found in the directory `<SDK_DIR>bin/packages/\<architecture\>`.
 
 ### Deploy SNode.C
 
 After cross compilation, SNode.C can be deployed.
 
-The **snodec\_\<version\>\_\<architecture\>.ipk** package must be downloaded to and installed by executing
+The `snode.c-*_<version>_<architecture>.ipk` packages must be downloaded to and installed on the router by executing
 
 ```sh
 cd <SDK_DIR>/bin/packages/<architecture>/snodec
@@ -784,41 +791,73 @@ During package installation a new *unix group* with member *root* is created use
 
 -   Easy to use and extend
 -   Clear and clean architecture
--   Single-threaded
--   Single tasking
+-   Single threaded, single tasking
 -   Event driven
 -   Layer based
 -   Modular
 -   Support for single shot and interval timer
--   Sophisticated configuration system controlled either by code, command line, or configuration file
--   Daemonize server and client if requested
--   Support for all three major multiplexer API's epoll, poll, and select
--   Micro library architecture: Each individual feature/functionality is provided in its corresponding library.
+-   Sophisticated configuration system controlled either by
+    -   code (API), 
+    -   command line, or 
+    -   configuration file
+
+-   Daemonize (double fork) server and client if requested
+-   Support for all three major multiplexer API's 
+    -   epoll,
+    -   poll, and
+    -   select
+
+-   Support for five network protocols
+    -   IPv4
+    -   IPv6 (single and dual stack)
+    -   Unix domain sockets
+    -   Bluetooth RFCOMM
+    -   Bluetooth L2CAP
+
+-   Sub-Frameworks
+    -   HTTP/S server and client
+    -   High level HTTP/S server framework à la Node.js-Express
+    -   WebSocket (WS and WSS) for server and client
+    -   MQTT/S for server and client
+
+-   Micro library architecture: Each individual feature/functionality is provided in its corresponding library
+-   IoT reference applications [MQTT-Suite](https://github.com/SNodeC/mqttsuite)
+    -   mqttbroker (native and WebSocket), 
+    -   mqttbridge (native and WebSocket), 
+    -   mqttintegrator (native and WebSocket)
+
 
 ## Network Layer
 
 SNode.C currently supports five different network layer protocols, each living in it's own C++ namespace.
 
-| Network Layer                                                | C++ Namespace Name                                           |
+| Network Layer                                                | C++ Namespace                                                |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Internet Protocol version 4 (IPv4)                           | [`net::ip`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in.html) |
-| Internet Protocol version 6 (IPv6)                           | [`net::ip6`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6.html) |
+| Internet Protocol version 4 (IPv4)                           | [`net::in`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in.html) |
+| Internet Protocol version 6 (IPv6)                           | [`net::in6`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6.html) |
 | Unix Domain Sockets                                          | [`net::un`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un.html) |
 | Bluetooth Radio Frequency Communication (RFCOMM)             | [`net::rc`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc.html) |
 | Bluetooth Logical Link Control and Adaptation Protocol (L2CAP) | [`net::l2`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2.html) |
 
 ## Transport Layer
 
-Currently only connection-oriented protocols (**C++ namespace name** `<network_layer_namespace>::stream`) for all supported [network layer](#network-layer) and [connection layer](#connection-layer) combinations are implemented (for IPv4 and IPv6 this means TCP).
+Currently only connection-oriented protocols (C++ namespace `<network_layer_namespace>::stream`) for all supported [network layer](#network-layer) and [connection layer](#connection-layer) combinations are implemented (for IPv4 and IPv6 this means TCP).
 
--   Every transport layer protocol provides a common base API which makes it very easy to create servers and clients for all different network layers supported.
+-   All transport layer protocols provide a common *base API* which makes it very easy to create servers and clients for all of them.
 
 ## Connection Layer
 
-The connection layer is responsible for preparing data to be send to the peer or to be read by a *SocketContext* using the *sendToPeer* and *readFromPeer* methods. Two versions of this layer exist. One for **unencrypted** communication (**C++ namespace name** `<transport_layer_namespace>::legacy`) and one for **SSL/TLS encrypted** communication (**C++ namespace name** `<transport_layer_namespace>::tls`).
+The connection layer is responsible for preparing the data to be send to the peer or read from the peer by a `SocketContext` using the `sendToPeer()` and `readFromPeer()` methods.
 
--   New application protocols can be connected to the connection layer very easily by just implementing a *SocketContextFactory* and a *SocketContext* class and passing the *SocketContextFactory* class as template argument to concrete *SocketServer* and *SocketClient* classes.
--   The SSL/TLS version Transparently offers encryption provided by OpenSSL for each supported transport layer protocol and thus, also for all application level protocols.
+Two versions of this layer exist. One for 
+
+- *unencrypted* (C++ namespace `<transport_layer_namespace>::legacy`) and one for 
+- *SSL/TLS encrypted* (C++ namespace `<transport_layer_namespace>::tls`) 
+
+communication.
+
+-   New application protocols can be connected to the connection layer easily by just implementing `SocketContextFactory` and `SocketContext` classes for server and client, and passing the `SocketContextFactory` classes as template arguments to concrete `SocketServer` and `SocketClient` classes.
+-   The SSL/TLS version *transparently offers encryption* provided by OpenSSL for each supported transport layer protocol and thus, also for all application level protocols.
     -   Support of X.509 certificates
     -   Server Name Indication (SNI) is supported (useful for e.g. virtual (web) servers)
     -   Support for individual SNI certificates
@@ -827,7 +866,7 @@ The connection layer is responsible for preparing data to be send to the peer or
 
 In-framework server and client support designed as sub-frameworks currently exist for the application level protocols
 
--   HTTP/1.1
+-   HTTP/0.9/1.0/1.1
 -   WebSocket version 13
 -   MQTT version 3.1.1 (version 5.0 is in preparation)
 -   MQTT via WebSockets
@@ -841,13 +880,13 @@ Before focusing explicitly on the *SocketServer* and *SocketClient* classes a fe
 
 ## Common Aspects of Server and Client Classes
 
-### *SocketAddress*
+### `SocketAddress`
 
-Every network layer provides its specific *SocketAddress* class. In typical scenarios you need not bother about these classes as objects of it are managed internally by the framework.
+Every network layer provides its specific `SocketAddress` class. In typical scenarios you need not bother about these classes as objects of it are managed internally by the framework.
 
-Nevertheless, for the sake of completeness, all currently supported *SocketAddress* classes along with the header files they are declared in are listed below.
+Nevertheless, for the sake of completeness, all currently supported `SocketAddress` classes along with the header files they are declared in are listed below.
 
-Every *SocketServer* and *SocketClient* class has it's specific *SocketAddress* type attached as nested data type. Thus, one can always get the correct *SocketAddress* type buy just
+Every `SocketServer` and `SocketClient` class has it's specific `SocketAddress` type attached as nested data type. Thus, one can always get the correct `SocketAddress` type buy just
 
 ```cpp
 using SocketAddress = <ConcreteServerOrClientType>::SocketAddress;
@@ -865,9 +904,9 @@ as can be seen in the Echo-Demo-Application above.
 
 Each *SocketAddress* class provides it's very specific set of constructors.
 
-#### *SocketAddress* Constructors
+#### `SocketAddress` Constructors
 
-The default constructors of all *SocketAddress* classes creates wild-card *SocketAddress* objects. For a *SocketClient* for exampe, which uses such a wild-card *SocketAddress* as *local address* the operating system chooses a valid `sockaddr` structure for the local side of the connection automatically.
+The default constructors of all `SocketAddress` classes creates wild-card `SocketAddress` objects. For a `SocketClient` for example, which uses such a wild-card `SocketAddress` as *local address* the operating system chooses a valid `sockaddr` structure for the local side of the connection automatically.
 
 | SocketAddress                                                | Constructors                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -877,39 +916,39 @@ The default constructors of all *SocketAddress* classes creates wild-card *Socke
 | [`net::rc::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1rc_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(uint8_t channel)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)` |
 | [`net::l2::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1l2_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t psm)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)` |
 
-### *SocketConnection*
+### `SocketConnection`
 
-Every network layer uses its specific *SocketConnection* class. Such a *SocketConnection* object represents the logical connection to the peer and is an specialization of one of the two template classes 
+Every network layer uses its specific `SocketConnection` class. Such a `SocketConnection` object represents the physical connection to the peer and is an specialization of one of the two template classes 
 
 - `core::socket::stream::legacy::SocketConnection` or
 - `core::socket::stream::tls::SocketConnection` 
 
 which itself are derived from the non template base class `core::socket::stream::SocketConnection`.
 
-Equivalent to the *SocketAddress* type, each *SocketServer* and *SocketClient* class provides its correct *SocketConnection* as nested data type. This type can be obtained from a concrete *SocketServer* or *SocketClient* class using
+Equivalent to the `SocketAddress` type, each `SocketServer` and `SocketClient` class provides its correct `SocketConnection` as nested data type. This type can be obtained from a concrete `SocketServer` or `SocketClient` class using
 
 ```c++
 using SocketConnection = <ConcreteServerOrClientType>::SocketConnection;
 ```
 
-Each *SocketConnection* object provides, among others, the method
+Each `SocketConnection` object provides, among others, the method
 
 - `int getFd()`
 
 which returns the underlying descriptor used for communication.
 
-Additionally the *SocketConnection* objects of a *SSL/TLS* *SocketServer* or *SSL/TLS SocketClient* class provides the method
+Additionally the `SocketConnection` objects of a SSL/TLS `SocketServer` or SSL/TLS `SocketClient` class provide the method
 
 - `SSL* getSSL()`
 
-which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption, authenticating and authorization. Using this `SSL` structure one can modify the SSL/TLS behavior before SSL/TLS handshake in the [*onConnect* callback](#the-onconnect-callback), discussed below, and add all kinds of authentication and authorization logic directly in the [*onConnected* callback](#the-onconnected-callback), also discussed below.
+which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption, authenticating and authorization. Using this `SSL` structure one can modify the SSL/TLS behavior before SSL/TLS handshake in the [`onConnect` callback](#the-onconnect-callback), discussed below, and add all kinds of authentication and authorization logic directly in the [`onConnected` callback](#the-onconnected-callback), also discussed below.
 
 | Encryption | SocketConnection Classes                                     | SocketConnection Header Files                                |
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Legacy     | [`core::socket::stream::legacy::SocketConnection`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1SocketConnection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://snodec.github.io/snode.c-doc/html/legacy_2SocketConnection_8h.html) |
 | SSL/TLS    | [`core::socket::stream::tls::SocketConnection`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1SocketConnection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://snodec.github.io/snode.c-doc/html/tls_2SocketConnection_8h.html) |
 
-#### Most Important common *SocketConnection* Methods
+#### Most Important common `SocketConnection` Methods
 
 | Method                                                       | Explanation                                                  |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -922,29 +961,35 @@ which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption,
 | `void setTimeout(utils::Timeval& timeout)`                   | Set the inactivity timeout of a connection (default 60 seconds).<br/>If no data has been transfered within this amount of time<br/>the connection is terminated. |
 | `bool isValid()`                                             | Check if a connection has been created successfully.         |
 
-### Constructors of *SocketServer* and *SocketClient* Classes
+### Constructors of `SocketServer` and `SocketClient` Classes
 
-Beside the already discussed constructors of the *SocketServer* and *SocketClient* classes, each of them provides two additional constructors which expect three callback `std::function`s as arguments. This callback functions are called by SNode.C during connection establishment and connection shutdown between server and clients.
+Beside the already discussed constructors of the `SocketServer` and `SocketClient` classes, each of them provides additional constructors which expect three callback `std::function` objects as arguments.
 
-And furthermore an equivalent set of four constructors additionally expecting a pointer to a concrete *SocketContextFactory* are also provided.
+This callback functions are called by SNode.C during connection establishment and connection shutdown between server and clients.
 
-Thus the full list of constructors of the *SocketServer* and *SocketClient* classes is:
+Some constructors also accepts an optional template parameter pack which is passed on to the used `SocketContextFactory` as arguments.
 
-#### Constructors of *SocketServer* Classes
+And furthermore an equivalent set of four constructors expecting a pointer to a concrete `SocketContextFactory` are also provided. These constructors didn't accept a parameter pack, as the `SocketContextFactory` has already been created bevore.
+
+Thus the full lists of constructors of the `SocketServer` and `SocketClient` classes are:
+
+#### All Constructors of `SocketServer` Classes
 
 ```c++
-SocketServer()
+SocketServer(const Args&... args)
 
 SocketServer(const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
-             const std::function<void(SocketServer::SocketConnection*)>& onDisconnect)
+             const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
+             const Args&... args)
 
-SocketServer(const std::string& name)
+SocketServer(const std::string& instanceName, const Args&... args)
 
-SocketServer(const std::string& name,
+SocketServer(const std::string& instanceName,
              const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
-             const std::function<void(SocketServer::SocketConnection*)>& onDisconnect)
+             const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
+             const Args&... args)
 
 SocketServer(SocketContextFactory* socketContextFactory)
     
@@ -953,30 +998,32 @@ SocketServer(const std::function<void(SocketServer::SocketConnection*)>& onConne
              const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
              SocketContextFactory* socketContextFactory)
     
-SocketServer(const std::string& name, SocketContextFactory* socketContextFactory)
+SocketServer(const std::string& instanceName, SocketContextFactory* socketContextFactory)
     
-SocketServer(const std::string& name,
+SocketServer(const std::string& instanceName,
              const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
              const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
              SocketContextFactory* socketContextFactory)
 ```
 
-#### Constructors of *SocketClient* Classes
+#### All Constructors of `SocketClient` Classes
 
 ```c++
-SocketClient()
+SocketClient(const Args&... args)
 
 SocketClient(const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
-             const std::function<void(SocketClient::SocketConnection*)>& onDisconnect)
+             const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
+             const Args&... args)
 
-SocketClient(const std::string& name)
+SocketClient(const std::string& instanceName, const Args&... args)
 
-SocketClient(const std::string& name,
+SocketClient(const std::string& instanceName,
              const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
-             const std::function<void(SocketClient::SocketConnection*)>& onDisconnect)
+             const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
+             const Args&... args)
 
 SocketClient(SocketContextFactory* socketContextFactory)
 
@@ -985,9 +1032,9 @@ SocketClient(const std::function<void(SocketClient::SocketConnection*)>& onConne
              const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
 			 SocketContextFactory* socketContextFactory)
 
-SocketClient(const std::string& name, SocketContextFactory* socketContextFactory)
+SocketClient(const std::string& instanceName, SocketContextFactory* socketContextFactory)
 
-SocketClient(const std::string& name,
+SocketClient(const std::string& instanceName,
              const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
              const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
