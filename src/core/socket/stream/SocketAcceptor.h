@@ -47,12 +47,6 @@ namespace core::socket::stream {
         using SocketConnection = SocketConnectionT<PhysicalServerSocket>;
 
     public:
-        SocketAcceptor() = delete;
-        SocketAcceptor(SocketAcceptor&&) = delete;
-
-        SocketAcceptor& operator=(const SocketAcceptor&) = delete;
-        SocketAcceptor& operator=(SocketAcceptor&&) = delete;
-
         SocketAcceptor(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
                        const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,

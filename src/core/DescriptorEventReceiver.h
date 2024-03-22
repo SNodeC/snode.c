@@ -58,10 +58,6 @@ namespace core {
         : virtual protected Observer
         , public EventReceiver {
     public:
-        DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
-
-        DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
-
         struct TIMEOUT {
             static const utils::Timeval DEFAULT;
             static const utils::Timeval DISABLE;

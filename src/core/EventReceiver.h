@@ -40,6 +40,12 @@ namespace core {
     public:
         EventReceiver(const std::string& name);
 
+        EventReceiver(EventReceiver&) = delete;
+        EventReceiver(EventReceiver&&) = delete;
+
+        EventReceiver& operator=(EventReceiver&) = delete;
+        EventReceiver& operator=(EventReceiver&&) = delete;
+
         virtual void destruct();
 
     protected:
