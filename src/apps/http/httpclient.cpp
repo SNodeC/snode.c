@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     using Client = apps::http::STREAM::Client;
     using SocketAddress = Client::SocketAddress;
 
-    Client client = apps::http::STREAM::getClient();
+    const Client client = apps::http::STREAM::getClient();
 
     client.connect([instanceName = client.getConfig().getInstanceName()](
                        const SocketAddress& socketAddress,
