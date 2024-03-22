@@ -39,7 +39,8 @@ namespace core {
     class Observer {
     public:
         Observer() = default;
-        Observer(const Observer& observer);
+        Observer(Observer&) = delete;
+        Observer(Observer&&) = delete;
 
         virtual ~Observer();
 

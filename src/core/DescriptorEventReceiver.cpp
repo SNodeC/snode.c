@@ -32,9 +32,6 @@
 
 namespace core {
 
-    Observer::Observer([[maybe_unused]] const Observer& observer) { // Do not copy observationCounter
-    }
-
     Observer::~Observer() {
     }
 

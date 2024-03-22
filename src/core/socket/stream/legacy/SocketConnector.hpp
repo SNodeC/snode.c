@@ -50,8 +50,7 @@ namespace core::socket::stream::legacy {
 
     template <typename PhysicalSocketServer, typename Config>
     SocketConnector<PhysicalSocketServer, Config>::SocketConnector(const SocketConnector& socketConnector)
-        : core::Observer(socketConnector)
-        , Super::SocketConnector(socketConnector) {
+        : Super::SocketConnector(socketConnector) {
     }
 
     template <typename PhysicalClientSocket, typename Config>

@@ -102,18 +102,9 @@ namespace core::socket::stream {
         });
     }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#endif
-#ifdef __has_warning
-#if __has_warning("-Wabstract-vbase-init")
-#pragma GCC diagnostic ignored "-Wabstract-vbase-init"
-#endif
-#endif
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
-        : core::Observer(socketAcceptor)
-        , core::eventreceiver::AcceptEventReceiver(socketAcceptor.config->getInstanceName() + " SocketAcceptor:", 0)
+        : core::eventreceiver::AcceptEventReceiver(socketAcceptor.config->getInstanceName() + " SocketAcceptor:", 0)
         , socketContextFactory(socketAcceptor.socketContextFactory)
         , onConnect(socketAcceptor.onConnect)
         , onConnected(socketAcceptor.onConnected)
@@ -124,9 +115,6 @@ namespace core::socket::stream {
             init();
         });
     }
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::~SocketAcceptor() {

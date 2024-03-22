@@ -54,6 +54,9 @@ namespace core::socket::stream {
     public:
         SocketConnection(const std::string& instanceName, const std::string& configuredServer);
 
+        SocketConnection(SocketConnection&) = delete;
+        SocketConnection(SocketConnection&&) = delete;
+
     protected:
         virtual ~SocketConnection();
 

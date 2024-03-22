@@ -92,8 +92,7 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalSocketServer, typename Config>
     SocketAcceptor<PhysicalSocketServer, Config>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
-        : core::Observer(socketAcceptor)
-        , Super(socketAcceptor) {
+        : Super(socketAcceptor) {
     }
 
     template <typename PhysicalSocketServer, typename Config>
