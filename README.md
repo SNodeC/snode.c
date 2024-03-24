@@ -15,7 +15,6 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
 * [Quick Starting Guide](#quick-starting-guide)
    * [An "Echo" Application](#an-echo-application)
       * [SocketServer and SocketClient Instances](#socketserver-and-socketclient-instances)
-      * [SocketContextFactories](#socketcontextfactories)
          * [Echo-Server SocketContextFactory](#echo-server-socketcontextfactory)
          * [Echo-Client SocketContextFactory](#echo-client-socketcontextfactory)
       * [SocketContexts](#socketcontexts)
@@ -49,11 +48,12 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
          * [Cross Compile SNode.C](#cross-compile-snodec-1)
       * [Deploy SNode.C](#deploy-snodec)
 * [Design Decisions and Features](#design-decisions-and-features)
+* [Fundamental Architecture](#fundamental-architecture)
    * [Network Layer](#network-layer)
    * [Transport Layer](#transport-layer)
    * [Connection Layer](#connection-layer)
    * [Application Layer](#application-layer)
-* [Existing <em>SocketServer</em> and <em>SocketClient</em> Classes](#existing-socketserver-and-socketclient-classes)
+* [Existing SocketServer and SocketClient Classes](#existing-socketserver-and-socketclient-classes)
    * [Common Aspects of Server and Client Classes](#common-aspects-of-server-and-client-classes)
       * [SocketAddress](#socketaddress)
       * [SocketConnection](#socketconnection)
@@ -121,7 +121,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: runner, at: Fri Mar 22 16:08:19 UTC 2024 -->
+<!-- Added by: runner, at: Sun Mar 24 20:17:20 UTC 2024 -->
 
 <!--te-->
 
