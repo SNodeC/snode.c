@@ -1096,7 +1096,7 @@ SocketClient(SocketContextFactory* socketContextFactory)
 SocketClient(const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
              const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
-			 SocketContextFactory* socketContextFactory)
+             SocketContextFactory* socketContextFactory)
 
 SocketClient(const std::string& instanceName, SocketContextFactory* socketContextFactory)
 
