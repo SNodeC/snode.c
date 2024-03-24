@@ -38,6 +38,12 @@ namespace core::socket::stream {
         virtual ~SocketContextFactory();
 
     public:
+        SocketContextFactory(SocketContextFactory&) = delete;
+        SocketContextFactory(SocketContextFactory&&) = delete;
+
+        SocketContextFactory& operator=(SocketContextFactory&) = delete;
+        SocketContextFactory& operator=(SocketContextFactory&&) = delete;
+
         virtual core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) = 0;
     };
 

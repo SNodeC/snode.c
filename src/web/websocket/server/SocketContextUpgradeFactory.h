@@ -44,10 +44,6 @@ namespace web::websocket::server {
     public:
         SocketContextUpgradeFactory() = default;
 
-        SocketContextUpgradeFactory(const SocketContextUpgradeFactory&) = delete;
-
-        SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
-
         static void link();
 
     private:

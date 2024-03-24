@@ -45,9 +45,11 @@ namespace web::websocket {
     template <typename SocketContextUpgradeT>
     class SubProtocol {
     public:
-        SubProtocol() = delete;
-        SubProtocol(const SubProtocol&) = delete;
-        SubProtocol& operator=(const SubProtocol&) = delete;
+        SubProtocol(SubProtocol&) = delete;
+        SubProtocol(SubProtocol&&) = delete;
+
+        SubProtocol& operator=(SubProtocol&) = delete;
+        SubProtocol& operator=(SubProtocol&&) = delete;
 
     private:
         using SocketContextUpgrade = SocketContextUpgradeT;

@@ -39,11 +39,17 @@ namespace web::websocket {
     public:
         using SubProtocol = SubProtocolT;
 
+        SubProtocolFactory() = delete;
+
         SubProtocolFactory(const std::string& name)
             : subProtocolName(name) {
         }
 
-        SubProtocolFactory() = delete;
+        SubProtocolFactory(SubProtocolFactory&) = delete;
+        SubProtocolFactory(SubProtocolFactory&&) = delete;
+
+        SubProtocolFactory& operator=(SubProtocolFactory&) = delete;
+        SubProtocolFactory& operator=(SubProtocolFactory&&) = delete;
 
         virtual ~SubProtocolFactory() = default;
 

@@ -50,12 +50,6 @@ namespace web::http::client {
             , configHttp(web::http::client::ConfigHTTP(getConfigInstance())) {
         }
 
-        SocketContextFactory(SocketContextFactory&) = delete;
-        SocketContextFactory& operator=(SocketContextFactory&) = delete;
-
-        SocketContextFactory(SocketContextFactory&&) = delete;
-        SocketContextFactory& operator=(SocketContextFactory&&) = delete;
-
         void setPipelinedRequests(bool pipelinedRequests) {
             configHttp.setPipelinedRequests(pipelinedRequests);
         }

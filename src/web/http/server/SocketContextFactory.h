@@ -44,9 +44,6 @@ namespace web::http::server {
             : onRequestReady(onRequestReady) {
         }
 
-        SocketContextFactory(const SocketContextFactory&) = delete;
-        SocketContextFactory& operator=(const SocketContextFactory&) = delete;
-
     private:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             return new web::http::server::SocketContext(socketConnection, onRequestReady);
