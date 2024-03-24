@@ -1,10 +1,10 @@
 # Simple NODE in C++ (SNode.C)
 
-[SNode.C](https://snodec.github.io/snode.c-doc/html/index.html) is a very simple to use lightweight highly extensible event driven layer-based framework for network applications in the spirit of node.js written entirely in C\+\+.
+[SNode.C](https://snodec.github.io/snode.c-doc/html/index.html) is a very simple to use, lightweight, highly extensible, event driven, layer-based framework for network applications in the spirit of node.js written entirely in C\+\+.
 
-The development of the  framework started during the summer semester 2020 in the context of the course *Network and Distributed Systems* in the master's program [Interactive Media](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [Informatics, Communications and Media](https://www.fh-ooe.at/en/hagenberg-campus/) at the [University of Applied Sciences Upper Austria, Campus Hagenberg](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network and web frameworks.
+The development of the  framework began during the summer semester 2020 as part of the course *Network and Distributed Systems* in the master's program [Interactive Media](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [Informatics, Communications and Media](https://www.fh-ooe.at/en/hagenberg-campus/) at the [University of Applied Sciences Upper Austria, Campus Hagenberg](https://www.fh-ooe.at/en/), to give students an insight into the fundamental techniques of network and web frameworks.
 
-Main focus (but not only) of the framework is *Machine to Machine* (M2M) communication and here especially the field of *Internet of Things* (IoT). As such a reference project [MQTT-Suite](https://github.com/SNodeC/mqttsuite) exists, providing *mqttbroker*, *mqttintegrator*, and *wsmqttintegrator*, *mqttbridge*, and *wsmqttbridge* applications.
+Main focus (but not only) of the framework is on *Machine to Machine* (M2M) communication and in particular on the field of *Internet of Things* (IoT). As such, the SNode.C reference project [MQTT-Suite](https://github.com/SNodeC/mqttsuite) exists, which provides *mqttbroker*, *mqttintegrator*, and *wsmqttintegrator*, *mqttbridge*, and *wsmqttbridge* applications.
 
 # Table of Content
 <!--ts-->
@@ -133,7 +133,7 @@ SNode.C is released under the [GNU Lesser General Public License, Version 3](htt
 
 Volker Christian ([me@vchrist.at](mailto:me@vchrist.at) or [Volker.Christian@fh-hagenberg.at](mailto:volker.christian@fh-hagenberg.at))
 
-Some components are also copyrighted by Students
+Some components are also copyrighted by Students:
 
 -   Json Middleware
 
@@ -165,7 +165,7 @@ Some components are also copyrighted by Students
 
 # Quick Starting Guide
 
-Basically the architecture of every server and client application is the same and consists of three components.
+The architecture of every server and client application is basically the same and consists of three components.
 
 -   `SocketServer` respective `SocketClient` instance
 -   `SocketContextFactory`
@@ -175,47 +175,47 @@ Let\'s have a look at how these three components are related to each other by im
 
 ## An "Echo" Application
 
-Imagine we want to create a very basic TCP (`stream`)/IPv4 (`in`) server/client pair which sends some plain text data unencrypted (`legacy`) to each other in a ping-pong way.
+Imagine we want to create a very basic TCP (`stream`)/IPv4 (`in`) server/client pair which sends some plain text data unencrypted (`legacy`) to each other in a ping-pong fashion.
 
-The client shall start sending text data to the server and the server shall reflect that data back to the client. The client receives the reflected data and sends it back to the server again. This data ping-pong shall last infinitely long.
+The client starts to send text data to the server and the server reflects this data back to the client. The client receives the reflected data and sends it back to the server again. This data-ping-pong should last infinitely long.
 
 The code of this demo application can be found on [github](https://github.com/SNodeC/echo).
 
 ### SocketServer and SocketClient Instances
 
-For the server role we just need to create an object of type
+For the *server role* we just need to create an object of type
 
 ``` c++
 net::in::stream::legacy::SocketServer<SocketContextFactory>
 ```
 
-called [*server instance*](#SocketServer-Classes) and for the client role an object of type
+called [*server instance*](#SocketServer-Classes) and for the *client role* an object of type
 
 ``` c++
 net::in::stream::legacy::SocketClient<SocketContextFactory>
 ```
 
-called [*client instance*](#SocketClient-Classes) is needed.
+is required, called [*client instance*](#SocketClient-Classes).
 
-A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` needs to be provided by the user and is used internally by the `SocketServer` and the `SocketClient` instances to create a concrete `SocketContext` object for each established connection. This `SocketContext` also needs to be provided by the user and represents a concrete application protocol.
+A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` needs to be provided by the user and is used internally by the `SocketServer` and the `SocketClient` instances to create a concrete `SocketContext` object for each established connection. This `SocketContext` must also be provided by the user and represents a concrete application protocol.
 
-Both, `SocketServer` and `SocketClient` classes have, among others, a default constructor and a constructor expecting an instance name as argument. 
+Both, `SocketServer` and `SocketClient` classes have, among others, a *default* constructor and a constructor expecting an *instance name* as argument. 
 
-- When the default constructor is used to create the instance it is called an anonymous instance.
-- In contrast to a named instance if the constructors expecting a `std::string` is used for instance creation. 
-- For named instances command line arguments and configuration file entries are created automatically.
+- When the *default* constructor is used to create the instance it is called an *anonymous instance*.
+- In contrast to a *named instance* in case the constructors expecting a `std::string` is used for instance creation. 
+- For named instances *command line arguments* and *configuration file entries* are created automatically.
 
-Therefore, for our echo application, we need to implement the application logic (application protocol) for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (`stream`) application protocols and factories derived from `core::socket::stream::SocketContextFactory`.
+Therefore, for our echo application, we need to implement the *application protocol* for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (`stream`) application protocols and factories derived from `core::socket::stream::SocketContextFactory`.
 
-### SocketContextFactories
+### `SocketContext` Factories
 
-Let\'s focus on the SocketContextFactories for our server and client first.
+Let\'s focus on the `SocketContext` factories for our server and client first.
 
 All what needs to be done is to implement a pure virtual method `create()` witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a pointer to a concrete `SocketContext`.
 
-The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and represents the logical connection between a server and a client. It is used for handling the data transfer between server and client.
+The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and *represents the network connection* between a server and a client. It is responsible for handling the *physical data exchange* and, in the case of an SSL/TLS secured connection, for the *encryption* resp. *decryption* of the data.
 
-#### Echo-Server SocketContextFactory
+#### Echo-Server `SocketContextFactory`
 
 The `create()` method of our `EchoServerContextFactory` returns a pointer to the `EchoServerContext` whose implementation is presented in the [SocketContexts](#SocketContexts) section below.
 
@@ -260,7 +260,7 @@ It is also not difficult to implement the `SocketContext` classes for the server
 -   Remember, the required functionality: 
     -   The *client shall start* sending data to the server.
     -   The *server shall reflect* the received data back to the client.
-    -   Also, the client shall reflect the received data back to the server.
+    -   The client shall reflect the received data back to the server.
 
 -   Also remember: 
     -   We need to derive the `EchoServerContext` and `EchoClientContext` from the base class `core::socket::stream::SocketContext`.
@@ -269,13 +269,13 @@ It is also not difficult to implement the `SocketContext` classes for the server
     -    The base class  `core::socket::stream::SocketContext` needs a `core::socket::stream::SocketConnection`  to handle the physical data exchange. Thus, we have to pass the pointer to the `core::socket::stream::SocketConnection` to the constructor of the base class `core::socket::stream::SocketContext`.
 
 
-The base class `core::socket::stream::SocketContext` provides some *virtual methods* which can be *overridden* in an concrete `SocketContext` class. These methods will be *called by the framework automatically*.
+The base class `core::socket::stream::SocketContext` provides some *virtual methods* which can be *overridden* in an concrete `SocketContext` class. These methods will be *called by the framework* automatically.
 
 #### Echo-Server SocketContext
 
-For our echo server application it would be sufficient to override the `onReceivedFromPeer()` method only. This method is called by the framework in case some data have already been received from the client. Nevertheless, for more information of what is going on in behind the methods `onConnected()` and `onDisconnected()` are overridden also.
+For our echo server application it would be sufficient to override the `onReceivedFromPeer()` method only. This method is called by the framework in case some *data have already been received* from the client. Nevertheless, for more information of what is going on in behind the methods `onConnected()` and `onDisconnected()` are overridden also.
 
-In the `onReceivedFromPeer()` method, which is called by the framework in case data have already been received, we can retrieve that data using the `readFromPeer()` method provided by the `core::socket::stream::SocketContext` class.
+In the `onReceivedFromPeer()` method, we can retrieve that data using the method `readFromPeer()`, which is  provided by the `core::socket::stream::SocketContext` class.
 
 Sending data to the client is done using the method `sendToPeer()`, which is also provided by the `core::socket::stream::SocketContext` class.
 
@@ -283,22 +283,27 @@ Sending data to the client is done using the method `sendToPeer()`, which is als
 #include <core/socket/SocketAddress.h>
 #include <core/socket/stream/SocketConnection.h>
 #include <core/socket/stream/SocketContext.h>
+#include <log/Logger.h>
+//
 #include <iostream>
 #include <string>
 
 class EchoServerContext : public core::socket::stream::SocketContext {
 public:
-    explicit EchoServerContext(core::socket::stream::SocketConnection* socketConnection)
-        : core::socket::stream::SocketContext(socketConnection) {
-    }
+    using core::socket::stream::SocketContext::SocketContext;
 
 private:
     void onConnected() override { // Called in case a connection has been established successfully.
-        std::cout << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString() << std::endl;
+        VLOG(1) << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString();
     }
 
     void onDisconnected() override { // Called in case the connection has been closed.
-        std::cout << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString() << std::endl;
+        VLOG(1) << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString();
+    }
+
+    bool onSignal(int signum) override { // Called in case a signal has been received
+        VLOG(1) << "Echo disconnected due to signal=" << signum;
+        return true; // Close the connection
     }
 
     std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework
@@ -312,7 +317,7 @@ private:
                                                         // onReceivedFromPeer will be called again.
                                                         // No error can occure here.
         if (junkLen > 0) {
-            std::cout << "Data to reflect: " << std::string(junk, junkLen);
+            VLOG(1) << "Data to reflect: " << std::string(junk, junkLen);
             sendToPeer(junk, junkLen); // Reflect the received data back to the client.
                                        // Out of memory is the only error which can occure here.
         }
@@ -324,33 +329,38 @@ private:
 
 #### Echo-Client SocketContext
 
-The `EchoClientContext`, unlike the `EchoServerContext`, *needs* an overridden `onConnected()` method to *initiate* the ping-pong data exchange.
+Unlike the `EchoServerContext`, the `EchoClientContext` *needs* an overridden `onConnected()` method, in which the method `sendToPeer()` is used to *initiate* the ping-pong data exchange.
 
-Like in the `EchoServerContext`, `readFromPeer()` and `sendToPeer()` is used in the `onReceivedFromPeer()` method. In addition `sendToPeer()` is also used in the `onConnected()` method to initiate the ping-pong data exchange.
+And like in the `EchoServerContext`, `readFromPeer()` and `sendToPeer()` is used in the `onReceivedFromPeer()` to receive and reflect the data.
 
 ``` c++
 #include <core/socket/SocketAddress.h>
 #include <core/socket/stream/SocketConnection.h>
 #include <core/socket/stream/SocketContext.h>
+#include <log/Logger.h>
+//
 #include <iostream>
 #include <string>
 
 class EchoClientContext : public core::socket::stream::SocketContext {
 public:
-    explicit EchoClientContext(core::socket::stream::SocketConnection* socketConnection)
-        : core::socket::stream::SocketContext(socketConnection) {
-    }
+    using core::socket::stream::SocketContext::SocketContext;
 
 private:
     void onConnected() override { // Called in case a connection has been established successfully.
-        std::cout << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString() << std::endl;
+        VLOG(1) << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString();
 
-        std::cout << "Initiating data exchange" << std::endl;
-        sendToPeer("Hello peer! It's nice talking to you!!!\n"); // Initiate the ping-pong data exchange.
+        VLOG(1) << "Initiating data exchange";
+        sendToPeer("Hello peer! It's nice talking to you\n"); // Initiate the ping-pong data exchange.
     }
 
     void onDisconnected() override { // Called in case the connection has been closed.
-        std::cout << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString() << std::endl;
+        VLOG(1) << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString();
+    }
+
+    bool onSignal(int signum) override { // Called in case a signal has been received
+        VLOG(1) << "Echo disconnected due to signal=" << signum;
+        return true; // Close the connection
     }
 
     std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework
@@ -364,7 +374,7 @@ private:
                                                         // onReceivedFromPeer will be called again.
                                                         // No error can occure here.
         if (junkLen > 0) {
-            std::cout << "Data to reflect: " << std::string(junk, junkLen);
+            VLOG(1) << "Data to reflect: " << std::string(junk, junkLen);
             sendToPeer(junk, junkLen); // Reflect the received data back to the server.
                                        // Out of memory is the only error which can occure here.
         }
@@ -376,7 +386,7 @@ private:
 
 ### Main Applications for Server and Client
 
-Now we can put everything together and implement the main server and client applications. Here *anonymous instances* are used. We therefore will not get command line arguments automatically.
+Now we can combine everything to implement the server and client applications. Here *anonymous instances* are used. We therefore do not automatically receive command line arguments.
 
 Note the use of our previously implemented `EchoServerContextFactory` and `EchoClientContextFactory` as template arguments.
 
@@ -392,13 +402,19 @@ and at the end of the main applications the *event-loop* of SNode.C is *started*
 
 The server instance `echoServer` must be *activated* by calling `echoServer.listen()`.
 
-SNode.C provides a view [overloaded `listen()`](#listen-methods) methods whose arguments vary depending on the network layer (IPv4, IPv6, RFCOMM, L2CAP, or unix domain sockets) used. Though, every `listen()` method expects a *lambda function* as one of its arguments. Here we use IPv4 and the `listen()` method which expects a port number -- here *8001* -- as argument. Note that we do not bind the `echoServer` to a specific network interface. Thus it can be contacted via all active physical network interfaces.
+SNode.C provides a view [overloaded `listen()`](#listen-methods) methods whose arguments vary depending on the network layer (IPv4, IPv6, RFCOMM, L2CAP, or unix domain sockets) used. Though, every `listen()` method expects a *lambda function* as one of its arguments.
+
+Here we use IPv4 and the `listen()` method which expects a port number -- here *8001* -- as argument. Note that we do not bind the `echoServer` to a specific network interface. Thus it can be contacted via all active physical network interfaces.
 
 ``` c++
 #include "EchoServerContextFactory.h"
+
 #include <core/SNodeC.h>
-#include <log/Logger.h>
 #include <net/in/stream/legacy/SocketServer.h>
+//
+#include <cstring>
+#include <iostream>
+#include <string>
 
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv); // Initialize the framework.
@@ -411,20 +427,20 @@ int main(int argc, char* argv[]) {
                                                                                         // template argument
     using SocketAddress = EchoServer::SocketAddress;                                    // Simplify data type
 
-    EchoServer echoServer; // Create server instance and listen on port 8001 on all interfaces
+    EchoServer echoServer; // Create server instance and listen on all interfaces on port 8001
     echoServer.listen(8001, 5, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoServer: listening on '" << socketAddress.toString() << "'";
+                VLOG(1) << "EchoServer: connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
                 VLOG(1) << "EchoServer: disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
+                VLOG(1) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
+                VLOG(1) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -433,18 +449,25 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-If we would have created a *named server instance* than a *special* `listen()` method which only expects the *lambda* as argument can be used. In that case the configuration of this named instance would be done using *command line arguments* and/or a *configuration file*.
+If we would have created a *named server instance*, a *special* `listen()` method can be used  that only expects the *lambda* as argument. In that case the configuration of this instance is required to be done using the *command line interface* and/or a *configuration file*.
 
 #### Echo-Client Main Application
 
 The client instance `echoClient` must be *activated* by calling `echoClient.connect()`.
 
-Equivalent to the server instance a client instance provides a view [overloaded `connect()`](#connect-methods) methods whose arguments also vary depending on the network layer used. Here it is assumed that we talk to an IPv4 server which runs on the same machine (*localhost*) as the client. Thus we pass the host name *localhost* and port number *8001* as arguments to the `connect()` method.
+Equivalent to the server instance a client instance provides a view [overloaded `connect()`](#connect-methods) methods whose arguments also vary depending on the network layer used.  Though, every `connect()` method expects a *lambda function* as one of its arguments.
+
+Here it is assumed that we talk to an IPv4 server which runs on the same machine (*localhost*) as the client. Thus we pass the host name *localhost* and port number *8001* as arguments to the `connect()` method.
 
 ``` cpp
 #include "EchoClientContextFactory.h"
+
 #include <core/SNodeC.h>
 #include <net/in/stream/legacy/SocketClient.h>
+//
+#include <cstring>
+#include <iostream>
+#include <string>
 
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv); // Initialize the framework.
@@ -479,19 +502,21 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-If we would have created a *named client instance* than a special `connect()` method which only expects the *lambda* can be used. In that case the configuration of this named instance would be done using *command line arguments* and/or a *configuration file*.
+If we would have created a *named client instance*, a special `connect()` method can be used that only expects the *lambda* as argument. In that case the configuration of this instance is required to be done using *command line arguments* and/or a *configuration file*.
 
 ### CMakeLists.txt file for Building and Installing our *echoserver* and *echoclient*
 
-In the `CMakeLists.txt` file used to build the Echo server/client application one finds nothing special. Both executables, `echoserver` and `echoclient` are defined using `add_executable` of *CMake*.
+There is nothing special in the file `CMakeLists.txt` which is used to build the echo server and client applications. Both executables, `echoserver` and `echoclient` are defined using `add_executable()`.
 
-But a bit attention should be payed to the two lines `target_link_libraries`. In our application we need support for an unencrypted (`legacy`), IPv4 (`in`), TCP (`stream`) connection. Thus we need to link the *echoserver* and *echoclient* executable against the `libsnodec-net-in-stream-legacy.so` library. To get the *CMake* configuration of that library we need to include the target `net-in-stream-legacy` which is a *component* of the `snodec` framework using
+A bit more attention should be payed to the two lines `target_link_libraries()`. In our application we need support for an unencrypted (`legacy`), IPv4 (`in`), TCP (`stream`) connection. Thus we need to link the `echoserver` and `echoclient` executable against the `libsnodec-net-in-stream-legacy.so` library. To get the *CMake* configuration of that library we need to include the target `net-in-stream-legacy` using
 
 ```cmake
 find_package(snodec COMPONENTS net-in-stream-legacy)
 ```
 
-This library *transitively depends* on all other necessary and only necessary SNode.C, third party, and system libraries to get a fully linked and runnable application.
+ which is a *component of the  package* `snodec`
+
+This library *transitively depends* on all other necessary and *only necessary* SNode.C, third party, and system libraries to get a fully linked and runnable application.
 
 Thus, the `CMakeLists.txt` file for our server and client applications looks like
 
@@ -512,7 +537,7 @@ add_executable(echoserver ${ECHOSERVER_CPP} ${ECHOSERVER_H})
 target_link_libraries(echoserver PRIVATE snodec::net-in-stream-legacy)
 
 set(ECHOCLIENT_CPP EchoClient.cpp)
-set(ECHOCLIENT_H EchoClientContextFactory.h EchoServerContext.h)
+set(ECHOCLIENT_H EchoClientContextFactory.h EchoClientContext.h)
 
 add_executable(echoclient ${ECHOCLIENT_CPP} ${ECHOCLIENT_H})
 target_link_libraries(echoclient PRIVATE snodec::net-in-stream-legacy)
@@ -524,23 +549,23 @@ install(TARGETS echoserver echoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR
 
 The echo application shows the *typical architecture* of servers and clients using SNode.C.
 
-- The user needs to provide the application protocol layer by implementing the classe
+- The user needs to provide the application protocol layer by implementing the classes for server and client
 
   - `SocketContextFactory` and
   - `SocketContext`
 
   which need be be derived from the base classes
 
-  - [`core::socket::stream::SocketContextFactory`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1SocketContextFactory.html)
+  - `core::socket::stream::SocketContextFactory`
 
-  - [`core::socket::stream::SocketContext`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1SocketContext.html)
+  - `core::socket::stream::SocketContext`
 
 - The framework provides ready to use
 
   - `SocketServer` and
   - `SocktClient`
   
-  template classes for each network/transport layer combination.
+  classes for each network/transport layer combination.
 
 # Installation
 
@@ -551,14 +576,12 @@ The installation of SNode.C is straight forward:
 
 ## Supported Systems and Hardware
 
-The main development of SNode.C takes place on an *Debian Sid* style Linux system. Since *Debian Bookworm* SNode.C compiles also on *stable*. Though, it should compile cleanly on every Linux system provided that all required tools and libraries are installed.
+The main development of SNode.C takes place on an *Debian Sid* style Linux system. Since *Debian Bookworm* SNode.C compiles also on *Debian stable*, though, it should compile cleanly on every Linux system provided that all required tools and libraries are installed.
 
 SNode.C is known to compile and run successfull, tested on
 
 -   **x86-64** architecture
-    -   HP ZBook Fury 15 G8
-    -   HP ZBook Fury 16 G9
--   **Arm** architecture (32 and 64 bit)
+-   **Arm** architecture (32 and 64 bit) tested on
     -    Raspberry Pi 3, 4, and 5
 -   **OpenWrt** 23.05.0-rc1 and later
     -   All architectures
@@ -574,7 +597,7 @@ Either *GCC* or *clang* can be used but they need to be of an up to date version
 
 ## Requirements and Dependencies
 
-SNode.C requires some external tools and depends on some external libraries. Some of these libraries are directly included in the framework.
+SNode.C requires some external tools and depends on a view external libraries. Some of these libraries are directly included in the framework.
 
 ### Tools
 
@@ -634,8 +657,6 @@ sudo apt install libbluetooth-dev libmagic-dev libmariadb-dev
 
 After installing all dependencies SNode.C can be cloned from github, compiled, and installed.
 
-This is strait forward:
-
 ``` sh
 mkdir snode.c
 cd snode.c
@@ -650,7 +671,7 @@ sudo groupadd --system snodec
 sudo usermod -a -G snodec root
 ```
 
-As SNode.C uses C++ templates a lot, the compilation process will take some time. At least on a Raspberry Pi you can go for a coffee - it will take up to one and a half hour (on a Raspberry Pi 3 if just one core is activated for compilation).
+As SNode.C uses C++ templates a lot, the compilation process will take some time. At least on a Raspberry Pi you can go for a coffee - it will take up to one and a half hour on a Raspberry Pi 3 if just one core is activated for compilation.
 
 It is a good idea to utilize all processor cores and threads for compilation. Thus e.g. on a Raspberry Pi append `-j5` to the `make`  or `ninja` command.
 
@@ -660,8 +681,8 @@ As starting point it is assumed that local *ssh* and *sftp* access to the router
 
 Deploying SNode.C on an OpenWRT router involves a view tasks:
 
-1. Choose and download a OpenWRT-SDK
-2. Patch the SDK to integrate the SNode.C feeds
+1. Choose and download an OpenWRT-SDK
+2. Patch the SDK to integrate the SNode.C feed
 3. Install the SNode.C package and its dependencies
 4. Configure the SDK
 5. Cross compile SNode.C
@@ -702,17 +723,17 @@ In this example the values of the placeholder are:
 
 #### Patch Feeds
 
-Second step is to patch the default OpenWRT package feeds to add the snodec feed by executing.
+Second step is to patch the default OpenWRT package feeds to add the SNode.C feed by executing
 
 ```sh
 cd <SDK_DIR>
-echo "src-git snodec https://github.com/VolkerChristian/owrt-packages.git;vopenwrt-23.05" >> feeds.conf.default
+echo "src-git snodec https://github.com/SNodeC/owrt-packages.git;vopenwrt-23.05" >> feeds.conf.default
 ```
 
-In case you want to try the latest development state of SNode.C you should run
+In case you want to try the latest development of SNode.C run
 
 ```sh
-echo "src-git snodec https://github.com/VolkerChristian/owrt-packages.git;vopenwrt-23.05-HEAD" >> feeds.conf.default
+echo "src-git snodec https://github.com/SNodeC/owrt-packages.git;vopenwrt-23.05-HEAD" >> feeds.conf.default
 ```
 
 instead.
@@ -736,7 +757,16 @@ cd <SDK_DIR>
 make defconfig
 ```
 
-is configured. Default values for all configuration options can be used safely.
+is configured.
+
+Default values for all configuration options can be used safely. Nevertheless, to customize the configuration run
+
+```sh
+cd <SDK_DIR>
+make menuconfig
+```
+
+and navigate to `Network -> SNode.C`.
 
 #### Cross Compile SNode.C
 
@@ -755,9 +785,9 @@ The two steps, *Install Packages*, and *Cross Compile* (at most the last one) ta
 2. the sources of all dependent and indirect dependent packages are downloaded from upstream and build recursively and
 3. SNode.C is cloned from github and cross compiled.
 
-To parallelize the compilation use the switch `-j<thread-count>`  of make where \<thread-count\> is the number of CPU-threads dedicated to cross compile SNode.C and its dependencies.
+To parallelize the compilation use the switch `-j<thread-count>`  of `make` or `ninja` where \<thread-count\> is the number of CPU-threads dedicated to cross compile SNode.C and its dependencies.
 
-***Note:*** For SNode.C and all it's build dependencies *ipk-packages* will be created which can be found in the directory `<SDK_DIR>bin/packages/\<architecture\>`.
+***Note:*** For SNode.C and all it's build dependencies the created *ipk-packages* can be found in the directory `<SDK_DIR>bin/packages/\<architecture\>`.
 
 ### Deploy SNode.C
 
@@ -779,7 +809,7 @@ exit
 
 on the router. Use the option `--force-reinstall` in cast you want to reinstall the same version by overwriting the currently installed files.
 
-During package installation a new *unix group* with member *root* is created used in the group management of config-, log-, and pid-files.
+During package installation a new *unix group* with member *root* is created used for the group management of config-, log-, and pid-files.
 
 ***Note:*** A logout/login is necessary to activate the new group assignment.
 
@@ -793,35 +823,35 @@ During package installation a new *unix group* with member *root* is created use
 -   Modular
 -   Support for single shot and interval timer
 -   Sophisticated configuration system controlled either by
-    -   code (API), 
-    -   command line, or 
+    -   code (API),
+    -   command line
     -   configuration file
-
 -   Daemonize (double fork) server and client if requested
 -   Support for all three major multiplexer API's 
-    -   epoll,
-    -   poll, and
+    -   epoll
+    -   poll
     -   select
-
 -   Support for five network protocols
     -   IPv4
     -   IPv6 (single and dual stack)
     -   Unix domain sockets
     -   Bluetooth RFCOMM
     -   Bluetooth L2CAP
-
 -   Sub-Frameworks
     -   HTTP/S server and client
     -   High level HTTP/S server framework à la Node.js-Express
     -   WebSocket (WS and WSS) for server and client
     -   MQTT/S for server and client
+-   Micro library architecture
+    -   Every individual feature/functionality is provided in its corresponding library
+    -   Each of these library *transitively* depends *subsequently* on all further required libraries
 
--   Micro library architecture: Each individual feature/functionality is provided in its corresponding library
--   IoT reference applications [MQTT-Suite](https://github.com/SNodeC/mqttsuite)
+-   Reference project: [MQTT-Suite](https://github.com/SNodeC/mqttsuite)
     -   mqttbroker (native and WebSocket), 
     -   mqttbridge (native and WebSocket), 
     -   mqttintegrator (native and WebSocket)
 
+# Fundamental Architecture
 
 ## Network Layer
 
@@ -831,32 +861,65 @@ SNode.C currently supports five different network layer protocols, each living i
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Internet Protocol version 4 (IPv4)                           | [`net::in`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in.html) |
 | Internet Protocol version 6 (IPv6)                           | [`net::in6`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6.html) |
-| Unix Domain Sockets                                          | [`net::un`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un.html) |
+| Unix Domain                                                  | [`net::un`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un.html) |
 | Bluetooth Radio Frequency Communication (RFCOMM)             | [`net::rc`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc.html) |
 | Bluetooth Logical Link Control and Adaptation Protocol (L2CAP) | [`net::l2`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2.html) |
+
+Each network layer provides ready to use `SocketServer` and `SocketClient` classes for unencrypted and SSL/TLS encrypted communication.
 
 ## Transport Layer
 
 Currently only connection-oriented protocols (C++ namespace `<network_layer_namespace>::stream`) for all supported [network layer](#network-layer) and [connection layer](#connection-layer) combinations are implemented (for IPv4 and IPv6 this means TCP).
 
--   All transport layer protocols provide a common *base API* which makes it very easy to create servers and clients for all of them.
+It is implemented as template base classes which are specialized for every network layer.
+
+| Transport | C++ Namespace                                                |
+| --------- | ------------------------------------------------------------ |
+| Stream    | [core::socket::stream](https://snodec.github.io/snode.c-doc/html/namespacecore_1_1socket_1_1stream.html) |
+
+-   All transport layer specializations provide a common *base API* which makes it very easy to create servers and clients for all of them.
+
+Typically the user didn't get in direct contact with this layer as the ready to use `SocketServer` and `SocketClient` classes handle the specialization internally.
+
+| Transport Layer Specializations | C++ Namespace (for IPv4)                                     |
+| ------------------------------- | ------------------------------------------------------------ |
+| IPv4                            | [`net::in::stream`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream.html) |
+| IPv6                            | [`net::in6::stream`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream.html) |
+| Unix Domain Sockets             | [`net::un::stream`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream.html) |
+| RFCOMM                          | [`net::rc::stream`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream.html) |
+| L2CAP                           | [`net::l2::stream`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream.html) |
 
 ## Connection Layer
 
-The connection layer is responsible for preparing the data to be send to the peer or read from the peer by a `SocketContext` using the `sendToPeer()` and `readFromPeer()` methods.
+The connection layer sits on top of the transport layer and is responsible for handling the *physical data exchange* and, in the case of an SSL/TLS secured connection, for the *encryption* resp. *decryption* of the data. A concrete `SocketContext`  relies on it's methods (e.g. `sendToPeer()` and `readFromPeer()` ) for communication with the peer.
 
-Two versions of this layer exist. One for 
+Like the transport layer, this layer is implemented as template base classes which are specialized for every *specialized transport* layer.  Thus, the user typically didn't get in direct contact with this layer also, as the ready to use `SocketServer` and `SocketClient` classes handle the specialization internally.
 
-- *unencrypted* (C++ namespace `<transport_layer_namespace>::legacy`) and one for 
-- *SSL/TLS encrypted* (C++ namespace `<transport_layer_namespace>::tls`) 
+Two versions of this layer exist. One for *unencrypted* and one for *SSL/TLS encrypted* communication.
 
-communication.
+| Connection Type        | C++ Namespace                                                |
+| ---------------------- | ------------------------------------------------------------ |
+| unencrypted (`legacy`) | [`core::socket::stream::legacy`](https://snodec.github.io/snode.c-doc/html/namespacecore_1_1socket_1_1stream_1_1legacy.html) |
+| encrypted (`tls`)      | [`core::socket::stream::tls`](https://snodec.github.io/snode.c-doc/html/namespacecore_1_1socket_1_1stream_1_1tls.html) |
 
--   New application protocols can be connected to the connection layer easily by just implementing `SocketContextFactory` and `SocketContext` classes for server and client, and passing the `SocketContextFactory` classes as template arguments to concrete `SocketServer` and `SocketClient` classes.
 -   The SSL/TLS version *transparently offers encryption* provided by OpenSSL for each supported transport layer protocol and thus, also for all application level protocols.
     -   Support of X.509 certificates
     -   Server Name Indication (SNI) is supported (useful for e.g. virtual (web) servers)
     -   Support for individual SNI certificates
+-   Each connection layer provides ready to use `SocketServer` and `SocketClient` classes for unencrypted and SSL/TLS encrypted communication.
+
+| Connection Layer Specializations | C++ Namespace                                                |
+| -------------------------------- | ------------------------------------------------------------ |
+| IPv4 unencrypted                 | [`net::in::stream::legacy`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1legacy.html) |
+| IPv4 encrypted                   | [`net::in::stream::tls`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream_1_1tls.html) |
+| IPv6 unencrypted                 | [`net::in6::stream::legacy`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1legacy.html) |
+| IPv6 encrypted                   | [`net::in6::stream::tls`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream_1_1tls.html) |
+| Unix Domain unencrypted          | [`net::un::stream::legacy`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1legacy.html) |
+| Unix Domain encrypted            | [`net::un::stream::tls`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1un_1_1stream_1_1tls.html) |
+| RFCOMM unencrypted               | [`net::rc::stream::legacy`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1legacy.html) |
+| RFCOMM encrypted                 | [`net::rc::stream::tls`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
+| L2CAP unencrypted                | [`net::l2::stream::legacy`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) |
+| L2CAP encrypted                  | [`net::l2::stream::tls`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
 
 ## Application Layer
 
@@ -868,9 +931,16 @@ In-framework server and client support designed as sub-frameworks currently exis
 -   MQTT via WebSockets
 -   High-Level web API layer with JSON support very similar to the API of node.js/express.
 
+| Application Layer | C++ Namespace                                                |
+| ----------------- | ------------------------------------------------------------ |
+| HTTP              | [`web::http`](https://snodec.github.io/snode.c-doc/html/namespaceweb_1_1http.html) |
+| WebSocket         | [`web::websocket`](https://snodec.github.io/snode.c-doc/html/namespaceweb_1_1websocket.html) |
+| Express           | [`express`](https://snodec.github.io/snode.c-doc/html/namespaceexpress.html) |
+| MQTT              | [`iot::mqtt`](https://snodec.github.io/snode.c-doc/html/namespaceiot_1_1mqtt.html) |
+
 As already mentioned above in the [transport layer](#transport-layer) section, SSL/TLS encryption is provided transparently for all of these application layer protocols.
 
-# Existing *SocketServer* and *SocketClient* Classes
+# Existing `SocketServer` and `SocketClient` Classes
 
 Before focusing explicitly on the *SocketServer* and *SocketClient* classes a few common aspects for all network/transport-layer combinations needs to be known.
 
@@ -952,7 +1022,7 @@ which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption,
 | `SSL* getSSL()`                                              | Returns the pointer to the OpenSSL SSL structure.            |
 | `void sendToPeer(const char* junk, std::size_t junkLen)` <br/>`void sendToPeer(const std::string& data)`<br />`void sendToPeer(const std::vector<int8_t>& data)`<br />`void sendToPeer(const std::vector<char>& data)` | Enqueue data to be sent to peer.                             |
 | `std::size_t readFromPeer(char* junk, std::size_t junkLen)`  | Read already received data from peer.                        |
-| `void shutdownRead()`<br/>`void shuddownWrite()`             | Shut down socket either for reading or writing.              |
+| `void shutdownRead()`<br/>`void shutdownWrite(bool forceClose = false)` | Shut down socket either for reading or writing.  If `forceClose` is `true` the reading end will also be shut down. |
 | `void close()`                                               | Hard close the connection without a prior shutdown.          |
 | `void setTimeout(utils::Timeval& timeout)`                   | Set the inactivity timeout of a connection (default 60 seconds).<br/>If no data has been transfered within this amount of time<br/>the connection is terminated. |
 | `bool isValid()`                                             | Check if a connection has been created successfully.         |
