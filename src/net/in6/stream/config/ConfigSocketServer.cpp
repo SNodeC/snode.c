@@ -60,23 +60,23 @@ namespace net::in6::stream::config {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
 
-        net::config::ConfigPhysicalSocket::add_socket_option(reusePortOpt,
-                                                             "--reuse-port",
-                                                             SOL_SOCKET,
-                                                             SO_REUSEPORT,
-                                                             "Reuse socket address",
-                                                             "bool",
-                                                             XSTR(REUSE_PORT),
-                                                             CLI::IsMember({"true", "false"}));
+        reusePortOpt = net::config::ConfigPhysicalSocket::add_socket_option( //
+            "--reuse-port{true}",
+            SOL_SOCKET,
+            SO_REUSEPORT,
+            "Reuse socket address",
+            "bool",
+            XSTR(REUSE_PORT),
+            CLI::IsMember({"true", "false"}));
 
-        net::config::ConfigPhysicalSocket::add_socket_option(iPv6OnlyOpt,
-                                                             "--ipv6-only",
-                                                             IPPROTO_IPV6,
-                                                             IPV6_V6ONLY,
-                                                             "Turn of IPv6 dual stack mode",
-                                                             "bool",
-                                                             XSTR(IPV6_ONLY),
-                                                             CLI::IsMember({"true", "false"}));
+        iPv6OnlyOpt = net::config::ConfigPhysicalSocket::add_socket_option( //
+            "--ipv6-only{true}",
+            IPPROTO_IPV6,
+            IPV6_V6ONLY,
+            "Turn of IPv6 dual stack mode",
+            "bool",
+            XSTR(IPV6_ONLY),
+            CLI::IsMember({"true", "false"}));
     }
 
     ConfigSocketServer::~ConfigSocketServer() {

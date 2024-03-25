@@ -34,12 +34,12 @@ namespace web::http::client {
 
     ConfigHTTP::ConfigHTTP(net::config::ConfigInstance& configInstance) {
         pipelinedRequestsOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
-                                   .add_flag(pipelinedRequestsOpt,
-                                             "--pipelined-requests",
-                                             "Pipelined requests",
-                                             "bool",
-                                             XSTR(HTTP_REQUEST_PIPELINED),
-                                             CLI::IsMember({"true", "false"}));
+                                   .add_flag( //
+                                       "--pipelined-requests",
+                                       "Pipelined requests",
+                                       "bool",
+                                       XSTR(HTTP_REQUEST_PIPELINED),
+                                       CLI::IsMember({"true", "false"}));
     }
 
     void ConfigHTTP::setPipelinedRequests(bool pipelinedRequests) {

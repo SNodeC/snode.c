@@ -31,40 +31,40 @@ namespace net::config {
 
     ConfigConnection::ConfigConnection(ConfigInstance* instance)
         : net::config::ConfigSection(instance, "connection", "Configuration of established connections") {
-        add_option(readTimeoutOpt, //
-                   "--read-timeout",
-                   "Read timeout in seconds",
-                   "timeout",
-                   READ_TIMEOUT,
-                   CLI::PositiveNumber);
+        readTimeoutOpt = add_option( //
+            "--read-timeout",
+            "Read timeout in seconds",
+            "timeout",
+            READ_TIMEOUT,
+            CLI::PositiveNumber);
 
-        add_option(writeTimeoutOpt, //
-                   "--write-timeout",
-                   "Write timeout in seconds",
-                   "timeout",
-                   WRITE_TIMEOUT,
-                   CLI::PositiveNumber);
+        writeTimeoutOpt = add_option( //
+            "--write-timeout",
+            "Write timeout in seconds",
+            "timeout",
+            WRITE_TIMEOUT,
+            CLI::PositiveNumber);
 
-        add_option(readBlockSizeOpt, //
-                   "--read-block-size",
-                   "Read block size",
-                   "size",
-                   READ_BLOCKSIZE,
-                   CLI::PositiveNumber);
+        readBlockSizeOpt = add_option( //
+            "--read-block-size",
+            "Read block size",
+            "size",
+            READ_BLOCKSIZE,
+            CLI::PositiveNumber);
 
-        add_option(writeBlockSizeOpt, //
-                   "--write-block-size",
-                   "Write block size",
-                   "size",
-                   WRITE_BLOCKSIZE,
-                   CLI::PositiveNumber);
+        writeBlockSizeOpt = add_option( //
+            "--write-block-size",
+            "Write block size",
+            "size",
+            WRITE_BLOCKSIZE,
+            CLI::PositiveNumber);
 
-        add_option(terminateTimeoutOpt, //
-                   "--terminate-timeout",
-                   "Terminate timeout",
-                   "timeout",
-                   TERMINATE_TIMEOUT,
-                   CLI::PositiveNumber);
+        terminateTimeoutOpt = add_option( //
+            "--terminate-timeout",
+            "Terminate timeout",
+            "timeout",
+            TERMINATE_TIMEOUT,
+            CLI::PositiveNumber);
     }
 
     utils::Timeval ConfigConnection::getReadTimeout() const {

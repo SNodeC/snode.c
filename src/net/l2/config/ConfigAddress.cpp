@@ -38,16 +38,16 @@ namespace net::l2::config {
                                                     const std::string& addressOptionName,
                                                     const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
-        Super::add_option(btAddressOpt, //
-                          "--host",
-                          "Bluetooth address",
-                          "xx:xx:xx:xx:xx:xx",
-                          "00:00:00:00:00:00",
-                          CLI::TypeValidator<std::string>());
-        Super::add_option(psmOpt, //
-                          "--psm",
-                          "Protocol service multiplexer",
-                          "psm");
+        btAddressOpt = Super::add_option( //
+            "--host",
+            "Bluetooth address",
+            "xx:xx:xx:xx:xx:xx",
+            "00:00:00:00:00:00",
+            CLI::TypeValidator<std::string>());
+        psmOpt = Super::add_option( //
+            "--psm",
+            "Protocol service multiplexer",
+            "psm");
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

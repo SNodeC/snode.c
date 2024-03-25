@@ -59,14 +59,14 @@ namespace net::in::stream::config {
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
 
-        net::config::ConfigPhysicalSocket::add_socket_option(reusePortOpt, //
-                                                             "--reuse-port",
-                                                             SOL_SOCKET,
-                                                             SO_REUSEPORT,
-                                                             "Reuse port number",
-                                                             "bool",
-                                                             XSTR(REUSE_PORT),
-                                                             CLI::IsMember({"true", "false"}));
+        reusePortOpt = net::config::ConfigPhysicalSocket::add_socket_option( //
+            "--reuse-port{true}",
+            SOL_SOCKET,
+            SO_REUSEPORT,
+            "Reuse port number",
+            "bool",
+            XSTR(REUSE_PORT),
+            CLI::IsMember({"true", "false"}));
     }
 
     ConfigSocketServer::~ConfigSocketServer() {

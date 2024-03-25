@@ -29,71 +29,71 @@ namespace net::config {
 
     ConfigTls::ConfigTls(ConfigInstance* instance)
         : ConfigSection(instance, "tls", "Configuration of SSL/TLS behavior") {
-        add_option(certChainOpt, //
-                   "--cert-chain",
-                   "Certificate chain file",
-                   "filename:PEM-FILE",
-                   "");
+        certChainOpt = add_option( //
+            "--cert-chain",
+            "Certificate chain file",
+            "filename:PEM-FILE",
+            "");
 
-        add_option(certKeyOpt, //
-                   "--cert-key",
-                   "Certificate key file",
-                   "filename:PEM-FILE",
-                   "");
+        certKeyOpt = add_option( //
+            "--cert-key",
+            "Certificate key file",
+            "filename:PEM-FILE",
+            "");
 
-        add_option(certKeyPasswordOpt,
-                   "--cert-key-password",
-                   "Password for the certificate key file",
-                   "password",
-                   "",
-                   CLI::TypeValidator<std::string>());
+        certKeyPasswordOpt = add_option( //
+            "--cert-key-password",
+            "Password for the certificate key file",
+            "password",
+            "",
+            CLI::TypeValidator<std::string>());
 
-        add_option(caCertFileOpt, //
-                   "--ca-cert-file",
-                   "CA-certificate file",
-                   "filename:PEM-FILE",
-                   "");
+        caCertFileOpt = add_option( //
+            "--ca-cert-file",
+            "CA-certificate file",
+            "filename:PEM-FILE",
+            "");
 
-        add_option(caCertDirOpt, //
-                   "--ca-cert-dir",
-                   "CA-certificate directory",
-                   "directory:PEM-CONTAINER-DIR",
-                   "");
+        caCertDirOpt = add_option( //
+            "--ca-cert-dir",
+            "CA-certificate directory",
+            "directory:PEM-CONTAINER-DIR",
+            "");
 
-        add_flag(useDefaultCaCertDirOpt,
-                 "--ca-use-default-cert-dir{true}",
-                 "Use default CA-certificate directory",
-                 "bool",
-                 "false",
-                 CLI::IsMember({"true", "false"}));
+        useDefaultCaCertDirOpt = add_flag( //
+            "--ca-use-default-cert-dir{true}",
+            "Use default CA-certificate directory",
+            "bool",
+            "false",
+            CLI::IsMember({"true", "false"}));
 
-        add_option(cipherListOpt, //
-                   "--cipher-list",
-                   "Cipher list (OpenSSL syntax)",
-                   "cipher_list",
-                   "",
-                   CLI::TypeValidator<std::string>("CIPHER"));
+        cipherListOpt = add_option( //
+            "--cipher-list",
+            "Cipher list (OpenSSL syntax)",
+            "cipher_list",
+            "",
+            CLI::TypeValidator<std::string>("CIPHER"));
 
-        add_option(tlsOptionsOpt, //
-                   "--tls-options",
-                   "OR combined SSL/TLS options (OpenSSL values)",
-                   "options",
-                   0,
-                   CLI::TypeValidator<ssl_option_t>());
+        tlsOptionsOpt = add_option( //
+            "--tls-options",
+            "OR combined SSL/TLS options (OpenSSL values)",
+            "options",
+            0,
+            CLI::TypeValidator<ssl_option_t>());
 
-        add_option(initTimeoutOpt, //
-                   "--init-timeout",
-                   "SSL/TLS initialization timeout in seconds",
-                   "timeout",
-                   TLS_INIT_TIMEOUT,
-                   CLI::PositiveNumber);
+        initTimeoutOpt = add_option( //
+            "--init-timeout",
+            "SSL/TLS initialization timeout in seconds",
+            "timeout",
+            TLS_INIT_TIMEOUT,
+            CLI::PositiveNumber);
 
-        add_option(shutdownTimeoutOpt, //
-                   "--shutdown-timeout",
-                   "SSL/TLS shutdown timeout in seconds",
-                   "timeout",
-                   TLS_SHUTDOWN_TIMEOUT,
-                   CLI::PositiveNumber);
+        shutdownTimeoutOpt = add_option( //
+            "--shutdown-timeout",
+            "SSL/TLS shutdown timeout in seconds",
+            "timeout",
+            TLS_SHUTDOWN_TIMEOUT,
+            CLI::PositiveNumber);
     }
 
     ConfigTls& ConfigTls::setCertChain(const std::string& newCertChain) {

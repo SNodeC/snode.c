@@ -31,18 +31,18 @@ namespace net::config {
 
     ConfigListen::ConfigListen(ConfigInstance* instance)
         : net::config::ConfigSection(instance, "server", "Configuration of server socket") {
-        add_option(backlogOpt, //
-                   "--backlog",
-                   "Listen backlog",
-                   "backlog",
-                   BACKLOG,
-                   CLI::PositiveNumber);
-        add_option(acceptsPerTickOpt, //
-                   "--accepts-per-tick",
-                   "Accepts per tick",
-                   "number",
-                   ACCEPTS_PER_TICK,
-                   CLI::PositiveNumber);
+        backlogOpt = add_option( //
+            "--backlog",
+            "Listen backlog",
+            "backlog",
+            BACKLOG,
+            CLI::PositiveNumber);
+        acceptsPerTickOpt = add_option( //
+            "--accepts-per-tick",
+            "Accepts per tick",
+            "number",
+            ACCEPTS_PER_TICK,
+            CLI::PositiveNumber);
     }
 
     int ConfigListen::getBacklog() const {

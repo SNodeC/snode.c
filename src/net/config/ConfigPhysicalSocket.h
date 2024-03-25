@@ -79,8 +79,7 @@ namespace net::config {
         double getRetryJitter() const;
 
     protected:
-        CLI::Option* add_socket_option(CLI::Option*& opt,
-                                       const std::string& name,
+        CLI::Option* add_socket_option(const std::string& name,
                                        int optLevel,
                                        int optName,
                                        const std::string& description,

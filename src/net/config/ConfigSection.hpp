@@ -46,38 +46,38 @@
 namespace net::config {
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::add_option(
-        CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName, ValueType defaultValue) {
-        return add_option(opt, name, description, typeName) //
+    CLI::Option* ConfigSection::add_option(const std::string& name,
+                                           const std::string& description,
+                                           const std::string& typeName,
+                                           ValueType defaultValue) {
+        return add_option(name, description, typeName) //
             ->default_val(defaultValue);
     }
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::add_option(CLI::Option*& opt,
-                                           const std::string& name,
+    CLI::Option* ConfigSection::add_option(const std::string& name,
                                            const std::string& description,
                                            const std::string& typeName,
                                            ValueType defaultValue,
                                            const CLI::Validator& additionalValidator) {
-        return add_option(opt, name, description, typeName, defaultValue) //
+        return add_option(name, description, typeName, defaultValue) //
             ->check(additionalValidator);
     }
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::add_flag(
-        CLI::Option*& opt, const std::string& name, const std::string& description, const std::string& typeName, ValueType defaultValue) {
-        return add_flag(opt, name, description, typeName) //
+    CLI::Option*
+    ConfigSection::add_flag(const std::string& name, const std::string& description, const std::string& typeName, ValueType defaultValue) {
+        return add_flag(name, description, typeName) //
             ->default_val(defaultValue);
     }
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::add_flag(CLI::Option*& opt,
-                                         const std::string& name,
+    CLI::Option* ConfigSection::add_flag(const std::string& name,
                                          const std::string& description,
                                          const std::string& typeName,
                                          ValueType defaultValue,
                                          const CLI::Validator& additionalValidator) {
-        return add_flag(opt, name, description, typeName, defaultValue) //
+        return add_flag(name, description, typeName, defaultValue) //
             ->check(additionalValidator);
     }
 

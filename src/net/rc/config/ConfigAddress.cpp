@@ -38,16 +38,16 @@ namespace net::rc::config {
                                                     const std::string& addressOptionName,
                                                     const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
-        Super::add_option(btAddressOpt, //
-                          "--host",
-                          "Bluetooth address",
-                          "xx:xx:xx:xx:xx:xx",
-                          "00:00:00:00:00:00",
-                          CLI::TypeValidator<std::string>());
-        Super::add_option(channelOpt, //
-                          "--channel",
-                          "Channel number",
-                          "channel");
+        btAddressOpt = Super::add_option( //
+            "--host",
+            "Bluetooth address",
+            "xx:xx:xx:xx:xx:xx",
+            "00:00:00:00:00:00",
+            CLI::TypeValidator<std::string>());
+        channelOpt = Super::add_option( //
+            "--channel",
+            "Channel number",
+            "channel");
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

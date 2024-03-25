@@ -50,12 +50,12 @@ namespace net::config {
 
     ConfigPhysicalSocketServer::ConfigPhysicalSocketServer(ConfigInstance* instance)
         : net::config::ConfigPhysicalSocket(instance) {
-        Super::add_option(acceptTimeoutOpt, //
-                          "--accept-timeout",
-                          "Accept timeout",
-                          "timeout",
-                          ACCEPT_TIMEOUT,
-                          CLI::NonNegativeNumber);
+        acceptTimeoutOpt = add_option( //
+            "--accept-timeout",
+            "Accept timeout",
+            "timeout",
+            ACCEPT_TIMEOUT,
+            CLI::NonNegativeNumber);
     }
 
     ConfigPhysicalSocketServer& ConfigPhysicalSocketServer::setAcceptTimeout(const utils::Timeval& acceptTimeout) {

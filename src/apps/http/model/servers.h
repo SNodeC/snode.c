@@ -64,7 +64,7 @@ namespace apps::http::legacy {
         WebApp webApp = WebApp(name, getRouter());
 
         net::config::ConfigSection configWeb = net::config::ConfigSection(&webApp.getConfig(), "www", "Web behavior of httpserver");
-        CLI::Option* htmlRoot = configWeb.add_option(htmlRoot, "--html-root", "HTML root directory", "path", "");
+        CLI::Option* htmlRoot = configWeb.add_option("--html-root", "HTML root directory", "path", "");
         configWeb.required(htmlRoot);
 
         webApp.setOnConnected([webApp, htmlRoot]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnect
@@ -91,7 +91,7 @@ namespace apps::http::tls {
         WebApp webApp(name, getRouter());
 
         net::config::ConfigSection configWeb = net::config::ConfigSection(&webApp.getConfig(), "www", "Web behavior of httpserver");
-        CLI::Option* htmlRoot = configWeb.add_option(htmlRoot, "--html-root", "HTML root directory", "path", "");
+        CLI::Option* htmlRoot = configWeb.add_option("--html-root", "HTML root directory", "path", "");
         configWeb.required(htmlRoot);
 
         webApp.setOnConnect([webApp](SocketConnection* socketConnection) -> void { // onConnect

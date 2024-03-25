@@ -55,8 +55,7 @@ namespace net::config {
 
     ConfigPhysicalSocketClient::ConfigPhysicalSocketClient(ConfigInstance* instance)
         : net::config::ConfigPhysicalSocket(instance) {
-        Super::add_flag_function(
-            reconnectOpt, //
+        reconnectOpt = add_flag_function( //
             "--reconnect{true}",
             [this](int64_t) -> void {
                 if (!this->reconnectOpt->as<bool>()) {
@@ -68,20 +67,20 @@ namespace net::config {
             XSTR(RECONNECT),
             CLI::IsMember({"true", "false"}));
 
-        Super::add_option(reconnectTimeOpt, //
-                          "--reconnect-time",
-                          "Duration after disconnect before reconnect",
-                          "sec",
-                          RECONNECT_TIME,
-                          CLI::NonNegativeNumber);
+        reconnectTimeOpt = add_option( //
+            "--reconnect-time",
+            "Duration after disconnect before reconnect",
+            "sec",
+            RECONNECT_TIME,
+            CLI::NonNegativeNumber);
         reconnectTimeOpt->needs(reconnectOpt);
 
-        Super::add_option(connectTimeoutOpt, //
-                          "--connect-timeout",
-                          "Connect timeout",
-                          "timeout",
-                          CONNECT_TIMEOUT,
-                          CLI::NonNegativeNumber);
+        connectTimeoutOpt = add_option( //
+            "--connect-timeout",
+            "Connect timeout",
+            "timeout",
+            CONNECT_TIMEOUT,
+            CLI::NonNegativeNumber);
     }
 
     ConfigPhysicalSocketClient& ConfigPhysicalSocketClient::setReconnect(bool reconnect) {

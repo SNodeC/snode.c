@@ -41,11 +41,11 @@ namespace net::un::config {
                                                     const std::string& addressOptionName,
                                                     const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
-        Super::add_option(sunPathOpt, //
-                          "--path",
-                          "Unix domain socket file",
-                          "filename:FILE",
-                          std::string('\0' + instance->getInstanceName() + std::to_string(getpid()) + "_" + utils::Uuid::getUuid()));
+        sunPathOpt = Super::add_option( //
+            "--path",
+            "Unix domain socket file",
+            "filename:FILE",
+            std::string('\0' + instance->getInstanceName() + std::to_string(getpid()) + "_" + utils::Uuid::getUuid()));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

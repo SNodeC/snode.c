@@ -44,12 +44,12 @@ namespace net::in6::config {
                                                                   const std::string& addressOptionName,
                                                                   const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
-        Super::add_flag(numericReverseOpt,
-                        "--numeric-reverse",
-                        "Suppress reverse host name lookup",
-                        "bool",
-                        XSTR(IPV6_NUMERIC_REVERSE),
-                        CLI::IsMember({"true", "false"}));
+        numericReverseOpt = Super::add_flag( //
+            "--numeric-reverse",
+            "Suppress reverse host name lookup",
+            "bool",
+            XSTR(IPV6_NUMERIC_REVERSE),
+            CLI::IsMember({"true", "false"}));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -77,36 +77,36 @@ namespace net::in6::config {
                                                     const std::string& addressOptionName,
                                                     const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
-        Super::add_option(hostOpt, //
-                          "--host",
-                          "Host name or IPv6 address",
-                          "hostname|IPv6",
-                          "::",
-                          CLI::TypeValidator<std::string>());
-        Super::add_option(portOpt, //
-                          "--port",
-                          "Port number",
-                          "port",
-                          0,
-                          CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
-        Super::add_flag(numericOpt, //
-                        "--numeric",
-                        "Suppress host name lookup",
-                        "bool",
-                        XSTR(IPV6_NUMERIC),
-                        CLI::IsMember({"true", "false"}));
-        Super::add_flag(numericReverseOpt,
-                        "--numeric-reverse",
-                        "Suppress reverse host name lookup",
-                        "bool",
-                        XSTR(IPV6_NUMERIC_REVERSE),
-                        CLI::IsMember({"true", "false"}));
-        Super::add_flag(ipv4MappedOpt, //
-                        "--ipv4-mapped",
-                        "Resolve IPv4-mapped IPv6 addresses also",
-                        "bool",
-                        XSTR(IPV4_MAPPED),
-                        CLI::IsMember({"true", "false"}));
+        hostOpt = Super::add_option( //
+            "--host",
+            "Host name or IPv6 address",
+            "hostname|IPv6",
+            "::",
+            CLI::TypeValidator<std::string>());
+        portOpt = Super::add_option( //
+            "--port",
+            "Port number",
+            "port",
+            0,
+            CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
+        numericOpt = Super::add_flag( //
+            "--numeric",
+            "Suppress host name lookup",
+            "bool",
+            XSTR(IPV6_NUMERIC),
+            CLI::IsMember({"true", "false"}));
+        numericReverseOpt = Super::add_flag( //
+            "--numeric-reverse",
+            "Suppress reverse host name lookup",
+            "bool",
+            XSTR(IPV6_NUMERIC_REVERSE),
+            CLI::IsMember({"true", "false"}));
+        ipv4MappedOpt = Super::add_flag( //
+            "--ipv4-mapped",
+            "Resolve IPv4-mapped IPv6 addresses also",
+            "bool",
+            XSTR(IPV4_MAPPED),
+            CLI::IsMember({"true", "false"}));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

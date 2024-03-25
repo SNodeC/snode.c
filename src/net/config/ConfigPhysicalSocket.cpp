@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -37,24 +39,23 @@ namespace net::config {
 
     ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
         : ConfigSection(instance, "socket", "Configuration of socket behavior") {
-        add_socket_option(reuseAddressOpt, //
-                          "--reuse-address{true}",
-                          SOL_SOCKET,
-                          SO_REUSEADDR,
-                          "Reuse socket address",
-                          "bool",
-                          XSTR(REUSE_ADDRESS),
-                          CLI::IsMember({"true", "false"}));
+        reuseAddressOpt = add_socket_option( //
+            "--reuse-address{true}",
+            SOL_SOCKET,
+            SO_REUSEADDR,
+            "Reuse socket address",
+            "bool",
+            XSTR(REUSE_ADDRESS),
+            CLI::IsMember({"true", "false"}));
 
-        add_flag(retryOpt, //
-                 "--retry{true}",
-                 "Automatically retry listen|connect",
-                 "bool",
-                 XSTR(RETRY),
-                 CLI::IsMember({"true", "false"}));
+        retryOpt = add_flag( //
+            "--retry{true}",
+            "Automatically retry listen|connect",
+            "bool",
+            XSTR(RETRY),
+            CLI::IsMember({"true", "false"}));
 
-        add_flag_function(
-            retryOnFatalOpt, //
+        retryOnFatalOpt = add_flag_function( //
             "--retry-on-fatal{true}",
             [this](int64_t) -> void {
                 if (retryOnFatalOpt->as<bool>() && !retryOpt->as<bool>()) {
@@ -67,50 +68,44 @@ namespace net::config {
             CLI::IsMember({"true", "false"}));
         retryOnFatalOpt->needs(retryOpt);
 
-        add_option(retryTimeoutOpt, //
-                   "--retry-timeout",
-                   "Timeout of the retry timer",
-                   "sec",
-                   RETRY_TIMEOUT,
-                   CLI::NonNegativeNumber);
+        retryTimeoutOpt = add_option( //
+            "--retry-timeout",
+            "Timeout of the retry timer",
+            "sec",
+            RETRY_TIMEOUT,
+            CLI::NonNegativeNumber);
         retryTimeoutOpt->needs(retryOpt);
 
-        add_option(retryTriesOpt, //
-                   "--retry-tries",
-                   "Number of retry attempts before giving up (0 = unlimited)",
-                   "tries",
-                   RETRY_TRIES,
-                   CLI::TypeValidator<unsigned int>());
+        retryTriesOpt = add_option( //
+            "--retry-tries",
+            "Number of retry attempts before giving up (0 = unlimited)",
+            "tries",
+            RETRY_TRIES,
+            CLI::TypeValidator<unsigned int>());
         retryTriesOpt->needs(retryOpt);
 
-        add_option(retryBaseOpt, //
-                   "--retry-base",
-                   "Base of exponential backoff",
-                   "base",
-                   RETRY_BASE,
-                   CLI::PositiveNumber);
+        retryBaseOpt = add_option( //
+            "--retry-base",
+            "Base of exponential backoff",
+            "base",
+            RETRY_BASE,
+            CLI::PositiveNumber);
         retryBaseOpt->needs(retryOpt);
 
-        add_option(retryJitterOpt, //
-                   "--retry-jitter",
-                   "Maximum jitter in percent to apply randomly to calculated retry timeout (0 to disable)",
-                   "jitter",
-                   RETRY_JITTER,
-                   CLI::Range(0., 100.));
+        retryJitterOpt = add_option( //
+            "--retry-jitter",
+            "Maximum jitter in percent to apply randomly to calculated retry timeout (0 to disable)",
+            "jitter",
+            RETRY_JITTER,
+            CLI::Range(0., 100.));
         retryJitterOpt->needs(retryOpt);
 
-        retryJitterOpt->needs(retryOpt);
-        retryBaseOpt->needs(retryOpt);
-        retryTriesOpt->needs(retryOpt);
-        retryTimeoutOpt->needs(retryOpt);
-        retryOnFatalOpt->needs(retryOpt);
-
-        add_option(retryLimitOpt, //
-                   "--retry-limit",
-                   "Upper limit in seconds of retry timeout",
-                   "sec",
-                   RETRY_LIMIT,
-                   CLI::NonNegativeNumber);
+        retryLimitOpt = add_option( //
+            "--retry-limit",
+            "Upper limit in seconds of retry timeout",
+            "sec",
+            RETRY_LIMIT,
+            CLI::NonNegativeNumber);
         retryLimitOpt->needs(retryOpt);
     }
 
@@ -118,8 +113,7 @@ namespace net::config {
         return socketOptionsMap;
     }
 
-    CLI::Option* ConfigPhysicalSocket::add_socket_option(CLI::Option*& opt,
-                                                         const std::string& name,
+    CLI::Option* ConfigPhysicalSocket::add_socket_option(const std::string& name,
                                                          int optLevel,
                                                          int optName,
                                                          const std::string& description,
@@ -127,13 +121,16 @@ namespace net::config {
                                                          const std::string& defaultValue,
                                                          const CLI::Validator& validator) {
         return net::config::ConfigSection::add_flag_function(
-            opt,
             name,
-            [this, &opt, optLevel, optName](int64_t) -> void {
-                if (opt->as<bool>()) {
-                    socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, 1)});
-                } else {
-                    socketOptionsMap.erase(optName);
+            [this, strippedName = name.substr(0, name.find('{')), optLevel, optName](int64_t) -> void {
+                try {
+                    if (section->get_option(strippedName)->as<bool>()) {
+                        socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, 1)});
+                    } else {
+                        socketOptionsMap.erase(optName);
+                    }
+                } catch (CLI::OptionNotFound& err) {
+                    LOG(ERROR) << err.what();
                 }
             },
             description,
