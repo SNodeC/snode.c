@@ -15,6 +15,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
 * [Quick Starting Guide](#quick-starting-guide)
    * [An "Echo" Application](#an-echo-application)
       * [SocketServer and SocketClient Instances](#socketserver-and-socketclient-instances)
+      * [SocketContext Factories](#socketcontext-factories)
          * [Echo-Server SocketContextFactory](#echo-server-socketcontextfactory)
          * [Echo-Client SocketContextFactory](#echo-client-socketcontextfactory)
       * [SocketContexts](#socketcontexts)
@@ -56,6 +57,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
 * [Existing SocketServer and SocketClient Classes](#existing-socketserver-and-socketclient-classes)
    * [Common Aspects of Server and Client Classes](#common-aspects-of-server-and-client-classes)
       * [SocketAddress](#socketaddress)
+         * [SocketAddress Constructors](#socketaddress-constructors)
       * [SocketConnection](#socketconnection)
          * [Most Important common SocketConnection Methods](#most-important-common-socketconnection-methods)
       * [Constructors of SocketServer and SocketClient Classes](#constructors-of-socketserver-and-socketclient-classes)
@@ -67,14 +69,22 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
          * [The onDisconnected Callback](#the-ondisconnected-callback)
          * [Attaching the Callbacks during Instance Creation](#attaching-the-callbacks-during-instance-creation)
          * [Attaching the Callbacks to already existing SocketServer and SocketClient Instances](#attaching-the-callbacks-to-already-existing-socketserver-and-socketclient-instances)
+   * [The SocketServer Classes](#the-socketserver-classes)
+      * [SocketServer Header Files](#socketserver-header-files)
       * [Listen Methods](#listen-methods)
+         * [SocketAddress Types](#socketaddress-types)
+         * [core::socket::State Object](#coresocketstate-object)
          * [Common listen() Methods](#common-listen-methods)
          * [IPv4 specific listen() Methods](#ipv4-specific-listen-methods)
          * [IPv6 specific listen() Methods](#ipv6-specific-listen-methods)
          * [Unix Domain Socket specific listen() Methods](#unix-domain-socket-specific-listen-methods)
          * [Bluetooth RFCOMM specific listen() Methods](#bluetooth-rfcomm-specific-listen-methods)
          * [Bluetooth L2CAP specific listen() Methods](#bluetooth-l2cap-specific-listen-methods)
+   * [SocketClient Classes](#socketclient-classes)
+      * [SocketClient Header Files](#socketclient-header-files)
       * [Connect Methods](#connect-methods)
+         * [SocketAddress Types](#socketaddress-types-1)
+         * [core::socket::State Object](#coresocketstate-object-1)
          * [Common connect() Methods](#common-connect-methods)
          * [IPv4 specific connect() Methods](#ipv4-specific-connect-methods)
          * [IPv6 specific connect() Methods](#ipv6-specific-connect-methods)
@@ -121,7 +131,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: runner, at: Sun Mar 24 20:41:26 UTC 2024 -->
+<!-- Added by: runner, at: Mon Mar 25 14:17:27 UTC 2024 -->
 
 <!--te-->
 
