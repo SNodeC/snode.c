@@ -1235,7 +1235,7 @@ echoClient.setOnDisconnected([] (SocketConnection* socketConnection) -> void {
 echoClient.connect(...);
 ```
 
-## `SocketServer` Classes
+## The `SocketServer` Classes
 
 Each `SocketServer` template class expects a concrete `SocketContextFactory` as template argument. This mandatory template argument is hidden in the following `SocketServer` types table.
 
