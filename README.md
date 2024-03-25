@@ -69,7 +69,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
          * [The onDisconnected Callback](#the-ondisconnected-callback)
          * [Attaching the Callbacks during Instance Creation](#attaching-the-callbacks-during-instance-creation)
          * [Attaching the Callbacks to already existing SocketServer and SocketClient Instances](#attaching-the-callbacks-to-already-existing-socketserver-and-socketclient-instances)
-   * [The SocketServer Classes](#the-socketserver-classes)
+   * [SocketServer Classes](#socketserver-classes)
       * [SocketServer Header Files](#socketserver-header-files)
       * [Listen Methods](#listen-methods)
          * [SocketAddress Types](#socketaddress-types)
@@ -131,7 +131,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: runner, at: Mon Mar 25 14:17:27 UTC 2024 -->
+<!-- Added by: runner, at: Mon Mar 25 14:39:53 UTC 2024 -->
 
 <!--te-->
 
