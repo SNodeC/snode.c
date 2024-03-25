@@ -1157,13 +1157,13 @@ using SocketAddress = EchoServer::SocketAddress;
 using SocketConnection = EchoServer::SocketConnection;
 
 EchoServer echoServer([] (SocketConnection* socketConnection) -> void {
-                          std::cout << "Connection to peer estableshed" << std::endl;
+                          VLOG(1) << "Connection to peer estableshed";
                       },
                       [] (SocketConnection* socketConnection) -> void {
-                          std::cout << "Connection to peer ready to be used" << std::endl;
+                          VLOG(1) << "Connection to peer ready to be used";
                       },
                       [] (SocketConnection* socketConnection) -> void {
-                          std::cout << "Connection to peer closed" << std::endl;
+                          VLOG(1) << "Connection to peer closed";
                       });
 
 echoServer.listen(...);
@@ -1177,13 +1177,13 @@ using SocketAddress = EchoClient::SocketAddress;
 using SocketConnection = EchoClient::SocketConnection;
 
 EchoClient echoClient([] (SocketConnection* socketConnection) -> void {
-                          std::cout << "Connection to peer estableshed" << std::endl;
+                          VLOG(1) << "Connection to peer estableshed";
                       },
                       [] (SocketConnection* socketConnection) -> void {
-                          std::cout << "Connection to peer ready to be used" << std::endl;
+                          VLOG(1) << "Connection to peer ready to be used";
                       },
                       [] (SocketConnection* socketConnection) -> void {
-                          std::cout << "Connection to peer closed" << std::endl;
+                          VLOG(1) << "Connection to peer closed";
                       });
 
 echoClient.connect(...);
@@ -1207,15 +1207,15 @@ using SocketConnection = EchoServer::SocketConnection;
 EchoServer echoServer;
 
 echoServer.setOnConnect([] (SocketConnection* socketConnection) -> void {
-    std::cout << "Connection to peer established" << std::endl;
+    VLOG(1) << "Connection to peer established";
 });
 
 echoServer.setOnConnected([] (SocketConnection* socketConnection) -> void {
-    std::cout << "Connection to peer ready to be used" << std::endl;
+    VLOG(1) << "Connection to peer ready to be used";
 });
     
 echoServer.setOnDisconnected([] (SocketConnection* socketConnection) -> void {
-    std::cout << "Connection to peer closed" << std::endl;
+    VLOG(1) << "Connection to peer closed";
 });
 
 echoServer.listen(...);
@@ -1231,15 +1231,15 @@ using SocketConnection = EchoClient::SocketConnection;
 EchoClient echoClient;
 
 echoClient.setOnConnect([] (SocketConnection* socketConnection) -> void {
-    std::cout << "Connection to peer established" << std::endl;
+    VLOG(1) << "Connection to peer established";
 });
 
 echoClient.setOnConnected([] (SocketConnection* socketConnection) -> void {
-    std::cout << "Connection to peer ready to be used" << std::endl;
+    VLOG(1) << "Connection to peer ready to be used";
 });
     
 echoClient.setOnDisconnected([] (SocketConnection* socketConnection) -> void {
-    std::cout << "Connection to peer closed" << std::endl;
+    VLOG(1) << "Connection to peer closed";
 });
 
 echoClient.connect(...);
@@ -1307,11 +1307,11 @@ Three common `listen()` methods exist:
 
 | `listen()` Methods common to all `SocketServer` Classes      | `listen()` Method Arguments                                  |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| `void listen(StatusFunction& onStatus)`                      | Listen without parameter[^1]                                 |
-| `void listen(const SocketAddress& localAddress, StatusFunction& onStatus)` | Listen expecting a `SocketAddress` as argument               |
-| `void listen(const SocketAddress& localAddress, int backlog, StatusFunction& onStatus)` | Listen expecting a `SocketAddress` and a *backlog* as argument |
+| `void listen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Listen without parameter[^1]                                 |
+| `void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Listen expecting a `SocketAddress` as argument               |
+| `void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Listen expecting a `SocketAddress` and a *backlog* as argument |
 
-[^1]: "Without parameter" is not completely true because every `listen()` method expects a reference to a `std::function` for status processing (error or success) as argument.
+[^1]: "Without parameter" is not relay true because every `listen()` method expects a reference to a `std::function` for status processing (error or success) as argument.
 
 #### IPv4 specific `listen()` Methods
 
@@ -1319,10 +1319,10 @@ For the IPv4/SOCK_STREAM combination exist four specific *listen* methods:
 
 | IPv4 `listen()` Methods                                      |
 | ------------------------------------------------------------ |
-| `void listen(uint16_t port, StatusFunction& onStatus)`       |
-| `void listen(uint16_t port, int backlog, StatusFunction& onStatus)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onStatus)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onStatus)` |
+| `void listen(uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### IPv6 specific `listen()` Methods
 
@@ -1330,10 +1330,10 @@ For the IPv6/SOCK_STREAM combination exist four specific *listen* methods:
 
 | IPv6 `listen()` Methods                                      |
 | ------------------------------------------------------------ |
-| `void listen(uint16_t port, StatusFunction& onStatus)`       |
-| `void listen(uint16_t port, int backlog, StatusFunction& onStatus)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, StatusFunction& onStatus)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, StatusFunction& onStatus)` |
+| `void listen(uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### Unix Domain Socket specific `listen()` Methods
 
@@ -1341,8 +1341,8 @@ For the Unix Domain Socket/SOCK_STREAM combination exist two specific *listen* m
 
 | Unix-Domain `listen()` Methods                               |
 | ------------------------------------------------------------ |
-| `void listen(const std::string& sunPath, StatusFunction& onStatus)` |
-| `void listen(const std::string& sunPath, int backlog, StatusFunction& onStatus)` |
+| `void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### Bluetooth RFCOMM specific `listen()` Methods
 
@@ -1350,10 +1350,10 @@ For the RFCOMM/SOCK_STREAM combination exist four specific *listen* methods:
 
 | Bluetooth RFCOMM `listen()` Methods                          |
 | ------------------------------------------------------------ |
-| `void listen(uint8_t channel, StatusFunction& onStatus)`     |
-| `void listen(uint8_t channel, int backlog, StatusFunction& onStatus)` |
-| `void listen(const std::string& btAddress, uint8_t channel, StatusFunction& onStatus)` |
-| `void listen(const std::string& btAddress, uint8_t channel, int backlog, StatusFunction& onStatus)` |
+| `void listen(uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(const std::string& btAddress, uint8_t channel, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### Bluetooth L2CAP specific `listen()` Methods
 
@@ -1361,10 +1361,10 @@ For the L2CAP/SOCK_STREAM combination exist four specific *listen* methods.
 
 | Bluetooth L2CAP `listen()` Methods                           |
 | ------------------------------------------------------------ |
-| `void listen(uint16_t psm, StatusFunction& onStatus)`        |
-| `void listen(uint16_t psm, int backlog, StatusFunction& onStatus)` |
-| `void listen(const std::string& btAddress, uint16_t psm, StatusFunction& onStatus)` |
-| `void listen(const std::string& btAddress, uint16_t psm, int backlog, StatusFunction& onStatus)` |
+| `void listen(uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void listen(const std::string& btAddress, uint16_t psm, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 ## `SocketClient` Classes
 
@@ -1397,7 +1397,7 @@ As already mentioned above, for convenience each `SocketClient` class provides i
 All `connect()` methods expect an status callback as argument which is called in case the socket has been created and connected to the peer or an error has occurred. The signature of this callback is
 
 ```c++
-const std::function<void(const SocketAddress& socketAddress, const core::socket::State& state)>
+const std::function<void(const SocketAddress& socketAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)>
 ```
 
 The bound `SocketAddress` and a *state* value is passed to this callback as arguments. 
@@ -1429,11 +1429,11 @@ Three common `connect()` methods exist:
 
 | `connect()` Methods common to all `SocketServer` Classes     | `connect()` Method Arguments                       |
 | ------------------------------------------------------------ | -------------------------------------------------- |
-| `void connect(StatusFunction& onStatus)`                     | Connect without parameter[^2]                      |
-| `void connect(const SocketAddress& remoteAddress, StatusFunction& onStatus)` | Connect expecting a `SocketAddress` as argument    |
-| `void connect(const SocketAddress& remoteAddress, const SocketAddress& localAddress, StatusFunction& onStatus)` | Connect expecting two `SocketAddresss` as argument |
+| `void connect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Connect without parameter[^2]                      |
+| `void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Connect expecting a `SocketAddress` as argument    |
+| `void connect(const SocketAddress& remoteAddress, const SocketAddress& localAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Connect expecting two `SocketAddresss` as argument |
 
-[^2]: "Without parameter" is not completely true because every *connect* method expects a `std::function` for status processing (error or success) as argument. 
+[^2]: "Without parameter" is not realy true because every *connect* method expects a `std::function` for status processing (error or success) as argument. 
 
 #### IPv4 specific `connect()` Methods
 
@@ -1441,10 +1441,10 @@ For the IPv4/SOCK_STREAM combination exist four specific `connect()` methods:
 
 | IPv4 *connect* Methods                                       |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### IPv6 specific `connect()` Methods
 
@@ -1452,10 +1452,10 @@ For the IPv6/SOCK_STREAM combination exist four specific `connect()` methods:
 
 | IPv6 *connect* Methods                                       |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& ipOrHostname, uint16_t port, StatusFunction& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, StatusFunction& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, StatusFunction& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, StatusFunction& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### Unix Domain Socket specific `connect()` Methods
 
@@ -1463,8 +1463,8 @@ For the Unix Domain Socket/SOCK_STREAM combination exist two specific `connect()
 
 | Unix-Domain `connect()` Methods                              |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& sunPath, StatusFunction& onStatus)` |
-| `void connect(const std::string& remoteSunPath, const std::string& localSunPath, StatusFunction& onStatus)` |
+| `void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& remoteSunPath, const std::string& localSunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### Bluetooth RFCOMM specific `connect()` Methods
 
@@ -1472,10 +1472,10 @@ For the RFCOMM/SOCK_STREAM combination exist four specific `connect()` methods.
 
 | Bluetooth RFCOMM `connect()` Methods                         |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& btAddress, uint8_t channel, StatusFunction& onStatus)` |
-| `void connect(const std::string& btAddress, uint8_t channel, uint8_t bindChannel, StatusFunction& onStatus)` |
-| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress,StatusFunction& onStatus)` |
-| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress, uint8_t bindChannel, StatusFunction& onStatus)` |
+| `void connect(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& btAddress, uint8_t channel, uint8_t bindChannel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress,const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress, uint8_t bindChannel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### Bluetooth L2CAP specific `connect()` Methods
 
@@ -1483,10 +1483,10 @@ For the L2CAP/SOCK_STREAM combination exist four specific `connect()` methods.
 
 | Bluetooth L2CAP `connect()` Methods                          |
 | ------------------------------------------------------------ |
-| `void connect(const std::string& btAddress, uint16_t psm, StatusFunction& onStatus)` |
-| `void connect(const std::string& btAddress, uint16_t psm, uint16_t bindPsm, StatusFunction& onStatus)` |
-| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, StatusFunction& onStatus)` |
-| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, uint16_t bindPsm, StatusFunction& onStatus)` |
+| `void connect(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& btAddress, uint16_t psm, uint16_t bindPsm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, uint16_t bindPsm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 # Configuration
 
@@ -1535,7 +1535,7 @@ Thus, if the port number is configured by using `setPort()` the *listen* method 
 ```cpp
 EchoServer echoServer;
 echoServer.getConfig().setPort(8001);
-echoServer.listen([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+echoServer.listen([](const SocketAddress& socketAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) -> void {
     ...
 });
 ```
@@ -1548,7 +1548,7 @@ Though, because a `SocketClient` has two independent sets of IP-Addresses/host n
 EchoServer echoClient;
 echoClient.getConfig().Remote::setIpOrHostname("localhost");
 echoClient.getConfig().Remote::setPort(8001);
-echoClient.connect([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+echoClient.connect([](const SocketAddress& socketAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) -> void {
     ...
 });
 ```
@@ -1777,7 +1777,7 @@ Options (persistent):
 which offer configuration options to configure the host name or IP-Address and port number the physical server socket should be bound to. Note, that the default value of the port number is `8001`, what is this port number used to activate the `echo` instance:
 
 ```cpp
-echoServer.listen(8001, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+echoServer.listen(8001, [](const SocketAddress& socketAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) -> void {
     ...
 });
 ```
@@ -1813,7 +1813,7 @@ In case the parameterless `listen()` method is used for activating a server inst
 
 ```cpp
 EchoServer echoServer("echo"); // Create server instance
-echoServer.listen([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+echoServer.listen([](const SocketAddress& socketAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) -> void {
     ...
 });
 ```
@@ -1855,7 +1855,7 @@ Lets have look at the case of the named `echoclient`
 
 ```cpp
 EchoClient echoClient("echo"); // Create named client instance
-echoClient.connect([](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+echoClient.connect([](const SocketAddress& socketAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) -> void {
     ...
 });
 ```
@@ -2506,15 +2506,24 @@ The use of X.509 certificates for encrypted communication is demonstrated also.
 
 int main(int argc, char* argv[]) {
     utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
-
+    
     express::WebApp::init(argc, argv);
     
     using LegacyWebApp = express::legacy::in::WebApp;
     using LegacySocketAddress = LegacyWebApp::SocketAddress;
 
     LegacyWebApp legacyApp;
+    
+    net::config::ConfigSection configLegacyApp = net::config::ConfigSection(&legacyApp.getConfig(),
+                                                                            "www", "Web behavior of httpserver");
+    CLI::Option* legacyHtmlRoot = configLegacyApp.add_option(legacyHtmlRoot,
+                                                             "--html-root", "HTML root directory", "path", "");
+    configLegacyApp.required(legacyHtmlRoot);
 
-    legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+    legacyApp.setOnConnected([legacyApp, legacyHtmlRoot](SocketConnection* socketConnection) -> void { // onConnect
+        LOG(INFO) << "OnConnected " << legacyApp.getConfig().getInstanceName();
+        legacyApp.use(express::middleware::StaticMiddleware(legacyHtmlRoot->as<std::string>()));
+    });
 
     legacyApp.listen(8080, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
@@ -2537,12 +2546,21 @@ int main(int argc, char* argv[]) {
     using TLSSocketAddress = TLSWebApp::SocketAddress;
 
     TLSWebApp tlsApp;
+    
+    net::config::ConfigSection configTlsApp = net::config::ConfigSection(&tlsApp.getConfig(),
+                                                                         "www", "Web behavior of httpserver");
+    CLI::Option* tlsHtmlRoot = configTlsApp.add_option(tlsHtmlRoot,
+                                                       "--html-root", "HTML root directory", "path", "");
+    configTlsApp.required(tlsHtmlRoot);
+
+    tlsApp.setOnConnected([tlsApp, tlsHtmlRoot](SocketConnection* socketConnection) -> void { // onConnect
+        LOG(INFO) << "OnConnected " << tlsApp.getConfig().getInstanceName();
+        tlsApp.use(express::middleware::StaticMiddleware(tlsHtmlRoot->as<std::string>()));
+    });
 
     tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
     tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
     tlsApp.getConfig().setCertKeyPassword("<certificate key password>");
-
-    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
 
     tlsApp.listen(8088, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
@@ -2585,7 +2603,7 @@ int main(int argc, char* argv[]) {
     // The macro 
     //    APPLICATION(req, res)
     // expands to 
-    //    ([[maybe_unused]] express::Request& (req), [[maybe_unused]] express::Response& (res))
+    //    (const std::shared_ptr<express::Request>& (req), const std::shared_ptr<express::Response>& (res))
     legacyApp.get("/", [] APPLICATION(req, res) {
         res.send("<html>"
                  "    <head>"
@@ -2619,14 +2637,12 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.post("/", [] APPLICATION(req, res) {
-        req.body.push_back(0);
-
         res.send("<html>"
                  "    <body>"
                  "        <h1>Thank you, we received your file!</h1>"
                  "        <h2>Content:</h2>"
                  "        <pre>" +
-                 std::string(reinterpret_cast<char*>(req.body.data())) +
+                 std::string(req->body.begin(), req->body.end()) +
                  "        </pre>"
                  "    </body>"
                  "</html>");
