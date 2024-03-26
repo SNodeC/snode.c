@@ -52,39 +52,39 @@ namespace net::config {
         ConfigTls& setShutdownTimeout(const utils::Timeval& newShutdownTimeout);
         utils::Timeval getShutdownTimeout() const;
 
-        ConfigTls& setCertChain(const std::string& newCertChain);
-        std::string getCertChain() const;
+        ConfigTls& setCert(const std::string& cert);
+        std::string getCert() const;
 
-        ConfigTls& setCertKey(const std::string& newCertKey);
+        ConfigTls& setCertKey(const std::string& certKey);
         std::string getCertKey() const;
 
-        ConfigTls& setCertKeyPassword(const std::string& newCertKeyPassword);
+        ConfigTls& setCertKeyPassword(const std::string& certKeyPassword);
         std::string getCertKeyPassword() const;
 
-        ConfigTls& setCaCertFile(const std::string& newCaCertFile);
-        std::string getCaCertFile() const;
+        ConfigTls& setCaCert(const std::string& caCert);
+        std::string getCaCert() const;
 
-        ConfigTls& setCaCertDir(const std::string& newCaCertDir);
+        ConfigTls& setCaCertDir(const std::string& caCertDir);
         std::string getCaCertDir() const;
 
-        ConfigTls& setUseDefaultCaCertDir(bool set = true);
-        bool getUseDefaultCaCertDir() const;
+        ConfigTls& setCaCertUseDefaultDir(bool set = true);
+        bool getCaCertUseDefaultDir() const;
 
-        ConfigTls& setCipherList(const std::string& newCipherList);
+        ConfigTls& setCipherList(const std::string& cipherList);
         std::string getCipherList() const;
 
-        ConfigTls& setSslTlsOptions(ssl_option_t newSslTlsOptions);
-        ssl_option_t getSslTlsOptions() const;
+        ConfigTls& setSslOptions(ssl_option_t sslOptions);
+        ssl_option_t getSslOptions() const;
 
     private:
-        CLI::Option* certChainOpt = nullptr;
+        CLI::Option* certOpt = nullptr;
         CLI::Option* certKeyOpt = nullptr;
         CLI::Option* certKeyPasswordOpt = nullptr;
-        CLI::Option* caCertFileOpt = nullptr;
+        CLI::Option* caCertOpt = nullptr;
         CLI::Option* caCertDirOpt = nullptr;
-        CLI::Option* useDefaultCaCertDirOpt = nullptr;
+        CLI::Option* caCertUseDefaultDirOpt = nullptr;
         CLI::Option* cipherListOpt = nullptr;
-        CLI::Option* tlsOptionsOpt = nullptr;
+        CLI::Option* sslOptionsOpt = nullptr;
         CLI::Option* initTimeoutOpt = nullptr;
         CLI::Option* shutdownTimeoutOpt = nullptr;
     };

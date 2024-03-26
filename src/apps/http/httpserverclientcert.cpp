@@ -39,9 +39,9 @@ int main(int argc, char* argv[]) {
 
 #if (STREAM_TYPE == TLS)
     //    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
-    //        {"snodec.home.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}, {"CaFile",
+    //        {"snodec.home.vchrist.at", {{"Cert", certChainFile}, {"CertKey", keyFile}, {"Password", password}, {"CaFile",
     //        caFile}}},
-    //        {"www.vchrist.at", {{"CertChain", certChainFile}, {"CertChainKey", keyFile}, {"Password", password}, {"CaFile", caFile}}}};
+    //        {"www.vchrist.at", {{"Cert", certChainFile}, {"CertKey", keyFile}, {"Password", password}, {"CaFile", caFile}}}};
 
     //    webApp.addSniCerts(sniCerts);
     //    webApp.forceSni();

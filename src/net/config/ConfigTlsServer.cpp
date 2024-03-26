@@ -39,12 +39,12 @@ namespace net::config {
                                        "Server Name Indication (SNI) Certificates:\n"
                                        "sni = SNI of the virtual server\n"
                                        "<key> = {\n"
-                                       "  \"CertChain\" -> value:PEM-FILE             ['']\n"
+                                       "  \"Cert\" -> value:PEM-FILE             ['']\n"
                                        "  \"CertKey\" -> value:PEM-FILE               ['']\n"
                                        "  \"CertKeyPassword\" -> value:TEXT           ['']\n"
-                                       "  \"CaCertFile\" -> value:PEM-FILE            ['']\n"
+                                       "  \"CaCert\" -> value:PEM-FILE            ['']\n"
                                        "  \"CaCertDir\" -> value:PEM-CONTAINER-DIR    ['']\n"
-                                       "  \"UseDefaultCaDir\" -> value:BOOLEAN     [false]\n"
+                                       "  \"CaCertUseDefaultDir\" -> value:BOOLEAN     [false]\n"
                                        "  \"CipherList\" -> value:CIPHER              ['']\n"
                                        "  \"SslOptions\" -> value:UINT                 [0]\n"
                                        "}") //
@@ -63,17 +63,17 @@ namespace net::config {
                 for (const auto& [key, value] : sniCertConf) {
                     defaultValue += key + " ";
 
-                    if (key == "CertChain") {
+                    if (key == "Cert") {
                         defaultValue += std::get<std::string>(value) + " ";
                     } else if (key == "CertKey") {
                         defaultValue += std::get<std::string>(value) + " ";
                     } else if (key == "CertKeyPassword") {
                         defaultValue += std::get<std::string>(value) + " ";
-                    } else if (key == "CaCertFile") {
+                    } else if (key == "CaCert") {
                         defaultValue += std::get<std::string>(value) + " ";
                     } else if (key == "CaCertDir") {
                         defaultValue += std::get<std::string>(value) + " ";
-                    } else if (key == "UseDefaultCaDir") {
+                    } else if (key == "CaCertUseDefaultDir") {
                         defaultValue += std::get<bool>(value) ? "true " : "false ";
                     } else if (key == "CipherList") {
                         defaultValue += std::get<std::string>(value) + " ";

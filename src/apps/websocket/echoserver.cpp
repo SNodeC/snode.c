@@ -162,8 +162,8 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.listen([instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
-                                                                               const core::socket::State& state) -> void {
+        tlsApp.listen([instanceName = tlsApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
+                                                                            const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";

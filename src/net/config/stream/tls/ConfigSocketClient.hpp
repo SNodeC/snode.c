@@ -46,14 +46,14 @@ namespace net::config::stream::tls {
 
             sslConfig.instanceName = getInstanceName();
 
-            sslConfig.certChain = getCertChain();
-            sslConfig.certChainKey = getCertKey();
-            sslConfig.caDir = getCaCertDir();
-            sslConfig.caFile = getCaCertFile();
-            sslConfig.cipherList = getCipherList();
+            sslConfig.cert = getCert();
+            sslConfig.certKey = getCertKey();
             sslConfig.password = getCertKeyPassword();
-            sslConfig.sslOptions = getSslTlsOptions();
-            sslConfig.useDefaultCaDir = getUseDefaultCaCertDir();
+            sslConfig.caCert = getCaCert();
+            sslConfig.caCertDir = getCaCertDir();
+            sslConfig.cipherList = getCipherList();
+            sslConfig.sslOptions = getSslOptions();
+            sslConfig.caCertUseDefaultDir = getCaCertUseDefaultDir();
 
             sslCtx = core::socket::stream::tls::ssl_ctx_new(sslConfig);
         }

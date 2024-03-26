@@ -52,12 +52,12 @@ namespace core::socket::stream::tls {
         explicit SslConfig(bool server);
 
         std::string instanceName;
-        std::string certChain;
-        std::string certChainKey;
+        std::string cert;
+        std::string certKey;
         std::string password;
-        std::string caFile;
-        std::string caDir;
-        bool useDefaultCaDir = false;
+        std::string caCert;
+        std::string caCertDir;
+        bool caCertUseDefaultDir = false;
         std::string cipherList;
         ssl_option_t sslOptions = 0;
         bool server = false;

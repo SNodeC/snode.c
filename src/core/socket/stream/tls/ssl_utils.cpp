@@ -114,23 +114,23 @@ namespace core::socket::stream::tls {
                 SSL_CTX_set_session_id_context(ctx, reinterpret_cast<const unsigned char*>(&sslSessionCtxId), sizeof(sslSessionCtxId));
                 sslSessionCtxId++;
             }
-            if (!sslConfig.caFile.empty() || !sslConfig.caDir.empty()) {
+            if (!sslConfig.caCert.empty() || !sslConfig.caCertDir.empty()) {
                 if (SSL_CTX_load_verify_locations(ctx,
-                                                  !sslConfig.caFile.empty() ? sslConfig.caFile.c_str() : nullptr,
-                                                  !sslConfig.caDir.empty() ? sslConfig.caDir.c_str() : nullptr) == 0) {
-                    ssl_log_error(sslConfig.instanceName + " SSL/TLS: CA certificate error loading file '" + sslConfig.caFile + "', dir '" +
-                                  sslConfig.caDir + "'");
+                                                  !sslConfig.caCert.empty() ? sslConfig.caCert.c_str() : nullptr,
+                                                  !sslConfig.caCertDir.empty() ? sslConfig.caCertDir.c_str() : nullptr) == 0) {
+                    ssl_log_error(sslConfig.instanceName + " SSL/TLS: CA certificate error loading file '" + sslConfig.caCert + "', dir '" +
+                                  sslConfig.caCertDir + "'");
                     sslErr = true;
                 } else {
-                    if (!sslConfig.caFile.empty()) {
+                    if (!sslConfig.caCert.empty()) {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate loaded";
-                        LOG(TRACE) << "         " << sslConfig.caFile;
+                        LOG(TRACE) << "         " << sslConfig.caCert;
                     } else {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
                     }
-                    if (!sslConfig.caDir.empty()) {
+                    if (!sslConfig.caCertDir.empty()) {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates load from";
-                        LOG(TRACE) << "         " << sslConfig.caDir;
+                        LOG(TRACE) << "         " << sslConfig.caCertDir;
                     } else {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
                     }
@@ -139,7 +139,7 @@ namespace core::socket::stream::tls {
                 LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
                 LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
             }
-            if (!sslErr && sslConfig.useDefaultCaDir) {
+            if (!sslErr && sslConfig.caCertUseDefaultDir) {
                 if (SSL_CTX_set_default_verify_paths(ctx) == 0) {
                     ssl_log_error(sslConfig.instanceName + " SSL/TLS: CA certificates error load from default openssl CA directory");
                     sslErr = true;
@@ -150,36 +150,35 @@ namespace core::socket::stream::tls {
                 LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from default openssl CA directory";
             }
             if (!sslErr) {
-                if (sslConfig.useDefaultCaDir || !sslConfig.caFile.empty() || !sslConfig.caDir.empty()) {
+                if (sslConfig.caCertUseDefaultDir || !sslConfig.caCert.empty() || !sslConfig.caCertDir.empty()) {
                     SSL_CTX_set_verify_depth(ctx, 5);
                     SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
                     LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA requested verify";
                 }
-                if (!sslConfig.certChain.empty()) {
-                    if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.certChain.c_str()) == 0) {
-                        ssl_log_error(sslConfig.instanceName + " SSL/TLS: Cert chain error loading from file '" + sslConfig.certChain +
-                                      "'");
+                if (!sslConfig.cert.empty()) {
+                    if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.cert.c_str()) == 0) {
+                        ssl_log_error(sslConfig.instanceName + " SSL/TLS: Cert chain error loading from file '" + sslConfig.cert + "'");
                         sslErr = true;
-                    } else if (!sslConfig.certChainKey.empty()) {
+                    } else if (!sslConfig.certKey.empty()) {
                         if (!sslConfig.password.empty()) {
                             SSL_CTX_set_default_passwd_cb(ctx, password_callback);
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(sslConfig.password.c_str()));
                         }
-                        if (SSL_CTX_use_PrivateKey_file(ctx, sslConfig.certChainKey.c_str(), SSL_FILETYPE_PEM) == 0) {
-                            ssl_log_error(sslConfig.instanceName + " SSL/TLS: Cert chain key error loading file '" +
-                                          sslConfig.certChainKey + "'");
+                        if (SSL_CTX_use_PrivateKey_file(ctx, sslConfig.certKey.c_str(), SSL_FILETYPE_PEM) == 0) {
+                            ssl_log_error(sslConfig.instanceName + " SSL/certKey: Cert chain key error loading file '" + sslConfig.certKey +
+                                          "'");
                             sslErr = true;
                         } else if (SSL_CTX_check_private_key(ctx) != 1) {
                             ssl_log_error(sslConfig.instanceName + " SSL/TLS: Cert chain key error");
                             LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain not loaded";
-                            LOG(TRACE) << "  " << sslConfig.certChainKey;
+                            LOG(TRACE) << "  " << sslConfig.certKey;
                             sslErr = true;
                         } else {
                             LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain key loaded";
-                            LOG(TRACE) << "  " << sslConfig.certChainKey;
+                            LOG(TRACE) << "  " << sslConfig.certKey;
 
                             LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain loaded";
-                            LOG(TRACE) << "  " << sslConfig.certChain;
+                            LOG(TRACE) << "  " << sslConfig.cert;
                         }
                     }
                 }

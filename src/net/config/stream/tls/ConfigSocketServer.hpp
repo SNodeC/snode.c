@@ -57,14 +57,14 @@ namespace net::config::stream::tls {
 
             sslConfig.instanceName = getInstanceName();
 
-            sslConfig.certChain = getCertChain();
-            sslConfig.certChainKey = getCertKey();
-            sslConfig.caDir = getCaCertDir();
-            sslConfig.caFile = getCaCertFile();
-            sslConfig.cipherList = getCipherList();
+            sslConfig.cert = getCert();
+            sslConfig.certKey = getCertKey();
             sslConfig.password = getCertKeyPassword();
-            sslConfig.sslOptions = getSslTlsOptions();
-            sslConfig.useDefaultCaDir = getUseDefaultCaCertDir();
+            sslConfig.caCert = getCaCert();
+            sslConfig.caCertDir = getCaCertDir();
+            sslConfig.cipherList = getCipherList();
+            sslConfig.sslOptions = getSslOptions();
+            sslConfig.caCertUseDefaultDir = getCaCertUseDefaultDir();
 
             sslCtx = core::socket::stream::tls::ssl_ctx_new(sslConfig);
 
@@ -86,7 +86,7 @@ namespace net::config::stream::tls {
             sniCtxMap.insert(sslSans.begin(), sslSans.end());
 
             for (const auto& [sni, ctx] : sniCtxMap) {
-                LOG(TRACE) << getInstanceName() << " SSL/TLS: SSL_CTX (E) sni for '" << sni << "' from master certificate installed";
+                LOG(TRACE) << getInstanceName() << " SSL/TLS: SSL_CTX (M) sni for '" << sni << "' from master certificate installed";
             }
 
             for (const auto& [domain, sniCertConf] : getSniCerts()) {
@@ -96,18 +96,18 @@ namespace net::config::stream::tls {
                     sslConfig.instanceName = getInstanceName();
 
                     for (const auto& [key, value] : sniCertConf) {
-                        if (key == "CertChain") {
-                            sslConfig.certChain = std::get<std::string>(value);
+                        if (key == "Cert") {
+                            sslConfig.cert = std::get<std::string>(value);
                         } else if (key == "CertKey") {
-                            sslConfig.certChainKey = std::get<std::string>(value);
+                            sslConfig.certKey = std::get<std::string>(value);
                         } else if (key == "CertKeyPassword") {
                             sslConfig.password = std::get<std::string>(value);
-                        } else if (key == "CaCertFile") {
-                            sslConfig.caFile = std::get<std::string>(value);
+                        } else if (key == "CaCert") {
+                            sslConfig.caCert = std::get<std::string>(value);
                         } else if (key == "CaCertDir") {
-                            sslConfig.caDir = std::get<std::string>(value);
-                        } else if (key == "UseDefaultCaDir") {
-                            sslConfig.useDefaultCaDir = std::get<bool>(value);
+                            sslConfig.caCertDir = std::get<std::string>(value);
+                        } else if (key == "CaCertUseDefaultDir") {
+                            sslConfig.caCertUseDefaultDir = std::get<bool>(value);
                         } else if (key == "CipherList") {
                             sslConfig.cipherList = std::get<std::string>(value);
                         } else if (key == "SslOptions") {
@@ -177,10 +177,10 @@ namespace net::config::stream::tls {
                 *al = SSL_AD_UNRECOGNIZED_NAME;
             } else {
                 LOG(TRACE) << config->getInstanceName() << " SSL/TLS: No sni certificate found for '" << serverNameIndication
-                           << "' still using master certificate";
+                           << "'. Still using master certificate";
             }
         } else {
-            LOG(TRACE) << config->getInstanceName() << " SSL/TLS: No sni certificate set - the client did not request one";
+            LOG(TRACE) << config->getInstanceName() << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
         }
 
         return ret;
