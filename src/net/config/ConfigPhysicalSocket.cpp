@@ -102,7 +102,7 @@ namespace net::config {
 
         retryLimitOpt = add_option( //
             "--retry-limit",
-            "Upper limit in seconds of retry timeout",
+            "Upper limit in seconds of retry timeout (0 for infinite)",
             "sec",
             RETRY_LIMIT,
             CLI::NonNegativeNumber);
