@@ -49,21 +49,21 @@ int main(int argc, char* argv[]) {
     {
         const legacy::in6::WebApp legacyApp("legacy");
 
-        const Router& router1 = middleware::VHost("localhost:8080");
-        router1.use(middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
-        legacyApp.use(router1);
+        const Router& vh1 = middleware::VHost("localhost:8080");
+        vh1.use(middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+        legacyApp.use(vh1);
 
-        const Router& router2 = middleware::VHost("atlas.home.vchrist.at:8080");
-        router2.get("/", [] APPLICATION(req, res) {
+        const Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8080");
+        vh2.get("/", [] APPLICATION(req, res) {
             res->send("Hello! I am VHOST atlas.home.vchrist.at.");
         });
-        legacyApp.use(router2);
+        legacyApp.use(vh2);
 
-        const Router& router3 = middleware::VHost("ceres.home.vchrist.at:8080");
-        router3.get("/", [] APPLICATION(req, res) {
+        const Router& vh3 = middleware::VHost("ceres.home.vchrist.at:8080");
+        vh3.get("/", [] APPLICATION(req, res) {
             res->send("Hello! I am VHOST ceres.home.vchrist.at.");
         });
-        legacyApp.use(router3);
+        legacyApp.use(vh3);
 
         legacyApp.use([] APPLICATION(req, res) {
             res->status(404).send("The requested resource is not found.");
@@ -87,48 +87,54 @@ int main(int argc, char* argv[]) {
                                      break;
                              }
                          });
+    }
 
-        {
-            const express::tls::in6::WebApp tlsApp("tls");
+    {
+        const express::tls::in6::WebApp tlsApp("tls");
 
-            const Router& vh1 = middleware::VHost("localhost:8088");
-            vh1.use(getRouter(utils::Config::get_string_option_value("--web-root")));
-            tlsApp.use(vh1);
+        const Router& vh1 = middleware::VHost("localhost:8088");
+        vh1.use(getRouter(utils::Config::get_string_option_value("--web-root")));
+        tlsApp.use(vh1);
 
-            const Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8088");
-            vh2.get("/", [] APPLICATION(req, res) {
-                res->send("Hello! I am VHOST atlas.home.vchrist.at.");
-            });
-            tlsApp.use(vh2);
+        const Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8088");
+        vh2.get("/", [] APPLICATION(req, res) {
+            res->send("Hello! I am VHOST atlas.home.vchrist.at.");
+        });
+        tlsApp.use(vh2);
 
-            tlsApp.use([] APPLICATION(req, res) {
-                res->status(404).send("The requested resource is not found.");
-            });
+        const Router& vh3 = middleware::VHost("ceres.home.vchrist.at:8080");
+        vh3.get("/", [] APPLICATION(req, res) {
+            res->send("Hello! I am VHOST ceres.home.vchrist.at.");
+        });
+        tlsApp.use(vh3);
 
-            tlsApp.listen(8088,
-                          [instanceName = tlsApp.getConfig().getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
-                                                                                const core::socket::State& state) -> void {
-                              switch (state) {
-                                  case core::socket::State::OK:
-                                      VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
-                                      break;
-                                  case core::socket::State::DISABLED:
-                                      VLOG(1) << instanceName << ": disabled";
-                                      break;
-                                  case core::socket::State::ERROR:
-                                      LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                      break;
-                                  case core::socket::State::FATAL:
-                                      LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                      break;
-                              }
-                          });
+        tlsApp.use([] APPLICATION(req, res) {
+            res->status(404).send("The requested resource is not found.");
+        });
 
-            //            tlsApp.getConfig().setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
-            //            tlsApp.getConfig().setCertKey(
-            //                "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
-            //            tlsApp.getConfig().setCertKeyPassword("snode.c");
-        }
+        tlsApp.listen(8088,
+                      [instanceName = tlsApp.getConfig().getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
+                                                                            const core::socket::State& state) -> void {
+                          switch (state) {
+                              case core::socket::State::OK:
+                                  VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                                  break;
+                              case core::socket::State::DISABLED:
+                                  VLOG(1) << instanceName << ": disabled";
+                                  break;
+                              case core::socket::State::ERROR:
+                                  LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                  break;
+                              case core::socket::State::FATAL:
+                                  LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                  break;
+                          }
+                      });
+
+        //            tlsApp.getConfig().setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
+        //            tlsApp.getConfig().setCertKey(
+        //                "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
+        //            tlsApp.getConfig().setCertKeyPassword("snode.c");
     }
 
     WebApp::start();
