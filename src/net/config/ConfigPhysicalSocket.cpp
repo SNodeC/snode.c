@@ -125,7 +125,7 @@ namespace net::config {
             [this, strippedName = name.substr(0, name.find('{')), optLevel, optName](int64_t) -> void {
                 try {
                     if (section->get_option(strippedName)->as<bool>()) {
-                        socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, 1)});
+                        socketOptionsMap.emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, 1));
                     } else {
                         socketOptionsMap.erase(optName);
                     }
@@ -140,19 +140,19 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, int optValue) {
-        socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue)});
+        socketOptionsMap.emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue));
 
         return *this;
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::string& optValue) {
-        socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue)});
+        socketOptionsMap.emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue));
 
         return *this;
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::vector<char>& optValue) {
-        socketOptionsMap.insert({optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue)});
+        socketOptionsMap.emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue));
 
         return *this;
     }
