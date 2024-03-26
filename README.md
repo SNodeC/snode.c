@@ -414,7 +414,7 @@ The server instance `echoServer` must be *activated* by calling `echoServer.list
 
 SNode.C provides a view [overloaded `listen()`](#listen-methods) methods whose arguments vary depending on the network layer (IPv4, IPv6, RFCOMM, L2CAP, or unix domain sockets) used. Though, every `listen()` method expects a *lambda function* as one of its arguments.
 
-Here we use IPv4 and the `listen()` method which expects a port number -- here *8001* -- as argument. Note that we do not bind the `echoServer` to a specific network interface. Thus it can be contacted via all active physical network interfaces.
+Here we use IPv4 and the `listen()` method which expects a port number, here `8001`, as argument. Note that we do not bind the `echoServer` to a specific network interface. Thus it can be contacted via all active physical network interfaces.
 
 ``` c++
 #include "EchoServerContextFactory.h"
@@ -467,7 +467,7 @@ The client instance `echoClient` must be *activated* by calling `echoClient.conn
 
 Equivalent to the server instance a client instance provides a view [overloaded `connect()`](#connect-methods) methods whose arguments also vary depending on the network layer used.  Though, every `connect()` method expects a *lambda function* as one of its arguments.
 
-Here it is assumed that we talk to an IPv4 server which runs on the same machine (*localhost*) as the client. Thus we pass the host name *localhost* and port number *8001* as arguments to the `connect()` method.
+Here it is assumed that we talk to an IPv4 server which runs on the same machine (*localhost*) as the client. Thus we pass the host name *localhost* and port number `8001` as arguments to the `connect()` method.
 
 ``` cpp
 #include "EchoClientContextFactory.h"
@@ -891,7 +891,7 @@ It is implemented as template base classes which are specialized for every netwo
 
 Typically the user didn't get in direct contact with this layer as the ready to use `SocketServer` and `SocketClient` classes handle the specialization internally.
 
-| Transport Layer Specializations | C++ Namespace (for IPv4)                                     |
+| Transport Layer Specializations | C++ Namespace                                                |
 | ------------------------------- | ------------------------------------------------------------ |
 | IPv4                            | [`net::in::stream`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in_1_1stream.html) |
 | IPv6                            | [`net::in6::stream`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1in6_1_1stream.html) |
@@ -912,7 +912,7 @@ Two versions of this layer exist. One for *unencrypted* and one for *SSL/TLS enc
 | unencrypted (`legacy`) | [`core::socket::stream::legacy`](https://snodec.github.io/snode.c-doc/html/namespacecore_1_1socket_1_1stream_1_1legacy.html) |
 | encrypted (`tls`)      | [`core::socket::stream::tls`](https://snodec.github.io/snode.c-doc/html/namespacecore_1_1socket_1_1stream_1_1tls.html) |
 
--   The SSL/TLS version *transparently offers encryption* provided by OpenSSL for each supported transport layer protocol and thus, also for all application level protocols.
+-   The SSL/TLS version *transparently offers encryption* provided by OpenSSL for each supported transport layer protocol and thus, also for all application  protocols.
     -   Support of X.509 certificates
     -   Server Name Indication (SNI) is supported (useful for e.g. virtual (web) servers)
     -   Support for individual SNI certificates
@@ -999,9 +999,9 @@ Every network layer uses its specific `SocketConnection` class. Such a `SocketCo
 - `core::socket::stream::legacy::SocketConnection` or
 - `core::socket::stream::tls::SocketConnection` 
 
-which itself are derived from the non template base class `core::socket::stream::SocketConnection`.
+which itself are derived from the abstract non template base class `core::socket::stream::SocketConnection`.
 
-Equivalent to the `SocketAddress` type, each `SocketServer` and `SocketClient` class provides its correct `SocketConnection` as nested data type. This type can be obtained from a concrete `SocketServer` or `SocketClient` class using
+Equivalent to the `SocketAddress` type, each `SocketServer` and `SocketClient` class provides its correct `SocketConnection` type as nested data type. This type can be obtained from a concrete `SocketServer` or `SocketClient` class using
 
 ```c++
 using SocketConnection = <ConcreteServerOrClientType>::SocketConnection;
@@ -1017,7 +1017,7 @@ Additionally the `SocketConnection` objects of a SSL/TLS `SocketServer` or SSL/T
 
 - `SSL* getSSL()`
 
-which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption, authenticating and authorization. Using this `SSL` structure one can modify the SSL/TLS behavior before SSL/TLS handshake in the [`onConnect` callback](#the-onconnect-callback), discussed below, and add all kinds of authentication and authorization logic directly in the [`onConnected` callback](#the-onconnected-callback), also discussed below.
+which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption, authenticating and authorization. Using this `SSL` structure one can modify the SSL/TLS behavior before the SSL/TLS handshake takes place in the [`onConnect` callback](#the-onconnect-callback), discussed below, and add all kinds of authentication and authorization logic directly in the [`onConnected` callback](#the-onconnected-callback), also discussed below.
 
 | Encryption | SocketConnection Classes                                     | SocketConnection Header Files                                |
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -1030,7 +1030,7 @@ which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption,
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | `int getFd()`                                                | Returns the underlying descriptor used for communication.    |
 | `SSL* getSSL()`                                              | Returns the pointer to the OpenSSL SSL structure.            |
-| `void sendToPeer(const char* junk, std::size_t junkLen)` <br/>`void sendToPeer(const std::string& data)`<br />`void sendToPeer(const std::vector<int8_t>& data)`<br />`void sendToPeer(const std::vector<char>& data)` | Enqueue data to be sent to peer.                             |
+| `void sendToPeer(const char* junk, std::size_t junkLen)` <br/>`void sendToPeer(const std::string& data)`<br />`void sendToPeer(const std::vector<char>& data)`<br />`void sendToPeer(const std::vector<int8_t>& data)` | Enqueue data to be sent to peer.                             |
 | `std::size_t readFromPeer(char* junk, std::size_t junkLen)`  | Read already received data from peer.                        |
 | `void shutdownRead()`<br/>`void shutdownWrite(bool forceClose = false)` | Shut down socket either for reading or writing.  If `forceClose` is `true` the reading end will also be shut down. |
 | `void close()`                                               | Hard close the connection without a prior shutdown.          |
@@ -1045,9 +1045,9 @@ This callback functions are called by SNode.C during connection establishment an
 
 Some constructors also accepts an optional template parameter pack which is passed on to the used `SocketContextFactory` as arguments.
 
-And furthermore an equivalent set of four constructors expecting a pointer to a concrete `SocketContextFactory` are also provided. These constructors didn't accept a parameter pack, as the `SocketContextFactory` has already been created bevore.
+And furthermore an equivalent set of constructors expecting a pointer to a concrete `SocketContextFactory` are also provided. These constructors didn't accept a parameter pack, as the `SocketContextFactory` has already been created before.
 
-Thus the full lists of constructors of the `SocketServer` and `SocketClient` classes are:
+Thus, the full lists of constructors of the `SocketServer` and `SocketClient` classes are:
 
 #### All Constructors of `SocketServer` Classes
 
@@ -1119,7 +1119,7 @@ SocketClient(const std::string& instanceName,
 
 ### Constructor Callbacks
 
-***Important***: Do not confuse these callbacks with the overridden `onConnected` and `onDisconnected` methods of a `SocketContext` as this virtual methods are called in case a `SocketContext` object has been created successfully or before being destroyed.
+***Important***: Do not confuse these callbacks with the overridden `onConnected` and `onDisconnected` methods of a `SocketContext` as these virtual methods are called in case a `SocketContext` object has been created successfully or before it is being destroyed.
 
 All three callbacks expect a pointer to a `SocketConnection` object as argument. This `SocketConnection` can be used to modify all aspects of a connection.
 
@@ -1272,13 +1272,13 @@ Each `SocketServer` template class expects a concrete `SocketContextFactory` as 
 
 As already mentioned above, for convenience each `SocketServer` class provides its own specific set of `listen()` methods. The implementation of this methods rely on some `listen()` methods common to all `SocketServer` classes.
 
-All `listen()` methods expect an status callback as argument which is called in case the socket has been created and switched into the listen state or an error has occurred. The signature of this callback is
+All `listen()` methods expect an *status callback* as argument which is called in case the socket has been created and switched into the listen state or an error has occurred. The signature of this callback is
 
 ```c++
 const std::function<void(const SocketAddress& socketAddress, const core::socket::State& state)>
 ```
 
-The bound `SocketAddress` and a `state` object is passed to this callback as arguments. 
+The local (bound) `SocketAddress` and a `state` object is passed to this callback as arguments. 
 
 #### `SocketAddress` Types
 
@@ -1293,7 +1293,7 @@ using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
 The `core::socket::State` object passed to the callback reports the status of the `SocketServer`.
 
 - `core::socket::State::OK`
-  The `ServerSocket` instance has been created successfully.
+  The `ServerSocket` instance has been created successfully and is ready for accepting incoming client connections.
 - `core::socket::State::DISABLED`
   The `ServerSocket` instance is disabled
 - `core::socket::State::ERROR`
@@ -1309,13 +1309,13 @@ Three common `listen()` methods exist:
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | `void listen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Listen without parameter[^1]                                 |
 | `void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Listen expecting a `SocketAddress` as argument               |
-| `void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Listen expecting a `SocketAddress` and a *backlog* as argument |
+| `void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Listen expecting a `SocketAddress` and a `backlog` as argument |
 
-[^1]: "Without parameter" is not relay true because every `listen()` method expects a reference to a `std::function` for status processing (error or success) as argument.
+[^1]: "Without parameter" is not relay true because every `listen()` method expects a reference to a `std::function` for status processing as argument.
 
 #### IPv4 specific `listen()` Methods
 
-For the IPv4/SOCK_STREAM combination exist four specific *listen* methods:
+For the IPv4/SOCK_STREAM combination exist four specific `listen()` methods:
 
 | IPv4 `listen()` Methods                                      |
 | ------------------------------------------------------------ |
@@ -1326,7 +1326,7 @@ For the IPv4/SOCK_STREAM combination exist four specific *listen* methods:
 
 #### IPv6 specific `listen()` Methods
 
-For the IPv6/SOCK_STREAM combination exist four specific *listen* methods:
+For the IPv6/SOCK_STREAM combination exist four specific `listen()` methods:
 
 | IPv6 `listen()` Methods                                      |
 | ------------------------------------------------------------ |
@@ -1337,7 +1337,7 @@ For the IPv6/SOCK_STREAM combination exist four specific *listen* methods:
 
 #### Unix Domain Socket specific `listen()` Methods
 
-For the Unix Domain Socket/SOCK_STREAM combination exist two specific *listen* methods:
+For the Unix Domain Socket/SOCK_STREAM combination exist two specific `listen()` methods:
 
 | Unix-Domain `listen()` Methods                               |
 | ------------------------------------------------------------ |
@@ -1346,7 +1346,7 @@ For the Unix Domain Socket/SOCK_STREAM combination exist two specific *listen* m
 
 #### Bluetooth RFCOMM specific `listen()` Methods
 
-For the RFCOMM/SOCK_STREAM combination exist four specific *listen* methods:
+For the RFCOMM/SOCK_STREAM combination exist four specific `listen()` methods:
 
 | Bluetooth RFCOMM `listen()` Methods                          |
 | ------------------------------------------------------------ |
@@ -1357,7 +1357,7 @@ For the RFCOMM/SOCK_STREAM combination exist four specific *listen* methods:
 
 #### Bluetooth L2CAP specific `listen()` Methods
 
-For the L2CAP/SOCK_STREAM combination exist four specific *listen* methods.
+For the L2CAP/SOCK_STREAM combination exist four specific `listen()` methods.
 
 | Bluetooth L2CAP `listen()` Methods                           |
 | ------------------------------------------------------------ |
@@ -1394,30 +1394,30 @@ Each `SocketClient` template class expects a concrete `SocketContextFactory` as 
 
 As already mentioned above, for convenience each `SocketClient` class provides its own specific set of connect methods. The implementation of this specific connect methods rely on some connect methods common to all `SocketClient` classes.
 
-All `connect()` methods expect an status callback as argument which is called in case the socket has been created and connected to the peer or an error has occurred. The signature of this callback is
+All `connect()` methods expect an *status callback* as argument which is called in case the socket has been created and connected to the peer or an error has occurred. The signature of this callback is
 
 ```c++
-const std::function<void(const SocketAddress& socketAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)>
+const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)>
 ```
 
-The bound `SocketAddress` and a *state* value is passed to this callback as arguments. 
+The peers `SocketAddress` and a `state` value is passed to this callback as arguments. 
 
 #### `SocketAddress` Types
 
-The type of the `SocketAddress` needs to match with the type of the `SocketServer` and can be acquired from a concrete `SocketServer` type by
+The type of the `SocketAddress` needs to match with the type of the `SocketClient` and can be acquired from a concrete `SocketClient` type by
 
 ```c++
-using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
+using SocketAddress = <ConcreteSocketClientType>::SocketAddress;
 ```
 
 #### `core::socket::State` Object
 
-The *core::socket::State* value passed to the callback reports the status of the `SocketServer`.
+The `core::socket::State` value passed to the callback reports the status of the `SocketServer`.
 
 - `core::socket::State::OK`
-  The `ServerSocket` instance has been created successfully.
+  The `ClientSocket` instance has been created and connected to the peer successfully.
 - `core::socket::State::DISABLED`
-  The `ServerSocket` instance is disabled
+  The `ClientSocket` instance is disabled
 - `core::socket::State::ERROR`
   During switching to the connected state an recoverable error has occurred. In case a *retry* is configured for this instance the connect attempt is retried automatically.
 - `core::socket::State::FATAL`
@@ -1464,7 +1464,7 @@ For the Unix Domain Socket/SOCK_STREAM combination exist two specific `connect()
 | Unix-Domain `connect()` Methods                              |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& remoteSunPath, const std::string& localSunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+| `void connect(const std::string& sunPath, const std::string& bindSunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### Bluetooth RFCOMM specific `connect()` Methods
 
@@ -1528,9 +1528,9 @@ EchoServer echoServer;
 echoServer.getConfig().setPort(8001);
 ```
 
-This is what the *listen* method which expects a port number as argument does automatically.
+This is what the `listen()` method which expects a port number as argument does automatically.
 
-Thus, if the port number is configured by using `setPort()` the *listen* method which only takes a `std::function` as argument can be use and the `EchoServer` could also be started by
+Thus, if the port number is configured by using `setPort()` the `listen()` method which only takes a `std::function` as argument can be use and the `EchoServer` could also be started by
 
 ```cpp
 EchoServer echoServer;
@@ -1571,7 +1571,7 @@ Network layer specific configuration options:
 
 ### Configuration via the Command Line
 
-Each application as such gets a set of command line options which control the behavior of the application in general. An overview of those option can be printed on screen by adding `--help` or `--help-all` on the command line. 
+Each *application* as such gets a set of command line options which control the behavior of the application in general. An overview of those option can be printed on screen by adding `--help` on the command line. 
 
 #### Application Configuration
 
@@ -1589,19 +1589,19 @@ Configuration for Application 'echoserver'
 Usage: echoserver [OPTIONS] [INSTANCES [--help]]
 
 Options (nonpersistent):
-  -c,--config-file configfile:NOT DIR [/home/voc/.config/snode.c/echoserver.conf] 
+  -c,--config-file configfile:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
        Read a config file
-  -w,--write-config [configfile]:NOT DIR [/home/voc/.config/snode.c/echoserver.conf] 
+  -w,--write-config [configfile]:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
        Write config file and exit
   -k,--kill
        Kill running daemon
   -i,--instance-alias instance=instance_alias [instance=instance_alias [...]] 
-       Make an instance also known as an alias in configuration files
+       Make an instance also known as an alias in a configuration files
   -s,--show-config
        Show current configuration and exit
   --command-line{standard}={standard,required,full,default} 
        Print a command line
-         standard (default): View all non-default and required options
+         standard (default): View all required and non-default options
          required: View required options only
          full: View the full set of options with their default or configured values
          default: View the full set of options with their default values
@@ -1634,9 +1634,9 @@ Options (persistent):
 
 #### Instance Configuration
 
-Each named `SocketServer` and `SocketClient` instance get their *specific set* of command line options accessible by specifying the instance name on the command line.
+Each *named* `SocketServer` and `SocketClient` instance get their *specific set* of command line options accessible by specifying the instance name on the command line.
 
-Thus, for instance if the `EchoServer` instance is created using and instance name as argument to the constructor like for example 
+Thus, for instance if the `EchoServer` instance would have been created using and instance name as argument to the constructor like for example 
 
 ```cpp
 EchoServer echoServer("echo"); // Create named server instance
@@ -1650,9 +1650,9 @@ Configuration for Application 'echoserver'
 Usage: echoserver [OPTIONS] [INSTANCES [--help]]
 
 Options (nonpersistent):
-  -c,--config-file configfile:NOT DIR [/home/voc/.config/snode.c/echoserver.conf] 
+  -c,--config-file configfile:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
        Read a config file
-  -w,--write-config [configfile]:NOT DIR [/home/voc/.config/snode.c/echoserver.conf] 
+  -w,--write-config [configfile]:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
        Write config file and exit
   -k,--kill
        Kill running daemon
@@ -1693,7 +1693,7 @@ Instances:
   echo Configuration for server instance 'echo'
 ```
 
-Note that now the named instance *echo* appears at the end of the help screen.
+***Note***: Now the named instance *echo* appears at the end of the help screen.
 
 To get informations about what can be configured for the *echo* instance it is just needed to write
 
@@ -1743,7 +1743,7 @@ on screen.
 
 As one can see, there exists some sections for the instance *echo* each offering specific configuration items for specific instance behavior categories.
 
-Most important for a *SocketServer* instance is the section *local*,
+Most important for a `SocketServer` instance is the section *local*,
 
 ```shell
 command@line:~/> echoserver echo local --help
@@ -1774,7 +1774,7 @@ Options (persistent):
        Suppress reverse host name lookup
 ```
 
-which offer configuration options to configure the host name or IP-Address and port number the physical server socket should be bound to. Note, that the default value of the port number is `8001`, what is this port number used to activate the `echo` instance:
+which offer configuration options to configure the host name or IP-Address and the port number the physical server socket should be bound to. Note, that the *default value* of the port number is `8001`, what is this port number used to activate the *echo* instance.
 
 ```cpp
 echoServer.listen(8001, [](const SocketAddress& socketAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) -> void {
@@ -1782,18 +1782,18 @@ echoServer.listen(8001, [](const SocketAddress& socketAddress, const std::functi
 });
 ```
 
-This port number can now be overridden on the command line so, that the `echo` listens on port number `8080`:
+This port number can now be *overridden* on the command line so, that the *echo* listens on a different port number, e.g. `8080`.
 
 ```shell
 command@line:~/> echoserver echo local --port 8080
 2024-03-22 16:35:53 0000000000001 echo: listening on '0.0.0.0:8080 (0.0.0.0)'
 ```
 
-To make this overridden port number setting persistent a configuration file can be generated and stored automatically by appending `-w`
+To make this overridden port number *persistent* a configuration file can be generated and stored automatically by appending `-w`
 
 ```shell
 command@line:~/> echoserver echo local --port 8080 -w
-Writing config file: /home/[user]/.config/snode.c/echoserver.conf
+Writing config file: /home/<user>/.config/snode.c/echoserver.conf
 ```
 
 to the command line above. If *echoserver* is now started without command line arguments
@@ -1809,7 +1809,7 @@ All existing configuration options specified directly in the application code ca
 
 ##### Using the Parameterless `listen()` Methods when no Configuration File exists
 
-In case the parameterless `listen()` method is used for activating a server instance for example like
+In case the parameterless `listen()` method is used for activating a *named* server instance for example like
 
 ```cpp
 EchoServer echoServer("echo"); // Create server instance
@@ -1841,17 +1841,17 @@ Again, this configuration can be made permanent by writing the configuration fil
 
 ```shell
 command@line:~/> echoserver echo local --port 8080 -w
-Writing config file: /home/[user]/.config/snode.c/echoserver.conf
+Writing config file: /home/<user>/.config/snode.c/echoserver.conf
 
 command@line:~/> echoserver
-EchoServer: listening on 0.0.0.0:8080
+2024-03-22 16:43:30 0000000000001 echo: listening on '0.0.0.0:8080 (0.0.0.0)'
 ```
 
 ##### Using the Parameterless `connect()` Methods when no Configuration File exists
 
-A client instance is configured in the very same way. 
+A *named* client instance is configured in the very same way. 
 
-Lets have look at the case of the named `echoclient` 
+Lets have look at the case of the named *echoclient* 
 
 ```cpp
 EchoClient echoClient("echo"); // Create named client instance
@@ -1860,7 +1860,7 @@ echoClient.connect([](const SocketAddress& socketAddress, const std::function<vo
 });
 ```
 
-where the parameterless *connect* method is used. A terminal session would look like:
+where the parameterless `connect()` method is used. A terminal session would look like:
 
 ```shell
 command@line:~/> echoclient
@@ -1899,7 +1899,7 @@ Again this configuration can be made permanent by writing the configuration file
 
 ```shell
 command@line:~/> echoclient echo remote --port 8080 --host localhost -w
-Writing config file: /home/[user]/.config/snode.c/echoclient.conf
+Writing config file: /home/<user>/.config/snode.c/echoclient.conf
 
 command@line:~/> echoclient
 2024-03-22 16:50:09 0000000000002 echo: connected to 'localhost:8080 (localhost)'
@@ -1908,7 +1908,6 @@ command@line:~/> echoclient
 2024-03-22 16:50:09 0000000000002 INFO  Peer: localhost:8080 (localhost)
 2024-03-22 16:50:09 0000000000002 INFO OnConnected echoclient
 2024-03-22 16:50:09 0000000000002 Echo connected
-Echo connected to localhost:8080
 Initiating data exchange
 Success: Echo connected to localhost:8080
 Data to reflect: Hello peer! It's nice talking to you!!!
@@ -1926,7 +1925,7 @@ command@line:~/> serverorclientexecutable --app-opt1 val1 --app-opt2 val2 instan
 
 if two instances with instance names *instance1* and *instance2* are present in the executable.
 
-All section names following an instance name are treaded as sections modifying that instance as long as no other instance name is specified. In case a further instance name is given, than all sections following that second instance name are treaded as sections modifying that second instance.
+All section names following an instance name are treaded as sections modifying that instance. In case a further instance name is given, than all sections following that second instance name are treaded as sections modifying that second instance.
 
 One can switch between sections by just specifying a different section name.
 
@@ -1942,7 +1941,7 @@ Each configuration option which is marked as *persistent* in the help output can
 instancename.sectionname.optionname = value
 ```
 
-Thus to configure the port number the *echoserver* with server instance name `echo`shall listen on the entry in the configuration file would look like
+Thus to configure the port number the *echoserver* with server instance name *echo* shall listen on the entry in the configuration file would look like
 
 ```ini
 echo.local.port = 8080
@@ -1955,9 +1954,9 @@ echo.remote.host = "localhost"
 echo.remote.port = 8080
 ```
 
-The content of an configuration file can be printed on screen by appending the flag `-s` on the command line.
+The content of a configuration file can be printed on screen by appending the flag `-s` on the command line.
 
-Thus, the configuration of the *echoserver* configured and made persistent on the command line above to listen on port number 8080 can be shown using
+Thus, the configuration of the *echoserver* configured and made persistent on the command can be shown using
 
 ```shell
 command@line:~/> echoserver -s
@@ -1992,12 +1991,12 @@ which leads to the output
 # Run daemon under specific group permissions
 #group-name="<group>"
 
-### Configuration for server instance 'in'
+### Configuration for server instance 'echo'
 ## Options (persistent)
 # Disable this instance
 #echo.disabled=false
 
-### Local side of connection for instance 'in'
+### Local side of connection for instance 'echo'
 ## Options (persistent)
 # Host name or IPv4 address
 #echo.local.host="0.0.0.0"
@@ -2011,12 +2010,12 @@ which leads to the output
 # Suppress reverse host name lookup
 #echo.local.numeric-reverse=false
 
-### Remote side of connection for instance 'in'
+### Remote side of connection for instance 'echo'
 ## Options (persistent)
 # Suppress reverse host name lookup
 #echo.remote.numeric-reverse=false
 
-### Configuration of established connections for instance 'in'
+### Configuration of established connections for instance 'echo'
 ## Options (persistent)
 # Read timeout in seconds
 #echo.connection.read-timeout=60
@@ -2033,10 +2032,10 @@ which leads to the output
 # Terminate timeout
 #echo.connection.terminate-timeout=1
 
-### Configuration of socket behavior for instance 'in'
+### Configuration of socket behavior for instance 'echo'
 ## Options (persistent)
 # Reuse socket address
-#echo.socket.reuse-address=true
+#echo.socket.reuse-address=false
 
 # Automatically retry listen|connect
 #echo.socket.retry=false
@@ -2065,7 +2064,7 @@ which leads to the output
 # Reuse port number
 #echo.socket.reuse-port=false
 
-### Configuration of server socket for instance 'in'
+### Configuration of server socket for instance 'echo'
 ## Options (persistent)
 # Listen backlog
 #echo.server.backlog=5
@@ -2087,7 +2086,7 @@ Thus, for the *echoserver* and the *echoclient* the names of their configuration
 
 #### Default Location of Configuration Files
 
-Configuration files are stored in directories following the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html). So these directories differ if an application is run as ordinary user or the root user.
+Configuration files are stored in directories following the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html). So these directories differ if an application is run as ordinary user or as the root user.
 
 - **Ordinary User**: `$HOME/.config/snode.c/`
 - **Root User**: `/etc/snode.c/`
@@ -2098,7 +2097,7 @@ This directories are created automatically by an application in case they did no
 
 ### SSL/TLS Configuration (Section *tls*)
 
-SSL/TLS encryption is provided if a SSL/TLS server or client instance is created. Internally OpenSSL is used.
+SSL/TLS encryption is provided if a SSL/TLS server or client instance is used.
 
 Equivalent to all other configuration options SSL/TLS encryption can be configured either in-code, on the command line or via configuration files.
 
@@ -2106,15 +2105,15 @@ In most scenarios it is sufficient to specify a CA-certificate, a certificate ch
 
 ***Important***: CA-certificate, certificate chain, and certificate key needs to be in *PEM format*.
 
-In case a CA-certificate is configured either on the server and/or the client side a certificate request is send to the peer during the initial SSL/TLS handshake. In case the peer answers with an certificate response this response can be validated in-code in the `onConnected` callback of a *SocketServer* or *SocketClient* class.
+In case a CA-certificate is configured either on the server and/or the client side a certificate request is send to the peer during the initial SSL/TLS handshake. In case the peer answers with a valid certificate response this response can be validated in-code in the `onConnected` callback of a `SocketServer` or `SocketClient` class.
 
-***Warning***: Passwords either provided in-code or on the command line are not obfuscated in memory during runtime. Thus it is a good idea to not specify a password in-code or on the command line. In that case OpenSSL asks for the password during application startup. This password is only used internally by OpenSSL and is removed from memory as soon as the keys have been decrypted.
+***Warning***: Passwords either provided in-code or on the command line are not obfuscated in memory during runtime. Thus, it is a good idea to not specify a password in-code or on the command line. In that case OpenSSL asks for the password on the command line during application startup. This password is only used internally by OpenSSL and is removed from memory as soon as the keys have been decrypted.
 
 ***Warning***: Hold all keys and their passwords secured!
 
 #### SSL/TLS In-Code Configuration
 
-If the echo server instance would have been created using an SSL/TLS-SocketServer class like e.g.
+If the *echo* server instance would have been created using an SSL/TLS-SocketServer class like e.g.
 
 ```c++
 using EchoServer = net::in::stream::tls::SocketServer<EchoServerContextFactory>;
@@ -2148,9 +2147,9 @@ echoClient.getConfig().setCertKeyPassword("<certificate key password>");
 
 #### SSL/TLS Command Line Configuration
 
-*Note*, that the in-code configuration can be overridden on the command line like all other configuration items.
+***Note***: The in-code configuration can be overridden on the command line like all other configuration items.
 
-Using this SSL/TLS echo-instance the help screen for this *echo* instance offers an additional section *tls* which provides the command line arguments to configure SSL/TLS behaviour.
+Using this SSL/TLS *echo* instance the help screen offers an additional section *tls* which provides the command line arguments to configure SSL/TLS behaviour.
 
 ```shell
 command@line:~/> echoserver echo --help
