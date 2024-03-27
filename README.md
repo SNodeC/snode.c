@@ -1297,56 +1297,137 @@ The `core::socket::State` object passed to the callback reports the status of th
 
 #### Common `listen()` Methods
 
-| `listen()` Methods common to all `SocketServer` Classes      | `listen()` Method Arguments                                  |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| `void listen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Listen without parameter[^1]                                 |
-| `void listen(const SocketAddress& localAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Listen expecting a `SocketAddress` as argument               |
-| `void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Listen expecting a `SocketAddress` and a `backlog` as argument |
+```c++
+void listen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
-[^1]: "Without parameter" is not relay true because every `listen()` method expects a reference to a `std::function` for status processing as argument.
+```c++
+void listen(const SocketAddress& localAddress,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(const SocketAddress& localAddress,
+            int backlog,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
 #### IPv4 specific `listen()` Methods
 
-| IPv4 `listen()` Methods                                      |
-| ------------------------------------------------------------ |
-| `void listen(uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+```c++
+void listen(uint16_t port,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(uint16_t port,
+            int backlog,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(const std::string& ipOrHostname,
+            uint16_t port,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(const std::string& ipOrHostname,
+            uint16_t port,
+            int backlog,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
 #### IPv6 specific `listen()` Methods
 
-| IPv6 `listen()` Methods                                      |
-| ------------------------------------------------------------ |
-| `void listen(uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+```c++
+void listen(uint16_t port,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(uint16_t port,
+            int backlog,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(const std::string& ipOrHostname,
+            uint16_t port,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(const std::string& ipOrHostname,
+            uint16_t port,
+            int backlog,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
 #### Unix Domain Socket specific `listen()` Methods
 
-| Unix-Domain `listen()` Methods                               |
-| ------------------------------------------------------------ |
-| `void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+```c++
+void listen(const std::string& sunPath,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(const std::string& sunPath,
+            int backlog,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
 #### Bluetooth RFCOMM specific `listen()` Methods
 
-| Bluetooth RFCOMM `listen()` Methods                          |
-| ------------------------------------------------------------ |
-| `void listen(uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(const std::string& btAddress, uint8_t channel, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+```c++
+void listen(uint8_t channel,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(uint8_t channel,
+            int backlog,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(const std::string& btAddress,
+            uint8_t channel,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(const std::string& btAddress,
+            uint8_t channel,
+            int backlog,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
 #### Bluetooth L2CAP specific `listen()` Methods
 
-| Bluetooth L2CAP `listen()` Methods                           |
-| ------------------------------------------------------------ |
-| `void listen(uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void listen(const std::string& btAddress, uint16_t psm, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+```c++
+void listen(uint16_t psm,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(uint16_t psm,
+            int backlog,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(const std::string& btAddress,
+            uint16_t psm,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void listen(const std::string& btAddress,
+            uint16_t psm,
+            int backlog,
+            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
 ## `SocketClient` Classes
 
@@ -1397,66 +1478,167 @@ using SocketAddress = <ConcreteSocketClientType>::SocketAddress;
 The `core::socket::State` value passed to the callback reports the status of the `SocketServer`.
 
 - `core::socket::State::OK`
+  
   The `ClientSocket` instance has been created and connected to the peer successfully.
+  
 - `core::socket::State::DISABLED`
   The `ClientSocket` instance is disabled
+  
 - `core::socket::State::ERROR`
   During switching to the connected state a recoverable error has occurred. In case a *retry* is configured for this instance the connect attempt is retried automatically.
+  
 - `core::socket::State::FATAL`
   A non recoverable error has occurred. No connect-retry is done.
 
 #### Common `connect()` Methods
 
-| `connect()` Methods common to all `SocketServer` Classes     | `connect()` Method Arguments                       |
-| ------------------------------------------------------------ | -------------------------------------------------- |
-| `void connect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Connect without parameter[^2]                      |
-| `void connect(const SocketAddress& remoteAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Connect expecting a `SocketAddress` as argument    |
-| `void connect(const SocketAddress& remoteAddress, const SocketAddress& localAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Connect expecting two `SocketAddresss` as argument |
+```c++
+void connect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
-[^2]: "Without parameter" is not realy true because every *connect* method expects a `std::function` for status processing (error or success) as argument. 
+```c++
+void connect(const SocketAddress& remoteAddress,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void connect(const SocketAddress& remoteAddress,
+             const SocketAddress& localAddress,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
 #### IPv4 specific `connect()` Methods
 
-| IPv4 *connect* Methods                                       |
-| ------------------------------------------------------------ |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+```c++
+void connect(const std::string& ipOrHostname,
+             uint16_t port,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void connect(const std::string& ipOrHostname,
+             uint16_t port,
+             uint16_t bindPort,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void connect(const std::string& ipOrHostname,
+             uint16_t port,
+             const std::string& bindIpOrHostname,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void connect(const std::string& ipOrHostname,
+             uint16_t port,
+             const std::string& bindIpOrHostname,
+             uint16_t bindPort,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
 #### IPv6 specific `connect()` Methods
 
-| IPv6 *connect* Methods                                       |
-| ------------------------------------------------------------ |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, uint16_t bindPort, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+```c++
+void connect(const std::string& ipOrHostname,
+             uint16_t port,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void connect(const std::string& ipOrHostname,
+             uint16_t port,
+             uint16_t bindPort,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void connect(const std::string& ipOrHostname,
+             uint16_t port,
+             const std::string& bindIpOrHostname,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void connect(const std::string& ipOrHostname,
+             uint16_t port,
+             const std::string& bindIpOrHostname,
+             uint16_t bindPort,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
 #### Unix Domain Socket specific `connect()` Methods
 
-| Unix-Domain `connect()` Methods                              |
-| ------------------------------------------------------------ |
-| `void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& sunPath, const std::string& bindSunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+```c++
+void connect(const std::string& sunPath,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void connect(const std::string& sunPath,
+             const std::string& bindSunPath,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
 #### Bluetooth RFCOMM specific `connect()` Methods
 
-| Bluetooth RFCOMM `connect()` Methods                         |
-| ------------------------------------------------------------ |
-| `void connect(const std::string& btAddress, uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& btAddress, uint8_t channel, uint8_t bindChannel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress,const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress, uint8_t bindChannel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+```c++
+`void connect(const std::string& btAddress,
+              uint8_t channel,
+              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)`
+```
+
+```c++
+`void connect(const std::string& btAddress,
+              uint8_t channel,
+              uint8_t bindChannel,
+              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)`
+```
+
+```c++
+`void connect(const std::string& btAddress,
+              uint8_t channel,
+              const std::string& bindBtAddress,
+              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)`
+```
+
+```c++
+`void connect(const std::string& btAddress,
+              uint8_t channel,
+              const std::string& bindBtAddress,
+              uint8_t bindChannel,
+              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)`
+```
 
 #### Bluetooth L2CAP specific `connect()` Methods
 
-| Bluetooth L2CAP `connect()` Methods                          |
-| ------------------------------------------------------------ |
-| `void connect(const std::string& btAddress, uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& btAddress, uint16_t psm, uint16_t bindPsm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
-| `void connect(const std::string& btAddress, uint16_t psm, const std::string& bindBtAddress, uint16_t bindPsm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
+```c++
+void connect(const std::string& btAddress,
+             uint16_t psm,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void connect(const std::string& btAddress,
+             uint16_t psm,
+             uint16_t bindPsm,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void connect(const std::string& btAddress,
+             uint16_t psm,
+             const std::string& bindBtAddress,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
+
+```c++
+void connect(const std::string& btAddress,
+             uint16_t psm,
+             const std::string& bindBtAddress,
+             uint16_t bindPsm,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+```
 
 # Configuration
 
@@ -1480,9 +1662,9 @@ The configuration can either be done via
 
 ### Configuration using the C++ API
 
-Each anonymous and named `SocketServer` and `SocketClient` instance provide a configuration object which could be obtained by calling the method `getConfig()` on the instance, which returns a reference to that configuration object.
+Each `SocketServer` and `SocketClient` instance provide a configuration object which could be obtained by calling the method `getConfig()` on the instance, which returns a reference to that configuration object.
 
-For the `EchoServer` instance from the "Quick Starting Guide" section for example the configuration object can be obtained by just using
+For the `EchoServer` instance from the [Quick Starting Guide](Quick Starting Guide) section for example the configuration object can be obtained by just using
 
 ```cpp
 EchoServer echoServer;
@@ -1556,7 +1738,7 @@ leads to the help output
 ```shell
 Configuration for Application 'echoserver'
 
-Usage: echoserver [OPTIONS] [INSTANCES [--help]]
+Usage: echoserver [OPTIONS]
 
 Options (nonpersistent):
   -c,--config-file configfile:NOT DIR [/home/<user>/.config/snode.c/echoserver.conf] 
