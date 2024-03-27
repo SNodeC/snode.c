@@ -874,21 +874,19 @@ SNode.C currently supports five different network layer protocols, each living i
 | Bluetooth Radio Frequency Communication (RFCOMM)             | [`net::rc`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc.html) |
 | Bluetooth Logical Link Control and Adaptation Protocol (L2CAP) | [`net::l2`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2.html) |
 
-Each network layer provides ready to use `SocketServer` and `SocketClient` classes for unencrypted and SSL/TLS encrypted communication.
+Each network layer provides ready to use `SocketServer` and `SocketClient` classes for unencrypted and encrypted communication.
 
 ## Transport Layer
 
-Currently only connection-oriented protocols (C++ namespace `<network_layer_namespace>::stream`) for all supported [network layer](#network-layer) and [connection layer](#connection-layer) combinations are implemented (for IPv4 and IPv6 this means TCP).
-
-It is implemented as template base classes which are specialized for every network layer.
+Currently only connection-oriented transports (`stream`) are implemented. For IPv4 and IPv6 this means TCP.
 
 | Transport | C++ Namespace                                                |
 | --------- | ------------------------------------------------------------ |
 | Stream    | [core::socket::stream](https://snodec.github.io/snode.c-doc/html/namespacecore_1_1socket_1_1stream.html) |
 
--   All transport layer specializations provide a common *base API* which makes it very easy to create servers and clients for all of them.
+This layer is implemented as template base classes which needs to be specialized for every network layer.
 
-Typically the user didn't get in direct contact with this layer as the ready to use `SocketServer` and `SocketClient` classes handle the specialization internally.
+Though, typically the user didn't get in direct contact with this layer as the ready to use `SocketServer` and `SocketClient` classes handle the specialization internally.
 
 | Transport Layer Specializations | C++ Namespace                                                |
 | ------------------------------- | ------------------------------------------------------------ |
@@ -898,24 +896,20 @@ Typically the user didn't get in direct contact with this layer as the ready to 
 | RFCOMM                          | [`net::rc::stream`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream.html) |
 | L2CAP                           | [`net::l2::stream`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream.html) |
 
+***Note***: All transport layer specializations provide a common *base API* which makes it very easy to create servers and clients for all of them.
+
 ## Connection Layer
 
-The connection layer sits on top of the transport layer and is responsible for handling the *physical data exchange* and, in the case of a SSL/TLS secured connection, for the *encryption* resp. *decryption* of the data. A concrete `SocketContext`  relies on it's methods (e.g. `sendToPeer()` and `readFromPeer()` ) for communication with the peer.
+The connection layer sits on top of the transport layer and is responsible for handling the *physical data exchange* and, in the case of a SSL/TLS-secured connection, for the *encryption* resp. *decryption*. A concrete `SocketContext`  relies on it's methods (e.g. `sendToPeer()` and `readFromPeer()` ) for communication with the peer.
 
-Like the transport layer, this layer is implemented as template base classes which are specialized for every *specialized transport* layer.  Thus, the user typically didn't get in direct contact with this layer also, as the ready to use `SocketServer` and `SocketClient` classes handle the specialization internally.
+Two versions of this layer exist. One for *unencrypted* and one for *SSL/TLS-encrypted* communication.
 
-Two versions of this layer exist. One for *unencrypted* and one for *SSL/TLS encrypted* communication.
+| Connection Type | C++ Namespace                                                |
+| --------------- | ------------------------------------------------------------ |
+| unencrypted     | [`core::socket::stream::legacy`](https://snodec.github.io/snode.c-doc/html/namespacecore_1_1socket_1_1stream_1_1legacy.html) |
+| encrypted       | [`core::socket::stream::tls`](https://snodec.github.io/snode.c-doc/html/namespacecore_1_1socket_1_1stream_1_1tls.html) |
 
-| Connection Type        | C++ Namespace                                                |
-| ---------------------- | ------------------------------------------------------------ |
-| unencrypted (`legacy`) | [`core::socket::stream::legacy`](https://snodec.github.io/snode.c-doc/html/namespacecore_1_1socket_1_1stream_1_1legacy.html) |
-| encrypted (`tls`)      | [`core::socket::stream::tls`](https://snodec.github.io/snode.c-doc/html/namespacecore_1_1socket_1_1stream_1_1tls.html) |
-
--   The SSL/TLS version *transparently offers encryption* provided by OpenSSL for each supported transport layer protocol and thus, also for all application  protocols.
-    -   Support of X.509 certificates
-    -   Server Name Indication (SNI) is supported (useful for e.g. virtual (web) servers)
-    -   Support for individual SNI certificates
--   Each connection layer provides ready to use `SocketServer` and `SocketClient` classes for unencrypted and SSL/TLS encrypted communication.
+Like the transport layer, this layer is implemented as template base classes which are specialized for every *specialized transport* layer.  Thus, the user typically didn't get in direct contact with this layer also, as the ready to use `SocketServer` and `SocketClient` classes also handle the specialization internally.
 
 | Connection Layer Specializations | C++ Namespace                                                |
 | -------------------------------- | ------------------------------------------------------------ |
@@ -929,6 +923,12 @@ Two versions of this layer exist. One for *unencrypted* and one for *SSL/TLS enc
 | RFCOMM encrypted                 | [`net::rc::stream::tls`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1rc_1_1stream_1_1tls.html) |
 | L2CAP unencrypted                | [`net::l2::stream::legacy`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1legacy.html) |
 | L2CAP encrypted                  | [`net::l2::stream::tls`](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1l2_1_1stream_1_1tls.html) |
+
+-   The SSL/TLS versions *transparently offers encryption* provided by OpenSSL for all transport layers and thus, also for all application  protocols.
+    -   Support of X.509 certificates
+    -   Server Name Indication (SNI) is supported (useful for e.g. virtual (web) servers)
+    -   Support for individual SNI certificates
+-   Each connection layer provides ready to use `SocketServer` and `SocketClient` classes.
 
 ## Application Layer
 
@@ -947,13 +947,11 @@ In-framework server and client support designed as sub-frameworks currently exis
 | Express           | [`express`](https://snodec.github.io/snode.c-doc/html/namespaceexpress.html) |
 | MQTT              | [`iot::mqtt`](https://snodec.github.io/snode.c-doc/html/namespaceiot_1_1mqtt.html) |
 
-As already mentioned above in the [transport layer](#transport-layer) section, SSL/TLS encryption is provided transparently for all of these application layer protocols.
-
 # Existing `SocketServer` and `SocketClient` Classes
 
 Before focusing explicitly on the *SocketServer* and *SocketClient* classes a few common aspects for all network/transport-layer combinations needs to be known.
 
-## Common Aspects of Server and Client Classes
+## Common Aspects of `SocketServer` and `SocketClient` Classes
 
 ### `SocketAddress`
 
@@ -967,7 +965,7 @@ Every `SocketServer` and `SocketClient` class has it's specific `SocketAddress` 
 using SocketAddress = <ConcreteServerOrClientType>::SocketAddress;
 ```
 
-as can be seen in the Echo-Demo-Application above.
+as can be seen in the [Echo Application](#An Echo Application) above.
 
 | Network Layer       | *SocketAddress* Classes                                      | SocketAddress Header Files                                   |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -993,10 +991,12 @@ The default constructors of all `SocketAddress` classes creates wild-card `Socke
 
 ### `SocketConnection`
 
-Every network layer uses its specific `SocketConnection` class. Such a `SocketConnection` object represents the physical connection to the peer and is a specialization of one of the two template classes 
+Every network layer uses its specific `SocketConnection` class. Such a `SocketConnection` object represents the physical connection to the peer and is a specialization of one of the two template classes
 
-- `core::socket::stream::legacy::SocketConnection` or
-- `core::socket::stream::tls::SocketConnection` 
+| Encryption | SocketConnection Classes                                     | SocketConnection Header Files                                |
+| ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Legacy     | [`core::socket::stream::legacy::SocketConnection`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1SocketConnection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://snodec.github.io/snode.c-doc/html/legacy_2SocketConnection_8h.html) |
+| SSL/TLS    | [`core::socket::stream::tls::SocketConnection`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1SocketConnection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://snodec.github.io/snode.c-doc/html/tls_2SocketConnection_8h.html) |
 
 which itself are derived from the abstract non template base class `core::socket::stream::SocketConnection`.
 
@@ -1012,16 +1012,11 @@ Each `SocketConnection` object provides, among others, the method
 
 which returns the underlying descriptor used for communication.
 
-Additionally the `SocketConnection` objects of a SSL/TLS `SocketServer` or SSL/TLS `SocketClient` class provide the method
+Additionally the encrypting `SocketConnection` objects provide the method
 
 - `SSL* getSSL()`
 
 which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption, authenticating and authorization. Using this `SSL` structure one can modify the SSL/TLS behavior before the SSL/TLS handshake takes place in the [`onConnect` callback](#the-onconnect-callback), discussed below, and add all kinds of authentication and authorization logic directly in the [`onConnected` callback](#the-onconnected-callback), also discussed below.
-
-| Encryption | SocketConnection Classes                                     | SocketConnection Header Files                                |
-| ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Legacy     | [`core::socket::stream::legacy::SocketConnection`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1legacy_1_1SocketConnection.html) | [`core/socket/stream/legacy/SocketConnection.h`](https://snodec.github.io/snode.c-doc/html/legacy_2SocketConnection_8h.html) |
-| SSL/TLS    | [`core::socket::stream::tls::SocketConnection`](https://snodec.github.io/snode.c-doc/html/classcore_1_1socket_1_1stream_1_1tls_1_1SocketConnection.html) | [`core/socket/stream/tls/SocketConnection.h`](https://snodec.github.io/snode.c-doc/html/tls_2SocketConnection_8h.html) |
 
 #### Most Important common `SocketConnection` Methods
 
@@ -1188,9 +1183,9 @@ EchoClient echoClient([] (SocketConnection* socketConnection) -> void {
 echoClient.connect(...);
 ```
 
-#### Attaching the Callbacks to already existing `SocketServer` and `SocketClient` Instances
+#### Attaching the Callbacks to already existing Instances
 
-In case `SocketServer` and `SocketClient` instances have been created using the constructors not expecting those three callbacks they can be attached to this instances afterwards by using the methods
+In case `SocketServer` and `SocketClient` instances have been created using a constructor not expecting those three callbacks they can be attached to this instances afterwards by using the methods
 
 - `void setOnConnect(const std::function<SocketConnection*>& onConnect)`
 - `void setOnConnected(const std::function<SocketConnection*>& onConnected)`
@@ -1269,7 +1264,7 @@ Each `SocketServer` template class expects a concrete `SocketContextFactory` as 
 
 ### Listen Methods
 
-As already mentioned above, for convenience each `SocketServer` class provides its own specific set of `listen()` methods. The implementation of this methods rely on some `listen()` methods common to all `SocketServer` classes.
+As already mentioned, for convenience each `SocketServer` class provides its own specific set of `listen()` methods. The implementation of this methods rely on some `listen()` methods common to all `SocketServer` classes.
 
 All `listen()` methods expect a *status callback* as argument which is called in case the socket has been created and switched into the listen state or an error has occurred. The signature of this callback is
 
@@ -1287,7 +1282,7 @@ The type of the `SocketAddress` needs to match with the type of the `SocketServe
 using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
 ```
 
-#### `core::socket::State` Object
+#### The `core::socket::State` Object
 
 The `core::socket::State` object passed to the callback reports the status of the `SocketServer`.
 
@@ -1302,8 +1297,6 @@ The `core::socket::State` object passed to the callback reports the status of th
 
 #### Common `listen()` Methods
 
-Three common `listen()` methods exist:
-
 | `listen()` Methods common to all `SocketServer` Classes      | `listen()` Method Arguments                                  |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | `void listen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Listen without parameter[^1]                                 |
@@ -1314,8 +1307,6 @@ Three common `listen()` methods exist:
 
 #### IPv4 specific `listen()` Methods
 
-For the IPv4/SOCK_STREAM combination exist four specific `listen()` methods:
-
 | IPv4 `listen()` Methods                                      |
 | ------------------------------------------------------------ |
 | `void listen(uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
@@ -1324,8 +1315,6 @@ For the IPv4/SOCK_STREAM combination exist four specific `listen()` methods:
 | `void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### IPv6 specific `listen()` Methods
-
-For the IPv6/SOCK_STREAM combination exist four specific `listen()` methods:
 
 | IPv6 `listen()` Methods                                      |
 | ------------------------------------------------------------ |
@@ -1336,16 +1325,12 @@ For the IPv6/SOCK_STREAM combination exist four specific `listen()` methods:
 
 #### Unix Domain Socket specific `listen()` Methods
 
-For the Unix Domain Socket/SOCK_STREAM combination exist two specific `listen()` methods:
-
 | Unix-Domain `listen()` Methods                               |
 | ------------------------------------------------------------ |
 | `void listen(const std::string& sunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 | `void listen(const std::string& sunPath, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### Bluetooth RFCOMM specific `listen()` Methods
-
-For the RFCOMM/SOCK_STREAM combination exist four specific `listen()` methods:
 
 | Bluetooth RFCOMM `listen()` Methods                          |
 | ------------------------------------------------------------ |
@@ -1355,8 +1340,6 @@ For the RFCOMM/SOCK_STREAM combination exist four specific `listen()` methods:
 | `void listen(const std::string& btAddress, uint8_t channel, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### Bluetooth L2CAP specific `listen()` Methods
-
-For the L2CAP/SOCK_STREAM combination exist four specific `listen()` methods.
 
 | Bluetooth L2CAP `listen()` Methods                           |
 | ------------------------------------------------------------ |
@@ -1409,7 +1392,7 @@ The type of the `SocketAddress` needs to match with the type of the `SocketClien
 using SocketAddress = <ConcreteSocketClientType>::SocketAddress;
 ```
 
-#### `core::socket::State` Object
+#### The `core::socket::State` Object
 
 The `core::socket::State` value passed to the callback reports the status of the `SocketServer`.
 
@@ -1424,8 +1407,6 @@ The `core::socket::State` value passed to the callback reports the status of the
 
 #### Common `connect()` Methods
 
-Three common `connect()` methods exist:
-
 | `connect()` Methods common to all `SocketServer` Classes     | `connect()` Method Arguments                       |
 | ------------------------------------------------------------ | -------------------------------------------------- |
 | `void connect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` | Connect without parameter[^2]                      |
@@ -1436,8 +1417,6 @@ Three common `connect()` methods exist:
 
 #### IPv4 specific `connect()` Methods
 
-For the IPv4/SOCK_STREAM combination exist four specific `connect()` methods:
-
 | IPv4 *connect* Methods                                       |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
@@ -1446,8 +1425,6 @@ For the IPv4/SOCK_STREAM combination exist four specific `connect()` methods:
 | `void connect(const std::string& ipOrHostname, uint16_t port, const std::string& bindIpOrHostname, uint16_t bindPort, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### IPv6 specific `connect()` Methods
-
-For the IPv6/SOCK_STREAM combination exist four specific `connect()` methods:
 
 | IPv6 *connect* Methods                                       |
 | ------------------------------------------------------------ |
@@ -1458,16 +1435,12 @@ For the IPv6/SOCK_STREAM combination exist four specific `connect()` methods:
 
 #### Unix Domain Socket specific `connect()` Methods
 
-For the Unix Domain Socket/SOCK_STREAM combination exist two specific `connect()` methods.
-
 | Unix-Domain `connect()` Methods                              |
 | ------------------------------------------------------------ |
 | `void connect(const std::string& sunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 | `void connect(const std::string& sunPath, const std::string& bindSunPath, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### Bluetooth RFCOMM specific `connect()` Methods
-
-For the RFCOMM/SOCK_STREAM combination exist four specific `connect()` methods.
 
 | Bluetooth RFCOMM `connect()` Methods                         |
 | ------------------------------------------------------------ |
@@ -1477,8 +1450,6 @@ For the RFCOMM/SOCK_STREAM combination exist four specific `connect()` methods.
 | `void connect(const std::string& btAddress, uint8_t channel, const std::string& bindBtAddress, uint8_t bindChannel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)` |
 
 #### Bluetooth L2CAP specific `connect()` Methods
-
-For the L2CAP/SOCK_STREAM combination exist four specific `connect()` methods.
 
 | Bluetooth L2CAP `connect()` Methods                          |
 | ------------------------------------------------------------ |
@@ -1495,7 +1466,7 @@ There are many more configuration items but lets focus on those mentioned above.
 
 ## Three different Options for Configuration
 
-SNode.C provides three different options to specify such configuration items. Nevertheless, internally all uses the same underlying configuration system, which is entirely based on the great [CLI11: Command line parser for C++11](https://github.com/CLIUtils/CLI11) library.
+SNode.C provides three different options to specify such configuration items. Nevertheless, internally all uses the same underlying configuration system, which is based on the great [CLI11: Command line parser for C++11](https://github.com/CLIUtils/CLI11) library.
 
 The configuration can either be done via
 
