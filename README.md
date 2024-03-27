@@ -120,7 +120,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
    * [Basic HTTP-Server and HTTP-Client API](#basic-http-server-and-http-client-api)
    * [Highlevel WEB-API a'la Node.JS-Express](#highlevel-web-api-ala-nodejs-express)
    * [WebSockets](#websockets)
-   * [Basic MQTT-Server an MQTT-Client API](#basic-mqtt-server-an-mqtt-client-api)
+   * [Basic MQTT-Server and MQTT-Client API](#basic-mqtt-server-and-mqtt-client-api)
    * [MQTT Over WebSocket](#mqtt-over-websocket)
 * [Database Support](#database-support)
    * [MariaDB](#mariadb)
@@ -143,7 +143,7 @@ SNode.C is released under the [GNU Lesser General Public License, Version 3](htt
 
 Volker Christian ([me@vchrist.at](mailto:me@vchrist.at) or [Volker.Christian@fh-hagenberg.at](mailto:volker.christian@fh-hagenberg.at))
 
-Some components are also copyrighted by Students:
+Some components are also copyrighted by students:
 
 -   Json Middleware
 
@@ -181,7 +181,7 @@ The architecture of every server and client application is basically the same an
 -   `SocketContextFactory`
 -   `SocketContext`
 
-Let\'s have a look at how these three components are related to each other by implementing a simple networking application.
+Let\'s have a look at how these components are related to each other by implementing a simple networking application.
 
 ## An "Echo" Application
 
@@ -191,7 +191,7 @@ The client starts to send text data to the server and the server reflects this d
 
 The code of this demo application can be found on [github](https://github.com/SNodeC/echo).
 
-### SocketServer and SocketClient Instances
+### `SocketServer` and `SocketClient` Instances
 
 For the *server role* we just need to create an object of type
 
@@ -207,29 +207,31 @@ net::in::stream::legacy::SocketClient<SocketContextFactory>
 
 is required, called [*client instance*](#SocketClient-Classes).
 
-A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` needs to be provided by the user and is used internally by the `SocketServer` and the `SocketClient` instances to create a concrete `SocketContext` object for each established connection. This `SocketContext` must also be provided by the user and represents a concrete application protocol.
+A class `SocketContextFactory` is used for both instances as template argument. Such a `SocketContextFactory` needs to be provided by the user and is used internally by the `SocketServer` and the `SocketClient` instances to create a concrete `SocketContext` object for each established connection.
 
-Both, `SocketServer` and `SocketClient` classes have, among others, a *default* constructor and a constructor expecting an *instance name* as argument. 
+The `SocketContext` class must also be provided by the user and represents a concrete application protocol.
 
-- When the *default* constructor is used to create the instance it is called an *anonymous instance*.
-- In contrast to a *named instance* in case the constructors expecting a `std::string` is used for instance creation. 
+Both, `SocketServer` and `SocketClient` classes have, among others, a *default constructor* and a constructor expecting an *instance name* as argument. 
+
+- In case the *default* constructor is used to create the instance, it is called an *anonymous instance*.
+- In contrast to a *named instance* if the constructors expecting a `std::string` is used. 
 - For named instances *command line arguments* and *configuration file entries* are created automatically.
 
-Therefore, for our echo application, we need to implement the *application protocol* for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (`stream`) application protocols and factories derived from `core::socket::stream::SocketContextFactory`.
+Therefore, for our *echo* application, we need to implement the *application protocol* for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (`stream`) application protocols, and factories derived from `core::socket::stream::SocketContextFactory`.
 
-### `SocketContext` Factories
+### `SocketContextFactory` Classes
 
-Let\'s focus on the `SocketContext` factories for our server and client first.
+Let\'s focus on the `SocketContextFactory` classes for our server and client first.
 
-All what needs to be done is to implement a pure virtual method `create()` witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a pointer to a concrete `SocketContext`.
+All what needs to be done is to *implement a pure virtual method* `create()` witch expects a pointer to a `core::socket::stream::SocketConnection` as argument and returns a pointer to a concrete `SocketContext`.
 
-The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and *represents the network connection* between a server and a client. It is responsible for handling the *physical data exchange* and, in the case of an SSL/TLS secured connection, for the *encryption* resp. *decryption* of the data.
+The `core::socket::stream::SocketConnection` object involved is managed internally by SNode.C and *represents the network connection* between a server and a client. It is responsible for handling the *physical data exchange* and, in case of a SSL/TLS-secured connection, for *encryption* resp. *decryption*.
 
 #### Echo-Server `SocketContextFactory`
 
-The `create()` method of our `EchoServerContextFactory` returns a pointer to the `EchoServerContext` whose implementation is presented in the [SocketContexts](#SocketContexts) section below.
+The `create()` method of our `EchoServerContextFactory` returns a pointer to the `EchoServerContext` whose implementation is presented in the [SocketContext Classes](#SocketContext Classes) section below.
 
-Note, that a pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
+***Note***: A pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
 ``` c++
 #include "EchoServerContext.h"
@@ -243,11 +245,11 @@ private:
 };
 ```
 
-#### Echo-Client SocketContextFactory
+#### Echo-Client `SocketContextFactory`
 
-The `create()` method of our `EchoClientContextFactory` returns a pointer to the `EchoClientContext` whose implementation is also presented in the [SocketContexts](#SocketContexts) section below.
+The `create()` method of our `EchoClientContextFactory` returns a pointer to the `EchoClientContext` whose implementation is also presented in the [SocketContext Classes](#SocketContext Classes) section below.
 
-Note, that a pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
+***Note***: A pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
 ``` c++
 #include "EchoClientContext.h"
@@ -263,7 +265,7 @@ private:
 
 That\'s easy, isn\'t it?
 
-### SocketContexts
+### `SocketContext` Classes
 
 It is also not difficult to implement the `SocketContext` classes for the server and the client.
 
@@ -279,11 +281,11 @@ It is also not difficult to implement the `SocketContext` classes for the server
     -    The base class  `core::socket::stream::SocketContext` needs a `core::socket::stream::SocketConnection`  to handle the physical data exchange. Thus, we have to pass the pointer to the `core::socket::stream::SocketConnection` to the constructor of the base class `core::socket::stream::SocketContext`.
 
 
-The base class `core::socket::stream::SocketContext` provides some *virtual methods* which can be *overridden* in an concrete `SocketContext` class. These methods will be *called by the framework* automatically.
+The base class `core::socket::stream::SocketContext` provides some *virtual methods* which can be *overridden* in a concrete `SocketContext` class. These methods will be *called by the framework* automatically.
 
-#### Echo-Server SocketContext
+#### Echo-Server `SocketContext`
 
-For our echo server application it would be sufficient to override the `onReceivedFromPeer()` method only. This method is called by the framework in case some *data have already been received* from the client. Nevertheless, for more information of what is going on in behind the methods `onConnected()` and `onDisconnected()` are overridden also.
+For our echo server application it would be sufficient to override the `onReceivedFromPeer()` method only. This method is called by the framework in case some *data have already been received* from the client. Nevertheless, for more information of what is going on in behind, the methods `onConnected()` and `onDisconnected()` are overridden also.
 
 In the `onReceivedFromPeer()` method, we can retrieve that data using the method `readFromPeer()`, which is  provided by the `core::socket::stream::SocketContext` class.
 
@@ -337,7 +339,7 @@ private:
 };
 ```
 
-#### Echo-Client SocketContext
+#### Echo-Client `SocketContext`
 
 Unlike the `EchoServerContext`, the `EchoClientContext` *needs* an overridden `onConnected()` method, in which the method `sendToPeer()` is used to *initiate* the ping-pong data exchange.
 
@@ -398,7 +400,7 @@ private:
 
 Now we can combine everything to implement the server and client applications. Here *anonymous instances* are used. We therefore do not automatically receive command line arguments.
 
-Note the use of our previously implemented `EchoServerContextFactory` and `EchoClientContextFactory` as template arguments.
+***Note***: The use of our previously implemented `EchoServerContextFactory` and `EchoClientContextFactory` as template arguments.
 
 At the very beginning SNode.C must be *initialized* by calling
 
@@ -467,7 +469,7 @@ The client instance `echoClient` must be *activated* by calling `echoClient.conn
 
 Equivalent to the server instance a client instance provides a view [overloaded `connect()`](#connect-methods) methods whose arguments also vary depending on the network layer used.  Though, every `connect()` method expects a *lambda function* as one of its arguments.
 
-Here it is assumed that we talk to an IPv4 server which runs on the same machine (*localhost*) as the client. Thus we pass the host name *localhost* and port number `8001` as arguments to the `connect()` method.
+Here it is assumed that we talk to an IPv4 server which runs on the same machine as the client. Thus we pass the host name `localhost` and port number `8001` as arguments to the `connect()` method.
 
 ``` cpp
 #include "EchoClientContextFactory.h"
@@ -518,7 +520,7 @@ If we would have created a *named client instance*, a special `connect()` method
 
 There is nothing special in the file `CMakeLists.txt` which is used to build the echo server and client applications. Both executables, `echoserver` and `echoclient` are defined using `add_executable()`.
 
-A bit more attention should be payed to the two lines `target_link_libraries()`. In our application we need support for an unencrypted (`legacy`), IPv4 (`in`), TCP (`stream`) connection. Thus we need to link the `echoserver` and `echoclient` executable against the `libsnodec-net-in-stream-legacy.so` library. To get the *CMake* configuration of that library we need to include the target `net-in-stream-legacy` using
+A bit more attention should be payed to the two lines `target_link_libraries()`. In our application we need support for an unencrypted (`legacy`), IPv4 (`in`), TCP (`stream`) connection. Thus we need to link the `echoserver` and `echoclient` executable against the `libsnodec-net-in-stream-legacy.so` library. To get the *CMake* configuration of that library we need to include the target `net-in-stream-legacy`
 
 ```cmake
 find_package(snodec COMPONENTS net-in-stream-legacy)
@@ -526,7 +528,7 @@ find_package(snodec COMPONENTS net-in-stream-legacy)
 
  which is a *component of the  package* `snodec`
 
-This library *transitively depends* on all other necessary and *only necessary* SNode.C, third party, and system libraries to get a fully linked and runnable application.
+This library *transitively depends* on all other necessary and *only necessary* SNode.C, third party and system libraries to get a fully linked and runnable application.
 
 Thus, the `CMakeLists.txt` file for our server and client applications looks like
 
@@ -559,12 +561,12 @@ install(TARGETS echoserver echoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR
 
 The echo application shows the *typical architecture* of servers and clients using SNode.C.
 
-- The user needs to provide the application protocol layer by implementing the classes for server and client
+- The user needs to provide the application protocol layer by implementing the classes
 
   - `SocketContextFactory` and
   - `SocketContext`
 
-  which need be be derived from the base classes
+  for server and client which need be be derived from the base classes
 
   - `core::socket::stream::SocketContextFactory`
 
@@ -582,13 +584,13 @@ The echo application shows the *typical architecture* of servers and clients usi
 The installation of SNode.C is straight forward:
 
 - In a first step all necessary tools and libraries are installed.
-- Afterwards SNode.C can be cloned, compiled, and installed.
+- Afterwards SNode.C can be cloned, compiled and installed.
 
 ## Supported Systems and Hardware
 
-The main development of SNode.C takes place on an *Debian Sid* style Linux system. Since *Debian Bookworm* SNode.C compiles also on *Debian stable*, though, it should compile cleanly on every Linux system provided that all required tools and libraries are installed.
+The main development of SNode.C takes place on a *Debian Sid* style Linux system. Since *Debian Bookworm* it compiles also on *Debian stable*. Though, it should compile cleanly on every Linux system provided that all required tools and libraries are installed.
 
-SNode.C is known to compile and run successfull, tested on
+SNode.C is known to compile and run successfull on
 
 -   **x86-64** architecture
 -   **Arm** architecture (32 and 64 bit) tested on
@@ -665,12 +667,12 @@ sudo apt install libbluetooth-dev libmagic-dev libmariadb-dev
 
 ### SNode.C
 
-After installing all dependencies SNode.C can be cloned from github, compiled, and installed.
+After installing all dependencies SNode.C can be cloned from github, compiled and installed.
 
 ``` sh
 mkdir snode.c
 cd snode.c
-git clone https://github.com/VolkerChristian/snode.c.git
+git clone https://github.com/SNodeC/snode.c.git
 mkdir build
 cd build
 cmake ../snode.c
@@ -687,7 +689,7 @@ It is a good idea to utilize all processor cores and threads for compilation. Th
 
 ## Deploment on OpenWRT
 
-As starting point it is assumed that local *ssh* and *sftp* access to the router exist and that the router is connected to the Internet via the WAN port.
+As a starting point, it is assumed that local *ssh* and *sftp* access to the router exist and that the router is connected to the Internet via the WAN port.
 
 Deploying SNode.C on an OpenWRT router involves a view tasks:
 
@@ -698,11 +700,9 @@ Deploying SNode.C on an OpenWRT router involves a view tasks:
 5. Cross compile SNode.C
 6. Deploy SNode.C
 
-### Cross Compile SNode.C
-
 SNode.C needs to be *cross compiled* on a Linux host system to be deployable on OpenWRT. Don't be afraid about cross compiling it is strait forward.
 
-#### Download a SDK
+#### Choose and Download a SDK
 
 First, download and extract a SDK-package of version  23.05.0-rc1 or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory \<DIR\>.
 
@@ -731,7 +731,7 @@ In this example the values of the placeholder are:
 
 - \<abi\> = eabi
 
-#### Patch Feeds
+#### Patch the SDK to Integrate the SNode.C Feed
 
 Second step is to patch the default OpenWRT package feeds to add the SNode.C feed by executing
 
@@ -740,7 +740,7 @@ cd <SDK_DIR>
 echo "src-git snodec https://github.com/SNodeC/owrt-packages.git;vopenwrt-23.05" >> feeds.conf.default
 ```
 
-In case you want to try the latest development of SNode.C run
+In case you want to try the latest developments of SNode.C run
 
 ```sh
 echo "src-git snodec https://github.com/SNodeC/owrt-packages.git;vopenwrt-23.05-HEAD" >> feeds.conf.default
@@ -750,7 +750,7 @@ instead.
 
 #### Install the SNode.C Package and its Dependencies
 
-The third step is to install all source packages needed to compile SNode.C.
+In the third step, all source packages required to compile SNode.C are installed.
 
 ```sh
 cd <SDK_DIR>
@@ -760,16 +760,16 @@ cd <SDK_DIR>
 
 #### Configure the SDK
 
-In the fourth step the SDK is configured.
+The SDK is configured in the fourth step.
 
 ```sh
 cd <SDK_DIR>
 make defconfig
 ```
 
-is configured.
+Default values for all configuration options can be used safely. 
 
-Default values for all configuration options can be used safely. Nevertheless, to customize the configuration run
+Nevertheless, to customize the configuration run
 
 ```sh
 cd <SDK_DIR>
@@ -780,14 +780,12 @@ and navigate to `Network -> SNode.C`.
 
 #### Cross Compile SNode.C
 
-The last step is to
+In the last step, SNode.C is cross-compiled.
 
 ```sh
 cd <SDK_DIR>
 make package/snode.c/compile
 ```
-
-cross compiled SNode.C.
 
 The two steps, *Install Packages*, and *Cross Compile* (at most the last one) take some time as 
 
@@ -819,7 +817,7 @@ exit
 
 on the router. Use the option `--force-reinstall` in cast you want to reinstall the same version by overwriting the currently installed files.
 
-During package installation a new *unix group* with member *root* is created used for the group management of config-, log-, and pid-files.
+During package installation a new *unix group* with member *root* is created, used for the group management of config-, log-, and pid-files.
 
 ***Note:*** A logout/login is necessary to activate the new group assignment.
 
@@ -863,6 +861,8 @@ During package installation a new *unix group* with member *root* is created use
 
 # Fundamental Architecture
 
+![BasicArchitectureEchoServerClient](./docs/assets/README/BasicArchitectureEchoServerClient.png)*The fundamental architecture by means of the EchoServer and EchoClient applications. `SCF` is an abbreviation for `SocketContextFactory`*
+
 ## Network Layer
 
 SNode.C currently supports five different network layer protocols, each living in it's own C++ namespace.
@@ -901,7 +901,7 @@ Typically the user didn't get in direct contact with this layer as the ready to 
 
 ## Connection Layer
 
-The connection layer sits on top of the transport layer and is responsible for handling the *physical data exchange* and, in the case of an SSL/TLS secured connection, for the *encryption* resp. *decryption* of the data. A concrete `SocketContext`  relies on it's methods (e.g. `sendToPeer()` and `readFromPeer()` ) for communication with the peer.
+The connection layer sits on top of the transport layer and is responsible for handling the *physical data exchange* and, in the case of a SSL/TLS secured connection, for the *encryption* resp. *decryption* of the data. A concrete `SocketContext`  relies on it's methods (e.g. `sendToPeer()` and `readFromPeer()` ) for communication with the peer.
 
 Like the transport layer, this layer is implemented as template base classes which are specialized for every *specialized transport* layer.  Thus, the user typically didn't get in direct contact with this layer also, as the ready to use `SocketServer` and `SocketClient` classes handle the specialization internally.
 
@@ -994,7 +994,7 @@ The default constructors of all `SocketAddress` classes creates wild-card `Socke
 
 ### `SocketConnection`
 
-Every network layer uses its specific `SocketConnection` class. Such a `SocketConnection` object represents the physical connection to the peer and is an specialization of one of the two template classes 
+Every network layer uses its specific `SocketConnection` class. Such a `SocketConnection` object represents the physical connection to the peer and is a specialization of one of the two template classes 
 
 - `core::socket::stream::legacy::SocketConnection` or
 - `core::socket::stream::tls::SocketConnection` 
@@ -1127,21 +1127,21 @@ All three callbacks expect a pointer to a `SocketConnection` object as argument.
 
 This callback is called after a connection oriented connection has been created successful.
 
-For a `SocketServer` this means after an successful internal call to
+For a `SocketServer` this means after a successful internal call to
 
 - `accept()`
 
-and for a `SocketServer` after an successful internal call to
+and for a `SocketServer` after a successful internal call to
 
 - `connect()`
 
-This does not necessarily mean that the connection is ready for communication. Especially in case of an SSL/TLS connection the initial SSL/TLS handshake has not been done yet.
+This does not necessarily mean that the connection is ready for communication. Especially in case of a SSL/TLS connection the initial SSL/TLS handshake has not been done yet.
 
 #### The `onConnected` Callback
 
-This callback is called after the connection has been fully established and is *ready for communication*. In case of an SSL/TLS connection the initial SSL/TLS handshake has been finished successfully.
+This callback is called after the connection has been fully established and is *ready for communication*. In case of a SSL/TLS connection the initial SSL/TLS handshake has been finished successfully.
 
-In case of an legacy connection `onConnected` is called immediately after `onConnect` because no additional handshake needs to be done.
+In case of a legacy connection `onConnected` is called immediately after `onConnect` because no additional handshake needs to be done.
 
 #### The `onDisconnected` Callback
 
@@ -1272,7 +1272,7 @@ Each `SocketServer` template class expects a concrete `SocketContextFactory` as 
 
 As already mentioned above, for convenience each `SocketServer` class provides its own specific set of `listen()` methods. The implementation of this methods rely on some `listen()` methods common to all `SocketServer` classes.
 
-All `listen()` methods expect an *status callback* as argument which is called in case the socket has been created and switched into the listen state or an error has occurred. The signature of this callback is
+All `listen()` methods expect a *status callback* as argument which is called in case the socket has been created and switched into the listen state or an error has occurred. The signature of this callback is
 
 ```c++
 const std::function<void(const SocketAddress& socketAddress, const core::socket::State& state)>
@@ -1297,7 +1297,7 @@ The `core::socket::State` object passed to the callback reports the status of th
 - `core::socket::State::DISABLED`
   The `ServerSocket` instance is disabled
 - `core::socket::State::ERROR`
-  During switching to the listening state an recoverable error has occurred. In case a *retry* is configured for this instance the listen attempt is retried automatically.
+  During switching to the listening state a recoverable error has occurred. In case a *retry* is configured for this instance the listen attempt is retried automatically.
 - `core::socket::State::FATAL`
   A non recoverable error has occurred. No listen-retry is done.
 
@@ -1394,7 +1394,7 @@ Each `SocketClient` template class expects a concrete `SocketContextFactory` as 
 
 As already mentioned above, for convenience each `SocketClient` class provides its own specific set of connect methods. The implementation of this specific connect methods rely on some connect methods common to all `SocketClient` classes.
 
-All `connect()` methods expect an *status callback* as argument which is called in case the socket has been created and connected to the peer or an error has occurred. The signature of this callback is
+All `connect()` methods expect a *status callback* as argument which is called in case the socket has been created and connected to the peer or an error has occurred. The signature of this callback is
 
 ```c++
 const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)>
@@ -1419,7 +1419,7 @@ The `core::socket::State` value passed to the callback reports the status of the
 - `core::socket::State::DISABLED`
   The `ClientSocket` instance is disabled
 - `core::socket::State::ERROR`
-  During switching to the connected state an recoverable error has occurred. In case a *retry* is configured for this instance the connect attempt is retried automatically.
+  During switching to the connected state a recoverable error has occurred. In case a *retry* is configured for this instance the connect attempt is retried automatically.
 - `core::socket::State::FATAL`
   A non recoverable error has occurred. No connect-retry is done.
 
@@ -1490,7 +1490,7 @@ For the L2CAP/SOCK_STREAM combination exist four specific `connect()` methods.
 
 # Configuration
 
-Each `SocketServer` and `SocketClient` instance needs to be configured before they can be started by the SNode.C event loop. Fore instance, a IPv4/TCP `SocketServer` needs to know at least the port number it should listen on and a IPv4/TCP `SocketClient` needs to now the host name or the IPv4 address and the port number a server is listening on. And if an SSL/TLS instance is used certificates are necessary for successful encryption.
+Each `SocketServer` and `SocketClient` instance needs to be configured before they can be started by the SNode.C event loop. Fore instance, a IPv4/TCP `SocketServer` needs to know at least the port number it should listen on and a IPv4/TCP `SocketClient` needs to now the host name or the IPv4 address and the port number a server is listening on. And if a SSL/TLS instance is used certificates are necessary for successful encryption.
 
 There are many more configuration items but lets focus on those mentioned above.
 
@@ -1510,7 +1510,7 @@ The configuration can either be done via
 
 ### Configuration using the C++ API
 
-Each anonymous and named `SocketServer` and `SocketClient` instance provide an configuration object which could be obtained by calling the method `getConfig()` on the instance, which returns a reference to that configuration object.
+Each anonymous and named `SocketServer` and `SocketClient` instance provide a configuration object which could be obtained by calling the method `getConfig()` on the instance, which returns a reference to that configuration object.
 
 For the `EchoServer` instance from the "Quick Starting Guide" section for example the configuration object can be obtained by just using
 
@@ -1931,11 +1931,11 @@ One can switch between sections by just specifying a different section name.
 
 ### Configuration via a Configuration File
 
-For every application a configuration file can be generated by appending the switch `-w` or `--write-config` to the command line. Optionally `--write-config` takes an filename as value. If no filename is provided a default filename is used (see [Default Name of a Configuration File](#Default-Name-of-a-Configuration-File)).
+For every application a configuration file can be generated by appending the switch `-w` or `--write-config` to the command line. Optionally `--write-config` takes a filename as value. If no filename is provided a default filename is used (see [Default Name of a Configuration File](#Default-Name-of-a-Configuration-File)).
 
 #### Configuration File Format
 
-Each configuration option which is marked as *persistent* in the help output can also be configured via a configuration file. The names of the entries for options in such an configuration file follow a well defined structure.
+Each configuration option which is marked as *persistent* in the help output can also be configured via a configuration file. The names of the entries for options in such a configuration file follow a well defined structure.
 
 ```ini
 instancename.sectionname.optionname = value
@@ -2113,7 +2113,7 @@ In case a CA-certificate is configured either on the server and/or the client si
 
 #### SSL/TLS In-Code Configuration
 
-If the *echo* server instance would have been created using an SSL/TLS-SocketServer class like e.g.
+If the *echo* server instance would have been created using a SSL/TLS-SocketServer class like e.g.
 
 ```c++
 using EchoServer = net::in::stream::tls::SocketServer<EchoServerContextFactory>;
@@ -2282,7 +2282,7 @@ Some configuration options are common for all SocketServer and SocketClient inst
 
 | Command Line Configuration   | In-Code Configuration                                  | Description                                                  |
 | ---------------------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
-| `--reuse-port=[true, false]` | `instance.getConfig().setReusePort(bool reuse = true)` | This flag turns on port reuse so multiple server applications can listening on the same address and port number tuple simultaneously.<br />With this option set to `true` one can start an server application multiple times and the operating system (Linux) routes incoming client connection requests randomly to one of the running application instances. So one can achieve a simple load balancing/multitasking application. |
+| `--reuse-port=[true, false]` | `instance.getConfig().setReusePort(bool reuse = true)` | This flag turns on port reuse so multiple server applications can listening on the same address and port number tuple simultaneously.<br />With this option set to `true` one can start a server application multiple times and the operating system (Linux) routes incoming client connection requests randomly to one of the running application instances. So one can achieve a simple load balancing/multitasking application. |
 
 #### Specific *socket* Options for IPv6 *SocketServer* and *SocketClient*
 
@@ -2474,7 +2474,7 @@ To be written
 
 To be written
 
-## Basic MQTT-Server an MQTT-Client API
+## Basic MQTT-Server and MQTT-Client API
 
 To be written
 
