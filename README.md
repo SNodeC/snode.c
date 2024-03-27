@@ -54,7 +54,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
    * [Connection Layer](#connection-layer)
    * [Application Layer](#application-layer)
 * [Existing SocketServer and SocketClient Classes](#existing-socketserver-and-socketclient-classes)
-   * [Common Aspects of Server and Client Classes](#common-aspects-of-server-and-client-classes)
+   * [Common Aspects of SocketServer and SocketClient Classes](#common-aspects-of-socketserver-and-socketclient-classes)
       * [SocketAddress](#socketaddress)
          * [SocketAddress Constructors](#socketaddress-constructors)
       * [SocketConnection](#socketconnection)
@@ -67,12 +67,12 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
          * [The onConnected Callback](#the-onconnected-callback)
          * [The onDisconnected Callback](#the-ondisconnected-callback)
          * [Attaching the Callbacks during Instance Creation](#attaching-the-callbacks-during-instance-creation)
-         * [Attaching the Callbacks to already existing SocketServer and SocketClient Instances](#attaching-the-callbacks-to-already-existing-socketserver-and-socketclient-instances)
+         * [Attaching the Callbacks to already existing Instances](#attaching-the-callbacks-to-already-existing-instances)
    * [SocketServer Classes](#socketserver-classes)
       * [SocketServer Header Files](#socketserver-header-files)
       * [Listen Methods](#listen-methods)
          * [SocketAddress Types](#socketaddress-types)
-         * [core::socket::State Object](#coresocketstate-object)
+         * [The core::socket::State Object](#the-coresocketstate-object)
          * [Common listen() Methods](#common-listen-methods)
          * [IPv4 specific listen() Methods](#ipv4-specific-listen-methods)
          * [IPv6 specific listen() Methods](#ipv6-specific-listen-methods)
@@ -83,7 +83,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
       * [SocketClient Header Files](#socketclient-header-files)
       * [Connect Methods](#connect-methods)
          * [SocketAddress Types](#socketaddress-types-1)
-         * [core::socket::State Object](#coresocketstate-object-1)
+         * [The core::socket::State Object](#the-coresocketstate-object-1)
          * [Common connect() Methods](#common-connect-methods)
          * [IPv4 specific connect() Methods](#ipv4-specific-connect-methods)
          * [IPv6 specific connect() Methods](#ipv6-specific-connect-methods)
@@ -130,7 +130,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: runner, at: Wed Mar 27 12:39:13 UTC 2024 -->
+<!-- Added by: runner, at: Wed Mar 27 14:19:52 UTC 2024 -->
 
 <!--te-->
 
