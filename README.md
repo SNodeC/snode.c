@@ -1584,30 +1584,30 @@ void connect(const std::string& sunPath,
 
 ```c++
 void connect(const std::string& btAddress,
-              uint8_t channel,
-              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+             uint8_t channel,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
 ```
 
 ```c++
 void connect(const std::string& btAddress,
-              uint8_t channel,
-              uint8_t bindChannel,
-              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+             uint8_t channel,
+             uint8_t bindChannel,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
 ```
 
 ```c++
 void connect(const std::string& btAddress,
-              uint8_t channel,
-              const std::string& bindBtAddress,
-              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+             uint8_t channel,
+             const std::string& bindBtAddress,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
 ```
 
 ```c++
 void connect(const std::string& btAddress,
-              uint8_t channel,
-              const std::string& bindBtAddress,
-              uint8_t bindChannel,
-              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+             uint8_t channel,
+             const std::string& bindBtAddress,
+             uint8_t bindChannel,
+             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
 ```
 
 #### Bluetooth L2CAP specific `connect()` Methods
