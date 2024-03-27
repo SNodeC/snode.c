@@ -15,10 +15,10 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
 * [Quick Starting Guide](#quick-starting-guide)
    * [An "Echo" Application](#an-echo-application)
       * [SocketServer and SocketClient Instances](#socketserver-and-socketclient-instances)
-      * [SocketContext Factories](#socketcontext-factories)
+      * [SocketContextFactory Classes](#socketcontextfactory-classes)
          * [Echo-Server SocketContextFactory](#echo-server-socketcontextfactory)
          * [Echo-Client SocketContextFactory](#echo-client-socketcontextfactory)
-      * [SocketContexts](#socketcontexts)
+      * [SocketContext Classes](#socketcontext-classes)
          * [Echo-Server SocketContext](#echo-server-socketcontext)
          * [Echo-Client SocketContext](#echo-client-socketcontext)
       * [Main Applications for Server and Client](#main-applications-for-server-and-client)
@@ -41,12 +41,11 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
       * [Requirements and Dependencies](#requirements-and-dependencies-1)
       * [SNode.C](#snodec)
    * [Deploment on OpenWRT](#deploment-on-openwrt)
-      * [Cross Compile SNode.C](#cross-compile-snodec)
-         * [Download a SDK](#download-a-sdk)
-         * [Patch Feeds](#patch-feeds)
+         * [Choose and Download a SDK](#choose-and-download-a-sdk)
+         * [Patch the SDK to Integrate the SNode.C Feed](#patch-the-sdk-to-integrate-the-snodec-feed)
          * [Install the SNode.C Package and its Dependencies](#install-the-snodec-package-and-its-dependencies)
          * [Configure the SDK](#configure-the-sdk)
-         * [Cross Compile SNode.C](#cross-compile-snodec-1)
+         * [Cross Compile SNode.C](#cross-compile-snodec)
       * [Deploy SNode.C](#deploy-snodec)
 * [Design Decisions and Features](#design-decisions-and-features)
 * [Fundamental Architecture](#fundamental-architecture)
@@ -131,7 +130,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: runner, at: Tue Mar 26 14:52:20 UTC 2024 -->
+<!-- Added by: runner, at: Wed Mar 27 12:39:13 UTC 2024 -->
 
 <!--te-->
 
