@@ -1020,16 +1020,57 @@ which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption,
 
 #### Most Important common `SocketConnection` Methods
 
-| Method                                                       | Explanation                                                  |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| `int getFd()`                                                | Returns the underlying descriptor used for communication.    |
-| `SSL* getSSL()`                                              | Returns the pointer to the OpenSSL SSL structure.            |
-| `void sendToPeer(const char* junk, std::size_t junkLen)` <br/>`void sendToPeer(const std::string& data)`<br />`void sendToPeer(const std::vector<char>& data)`<br />`void sendToPeer(const std::vector<int8_t>& data)` | Enqueue data to be sent to peer.                             |
-| `std::size_t readFromPeer(char* junk, std::size_t junkLen)`  | Read already received data from peer.                        |
-| `void shutdownRead()`<br/>`void shutdownWrite(bool forceClose = false)` | Shut down socket either for reading or writing.  If `forceClose` is `true` the reading end will also be shut down. |
-| `void close()`                                               | Hard close the connection without a prior shutdown.          |
-| `void setTimeout(utils::Timeval& timeout)`                   | Set the inactivity timeout of a connection (default 60 seconds).<br/>If no data has been transfered within this amount of time<br/>the connection is terminated. |
-| `bool isValid()`                                             | Check if a connection has been created successfully.         |
+- Get the unserlying descriptor used for communication.
+
+  ```c++
+  int getFd()
+  ```
+
+- Get the pointer to OpenSSL's `SSL` structure.
+
+  ```c++
+  SSL* getSSL()
+  ```
+
+- Enqueue data to be send to the peer.
+
+  ```c++
+  void sendToPeer(const char* junk, std::size_t junkLen)
+  void sendToPeer(const std::string& data)
+  void sendToPeer(const std::vector<char>& data)
+  void sendToPeer(const std::vector<int8_t>& data)
+  ```
+
+- Read already received data from peer.
+
+  ```c++
+  std::size_t readFromPeer(char* junk, std::size_t junkLen)
+  ```
+
+- Shut down socket either for reading or writing.  If `forceClose` is `true` the reading end will also be shut down.
+
+  ```c++
+  void shutdownRead()
+  void shutdownWrite(bool forceClose = false)
+  ```
+
+- Hard close the connection without a prior shutdown.
+
+  ```c++
+  void close()
+  ```
+
+- Set the inactivity timeout of a connection (default 60 seconds). If no data has been transfered within this amount of time the connection is terminated.
+
+  ```c++
+  void setTimeout(utils::Timeval& timeout)
+  ```
+
+- Check if a connection has been created successfully.
+
+  ```c++
+  bool isValid()
+  ```
 
 ### Constructors of `SocketServer` and `SocketClient` Classes
 
