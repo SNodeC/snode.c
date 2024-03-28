@@ -701,7 +701,7 @@ Deploying SNode.C on an OpenWRT router involves a view tasks:
 
 SNode.C needs to be *cross compiled* on a Linux host system to be deployable on OpenWRT. Don't be afraid about cross compiling it is strait forward.
 
-#### Choose and Download a SDK
+### Choose and Download a SDK
 
 First, download and extract a SDK-package of version  23.05.0-rc1 or later from the [OpenWRT download page](https://downloads.openwrt.org/) into an arbitrary directory \<DIR\>.
 
@@ -730,7 +730,7 @@ In this example the values of the placeholder are:
 
 - \<abi\> = eabi
 
-#### Patch the SDK to Integrate the SNode.C Feed
+### Patch the SDK to Integrate the SNode.C Feed
 
 Second step is to patch the default OpenWRT package feeds to add the SNode.C feed by executing
 
@@ -747,7 +747,7 @@ echo "src-git snodec https://github.com/SNodeC/owrt-packages.git;vopenwrt-23.05-
 
 instead.
 
-#### Install the SNode.C Package and its Dependencies
+### Install the SNode.C Package and its Dependencies
 
 In the third step, all source packages required to compile SNode.C are installed.
 
@@ -757,7 +757,7 @@ cd <SDK_DIR>
 ./scripts/feeds install snode.c
 ```
 
-#### Configure the SDK
+### Configure the SDK
 
 The SDK is configured in the fourth step.
 
@@ -777,7 +777,7 @@ make menuconfig
 
 and navigate to `Network -> SNode.C`.
 
-#### Cross Compile SNode.C
+### Cross Compile SNode.C
 
 In the last step, SNode.C is cross-compiled.
 
