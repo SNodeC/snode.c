@@ -403,11 +403,15 @@ Now we can combine everything to implement the server and client applications. H
 
 At the very beginning SNode.C must be *initialized* by calling
 
-- `core::SNodeC::init(argc, argv)`
+```c++
+core::SNodeC::init(argc, argv);
+```
 
 and at the end of the main applications the *event-loop* of SNode.C is *started* by calling
 
-- `core::SNodeC::start()`.
+```c++
+core::SNodeC::start();
+```
 
 #### Echo-Server Main Application
 
@@ -1006,70 +1010,62 @@ Equivalent to the `SocketAddress` type, each `SocketServer` and `SocketClient` c
 using SocketConnection = <ConcreteServerOrClientType>::SocketConnection;
 ```
 
-Each `SocketConnection` object provides, among others, the method
+Each `SocketConnection` object provides, among others, the method `int getFd()` which returns the underlying descriptor used for communication.
 
-- `int getFd()`
-
-which returns the underlying descriptor used for communication.
-
-Additionally the encrypting `SocketConnection` objects provide the method
-
-- `SSL* getSSL()`
-
-which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption, authenticating and authorization. Using this `SSL` structure one can modify the SSL/TLS behavior before the SSL/TLS handshake takes place in the [`onConnect` callback](#the-onconnect-callback), discussed below, and add all kinds of authentication and authorization logic directly in the [`onConnected` callback](#the-onconnected-callback), also discussed below.
+Additionally the encrypting `SocketConnection` objects provide the method `SSL* getSSL()` which returns a pointer to the `SSL` structure of *OpenSSL* used for encryption, authenticating and authorization. Using this `SSL` structure one can modify the SSL/TLS behavior before the SSL/TLS handshake takes place in the [`onConnect` callback](#the-onconnect-callback), discussed below, and add all kinds of authentication and authorization logic directly in the [`onConnected` callback](#the-onconnected-callback), also discussed below.
 
 #### Most Important common `SocketConnection` Methods
 
 - Get the unserlying descriptor used for communication.
 
   ```c++
-  int getFd()
+  int getFd();
   ```
 
 - Get the pointer to OpenSSL's `SSL` structure.
 
   ```c++
-  SSL* getSSL()
+  SSL* getSSL();
   ```
 
 - Enqueue data to be send to the peer.
 
   ```c++
-  void sendToPeer(const char* junk, std::size_t junkLen)
-  void sendToPeer(const std::string& data)
-  void sendToPeer(const std::vector<char>& data)
-  void sendToPeer(const std::vector<int8_t>& data)
+  void sendToPeer(const char* junk, std::size_t junkLen);
+  void sendToPeer(const std::string& data);
+  void sendToPeer(const std::vector<char>& data);
+  void sendToPeer(const std::vector<int8_t>& data);
   ```
 
 - Read already received data from peer.
 
   ```c++
-  std::size_t readFromPeer(char* junk, std::size_t junkLen)
+  std::size_t readFromPeer(char* junk, std::size_t junkLen);
   ```
 
 - Shut down socket either for reading or writing.  If `forceClose` is `true` the reading end will also be shut down.
 
   ```c++
-  void shutdownRead()
-  void shutdownWrite(bool forceClose = false)
+  void shutdownRead();
+  void shutdownWrite(bool forceClose = false);
   ```
 
 - Hard close the connection without a prior shutdown.
 
   ```c++
-  void close()
+  void close();
   ```
 
 - Set the inactivity timeout of a connection (default 60 seconds). If no data has been transfered within this amount of time the connection is terminated.
 
   ```c++
-  void setTimeout(utils::Timeval& timeout)
+  void setTimeout(utils::Timeval& timeout);
   ```
 
 - Check if a connection has been created successfully.
 
   ```c++
-  bool isValid()
+  bool isValid();
   ```
 
 ### Constructors of `SocketServer` and `SocketClient` Classes
@@ -1087,69 +1083,69 @@ Thus, the full lists of constructors of the `SocketServer` and `SocketClient` cl
 #### All Constructors of `SocketServer` Classes
 
 ```c++
-SocketServer(const Args&... args)
+SocketServer(const Args&... args);
 
 SocketServer(const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
              const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
-             const Args&... args)
+             const Args&... args);
 
-SocketServer(const std::string& instanceName, const Args&... args)
+SocketServer(const std::string& instanceName, const Args&... args);
 
 SocketServer(const std::string& instanceName,
              const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
              const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
-             const Args&... args)
+             const Args&... args);
 
-SocketServer(SocketContextFactory* socketContextFactory)
+SocketServer(SocketContextFactory* socketContextFactory);
     
 SocketServer(const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
              const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
-             SocketContextFactory* socketContextFactory)
+             SocketContextFactory* socketContextFactory);
     
-SocketServer(const std::string& instanceName, SocketContextFactory* socketContextFactory)
+SocketServer(const std::string& instanceName, SocketContextFactory* socketContextFactory);
     
 SocketServer(const std::string& instanceName,
              const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
              const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
-             SocketContextFactory* socketContextFactory)
+             SocketContextFactory* socketContextFactory);
 ```
 
 #### All Constructors of `SocketClient` Classes
 
 ```c++
-SocketClient(const Args&... args)
+SocketClient(const Args&... args);
 
 SocketClient(const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
              const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
-             const Args&... args)
+             const Args&... args);
 
-SocketClient(const std::string& instanceName, const Args&... args)
+SocketClient(const std::string& instanceName, const Args&... args);
 
 SocketClient(const std::string& instanceName,
              const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
              const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
-             const Args&... args)
+             const Args&... args);
 
-SocketClient(SocketContextFactory* socketContextFactory)
+SocketClient(SocketContextFactory* socketContextFactory);
 
 SocketClient(const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
              const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
-             SocketContextFactory* socketContextFactory)
+             SocketContextFactory* socketContextFactory);
 
-SocketClient(const std::string& instanceName, SocketContextFactory* socketContextFactory)
+SocketClient(const std::string& instanceName, SocketContextFactory* socketContextFactory);
 
 SocketClient(const std::string& instanceName,
              const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
              const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
-             SocketContextFactory* socketContextFactory)
+             SocketContextFactory* socketContextFactory);
 ```
 
 ### Constructor Callbacks
@@ -1162,19 +1158,13 @@ All three callbacks expect a pointer to a `SocketConnection` object as argument.
 
 This callback is called after a connection oriented connection has been created successful.
 
-For a `SocketServer` this means after a successful internal call to
+For a `SocketServer` this means after a successful internal call to `accept()` and for a `SocketClient` after a successful internal call to `connect()`
 
-- `accept()`
-
-and for a `SocketServer` after a successful internal call to
-
-- `connect()`
-
-This does not necessarily mean that the connection is ready for communication. Especially in case of a SSL/TLS connection the initial SSL/TLS handshake has not been done yet.
+This does not necessarily mean that the connection is ready for communication. Especially in case of a SSL/TLS connection the *initial handshake has not yet been done*.
 
 #### The `onConnected` Callback
 
-This callback is called after the connection has been fully established and is *ready for communication*. In case of a SSL/TLS connection the initial SSL/TLS handshake has been finished successfully.
+This callback is called after the connection has been fully established and is *ready for communication*. In case of a SSL/TLS connection the *initial handshake has been finished* successfully.
 
 In case of a legacy connection `onConnected` is called immediately after `onConnect` because no additional handshake needs to be done.
 
@@ -1310,7 +1300,7 @@ As already mentioned, for convenience each `SocketServer` class provides its own
 All `listen()` methods expect a *status callback* as argument which is called in case the socket has been created and switched into the listen state or an error has occurred. The signature of this callback is
 
 ```c++
-const std::function<void(const SocketAddress& socketAddress, const core::socket::State& state)>
+const std::function<void(const SocketAddress&, const core::socket::State& state)>
 ```
 
 The local (bound) `SocketAddress` and a `state` object is passed to this callback as arguments. 
@@ -1325,149 +1315,126 @@ using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
 
 #### The `core::socket::State` Object
 
-The `core::socket::State` object passed to the callback reports the status of the `SocketServer`.
+The `core::socket::State` object passed to the callback reports the status of the `SocketServer`. It can 
 
-- `core::socket::State::OK`
+- ```c++
+  core::socket::State::OK
+  ```
+  
   The `ServerSocket` instance has been created successfully and is ready for accepting incoming client connections.
-- `core::socket::State::DISABLED`
+  
+- ```c++
+  core::socket::State::DISABLED
+  ```
+
   The `ServerSocket` instance is disabled
-- `core::socket::State::ERROR`
+
+- ```c++
+  core::socket::State::ERROR
+  ```
+  
   During switching to the listening state a recoverable error has occurred. In case a *retry* is configured for this instance the listen attempt is retried automatically.
-- `core::socket::State::FATAL`
+  
+- ```c++
+  core::socket::State::FATAL
+  ```
+  
   A non recoverable error has occurred. No listen-retry is done.
 
 #### Common `listen()` Methods
 
 ```c++
-void listen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+void listen(const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(const SocketAddress& localAddress,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(const SocketAddress& localAddress,
             int backlog,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
+
 
 #### IPv4 specific `listen()` Methods
 
 ```c++
 void listen(uint16_t port,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(uint16_t port,
             int backlog,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(const std::string& ipOrHostname,
             uint16_t port,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
-
-```c++
-void listen(const std::string& ipOrHostname,
-            uint16_t port,
-            int backlog,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 #### IPv6 specific `listen()` Methods
 
 ```c++
 void listen(uint16_t port,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(uint16_t port,
             int backlog,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
-void listen(const std::string& ipOrHostname,
-            uint16_t port,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
-
-```c++
 void listen(const std::string& ipOrHostname,
             uint16_t port,
             int backlog,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 #### Unix Domain Socket specific `listen()` Methods
 
 ```c++
 void listen(const std::string& sunPath,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(const std::string& sunPath,
             int backlog,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 #### Bluetooth RFCOMM specific `listen()` Methods
 
 ```c++
 void listen(uint8_t channel,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(uint8_t channel,
             int backlog,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(const std::string& btAddress,
             uint8_t channel,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(const std::string& btAddress,
             uint8_t channel,
             int backlog,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 #### Bluetooth L2CAP specific `listen()` Methods
 
 ```c++
 void listen(uint16_t psm,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(uint16_t psm,
             int backlog,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(const std::string& btAddress,
             uint16_t psm,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void listen(const std::string& btAddress,
             uint16_t psm,
             int backlog,
-            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 ## `SocketClient` Classes
@@ -1501,7 +1468,7 @@ As already mentioned above, for convenience each `SocketClient` class provides i
 All `connect()` methods expect a *status callback* as argument which is called in case the socket has been created and connected to the peer or an error has occurred. The signature of this callback is
 
 ```c++
-const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)>
+const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus)>
 ```
 
 The peers `SocketAddress` and a `state` value is passed to this callback as arguments. 
@@ -1518,34 +1485,41 @@ using SocketAddress = <ConcreteSocketClientType>::SocketAddress;
 
 The `core::socket::State` value passed to the callback reports the status of the `SocketServer`.
 
-- `core::socket::State::OK`
+- ```c++
+  core::socket::State::OK
+  ```
   
   The `ClientSocket` instance has been created and connected to the peer successfully.
   
-- `core::socket::State::DISABLED`
+- ```c++
+  core::socket::State::DISABLED
+  ```
+  
   The `ClientSocket` instance is disabled
   
-- `core::socket::State::ERROR`
+- ```c++
+  core::socket::State::ERROR
+  ```
+  
   During switching to the connected state a recoverable error has occurred. In case a *retry* is configured for this instance the connect attempt is retried automatically.
   
-- `core::socket::State::FATAL`
+- ```
+  core::socket::State::FATAL
+  ```
+  
   A non recoverable error has occurred. No connect-retry is done.
 
 #### Common `connect()` Methods
 
 ```c++
-void connect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+void connect(const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const SocketAddress& remoteAddress,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const SocketAddress& remoteAddress,
              const SocketAddress& localAddress,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 #### IPv4 specific `connect()` Methods
@@ -1553,29 +1527,23 @@ void connect(const SocketAddress& remoteAddress,
 ```c++
 void connect(const std::string& ipOrHostname,
              uint16_t port,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& ipOrHostname,
              uint16_t port,
              uint16_t bindPort,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& ipOrHostname,
              uint16_t port,
              const std::string& bindIpOrHostname,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& ipOrHostname,
              uint16_t port,
              const std::string& bindIpOrHostname,
              uint16_t bindPort,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 #### IPv6 specific `connect()` Methods
@@ -1583,42 +1551,34 @@ void connect(const std::string& ipOrHostname,
 ```c++
 void connect(const std::string& ipOrHostname,
              uint16_t port,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& ipOrHostname,
              uint16_t port,
              uint16_t bindPort,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& ipOrHostname,
              uint16_t port,
              const std::string& bindIpOrHostname,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& ipOrHostname,
              uint16_t port,
              const std::string& bindIpOrHostname,
              uint16_t bindPort,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 #### Unix Domain Socket specific `connect()` Methods
 
 ```c++
 void connect(const std::string& sunPath,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& sunPath,
              const std::string& bindSunPath,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 #### Bluetooth RFCOMM specific `connect()` Methods
@@ -1626,29 +1586,23 @@ void connect(const std::string& sunPath,
 ```c++
 void connect(const std::string& btAddress,
              uint8_t channel,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& btAddress,
              uint8_t channel,
              uint8_t bindChannel,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& btAddress,
              uint8_t channel,
              const std::string& bindBtAddress,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& btAddress,
              uint8_t channel,
              const std::string& bindBtAddress,
              uint8_t bindChannel,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 #### Bluetooth L2CAP specific `connect()` Methods
@@ -1656,29 +1610,23 @@ void connect(const std::string& btAddress,
 ```c++
 void connect(const std::string& btAddress,
              uint16_t psm,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& btAddress,
              uint16_t psm,
              uint16_t bindPsm,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& btAddress,
              uint16_t psm,
              const std::string& bindBtAddress,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
-```
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
-```c++
 void connect(const std::string& btAddress,
              uint16_t psm,
              const std::string& bindBtAddress,
              uint16_t bindPsm,
-             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus)
+             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 # Configuration
@@ -1728,9 +1676,13 @@ Thus, if the port number is configured by using `setPort()` the `listen()` metho
 ```cpp
 EchoServer echoServer;
 echoServer.getConfig().setPort(8001);
-echoServer.listen([](const SocketAddress& socketAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) -> void {
-    ...
-});
+
+echoServer.listen([](
+    const SocketAddress& socketAddress,
+    const std::function<void(const SocketAddress& socketAddress, const core::socket::State& state)>& onStatus) -> void {
+        ...
+    }
+);
 ```
 
 The same technique can be used to configure the  `EchoClient` instance. 
@@ -1741,9 +1693,13 @@ Though, because a `SocketClient` has two independent sets of IP-Addresses/host n
 EchoServer echoClient;
 echoClient.getConfig().Remote::setIpOrHostname("localhost");
 echoClient.getConfig().Remote::setPort(8001);
-echoClient.connect([](const SocketAddress& socketAddress, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) -> void {
-    ...
-});
+
+echoClient.connect([](
+    const SocketAddress& socketAddress,
+    const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus) -> void {
+        ...
+    }
+);
 ```
 
 Other configuration items can be configured in the very same way but for most option items sane default values are already predefined. 
@@ -2318,9 +2274,9 @@ EchoServer echoServer("echo");
 than SSL/TLS could be configured in-code using
 
 ```c++
-echoServer.getConfig().setCaCertFile("<path to X.509 CA certificate>");   // Has to be in PEM format
-echoServer.getConfig().setCertChain("<path to X.509 certificate chain>"); // Has to be in PEM format
-echoServer.getConfig().setCertKey("<path to X.509 certificate key>");     // Has to be in PEM format
+echoServer.getConfig().setCaCert("<path to X.509 CA certificate>");      // Has to be in PEM format
+echoServer.getConfig().setCert("<path to X.509 certificate chain>");     // Has to be in PEM format
+echoServer.getConfig().setCertKey("<path to X.509 certificate key>");    // Has to be in PEM format
 echoServer.getConfig().setCertKeyPassword("<certificate key password>");
 ```
 
@@ -2332,9 +2288,9 @@ using SocketAddress = EchoClient::SocketAddress;
 
 EchoClient echoClient("echo");
 
-echoClient.getConfig().setCaCertFile("<path to X.509 CA certificate>");   // Has to be in PEM format
-echoClient.getConfig().setCertChain("<path to X.509 certificate chain>"); // Has to be in PEM format
-echoClient.getConfig().setCertKey("<path to X.509 certificate key>");     // Has to be in PEM format
+echoClient.getConfig().setCaCert("<path to X.509 CA certificate>");      // Has to be in PEM format
+echoClient.getConfig().setCert("<path to X.509 certificate chain>");     // Has to be in PEM format
+echoClient.getConfig().setCertKey("<path to X.509 certificate key>");    // Has to be in PEM format
 echoClient.getConfig().setCertKeyPassword("<certificate key password>");
 ```
 
@@ -2397,17 +2353,17 @@ Options (nonpersistent):
        Print help message
 
 Options (persistent):
-  --cert-chain filename:PEM-FILE   
+  --cert filename:PEM-FILE   
        Certificate chain file
   --cert-key filename:PEM-FILE   
        Certificate key file
   --cert-key-password password:TEXT   
        Password for the certificate key file
-  --ca-cert-file filename:PEM-FILE   
+  --ca-cert filename:PEM-FILE   
        CA-certificate file
   --ca-cert-dir directory:PEM-CONTAINER-DIR   
        CA-certificate directory
-  --ca-use-default-cert-dir{true}={true,false} [false]   
+  --ca-cert-use-default-dir{true}={true,false} [false]   
        Use default CA-certificate directory
   --cipher-list cipher_list:CIPHER   
        Cipher list (OpenSSL syntax)
@@ -2438,7 +2394,7 @@ All available SSL/TLS options are listed in this help screen.
 Thus the certificates can also be configured on the command line e.g.
 
 ```shell
-command@line:~/> echoserver echo tls --ca-cert-file <path to X.509 CA certificate> --cert-chain <path to X.509 certificate chain> --cert-key <path to X.509 certificate key> --cert-key-password <certificate key password>
+command@line:~/> echoserver echo tls --ca-cert <path to X.509 CA certificate> --cert <path to X.509 certificate chain> --cert-key <path to X.509 certificate key> --cert-key-password <certificate key password>
 ```
 
 The demo code for this application can be found on github in the branch [named-instance-tls](https://github.com/SNodeC/echo/tree/named-instance-tls). Included in that branch is the directory *certs* where demo self signed CA certificate authorities with corresponding certificates for server and client can be found. This certificates have been created using the tool [XCA](https://hohnstaedt.de/xca/). The database of XCA for this certificates can also be found in that directory. The password of the XCA database and the keys is always 'snode.c'. 
@@ -2448,11 +2404,11 @@ The demo code for this application can be found on github in the branch [named-i
 This certificates can be applied to the echo server and client applications either in-code or on the command line like for instance
 
 ```shell
-command@line:~/> echoserver --verbose-level 10 --log-level 6 echo tls --ca-cert-file [absolute-path-to]/SNode.C-Client-CA.crt --cert-chain [absolute-path-to]/Snode.C-Server-Cert.pem --cert-key [absolute-path-to]/Snode.C-Server-Cert.key --cert-key-password snode.c
+command@line:~/> echoserver echo tls --ca-cert [absolute-path-to]/SNode.C-Client-CA.crt --cert [absolute-path-to]/Snode.C-Server-Cert.pem --cert-key [absolute-path-to]/Snode.C-Server-Cert.key --cert-key-password snode.c
 ```
 
 ```shell
-command@line:~/> echoclient --verbose-level 10 --log-level 6 echo tls --ca-cert-file [absolute-path-to]/SNode.C-Server-CA.crt --cert-chain [absolute-path-to]/Snode.C-Client-Cert.pem --cert-key [absolute-path-to]/Snode.C-Client-Cert.key --cert-key-password snode.c
+command@line:~/> echoclient echo tls --ca-cert [absolute-path-to]/SNode.C-Server-CA.crt --cert [absolute-path-to]/Snode.C-Client-Cert.pem --cert-key [absolute-path-to]/Snode.C-Client-Cert.key --cert-key-password snode.c
 ```
 
 #### Using SSL/TLS with Other Network Layers
