@@ -19,6 +19,7 @@
 
 #include "net/un/config/ConfigAddress.h"
 
+#include "core/socket/State.h"
 #include "net/config/ConfigAddressBase.hpp"    // IWYU pragma: keep
 #include "net/config/ConfigAddressLocal.hpp"   // IWYU pragma: keep
 #include "net/config/ConfigAddressRemote.hpp"  // IWYU pragma: keep
@@ -31,6 +32,8 @@
 
 #include "core/system/unistd.h"
 #include "utils/PreserveErrno.h"
+
+#include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -50,7 +53,18 @@ namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
-        return &(new SocketAddress(sunPathOpt->as<std::string>()))->init();
+        SocketAddress* socketAddress = new SocketAddress(sunPathOpt->as<std::string>());
+
+        try {
+            socketAddress->init();
+        } catch (const core::socket::SocketAddress::BadSocketAddress&) {
+            delete socketAddress;
+            socketAddress = nullptr;
+
+            throw;
+        }
+
+        return socketAddress;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

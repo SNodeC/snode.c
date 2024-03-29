@@ -56,11 +56,9 @@ namespace net::rc {
         btAddress = btAddressC;
     }
 
-    SocketAddress& SocketAddress::init() {
+    void SocketAddress::init() {
         sockAddr.rc_channel = channel;
         str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);
-
-        return *this;
     }
 
     SocketAddress& SocketAddress::setBtAddress(const std::string& btAddress) {

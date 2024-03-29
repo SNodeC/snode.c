@@ -108,10 +108,20 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
-        return &(new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>()))
-                    ->init({.aiFlags = (aiFlags & ~AI_NUMERICHOST) | (numericOpt->as<bool>() ? AI_NUMERICHOST : 0),
-                            .aiSockType = aiSockType,
-                            .aiProtocol = aiProtocol});
+        SocketAddress* socketAddress = new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>());
+
+        try {
+            socketAddress->init({.aiFlags = (aiFlags & ~AI_NUMERICHOST) | (numericOpt->as<bool>() ? AI_NUMERICHOST : 0),
+                                 .aiSockType = aiSockType,
+                                 .aiProtocol = aiProtocol});
+        } catch (const core::socket::SocketAddress::BadSocketAddress&) {
+            delete socketAddress;
+            socketAddress = nullptr;
+
+            throw;
+        }
+
+        return socketAddress;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

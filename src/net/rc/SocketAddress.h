@@ -46,7 +46,7 @@ namespace net::rc {
         SocketAddress(const std::string& btAddress, uint8_t channel);
         SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen);
 
-        SocketAddress& init();
+        void init();
 
         SocketAddress& setBtAddress(const std::string& btAddress);
         std::string getBtAddress() const;

@@ -23,8 +23,6 @@
 #include "net/SocketAddress.hpp"
 #include "net/in6/SocketAddrInfo.h"
 
-// IWYU pragma: no_include "core/socket/SocketAddress.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
@@ -94,7 +92,7 @@ namespace net::in6 {
         }
     }
 
-    SocketAddress& SocketAddress::init(const Hints& hints) {
+    void SocketAddress::init(const Hints& hints) {
         addrinfo addrInfoHints{};
 
         addrInfoHints.ai_family = Super::getAddressFamily();
@@ -109,6 +107,7 @@ namespace net::in6 {
             canonName = socketAddrInfo->getCanonName();
         } else {
             core::socket::State state = core::socket::STATE_OK;
+
             switch (aiErrCode) {
                 case EAI_AGAIN:
                 case EAI_MEMORY:
@@ -118,13 +117,12 @@ namespace net::in6 {
                     state = core::socket::STATE_FATAL;
                     break;
             }
+
             throw core::socket::SocketAddress::BadSocketAddress(state,
                                                                 host + ":" + std::to_string(port) + " - " +
                                                                     (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
                                                                 (aiErrCode == EAI_SYSTEM ? errno : aiErrCode));
         }
-
-        return *this;
     }
 
     SocketAddress& SocketAddress::setHost(const std::string& ipOrHostname) {

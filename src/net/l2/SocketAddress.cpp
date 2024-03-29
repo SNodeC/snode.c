@@ -56,11 +56,9 @@ namespace net::l2 {
         btAddress = btAddressC;
     }
 
-    SocketAddress& SocketAddress::init() {
+    void SocketAddress::init() {
         sockAddr.l2_psm = htobs(psm);
         str2ba(btAddress.c_str(), &sockAddr.l2_bdaddr);
-
-        return *this;
     }
 
     SocketAddress& SocketAddress::setBtAddress(const std::string& btAddress) {

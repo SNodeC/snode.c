@@ -22,8 +22,6 @@
 #include "core/socket/State.h"
 #include "net/SocketAddress.hpp"
 
-// IWYU pragma: no_include "core/socket/SocketAddress.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
@@ -44,11 +42,11 @@ namespace net::un {
     }
 
     SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen)
-        : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen) {
-        sunPath = sockAddr.sun_path;
+        : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen)
+        , sunPath(sockAddr.sun_path) {
     }
 
-    SocketAddress& SocketAddress::init() {
+    void SocketAddress::init() {
         if (sunPath.length() < sizeof(sockAddr.sun_path)) {
             const std::size_t len = sunPath.length();
             std::memcpy(sockAddr.sun_path, sunPath.data(), len);
@@ -61,8 +59,6 @@ namespace net::un {
                     ", should be: " + std::to_string(sizeof(sockAddr.sun_path) - 1),
                 EINVAL);
         }
-
-        return *this;
     }
 
     SocketAddress& SocketAddress::setSunPath(const std::string& sunPath) {

@@ -46,7 +46,7 @@ namespace net::l2 {
         SocketAddress(const std::string& btAddress, uint16_t psm);
         SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen);
 
-        SocketAddress& init();
+        void init();
 
         SocketAddress& setBtAddress(const std::string& btAddress);
         std::string getBtAddress() const;

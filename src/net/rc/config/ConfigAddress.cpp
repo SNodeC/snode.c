@@ -52,7 +52,10 @@ namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress* ConfigAddress<ConfigAddressType>::init() {
-        return &(new SocketAddress(btAddressOpt->as<std::string>(), channelOpt->as<uint8_t>()))->init();
+        SocketAddress* socketAddress = new SocketAddress(btAddressOpt->as<std::string>(), channelOpt->as<uint8_t>());
+        socketAddress->init();
+
+        return socketAddress;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

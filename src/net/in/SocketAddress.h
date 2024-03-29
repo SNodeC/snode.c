@@ -56,7 +56,7 @@ namespace net::in {
         SocketAddress(const std::string& ipOrHostname, uint16_t port);
         SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen, bool numeric = true);
 
-        SocketAddress& init(const Hints& hints = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0});
+        void init(const Hints& hints = {.aiFlags = 0, .aiSockType = 0, .aiProtocol = 0});
 
         bool useNext() override;
 
