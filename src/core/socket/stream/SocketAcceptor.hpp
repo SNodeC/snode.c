@@ -170,6 +170,7 @@ namespace core::socket::stream {
                     if (enable(physicalServerSocket.getFd())) {
                         LOG(TRACE) << config->getInstanceName() << " enabled: '" << localAddress.toString() << "' success";
                     } else {
+                        state = core::socket::STATE(core::socket::STATE_FATAL, ECANCELED, "SocketAcceptor not enabled");
                         LOG(TRACE) << config->getInstanceName() << " enabled: '" << localAddress.toString() << "' failed";
                     }
                 }
@@ -184,7 +185,6 @@ namespace core::socket::stream {
                 } else {
                     onStatus(localAddress, state);
                 }
-
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
 
