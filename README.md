@@ -987,11 +987,11 @@ The default constructors of all `SocketAddress` classes creates wild-card `Socke
 
 | SocketAddress                                                | Constructors                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`net::in::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1in_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
-| [`net::in6::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1in6_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t port)`<br/>`SocketAddress(const std::string& ipOrHostname)`<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)` |
-| [`net::un::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1un_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(const std::string& sunPath)` |
-| [`net::rc::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1rc_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(uint8_t channel)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)` |
-| [`net::l2::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1l2_1_1SocketAddress.html) | `SocketAddress()`<br/>`SocketAddress(uint16_t psm)`<br/>`SocketAddress(const std::string& btAddress)`<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)` |
+| [`net::in::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1in_1_1SocketAddress.html) | `SocketAddress()`;<br/>`SocketAddress(uint16_t port)`;<br/>`SocketAddress(const std::string& ipOrHostname)`;<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)`; |
+| [`net::in6::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1in6_1_1SocketAddress.html) | `SocketAddress()`;<br/>`SocketAddress(uint16_t port)`;<br/>`SocketAddress(const std::string& ipOrHostname)`;<br/>`SocketAddress(const std::string& ipOrHostname, uint16_t port)`; |
+| [`net::un::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1un_1_1SocketAddress.html) | `SocketAddress()`;<br/>`SocketAddress(const std::string& sunPath)`; |
+| [`net::rc::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1rc_1_1SocketAddress.html) | `SocketAddress()`;<br/>`SocketAddress(uint8_t channel)`;<br/>`SocketAddress(const std::string& btAddress)`;<br/>`SocketAddress(const std::string& btAddress, uint8_t channel)`; |
+| [`net::l2::SocketAddress`](https://snodec.github.io/snode.c-doc/html/classnet_1_1l2_1_1SocketAddress.html) | `SocketAddress()`;<br/>`SocketAddress(uint16_t psm)`;<br/>`SocketAddress(const std::string& btAddress)`;<br/>`SocketAddress(const std::string& btAddress, uint16_t psm)`; |
 
 ### `SocketConnection`
 
@@ -1315,28 +1315,28 @@ using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
 
 #### The `core::socket::State` Object
 
-The `core::socket::State` object passed to the callback reports the status of the `SocketServer`. It can 
+The `const core::socket::State& state` object passed to the callback reports the status of the `SocketServer`. It can 
 
 - ```c++
-  core::socket::State::OK
+  state == core::socket::State::OK
   ```
   
   The `ServerSocket` instance has been created successfully and is ready for accepting incoming client connections.
   
 - ```c++
-  core::socket::State::DISABLED
+  state == core::socket::State::DISABLED
   ```
 
   The `ServerSocket` instance is disabled
 
 - ```c++
-  core::socket::State::ERROR
+  state == core::socket::State::ERROR
   ```
   
   During switching to the listening state a recoverable error has occurred. In case a *retry* is configured for this instance the listen attempt is retried automatically.
   
 - ```c++
-  core::socket::State::FATAL
+  state == core::socket::State::FATAL
   ```
   
   A non recoverable error has occurred. No listen-retry is done.
@@ -1483,28 +1483,28 @@ using SocketAddress = <ConcreteSocketClientType>::SocketAddress;
 
 #### The `core::socket::State` Object
 
-The `core::socket::State` value passed to the callback reports the status of the `SocketServer`.
+The `const core::socket::State& state` value passed to the callback reports the status of the `SocketServer`.
 
 - ```c++
-  core::socket::State::OK
+  state == core::socket::State::OK
   ```
   
   The `ClientSocket` instance has been created and connected to the peer successfully.
   
 - ```c++
-  core::socket::State::DISABLED
+  state == core::socket::State::DISABLED
   ```
   
   The `ClientSocket` instance is disabled
   
 - ```c++
-  core::socket::State::ERROR
+  state == core::socket::State::ERROR
   ```
   
   During switching to the connected state a recoverable error has occurred. In case a *retry* is configured for this instance the connect attempt is retried automatically.
   
 - ```
-  core::socket::State::FATAL
+  state == core::socket::State::FATAL
   ```
   
   A non recoverable error has occurred. No connect-retry is done.
@@ -2455,7 +2455,9 @@ In that case the Main-Application would look like
     using SocketAddressIn = EchoServerIn::SocketAddress;
 
     EchoServerIn echoServerIn;
-    echoServerIn.listen(8001, [](const SocketAddressIn& socketAddress, const core::socket::State& state) -> void {
+    echoServerIn.listen(8001, 
+                        [](const SocketAddressIn& socketAddress,
+                           const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoServerIn: listening on '" << socketAddress.toString() << "'";
@@ -2464,10 +2466,10 @@ In that case the Main-Application would look like
                 VLOG(1) << "EchoServerIn: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoServerIn: non critical error occurred";
+                LOG(ERROR) << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoServerIn: critical error occurred";
+                LOG(FATAL) << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -2476,7 +2478,9 @@ In that case the Main-Application would look like
     using SocketAddressUn = EchoServerUn::SocketAddress;
 
     EchoServerUn echoServerUn;
-    echoServerUn.listen("/tmp/echoserver", [](const SocketAddressUn& socketAddress, const core::socket::State& state) -> void {
+    echoServerUn.listen("/tmp/echoserver",
+                        [](const SocketAddressUn& socketAddress, 
+                           const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoServerUn: listening on '" << socketAddress.toString() << "'";
@@ -2485,10 +2489,10 @@ In that case the Main-Application would look like
                 VLOG(1) << "EchoServerUn: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoServerUn: non critical error occurred";
+                LOG(ERROR) << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoServerUn: critical error occurred";
+                LOG(FATAL) << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -2502,7 +2506,9 @@ In that case the Main-Application would look like
     // of the peer.
     EchoServerRc echoServerRc;
     echoServerRc.getConfig().setDisabled();
-    echoServerRc.listen(16, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
+    echoServerRc.listen(16, 
+                        [](const SocketAddressRc& socketAddress, 
+                           const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoServerRc: listening on '" << socketAddress.toString() << "'";
@@ -2511,10 +2517,10 @@ In that case the Main-Application would look like
                 VLOG(1) << "EchoServerRc: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoServerRc: non critical error occurred";
+                LOG(ERROR) << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoServerRc: critical error occurred";
+                LOG(FATAL) << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -2534,7 +2540,10 @@ int main(int argc, char* argv[]) {
     using SocketAddressIn = EchoClientIn::SocketAddress;
 
     EchoClientIn echoClientIn;
-    echoClientIn.connect("localhost", 8001, [](const SocketAddressIn& socketAddress, const core::socket::State& state) -> void {
+    echoClientIn.connect("localhost",
+                         8001,
+                         [](const SocketAddressIn& socketAddress,
+                            const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoClientIn: connected to '" << socketAddress.toString() << "'";
@@ -2543,10 +2552,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "EchoClientIn: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoClientIn: non critical error occurred";
+                LOG(ERROR) << "EchoClientIn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoClientIn: critical error occurred";
+                LOG(FATAL) << "EchoClientIn: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -2556,7 +2565,9 @@ int main(int argc, char* argv[]) {
     using SocketAddressUn = EchoClientUn::SocketAddress;
 
     EchoClientUn echoClientUn;
-    echoClientUn.connect("/tmp/echoserver", [](const SocketAddressUn& socketAddress, const core::socket::State& state) -> void {
+    echoClientUn.connect("/tmp/echoserver", 
+                         [](const SocketAddressUn& socketAddress, 
+                            const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoClientUn: connected to '" << socketAddress.toString() << "'";
@@ -2565,10 +2576,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "EchoClientUn: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoClientUn: non critical error occurred";
+                LOG(ERROR) << "EchoClientUn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoClientUn: critical error occurred";
+                LOG(FATAL) << "EchoClientUn: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -2582,26 +2593,26 @@ int main(int argc, char* argv[]) {
     using SocketAddressRc = EchoClientRc::SocketAddress;
 
     EchoClientRc echoClientRc; // Create client instance
-    echoClientUn.getConfig().setDisabled();
+    echoClientRc.getConfig().setDisabled();
     echoClientRc.connect("10:3D:1C:AC:BA:9C",
                          1,
                          [](const SocketAddressRc& socketAddress,
-                            const core::socket::State& state) -> void { // Connect to server
-                             switch (state) {
-                                 case core::socket::State::OK:
-                                     VLOG(1) << "EchoClientRc: connected to '" << socketAddress.toString() << "'";
-                                     break;
-                                 case core::socket::State::DISABLED:
-                                     VLOG(1) << "EchoClientRc: disabled";
-                                     break;
-                                 case core::socket::State::ERROR:
-                                     VLOG(1) << "EchoClientRc: non critical error occurred";
-                                     break;
-                                 case core::socket::State::FATAL:
-                                     VLOG(1) << "EchoClientRc: critical error occurred";
-                                     break;
-                             }
-                         });
+                            const core::socket::State& state) -> void {
+    	switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoClientRc: connected to '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoClientRc: disabled";
+                break;
+            case core::socket::State::ERROR:
+                LOG(ERROR) << "EchoClientRc: " << socketAddress.toString() << ": " << state.what();
+                break;
+            case core::socket::State::FATAL:
+                LOG(FATAL) << "EchoClientRc: " << socketAddress.toString() << ": " << state.what();
+                break;
+        }
+    });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }
@@ -2706,7 +2717,7 @@ int main(int argc, char* argv[]) {
         tlsApp.use(express::middleware::StaticMiddleware(tlsHtmlRoot->as<std::string>()));
     });
 
-    tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
+    tlsApp.getConfig().setCert("<path to X.509 certificate chain>");
     tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
     tlsApp.getConfig().setCertKeyPassword("<certificate key password>");
 
@@ -2818,7 +2829,7 @@ int main(int argc, char* argv[]) {
 
     TLSWebApp tlsApp;
 
-    tlsApp.getConfig().setCertChain("<path to X.509 certificate chain>");
+    tlsApp.getConfig().setCert("<path to X.509 certificate chain>");
     tlsApp.getConfig().setCertKey("<path to X.509 certificate key>");
     tlsApp.getConfig().setCertKeyPassword("<certificate key password>");
 
