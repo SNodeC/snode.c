@@ -208,9 +208,6 @@ namespace core {
                     PLOG(FATAL) << "Core::EventLoop: _tick()";
                     break;
             }
-
-        } else {
-            EventLoop::instance().eventMultiplexer.clearEventQueue();
         }
 
         sigaction(SIGPIPE, &oldPipeAct, nullptr);
