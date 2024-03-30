@@ -42,8 +42,8 @@ namespace net::un::config {
                                                     const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
         sunPathOpt = Super::add_option( //
-            "--path",
-            "Unix domain socket file",
+            "--sun-path",
+            "Unix domain bind path",
             "filename:FILE",
             std::string('\0' + instance->getInstanceName() + std::to_string(getpid()) + "_" + utils::Uuid::getUuid()));
     }
