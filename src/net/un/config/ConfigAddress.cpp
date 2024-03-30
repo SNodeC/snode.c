@@ -19,7 +19,6 @@
 
 #include "net/un/config/ConfigAddress.h"
 
-#include "core/socket/State.h"
 #include "net/config/ConfigAddressBase.hpp"    // IWYU pragma: keep
 #include "net/config/ConfigAddressLocal.hpp"   // IWYU pragma: keep
 #include "net/config/ConfigAddressRemote.hpp"  // IWYU pragma: keep
@@ -32,8 +31,6 @@
 
 #include "core/system/unistd.h"
 #include "utils/PreserveErrno.h"
-
-#include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
