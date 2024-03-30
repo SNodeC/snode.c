@@ -104,8 +104,8 @@ namespace net::config {
                     break;
                 }
                 for (auto& [key, value] : sniMap) {
-                    if (key != "CertChain" && key != "CertKey" && key != "CertKeyPassword" && key != "CaCertFile" && key != "CaCertDir" &&
-                        key != "UseDefaultCaDir" && key != "CipherList" && key != "SslOptions") {
+                    if (key != "Cert" && key != "CertKey" && key != "CertKeyPassword" && key != "CaCert" && key != "CaCertDir" &&
+                        key != "CaCertUseDefaultDir" && key != "CipherList" && key != "SslOptions") {
                         throw CLI::ConversionError("'" + key + "' of option '--" + section->get_parent()->get_name() + "." +
                                                        section->get_name() + ".sni-cert'",
                                                    "<key>");
