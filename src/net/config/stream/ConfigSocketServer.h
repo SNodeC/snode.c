@@ -23,7 +23,6 @@
 #include "net/config/ConfigAddressLocal.h"         // IWYU pragma: export
 #include "net/config/ConfigAddressReverse.h"       // IWYU pragma: export
 #include "net/config/ConfigConnection.h"           // IWYU pragma: export
-#include "net/config/ConfigListen.h"               // IWYU pragma: export
 #include "net/config/ConfigPhysicalSocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,8 +38,7 @@ namespace net::config::stream {
         : public ConfigAddressLocalT<net::config::ConfigAddressLocal>
         , public ConfigAddressRemoteT<net::config::ConfigAddressReverse>
         , public net::config::ConfigConnection
-        , public net::config::ConfigPhysicalSocketServer
-        , public net::config::ConfigListen {
+        , public net::config::ConfigPhysicalSocketServer {
     public:
         using Local = ConfigAddressLocalT<net::config::ConfigAddressLocal>;
         using Remote = ConfigAddressRemoteT<net::config::ConfigAddressReverse>;

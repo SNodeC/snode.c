@@ -32,8 +32,7 @@ namespace net::config::stream {
         : ConfigAddressLocal<net::config::ConfigAddressLocal>(instance, "local", "Local side of connection")
         , ConfigAddressRemote<net::config::ConfigAddressReverse>(instance, "remote", "Remote side of connection")
         , net::config::ConfigConnection(instance)
-        , net::config::ConfigPhysicalSocketServer(instance)
-        , net::config::ConfigListen(instance) {
+        , net::config::ConfigPhysicalSocketServer(instance) {
     }
 
 } // namespace net::config::stream

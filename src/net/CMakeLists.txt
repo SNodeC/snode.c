@@ -22,7 +22,6 @@ set(NET_CPP
     config/ConfigInstance.cpp
     config/ConfigConnection.cpp
     config/ConfigLegacy.cpp
-    config/ConfigListen.cpp
     config/ConfigPhysicalSocket.cpp
     config/ConfigPhysicalSocketClient.cpp
     config/ConfigPhysicalSocketServer.cpp
@@ -49,7 +48,6 @@ set(NET_H
     config/ConfigInstance.h
     config/ConfigConnection.h
     config/ConfigLegacy.h
-    config/ConfigListen.h
     config/ConfigPhysicalSocket.h
     config/ConfigPhysicalSocketClient.h
     config/ConfigPhysicalSocketServer.h
@@ -104,9 +102,9 @@ append_source_file_config(
 )
 
 append_source_file_config(
-    config/ConfigListen.cpp ACCEPTS_PER_TICK "Accepts per tick" 1
+    config/ConfigPhysicalSocketServer.cpp ACCEPTS_PER_TICK "Accepts per tick" 1
 )
-append_source_file_config(config/ConfigListen.cpp BACKLOG "Listen backlog" 5)
+append_source_file_config(config/ConfigPhysicalSocketServer.cpp BACKLOG "Listen backlog" 5)
 
 append_source_file_config(
     config/ConfigPhysicalSocket.cpp REUSE_ADDRESS "Reuse address" false

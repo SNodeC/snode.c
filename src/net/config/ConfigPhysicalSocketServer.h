@@ -47,10 +47,18 @@ namespace net::config {
     public:
         explicit ConfigPhysicalSocketServer(ConfigInstance* instance);
 
+        ConfigPhysicalSocketServer& setBacklog(int newBacklog);
+        int getBacklog() const;
+
+        ConfigPhysicalSocketServer& setAcceptsPerTick(int acceptsPerTickSet);
+        int getAcceptsPerTick() const;
+
         ConfigPhysicalSocketServer& setAcceptTimeout(const utils::Timeval& acceptTimeout);
         utils::Timeval getAcceptTimeout() const;
 
     private:
+        CLI::Option* backlogOpt = nullptr;
+        CLI::Option* acceptsPerTickOpt = nullptr;
         CLI::Option* acceptTimeoutOpt = nullptr;
     };
 

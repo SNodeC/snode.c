@@ -50,12 +50,50 @@ namespace net::config {
 
     ConfigPhysicalSocketServer::ConfigPhysicalSocketServer(ConfigInstance* instance)
         : net::config::ConfigPhysicalSocket(instance) {
+        backlogOpt = add_option( //
+            "--backlog",
+            "Listen backlog",
+            "backlog",
+            BACKLOG,
+            CLI::PositiveNumber);
+
+        acceptsPerTickOpt = add_option( //
+            "--accepts-per-tick",
+            "Accepts per tick",
+            "number",
+            ACCEPTS_PER_TICK,
+            CLI::PositiveNumber);
+
         acceptTimeoutOpt = add_option( //
             "--accept-timeout",
             "Accept timeout",
             "timeout",
             ACCEPT_TIMEOUT,
             CLI::NonNegativeNumber);
+    }
+
+    int ConfigPhysicalSocketServer::getBacklog() const {
+        return backlogOpt->as<int>();
+    }
+
+    ConfigPhysicalSocketServer& ConfigPhysicalSocketServer::setBacklog(int newBacklog) {
+        backlogOpt //
+            ->default_val(newBacklog)
+            ->clear();
+
+        return *this;
+    }
+
+    int ConfigPhysicalSocketServer::getAcceptsPerTick() const {
+        return acceptsPerTickOpt->as<int>();
+    }
+
+    ConfigPhysicalSocketServer& ConfigPhysicalSocketServer::setAcceptsPerTick(int acceptsPerTickSet) {
+        acceptsPerTickOpt //
+            ->default_val(acceptsPerTickSet)
+            ->clear();
+
+        return *this;
     }
 
     ConfigPhysicalSocketServer& ConfigPhysicalSocketServer::setAcceptTimeout(const utils::Timeval& acceptTimeout) {
