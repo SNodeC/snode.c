@@ -42,6 +42,8 @@ namespace net::config {
 
     class ConfigTlsServer : public ConfigTls {
     public:
+        using Tls = ConfigTlsServer;
+
         explicit ConfigTlsServer(ConfigInstance* instance);
 
         ConfigTlsServer& setForceSni(bool forceSni = true);

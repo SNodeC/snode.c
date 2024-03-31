@@ -21,6 +21,7 @@
 #define NET_CONFIG_CONFIGPHYSICALSOCKETCLIENT_H
 
 #include "net/config/ConfigPhysicalSocket.h" // IWYU pragma: export
+#include "utils/Timeval.h"                   // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;
@@ -32,10 +33,6 @@ namespace CLI {
     class Option;
 }
 
-namespace utils {
-    class Timeval;
-}
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
@@ -45,6 +42,8 @@ namespace net::config {
         using Super = ConfigPhysicalSocket;
 
     public:
+        using Socket = ConfigPhysicalSocketClient;
+
         explicit ConfigPhysicalSocketClient(ConfigInstance* instance);
 
         ConfigPhysicalSocketClient& setReconnect(bool reconnect = true);

@@ -41,6 +41,8 @@ namespace net::config {
 
     class ConfigConnection : protected ConfigSection {
     public:
+        using Connection = ConfigConnection;
+
         explicit ConfigConnection(ConfigInstance* instance);
 
         utils::Timeval getReadTimeout() const;

@@ -34,6 +34,8 @@ namespace net::config {
 
     class ConfigLegacy : protected ConfigSection {
     public:
+        using Legacy = ConfigLegacy;
+
         explicit ConfigLegacy(ConfigInstance* instance);
     };
 

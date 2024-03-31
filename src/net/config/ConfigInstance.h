@@ -27,6 +27,10 @@ namespace CLI {
     class Option;
 } // namespace CLI
 
+namespace net::config {
+    class ConfigSection;
+}
+
 #include <cstdint>
 #include <string>
 
@@ -36,6 +40,8 @@ namespace net::config {
 
     class ConfigInstance {
     public:
+        using Instance = ConfigInstance;
+
         enum class Role { SERVER, CLIENT };
 
         explicit ConfigInstance(const std::string& instanceName, Role role);
@@ -55,6 +61,7 @@ namespace net::config {
         bool getDisabled() const;
         void setDisabled(bool disabled = true);
 
+    private:
         CLI::App* add_section(const std::string& name, const std::string& description);
 
         void required(CLI::App* section, bool req = true);
@@ -64,7 +71,6 @@ namespace net::config {
         bool hasSection(const std::string& name) const;
         CLI::App* getSection(const std::string& name) const;
 
-    private:
         uint8_t requiredCount = 0;
 
         std::string instanceName;
@@ -74,6 +80,8 @@ namespace net::config {
 
         CLI::App* instanceSc = nullptr;
         CLI::Option* disableOpt = nullptr;
+
+        friend class net::config::ConfigSection;
     };
 
 } // namespace net::config
