@@ -238,7 +238,7 @@ namespace CLI {
                 << "]";
         }
         if (app->get_required()) {
-            out << "  " << get_label("REQUIRED");
+            out << " " << get_label("REQUIRED");
         }
 
         out << std::endl << std::endl;
@@ -315,7 +315,7 @@ namespace CLI {
         std::stringstream out;
         // ########## Next line changed
         out << sub->get_display_name(true) + " [OPTIONS]" + (!sub->get_subcommands({}).empty() ? " [SECTIONS]" : "") +
-                   (sub->get_required() ? "  " + get_label("REQUIRED") : "")
+                   (sub->get_required() ? " " + get_label("REQUIRED") : "")
             << "\n";
 
         out << make_description(sub);
@@ -343,21 +343,21 @@ namespace CLI {
             if (opt->get_type_size() != 0) {
                 if (!opt->get_type_name().empty()) {
                     // ########## Next line changed
-                    out << ((opt->get_items_expected_max() == 0) ? "=" : " ") << get_label(opt->get_type_name()) << " ";
+                    out << ((opt->get_items_expected_max() == 0) ? "=" : " ") << get_label(opt->get_type_name());
                 }
                 if (!opt->get_default_str().empty()) {
-                    out << "[" << opt->get_default_str() << "] ";
+                    out << " [" << opt->get_default_str() << "]";
                 }
                 if (opt->get_expected_max() == detail::expected_max_vector_size) {
-                    out << "... ";
+                    out << " ... ";
                 } else if (opt->get_expected_min() > 1) {
-                    out << " x " << opt->get_expected() << " ";
+                    out << " x " << opt->get_expected();
                 }
                 if (opt->get_required()) {
-                    out << " " << get_label("REQUIRED") << " ";
+                    out << " " << get_label("REQUIRED");
                 }
                 if (opt->get_configurable()) {
-                    out << " " << get_label("PERSISTENT") << " ";
+                    out << " " << get_label("PERSISTENT");
                 }
             }
             if (!opt->get_envname().empty()) {
