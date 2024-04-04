@@ -219,7 +219,7 @@ namespace utils {
 
             app->footer("Application '" + applicationName +
                         "' powered by SNode.C\n"
-                        "(C) 2019-2023 Volker Christian\n"
+                        "(C) 2019-2024 Volker Christian\n"
                         "https://github.com/VolkerChristian/snode.c - me@vchrist.at");
 
             app->set_config( //
