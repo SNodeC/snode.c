@@ -237,7 +237,12 @@ namespace CLI {
                 << " [--help]"
                 << "]";
         }
-        if (app->get_required()) {
+        const Option* disabledOpt = app->get_option_no_throw("--disabled");
+        const bool disabled = disabledOpt != nullptr ? disabledOpt->as<bool>() : false;
+
+        if (disabled) {
+            out << " " << get_label("DISABLED");
+        } else if (app->get_required()) {
             out << " " << get_label("REQUIRED");
         }
 
@@ -302,20 +307,27 @@ namespace CLI {
     }
 
     CLI11_INLINE std::string HelpFormatter::make_subcommand(const App* sub) const {
+        const Option* disabledOpt = sub->get_option_no_throw("--disabled");
+        const bool disabled = disabledOpt != nullptr ? disabledOpt->as<bool>() : false;
+
         std::stringstream out;
         // ########## Next line changed
         detail::format_help(out,
-                            sub->get_display_name(true) + (sub->get_required() ? " " + get_label("REQUIRED") : ""),
+                            sub->get_display_name(true) +
+                                (disabled ? " " + get_label("DISABLED") : (sub->get_required() ? " " + get_label("REQUIRED") : "")),
                             sub->get_description(),
                             column_width_);
         return out.str();
     }
 
     CLI11_INLINE std::string HelpFormatter::make_expanded(const App* sub) const {
+        const Option* disabledOpt = sub->get_option_no_throw("--disabled");
+        const bool disabled = disabledOpt != nullptr ? disabledOpt->as<bool>() : false;
+
         std::stringstream out;
         // ########## Next line changed
         out << sub->get_display_name(true) + " [OPTIONS]" + (!sub->get_subcommands({}).empty() ? " [SECTIONS]" : "") +
-                   (sub->get_required() ? " " + get_label("REQUIRED") : "")
+                   (disabled ? " " + get_label("DISABLED") : (sub->get_required() ? " " + get_label("REQUIRED") : ""))
             << "\n";
 
         out << make_description(sub);
