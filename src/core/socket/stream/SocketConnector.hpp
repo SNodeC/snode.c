@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "core/State.h"
 #include "core/socket/stream/SocketConnector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -122,7 +123,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::init() {
-        if (!config->getDisabled()) {
+        if (!config->getDisabled() && core::eventLoopState() == core::State::RUNNING) {
             try {
                 LOG(TRACE) << config->getInstanceName() << ": Starting";
 
