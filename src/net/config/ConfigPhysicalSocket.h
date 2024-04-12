@@ -87,6 +87,7 @@ namespace net::config {
                                        const std::string& defaultValue,
                                        const CLI::Validator& validator);
 
+    private:
         CLI::Option* reuseAddressOpt = nullptr;
         CLI::Option* retryOpt = nullptr;
         CLI::Option* retryOnFatalOpt = nullptr;

@@ -104,13 +104,13 @@ namespace net::config {
 
         bool required() const;
 
+    protected:
+        CLI::App* section = nullptr;
+
     private:
         ConfigInstance* instance = nullptr;
 
         uint8_t requiredCount = 0;
-
-    protected:
-        CLI::App* section = nullptr;
     };
 
 } // namespace net::config
