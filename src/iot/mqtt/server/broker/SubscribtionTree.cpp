@@ -46,7 +46,7 @@ namespace iot::mqtt::server::broker {
     }
 
     bool SubscribtionTree::subscribe(const std::string& topic, const std::string& clientId, uint8_t qoS) {
-        return head.subscribe(clientId, qoS, topic, false);
+        return head.subscribe(clientId, qoS, topic);
     }
 
     void SubscribtionTree::publish(Message&& message) {
@@ -75,22 +75,29 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    bool SubscribtionTree::TopicLevel::subscribe(const std::string& clientId, uint8_t qoS, std::string topic, bool leafFound) {
+    bool SubscribtionTree::TopicLevel::subscribe(const std::string& clientId, uint8_t qoS, std::string topic) {
         bool success = true;
 
-        if (leafFound) {
-            clientIds[clientId] = qoS;
+        const std::string::size_type slashPosition = topic.find('/');
+        const std::string topicLevel = topic.substr(0, slashPosition);
+
+        if ((topicLevel == "#" && !topic.ends_with('#'))) {
+            success = false;
         } else {
-            const std::string::size_type slashPosition = topic.find('/');
-            const std::string topicLevel = topic.substr(0, slashPosition);
+            topic.erase(0, topicLevel.size() + 1);
 
-            if ((topicLevel == "#" && !topic.ends_with('#'))) {
-                success = false;
+            const auto& [topicLevelPairIt, insert] = topicLevels.insert({topicLevel, SubscribtionTree::TopicLevel(broker)});
+
+            if (slashPosition != std::string::npos) {
+                VLOG(0) << "+++++++++++++++++++++: " << topic.empty();
+                success = topicLevelPairIt->second.subscribe(clientId, qoS, topic);
             } else {
-                topic.erase(0, topicLevel.size() + 1);
+                VLOG(0) << "---------------------: " << topic.empty();
+                topicLevelPairIt->second.clientIds[clientId] = qoS;
+            }
 
-                success = topicLevels.insert({topicLevel, SubscribtionTree::TopicLevel(broker)})
-                              .first->second.subscribe(clientId, qoS, topic, slashPosition == std::string::npos);
+            if (!success && insert) {
+                topicLevels.erase(topicLevel);
             }
         }
 

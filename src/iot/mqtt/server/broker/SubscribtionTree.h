@@ -63,7 +63,7 @@ namespace iot::mqtt::server::broker {
 
             void appear(const std::string& clientId, const std::string& topic);
 
-            bool subscribe(const std::string& clientId, uint8_t qoS, std::string topic, bool leafFound);
+            bool subscribe(const std::string& clientId, uint8_t qoS, std::string topic);
 
             void publish(Message& message, std::string topic, bool leafFound);
 
