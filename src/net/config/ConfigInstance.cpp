@@ -139,7 +139,7 @@ namespace net::config {
     }
 
     bool ConfigInstance::hasSection(const std::string& name) const {
-        CLI::App* sectionSc = nullptr;
+        const CLI::App* sectionSc = nullptr;
 
         try {
             sectionSc = instanceSc->get_subcommand(name);
