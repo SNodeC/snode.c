@@ -52,9 +52,7 @@ namespace iot::mqtt::server::broker {
         nlohmann::json toJson() const;
         void fromJson(const nlohmann::json& json);
 
-        void clear() {
-            head.clear();
-        }
+        void clear();
 
     private:
         class TopicLevel {
