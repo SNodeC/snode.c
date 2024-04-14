@@ -53,12 +53,12 @@ namespace iot::mqtt::server::broker {
         head.publish(message, message.getTopic(), false);
     }
 
-    bool SubscribtionTree::unsubscribe(const std::string& topic, const std::string& clientId) {
-        return head.unsubscribe(clientId, topic, false);
+    void SubscribtionTree::unsubscribe(const std::string& topic, const std::string& clientId) {
+        head.unsubscribe(clientId, topic);
     }
 
-    bool SubscribtionTree::unsubscribe(const std::string& clientId) {
-        return head.unsubscribe(clientId);
+    void SubscribtionTree::unsubscribe(const std::string& clientId) {
+        head.unsubscribe(clientId);
     }
 
     SubscribtionTree::TopicLevel::TopicLevel(Broker* broker)
@@ -79,21 +79,20 @@ namespace iot::mqtt::server::broker {
         bool success = true;
 
         const std::string topicLevel = topic.substr(0, topic.find('/'));
-
         if ((topicLevel == "#" && !topic.ends_with('#'))) {
             success = false;
         } else {
             topic.erase(0, topicLevel.size() + 1);
 
-            const auto& [topicLevelPairIt, insert] = topicLevels.insert({topicLevel, SubscribtionTree::TopicLevel(broker)});
+            const auto& [it, inserted] = topicLevels.insert({topicLevel, SubscribtionTree::TopicLevel(broker)});
 
             if (topic.empty()) {
-                topicLevelPairIt->second.clientIds[clientId] = qoS;
+                it->second.clientIds[clientId] = qoS;
             } else {
-                success = topicLevelPairIt->second.subscribe(clientId, qoS, topic);
+                success = it->second.subscribe(clientId, qoS, topic);
 
-                if (!success && insert) {
-                    topicLevels.erase(topicLevel);
+                if (!success && inserted) {
+                    topicLevels.erase(it);
                 }
             }
         }
@@ -159,36 +158,36 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    bool SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId, std::string topic, bool leafFound) {
-        if (leafFound) {
-            clientIds.erase(clientId);
-        } else {
-            const std::string::size_type slashPosition = topic.find('/');
-            const std::string topicLevel = topic.substr(0, slashPosition);
+    void SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId, std::string topic) {
+        const std::string topicLevel = topic.substr(0, topic.find('/'));
 
+        auto&& it = topicLevels.find(topicLevel);
+        if (it != topicLevels.end()) {
             topic.erase(0, topicLevel.size() + 1);
 
-            if (topicLevels.contains(topicLevel) &&
-                topicLevels.find(topicLevel)->second.unsubscribe(clientId, topic, slashPosition == std::string::npos)) {
-                topicLevels.erase(topicLevel);
+            if (topic.empty()) {
+                it->second.clientIds.erase(clientId);
+            } else {
+                it->second.unsubscribe(clientId, topic);
+            }
+
+            if (it->second.clientIds.empty() && it->second.topicLevels.empty()) {
+                topicLevels.erase(it);
             }
         }
-
-        return clientIds.empty() && topicLevels.empty();
     }
 
-    bool SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId) {
+    void SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId) {
         clientIds.erase(clientId);
 
         for (auto it = topicLevels.begin(); it != topicLevels.end();) {
-            if (it->second.unsubscribe(clientId)) {
+            it->second.unsubscribe(clientId);
+            if (it->second.clientIds.empty() && it->second.topicLevels.empty()) {
                 it = topicLevels.erase(it);
             } else {
                 ++it;
             }
         }
-
-        return clientIds.empty() && topicLevels.empty();
     }
 
     nlohmann::json SubscribtionTree::TopicLevel::toJson() const {
