@@ -182,6 +182,7 @@ namespace iot::mqtt::server::broker {
 
         for (auto it = topicLevels.begin(); it != topicLevels.end();) {
             it->second.unsubscribe(clientId);
+
             if (it->second.clientIds.empty() && it->second.topicLevels.empty()) {
                 it = topicLevels.erase(it);
             } else {
@@ -231,6 +232,10 @@ namespace iot::mqtt::server::broker {
         if (!json.empty()) {
             head.fromJson(json);
         }
+    }
+
+    void SubscribtionTree::clear() {
+        head.clear();
     }
 
     nlohmann::json SubscribtionTree::toJson() const {
