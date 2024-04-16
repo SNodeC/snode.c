@@ -54,9 +54,10 @@ namespace iot::mqtt::server::broker {
         public:
             explicit TopicLevel(iot::mqtt::server::broker::Broker* broker);
 
-            bool retain(const Message& message, std::string topic, bool leafFound);
+            void retain(const Message& message, std::string topic);
+            bool release(std::string topic);
 
-            void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
+            void appear(const std::string& clientId, std::string topic, uint8_t qoS);
 
             TopicLevel& fromJson(const nlohmann::json& json);
             nlohmann::json toJson() const;
@@ -65,7 +66,6 @@ namespace iot::mqtt::server::broker {
 
         private:
             void appear(const std::string& clientId, uint8_t clientQoS);
-            void appear(const std::string& clientId, std::string topic, uint8_t qoS, bool appeared);
 
             Message message;
 

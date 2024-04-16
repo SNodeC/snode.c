@@ -42,11 +42,31 @@ namespace iot::mqtt::server::broker {
     }
 
     void RetainTree::retain(Message&& message) {
-        head.retain(message, message.getTopic(), false);
+        if (!message.getTopic().empty()) {
+            if (!message.getMessage().empty()) {
+                head.retain(message, message.getTopic());
+            } else {
+                head.release(message.getTopic());
+            }
+        }
     }
 
     void RetainTree::appear(const std::string& clientId, const std::string& topic, uint8_t qoS) {
         head.appear(clientId, topic, qoS);
+    }
+
+    void RetainTree::fromJson(const nlohmann::json& json) {
+        if (!json.empty()) {
+            head.fromJson(json);
+        }
+    }
+
+    nlohmann::json RetainTree::toJson() const {
+        return head.toJson();
+    }
+
+    void RetainTree::clear() {
+        head.clear();
     }
 
     RetainTree::TopicLevel::TopicLevel(iot::mqtt::server::broker::Broker* broker)
@@ -66,51 +86,49 @@ namespace iot::mqtt::server::broker {
 
         return *this;
     }
+    void RetainTree::TopicLevel::retain(const Message& message, std::string topic) {
+        if (topic.empty()) {
+            LOG(DEBUG) << "MQTT Broker: Retain:";
+            LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();
+            LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
+            LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
 
-    void RetainTree::fromJson(const nlohmann::json& json) {
-        if (!json.empty()) {
-            head.fromJson(json);
-        }
-    }
-
-    nlohmann::json RetainTree::toJson() const {
-        return head.toJson();
-    }
-
-    void RetainTree::clear() {
-        head.clear();
-    }
-
-    bool RetainTree::TopicLevel::retain(const Message& message, std::string topic, bool leafFound) {
-        if (leafFound) {
-            if (!message.getTopic().empty()) {
-                LOG(DEBUG) << "MQTT Broker: Retaining:";
-                LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();
-                LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
-                LOG(DEBUG) << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
-                this->message = message;
-            }
+            this->message = message;
         } else {
-            const std::string::size_type slashPosition = topic.find('/');
-            const std::string topicLevel = topic.substr(0, slashPosition);
+            const std::string topicLevel = topic.substr(0, topic.find('/'));
 
             topic.erase(0, topicLevel.size() + 1);
 
-            if (subTopicLevels.insert({topicLevel, TopicLevel(broker)})
-                    .first->second.retain(message, topic, slashPosition == std::string::npos)) {
-                subTopicLevels.erase(topicLevel);
+            subTopicLevels.insert({topicLevel, RetainTree::TopicLevel(broker)}).first->second.retain(message, topic);
+        }
+    }
+
+    bool RetainTree::TopicLevel::release(std::string topic) {
+        if (topic.empty()) {
+            LOG(DEBUG) << "MQTT Broker: Release retained:";
+            LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();
+
+            message = Message();
+        } else {
+            const std::string topicLevel = topic.substr(0, topic.find('/'));
+
+            auto&& it = subTopicLevels.find(topicLevel);
+            if (it != subTopicLevels.end()) {
+                topic.erase(0, topicLevel.size() + 1);
+
+                if (it->second.release(topic)) {
+                    LOG(DEBUG) << "               Erase: " << topicLevel;
+
+                    subTopicLevels.erase(it);
+                }
             }
         }
 
-        return this->message.getMessage().empty() && subTopicLevels.empty();
+        return subTopicLevels.empty() && message.getMessage().empty();
     }
 
-    void RetainTree::TopicLevel::appear(const std::string& clientId, const std::string& topic, uint8_t qoS) {
-        appear(clientId, topic, qoS, false);
-    }
-
-    void RetainTree::TopicLevel::appear(const std::string& clientId, std::string topic, uint8_t qoS, bool appeared) {
-        if (appeared) {
+    void RetainTree::TopicLevel::appear(const std::string& clientId, std::string topic, uint8_t qoS) {
+        if (topic.empty()) {
             if (!message.getTopic().empty()) {
                 LOG(DEBUG) << "MQTT Broker: Retained Topic found:";
                 LOG(DEBUG) << "MQTT Broker:   Topic: " << message.getTopic();
@@ -123,18 +141,16 @@ namespace iot::mqtt::server::broker {
                 LOG(DEBUG) << "MQTT Broker:   ... completed!";
             }
         } else {
-            const std::string::size_type slashPosition = topic.find('/');
-            const std::string topicLevel = topic.substr(0, slashPosition);
-            const bool leafFound = slashPosition == std::string::npos;
+            const std::string topicLevel = topic.substr(0, topic.find('/'));
 
             topic.erase(0, topicLevel.size() + 1);
 
             auto foundNode = subTopicLevels.find(topicLevel);
             if (foundNode != subTopicLevels.end()) {
-                foundNode->second.appear(clientId, topic, qoS, leafFound);
+                foundNode->second.appear(clientId, topic, qoS);
             } else if (topicLevel == "+") {
                 for (auto& [notUsed, topicTree] : subTopicLevels) {
-                    topicTree.appear(clientId, topic, qoS, leafFound);
+                    topicTree.appear(clientId, topic, qoS);
                 }
             } else if (topicLevel == "#") {
                 appear(clientId, qoS);
