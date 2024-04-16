@@ -54,7 +54,11 @@ namespace iot::mqtt::server::broker {
         public:
             explicit TopicLevel(iot::mqtt::server::broker::Broker* broker);
 
-            bool retain(const Message& message, std::string topic, bool leafFound);
+            void retain1(const Message& message, std::string topic);
+            void retain(const Message& message, std::string topic);
+            bool release1(std::string topic);
+            void release(std::string topic);
+            //            bool retain(const Message& message, std::string topic, bool leafFound);
 
             void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
 
