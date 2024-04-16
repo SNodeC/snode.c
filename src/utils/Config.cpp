@@ -751,8 +751,8 @@ namespace utils {
                 "Print help message")
             ->take_last()
             ->configurable(false)
-            ->check(CLI::IsMember({"standard", "expanded"}))
-            ->trigger_on_parse();
+            ->check(CLI::IsMember({"standard", "expanded"}));
+        //            ->trigger_on_parse();
 
         return app;
     }
@@ -774,8 +774,8 @@ namespace utils {
                     throw CLI::CallForHelp();
                 },
                 "Print help message")
-            ->configurable(false)
-            ->trigger_on_parse();
+            ->configurable(false);
+        //            ->trigger_on_parse();
 
         return app;
     }
