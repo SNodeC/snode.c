@@ -26,6 +26,8 @@
 
 #include "log/Logger.h"
 
+#include <algorithm>
+#include <functional>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <utility>
@@ -46,15 +48,36 @@ namespace iot::mqtt::server::broker {
     }
 
     bool SubscribtionTree::subscribe(const std::string& topic, const std::string& clientId, uint8_t qoS) {
-        return head.subscribe(clientId, qoS, topic);
+        bool success = false;
+
+        auto hashCount = std::ranges::count(topic, '#');
+        if (!topic.empty() && (hashCount == 0 || (hashCount == 1 && topic.ends_with('#')))) {
+            head.subscribe(clientId, qoS, topic);
+
+            success = true;
+        } else {
+            LOG(DEBUG) << "MQTT Broker: Subscribe: Wrong '#' placement: " << topic;
+        }
+
+        return success;
     }
 
     void SubscribtionTree::publish(Message&& message) {
-        head.publish(message, message.getTopic());
+        auto hashCount = std::ranges::count(message.getTopic(), '#');
+        if (!message.getTopic().empty() && (hashCount == 0 || (hashCount == 1 && message.getTopic().ends_with('#')))) {
+            head.publish(message, message.getTopic());
+        } else {
+            LOG(DEBUG) << "MQTT Broker: Publish: Wrong '#' placement: " << message.getTopic();
+        }
     }
 
     void SubscribtionTree::unsubscribe(const std::string& topic, const std::string& clientId) {
-        head.unsubscribe(clientId, topic);
+        auto hashCount = std::ranges::count(topic, '#');
+        if (!topic.empty() && (hashCount == 0 || (hashCount == 1 && topic.ends_with('#')))) {
+            head.unsubscribe(clientId, topic);
+        } else {
+            LOG(DEBUG) << "MQTT Broker: Unsubscribe: Wrong '#' placement: " << topic;
+        }
     }
 
     void SubscribtionTree::unsubscribe(const std::string& clientId) {
@@ -85,20 +108,16 @@ namespace iot::mqtt::server::broker {
         } else {
             const std::string topicLevel = topic.substr(0, topic.find('/')); // cppcheck-suppress shadowVariable
 
-            if (topicLevel == "#" && !topic.ends_with('#')) {
-                LOG(DEBUG) << "MQTT Broker:   Wrong '#' placement: " << topic;
+            topic.erase(0, topicLevel.size() + 1);
+
+            const auto& [it, inserted] = topicLevels.insert({topicLevel, SubscribtionTree::TopicLevel(broker, topicLevel)});
+
+            if (!it->second.subscribe(clientId, qoS, topic)) {
+                LOG(DEBUG) << "MQTT Broker:   Erase topic: " << topicLevel << " /" << topic;
+
+                topicLevels.erase(it);
             } else {
-                const auto& [it, inserted] = topicLevels.insert({topicLevel, SubscribtionTree::TopicLevel(broker, topicLevel)});
-
-                topic.erase(0, topicLevel.size() + 1);
-
-                if (!it->second.subscribe(clientId, qoS, topic)) {
-                    LOG(DEBUG) << "MQTT Broker:   Erase topic: " << topicLevel << " /" << topic;
-
-                    topicLevels.erase(it);
-                } else {
-                    LOG(DEBUG) << "MQTT Broker:   Topic: " << topicLevel << " /" << topic;
-                }
+                LOG(DEBUG) << "MQTT Broker:   Topic: " << topicLevel << " /" << topic;
             }
         }
 
