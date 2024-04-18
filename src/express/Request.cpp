@@ -65,11 +65,23 @@ namespace express {
     }
 
     const std::string& Request::cookie(const std::string& key) const {
-        return requestBase->cookie(key);
+        const std::map<std::string, std::string>::const_iterator it = cookies.find(key);
+
+        if (it != cookies.end()) {
+            return it->second;
+        }
+
+        return nullstr;
     }
 
     const std::string& Request::query(const std::string& key) const {
-        return requestBase->query(key);
+        const std::map<std::string, std::string>::const_iterator it = queries.find(key);
+
+        if (it != queries.end()) {
+            return it->second;
+        }
+
+        return nullstr;
     }
 
 } // namespace express

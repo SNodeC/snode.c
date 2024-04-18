@@ -79,6 +79,9 @@ namespace express {
         web::http::CiStringMap<std::string> headers;
         web::http::CiStringMap<std::string> cookies;
         std::vector<char> body;
+
+    private:
+        std::string nullstr;
     };
 
 } // namespace express
