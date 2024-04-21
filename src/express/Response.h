@@ -49,10 +49,10 @@ namespace express {
         explicit Response(const std::shared_ptr<web::http::server::Response>& response) noexcept;
 
         explicit Response(Response&) = delete;
-        explicit Response(Response&&) noexcept = default;
+        explicit Response(Response&&) noexcept = delete;
 
         Response& operator=(Response&) = delete;
-        Response& operator=(Response&&) noexcept = default;
+        Response& operator=(Response&&) noexcept = delete;
 
         ~Response();
 

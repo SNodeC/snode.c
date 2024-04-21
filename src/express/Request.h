@@ -44,10 +44,10 @@ namespace express {
         explicit Request(const std::shared_ptr<web::http::server::Request>& request) noexcept;
 
         explicit Request(Request&) = delete;
-        explicit Request(Request&&) noexcept = default;
+        explicit Request(Request&&) noexcept = delete;
 
         Request& operator=(Request&) = delete;
-        Request& operator=(Request&&) noexcept = default;
+        Request& operator=(Request&&) noexcept = delete;
 
         const std::string& param(const std::string& id, const std::string& fallBack = "");
 
