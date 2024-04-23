@@ -91,6 +91,7 @@ namespace iot::mqtt::packets {
 
         return packet;
     }
+
     std::string Connect::getProtocol() const {
         return protocol;
     }

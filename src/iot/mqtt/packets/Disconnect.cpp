@@ -32,4 +32,5 @@ namespace iot::mqtt::packets {
     std::vector<char> Disconnect::serializeVP() const {
         return std::vector<char>();
     }
+
 } // namespace iot::mqtt::packets
