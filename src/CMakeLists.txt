@@ -96,6 +96,7 @@ add_compile_options(
     $<$<CXX_COMPILER_ID:Clang>:-Wno-padded>
     $<$<CXX_COMPILER_ID:Clang>:-Wno-documentation-unknown-command>
     $<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,16.0>>:-Wno-unsafe-buffer-usage>
+    $<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,18.0>>:-Wno-switch-default>
 )
 
 # https://stackoverflow.com/questions/11055569/linking-with-dynamic-library-with-dependencies
