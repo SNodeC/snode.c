@@ -21,9 +21,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <sys/types.h>
 #include <unistd.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

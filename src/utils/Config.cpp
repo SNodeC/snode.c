@@ -40,6 +40,7 @@
 #include <memory>
 #include <pwd.h>
 #include <sstream>
+#include <sys/types.h>
 #include <unistd.h>
 #include <vector>
 

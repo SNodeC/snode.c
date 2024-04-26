@@ -26,6 +26,7 @@
 // IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
 
 namespace iot::mqtt {
+    class ControlPacketDeserializer;
     class Topic;
 
     namespace packets {

@@ -23,8 +23,10 @@
 
 #include "log/Logger.h"
 
+#include <algorithm>
 #include <list>
 #include <openssl/ssl.h>
+#include <variant>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

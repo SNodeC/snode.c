@@ -28,7 +28,6 @@
 #include <cstdlib>
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include <utility>
 
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>

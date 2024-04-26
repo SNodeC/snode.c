@@ -22,16 +22,15 @@
 
 #include "iot/mqtt/Mqtt.h" // IWYU pragma: export
 
-// IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
-
 namespace iot::mqtt {
+    class ControlPacketDeserializer;
+
     namespace packets {
         class Connect;
         class Disconnect;
         class Pingreq;
         class Subscribe;
         class Unsubscribe;
-
     } // namespace packets
 
     namespace server {

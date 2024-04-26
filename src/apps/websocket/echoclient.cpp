@@ -26,9 +26,6 @@
 #include "log/Logger.h"
 
 #include <string>
-#include <utility>
-
-// IWYU pragma: no_include <openssl/ssl3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -25,8 +25,6 @@
 
 #include "utils/Timeval.h"
 
-#include <memory>
-
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfloat-equal"

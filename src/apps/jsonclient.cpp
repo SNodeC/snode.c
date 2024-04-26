@@ -27,7 +27,6 @@
 #include "log/Logger.h"
 
 #include <string>
-#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

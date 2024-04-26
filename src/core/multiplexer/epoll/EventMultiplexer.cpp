@@ -27,7 +27,6 @@
 #include "utils/Timeval.h"
 
 #include <array>
-#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

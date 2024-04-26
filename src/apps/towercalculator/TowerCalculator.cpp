@@ -22,7 +22,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <iostream>
-#include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

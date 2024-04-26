@@ -27,7 +27,6 @@
 
 #include <cstdint>
 #include <functional>
-#include <memory>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
