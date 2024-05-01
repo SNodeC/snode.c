@@ -39,11 +39,8 @@
 #pragma GCC diagnostic pop
 #endif
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 #include <string>
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
@@ -65,7 +62,7 @@ namespace CLI {
 
     class CallForShowConfig : public CLI::Success {
     public:
-        CallForShowConfig(CLI::App* app);
+        explicit CallForShowConfig(CLI::App* app);
         ~CallForShowConfig() override;
 
         CLI::App* getApp() const;
