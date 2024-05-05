@@ -75,7 +75,7 @@ namespace iot::mqtt {
 
             if (json.contains("publish_map")) {
                 for (const auto& publishJson : json["publish_map"]) {
-                    if (publishJson.contains("packet_identifer")) {
+                    if (publishJson.contains("packet_identifier")) {
                         publishMap.emplace(publishJson["packet_identifier"],
                                            iot::mqtt::packets::Publish(publishJson["packet_identifier"],
                                                                        publishJson["topic"],
