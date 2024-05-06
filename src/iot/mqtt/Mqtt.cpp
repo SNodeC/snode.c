@@ -323,7 +323,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::printVP(const iot::mqtt::ControlPacket& packet) const {
-        std::string hexString = toHexString(packet.serializeVP());
+        const std::string hexString = toHexString(packet.serializeVP());
         if (!hexString.empty()) {
             LOG(TRACE) << "MQTT: Received data (variable header and payload):\n" << hexString;
         }
@@ -344,7 +344,7 @@ namespace iot::mqtt {
     }
 
     std::string Mqtt::toHexString(const std::vector<char>& data) {
-        std::string hexDump = utils::hexDump(data, 32);
+        const std::string hexDump = utils::hexDump(data, 32);
         return !hexDump.empty() ? std::string(32, ' ').append(hexDump) : "";
     }
 
