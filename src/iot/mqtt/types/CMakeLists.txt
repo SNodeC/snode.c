@@ -22,9 +22,7 @@ set(MQTT_TYPES_CPP
     StringRaw.cpp
     UInt16.cpp
     UInt32.cpp
-    UInt64.cpp
     UInt8.cpp
-    UInt8List.cpp
     UIntV.cpp
 )
 set(MQTT_TYPES_H
@@ -34,9 +32,7 @@ set(MQTT_TYPES_H
     TypeBase.hpp
     UInt16.h
     UInt32.h
-    UInt64.h
     UInt8.h
-    UInt8List.h
     UIntV.h
 )
 
