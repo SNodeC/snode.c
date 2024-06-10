@@ -82,8 +82,6 @@ namespace core::socket::stream::tls {
                     X509_NAME_oneline(X509_get_issuer_name(curr_cert), buf, 256);
                     LOG(TRACE) << "  SSL/TLS: No issuer certificate for issuer= " << buf;
                     break;
-                default:
-                    break;
             }
         }
 

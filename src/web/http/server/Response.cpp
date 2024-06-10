@@ -305,7 +305,7 @@ namespace web::http::server {
                 socketContext->sendToPeer(std::string(field).append(": ").append(value).append("\r\n"));
             }
 
-            for (const auto& [cookie, cookieValue] : cookies) { // cppcheck-suppress shadowFunction
+            for (const auto& [cookie, cookieValue] : cookies) {
                 const std::string cookieString = std::accumulate(
                     cookieValue.getOptions().begin(),
                     cookieValue.getOptions().end(),

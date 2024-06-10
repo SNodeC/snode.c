@@ -92,7 +92,7 @@ namespace iot::mqtt::server::broker {
             broker->appear(clientId, topic, clientIds[clientId]);
         }
 
-        for (auto& [topicLevel, subscribtion] : topicLevels) { // cppcheck-suppress shadowVariable
+        for (auto& [topicLevel, subscribtion] : topicLevels) {
             subscribtion.appear(clientId, std::string(topic).append(topic.empty() ? "" : "/").append(topicLevel));
         }
     }
@@ -104,7 +104,7 @@ namespace iot::mqtt::server::broker {
 
             clientIds[clientId] = qoS;
         } else {
-            const std::string topicLevel = topic.substr(0, topic.find('/')); // cppcheck-suppress shadowVariable
+            const std::string topicLevel = topic.substr(0, topic.find('/'));
 
             topic.erase(0, topicLevel.size() + 1);
 
@@ -149,7 +149,7 @@ namespace iot::mqtt::server::broker {
                 LOG(DEBUG) << "MQTT Broker:   ... completed!";
             }
         } else {
-            const std::string topicLevel = topic.substr(0, topic.find('/')); // cppcheck-suppress shadowVariable
+            const std::string topicLevel = topic.substr(0, topic.find('/'));
 
             topic.erase(0, topicLevel.size() + 1);
 
@@ -187,7 +187,7 @@ namespace iot::mqtt::server::broker {
                 LOG(DEBUG) << "MQTT Broker:   Topic: " << topicLevel;
             }
         } else {
-            const std::string topicLevel = topic.substr(0, topic.find('/')); // cppcheck-suppress shadowVariable
+            const std::string topicLevel = topic.substr(0, topic.find('/'));
 
             auto&& it = topicLevels.find(topicLevel);
             if (it != topicLevels.end()) {
@@ -227,7 +227,7 @@ namespace iot::mqtt::server::broker {
     nlohmann::json SubscribtionTree::TopicLevel::toJson() const {
         nlohmann::json json;
 
-        for (const auto& [topicLevelName, topicLevel] : topicLevels) { // cppcheck-suppress shadowVariable
+        for (const auto& [topicLevelName, topicLevel] : topicLevels) {
             json["topic_filter"][topicLevelName] = topicLevel.toJson();
         }
 

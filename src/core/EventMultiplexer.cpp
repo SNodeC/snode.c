@@ -159,8 +159,7 @@ namespace core {
 
         if (eventQueue.empty()) {
             for (const DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-                nextTimeout = // cppcheck-suppress useStlAlgorithm
-                    std::min(descriptorEventPublisher->getNextTimeout(currentTime), nextTimeout);
+                nextTimeout = std::min(descriptorEventPublisher->getNextTimeout(currentTime), nextTimeout);
             }
             nextTimeout = std::min(timerEventPublisher->getNextTimeout(currentTime), nextTimeout);
             nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextTimeout is negative
@@ -203,8 +202,8 @@ namespace core {
         publishQueue->push_back(event); // do not allow two or more same events in one tick
     }
 
-    void EventMultiplexer::EventQueue::remove(Event* event) { // cppcheck-suppress constParameterPointer
-        publishQueue->remove(event);                          // in case of erase remove the event from the published queue
+    void EventMultiplexer::EventQueue::remove(Event* event) {
+        publishQueue->remove(event); // in case of erase remove the event from the published queue
     }
 
     void EventMultiplexer::EventQueue::execute(const utils::Timeval& currentTime) {
