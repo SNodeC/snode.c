@@ -17,13 +17,8 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(MQTT_TYPES_CPP
-    String.cpp
-    StringRaw.cpp
-    UInt16.cpp
-    UInt32.cpp
-    UInt8.cpp
-    UIntV.cpp
+set(MQTT_TYPES_CPP String.cpp StringRaw.cpp UInt16.cpp UInt32.cpp UInt8.cpp
+                   UIntV.cpp
 )
 set(MQTT_TYPES_H
     String.h

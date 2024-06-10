@@ -104,7 +104,9 @@ append_source_file_config(
 append_source_file_config(
     config/ConfigPhysicalSocketServer.cpp ACCEPTS_PER_TICK "Accepts per tick" 1
 )
-append_source_file_config(config/ConfigPhysicalSocketServer.cpp BACKLOG "Listen backlog" 5)
+append_source_file_config(
+    config/ConfigPhysicalSocketServer.cpp BACKLOG "Listen backlog" 5
+)
 
 append_source_file_config(
     config/ConfigPhysicalSocket.cpp REUSE_ADDRESS "Reuse address" false
