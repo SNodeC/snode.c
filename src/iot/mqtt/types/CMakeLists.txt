@@ -21,7 +21,9 @@ set(MQTT_TYPES_CPP String.cpp StringRaw.cpp UInt16.cpp UInt32.cpp UInt8.cpp
                    UIntV.cpp
 )
 set(MQTT_TYPES_H
+    BinaryData.h
     String.h
+    StringPair.h
     StringRaw.h
     TypeBase.h
     TypeBase.hpp

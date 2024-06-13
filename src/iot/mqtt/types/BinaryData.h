@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_TYPES_STRING_H
-#define IOT_MQTT_TYPES_STRING_H
+#ifndef IOT_MQTT_TYPES_BINARYDATA_H
+#define IOT_MQTT_TYPES_BINARYDATA_H
 
 #include "iot/mqtt/types/TypeBase.h"
 #include "iot/mqtt/types/UInt16.h"
@@ -30,42 +30,40 @@ namespace iot::mqtt {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <string>
 #include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt::types {
 
-    class String : public TypeBase<std::string> {
+    class BinaryData : public TypeBase<std::vector<char>> {
     public:
-        String();
-        explicit String(const std::string& value);
-        String(const String&) = default;
-        String(String&&) noexcept = default;
+        BinaryData();
+        BinaryData(const BinaryData&) = default;
+        BinaryData(BinaryData&&) noexcept = default;
 
-        ~String() override;
+        ~BinaryData() override;
 
-        String& operator=(const String&) = default;
-        String& operator=(String&&) noexcept = default;
+        BinaryData& operator=(const BinaryData&) = default;
+        BinaryData& operator=(BinaryData&&) noexcept = default;
 
         std::size_t deserialize(iot::mqtt::MqttContext* mqttContext) override;
         std::vector<char> serialize() const override;
 
-        String& operator=(const std::string& newValue);
-        operator std::string() const;
+        BinaryData& operator=(const std::vector<char>& newValue);
+        operator std::vector<char>() const;
 
-        bool operator==(const std::string& rhsValue) const;
-        bool operator!=(const std::string& rhsValue) const;
+        bool operator==(const std::vector<char>& rhsValue) const;
+        bool operator!=(const std::vector<char>& rhsValue) const;
 
         void reset(std::size_t size = 0) override;
 
     private:
-        UInt16 stringLength;
+        UInt16 valueLength;
     };
 
-    extern template class TypeBase<std::string>;
+    extern template class TypeBase<std::vector<char>>;
 
 } // namespace iot::mqtt::types
 
-#endif // IOT_MQTT_TYPES_STRING_H
+#endif // IOT_MQTT_TYPES_BINARYDATA_H

@@ -22,8 +22,6 @@
 
 #include "iot/mqtt/types/TypeBase.h"
 
-// IWYU pragma: no_include "iot/mqtt/types/TypeBase.hpp"
-
 namespace iot::mqtt {
     class MqttContext;
 }

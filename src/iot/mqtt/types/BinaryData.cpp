@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "iot/mqtt/types/String.h"
+#include "iot/mqtt/types/BinaryData.h"
 
 #include "iot/mqtt/types/TypeBase.hpp"
 
@@ -29,29 +29,24 @@
 
 namespace iot::mqtt::types {
 
-    String::String()
+    BinaryData::BinaryData()
         : TypeBase(0) {
     }
 
-    String::String(const std::string& value) {
-        this->value = std::vector<char>(value.begin(), value.end());
-        stringLength = static_cast<uint16_t>(value.size());
+    BinaryData::~BinaryData() {
     }
 
-    String::~String() {
-    }
-
-    std::size_t String::deserialize(MqttContext* mqttContext) {
+    std::size_t BinaryData::deserialize(MqttContext* mqttContext) {
         std::size_t consumed = 0;
 
         switch (state) {
             case 0:
-                consumed = stringLength.deserialize(mqttContext);
-                if (!stringLength.isComplete()) {
+                consumed = valueLength.deserialize(mqttContext);
+                if (!valueLength.isComplete()) {
                     break;
                 }
 
-                setSize(stringLength);
+                setSize(valueLength);
                 state++;
                 [[fallthrough]];
             case 1:
@@ -59,51 +54,42 @@ namespace iot::mqtt::types {
                 break;
         }
 
-        // MUST close
-        // Check for UTF-16 (U+D800 - U+DFFF) surrogates
-        // Check for U+0000 in string
-
-        // MAY close
-        // Check for U+0001 - U+001F
-        // Check for U+007F - U+009F
-        // Check for non-characters
-
         return consumed;
     }
 
-    std::vector<char> String::serialize() const {
-        std::vector<char> returnVector = stringLength.serialize();
+    std::vector<char> BinaryData::serialize() const {
+        std::vector<char> returnVector = valueLength.serialize();
         returnVector.insert(returnVector.end(), value.begin(), value.end());
 
         return returnVector;
     }
 
-    String& String::operator=(const std::string& newValue) {
-        value = std::vector<char>(newValue.begin(), newValue.end());
-        stringLength = static_cast<uint16_t>(value.size());
+    BinaryData& BinaryData::operator=(const std::vector<char>& newValue) {
+        value = newValue;
+        valueLength = static_cast<uint16_t>(value.size());
 
         return *this;
     }
 
-    String::operator std::string() const {
-        return std::string(value.begin(), value.end());
+    BinaryData::operator std::vector<char>() const {
+        return value;
     }
 
-    bool String::operator==(const std::string& rhsValue) const {
-        return static_cast<std::string>(*this) == rhsValue;
+    bool BinaryData::operator==(const std::vector<char>& rhsValue) const {
+        return static_cast<std::vector<char>>(*this) == rhsValue;
     }
 
-    bool String::operator!=(const std::string& rhsValue) const {
-        return static_cast<std::string>(*this) != rhsValue;
+    bool BinaryData::operator!=(const std::vector<char>& rhsValue) const {
+        return static_cast<std::vector<char>>(*this) != rhsValue;
     }
 
-    void String::reset([[maybe_unused]] std::size_t size) {
-        stringLength.reset();
+    void BinaryData::reset([[maybe_unused]] std::size_t size) {
+        valueLength.reset();
         TypeBase::reset(0);
 
         state = 0;
     }
 
-    template class TypeBase<std::string>;
+    template class TypeBase<std::vector<char>>;
 
 } // namespace iot::mqtt::types

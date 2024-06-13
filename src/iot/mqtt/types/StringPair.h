@@ -1,5 +1,5 @@
 /*
- * SNode.C - a slim toolkit for network communication
+ * snode.c - a slim toolkit for network communication
  * Copyright (C) Volker Christian <me@vchrist.at>
  *               2020, 2021, 2022, 2023, 2024
  *
@@ -17,11 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IOT_MQTT_TYPES_STRING_H
-#define IOT_MQTT_TYPES_STRING_H
+#ifndef IOT_MQTT_TYPES_STRINGPAIR_H
+#define IOT_MQTT_TYPES_STRINGPAIR_H
 
+#include "iot/mqtt/types/String.h"
 #include "iot/mqtt/types/TypeBase.h"
-#include "iot/mqtt/types/UInt16.h"
 
 namespace iot::mqtt {
     class MqttContext;
@@ -37,35 +37,34 @@ namespace iot::mqtt {
 
 namespace iot::mqtt::types {
 
-    class String : public TypeBase<std::string> {
+    class StringPair : public TypeBase<std::vector<char>> {
     public:
-        String();
-        explicit String(const std::string& value);
-        String(const String&) = default;
-        String(String&&) noexcept = default;
+        StringPair();
+        StringPair(const std::string& name, const std::string& value);
 
-        ~String() override;
+        StringPair(const StringPair&) = default;
 
-        String& operator=(const String&) = default;
-        String& operator=(String&&) noexcept = default;
+        ~StringPair() override;
+
+        StringPair& operator=(const StringPair&) = default;
+        StringPair& operator=(StringPair&&) noexcept = default;
 
         std::size_t deserialize(iot::mqtt::MqttContext* mqttContext) override;
         std::vector<char> serialize() const override;
 
-        String& operator=(const std::string& newValue);
+        StringPair& operator=(const std::string& newValue);
         operator std::string() const;
 
-        bool operator==(const std::string& rhsValue) const;
-        bool operator!=(const std::string& rhsValue) const;
+        bool operator==(const StringPair& rhsValue) const;
+        bool operator!=(const StringPair& rhsValue) const;
 
         void reset(std::size_t size = 0) override;
 
     private:
-        UInt16 stringLength;
+        iot::mqtt::types::String name;
+        iot::mqtt::types::String value;
     };
-
-    extern template class TypeBase<std::string>;
 
 } // namespace iot::mqtt::types
 
-#endif // IOT_MQTT_TYPES_STRING_H
+#endif // IOT_MQTT_TYPES_STRINGPAIR_H
