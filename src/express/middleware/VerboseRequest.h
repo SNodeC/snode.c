@@ -44,7 +44,7 @@ namespace express::middleware {
         VerboseRequest& operator=(const VerboseRequest&) = delete;
 
     protected:
-        explicit VerboseRequest(Details detauls);
+        explicit VerboseRequest(Details details);
 
     private:
         friend class VerboseRequest& VerboseRequest(VerboseRequest::Details details);

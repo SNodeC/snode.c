@@ -45,7 +45,7 @@ namespace iot::mqtt::server::packets {
         Pingreq(uint32_t remainingLength, uint8_t flags);
 
     private:
-        std::size_t deserializeVP(iot::mqtt::MqttContext* socketContext) override;
+        std::size_t deserializeVP(iot::mqtt::MqttContext* mqttContext) override;
         void deliverPacket(iot::mqtt::server::Mqtt* mqtt) override;
     };
 

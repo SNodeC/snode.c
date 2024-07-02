@@ -64,7 +64,7 @@ namespace httputils {
 
     std::string url_encode(const std::string& text) {
         std::ostringstream escaped;
-        escaped.fill('0');
+        escaped.fill('0'); // cppcheck-suppress ignoredReturnValue
         escaped << std::hex;
 
         for (const char c : text) {
