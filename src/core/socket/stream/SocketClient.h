@@ -275,7 +275,6 @@ namespace core::socket::stream {
     private:
         const std::shared_ptr<SocketContextFactory> socketContextFactory;
 
-    protected:
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;

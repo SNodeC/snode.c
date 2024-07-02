@@ -267,12 +267,10 @@ namespace core::socket::stream {
     private:
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
-    protected:
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
 
-    private:
         std::size_t totalOk = 0;
         std::size_t currentOk = 0;
         std::size_t currentError = 0;
