@@ -17,6 +17,17 @@
 
 cmake_minimum_required(VERSION 3.18)
 
+set(IO_MULTIPLEXERS "epoll;poll;select")
+if("${IO_MULTIPLEXER}" STREQUAL "")
+    list(SUBLIST IO_MULTIPLEXERS 0 1 IO_MULTIPLEXER)
+endif("${IO_MULTIPLEXER}" STREQUAL "")
+set(SNODEC_IO_MULTIPLEXER
+    ${IO_MULTIPLEXER}
+    CACHE STRING "I/O-Multiplexer to use"
+)
+set_property(CACHE SNODEC_IO_MULTIPLEXER PROPERTY STRINGS ${IO_MULTIPLEXERS})
+message(STATUS "I/O-Multiplexer selected: '${SNODEC_IO_MULTIPLEXER}'")
+
 add_subdirectory(multiplexer)
 
 set(CORE_CPP
