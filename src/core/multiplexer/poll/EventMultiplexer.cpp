@@ -126,10 +126,18 @@ namespace core::poll {
     }
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(
-              new core::poll::DescriptorEventPublisher("READ", pollFdsManager, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
-              new core::poll::DescriptorEventPublisher("WRITE", pollFdsManager, POLLOUT, POLLOUT),
-              new core::poll::DescriptorEventPublisher("EXCEPT", pollFdsManager, POLLPRI, POLLPRI)) {
+        : core::EventMultiplexer(new core::poll::DescriptorEventPublisher("READ", //
+                                                                          pollFdsManager,
+                                                                          POLLIN,
+                                                                          POLLIN | POLLHUP | POLLRDHUP | POLLERR),
+                                 new core::poll::DescriptorEventPublisher("WRITE", //
+                                                                          pollFdsManager,
+                                                                          POLLOUT,
+                                                                          POLLOUT),
+                                 new core::poll::DescriptorEventPublisher("EXCEPT", //
+                                                                          pollFdsManager,
+                                                                          POLLPRI,
+                                                                          POLLPRI)) {
         LOG(DEBUG) << "Core::multiplexer: poll";
     }
 

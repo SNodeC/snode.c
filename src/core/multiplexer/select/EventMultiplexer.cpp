@@ -38,9 +38,12 @@ core::EventMultiplexer& EventMultiplexer() {
 namespace core::select {
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::select::DescriptorEventPublisher("READ", fdSets[core::EventMultiplexer::DISP_TYPE::RD]),
-                                 new core::select::DescriptorEventPublisher("WRITE", fdSets[core::EventMultiplexer::DISP_TYPE::WR]),
-                                 new core::select::DescriptorEventPublisher("EXCEPT", fdSets[core::EventMultiplexer::DISP_TYPE::EX])) {
+        : core::EventMultiplexer(new core::select::DescriptorEventPublisher("READ", //
+                                                                            fdSets[core::EventMultiplexer::DISP_TYPE::RD]),
+                                 new core::select::DescriptorEventPublisher("WRITE", //
+                                                                            fdSets[core::EventMultiplexer::DISP_TYPE::WR]),
+                                 new core::select::DescriptorEventPublisher("EXCEPT", //
+                                                                            fdSets[core::EventMultiplexer::DISP_TYPE::EX])) {
         LOG(DEBUG) << "Core::multiplexer: select";
     }
 
