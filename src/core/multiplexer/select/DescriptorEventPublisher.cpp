@@ -90,7 +90,7 @@ namespace core::select {
     }
 
     void DescriptorEventPublisher::spanActiveEvents() {
-        for (auto& [fd, eventReceivers] : observedEventReceivers) {
+        for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             if (fdSet.isSet(fd) != 0) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();
                 eventCounter++;

@@ -71,18 +71,17 @@ namespace core {
         const std::string& getName() const;
 
     protected:
+        std::map<int, std::list<DescriptorEventReceiver*>> observedEventReceiverLists;
+        unsigned long eventCounter = 0;
+
+    private:
         virtual void muxAdd(DescriptorEventReceiver* descriptorEventReceiver) = 0;
         virtual void muxDel(int fd) = 0;
         virtual void muxOn(DescriptorEventReceiver* descriptorEventReceiver) = 0;
         virtual void muxOff(DescriptorEventReceiver* descriptorEventReceiver) = 0;
 
-        unsigned long eventCounter = 0;
-
-        std::map<int, std::list<DescriptorEventReceiver*>> observedEventReceivers;
-        std::map<std::list<DescriptorEventReceiver*>*, std::list<DescriptorEventReceiver*>> dirtyEventReceiverListMap;
-
-    private:
         std::string name;
+        std::map<std::list<DescriptorEventReceiver*>*, std::list<DescriptorEventReceiver*>> dirtyEventReceiverLists;
     };
 
 } // namespace core

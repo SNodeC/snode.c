@@ -60,7 +60,7 @@ namespace core::poll {
 
         const std::unordered_map<int, PollFdsManager::PollFdIndex>& pollFdsIndices = pollFds.getPollFdIndices();
 
-        for (auto& [fd, eventReceivers] : observedEventReceivers) {
+        for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             const pollfd& pollFd = pollfds[pollFdsIndices.find(fd)->second.index];
 
             if ((pollFd.events & events) != 0 && (pollFd.revents & revents) != 0) {

@@ -42,7 +42,8 @@ namespace core {
 
     void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
         const int fd = descriptorEventReceiver->getRegisteredFd();
-        observedEventReceivers[fd].push_front(descriptorEventReceiver);
+
+        observedEventReceiverLists[fd].push_front(descriptorEventReceiver);
         muxAdd(descriptorEventReceiver);
         if (descriptorEventReceiver->isSuspended()) {
             muxOff(descriptorEventReceiver);
@@ -51,7 +52,9 @@ namespace core {
     }
 
     void DescriptorEventPublisher::disable(DescriptorEventReceiver* descriptorEventReceiver) {
-        dirtyEventReceiverListMap[&observedEventReceivers[descriptorEventReceiver->getRegisteredFd()]].push_back(descriptorEventReceiver);
+        const int fd = descriptorEventReceiver->getRegisteredFd();
+
+        dirtyEventReceiverLists[&observedEventReceiverLists[fd]].push_back(descriptorEventReceiver);
     }
 
     void DescriptorEventPublisher::suspend(DescriptorEventReceiver* descriptorEventReceiver) {
@@ -63,21 +66,21 @@ namespace core {
     }
 
     void DescriptorEventPublisher::checkTimedOutEvents(const utils::Timeval& currentTime) {
-        for (auto& [fd, eventReceivers] : observedEventReceivers) {
+        for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             eventReceivers.front()->checkTimeout(currentTime);
         }
     }
 
     void DescriptorEventPublisher::releaseDisabledEvents(const utils::Timeval& currentTime) {
-        for (auto& [dirtyDescriptEventReceiverList, disabledDescriptorEventReceiverList] : dirtyEventReceiverListMap) {
-            for (DescriptorEventReceiver* disabledDescriptorEventReceiver : disabledDescriptorEventReceiverList) {
+        for (auto& [dirtyDescriptEventReceiverList, disabledDescriptorEventReceivers] : dirtyEventReceiverLists) {
+            for (DescriptorEventReceiver* disabledDescriptorEventReceiver : disabledDescriptorEventReceivers) {
                 dirtyDescriptEventReceiverList->remove(disabledDescriptorEventReceiver);
 
                 if (dirtyDescriptEventReceiverList->empty()) {
                     const int fd = disabledDescriptorEventReceiver->getRegisteredFd();
 
                     muxDel(fd);
-                    observedEventReceivers.erase(fd);
+                    observedEventReceiverLists.erase(fd);
                 } else {
                     DescriptorEventReceiver* activeDescriptorEventReceiver = dirtyDescriptEventReceiverList->front();
 
@@ -93,18 +96,18 @@ namespace core {
             }
         }
 
-        dirtyEventReceiverListMap.clear();
+        dirtyEventReceiverLists.clear();
     }
 
     int DescriptorEventPublisher::getObservedEventReceiverCount() const {
-        return static_cast<int>(observedEventReceivers.size());
+        return static_cast<int>(observedEventReceiverLists.size());
     }
 
     int DescriptorEventPublisher::maxFd() const {
         int maxFd = -1;
 
-        if (!observedEventReceivers.empty()) {
-            maxFd = observedEventReceivers.rbegin()->first;
+        if (!observedEventReceiverLists.empty()) {
+            maxFd = observedEventReceiverLists.rbegin()->first;
         }
 
         return maxFd;
@@ -113,8 +116,8 @@ namespace core {
     utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) const {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
-        if (dirtyEventReceiverListMap.empty()) {
-            for (const auto& [fd, eventReceivers] : observedEventReceivers) {
+        if (dirtyEventReceiverLists.empty()) {
+            for (const auto& [fd, eventReceivers] : observedEventReceiverLists) {
                 nextTimeout = std::min(eventReceivers.front()->getTimeout(currentTime), nextTimeout);
             }
         } else {
@@ -125,7 +128,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::signal(int sigNum) {
-        for (auto& [fd, eventReceivers] : observedEventReceivers) {
+        for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 eventReceiver->onSignal(sigNum);
             }
@@ -133,7 +136,7 @@ namespace core {
     }
 
     void DescriptorEventPublisher::disable() {
-        for (auto& [fd, eventReceivers] : observedEventReceivers) {
+        for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 eventReceiver->disable();
             }
