@@ -30,8 +30,6 @@ namespace core::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::client {
@@ -56,8 +54,6 @@ namespace web::http::client {
 
     private:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
-            VLOG(0) << "PipelinedRequests: " << configHttp.getPipelinedRequests();
-
             return new web::http::client::SocketContext(socketConnection, onRequestBegin, onRequestEnd, configHttp.getPipelinedRequests());
         }
 
