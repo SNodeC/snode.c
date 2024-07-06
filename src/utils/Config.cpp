@@ -332,7 +332,7 @@ namespace utils {
             proceed = parse1(); // for stopDaemon and pre init application options
 
             app->set_version_flag("--version", "1.0-rc1", "Framework version");
-            add_help_flags(app.get());
+            add_help(app.get());
         }
 
         return proceed;
@@ -733,7 +733,7 @@ namespace utils {
         return app;
     }
 
-    CLI::App* Config::add_help_flags(CLI::App* app) {
+    CLI::App* Config::add_help(CLI::App* app) {
         app //
             ->set_help_flag();
 
@@ -759,7 +759,7 @@ namespace utils {
         return app;
     }
 
-    CLI::App* Config::add_help_with_flag(CLI::App* app) {
+    CLI::App* Config::add_help_with_flags(CLI::App* app) {
         app //
             ->set_help_flag();
 

@@ -62,7 +62,7 @@ namespace net::config {
                                                  "Instances");
 
         utils::Config::add_standard_flags(instanceSc);
-        utils::Config::add_help_flags(instanceSc);
+        utils::Config::add_help(instanceSc);
 
         disableOpt = instanceSc
                          ->add_flag_function(
@@ -110,7 +110,7 @@ namespace net::config {
 
         if (!sectionSc->get_disabled()) {
             utils::Config::add_standard_flags(sectionSc);
-            utils::Config::add_help_with_flag(sectionSc);
+            utils::Config::add_help_with_flags(sectionSc);
         }
 
         return sectionSc;
