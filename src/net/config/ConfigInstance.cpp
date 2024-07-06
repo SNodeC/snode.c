@@ -110,7 +110,7 @@ namespace net::config {
 
         if (!sectionSc->get_disabled()) {
             utils::Config::add_standard_flags(sectionSc);
-            utils::Config::add_help_flag(sectionSc);
+            utils::Config::add_help_with_flag(sectionSc);
         }
 
         return sectionSc;

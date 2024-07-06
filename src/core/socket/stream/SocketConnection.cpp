@@ -47,7 +47,7 @@ namespace core::socket::stream {
             this->socketContext = socketContext;
             socketContext->onConnected();
         } else {
-            LOG(TRACE) << "SocketConnection: Set socket context unsuccessful: new socket context not created";
+            LOG(TRACE) << "SocketConnection: Set socket context unsuccessful: no new SocketContext";
         }
     }
 
@@ -72,7 +72,7 @@ namespace core::socket::stream {
     }
 
     void SocketConnection::connectSocketContext(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory) {
-        SocketContext* socketContext = socketContextFactory->create(this);
+        SocketContext* socketContext = socketContextFactory->create(this); // cppcheck-suppress shadowVariable
 
         if (socketContext != nullptr) {
             setSocketContext(socketContext);

@@ -685,12 +685,13 @@ namespace utils {
     }
 
     CLI::App* Config::add_standard_flags(CLI::App* app) {
-        app->add_flag_callback( //
-               "-s,--show-config",
-               [app]() {
-                   throw CLI::CallForShowConfig(app);
-               },
-               "Show current configuration and exit") //
+        app //
+            ->add_flag_callback(
+                "-s,--show-config",
+                [app]() {
+                    throw CLI::CallForShowConfig(app);
+                },
+                "Show current configuration and exit") //
             ->configurable(false)
             ->disable_flag_override();
 
@@ -758,7 +759,7 @@ namespace utils {
         return app;
     }
 
-    CLI::App* Config::add_help_flag(CLI::App* app) {
+    CLI::App* Config::add_help_with_flag(CLI::App* app) {
         app //
             ->set_help_flag();
 

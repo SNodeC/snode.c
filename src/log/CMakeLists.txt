@@ -86,8 +86,6 @@ install(
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "cmake" EXCLUDE
-    PATTERN "downloads" EXCLUDE
-    PATTERN "easyloggingpp" EXCLUDE
 )
 
 install(

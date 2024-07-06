@@ -55,7 +55,7 @@ namespace utils {
         static void disabled(CLI::App* instance, bool disabled = true);
 
         static CLI::App* add_standard_flags(CLI::App* app);
-        static CLI::App* add_help_flag(CLI::App* app);
+        static CLI::App* add_help_with_flag(CLI::App* app);
         static CLI::App* add_help_flags(CLI::App* app);
 
         static std::string getApplicationName();
