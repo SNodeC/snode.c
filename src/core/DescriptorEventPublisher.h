@@ -79,10 +79,9 @@ namespace core {
         unsigned long eventCounter = 0;
 
         std::map<int, std::list<DescriptorEventReceiver*>> observedEventReceivers;
+        std::map<std::list<DescriptorEventReceiver*>*, std::list<DescriptorEventReceiver*>> dirtyEventReceiverListMap;
 
     private:
-        bool observedEventReceiversDirty = false;
-
         std::string name;
     };
 

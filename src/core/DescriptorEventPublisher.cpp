@@ -50,8 +50,8 @@ namespace core {
         descriptorEventReceiver->setEnabled(utils::Timeval::currentTime());
     }
 
-    void DescriptorEventPublisher::disable([[maybe_unused]] DescriptorEventReceiver* descriptorEventReceiver) {
-        observedEventReceiversDirty = true;
+    void DescriptorEventPublisher::disable(DescriptorEventReceiver* descriptorEventReceiver) {
+        dirtyEventReceiverListMap[&observedEventReceivers[descriptorEventReceiver->getRegisteredFd()]].push_back(descriptorEventReceiver);
     }
 
     void DescriptorEventPublisher::suspend(DescriptorEventReceiver* descriptorEventReceiver) {
@@ -69,35 +69,31 @@ namespace core {
     }
 
     void DescriptorEventPublisher::releaseDisabledEvents(const utils::Timeval& currentTime) {
-        if (observedEventReceiversDirty) {
-            observedEventReceiversDirty = false;
+        for (auto& [dirtyDescriptEventReceiverList, disabledDescriptorEventReceiverList] : dirtyEventReceiverListMap) {
+            for (DescriptorEventReceiver* disabledDescriptorEventReceiver : disabledDescriptorEventReceiverList) {
+                dirtyDescriptEventReceiverList->remove(disabledDescriptorEventReceiver);
 
-            for (auto& [fd, observedEventReceiverList] : observedEventReceivers) {
-                if (std::erase_if(observedEventReceiverList, [](DescriptorEventReceiver* descriptorEventReceiver) -> bool {
-                        const bool isDisabled = !descriptorEventReceiver->isEnabled();
-                        if (isDisabled) {
-                            descriptorEventReceiver->setDisabled();
-                        }
-                        return isDisabled;
-                    }) > 0) {
-                    if (observedEventReceiverList.empty()) {
-                        muxDel(fd);
+                if (dirtyDescriptEventReceiverList->empty()) {
+                    const int fd = disabledDescriptorEventReceiver->getRegisteredFd();
+
+                    muxDel(fd);
+                    observedEventReceivers.erase(fd);
+                } else {
+                    DescriptorEventReceiver* activeDescriptorEventReceiver = dirtyDescriptEventReceiverList->front();
+
+                    activeDescriptorEventReceiver->triggered(currentTime);
+                    if (!activeDescriptorEventReceiver->isSuspended()) {
+                        muxOn(activeDescriptorEventReceiver);
                     } else {
-                        DescriptorEventReceiver* activeDescriptorEventReceiver = observedEventReceiverList.front();
-                        activeDescriptorEventReceiver->triggered(currentTime);
-                        if (!activeDescriptorEventReceiver->isSuspended()) {
-                            muxOn(activeDescriptorEventReceiver);
-                        } else {
-                            muxOff(activeDescriptorEventReceiver);
-                        }
+                        muxOff(activeDescriptorEventReceiver);
                     }
                 }
-            }
 
-            std::erase_if(observedEventReceivers, [](const auto& observedEventReceiversEntry) -> bool {
-                return observedEventReceiversEntry.second.empty();
-            });
+                disabledDescriptorEventReceiver->setDisabled();
+            }
         }
+
+        dirtyEventReceiverListMap.clear();
     }
 
     int DescriptorEventPublisher::getObservedEventReceiverCount() const {
@@ -117,7 +113,7 @@ namespace core {
     utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) const {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
-        if (!observedEventReceiversDirty) {
+        if (dirtyEventReceiverListMap.empty()) {
             for (const auto& [fd, eventReceivers] : observedEventReceivers) {
                 nextTimeout = std::min(eventReceivers.front()->getTimeout(currentTime), nextTimeout);
             }
