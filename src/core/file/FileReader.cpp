@@ -64,14 +64,12 @@ namespace core::file {
                         this->error(errno);
                     }
                     span();
+                } else if (ret == 0) {
+                    this->eof();
+                    delete this;
                 } else {
-                    if (ret == 0) {
-                        this->eof();
-                        delete this;
-                    } else {
-                        this->error(errno);
-                        delete this;
-                    }
+                    this->error(errno);
+                    delete this;
                 }
             }
         } else {
