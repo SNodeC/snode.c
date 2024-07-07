@@ -42,8 +42,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-static void logResponse([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& req,
-                        const std::shared_ptr<web::http::client::Response>& res) {
+static void logResponse(const std::shared_ptr<web::http::client::Request>& req, const std::shared_ptr<web::http::client::Response>& res) {
     LOG(INFO) << "-- OnResponse";
     LOG(INFO) << "   Request: " << req->method << " " << req->url << " HTTP/" << req->httpMajor << "." << req->httpMinor << "\n"
               << httputils::toString(req->method,
@@ -222,7 +221,6 @@ namespace apps::http::legacy {
                                     req->url = "/";
                                     req->set("Connection", "close");
                                     req->set("Test", "ccc");
-                                    req->set("Trailer", "Hallodu");
                                     req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
                                         logResponse(req, res);
                                     });
