@@ -44,7 +44,7 @@
 using namespace express;
 
 Router router(database::mariadb::MariaDBClient& db) {
-    Router router;
+    const Router router;
 
     router.get("/test/:variable(\\d)/:uri", [] APPLICATION(req, res) { // http://localhost:8080/test/1/urlstring
         std::cout << "TEST" << std::endl;
