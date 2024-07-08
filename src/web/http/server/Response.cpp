@@ -208,9 +208,7 @@ namespace web::http::server {
 !include web/http/server/pu/response_upgrade.pu
 @enduml
      */
-    void Response::upgrade(const std::shared_ptr<Request>& request,
-                           const std::function<void(bool)>& status,
-                           const std::function<void()>& response) {
+    void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool)>& status) {
         bool success = false;
 
         if (socketContext != nullptr) {
@@ -235,12 +233,6 @@ namespace web::http::server {
             } else {
                 set("Connection", "close").status(500);
             }
-        }
-
-        if (response) {
-            response();
-        } else {
-            end();
         }
 
         status(success);

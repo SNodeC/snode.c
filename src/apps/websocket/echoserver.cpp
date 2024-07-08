@@ -80,12 +80,13 @@ int main(int argc, char* argv[]) {
         VLOG(2) << "user-agent: " << req->get("user-agent");
 
         if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
-            res->upgrade(req, [&subProtocol = req->get("upgrade")](bool success) -> void {
+            res->upgrade(req, [&subProtocol = req->get("upgrade"), res](bool success) -> void {
                 if (success) {
                     VLOG(1) << "Successful upgrade to '" << subProtocol << "'";
                 } else {
                     VLOG(1) << "Can not upgrade to '" << subProtocol << "'";
                 }
+                res->end();
             });
         } else {
             res->sendStatus(404);
@@ -150,12 +151,13 @@ int main(int argc, char* argv[]) {
             VLOG(2) << "user-agent: " << req->get("user-agent");
 
             if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
-                res->upgrade(req, [req](bool success) -> void {
+                res->upgrade(req, [req, res](bool success) -> void {
                     if (success) {
                         VLOG(1) << "Successful upgrade to '" << req->get("upgrade") << "'";
                     } else {
                         VLOG(1) << "Can not upgrade to '" << req->get("upgrade") << "'";
                     }
+                    res->end();
                 });
             } else {
                 res->sendStatus(404);
