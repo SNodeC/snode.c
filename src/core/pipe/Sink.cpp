@@ -54,14 +54,10 @@ namespace core::pipe {
     }
 
     void Sink::streamEof() {
-        stop();
-
         onSourceEof();
     }
 
     void Sink::streamError(int errnum) {
-        stop();
-
         onSourceError(errnum);
     }
 
