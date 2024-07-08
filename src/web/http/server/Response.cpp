@@ -52,6 +52,8 @@ namespace web::http::server {
         if (socketContext != nullptr && Sink::isStreaming()) {
             socketContext->streamEof();
         }
+
+        delete socketContextUpgrade; // delete of nullptr is valid since C++14!
     }
 
     void Response::stopResponse() {
@@ -350,11 +352,12 @@ namespace web::http::server {
         }
 
         if (socketContext != nullptr) {
+            socketContext->responseCompleted(contentSent == contentLength || (httpMajor == 1 && httpMinor == 0));
+
             if (socketContextUpgrade != nullptr) {
                 socketContext->switchSocketContext(socketContextUpgrade);
+                socketContextUpgrade = nullptr;
             }
-
-            socketContext->responseCompleted(contentSent == contentLength || (httpMajor == 1 && httpMinor == 0));
         }
     }
 
