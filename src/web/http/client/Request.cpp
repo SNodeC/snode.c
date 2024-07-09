@@ -310,6 +310,7 @@ namespace web::http::client {
                         if (newSocketContext != nullptr) {
                             LOG(DEBUG) << "HTTP: SocketContextUpgrade created";
                             socketContext->switchSocketContext(newSocketContext);
+                            newSocketContext = nullptr;
                             upgraded = true;
                         } else {
                             LOG(DEBUG) << "HTTP: SocketContextUpgrade not created";
@@ -331,7 +332,7 @@ namespace web::http::client {
             LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
         }
 
-        status(newSocketContext != nullptr);
+        status(upgraded);
 
         return upgraded;
     }
