@@ -86,8 +86,11 @@ namespace core::socket::stream {
                       LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
                       LOG(INFO) << "\tPeer: " << socketConnection->getRemoteAddress().toString();
                   },
-                  [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
+                  [name](SocketConnection* socketConnection) -> void { // onConnected
                       LOG(INFO) << "OnConnected " << name;
+
+                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
                       LOG(INFO) << "OnDisconnect " << name;
@@ -130,8 +133,11 @@ namespace core::socket::stream {
                       LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
                       LOG(INFO) << "\tPeer: " << socketConnection->getRemoteAddress().toString();
                   },
-                  [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
+                  [name](SocketConnection* socketConnection) -> void { // onConnected
                       LOG(INFO) << "OnConnected " << name;
+
+                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
                       LOG(INFO) << "OnDisconnect " << name;

@@ -96,7 +96,7 @@ namespace core {
 
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
-        virtual void signalEvent([[maybe_unused]] int signum) = 0;
+        virtual void signalEvent(int signum) = 0;
 
         DescriptorEventPublisher& descriptorEventPublisher;
 
