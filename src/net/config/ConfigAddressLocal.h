@@ -24,10 +24,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class App;
-} // namespace CLI
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {

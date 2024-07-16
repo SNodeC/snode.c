@@ -28,6 +28,10 @@ namespace core::socket {
     SocketAddress::~SocketAddress() {
     }
 
+    bool SocketAddress::useNext() {
+        return false;
+    }
+
     SocketAddress::BadSocketAddress::BadSocketAddress(const State& state, const std::string& errorMessage, int errnum)
         : runtime_error(errorMessage)
         , state(state)

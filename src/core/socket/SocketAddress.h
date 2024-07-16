@@ -50,9 +50,7 @@ namespace core::socket {
 
         virtual ~SocketAddress();
 
-        virtual bool useNext() {
-            return false;
-        }
+        virtual bool useNext();
 
         virtual std::string toString(bool expanded = true) const = 0;
     };
