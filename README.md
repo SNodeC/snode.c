@@ -246,7 +246,7 @@ private:
 
 #### Echo-Client `SocketContextFactory`
 
-The `create()` method of our `EchoClientContextFactory` returns a pointer to the `EchoClientContext` whose implementation is also presented in the [SocketContext Classes](#SocketContext Classes) section below.
+The `create()` method of our `EchoClientContextFactory` returns a pointer to the `EchoClientContext` whose implementation is also presented in the [SocketContext Classes](#`SocketContext` Classes) section below.
 
 ***Note***: A pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
@@ -969,7 +969,7 @@ Every `SocketServer` and `SocketClient` class has it's specific `SocketAddress` 
 using SocketAddress = <ConcreteServerOrClientType>::SocketAddress;
 ```
 
-as can be seen in the [Echo Application](#An Echo Application) above.
+as can be seen in the [Echo Application](#An "Echo" Application) above.
 
 | Network Layer       | *SocketAddress* Classes                                      | SocketAddress Header Files                                   |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
