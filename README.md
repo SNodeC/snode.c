@@ -228,7 +228,7 @@ The `core::socket::stream::SocketConnection` object involved is managed internal
 
 #### Echo-Server `SocketContextFactory`
 
-The `create()` method of our `EchoServerContextFactory` returns a pointer to the `EchoServerContext` whose implementation is presented in the [SocketContext Classes](#SocketContext Classes) section below.
+The `create()` method of our `EchoServerContextFactory` returns a pointer to the `EchoServerContext` whose implementation is presented in the [SocketContext Classes](#socketcontext-classes) section below.
 
 ***Note***: A pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
