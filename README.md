@@ -130,7 +130,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: runner, at: Sun Jul 21 10:37:50 UTC 2024 -->
+<!-- Added by: runner, at: Fri Jul 19 19:55:28 UTC 2024 -->
 
 <!--te-->
 
@@ -246,7 +246,7 @@ private:
 
 #### Echo-Client `SocketContextFactory`
 
-The `create()` method of our `EchoClientContextFactory` returns a pointer to the `EchoClientContext` whose implementation is also presented in the [SocketContext Classes](#socketcontext-classes) section below.
+The `create()` method of our `EchoClientContextFactory` returns a pointer to the `EchoClientContext` whose implementation is also presented in the [SocketContext Classes](#`SocketContext` Classes) section below.
 
 ***Note***: A pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
@@ -969,7 +969,7 @@ Every `SocketServer` and `SocketClient` class has it's specific `SocketAddress` 
 using SocketAddress = <ConcreteServerOrClientType>::SocketAddress;
 ```
 
-as can be seen in the [Echo Application](#An "Echo" Application) above.
+as can be seen in the [Echo Application](#an-echo-application) above.
 
 | Network Layer       | *SocketAddress* Classes                                      | SocketAddress Header Files                                   |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -1653,7 +1653,7 @@ The configuration can either be done via
 
 Each `SocketServer` and `SocketClient` instance provide a configuration object which could be obtained by calling the method `getConfig()` on the instance, which returns a reference to that configuration object.
 
-For the `EchoServer` instance from the [Quick Starting Guide](Quick Starting Guide) section for example the configuration object can be obtained by just using
+For the `EchoServer` instance from the [Quick Starting Guide](#quick-starting-guide) section for example the configuration object can be obtained by just using
 
 ```cpp
 EchoServer echoServer;
