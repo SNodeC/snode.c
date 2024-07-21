@@ -35,7 +35,7 @@ namespace utils {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::poll {
+namespace core::multiplexer::poll {
 
     class PollFdsManager {
     public:
@@ -77,6 +77,6 @@ namespace core::poll {
         PollFdsManager pollFdsManager;
     };
 
-} // namespace core::poll
+} // namespace core::multiplexer::poll
 
 #endif // CORE_POLL_EVENTDISPATCHER_H

@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::poll {
+namespace core::multiplexer::poll {
 
     DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, PollFdsManager& pollFds, short events, short revents)
         : core::DescriptorEventPublisher(name)
@@ -71,4 +71,4 @@ namespace core::poll {
         }
     }
 
-} // namespace core::poll
+} // namespace core::multiplexer::poll

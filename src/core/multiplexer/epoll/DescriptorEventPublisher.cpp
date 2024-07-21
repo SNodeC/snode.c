@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::epoll {
+namespace core::multiplexer::epoll {
 
     DescriptorEventPublisher::EPollEvents::EPollEvents(int& epfd, uint32_t events)
         : epfd(epfd)
@@ -136,4 +136,4 @@ namespace core::epoll {
         }
     }
 
-} // namespace core::epoll
+} // namespace core::multiplexer::epoll

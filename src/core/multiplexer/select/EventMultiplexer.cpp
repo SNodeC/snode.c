@@ -30,20 +30,20 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 core::EventMultiplexer& EventMultiplexer() {
-    static core::select::EventMultiplexer eventMultiplexer;
+    static core::multiplexer::select::EventMultiplexer eventMultiplexer;
 
     return eventMultiplexer;
 }
 
-namespace core::select {
+namespace core::multiplexer::select {
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::select::DescriptorEventPublisher("READ", //
-                                                                            fdSets[core::EventMultiplexer::DISP_TYPE::RD]),
-                                 new core::select::DescriptorEventPublisher("WRITE", //
-                                                                            fdSets[core::EventMultiplexer::DISP_TYPE::WR]),
-                                 new core::select::DescriptorEventPublisher("EXCEPT", //
-                                                                            fdSets[core::EventMultiplexer::DISP_TYPE::EX])) {
+        : core::EventMultiplexer(new core::multiplexer::select::DescriptorEventPublisher("READ", //
+                                                                                 fdSets[core::EventMultiplexer::DISP_TYPE::RD]),
+                                 new core::multiplexer::select::DescriptorEventPublisher("WRITE", //
+                                                                                 fdSets[core::EventMultiplexer::DISP_TYPE::WR]),
+                                 new core::multiplexer::select::DescriptorEventPublisher("EXCEPT", //
+                                                                                 fdSets[core::EventMultiplexer::DISP_TYPE::EX])) {
         LOG(DEBUG) << "Core::multiplexer: select";
     }
 
@@ -66,4 +66,4 @@ namespace core::select {
         }
     }
 
-} // namespace core::select
+} // namespace core::multiplexer::select

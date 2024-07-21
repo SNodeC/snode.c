@@ -25,9 +25,9 @@
 namespace core {
     class DescriptorEventReceiver;
 
-    namespace poll {
+    namespace multiplexer::poll {
         class PollFdsManager;
-    } // namespace poll
+    } // namespace multiplexer::poll
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,11 +36,11 @@ namespace core {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::poll {
+namespace core::multiplexer::poll {
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
     public:
-        DescriptorEventPublisher(const std::string& name, core::poll::PollFdsManager& pollFds, short events, short revents);
+        DescriptorEventPublisher(const std::string& name, core::multiplexer::poll::PollFdsManager& pollFds, short events, short revents);
 
     private:
         void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
@@ -50,11 +50,11 @@ namespace core::poll {
 
         void spanActiveEvents() override;
 
-        core::poll::PollFdsManager& pollFds;
+        core::multiplexer::poll::PollFdsManager& pollFds;
         short events;
         short revents;
     };
 
-} // namespace core::poll
+} // namespace core::multiplexer::poll
 
 #endif // CORE_POLL_DESCRIPTOREVENTDISPATCHER_H

@@ -34,12 +34,12 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 core::EventMultiplexer& EventMultiplexer() {
-    static core::poll::EventMultiplexer eventMultiplexer;
+    static core::multiplexer::poll::EventMultiplexer eventMultiplexer;
 
     return eventMultiplexer;
 }
 
-namespace core::poll {
+namespace core::multiplexer::poll {
 
     PollFdsManager::PollFdsManager() {
         pollfds.resize(1, {-1, 0, 0});
@@ -126,18 +126,18 @@ namespace core::poll {
     }
 
     EventMultiplexer::EventMultiplexer()
-        : core::EventMultiplexer(new core::poll::DescriptorEventPublisher("READ", //
-                                                                          pollFdsManager,
-                                                                          POLLIN,
-                                                                          POLLIN | POLLHUP | POLLRDHUP | POLLERR),
-                                 new core::poll::DescriptorEventPublisher("WRITE", //
-                                                                          pollFdsManager,
-                                                                          POLLOUT,
-                                                                          POLLOUT),
-                                 new core::poll::DescriptorEventPublisher("EXCEPT", //
-                                                                          pollFdsManager,
-                                                                          POLLPRI,
-                                                                          POLLPRI)) {
+        : core::EventMultiplexer(new core::multiplexer::poll::DescriptorEventPublisher("READ", //
+                                                                               pollFdsManager,
+                                                                               POLLIN,
+                                                                               POLLIN | POLLHUP | POLLRDHUP | POLLERR),
+                                 new core::multiplexer::poll::DescriptorEventPublisher("WRITE", //
+                                                                               pollFdsManager,
+                                                                               POLLOUT,
+                                                                               POLLOUT),
+                                 new core::multiplexer::poll::DescriptorEventPublisher("EXCEPT", //
+                                                                               pollFdsManager,
+                                                                               POLLPRI,
+                                                                               POLLPRI)) {
         LOG(DEBUG) << "Core::multiplexer: poll";
     }
 
@@ -155,4 +155,4 @@ namespace core::poll {
         }
     }
 
-} // namespace core::poll
+} // namespace core::multiplexer::poll

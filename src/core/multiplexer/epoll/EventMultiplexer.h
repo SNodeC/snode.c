@@ -32,7 +32,7 @@ namespace utils {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::epoll {
+namespace core::multiplexer::epoll {
 
     class EventMultiplexer : public core::EventMultiplexer {
     public:
@@ -49,6 +49,6 @@ namespace core::epoll {
         epoll_event ePollEvents[3]{};
     };
 
-} // namespace core::epoll
+} // namespace core::multiplexer::epoll
 
 #endif // CORE_EPOLL_EVENTMULTIPLEXER_H

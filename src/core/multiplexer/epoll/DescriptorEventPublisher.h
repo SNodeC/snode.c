@@ -36,7 +36,7 @@ namespace core {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::epoll {
+namespace core::multiplexer::epoll {
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
     private:
@@ -81,6 +81,6 @@ namespace core::epoll {
         uint32_t revents;
     };
 
-} // namespace core::epoll
+} // namespace core::multiplexer::epoll
 
 #endif // CORE_EPOLL_DESCRIPTOREVENTDISPATCHER_H

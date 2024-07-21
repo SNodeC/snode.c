@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::select {
+namespace core::multiplexer::select {
 
     FdSet::FdSet() {
         zero();
@@ -99,4 +99,4 @@ namespace core::select {
         }
     }
 
-} // namespace core::select
+} // namespace core::multiplexer::select

@@ -34,7 +34,7 @@ namespace core {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::select {
+namespace core::multiplexer::select {
 
     class FdSet {
     public:
@@ -66,6 +66,6 @@ namespace core::select {
         FdSet& fdSet;
     };
 
-} // namespace core::select
+} // namespace core::multiplexer::select
 
 #endif // CORE_SELECT_DESCRIPTOREVENTPUBLISHER_H

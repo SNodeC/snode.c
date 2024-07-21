@@ -33,7 +33,7 @@ namespace utils {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::select {
+namespace core::multiplexer::select {
 
     class EventMultiplexer : public core::EventMultiplexer {
     public:
@@ -47,6 +47,6 @@ namespace core::select {
         FdSet fdSets[3];
     };
 
-} // namespace core::select
+} // namespace core::multiplexer::select
 
 #endif // CORE_SELECT_EVENTDISPATCHER_H
