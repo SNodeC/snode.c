@@ -61,18 +61,18 @@ namespace core::file {
                 const ssize_t ret = core::system::read(getFd(), puffer.data(), puffer.capacity());
                 if (ret > 0) {
                     if (this->send(puffer.data(), static_cast<std::size_t>(ret)) < 0) {
-                        this->error(errno);
-
                         running = false;
+
+                        this->error(errno);
                     }
                 } else {
+                    running = false;
+
                     if (ret == 0) {
                         this->eof();
                     } else {
                         this->error(errno);
                     }
-
-                    running = false;
                 }
 
                 span();
