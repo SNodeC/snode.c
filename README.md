@@ -246,7 +246,7 @@ private:
 
 #### Echo-Client `SocketContextFactory`
 
-The `create()` method of our `EchoClientContextFactory` returns a pointer to the `EchoClientContext` whose implementation is also presented in the [SocketContext Classes](#`SocketContext` Classes) section below.
+The `create()` method of our `EchoClientContextFactory` returns a pointer to the `EchoClientContext` whose implementation is also presented in the [SocketContext Classes](#socketcontext-classes) section below.
 
 ***Note***: A pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
