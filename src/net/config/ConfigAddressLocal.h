@@ -32,6 +32,8 @@ namespace net::config {
     class ConfigAddressLocal : public net::config::ConfigAddress<SocketAddressT> {
     public:
         using Super = net::config::ConfigAddress<SocketAddressT>;
+
+    protected:
         using Super::Super;
     };
 

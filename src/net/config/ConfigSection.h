@@ -43,6 +43,7 @@ namespace net::config {
     class ConfigSection {
     public:
         ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description);
+
         ConfigSection(const ConfigSection&) = delete;
         ConfigSection(ConfigSection&&) = delete;
 

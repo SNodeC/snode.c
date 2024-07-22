@@ -36,6 +36,7 @@ namespace net::config {
     public:
         using Legacy = ConfigLegacy;
 
+    protected:
         explicit ConfigLegacy(ConfigInstance* instance);
     };
 

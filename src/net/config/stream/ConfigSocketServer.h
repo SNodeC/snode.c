@@ -43,6 +43,7 @@ namespace net::config::stream {
         using Local = ConfigAddressLocalT<net::config::ConfigAddressLocal>;
         using Remote = ConfigAddressRemoteT<net::config::ConfigAddressReverse>;
 
+    protected:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
     };
 

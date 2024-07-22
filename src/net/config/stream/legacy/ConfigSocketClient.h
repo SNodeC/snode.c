@@ -34,7 +34,7 @@ namespace net::config::stream::legacy {
         : public net::config::ConfigInstance
         , public ConfigSocketClientBaseT
         , public net::config::ConfigLegacy {
-    public:
+    protected:
         explicit ConfigSocketClient(const std::string& name);
     };
 

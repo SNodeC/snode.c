@@ -35,7 +35,7 @@ namespace net::rc::stream::config {
 
     class ConfigSocketServer
         : public net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress, net::rc::config::ConfigAddressReverse> {
-    public:
+    protected:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
         ~ConfigSocketServer() override;

@@ -44,8 +44,10 @@ namespace net::config {
     public:
         using Tls = ConfigTlsServer;
 
+    protected:
         explicit ConfigTlsServer(ConfigInstance* instance);
 
+    public:
         ConfigTlsServer& setForceSni(bool forceSni = true);
         bool getForceSni() const;
 

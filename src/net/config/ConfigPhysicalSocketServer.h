@@ -44,8 +44,10 @@ namespace net::config {
     public:
         using Socket = ConfigPhysicalSocketServer;
 
+    protected:
         explicit ConfigPhysicalSocketServer(ConfigInstance* instance);
 
+    public:
         ConfigPhysicalSocketServer& setBacklog(int newBacklog);
         int getBacklog() const;
 

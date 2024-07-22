@@ -49,10 +49,12 @@ namespace net::in::config {
     public:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
+    protected:
         explicit ConfigAddressReverse(net::config::ConfigInstance* instance,
                                       const std::string& addressOptionName,
                                       const std::string& addressOptionDescription);
 
+    public:
         using Super::getSocketAddress;
         SocketAddress getSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
@@ -68,6 +70,7 @@ namespace net::in::config {
     public:
         using Super = ConfigAddressTypeT<net::in::SocketAddress>;
 
+    protected:
         explicit ConfigAddress(net::config::ConfigInstance* instance,
                                const std::string& addressOptionName,
                                const std::string& addressOptionDescription);

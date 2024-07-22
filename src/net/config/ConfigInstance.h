@@ -44,14 +44,17 @@ namespace net::config {
 
         enum class Role { SERVER, CLIENT };
 
+    protected:
         explicit ConfigInstance(const std::string& instanceName, Role role);
-        ConfigInstance(const ConfigInstance&) = delete;
-        ConfigInstance(ConfigInstance&&) = delete;
-
-        ConfigInstance& operator=(const ConfigInstance&) = delete;
-        ConfigInstance& operator=(ConfigInstance&&) = delete;
 
         virtual ~ConfigInstance();
+
+    public:
+        ConfigInstance(ConfigInstance&) = delete;
+        ConfigInstance(ConfigInstance&&) = delete;
+
+        ConfigInstance& operator=(ConfigInstance&) = delete;
+        ConfigInstance& operator=(ConfigInstance&&) = delete;
 
         Role getRole();
 

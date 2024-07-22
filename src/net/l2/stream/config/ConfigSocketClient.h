@@ -34,7 +34,7 @@ namespace net::config {
 namespace net::l2::stream::config {
 
     class ConfigSocketClient : public net::config::stream::ConfigSocketClient<net::l2::config::ConfigAddress> {
-    public:
+    protected:
         explicit ConfigSocketClient(net::config::ConfigInstance* instance);
 
         ~ConfigSocketClient() override;

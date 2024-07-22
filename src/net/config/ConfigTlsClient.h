@@ -42,8 +42,10 @@ namespace net::config {
     public:
         using Tls = ConfigTlsClient;
 
+    protected:
         explicit ConfigTlsClient(ConfigInstance* instance);
 
+    public:
         ConfigTlsClient& setSni(const std::string& sni);
         std::string getSni() const;
 

@@ -43,9 +43,10 @@ namespace CLI {
 namespace net::config {
 
     class ConfigTls : protected ConfigSection {
-    public:
+    protected:
         explicit ConfigTls(ConfigInstance* instance);
 
+    public:
         ConfigTls& setInitTimeout(const utils::Timeval& newInitTimeout);
         utils::Timeval getInitTimeout() const;
 

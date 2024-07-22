@@ -32,6 +32,8 @@ namespace net::config {
     class ConfigAddressReverse : public net::config::ConfigAddressBase<SocketAddressT> {
     public:
         using Super = net::config::ConfigAddressBase<SocketAddressT>;
+
+    protected:
         using Super::Super;
     };
 

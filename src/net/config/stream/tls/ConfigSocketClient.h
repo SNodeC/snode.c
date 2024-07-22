@@ -34,10 +34,12 @@ namespace net::config::stream::tls {
         : public net::config::ConfigInstance
         , public ConfigSocketClientBaseT
         , public net::config::ConfigTlsClient {
-    public:
+    protected:
         explicit ConfigSocketClient(const std::string& name);
+
         ~ConfigSocketClient() override;
 
+    public:
         SSL_CTX* getSslCtx();
 
     private:

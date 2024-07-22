@@ -44,8 +44,10 @@ namespace net::config {
     public:
         using Socket = ConfigPhysicalSocketClient;
 
+    protected:
         explicit ConfigPhysicalSocketClient(ConfigInstance* instance);
 
+    public:
         ConfigPhysicalSocketClient& setReconnect(bool reconnect = true);
         bool getReconnect() const;
 

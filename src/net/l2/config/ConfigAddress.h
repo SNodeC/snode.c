@@ -46,6 +46,8 @@ namespace net::l2::config {
     class ConfigAddressReverse : public ConfigAddressTypeT<net::l2::SocketAddress> {
     public:
         using Super = ConfigAddressTypeT<SocketAddress>;
+
+    protected:
         using Super::Super;
     };
 
@@ -54,6 +56,7 @@ namespace net::l2::config {
     public:
         using Super = ConfigAddressTypeT<net::l2::SocketAddress>;
 
+    protected:
         explicit ConfigAddress(net::config::ConfigInstance* instance,
                                const std::string& addressOptionName,
                                const std::string& addressOptionDescription);

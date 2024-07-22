@@ -43,9 +43,10 @@ namespace CLI {
 namespace net::config {
 
     class ConfigPhysicalSocket : protected ConfigSection {
-    public:
+    protected:
         explicit ConfigPhysicalSocket(ConfigInstance* instance);
 
+    public:
         const std::map<int, const net::phy::PhysicalSocketOption>& getSocketOptions();
 
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, int optValue);

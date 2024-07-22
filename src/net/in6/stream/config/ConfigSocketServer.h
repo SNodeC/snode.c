@@ -39,11 +39,12 @@ namespace net::in6::stream::config {
 
     class ConfigSocketServer
         : public net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress, net::in6::config::ConfigAddressReverse> {
-    public:
+    protected:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);
 
         ~ConfigSocketServer() override;
 
+    public:
         ConfigSocketServer& setReusePort(bool reusePort = true);
         bool getReusePort() const;
 

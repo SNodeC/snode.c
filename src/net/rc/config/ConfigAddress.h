@@ -46,6 +46,8 @@ namespace net::rc::config {
     class ConfigAddressReverse : public ConfigAddressTypeT<net::rc::SocketAddress> {
     public:
         using Super = ConfigAddressTypeT<SocketAddress>;
+
+    protected:
         using Super::Super;
     };
 
@@ -54,6 +56,7 @@ namespace net::rc::config {
     public:
         using Super = ConfigAddressTypeT<net::rc::SocketAddress>;
 
+    protected:
         explicit ConfigAddress(net::config::ConfigInstance* instance,
                                const std::string& addressOptionName,
                                const std::string& addressOptionDescription);

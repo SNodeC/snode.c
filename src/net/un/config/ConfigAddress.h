@@ -45,6 +45,8 @@ namespace net::un::config {
     class ConfigAddressReverse : public ConfigAddressTypeT<net::un::SocketAddress> {
     public:
         using Super = ConfigAddressTypeT<SocketAddress>;
+
+    protected:
         using Super::Super;
     };
 
@@ -53,6 +55,7 @@ namespace net::un::config {
     public:
         using Super = ConfigAddressTypeT<net::un::SocketAddress>;
 
+    protected:
         explicit ConfigAddress(net::config::ConfigInstance* instance,
                                const std::string& addressOptionName,
                                const std::string& addressOptionDescription);
