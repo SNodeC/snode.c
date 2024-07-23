@@ -101,53 +101,6 @@ namespace core::socket::stream {
             : SocketServer("", std::forward<Args>(args)...) {
         }
 
-        SocketServer(const std::string& name,
-                     const std::function<void(SocketConnection*)>& onConnect,
-                     const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect,
-                     SocketContextFactory* socketContextFactory)
-            : Super(name)
-            , socketContextFactory(std::shared_ptr<SocketContextFactory>(socketContextFactory))
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect) {
-        }
-
-        SocketServer(const std::function<void(SocketConnection*)>& onConnect,
-                     const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect,
-                     SocketContextFactory* socketContextFactory)
-            : SocketServer("", onConnect, onConnected, onDisconnect, socketContextFactory) {
-        }
-
-        SocketServer(const std::string& name, SocketContextFactory* socketContextFactory)
-            : SocketServer(
-                  name,
-                  [name](SocketConnection* socketConnection) -> void { // onConnect
-                      LOG(INFO) << "OnConnect " << name;
-
-                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
-                  },
-                  [name](SocketConnection* socketConnection) -> void { // onConnected
-                      LOG(INFO) << "OnConnected " << name;
-
-                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
-                  },
-                  [name](SocketConnection* socketConnection) -> void { // onDisconnect
-                      LOG(INFO) << "OnDisconnect " << name;
-
-                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
-                  },
-                  socketContextFactory) {
-        }
-
-        explicit SocketServer(SocketContextFactory* socketContextFactory)
-            : SocketServer("", socketContextFactory) {
-        }
-
     private:
         void realListen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                         unsigned int tries,
