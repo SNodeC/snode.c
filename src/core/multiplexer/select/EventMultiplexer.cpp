@@ -39,11 +39,11 @@ namespace core::multiplexer::select {
 
     EventMultiplexer::EventMultiplexer()
         : core::EventMultiplexer(new core::multiplexer::select::DescriptorEventPublisher("READ", //
-                                                                                 fdSets[core::EventMultiplexer::DISP_TYPE::RD]),
+                                                                                         fdSets[core::EventMultiplexer::DISP_TYPE::RD]),
                                  new core::multiplexer::select::DescriptorEventPublisher("WRITE", //
-                                                                                 fdSets[core::EventMultiplexer::DISP_TYPE::WR]),
+                                                                                         fdSets[core::EventMultiplexer::DISP_TYPE::WR]),
                                  new core::multiplexer::select::DescriptorEventPublisher("EXCEPT", //
-                                                                                 fdSets[core::EventMultiplexer::DISP_TYPE::EX])) {
+                                                                                         fdSets[core::EventMultiplexer::DISP_TYPE::EX])) {
         LOG(DEBUG) << "Core::multiplexer: select";
     }
 

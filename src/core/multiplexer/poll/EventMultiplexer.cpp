@@ -127,17 +127,17 @@ namespace core::multiplexer::poll {
 
     EventMultiplexer::EventMultiplexer()
         : core::EventMultiplexer(new core::multiplexer::poll::DescriptorEventPublisher("READ", //
-                                                                               pollFdsManager,
-                                                                               POLLIN,
-                                                                               POLLIN | POLLHUP | POLLRDHUP | POLLERR),
+                                                                                       pollFdsManager,
+                                                                                       POLLIN,
+                                                                                       POLLIN | POLLHUP | POLLRDHUP | POLLERR),
                                  new core::multiplexer::poll::DescriptorEventPublisher("WRITE", //
-                                                                               pollFdsManager,
-                                                                               POLLOUT,
-                                                                               POLLOUT),
+                                                                                       pollFdsManager,
+                                                                                       POLLOUT,
+                                                                                       POLLOUT),
                                  new core::multiplexer::poll::DescriptorEventPublisher("EXCEPT", //
-                                                                               pollFdsManager,
-                                                                               POLLPRI,
-                                                                               POLLPRI)) {
+                                                                                       pollFdsManager,
+                                                                                       POLLPRI,
+                                                                                       POLLPRI)) {
         LOG(DEBUG) << "Core::multiplexer: poll";
     }
 

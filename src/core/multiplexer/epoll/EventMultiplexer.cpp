@@ -40,17 +40,17 @@ namespace core::multiplexer::epoll {
 
     EventMultiplexer::EventMultiplexer()
         : core::EventMultiplexer(new core::multiplexer::epoll::DescriptorEventPublisher("READ", //
-                                                                                epfds[core::EventMultiplexer::DISP_TYPE::RD],
-                                                                                EPOLLIN,
-                                                                                EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR),
+                                                                                        epfds[core::EventMultiplexer::DISP_TYPE::RD],
+                                                                                        EPOLLIN,
+                                                                                        EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR),
                                  new core::multiplexer::epoll::DescriptorEventPublisher("WRITE", //
-                                                                                epfds[core::EventMultiplexer::DISP_TYPE::WR],
-                                                                                EPOLLOUT,
-                                                                                EPOLLOUT),
+                                                                                        epfds[core::EventMultiplexer::DISP_TYPE::WR],
+                                                                                        EPOLLOUT,
+                                                                                        EPOLLOUT),
                                  new core::multiplexer::epoll::DescriptorEventPublisher("EXCEPT", //
-                                                                                epfds[core::EventMultiplexer::DISP_TYPE::EX],
-                                                                                EPOLLPRI,
-                                                                                EPOLLPRI))
+                                                                                        epfds[core::EventMultiplexer::DISP_TYPE::EX],
+                                                                                        EPOLLPRI,
+                                                                                        EPOLLPRI))
         , epfd(core::system::epoll_create1(EPOLL_CLOEXEC)) {
         epoll_event event{};
         event.events = EPOLLIN;
