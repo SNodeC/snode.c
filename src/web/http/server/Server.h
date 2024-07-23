@@ -53,24 +53,24 @@ namespace web::http::server {
                const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(SocketConnection*)>& onDisconnect,
-               const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
-            : Super(name, onConnect, onConnected, onDisconnect, onRequestReady) {
+               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
+            : Super(name, onConnect, onConnected, onDisconnect, std::forward<decltype(onRequestReady)>(onRequestReady)) {
         }
 
         Server(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(SocketConnection*)>& onDisconnect,
-               const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
-            : Server("", onConnect, onConnected, onDisconnect, onRequestReady) {
+               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
+            : Server("", onConnect, onConnected, onDisconnect, std::forward<decltype(onRequestReady)>(onRequestReady)) {
         }
 
         Server(const std::string& name,
-               const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
-            : Super(name, onRequestReady) {
+               std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
+            : Super(name, std::forward<decltype(onRequestReady)>(onRequestReady)) {
         }
 
-        explicit Server(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
-            : Server("", onRequestReady) {
+        explicit Server(const std::function<void(const std::shared_ptr<Request>&, std::shared_ptr<Response>&)>&& onRequestReady)
+            : Server("", std::forward<decltype(onRequestReady)>(onRequestReady)) {
         }
     };
 

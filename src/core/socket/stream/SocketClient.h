@@ -62,9 +62,9 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
-                     const Args&... args)
+                     Args&&... args)
             : Super(name)
-            , socketContextFactory(std::make_shared<SocketContextFactory>(args...))
+            , socketContextFactory(std::make_shared<SocketContextFactory>(std::forward<Args>(args)...))
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect) {
@@ -73,11 +73,11 @@ namespace core::socket::stream {
         SocketClient(const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
-                     const Args&... args)
-            : SocketClient("", onConnect, onConnected, onDisconnect, args...) {
+                     Args&&... args)
+            : SocketClient("", onConnect, onConnected, onDisconnect, std::forward<Args>(args)...) {
         }
 
-        SocketClient(const std::string& name, const Args&... args)
+        SocketClient(const std::string& name, Args&&... args)
             : SocketClient(
                   name,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
@@ -98,11 +98,11 @@ namespace core::socket::stream {
                       LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
                       LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                   },
-                  args...) {
+                  std::forward<Args>(args)...) {
         }
 
-        explicit SocketClient(const Args&... args)
-            : SocketClient("", args...) {
+        explicit SocketClient(Args&&... args)
+            : SocketClient("", std::forward<Args>(args)...) {
         }
 
         SocketClient(const std::string& name,
