@@ -210,13 +210,13 @@ A class `SocketContextFactory` is used for both instances as template argument. 
 
 The `SocketContext` class must also be provided by the user and represents a concrete application protocol.
 
-Both, `SocketServer` and `SocketClient` classes have, among others, a *default constructor* and a constructor expecting an *instance name* as argument. 
+Therefore, for our *echo* application, we need to implement the *application protocol* for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (`stream`) application protocols, and factories derived from `core::socket::stream::SocketContextFactory`.
+
+***Note***: Both, `SocketServer` and `SocketClient` classes have, among others, a *default constructor* and a constructor expecting an *instance name* as argument. 
 
 - In case the *default* constructor is used to create the instance, it is called an *anonymous instance*.
 - In contrast to a *named instance* if the constructors expecting a `std::string` is used. 
 - For named instances *command line arguments* and *configuration file entries* are created automatically.
-
-Therefore, for our *echo* application, we need to implement the *application protocol* for server and client in classes derived from `core::socket::stream::SocketContext`, the base class of all connection-oriented (`stream`) application protocols, and factories derived from `core::socket::stream::SocketContextFactory`.
 
 ### `SocketContextFactory` Classes
 
@@ -279,8 +279,7 @@ It is also not difficult to implement the `SocketContext` classes for the server
 -   And at last remember:
     -    The base class  `core::socket::stream::SocketContext` needs a `core::socket::stream::SocketConnection`  to handle the physical data exchange. Thus, we have to pass the pointer to the `core::socket::stream::SocketConnection` to the constructor of the base class `core::socket::stream::SocketContext`.
 
-
-The base class `core::socket::stream::SocketContext` provides some *virtual methods* which can be *overridden* in a concrete `SocketContext` class. These methods will be *called by the framework* automatically.
+***Note***: The base class `core::socket::stream::SocketContext` provides some *virtual methods* which can be *overridden* in a concrete `SocketContext` class. These methods will be *called by the framework* automatically.
 
 #### Echo-Server `SocketContext`
 
@@ -1074,78 +1073,46 @@ Beside the already discussed constructors of the `SocketServer` and `SocketClien
 
 This callback functions are called by SNode.C during connection establishment and connection shutdown between server and clients.
 
-Some constructors also accepts an optional template parameter pack which is passed on to the used `SocketContextFactory` as arguments.
-
-And furthermore an equivalent set of constructors expecting a pointer to a concrete `SocketContextFactory` are also provided. These constructors didn't accept a parameter pack, as the `SocketContextFactory` has already been created before.
+The constructors also accepts an optional template parameter pack which is passed on to the used `SocketContextFactory` as arguments.
 
 Thus, the full lists of constructors of the `SocketServer` and `SocketClient` classes are:
 
 #### All Constructors of `SocketServer` Classes
 
 ```c++
-SocketServer(const Args&... args);
-
-SocketServer(const std::function<void(SocketServer::SocketConnection*)>& onConnect,
-             const std::function<void(SocketServer::SocketConnection*)>& onConnected,
-             const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
-             const Args&... args);
-
-SocketServer(const std::string& instanceName, const Args&... args);
-
 SocketServer(const std::string& instanceName,
              const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
              const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
-             const Args&... args);
+             Args&&... args);
 
-SocketServer(SocketContextFactory* socketContextFactory);
-    
 SocketServer(const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
              const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
-             SocketContextFactory* socketContextFactory);
-    
-SocketServer(const std::string& instanceName, SocketContextFactory* socketContextFactory);
-    
-SocketServer(const std::string& instanceName,
-             const std::function<void(SocketServer::SocketConnection*)>& onConnect,
-             const std::function<void(SocketServer::SocketConnection*)>& onConnected,
-             const std::function<void(SocketServer::SocketConnection*)>& onDisconnect,
-             SocketContextFactory* socketContextFactory);
+             Args&&... args);
+
+SocketServer(const std::string& instanceName, Args&&... args);
+
+SocketServer(const Args&&);
 ```
 
 #### All Constructors of `SocketClient` Classes
 
 ```c++
-SocketClient(const Args&... args);
-
-SocketClient(const std::function<void(SocketClient::SocketConnection*)>& onConnect,
-             const std::function<void(SocketClient::SocketConnection*)>& onConnected,
-             const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
-             const Args&... args);
-
-SocketClient(const std::string& instanceName, const Args&... args);
-
 SocketClient(const std::string& instanceName,
              const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
              const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
-             const Args&... args);
-
-SocketClient(SocketContextFactory* socketContextFactory);
+             Args&&... args);
 
 SocketClient(const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
              const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
-             SocketContextFactory* socketContextFactory);
+             Args&&... args);
 
-SocketClient(const std::string& instanceName, SocketContextFactory* socketContextFactory);
+SocketClient(const std::string& instanceName, Args&&... args);
 
-SocketClient(const std::string& instanceName,
-             const std::function<void(SocketClient::SocketConnection*)>& onConnect,
-             const std::function<void(SocketClient::SocketConnection*)>& onConnected,
-             const std::function<void(SocketClient::SocketConnection*)>& onDisconnect,
-             SocketContextFactory* socketContextFactory);
+SocketClient(Args&&... args);
 ```
 
 ### Constructor Callbacks
