@@ -6912,6 +6912,7 @@ public:                                                                         
 
         /// Check to see if a subcommand is part of this command (text version)
         CLI11_NODISCARD App* get_subcommand(std::string subcom) const;
+        CLI11_NODISCARD App* get_subcommand_no_throw(std::string subcom) const;
 
         /// Get a pointer to subcommand by index
         CLI11_NODISCARD App* get_subcommand(int index = 0) const;
@@ -8089,6 +8090,11 @@ public:                                                                         
         if (subc == nullptr)
             throw OptionNotFound(subcom);
         return subc;
+    }
+
+
+    CLI11_NODISCARD CLI11_INLINE App* App::get_subcommand_no_throw(std::string subcom) const {
+        return _find_subcommand(subcom, false, false);
     }
 
     CLI11_NODISCARD CLI11_INLINE App* App::get_subcommand(int index) const {
