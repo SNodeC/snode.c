@@ -67,12 +67,11 @@ namespace net::config {
     private:
         CLI::App* add_section(const std::string& name, const std::string& description);
 
+        CLI::App* getSection(const std::string& name) const;
+
         void required(CLI::App* section, bool req = true);
 
         bool getRequired() const;
-
-        bool hasSection(const std::string& name) const;
-        CLI::App* getSection(const std::string& name) const;
 
         uint8_t requiredCount = 0;
 

@@ -49,7 +49,8 @@ namespace net::config {
 
     ConfigSection::ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description)
         : instance(instance) {
-        section = instance->hasSection(name) ? instance->getSection(name)
+        CLI::App* existingSection = instance->getSection(name);
+        section = existingSection != nullptr ? existingSection
                                              : instance //
                                                    ->add_section(name, description + " for instance '" + instance->getInstanceName() + "'")
                                                    ->disabled()
