@@ -257,8 +257,8 @@ namespace CLI {
             return !subc->get_disabled() && !subc->get_name().empty();
         });
 
-        // Make a list in definition order of the groups seen
-        std::vector<std::string> subcmd_groups_seen;
+        // Make a list in alphabetic order of the groups seen
+        std::set<std::string> subcmd_groups_seen;
         for (const App* com : subcommands) {
             if (com->get_name().empty()) {
                 if (!com->get_group().empty()) {
@@ -271,7 +271,7 @@ namespace CLI {
                 std::find_if(subcmd_groups_seen.begin(), subcmd_groups_seen.end(), [&group_key](const std::string& a) {
                     return detail::to_lower(a) == detail::to_lower(group_key);
                 }) == subcmd_groups_seen.end()) {
-                subcmd_groups_seen.push_back(group_key);
+                subcmd_groups_seen.insert(group_key);
             }
         }
 
@@ -311,7 +311,7 @@ namespace CLI {
         const Option* disabledOpt = sub->get_option_no_throw("--disabled");
         detail::format_help(out,
                             sub->get_display_name(true) + ((disabledOpt != nullptr ? disabledOpt->as<bool>() : false)
-                                                               ? " " + get_label("DISABLED")
+                                                               ? ""
                                                                : (sub->get_required() ? " " + get_label("REQUIRED") : "")),
                             sub->get_description(),
                             column_width_);
@@ -323,7 +323,7 @@ namespace CLI {
         // ########## Next lines changed
         const Option* disabledOpt = sub->get_option_no_throw("--disabled");
         out << sub->get_display_name(true) + " [OPTIONS]" + (!sub->get_subcommands({}).empty() ? " [SECTIONS]" : "") +
-                   ((disabledOpt != nullptr ? disabledOpt->as<bool>() : false) ? " " + get_label("DISABLED")
+                   ((disabledOpt != nullptr ? disabledOpt->as<bool>() : false) ? ""
                                                                                : (sub->get_required() ? " " + get_label("REQUIRED") : ""))
             << "\n";
 

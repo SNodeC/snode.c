@@ -741,6 +741,28 @@ namespace utils {
             ->add_flag_function(
                 "-h{standard},--help{standard}",
                 [app]([[maybe_unused]] std::int64_t count) {
+                    const std::size_t disabledCount =
+                        app->get_subcommands([](CLI::App* app) -> bool {
+                               return app->get_group() == "Instance" && app->get_option("--disabled")->as<bool>();
+                           })
+                            .size();
+                    const std::size_t enabledCount =
+                        app->get_subcommands([](CLI::App* app) -> bool {
+                               return app->get_group() == "Instance" && !app->get_option("--disabled")->as<bool>();
+                           })
+                            .size();
+
+                    for (auto* instance : app->get_subcommands({})) {
+                        const std::string& group = instance->get_group();
+                        if (group == "Instance") {
+                            if (instance->get_option("--disabled")->as<bool>()) {
+                                instance->group(std::string("Instance").append((disabledCount > 1) ? "s" : "").append(" (disabled)"));
+                            } else {
+                                instance->group(std::string("Instance").append((enabledCount > 1) ? "s" : ""));
+                            }
+                        }
+                    }
+
                     const std::string& result = app->get_option("--help")->as<std::string>();
 
                     if (result == "standard") {

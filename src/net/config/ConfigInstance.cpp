@@ -59,7 +59,7 @@ namespace net::config {
                                                      .append(" instance '")
                                                      .append(instanceName)
                                                      .append("'"),
-                                                 "Instances");
+                                                 "Instance");
 
         utils::Config::add_standard_flags(instanceSc);
         utils::Config::add_help(instanceSc);
