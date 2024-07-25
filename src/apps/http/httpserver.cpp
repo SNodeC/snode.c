@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     const WebApp webApp(apps::http::STREAM::getWebApp("httpserver"));
 
     net::config::ConfigSection configWeb = net::config::ConfigSection(&webApp.getConfig(), "www", "Web behavior of httpserver");
-    CLI::Option* htmlRoot = configWeb.add_option("--html-root", "HTML root directory", "path", "");
+    CLI::Option* htmlRoot = configWeb.addOption("--html-root", "HTML root directory", "path", "");
     configWeb.required(htmlRoot);
 
     WebApp::init(argc, argv);

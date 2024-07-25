@@ -41,7 +41,7 @@ namespace net::un::config {
                                                     const std::string& addressOptionName,
                                                     const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
-        sunPathOpt = Super::add_option( //
+        sunPathOpt = Super::addOption( //
             "--sun-path",
             "Unix domain bind path",
             "filename:FILE",

@@ -42,7 +42,7 @@ Router getRouter(const std::string& webRoot) {
 }
 
 int main(int argc, char* argv[]) {
-    utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
+    utils::Config::addStringOption("--web-root", "Root directory of the web site", "[path]");
 
     WebApp::init(argc, argv);
 
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
         const legacy::in6::WebApp legacyApp("legacy");
 
         const Router& vh1 = middleware::VHost("localhost:8080");
-        vh1.use(middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+        vh1.use(middleware::StaticMiddleware(utils::Config::getStringOptionValue("--web-root")));
         legacyApp.use(vh1);
 
         const Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8080");
@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
         const express::tls::in6::WebApp tlsApp("tls");
 
         const Router& vh1 = middleware::VHost("localhost:8088");
-        vh1.use(getRouter(utils::Config::get_string_option_value("--web-root")));
+        vh1.use(getRouter(utils::Config::getStringOptionValue("--web-root")));
         tlsApp.use(vh1);
 
         const Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8088");

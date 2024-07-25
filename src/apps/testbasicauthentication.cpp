@@ -44,7 +44,7 @@ Router getRouter(const std::string& webRoot) {
 }
 
 int main(int argc, char* argv[]) {
-    utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
+    utils::Config::addStringOption("--web-root", "Root directory of the web site", "[path]");
 
     WebApp::init(argc, argv);
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
         const Router& router1 = middleware::VHost("localhost:8080");
 
         const Router& ba = middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password");
-        ba.use(middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+        ba.use(middleware::StaticMiddleware(utils::Config::getStringOptionValue("--web-root")));
 
         router1.use(ba);
         legacyApp.use(router1);
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
             const express::tls::in6::WebApp tlsApp("tls");
 
             const Router& vh1 = middleware::VHost("localhost:8088");
-            vh1.use(getRouter(utils::Config::get_string_option_value("--web-root")));
+            vh1.use(getRouter(utils::Config::getStringOptionValue("--web-root")));
             tlsApp.use(vh1);
 
             const Router& vh2 = middleware::VHost("ceres.home.vchrist.at:8088");

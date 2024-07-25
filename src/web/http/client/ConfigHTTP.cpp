@@ -32,7 +32,7 @@ namespace web::http::client {
 
     ConfigHTTP::ConfigHTTP(net::config::ConfigInstance& configInstance) {
         pipelinedRequestsOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
-                                   .add_flag( //
+                                   .addFlag( //
                                        "--pipelined-requests",
                                        "Pipelined requests",
                                        "bool",

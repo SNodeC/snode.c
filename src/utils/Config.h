@@ -48,48 +48,48 @@ namespace utils {
         static bool bootstrap();
         static void terminate();
 
-        static CLI::App* add_instance(const std::string& name, const std::string& description, const std::string& group);
-        static bool remove_instance(CLI::App* instance);
+        static CLI::App* addInstance(const std::string& name, const std::string& description, const std::string& group);
+        static bool removeInstance(CLI::App* instance);
 
         static void required(CLI::App* instance, bool reqired = true);
         static void disabled(CLI::App* instance, bool disabled = true);
 
-        static CLI::App* add_standard_flags(CLI::App* app);
-        static CLI::App* add_help_with_flags(CLI::App* app);
-        static CLI::App* add_help(CLI::App* app);
+        static CLI::App* addStandardFlags(CLI::App* app);
+        static CLI::App* addSimpleHelp(CLI::App* app);
+        static CLI::App* addHelp(CLI::App* app);
 
         static std::string getApplicationName();
         static int getLogLevel();
         static int getVerboseLevel();
 
-        static CLI::Option* add_string_option(const std::string& name, const std::string& description, const std::string& typeName);
+        static CLI::Option* addStringOption(const std::string& name, const std::string& description, const std::string& typeName);
 
         static CLI::Option*
-        add_string_option(const std::string& name, const std::string& description, const std::string& typeName, bool configurable);
+        addStringOption(const std::string& name, const std::string& description, const std::string& typeName, bool configurable);
 
-        static CLI::Option* add_string_option(const std::string& name,
+        static CLI::Option* addStringOption(const std::string& name,
                                               const std::string& description,
                                               const std::string& typeName,
                                               const std::string& defaultValue);
 
-        static CLI::Option* add_string_option(const std::string& name,
+        static CLI::Option* addStringOption(const std::string& name,
                                               const std::string& description,
                                               const std::string& typeName,
                                               const std::string& defaultValue,
                                               bool configurable);
 
         static CLI::Option*
-        add_string_option(const std::string& name, const std::string& description, const std::string& typeName, const char* defaultValue);
+        addStringOption(const std::string& name, const std::string& description, const std::string& typeName, const char* defaultValue);
 
-        static CLI::Option* add_string_option(const std::string& name,
+        static CLI::Option* addStringOption(const std::string& name,
                                               const std::string& description,
                                               const std::string& typeName,
                                               const char* defaultValue,
                                               bool configurable);
 
-        static std::string get_string_option_value(const std::string& name);
+        static std::string getStringOptionValue(const std::string& name);
 
-        static void add_flag(const std::string& name,
+        static void addFlag(const std::string& name,
                              bool& variable,
                              const std::string& description,
                              bool required,

@@ -33,7 +33,7 @@ namespace net::config {
     ConfigTlsServer::ConfigTlsServer(ConfigInstance* instance)
         : ConfigTls(instance) {
         sniCertsOpt = section //
-                          ->add_option("--sni-cert",
+                          ->addOption("--sni-cert",
                                        sniCerts,
                                        "Server Name Indication (SNI) Certificates:\n"
                                        "sni = SNI of the virtual server\n"
@@ -87,7 +87,7 @@ namespace net::config {
             return defaultValue;
         });
 
-        forceSniOpt = add_flag( //
+        forceSniOpt = addFlag( //
             "--force-sni{true}",
             "Force using of the Server Name Indication",
             "bool",

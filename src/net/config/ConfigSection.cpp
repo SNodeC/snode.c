@@ -52,7 +52,7 @@ namespace net::config {
         CLI::App* existingSection = instance->getSection(name);
         section = existingSection != nullptr ? existingSection
                                              : instance //
-                                                   ->add_section(name, description + " for instance '" + instance->getInstanceName() + "'")
+                                                   ->addSection(name, description + " for instance '" + instance->getInstanceName() + "'")
                                                    ->disabled()
                                                    ->group("Sections");
     }
@@ -78,13 +78,13 @@ namespace net::config {
         return requiredCount > 0;
     }
 
-    CLI::Option* ConfigSection::add_option(const std::string& name, const std::string& description) {
+    CLI::Option* ConfigSection::addOption(const std::string& name, const std::string& description) {
         if (!instance->getInstanceName().empty() && !section->get_display_name().empty()) {
             section->disabled(false);
         }
 
         CLI::Option* opt = section //
-                               ->add_option(name, description);
+                               ->addOption(name, description);
 
         if (opt->get_configurable()) {
             opt->group(section->get_formatter()->get_label("Persistent Options"));
@@ -93,24 +93,24 @@ namespace net::config {
         return opt;
     }
 
-    CLI::Option* ConfigSection::add_option(const std::string& name, const std::string& description, const std::string& typeName) {
-        return add_option(name, description) //
+    CLI::Option* ConfigSection::addOption(const std::string& name, const std::string& description, const std::string& typeName) {
+        return addOption(name, description) //
             ->type_name(typeName);
     }
 
-    CLI::Option* ConfigSection::add_option(const std::string& name,
+    CLI::Option* ConfigSection::addOption(const std::string& name,
                                            const std::string& description,
                                            const std::string& typeName,
                                            const CLI::Validator& additionalValidator) {
-        return add_option(name, description, typeName) //
+        return addOption(name, description, typeName) //
             ->check(additionalValidator);
     }
 
-    CLI::Option* ConfigSection::add_flag(const std::string& name, const std::string& description, const std::string& typeName) {
+    CLI::Option* ConfigSection::addFlag(const std::string& name, const std::string& description, const std::string& typeName) {
         section->disabled(false);
 
         CLI::Option* opt = section //
-                               ->add_flag(name, description)
+                               ->addFlag(name, description)
                                ->type_name(typeName)
                                ->take_last();
 
@@ -121,15 +121,15 @@ namespace net::config {
         return opt;
     }
 
-    CLI::Option* ConfigSection::add_flag(const std::string& name,
+    CLI::Option* ConfigSection::addFlag(const std::string& name,
                                          const std::string& description,
                                          const std::string& typeName,
                                          const CLI::Validator& additionalValidator) {
-        return add_flag(name, description, typeName) //
+        return addFlag(name, description, typeName) //
             ->check(additionalValidator);
     }
 
-    CLI::Option* ConfigSection::add_flag_function(const std::string& name,
+    CLI::Option* ConfigSection::addFlagFunction(const std::string& name,
                                                   const std::function<void(int64_t)>& callback,
                                                   const std::string& description,
                                                   const std::string& typeName,
@@ -137,7 +137,7 @@ namespace net::config {
         section->disabled(false);
 
         CLI::Option* opt = section //
-                               ->add_flag_function(name, callback, description)
+                               ->addFlagFunction(name, callback, description)
                                ->take_last()
                                ->default_val(defaultValue)
                                ->type_name(typeName);
@@ -149,13 +149,13 @@ namespace net::config {
         return opt;
     }
 
-    CLI::Option* ConfigSection::add_flag_function(const std::string& name,
+    CLI::Option* ConfigSection::addFlagFunction(const std::string& name,
                                                   const std::function<void(int64_t)>& callback,
                                                   const std::string& description,
                                                   const std::string& typeName,
                                                   const std::string& defaultValue,
                                                   const CLI::Validator& validator) {
-        return add_flag_function(name, callback, description, typeName, defaultValue) //
+        return addFlagFunction(name, callback, description, typeName, defaultValue) //
             ->check(validator);
     }
 

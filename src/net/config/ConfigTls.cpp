@@ -29,66 +29,66 @@ namespace net::config {
 
     ConfigTls::ConfigTls(ConfigInstance* instance)
         : ConfigSection(instance, "tls", "Configuration of SSL/TLS behavior") {
-        certOpt = add_option( //
+        certOpt = addOption( //
             "--cert",
             "Certificate chain file",
             "filename:PEM-FILE",
             "");
 
-        certKeyOpt = add_option( //
+        certKeyOpt = addOption( //
             "--cert-key",
             "Certificate key file",
             "filename:PEM-FILE",
             "");
 
-        certKeyPasswordOpt = add_option( //
+        certKeyPasswordOpt = addOption( //
             "--cert-key-password",
             "Password for the certificate key file",
             "password",
             "",
             CLI::TypeValidator<std::string>());
 
-        caCertOpt = add_option( //
+        caCertOpt = addOption( //
             "--ca-cert",
             "CA-certificate file",
             "filename:PEM-FILE",
             "");
 
-        caCertDirOpt = add_option( //
+        caCertDirOpt = addOption( //
             "--ca-cert-dir",
             "CA-certificate directory",
             "directory:PEM-CONTAINER-DIR",
             "");
 
-        caCertUseDefaultDirOpt = add_flag( //
+        caCertUseDefaultDirOpt = addFlag( //
             "--ca-cert-use-default-dir{true}",
             "Use default CA-certificate directory",
             "bool",
             "false",
             CLI::IsMember({"true", "false"}));
 
-        cipherListOpt = add_option( //
+        cipherListOpt = addOption( //
             "--cipher-list",
             "Cipher list (OpenSSL syntax)",
             "cipher_list",
             "",
             CLI::TypeValidator<std::string>("CIPHER"));
 
-        sslOptionsOpt = add_option( //
+        sslOptionsOpt = addOption( //
             "--ssl-options",
             "OR combined SSL/TLS options (OpenSSL values)",
             "options",
             0,
             CLI::TypeValidator<ssl_option_t>());
 
-        initTimeoutOpt = add_option( //
+        initTimeoutOpt = addOption( //
             "--init-timeout",
             "SSL/TLS initialization timeout in seconds",
             "timeout",
             TLS_INIT_TIMEOUT,
             CLI::PositiveNumber);
 
-        shutdownTimeoutOpt = add_option( //
+        shutdownTimeoutOpt = addOption( //
             "--shutdown-timeout",
             "SSL/TLS shutdown timeout in seconds",
             "timeout",

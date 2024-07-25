@@ -65,7 +65,7 @@ namespace net::config {
         void setDisabled(bool disabled = true);
 
     private:
-        CLI::App* add_section(const std::string& name, const std::string& description);
+        CLI::App* addSection(const std::string& name, const std::string& description);
 
         CLI::App* getSection(const std::string& name) const;
 

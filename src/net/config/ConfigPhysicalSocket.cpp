@@ -48,14 +48,14 @@ namespace net::config {
             XSTR(REUSE_ADDRESS),
             CLI::IsMember({"true", "false"}));
 
-        retryOpt = add_flag( //
+        retryOpt = addFlag( //
             "--retry{true}",
             "Automatically retry listen|connect",
             "bool",
             XSTR(RETRY),
             CLI::IsMember({"true", "false"}));
 
-        retryOnFatalOpt = add_flag_function( //
+        retryOnFatalOpt = addFlagFunction( //
             "--retry-on-fatal{true}",
             [this](int64_t) -> void {
                 if (retryOnFatalOpt->as<bool>() && !retryOpt->as<bool>()) {
@@ -68,7 +68,7 @@ namespace net::config {
             CLI::IsMember({"true", "false"}));
         retryOnFatalOpt->needs(retryOpt);
 
-        retryTimeoutOpt = add_option( //
+        retryTimeoutOpt = addOption( //
             "--retry-timeout",
             "Timeout of the retry timer",
             "sec",
@@ -76,7 +76,7 @@ namespace net::config {
             CLI::NonNegativeNumber);
         retryTimeoutOpt->needs(retryOpt);
 
-        retryTriesOpt = add_option( //
+        retryTriesOpt = addOption( //
             "--retry-tries",
             "Number of retry attempts before giving up (0 = unlimited)",
             "tries",
@@ -84,7 +84,7 @@ namespace net::config {
             CLI::TypeValidator<unsigned int>());
         retryTriesOpt->needs(retryOpt);
 
-        retryBaseOpt = add_option( //
+        retryBaseOpt = addOption( //
             "--retry-base",
             "Base of exponential backoff",
             "base",
@@ -92,7 +92,7 @@ namespace net::config {
             CLI::PositiveNumber);
         retryBaseOpt->needs(retryOpt);
 
-        retryJitterOpt = add_option( //
+        retryJitterOpt = addOption( //
             "--retry-jitter",
             "Maximum jitter in percent to apply randomly to calculated retry timeout (0 to disable)",
             "jitter",
@@ -100,7 +100,7 @@ namespace net::config {
             CLI::Range(0., 100.));
         retryJitterOpt->needs(retryOpt);
 
-        retryLimitOpt = add_option( //
+        retryLimitOpt = addOption( //
             "--retry-limit",
             "Upper limit in seconds of retry timeout (0 for infinite)",
             "sec",
@@ -120,7 +120,7 @@ namespace net::config {
                                                          const std::string& typeName,
                                                          const std::string& defaultValue,
                                                          const CLI::Validator& validator) {
-        return net::config::ConfigSection::add_flag_function(
+        return net::config::ConfigSection::addFlagFunction(
             name,
             [this, strippedName = name.substr(0, name.find('{')), optLevel, optName](int64_t) -> void {
                 try {

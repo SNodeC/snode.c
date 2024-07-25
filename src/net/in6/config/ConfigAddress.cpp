@@ -44,7 +44,7 @@ namespace net::in6::config {
                                                                   const std::string& addressOptionName,
                                                                   const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
-        numericReverseOpt = Super::add_flag( //
+        numericReverseOpt = Super::addFlag( //
             "--numeric-reverse",
             "Suppress reverse host name lookup",
             "bool",
@@ -77,31 +77,31 @@ namespace net::in6::config {
                                                     const std::string& addressOptionName,
                                                     const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
-        hostOpt = Super::add_option( //
+        hostOpt = Super::addOption( //
             "--host",
             "Host name or IPv6 address",
             "hostname|IPv6",
             "::",
             CLI::TypeValidator<std::string>());
-        portOpt = Super::add_option( //
+        portOpt = Super::addOption( //
             "--port",
             "Port number",
             "port",
             0,
             CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
-        numericOpt = Super::add_flag( //
+        numericOpt = Super::addFlag( //
             "--numeric",
             "Suppress host name lookup",
             "bool",
             XSTR(IPV6_NUMERIC),
             CLI::IsMember({"true", "false"}));
-        numericReverseOpt = Super::add_flag( //
+        numericReverseOpt = Super::addFlag( //
             "--numeric-reverse",
             "Suppress reverse host name lookup",
             "bool",
             XSTR(IPV6_NUMERIC_REVERSE),
             CLI::IsMember({"true", "false"}));
-        ipv4MappedOpt = Super::add_flag( //
+        ipv4MappedOpt = Super::addFlag( //
             "--ipv4-mapped",
             "Resolve IPv4-mapped IPv6 addresses also",
             "bool",

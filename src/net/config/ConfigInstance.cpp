@@ -53,7 +53,7 @@ namespace net::config {
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
         : instanceName(instanceName)
         , role(role) {
-        instanceSc = utils::Config::add_instance(instanceName,
+        instanceSc = utils::Config::addInstance(instanceName,
                                                  std::string("Configuration for ")
                                                      .append(role == Role::SERVER ? "server" : "client")
                                                      .append(" instance '")
@@ -61,11 +61,11 @@ namespace net::config {
                                                      .append("'"),
                                                  "Instance");
 
-        utils::Config::add_standard_flags(instanceSc);
-        utils::Config::add_help(instanceSc);
+        utils::Config::addStandardFlags(instanceSc);
+        utils::Config::addHelp(instanceSc);
 
         disableOpt = instanceSc
-                         ->add_flag_function(
+                         ->addFlagFunction(
                              "--disabled{true}",
                              [this]([[maybe_unused]] int64_t count) -> void {
                                  utils::Config::disabled(instanceSc, disableOpt->as<bool>());
@@ -80,7 +80,7 @@ namespace net::config {
     }
 
     ConfigInstance::~ConfigInstance() {
-        utils::Config::remove_instance(instanceSc);
+        utils::Config::removeInstance(instanceSc);
     }
 
     ConfigInstance::Role ConfigInstance::getRole() {
@@ -95,7 +95,7 @@ namespace net::config {
         this->instanceName = instanceName;
     }
 
-    CLI::App* ConfigInstance::add_section(const std::string& name, const std::string& description) {
+    CLI::App* ConfigInstance::addSection(const std::string& name, const std::string& description) {
         CLI::App* sectionSc = instanceSc //
                                   ->add_subcommand(name, description)
                                   ->fallthrough()
@@ -109,8 +109,8 @@ namespace net::config {
             ->configurable(!sectionSc->get_disabled());
 
         if (!sectionSc->get_disabled()) {
-            utils::Config::add_standard_flags(sectionSc);
-            utils::Config::add_help_with_flags(sectionSc);
+            utils::Config::addStandardFlags(sectionSc);
+            utils::Config::addSimpleHelp(sectionSc);
         }
 
         return sectionSc;

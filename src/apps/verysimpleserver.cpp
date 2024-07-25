@@ -31,7 +31,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
-    utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
+    utils::Config::addStringOption("--web-root", "Root directory of the web site", "[path]");
 
     express::WebApp::init(argc, argv);
 
@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
     const LegacyWebApp legacyApp;
     legacyApp.getConfig().setReuseAddress();
 
-    legacyApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+    legacyApp.use(express::middleware::StaticMiddleware(utils::Config::getStringOptionValue("--web-root")));
 
     legacyApp.listen(8080,
                      [instanceName = legacyApp.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     tlsApp.getConfig().setCertKey("/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
     tlsApp.getConfig().setCertKeyPassword("snode.c");
 
-    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::get_string_option_value("--web-root")));
+    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::getStringOptionValue("--web-root")));
 
     tlsApp.listen(8088,
                   [instanceName = legacyApp.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress,

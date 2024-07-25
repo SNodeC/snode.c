@@ -2539,7 +2539,7 @@ public:                                                                         
         bool lexical_cast(const std::string& input, T& output) {
             static_assert(is_istreamable<T>::value,
                           "option object type must have a lexical cast overload or streaming input operator(>>) defined, if it "
-                          "is convertible from another type use the add_option<T, XC>(...) with XC being the known type");
+                          "is convertible from another type use the addOption<T, XC>(...) with XC being the known type");
             return from_stream(input, output);
         }
 
@@ -6256,7 +6256,7 @@ public:                                                                         
     using App_p = std::shared_ptr<App>;
 
     namespace detail {
-        /// helper functions for adding in appropriate flag modifiers for add_flag
+        /// helper functions for adding in appropriate flag modifiers for addFlag
 
         template <typename T, enable_if_t<!std::is_integral<T>::value || (sizeof(T) <= 1U), detail::enabler> = detail::dummy>
         Option* default_flag_modifiers(Option* opt) {
@@ -6274,7 +6274,7 @@ public:                                                                         
     class Option_group;
     /// Creates a command line program, with very few defaults.
     /** To use, create a new `Program()` instance with `argc`, `argv`, and a help description. The templated
-     *  add_option methods make it easy to prepare options. Remember to call `.start` before starting your
+     *  addOption methods make it easy to prepare options. Remember to call `.start` before starting your
      * program, so that the options can be evaluated and the help option doesn't accidentally run your program. */
     class App {
         friend Option;
@@ -6694,9 +6694,9 @@ public:                                                                         
         /// For example,
         ///
         ///     std::string filename;
-        ///     program.add_option("filename", filename, "description of filename");
+        ///     program.addOption("filename", filename, "description of filename");
         ///
-        Option* add_option(std::string option_name,
+        Option* addOption(std::string option_name,
                            callback_t option_callback,
                            std::string option_description = "",
                            bool defaulted = false,
@@ -6706,14 +6706,14 @@ public:                                                                         
         template <typename AssignTo,
                   typename ConvertTo = AssignTo,
                   enable_if_t<!std::is_const<ConvertTo>::value, detail::enabler> = detail::dummy>
-        Option* add_option(std::string option_name,
+        Option* addOption(std::string option_name,
                            AssignTo& variable, ///< The variable to set
                            std::string option_description = "") {
             auto fun = [&variable](const CLI::results_t& res) { // comment for spacing
                 return detail::lexical_conversion<AssignTo, ConvertTo>(res, variable);
             };
 
-            Option* opt = add_option(option_name, fun, option_description, false, [&variable]() {
+            Option* opt = addOption(option_name, fun, option_description, false, [&variable]() {
                 return CLI::detail::checked_to_string<AssignTo, ConvertTo>(variable);
             });
             opt->type_name(detail::type_name<ConvertTo>());
@@ -6729,14 +6729,14 @@ public:                                                                         
 
         /// Add option for assigning to a variable
         template <typename AssignTo, enable_if_t<!std::is_const<AssignTo>::value, detail::enabler> = detail::dummy>
-        Option* add_option_no_stream(std::string option_name,
+        Option* addOption_no_stream(std::string option_name,
                                      AssignTo& variable, ///< The variable to set
                                      std::string option_description = "") {
             auto fun = [&variable](const CLI::results_t& res) { // comment for spacing
                 return detail::lexical_conversion<AssignTo, AssignTo>(res, variable);
             };
 
-            Option* opt = add_option(option_name, fun, option_description, false, []() {
+            Option* opt = addOption(option_name, fun, option_description, false, []() {
                 return std::string{};
             });
             opt->type_name(detail::type_name<AssignTo>());
@@ -6748,7 +6748,7 @@ public:                                                                         
 
         /// Add option for a callback of a specific type
         template <typename ArgType>
-        Option* add_option_function(std::string option_name,
+        Option* addOption_function(std::string option_name,
                                     const std::function<void(const ArgType&)>& func, ///< the callback to execute
                                     std::string option_description = "") {
             auto fun = [func](const CLI::results_t& res) {
@@ -6760,7 +6760,7 @@ public:                                                                         
                 return result;
             };
 
-            Option* opt = add_option(option_name, std::move(fun), option_description, false);
+            Option* opt = addOption(option_name, std::move(fun), option_description, false);
             opt->type_name(detail::type_name<ArgType>());
             opt->type_size(detail::type_count_min<ArgType>::value, detail::type_count<ArgType>::value);
             opt->expected(detail::expected_count<ArgType>::value);
@@ -6768,15 +6768,15 @@ public:                                                                         
         }
 
         /// Add option with no description or variable assignment
-        Option* add_option(std::string option_name) {
-            return add_option(option_name, CLI::callback_t{}, std::string{}, false);
+        Option* addOption(std::string option_name) {
+            return addOption(option_name, CLI::callback_t{}, std::string{}, false);
         }
 
         /// Add option with description but with no variable assignment or callback
         template <typename T,
                   enable_if_t<std::is_const<T>::value && std::is_constructible<std::string, T>::value, detail::enabler> = detail::dummy>
-        Option* add_option(std::string option_name, T& option_description) {
-            return add_option(option_name, CLI::callback_t(), option_description, false);
+        Option* addOption(std::string option_name, T& option_description) {
+            return addOption(option_name, CLI::callback_t(), option_description, false);
         }
 
         /// Set a help flag, replace the existing one if present
@@ -6797,12 +6797,12 @@ public:                                                                         
 
     private:
         /// Internal function for adding a flag
-        Option* _add_flag_internal(std::string flag_name, CLI::callback_t fun, std::string flag_description);
+        Option* _addFlag_internal(std::string flag_name, CLI::callback_t fun, std::string flag_description);
 
     public:
         /// Add a flag with no description or variable assignment
-        Option* add_flag(std::string flag_name) {
-            return _add_flag_internal(flag_name, CLI::callback_t(), std::string{});
+        Option* addFlag(std::string flag_name) {
+            return _addFlag_internal(flag_name, CLI::callback_t(), std::string{});
         }
 
         /// Add flag with description but with no variable assignment or callback
@@ -6810,8 +6810,8 @@ public:                                                                         
         /// flag
         template <typename T,
                   enable_if_t<std::is_const<T>::value && std::is_constructible<std::string, T>::value, detail::enabler> = detail::dummy>
-        Option* add_flag(std::string flag_name, T& flag_description) {
-            return _add_flag_internal(flag_name, CLI::callback_t(), flag_description);
+        Option* addFlag(std::string flag_name, T& flag_description) {
+            return _addFlag_internal(flag_name, CLI::callback_t(), flag_description);
         }
 
         /// Other type version accepts all other types that are not vectors such as bool, enum, string or other classes
@@ -6820,21 +6820,21 @@ public:                                                                         
                   enable_if_t<!detail::is_mutable_container<T>::value && !std::is_const<T>::value &&
                                   !std::is_constructible<std::function<void(int)>, T>::value,
                               detail::enabler> = detail::dummy>
-        Option* add_flag(std::string flag_name,
+        Option* addFlag(std::string flag_name,
                          T& flag_result, ///< A variable holding the flag result
                          std::string flag_description = "") {
             CLI::callback_t fun = [&flag_result](const CLI::results_t& res) {
                 using CLI::detail::lexical_cast;
                 return lexical_cast(res[0], flag_result);
             };
-            auto* opt = _add_flag_internal(flag_name, std::move(fun), std::move(flag_description));
+            auto* opt = _addFlag_internal(flag_name, std::move(fun), std::move(flag_description));
             return detail::default_flag_modifiers<T>(opt);
         }
 
         /// Vector version to capture multiple flags.
         template <typename T,
                   enable_if_t<!std::is_assignable<std::function<void(std::int64_t)>&, T>::value, detail::enabler> = detail::dummy>
-        Option* add_flag(std::string flag_name,
+        Option* addFlag(std::string flag_name,
                          std::vector<T>& flag_results, ///< A vector of values with the flag results
                          std::string flag_description = "") {
             CLI::callback_t fun = [&flag_results](const CLI::results_t& res) {
@@ -6846,27 +6846,27 @@ public:                                                                         
                 }
                 return retval;
             };
-            return _add_flag_internal(flag_name, std::move(fun), std::move(flag_description))
+            return _addFlag_internal(flag_name, std::move(fun), std::move(flag_description))
                 ->multi_option_policy(MultiOptionPolicy::TakeAll)
                 ->run_callback_for_default();
         }
 
         /// Add option for callback that is triggered with a true flag and takes no arguments
-        Option* add_flag_callback(std::string flag_name,
+        Option* addFlag_callback(std::string flag_name,
                                   std::function<void(void)> function, ///< A function to call, void(void)
                                   std::string flag_description = "");
 
         /// Add option for callback with an integer value
-        Option* add_flag_function(std::string flag_name,
+        Option* addFlagFunction(std::string flag_name,
                                   std::function<void(std::int64_t)> function, ///< A function to call, void(int)
                                   std::string flag_description = "");
 
 #ifdef CLI11_CPP14
         /// Add option for callback (C++14 or better only)
-        Option* add_flag(std::string flag_name,
+        Option* addFlag(std::string flag_name,
                          std::function<void(std::int64_t)> function, ///< A function to call, void(std::int64_t)
                          std::string flag_description = "") {
-            return add_flag_function(std::move(flag_name), std::move(function), std::move(flag_description));
+            return addFlagFunction(std::move(flag_name), std::move(function), std::move(flag_description));
         }
 #endif
 
@@ -6881,7 +6881,7 @@ public:                                                                         
 
         /// creates an option group as part of the given app
         template <typename T = Option_group>
-        T* add_option_group(std::string group_name, std::string group_description = "") {
+        T* addOption_group(std::string group_name, std::string group_description = "") {
             if (!detail::valid_alias_name_string(group_name)) {
                 throw IncorrectConstruction("option group names may not contain newlines or null characters");
             }
@@ -7602,9 +7602,9 @@ public:                                                                         
             group(group_name);
             // option groups should have automatic fallthrough
         }
-        using App::add_option;
+        using App::addOption;
         /// Add an existing option to the Option_group
-        Option* add_option(Option* opt) {
+        Option* addOption(Option* opt) {
             if (get_parent() == nullptr) {
                 throw OptionNotFound("Unable to locate the specified option");
             }
@@ -7612,14 +7612,14 @@ public:                                                                         
             return opt;
         }
         /// Add an existing option to the Option_group
-        void add_options(Option* opt) {
-            add_option(opt);
+        void addOptions(Option* opt) {
+            addOption(opt);
         }
         /// Add a bunch of options to the group
         template <typename... Args>
-        void add_options(Option* opt, Args... args) {
-            add_option(opt);
-            add_options(args...);
+        void addOptions(Option* opt, Args... args) {
+            addOption(opt);
+            addOptions(args...);
         }
         using App::add_subcommand;
         /// Add an existing subcommand to be a member of an option_group
@@ -7817,7 +7817,7 @@ public:                                                                         
         return this;
     }
 
-    CLI11_INLINE Option* App::add_option(std::string option_name,
+    CLI11_INLINE Option* App::addOption(std::string option_name,
                                          callback_t option_callback,
                                          std::string option_description,
                                          bool defaulted,
@@ -7859,7 +7859,7 @@ public:                                                                         
     }
 
     CLI11_INLINE Option* App::set_help_flag(std::string flag_name, const std::string& help_description) {
-        // take flag_description by const reference otherwise add_flag tries to assign to help_description
+        // take flag_description by const reference otherwise addFlag tries to assign to help_description
         if (help_ptr_ != nullptr) {
             remove_option(help_ptr_);
             help_ptr_ = nullptr;
@@ -7867,7 +7867,7 @@ public:                                                                         
 
         // Empty name will simply remove the help flag
         if (!flag_name.empty()) {
-            help_ptr_ = add_flag(flag_name, help_description);
+            help_ptr_ = addFlag(flag_name, help_description);
             help_ptr_->configurable(false);
         }
 
@@ -7875,7 +7875,7 @@ public:                                                                         
     }
 
     CLI11_INLINE Option* App::set_help_all_flag(std::string help_name, const std::string& help_description) {
-        // take flag_description by const reference otherwise add_flag tries to assign to flag_description
+        // take flag_description by const reference otherwise addFlag tries to assign to flag_description
         if (help_all_ptr_ != nullptr) {
             remove_option(help_all_ptr_);
             help_all_ptr_ = nullptr;
@@ -7883,7 +7883,7 @@ public:                                                                         
 
         // Empty name will simply remove the help all flag
         if (!help_name.empty()) {
-            help_all_ptr_ = add_flag(help_name, help_description);
+            help_all_ptr_ = addFlag(help_name, help_description);
             help_all_ptr_->configurable(false);
         }
 
@@ -7891,7 +7891,7 @@ public:                                                                         
     }
 
     CLI11_INLINE Option* App::set_version_flag(std::string flag_name, const std::string& versionString, const std::string& version_help) {
-        // take flag_description by const reference otherwise add_flag tries to assign to version_description
+        // take flag_description by const reference otherwise addFlag tries to assign to version_description
         if (version_ptr_ != nullptr) {
             remove_option(version_ptr_);
             version_ptr_ = nullptr;
@@ -7899,7 +7899,7 @@ public:                                                                         
 
         // Empty name will simply remove the version flag
         if (!flag_name.empty()) {
-            version_ptr_ = add_flag_callback(
+            version_ptr_ = addFlag_callback(
                 flag_name,
                 [versionString]() {
                     throw(CLI::CallForVersion(versionString, 0));
@@ -7919,7 +7919,7 @@ public:                                                                         
 
         // Empty name will simply remove the version flag
         if (!flag_name.empty()) {
-            version_ptr_ = add_flag_callback(
+            version_ptr_ = addFlag_callback(
                 flag_name,
                 [vfunc]() {
                     throw(CLI::CallForVersion(vfunc(), 0));
@@ -7931,18 +7931,18 @@ public:                                                                         
         return version_ptr_;
     }
 
-    CLI11_INLINE Option* App::_add_flag_internal(std::string flag_name, CLI::callback_t fun, std::string flag_description) {
+    CLI11_INLINE Option* App::_addFlag_internal(std::string flag_name, CLI::callback_t fun, std::string flag_description) {
         Option* opt = nullptr;
         if (detail::has_default_flag_values(flag_name)) {
             // check for default values and if it has them
             auto flag_defaults = detail::get_default_flag_values(flag_name);
             detail::remove_default_flag_values(flag_name);
-            opt = add_option(std::move(flag_name), std::move(fun), std::move(flag_description), false);
+            opt = addOption(std::move(flag_name), std::move(fun), std::move(flag_description), false);
             for (const auto& fname : flag_defaults)
                 opt->fnames_.push_back(fname.first);
             opt->default_flag_values_ = std::move(flag_defaults);
         } else {
-            opt = add_option(std::move(flag_name), std::move(fun), std::move(flag_description), false);
+            opt = addOption(std::move(flag_name), std::move(fun), std::move(flag_description), false);
         }
         // flags cannot have positional values
         if (opt->get_positional()) {
@@ -7956,7 +7956,7 @@ public:                                                                         
         return opt;
     }
 
-    CLI11_INLINE Option* App::add_flag_callback(std::string flag_name,
+    CLI11_INLINE Option* App::addFlag_callback(std::string flag_name,
                                                 std::function<void(void)> function, ///< A function to call, void(void)
                                                 std::string flag_description) {
         CLI::callback_t fun = [function](const CLI::results_t& res) {
@@ -7968,10 +7968,10 @@ public:                                                                         
             }
             return result;
         };
-        return _add_flag_internal(flag_name, std::move(fun), std::move(flag_description));
+        return _addFlag_internal(flag_name, std::move(fun), std::move(flag_description));
     }
 
-    CLI11_INLINE Option* App::add_flag_function(std::string flag_name,
+    CLI11_INLINE Option* App::addFlagFunction(std::string flag_name,
                                                 std::function<void(std::int64_t)> function, ///< A function to call, void(int)
                                                 std::string flag_description) {
         CLI::callback_t fun = [function](const CLI::results_t& res) {
@@ -7981,7 +7981,7 @@ public:                                                                         
             function(flag_count);
             return true;
         };
-        return _add_flag_internal(flag_name, std::move(fun), std::move(flag_description))->multi_option_policy(MultiOptionPolicy::Sum);
+        return _addFlag_internal(flag_name, std::move(fun), std::move(flag_description))->multi_option_policy(MultiOptionPolicy::Sum);
     }
 
     CLI11_INLINE Option*
@@ -7994,7 +7994,7 @@ public:                                                                         
 
         // Only add config if option passed
         if (!option_name.empty()) {
-            config_ptr_ = add_option(option_name, help_message);
+            config_ptr_ = addOption(option_name, help_message);
             if (config_required) {
                 config_ptr_->required();
             }
@@ -9830,13 +9830,13 @@ public:                                                                         
 
     CLI11_INLINE void retire_option(App* app, Option* opt) {
         App temp;
-        auto* option_copy = temp.add_option(opt->get_name(false, true))
+        auto* option_copy = temp.addOption(opt->get_name(false, true))
                                 ->type_size(opt->get_type_size_min(), opt->get_type_size_max())
                                 ->expected(opt->get_expected_min(), opt->get_expected_max())
                                 ->allow_extra_args(opt->get_allow_extra_args());
 
         app->remove_option(opt);
-        auto* opt2 = app->add_option(option_copy->get_name(false, true), "option has been retired and has no effect")
+        auto* opt2 = app->addOption(option_copy->get_name(false, true), "option has been retired and has no effect")
                          ->type_name("RETIRED")
                          ->default_str("RETIRED")
                          ->type_size(option_copy->get_type_size_min(), option_copy->get_type_size_max())
@@ -9862,7 +9862,7 @@ public:                                                                         
             retire_option(app, opt);
             return;
         }
-        auto* opt2 = app->add_option(option_name, "option has been retired and has no effect")
+        auto* opt2 = app->addOption(option_name, "option has been retired and has no effect")
                          ->type_name("RETIRED")
                          ->expected(0, 1)
                          ->default_str("RETIRED");

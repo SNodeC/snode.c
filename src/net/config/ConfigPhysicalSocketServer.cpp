@@ -48,21 +48,21 @@ namespace net::config {
 
     ConfigPhysicalSocketServer::ConfigPhysicalSocketServer(ConfigInstance* instance)
         : net::config::ConfigPhysicalSocket(instance) {
-        backlogOpt = add_option( //
+        backlogOpt = addOption( //
             "--backlog",
             "Listen backlog",
             "backlog",
             BACKLOG,
             CLI::PositiveNumber);
 
-        acceptsPerTickOpt = add_option( //
+        acceptsPerTickOpt = addOption( //
             "--accepts-per-tick",
             "Accepts per tick",
             "number",
             ACCEPTS_PER_TICK,
             CLI::PositiveNumber);
 
-        acceptTimeoutOpt = add_option( //
+        acceptTimeoutOpt = addOption( //
             "--accept-timeout",
             "Accept timeout",
             "timeout",

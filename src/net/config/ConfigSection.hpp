@@ -46,38 +46,38 @@
 namespace net::config {
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::add_option(const std::string& name,
+    CLI::Option* ConfigSection::addOption(const std::string& name,
                                            const std::string& description,
                                            const std::string& typeName,
                                            ValueType defaultValue) {
-        return add_option(name, description, typeName) //
+        return addOption(name, description, typeName) //
             ->default_val(defaultValue);
     }
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::add_option(const std::string& name,
+    CLI::Option* ConfigSection::addOption(const std::string& name,
                                            const std::string& description,
                                            const std::string& typeName,
                                            ValueType defaultValue,
                                            const CLI::Validator& additionalValidator) {
-        return add_option(name, description, typeName, defaultValue) //
+        return addOption(name, description, typeName, defaultValue) //
             ->check(additionalValidator);
     }
 
     template <typename ValueType>
     CLI::Option*
-    ConfigSection::add_flag(const std::string& name, const std::string& description, const std::string& typeName, ValueType defaultValue) {
-        return add_flag(name, description, typeName) //
+    ConfigSection::addFlag(const std::string& name, const std::string& description, const std::string& typeName, ValueType defaultValue) {
+        return addFlag(name, description, typeName) //
             ->default_val(defaultValue);
     }
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::add_flag(const std::string& name,
+    CLI::Option* ConfigSection::addFlag(const std::string& name,
                                          const std::string& description,
                                          const std::string& typeName,
                                          ValueType defaultValue,
                                          const CLI::Validator& additionalValidator) {
-        return add_flag(name, description, typeName, defaultValue) //
+        return addFlag(name, description, typeName, defaultValue) //
             ->check(additionalValidator);
     }
 

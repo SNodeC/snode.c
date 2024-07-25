@@ -44,7 +44,7 @@ namespace net::in::config {
                                                                   const std::string& addressOptionName,
                                                                   const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
-        numericReverseOpt = Super::add_flag( //
+        numericReverseOpt = Super::addFlag( //
             "--numeric-reverse{true}",
             "Suppress reverse host name lookup",
             "bool",
@@ -77,28 +77,28 @@ namespace net::in::config {
                                                     const std::string& addressOptionName,
                                                     const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
-        hostOpt = Super::add_option( //
+        hostOpt = Super::addOption( //
             "--host",
             "Host name or IPv4 address",
             "hostname|IPv4",
             "0.0.0.0",
             CLI::TypeValidator<std::string>());
 
-        portOpt = Super::add_option( //
+        portOpt = Super::addOption( //
             "--port",
             "Port number",
             "port",
             0,
             CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
 
-        numericOpt = Super::add_flag( //
+        numericOpt = Super::addFlag( //
             "--numeric{true}",
             "Suppress host name lookup",
             "bool",
             XSTR(IPV4_NUMERIC),
             CLI::IsMember({"true", "false"}));
 
-        numericReverseOpt = Super::add_flag( //
+        numericReverseOpt = Super::addFlag( //
             "--numeric-reverse{true}",
             "Suppress reverse host name lookup",
             "bool",

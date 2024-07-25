@@ -29,35 +29,35 @@ namespace net::config {
 
     ConfigConnection::ConfigConnection(ConfigInstance* instance)
         : net::config::ConfigSection(instance, "connection", "Configuration of established connections") {
-        readTimeoutOpt = add_option( //
+        readTimeoutOpt = addOption( //
             "--read-timeout",
             "Read timeout in seconds",
             "timeout",
             READ_TIMEOUT,
             CLI::PositiveNumber);
 
-        writeTimeoutOpt = add_option( //
+        writeTimeoutOpt = addOption( //
             "--write-timeout",
             "Write timeout in seconds",
             "timeout",
             WRITE_TIMEOUT,
             CLI::PositiveNumber);
 
-        readBlockSizeOpt = add_option( //
+        readBlockSizeOpt = addOption( //
             "--read-block-size",
             "Read block size",
             "size",
             READ_BLOCKSIZE,
             CLI::PositiveNumber);
 
-        writeBlockSizeOpt = add_option( //
+        writeBlockSizeOpt = addOption( //
             "--write-block-size",
             "Write block size",
             "size",
             WRITE_BLOCKSIZE,
             CLI::PositiveNumber);
 
-        terminateTimeoutOpt = add_option( //
+        terminateTimeoutOpt = addOption( //
             "--terminate-timeout",
             "Terminate timeout",
             "timeout",

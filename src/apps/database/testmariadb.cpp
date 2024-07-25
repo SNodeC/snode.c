@@ -36,12 +36,12 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
-    utils::Config::add_string_option("--db-host", "Hostname of IP-Address of Server", "[hostname|IP-address]", "localhost", true);
+    utils::Config::addStringOption("--db-host", "Hostname of IP-Address of Server", "[hostname|IP-address]", "localhost", true);
 
     core::SNodeC::init(argc, argv);
 
     const database::mariadb::MariaDBConnectionDetails details = {
-        .hostname = utils::Config::get_string_option_value("--db-host"),
+        .hostname = utils::Config::getStringOptionValue("--db-host"),
         .username = "snodec",
         .password = "pentium5",
         .database = "snodec",
