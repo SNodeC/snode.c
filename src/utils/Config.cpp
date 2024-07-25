@@ -233,7 +233,7 @@ namespace utils {
                 ->check(!CLI::ExistingDirectory);
 
             app->addOption("-w,--write-config",
-                            "Write config file and exit") //
+                           "Write config file and exit") //
                 ->configurable(false)
                 ->default_val(configDirectory + "/" + applicationName + ".conf")
                 ->type_name("[configfile]")
@@ -555,14 +555,11 @@ namespace utils {
             } catch (const CLI::CallForVersion&) {
                 std::cout << app->version() << std::endl << std::endl;
             } catch (const CLI::CallForCommandline& e) {
-                std::cout << e.what() << ":" << std::endl;
+                std::cout << e.what() << std::endl;
                 std::cout << std::endl
                           << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE << "~/> "
                           << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl
                           << std::endl;
-                std::cout << "* Options show either their configured or default value" << std::endl;
-                std::cout << "* Required but not yet configured options show <REQUIRED> as value" << std::endl;
-                std::cout << "* Options marked as <REQUIRED> need to be configured for a successful bootstrap" << std::endl;
             } catch (const CLI::CallForShowConfig& e) {
                 try {
                     std::cout << e.getApp()->config_to_str(true, true);
@@ -702,24 +699,40 @@ namespace utils {
                 [app]([[maybe_unused]] std::int64_t count) {
                     const std::string& result = app->get_option("--command-line")->as<std::string>();
                     if (result == "standard") {
-                        throw CLI::CallForCommandline(app,
-                                                      "Below is a command line viewing all non-default and required options",
-                                                      CLI::CallForCommandline::Mode::NONEDEFAULT);
+                        throw CLI::CallForCommandline( //
+                            app,
+                            "Below is a command line viewing all non-default and required options:\n"
+                            "* Options show their configured value\n"
+                            "* Required but not yet configured options show <REQUIRED> as value\n"
+                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                            CLI::CallForCommandline::Mode::NONEDEFAULT);
                     }
                     if (result == "required") {
-                        throw CLI::CallForCommandline(
-                            app, "Below is a command line viewing required options only", CLI::CallForCommandline::Mode::REQUIRED);
+                        throw CLI::CallForCommandline( //
+                            app,
+                            "Below is a command line viewing required options only:\n"
+                            "* Options show either their configured or default value\n"
+                            "* Required but not yet configured options show <REQUIRED> as value\n"
+                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                            CLI::CallForCommandline::Mode::REQUIRED);
                     }
                     if (result == "full") {
-                        throw CLI::CallForCommandline(
+                        throw CLI::CallForCommandline( //
                             app,
-                            "Below is a command line viewing the full set of options with their default or configured values",
+                            "Below is a command line viewing the full set of options with their default or configured values:\n"
+                            "* Options show either their configured or default value\n"
+                            "* Required but not yet configured options show <REQUIRED> as value\n"
+                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
                             CLI::CallForCommandline::Mode::FULL);
                     }
                     if (result == "default") {
-                        throw CLI::CallForCommandline(app,
-                                                      "Below is a command line viewing the full set of options with their default values",
-                                                      CLI::CallForCommandline::Mode::DEFAULT);
+                        throw CLI::CallForCommandline( //
+                            app,
+                            "Below is a command line viewing the full set of options with their default values\n"
+                            "* Options show their default value\n"
+                            "* Required but not yet configured options show <REQUIRED> as value\n"
+                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                            CLI::CallForCommandline::Mode::DEFAULT);
                     }
                 },
                 "Print a command line\n"
@@ -885,9 +898,9 @@ namespace utils {
     }
 
     CLI::Option* Config::addStringOption(const std::string& name,
-                                           const std::string& description,
-                                           const std::string& typeName,
-                                           const std::string& defaultValue) {
+                                         const std::string& description,
+                                         const std::string& typeName,
+                                         const std::string& defaultValue) {
         addStringOption(name, description, typeName);
 
         applicationOptions[name] //
@@ -900,19 +913,19 @@ namespace utils {
     }
 
     CLI::Option* Config::addStringOption(const std::string& name,
-                                           const std::string& description,
-                                           const std::string& typeName,
-                                           const std::string& defaultValue,
-                                           bool configurable) {
+                                         const std::string& description,
+                                         const std::string& typeName,
+                                         const std::string& defaultValue,
+                                         bool configurable) {
         addStringOption(name, description, typeName, defaultValue);
         return applicationOptions[name] //
             ->configurable(configurable);
     }
 
     CLI::Option* Config::addStringOption(const std::string& name,
-                                           const std::string& description,
-                                           const std::string& typeName,
-                                           const char* defaultValue) {
+                                         const std::string& description,
+                                         const std::string& typeName,
+                                         const char* defaultValue) {
         return addStringOption(name, description, typeName, std::string(defaultValue));
     }
 
@@ -930,14 +943,14 @@ namespace utils {
     }
 
     void Config::addFlag(const std::string& name,
-                          bool& variable,
-                          const std::string& description,
-                          bool required,
-                          bool configurable,
-                          const std::string& groupName) {
+                         bool& variable,
+                         const std::string& description,
+                         bool required,
+                         bool configurable,
+                         const std::string& groupName) {
         app->addFlag(name, variable, description) //
-            ->required(required)                   //
-            ->configurable(configurable)           //
+            ->required(required)                  //
+            ->configurable(configurable)          //
             ->group(groupName);
     }
 
