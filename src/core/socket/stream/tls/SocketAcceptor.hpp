@@ -45,8 +45,6 @@ namespace core::socket::stream::tls {
         : Super(
               socketContextFactory,
               [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
-                  onConnect(socketConnection);
-
                   SSL* ssl = socketConnection->startSSL(socketConnection->getFd(),
                                                         this->config->getSslCtx(),
                                                         Super::config->getInitTimeout(),
@@ -55,6 +53,8 @@ namespace core::socket::stream::tls {
                   if (ssl != nullptr) {
                       SSL_set_accept_state(ssl);
                   }
+
+                  onConnect(socketConnection);
               },
               [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // on Connected
                   if (socketConnection->doSSLHandshake(
@@ -63,6 +63,7 @@ namespace core::socket::stream::tls {
                               LOG(TRACE) << instanceName << " SSL/TLS: Initial handshake success";
 
                               onConnected(socketConnection);
+
                               socketConnection->connectSocketContext(socketContextFactory);
                           },
                           [socketConnection, instanceName = Super::config->getInstanceName()]() -> void { // onTimeout

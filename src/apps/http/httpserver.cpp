@@ -18,6 +18,8 @@
  */
 
 #include "apps/http/model/servers.h"
+#include "express/middleware/StaticMiddleware.h"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,13 +39,20 @@
 using namespace express;
 
 int main(int argc, char* argv[]) {
+    using WebApp = apps::http::STREAM::WebApp;
+    using SocketAddress = WebApp::SocketAddress;
+
+    const WebApp webApp(apps::http::STREAM::getWebApp("httpserver"));
+
+    net::config::ConfigSection configWeb = net::config::ConfigSection(&webApp.getConfig(), "www", "Web behavior of httpserver");
+    CLI::Option* htmlRoot = configWeb.add_option("--html-root", "HTML root directory", "path", "");
+    configWeb.required(htmlRoot);
+
     WebApp::init(argc, argv);
+
+    webApp.use(express::middleware::StaticMiddleware(htmlRoot->as<std::string>()));
+
     {
-        using WebApp = apps::http::STREAM::WebApp;
-        using SocketAddress = WebApp::SocketAddress;
-
-        const WebApp webApp(apps::http::STREAM::getWebApp("httpserver"));
-
 #if (STREAM_TYPE == TLS)
         std::string cert = "/home/voc/projects/snodec/snode.c/certs/snode.c_-_server.pem";
         std::string key = "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem";
