@@ -232,21 +232,21 @@ namespace utils {
                 ->type_name("configfile")
                 ->check(!CLI::ExistingDirectory);
 
-            app->addOption("-w,--write-config",
-                           "Write config file and exit") //
+            app->add_option("-w,--write-config",
+                            "Write config file and exit") //
                 ->configurable(false)
                 ->default_val(configDirectory + "/" + applicationName + ".conf")
                 ->type_name("[configfile]")
                 ->check(!CLI::ExistingDirectory)
                 ->expected(0, 1);
 
-            app->addFlag( //
+            app->add_flag( //
                    "-k,--kill",
                    "Kill running daemon") //
                 ->configurable(false)
                 ->disable_flag_override();
 
-            app->addOption( //
+            app->add_option( //
                    "-i,--instance-alias",
                    "Make an instance also known as an alias in configuration files")
                 ->configurable(false)
@@ -262,7 +262,7 @@ namespace utils {
 
             addStandardFlags(app.get());
 
-            logLevelOpt = app->addOption( //
+            logLevelOpt = app->add_option( //
                                  "-l,--log-level",
                                  "Log level") //
                               ->default_val(4)
@@ -270,7 +270,7 @@ namespace utils {
                               ->check(CLI::Range(0, 6))
                               ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            verboseLevelOpt = app->addOption( //
+            verboseLevelOpt = app->add_option( //
                                      "-v,--verbose-level",
                                      "Verbose level") //
                                   ->default_val(1)
@@ -278,7 +278,7 @@ namespace utils {
                                   ->check(CLI::Range(0, 10))
                                   ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            quietOpt = app->addFlag( //
+            quietOpt = app->add_flag( //
                               "-q{true},!-u,--quiet{true}",
                               "Quiet mode") //
                            ->take_last()
@@ -287,7 +287,7 @@ namespace utils {
                            ->check(CLI::IsMember({"true", "false"}))
                            ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            logFileOpt = app->addOption( //
+            logFileOpt = app->add_option( //
                                 "--log-file",
                                 "Log file path") //
                              ->default_val(logDirectory + "/" + applicationName + ".log")
@@ -295,7 +295,7 @@ namespace utils {
                              ->check(!CLI::ExistingDirectory)
                              ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            enforceLogFileOpt = app->addFlag( //
+            enforceLogFileOpt = app->add_flag( //
                                        "-e{true},!-n,--enforce-log-file{true}",
                                        "Enforce writing of logs to file for foreground applications") //
                                     ->take_last()
@@ -304,7 +304,7 @@ namespace utils {
                                     ->check(CLI::IsMember({"true", "false"}))
                                     ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            daemonizeOpt = app->addFlag( //
+            daemonizeOpt = app->add_flag( //
                                   "-d{true},!-f,--daemonize{true}",
                                   "Start application as daemon") //
                                ->take_last()
@@ -313,7 +313,7 @@ namespace utils {
                                ->check(CLI::IsMember({"true", "false"}))
                                ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            userNameOpt = app->addOption( //
+            userNameOpt = app->add_option( //
                                  "--user-name",
                                  "Run daemon under specific user permissions") //
                               ->default_val(pw->pw_name)
@@ -321,7 +321,7 @@ namespace utils {
                               ->needs(daemonizeOpt)
                               ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            groupNameOpt = app->addOption( //
+            groupNameOpt = app->add_option( //
                                   "--group-name",
                                   "Run daemon under specific group permissions")
                                ->default_val(gr->gr_name)
@@ -683,7 +683,7 @@ namespace utils {
 
     CLI::App* Config::addStandardFlags(CLI::App* app) {
         app //
-            ->addFlag_callback(
+            ->add_flag_callback(
                 "-s,--show-config",
                 [app]() {
                     throw CLI::CallForShowConfig(app);
@@ -693,7 +693,7 @@ namespace utils {
             ->disable_flag_override();
 
         app //
-            ->addFlagFunction(
+            ->add_flag_function(
                 "--command-line{standard}",
                 [app]([[maybe_unused]] std::int64_t count) {
                     const std::string& result = app->get_option("--command-line")->as<std::string>();
@@ -751,7 +751,7 @@ namespace utils {
             ->set_help_flag();
 
         app //
-            ->addFlagFunction(
+            ->add_flag_function(
                 "-h{standard},--help{standard}",
                 [app]([[maybe_unused]] std::int64_t count) {
                     const std::size_t disabledCount =
@@ -799,7 +799,7 @@ namespace utils {
             ->set_help_flag();
 
         app //
-            ->addFlagFunction(
+            ->add_flag_function(
                 "-h,--help",
                 [app]([[maybe_unused]] std::int64_t count) {
                     const std::string& result = app->get_option("--help")->as<std::string>();
@@ -877,7 +877,7 @@ namespace utils {
 
     CLI::Option* Config::addStringOption(const std::string& name, const std::string& description, const std::string& typeName) {
         applicationOptions[name] = app //
-                                       ->addOption(name, description)
+                                       ->add_option(name, description)
                                        ->take_last()
                                        ->type_name(typeName)
                                        ->configurable()
@@ -947,9 +947,9 @@ namespace utils {
                          bool required,
                          bool configurable,
                          const std::string& groupName) {
-        app->addFlag(name, variable, description) //
-            ->required(required)                  //
-            ->configurable(configurable)          //
+        app->add_flag(name, variable, description) //
+            ->required(required)                   //
+            ->configurable(configurable)           //
             ->group(groupName);
     }
 

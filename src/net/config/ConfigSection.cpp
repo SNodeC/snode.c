@@ -84,7 +84,7 @@ namespace net::config {
         }
 
         CLI::Option* opt = section //
-                               ->addOption(name, description);
+                               ->add_option(name, description);
 
         if (opt->get_configurable()) {
             opt->group(section->get_formatter()->get_label("Persistent Options"));
@@ -99,9 +99,9 @@ namespace net::config {
     }
 
     CLI::Option* ConfigSection::addOption(const std::string& name,
-                                           const std::string& description,
-                                           const std::string& typeName,
-                                           const CLI::Validator& additionalValidator) {
+                                          const std::string& description,
+                                          const std::string& typeName,
+                                          const CLI::Validator& additionalValidator) {
         return addOption(name, description, typeName) //
             ->check(additionalValidator);
     }
@@ -110,7 +110,7 @@ namespace net::config {
         section->disabled(false);
 
         CLI::Option* opt = section //
-                               ->addFlag(name, description)
+                               ->add_flag(name, description)
                                ->type_name(typeName)
                                ->take_last();
 
@@ -122,22 +122,22 @@ namespace net::config {
     }
 
     CLI::Option* ConfigSection::addFlag(const std::string& name,
-                                         const std::string& description,
-                                         const std::string& typeName,
-                                         const CLI::Validator& additionalValidator) {
+                                        const std::string& description,
+                                        const std::string& typeName,
+                                        const CLI::Validator& additionalValidator) {
         return addFlag(name, description, typeName) //
             ->check(additionalValidator);
     }
 
     CLI::Option* ConfigSection::addFlagFunction(const std::string& name,
-                                                  const std::function<void(int64_t)>& callback,
-                                                  const std::string& description,
-                                                  const std::string& typeName,
-                                                  const std::string& defaultValue) {
+                                                const std::function<void(int64_t)>& callback,
+                                                const std::string& description,
+                                                const std::string& typeName,
+                                                const std::string& defaultValue) {
         section->disabled(false);
 
         CLI::Option* opt = section //
-                               ->addFlagFunction(name, callback, description)
+                               ->add_flag_function(name, callback, description)
                                ->take_last()
                                ->default_val(defaultValue)
                                ->type_name(typeName);
@@ -150,11 +150,11 @@ namespace net::config {
     }
 
     CLI::Option* ConfigSection::addFlagFunction(const std::string& name,
-                                                  const std::function<void(int64_t)>& callback,
-                                                  const std::string& description,
-                                                  const std::string& typeName,
-                                                  const std::string& defaultValue,
-                                                  const CLI::Validator& validator) {
+                                                const std::function<void(int64_t)>& callback,
+                                                const std::string& description,
+                                                const std::string& typeName,
+                                                const std::string& defaultValue,
+                                                const CLI::Validator& validator) {
         return addFlagFunction(name, callback, description, typeName, defaultValue) //
             ->check(validator);
     }

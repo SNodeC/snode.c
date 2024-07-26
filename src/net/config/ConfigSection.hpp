@@ -46,20 +46,18 @@
 namespace net::config {
 
     template <typename ValueType>
-    CLI::Option* ConfigSection::addOption(const std::string& name,
-                                           const std::string& description,
-                                           const std::string& typeName,
-                                           ValueType defaultValue) {
+    CLI::Option*
+    ConfigSection::addOption(const std::string& name, const std::string& description, const std::string& typeName, ValueType defaultValue) {
         return addOption(name, description, typeName) //
             ->default_val(defaultValue);
     }
 
     template <typename ValueType>
     CLI::Option* ConfigSection::addOption(const std::string& name,
-                                           const std::string& description,
-                                           const std::string& typeName,
-                                           ValueType defaultValue,
-                                           const CLI::Validator& additionalValidator) {
+                                          const std::string& description,
+                                          const std::string& typeName,
+                                          ValueType defaultValue,
+                                          const CLI::Validator& additionalValidator) {
         return addOption(name, description, typeName, defaultValue) //
             ->check(additionalValidator);
     }
@@ -73,10 +71,10 @@ namespace net::config {
 
     template <typename ValueType>
     CLI::Option* ConfigSection::addFlag(const std::string& name,
-                                         const std::string& description,
-                                         const std::string& typeName,
-                                         ValueType defaultValue,
-                                         const CLI::Validator& additionalValidator) {
+                                        const std::string& description,
+                                        const std::string& typeName,
+                                        ValueType defaultValue,
+                                        const CLI::Validator& additionalValidator) {
         return addFlag(name, description, typeName, defaultValue) //
             ->check(additionalValidator);
     }

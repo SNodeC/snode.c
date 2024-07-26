@@ -55,9 +55,9 @@ namespace net::config {
         CLI::Option* addOption(const std::string& name, const std::string& description, const std::string& typeName);
 
         CLI::Option* addOption(const std::string& name,
-                                const std::string& description,
-                                const std::string& typeName,
-                                const CLI::Validator& additionalValidator);
+                               const std::string& description,
+                               const std::string& typeName,
+                               const CLI::Validator& additionalValidator);
 
         template <typename ValueTypeT>
         CLI::Option*
@@ -65,41 +65,40 @@ namespace net::config {
 
         template <typename ValueTypeT>
         CLI::Option* addOption(const std::string& name,
-                                const std::string& description,
-                                const std::string& typeName,
-                                ValueTypeT defaultValue,
-                                const CLI::Validator& additionalValidator);
+                               const std::string& description,
+                               const std::string& typeName,
+                               ValueTypeT defaultValue,
+                               const CLI::Validator& additionalValidator);
 
         CLI::Option* addFlag(const std::string& name, const std::string& description, const std::string& typeName);
 
         CLI::Option* addFlag(const std::string& name,
-                              const std::string& description,
-                              const std::string& typeName,
-                              const CLI::Validator& additionalValidator);
+                             const std::string& description,
+                             const std::string& typeName,
+                             const CLI::Validator& additionalValidator);
 
         template <typename ValueTypeT>
-        CLI::Option*
-        addFlag(const std::string& name, const std::string& description, const std::string& typeName, ValueTypeT defaultValue);
+        CLI::Option* addFlag(const std::string& name, const std::string& description, const std::string& typeName, ValueTypeT defaultValue);
 
         template <typename ValueTypeT>
         CLI::Option* addFlag(const std::string& name,
-                              const std::string& description,
-                              const std::string& typeName,
-                              ValueTypeT defaultValue,
-                              const CLI::Validator& additionalValidator);
+                             const std::string& description,
+                             const std::string& typeName,
+                             ValueTypeT defaultValue,
+                             const CLI::Validator& additionalValidator);
 
         CLI::Option* addFlagFunction(const std::string& name,
-                                       const std::function<void(int64_t)>& callback,
-                                       const std::string& description,
-                                       const std::string& typeName,
-                                       const std::string& defaultValue);
+                                     const std::function<void(int64_t)>& callback,
+                                     const std::string& description,
+                                     const std::string& typeName,
+                                     const std::string& defaultValue);
 
         CLI::Option* addFlagFunction(const std::string& name,
-                                       const std::function<void(int64_t)>& callback,
-                                       const std::string& description,
-                                       const std::string& typeName,
-                                       const std::string& defaultValue,
-                                       const CLI::Validator& validator);
+                                     const std::function<void(int64_t)>& callback,
+                                     const std::string& description,
+                                     const std::string& typeName,
+                                     const std::string& defaultValue,
+                                     const CLI::Validator& validator);
 
         void required(CLI::Option* opt, bool req = true);
 

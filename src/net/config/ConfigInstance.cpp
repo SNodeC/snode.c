@@ -54,18 +54,18 @@ namespace net::config {
         : instanceName(instanceName)
         , role(role) {
         instanceSc = utils::Config::addInstance(instanceName,
-                                                 std::string("Configuration for ")
-                                                     .append(role == Role::SERVER ? "server" : "client")
-                                                     .append(" instance '")
-                                                     .append(instanceName)
-                                                     .append("'"),
-                                                 "Instance");
+                                                std::string("Configuration for ")
+                                                    .append(role == Role::SERVER ? "server" : "client")
+                                                    .append(" instance '")
+                                                    .append(instanceName)
+                                                    .append("'"),
+                                                "Instance");
 
         utils::Config::addStandardFlags(instanceSc);
         utils::Config::addHelp(instanceSc);
 
         disableOpt = instanceSc
-                         ->addFlagFunction(
+                         ->add_flag_function(
                              "--disabled{true}",
                              [this]([[maybe_unused]] int64_t count) -> void {
                                  utils::Config::disabled(instanceSc, disableOpt->as<bool>());

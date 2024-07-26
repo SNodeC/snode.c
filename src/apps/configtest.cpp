@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     CLI::App* subApp = app.add_subcommand("test", "Test SubCommand");
 
     std::string filename;
-    CLI::Option* filenameOpt = subApp->addOption("-f", filename, "A Filename");
+    CLI::Option* filenameOpt = subApp->add_option("-f", filename, "A Filename");
     //    filenameOpt->default_val("Filenameeeeee");
 
     VLOG(0) << "Filename: " << filename;
