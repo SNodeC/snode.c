@@ -15,19 +15,20 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-find_package(Doxygen)
+if(BUILD_DOCUMENTATION)
+    unset(DOXYGEN_EXECUTABLE CACHE)
+    find_package(Doxygen)
 
-if(DOXYGEN_FOUND)
-    get_filename_component(
-        SNODEC_DOC_ROOTDIR "${CMAKE_SOURCE_DIR}/../snode.c-doc/" ABSOLUTE
-    )
+    if(DOXYGEN_FOUND)
+        get_filename_component(
+            SNODEC_DOC_ROOTDIR "${CMAKE_SOURCE_DIR}/../snode.c-doc/" ABSOLUTE
+        )
 
-    option(
-        BUILD_DOCUMENTATION
-        "Create and install the HTML based API documentation (requires Doxygen)"
-        ${DOXYGEN_FOUND}
-    )
-    if(BUILD_DOCUMENTATION)
+        option(
+            BUILD_DOCUMENTATION
+            "Create and install the HTML based API documentation (requires Doxygen)"
+            ${DOXYGEN_FOUND}
+        )
         set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/docs/Doxygen.in)
         set(DOXYFILE ${CMAKE_SOURCE_DIR}/docs/Doxyfile)
 
@@ -51,14 +52,14 @@ if(DOXYGEN_FOUND)
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM
         )
-    endif(BUILD_DOCUMENTATION)
-else(DOXYGEN_FOUND)
-    message(
-        WARNING
-            " Docygen not found:\n"
-            "    Doxygen is used to build the documentation of snode.c in html format.\n"
-            "    If you do not intend to build the documentation you can ignore this warning\n"
-            "    Otherwise,  you can install doxygen on an debian-style system by executing\n"
-            "       sudo apt install doxygen"
-    )
-endif(DOXYGEN_FOUND)
+    else(DOXYGEN_FOUND)
+        message(
+            WARNING
+                " Docygen not found:\n"
+                "    Doxygen is used to build the documentation of snode.c in html format.\n"
+                "    If you do not intend to build the documentation you can ignore this warning\n"
+                "    Otherwise,  you can install doxygen on an debian-style system by executing\n"
+                "       sudo apt install doxygen"
+        )
+    endif(DOXYGEN_FOUND)
+endif(BUILD_DOCUMENTATION)
