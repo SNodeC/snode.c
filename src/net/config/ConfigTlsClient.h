@@ -39,6 +39,9 @@ namespace CLI {
 namespace net::config {
 
     class ConfigTlsClient : public ConfigTls {
+    private:
+        using Super = ConfigTls;
+
     public:
         using Tls = ConfigTlsClient;
 

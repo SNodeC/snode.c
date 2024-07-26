@@ -30,7 +30,7 @@ namespace net::config {
 
     template <typename SocketAddressT>
     class ConfigAddressReverse : public net::config::ConfigAddressBase<SocketAddressT> {
-    public:
+    private:
         using Super = net::config::ConfigAddressBase<SocketAddressT>;
 
     protected:

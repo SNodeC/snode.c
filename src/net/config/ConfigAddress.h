@@ -38,7 +38,7 @@ namespace net::config {
 
     template <typename SocketAddressT>
     class ConfigAddress : public ConfigAddressBase<SocketAddressT> {
-    public:
+    private:
         using Super = ConfigAddressBase<SocketAddressT>;
         using SocketAddress = SocketAddressT;
 

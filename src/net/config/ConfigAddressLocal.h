@@ -30,7 +30,7 @@ namespace net::config {
 
     template <typename SocketAddressT>
     class ConfigAddressLocal : public net::config::ConfigAddress<SocketAddressT> {
-    public:
+    private:
         using Super = net::config::ConfigAddress<SocketAddressT>;
 
     protected:

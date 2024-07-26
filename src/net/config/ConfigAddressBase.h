@@ -34,10 +34,9 @@ namespace net::config {
 
     template <typename SocketAddressT>
     class ConfigAddressBase : protected ConfigSection {
-    protected:
+    private:
         using Super = ConfigSection;
 
-    public:
     protected:
         explicit ConfigAddressBase(ConfigInstance* instance,
                                    const std::string& addressOptionName = "",

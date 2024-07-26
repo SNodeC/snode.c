@@ -39,6 +39,7 @@ namespace core::socket::stream {
         typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
         SocketAddress localPeerAddress;
+
         if (physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
             try {
                 localPeerAddress = config->Local::getSocketAddress(localSockAddr, localSockAddrLen);
@@ -53,6 +54,8 @@ namespace core::socket::stream {
                     LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local): " << badSocketAddress.what();
                 }
             }
+        } else {
+            PLOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local) not retrievable";
         }
 
         return localPeerAddress;
@@ -78,6 +81,8 @@ namespace core::socket::stream {
                     LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote): " << badSocketAddress.what();
                 }
             }
+        } else {
+            PLOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote) not retrievable";
         }
 
         return remotePeerAddress;

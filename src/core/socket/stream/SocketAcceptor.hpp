@@ -53,6 +53,8 @@ namespace core::socket::stream {
                     LOG(TRACE) << config->getInstanceName() << std::setw(24) << "  PeerAddress (local): " << badSocketAddress.what();
                 }
             }
+        } else {
+            PLOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local) not retrievable";
         }
 
         return localPeerAddress;
@@ -78,6 +80,8 @@ namespace core::socket::stream {
                     LOG(TRACE) << config->getInstanceName() << std::setw(24) << "  PeerAddress (remote): " << badSocketAddress.what();
                 }
             }
+        } else {
+            PLOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote) not retrievable";
         }
 
         return remotePeerAddress;

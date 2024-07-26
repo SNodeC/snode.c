@@ -31,7 +31,7 @@
 namespace net::config {
 
     ConfigTlsServer::ConfigTlsServer(ConfigInstance* instance)
-        : ConfigTls(instance) {
+        : Super(instance) {
         sniCertsOpt = section //
                           ->add_option("--sni-cert",
                                        sniCerts,

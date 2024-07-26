@@ -8092,7 +8092,6 @@ public:                                                                         
         return subc;
     }
 
-
     CLI11_NODISCARD CLI11_INLINE App* App::get_subcommand_no_throw(std::string subcom) const {
         return _find_subcommand(subcom, false, false);
     }
