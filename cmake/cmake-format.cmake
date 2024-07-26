@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# Additional targets to perform cmake-format
+# Adding cmake-format check and formatter if found
 
 find_program(CMAKE_FORMAT "cmake-format")
 

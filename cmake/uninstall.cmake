@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
+# Custom target to uninstall all installed files and directories
+
 add_custom_target(
     uninstall
     COMMAND sudo xargs rm -v < install_manifest.txt
@@ -22,5 +24,3 @@ add_custom_target(
             xargs rmdir -v --ignore-fail-on-non-empty -p
     COMMENT "Uninstall project"
 )
-
-# xargs rm < install_manifest.txt 140

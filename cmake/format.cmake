@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
+# Custom target to trigger clang-format and cmake-format
+
 add_custom_target(format DEPENDS format-cmds)
 add_custom_command(
     OUTPUT format-cmds

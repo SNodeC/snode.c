@@ -19,16 +19,17 @@ unset(DOXYGEN_EXECUTABLE CACHE)
 find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
-    get_filename_component(
-        SNODEC_DOC_ROOTDIR "${CMAKE_SOURCE_DIR}/../snode.c-doc/" ABSOLUTE
-    )
-
     option(
         BUILD_DOCUMENTATION
         "Create and install the HTML based API documentation (requires Doxygen)"
         ${DOXYGEN_FOUND}
     )
+
     if(BUILD_DOCUMENTATION)
+        get_filename_component(
+            SNODEC_DOC_ROOTDIR "${CMAKE_SOURCE_DIR}/../snode.c-doc/" ABSOLUTE
+        )
+
         set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/docs/Doxygen.in)
         set(DOXYFILE ${CMAKE_SOURCE_DIR}/docs/Doxyfile)
 
