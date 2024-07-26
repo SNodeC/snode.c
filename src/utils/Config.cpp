@@ -407,13 +407,13 @@ namespace utils {
     static void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
         CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
         const bool disabled = disabledOpt != nullptr ? disabledOpt->as<bool>() : false;
-        if (!disabled || mode == CLI::CallForCommandline::Mode::DEFAULT || mode == CLI::CallForCommandline::Mode::FULL) {
+        if (!disabled || mode == CLI::CallForCommandline::Mode::DEFAULT) {
             for (const CLI::Option* option : app->get_options()) {
                 if (option->get_configurable()) {
                     std::string value;
 
                     switch (mode) {
-                        case CLI::CallForCommandline::Mode::NONEDEFAULT:
+                        case CLI::CallForCommandline::Mode::STANDARD:
                             if (option->count() > 0) {
                                 value = option->as<std::string>();
                             } else if (option->get_required()) {
@@ -481,8 +481,7 @@ namespace utils {
         std::stringstream out;
 
         CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
-        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::DEFAULT ||
-            mode == CLI::CallForCommandline::Mode::FULL) {
+        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::DEFAULT) {
             for (CLI::App* subcommand : app->get_subcommands({})) {
                 if (!subcommand->get_name().empty()) {
                     createCommandLineTemplate(out, subcommand, mode);
@@ -705,7 +704,7 @@ namespace utils {
                             "* Options show their configured value\n"
                             "* Required but not yet configured options show <REQUIRED> as value\n"
                             "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                            CLI::CallForCommandline::Mode::NONEDEFAULT);
+                            CLI::CallForCommandline::Mode::STANDARD);
                     }
                     if (result == "required") {
                         throw CLI::CallForCommandline( //
