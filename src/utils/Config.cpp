@@ -221,7 +221,7 @@ namespace utils {
             app->footer("Application '" + applicationName +
                         "' powered by SNode.C\n"
                         "(C) 2020-2024 Volker Christian <me@vchrist.at>\n"
-                        "https://github.com/VolkerChristian/snode.c");
+                        "https://github.com/SNodeC/snode.c");
 
             app->set_config( //
                    "-c,--config-file",
@@ -515,11 +515,9 @@ namespace utils {
         std::string outString = out.str();
         while (app->get_parent() != nullptr) {
             app = app->get_parent();
-            const std::string parentOptions = createCommandLineOptions(app, mode);
-            outString = std::string(app->get_name())
-                            .append(" ")
-                            .append(!parentOptions.empty() ? std::string(parentOptions).append(" ") : "")
-                            .append(outString);
+            std::string parentOptions = createCommandLineOptions(app, mode);
+            outString =
+                std::string(app->get_name()).append(" ").append(!parentOptions.empty() ? parentOptions.append(" ") : "").append(outString);
         }
 
         if (outString.empty()) {

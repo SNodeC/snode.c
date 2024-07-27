@@ -75,9 +75,9 @@ namespace core::socket::stream {
               writeBlockSize,
               terminateTimeout)
         , physicalSocket(std::move(physicalSocket))
-        , onDisconnect(onDisconnect)
-        , localAddress(localAddress)
-        , remoteAddress(remoteAddress) {
+        , onDisconnect(onDisconnect)     // cppcheck-suppress selfInitialization
+        , localAddress(localAddress)     // cppcheck-suppress selfInitialization
+        , remoteAddress(remoteAddress) { // cppcheck-suppress selfInitialization
         if (!SocketReader::enable(this->physicalSocket.getFd())) {
             delete this;
         } else if (!SocketWriter::enable(this->physicalSocket.getFd())) {
