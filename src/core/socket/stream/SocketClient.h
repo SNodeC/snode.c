@@ -32,8 +32,6 @@
 #include "utils/Random.h"
 
 #include <algorithm>
-#include <cerrno>
-#include <cstddef>
 #include <functional> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
