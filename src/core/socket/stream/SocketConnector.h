@@ -58,9 +58,9 @@ namespace core::socket::stream {
 
         ~SocketConnector() override;
 
+    protected:
         virtual void useNextSocketAddress() = 0;
 
-    protected:
         virtual void init();
 
     private:
