@@ -39,7 +39,7 @@ namespace iot::mqtt::packets {
     class Subscribe : public iot::mqtt::ControlPacket {
     public:
         Subscribe();
-        Subscribe(uint16_t packetIdentifier, std::list<iot::mqtt::Topic>& topics);
+        Subscribe(uint16_t packetIdentifier, const std::list<iot::mqtt::Topic>& topics);
 
     private:
         std::vector<char> serializeVP() const override;

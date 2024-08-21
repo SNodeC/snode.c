@@ -97,8 +97,8 @@ namespace iot::mqtt::client {
                          bool willRetain,
                          const std::string& username,
                          const std::string& password,
-                         bool reflect);
-        void sendSubscribe(std::list<Topic>& topics);
+                         bool loopPrevention = false);
+        void sendSubscribe(const std::list<Topic>& topics);
         void sendUnsubscribe(const std::list<std::string>& topics);
         void sendPingreq() const;
         void sendDisconnect() const;

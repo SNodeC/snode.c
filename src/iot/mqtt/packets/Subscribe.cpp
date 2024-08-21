@@ -32,7 +32,7 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, "SUBSCRIBE") {
     }
 
-    Subscribe::Subscribe(uint16_t packetIdentifier, std::list<Topic>& topics)
+    Subscribe::Subscribe(uint16_t packetIdentifier, const std::list<Topic>& topics)
         : Subscribe() {
         this->packetIdentifier = packetIdentifier;
         this->topics = topics;

@@ -51,7 +51,7 @@ namespace iot::mqtt::packets {
                          bool willRetain,
                          const std::string& username,
                          const std::string& password,
-                         bool reflect);
+                         bool loopPrevention);
 
     private:
         std::vector<char> serializeVP() const override;

@@ -38,10 +38,11 @@ namespace iot::mqtt::packets {
                      bool willRetain,
                      const std::string& username,
                      const std::string& password,
-                     bool reflect)
+                     bool loopPrevention)
         : Connect() {
         this->protocol = "MQTT";
-        this->level = MQTT_VERSION_3_1_1 | (reflect ? 0x00 : 0x80); // msb 1 -> do not reflect messages to origin (try_private in mosquitto)
+        this->level =
+            MQTT_VERSION_3_1_1 | (loopPrevention ? 0x80 : 0x00); // msb 1 -> do not reflect messages to origin (try_private in mosquitto)
         this->keepAlive = keepAlive;
         this->clientId = clientId;
         this->willTopic = willTopic;
