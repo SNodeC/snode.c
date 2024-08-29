@@ -1335,6 +1335,11 @@ void listen(uint16_t port,
 void listen(const std::string& ipOrHostname,
             uint16_t port,
             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
+
+void listen(const std::string& ipOrHostname,
+            uint16_t port,
+            int backlog,
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
 #### IPv6 specific `listen()` Methods
@@ -1344,6 +1349,11 @@ void listen(uint16_t port,
             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
 void listen(uint16_t port,
+            int backlog,
+            const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
+
+void listen(const std::string& ipOrHostname,
+            uint16_t port,
             int backlog,
             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
