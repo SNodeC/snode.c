@@ -71,7 +71,7 @@ namespace web::http::server {
         virtual void init();
 
     public:
-        Response& status(int status);
+        Response& status(int statusCode);
         Response& append(const std::string& field, const std::string& value);
         Response& set(const std::string& field, const std::string& value, bool overwrite = true);
         Response& set(const std::map<std::string, std::string>& headers, bool overwrite = true);
@@ -82,6 +82,7 @@ namespace web::http::server {
 
         void send(const char* chunk, std::size_t chunkLen);
         void send(const std::string& chunk);
+        void sendStatus(int statusCode);
         void upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool)>& status);
         void sendFile(const std::string& file, const std::function<void(int)>& callback);
         void end();

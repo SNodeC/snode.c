@@ -74,8 +74,8 @@ namespace web::http::server {
         transferEncoding = TransferEncoding::HTTP10;
     }
 
-    Response& Response::status(int status) {
-        statusCode = status;
+    Response& Response::status(int statusCode) {
+        this->statusCode = statusCode;
 
         return *this;
     }
@@ -202,6 +202,12 @@ namespace web::http::server {
         }
 
         send(chunk.data(), chunk.size());
+    }
+
+    void Response::sendStatus(int statusCode) {
+        status(statusCode);
+
+        send(StatusCode::reason(statusCode));
     }
 
     /* Just an UML-Sequence diagram test */
