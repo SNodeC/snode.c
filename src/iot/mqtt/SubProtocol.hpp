@@ -116,7 +116,6 @@ namespace iot::mqtt {
         } else {
             buffer.clear();
             cursor = 0;
-            size = 0;
         }
     }
 
