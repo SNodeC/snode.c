@@ -44,7 +44,7 @@ set(MQTT_PACKETS_SERVER_H
 
 add_library(
     mqtt-server-packets STATIC ${MQTT_PACKETS_SERVER_CPP}
-                               ${MQTT_PACKETS_SERVER_CPP}
+                               ${MQTT_PACKETS_SERVER_H}
 )
 add_library(snodec::mqtt-server-packets ALIAS mqtt-server-packets)
 
