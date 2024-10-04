@@ -46,13 +46,6 @@ namespace core::socket::stream {
                 LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local): " << localPeerAddress.toString();
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local): " << badSocketAddress.what();
-
-                try {
-                    localPeerAddress = config->Local::Super::getSocketAddress(localSockAddr, localSockAddrLen);
-                    LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local): " << localPeerAddress.toString();
-                } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                    LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local): " << badSocketAddress.what();
-                }
             }
         } else {
             PLOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local) not retrievable";
@@ -73,13 +66,6 @@ namespace core::socket::stream {
                 LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote): " << remotePeerAddress.toString();
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote): " << badSocketAddress.what();
-
-                try {
-                    remotePeerAddress = config->Remote::Super::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                    LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote): " << remotePeerAddress.toString();
-                } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
-                    LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote): " << badSocketAddress.what();
-                }
             }
         } else {
             PLOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote) not retrievable";

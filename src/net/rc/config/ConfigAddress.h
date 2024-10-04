@@ -44,7 +44,7 @@ namespace net::rc::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddressReverse : public ConfigAddressTypeT<net::rc::SocketAddress> {
-    public:
+    private:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     protected:
@@ -53,7 +53,7 @@ namespace net::rc::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress : public ConfigAddressTypeT<net::rc::SocketAddress> {
-    public:
+    private:
         using Super = ConfigAddressTypeT<net::rc::SocketAddress>;
 
     protected:

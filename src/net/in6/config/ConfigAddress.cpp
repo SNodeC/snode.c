@@ -55,7 +55,18 @@ namespace net::in6::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress ConfigAddressReverse<ConfigAddressType>::getSocketAddress(const SocketAddress::SockAddr& sockAddr,
                                                                             SocketAddress::SockLen sockAddrLen) {
-        return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
+        SocketAddress socketAddress;
+        try {
+            socketAddress = SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
+        } catch ([[maybe_unused]] const SocketAddress::BadSocketAddress& badSocketAddress) {
+            try {
+                socketAddress = Super::getSocketAddress(sockAddr, sockAddrLen);
+            } catch ([[maybe_unused]] const SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                throw;
+            }
+        }
+
+        return socketAddress;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -130,7 +141,18 @@ namespace net::in6::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress(const SocketAddress::SockAddr& sockAddr,
                                                                      SocketAddress::SockLen sockAddrLen) {
-        return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
+        SocketAddress socketAddress;
+        try {
+            socketAddress = SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
+        } catch ([[maybe_unused]] const SocketAddress::BadSocketAddress& badSocketAddress) {
+            try {
+                socketAddress = Super::getSocketAddress(sockAddr, sockAddrLen);
+            } catch ([[maybe_unused]] const SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                throw;
+            }
+        }
+
+        return socketAddress;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

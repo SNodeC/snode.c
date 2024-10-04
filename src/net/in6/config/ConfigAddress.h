@@ -46,7 +46,7 @@ namespace net::in6::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddressReverse : public ConfigAddressTypeT<net::in6::SocketAddress> {
-    public:
+    private:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     protected:
@@ -55,7 +55,6 @@ namespace net::in6::config {
                                       const std::string& addressOptionDescription);
 
     public:
-        using Super::getSocketAddress;
         SocketAddress getSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
         ConfigAddressReverse& setNumericReverse(bool numeric = true);
@@ -67,7 +66,7 @@ namespace net::in6::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress : public ConfigAddressTypeT<net::in6::SocketAddress> {
-    public:
+    private:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     protected:

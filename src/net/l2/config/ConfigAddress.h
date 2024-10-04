@@ -44,7 +44,7 @@ namespace net::l2::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddressReverse : public ConfigAddressTypeT<net::l2::SocketAddress> {
-    public:
+    private:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     protected:
@@ -53,7 +53,7 @@ namespace net::l2::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress : public ConfigAddressTypeT<net::l2::SocketAddress> {
-    public:
+    private:
         using Super = ConfigAddressTypeT<net::l2::SocketAddress>;
 
     protected:

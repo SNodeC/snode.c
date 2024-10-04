@@ -69,7 +69,18 @@ namespace net::in::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress ConfigAddressReverse<ConfigAddressType>::getSocketAddress(const SocketAddress::SockAddr& sockAddr,
                                                                             SocketAddress::SockLen sockAddrLen) {
-        return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
+        SocketAddress socketAddress;
+        try {
+            socketAddress = SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
+        } catch ([[maybe_unused]] const SocketAddress::BadSocketAddress& badSocketAddress) {
+            try {
+                socketAddress = Super::getSocketAddress(sockAddr, sockAddrLen);
+            } catch ([[maybe_unused]] const SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                throw;
+            }
+        }
+
+        return socketAddress;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -114,7 +125,7 @@ namespace net::in::config {
             socketAddress->init({.aiFlags = (aiFlags & ~AI_NUMERICHOST) | (numericOpt->as<bool>() ? AI_NUMERICHOST : 0),
                                  .aiSockType = aiSockType,
                                  .aiProtocol = aiProtocol});
-        } catch (const core::socket::SocketAddress::BadSocketAddress&) {
+        } catch ([[maybe_unused]] const core::socket::SocketAddress::BadSocketAddress& badSocketAddress) {
             delete socketAddress;
             socketAddress = nullptr;
 
@@ -127,7 +138,18 @@ namespace net::in::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     SocketAddress ConfigAddress<ConfigAddressType>::getSocketAddress(const SocketAddress::SockAddr& sockAddr,
                                                                      SocketAddress::SockLen sockAddrLen) {
-        return SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
+        SocketAddress socketAddress;
+        try {
+            socketAddress = SocketAddress(sockAddr, sockAddrLen, numericReverseOpt->as<bool>());
+        } catch ([[maybe_unused]] const SocketAddress::BadSocketAddress& badSocketAddress) {
+            try {
+                socketAddress = Super::getSocketAddress(sockAddr, sockAddrLen);
+            } catch ([[maybe_unused]] const SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+                throw;
+            }
+        }
+
+        return socketAddress;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
