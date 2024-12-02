@@ -23,8 +23,6 @@
 #include "core/DescriptorEventPublisher.h" // IWYU pragma: export
 
 namespace core {
-    class DescriptorEventReceiver;
-
     namespace multiplexer::poll {
         class PollFdsManager;
     } // namespace multiplexer::poll
@@ -32,7 +30,7 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#include <string> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

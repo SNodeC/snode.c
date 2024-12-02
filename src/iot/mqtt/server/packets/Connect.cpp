@@ -25,6 +25,8 @@
 
 #include "utils/Uuid.h"
 
+#include <string>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt::server::packets {

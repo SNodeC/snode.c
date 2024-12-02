@@ -24,6 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

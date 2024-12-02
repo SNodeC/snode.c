@@ -22,8 +22,6 @@
 #include "core/socket/stream/tls/ssl_utils.h"
 
 #include "log/Logger.h"
-#include "net/config/ConfigTlsClient.h" // IWYU pragma: keep
-#include "net/config/ConfigTlsServer.h" // IWYU pragma: keep
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
@@ -34,12 +32,10 @@
 #include <openssl/err.h>
 #include <openssl/obj_mac.h>
 #include <openssl/opensslv.h>
-#include <openssl/ssl.h> // IWYU pragma: keep
+#include <openssl/ssl.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <string>
-
-// IWYU pragma: no_include <openssl/ssl3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

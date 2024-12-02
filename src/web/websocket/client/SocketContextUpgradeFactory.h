@@ -23,15 +23,6 @@
 #include "web/http/client/SocketContextUpgradeFactory.h"
 #include "web/websocket/client/SocketContextUpgrade.h"
 
-namespace core::socket::stream {
-    class SocketConnection;
-} // namespace core::socket::stream
-
-namespace web::http::client {
-    class Request;
-    class Response;
-} // namespace web::http::client
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>

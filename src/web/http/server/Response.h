@@ -26,9 +26,6 @@
 #include "web/http/TransferEncoding.h"
 
 namespace core {
-    namespace pipe {
-        class Source;
-    }
     namespace socket::stream {
         class SocketContext;
     }

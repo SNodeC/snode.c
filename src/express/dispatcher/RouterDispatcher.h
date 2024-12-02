@@ -24,10 +24,6 @@
 
 // IWYU pragma: no_include "express/Route.h"
 
-namespace express {
-    class Controller;
-} // namespace express
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>

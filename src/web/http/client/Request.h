@@ -24,10 +24,6 @@
 #include "web/http/ConnectionState.h"
 #include "web/http/TransferEncoding.h"
 
-namespace core::pipe {
-    class Source;
-}
-
 namespace web::http::client {
     class RequestCommand;
     class Response;

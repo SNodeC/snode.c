@@ -37,9 +37,6 @@
 #endif
 
 namespace database::mariadb {
-    class MariaDBCommand;
-    class MariaDBCommandSync;
-    class MariaDBCommandSequence;
     class MariaDBConnection;
 } // namespace database::mariadb
 
@@ -56,8 +53,6 @@ namespace database::mariadb {
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
-
-// IWYU pragma: no_include "mysql.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

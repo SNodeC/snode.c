@@ -29,8 +29,6 @@ namespace net::config {
     class ConfigInstance;
 } // namespace net::config
 
-// IWYU pragma: no_include "net/config/ConfigAddress.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>

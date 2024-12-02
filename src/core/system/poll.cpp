@@ -23,6 +23,8 @@
 
 #include <cerrno>
 
+// IWYU pragma: no_include <time.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::system {

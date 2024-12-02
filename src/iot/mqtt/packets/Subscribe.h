@@ -30,7 +30,6 @@
 
 #include <cstdint>
 #include <list>
-#include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

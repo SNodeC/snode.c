@@ -24,7 +24,7 @@
 
 namespace web::websocket {
     template <typename SubProtocolT>
-    class SubProtocolFactory; // IWYU pragma: keep
+    class SubProtocolFactory;
 
     namespace client {
         class SubProtocol;

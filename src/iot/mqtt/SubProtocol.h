@@ -20,10 +20,6 @@
 #ifndef IOT_MQTT_MQTTSUBPROTOCOL_H
 #define IOT_MQTT_MQTTSUBPROTOCOL_H
 
-namespace core::socket::stream {
-    class SocketConnection;
-}
-
 namespace web::websocket {
     class SubProtocolContext;
 }

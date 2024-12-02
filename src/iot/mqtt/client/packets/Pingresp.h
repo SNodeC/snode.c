@@ -23,13 +23,6 @@
 #include "iot/mqtt/client/ControlPacketDeserializer.h" // IWYU pragma: export
 #include "iot/mqtt/packets/Pingresp.h"                 // IWYU pragma: export
 
-namespace iot::mqtt {
-    class MqttContext;
-    namespace client {
-        class Mqtt;
-    }
-} // namespace iot::mqtt
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>

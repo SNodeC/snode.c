@@ -21,8 +21,6 @@
 
 #include "utils/system/signal.h"
 
-// IWYU pragma: no_include <bits/signum-arch.h>
-
 #include <cerrno>
 #include <map>
 #include <utility>

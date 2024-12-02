@@ -22,9 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
-#include <openssl/ssl.h> // IWYU pragma: keep
-
-// IWYU pragma: no_include <openssl/ssl3.h>
+#include <openssl/ssl.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

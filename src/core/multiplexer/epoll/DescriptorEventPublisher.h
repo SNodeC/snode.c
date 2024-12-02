@@ -31,7 +31,7 @@ namespace core {
 #include "core/system/epoll.h"
 
 #include <cstdint>
-#include <string>
+#include <string> // IWYU pragma: export
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

@@ -22,13 +22,6 @@
 #include "iot/mqtt/packets/Subscribe.h"                // IWYU pragma: export
 #include "iot/mqtt/server/ControlPacketDeserializer.h" // IWYU pragma: export
 
-namespace iot::mqtt {
-    class MqttContext;
-    namespace server {
-        class Mqtt;
-    }
-} // namespace iot::mqtt
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>

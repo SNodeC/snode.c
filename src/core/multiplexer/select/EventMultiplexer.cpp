@@ -26,6 +26,7 @@
 #include "utils/Timeval.h"
 
 #include <array>
+#include <ctime>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

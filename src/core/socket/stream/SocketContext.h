@@ -22,10 +22,6 @@
 
 #include "core/socket/SocketContext.h"
 
-namespace utils {
-    class Timeval;
-} // namespace utils
-
 namespace core::pipe {
     class Source;
 }

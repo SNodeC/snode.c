@@ -24,7 +24,7 @@
 #include "iot/mqtt/types/UIntV.h"
 
 namespace iot::mqtt {
-    class MqttContext; // IWYU pragma: keep
+    class MqttContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

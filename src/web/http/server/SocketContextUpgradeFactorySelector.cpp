@@ -20,7 +20,7 @@
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
-#include "web/http/server/Request.h" // IWYU pragma: keep
+#include "web/http/server/Request.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

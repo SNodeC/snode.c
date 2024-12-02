@@ -22,15 +22,11 @@
 
 #include "core/DescriptorEventPublisher.h" // IWYU pragma: export
 
-namespace core {
-    class DescriptorEventReceiver;
-} // namespace core
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/select.h"
 
-#include <string>
+#include <string> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

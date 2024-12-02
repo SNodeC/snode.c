@@ -28,7 +28,7 @@
 #include <cstddef>
 #include <iostream>
 #include <mysql.h>
-#include <openssl/ssl.h> // IWYU pragma: keep
+#include <openssl/ssl.h>
 #include <openssl/x509v3.h>
 #include <string>
 

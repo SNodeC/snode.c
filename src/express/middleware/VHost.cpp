@@ -21,8 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map> // IWYU pragma: keep
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::middleware {

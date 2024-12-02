@@ -22,10 +22,6 @@
 
 #include "web/websocket/SubProtocolFactory.h"
 
-namespace web::websocket {
-    class SubProtocolContext;
-}
-
 namespace apps::websocket::subprotocol::echo::server {
     class Echo; // IWYU pragma: keep
 }

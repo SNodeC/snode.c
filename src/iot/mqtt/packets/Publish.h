@@ -29,7 +29,6 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

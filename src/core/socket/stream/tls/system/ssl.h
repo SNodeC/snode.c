@@ -24,8 +24,6 @@
 
 #include <openssl/types.h> // IWYU prag ma: keep
 
-// IWYU pra gma: no_include <openssl/types.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::ssl {

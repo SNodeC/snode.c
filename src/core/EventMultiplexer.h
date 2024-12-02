@@ -30,7 +30,7 @@ namespace core {
 } // namespace core
 
 namespace utils {
-    class Timeval; // IWYU pragma: keep
+    class Timeval;
 } // namespace utils
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -26,10 +26,8 @@
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
-#include <openssl/ssl.h> // IWYU pragma: keep
+#include <openssl/ssl.h>
 #include <string>
-
-// IWYU pragma: no_include <openssl/ssl3.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

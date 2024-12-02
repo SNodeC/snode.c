@@ -29,10 +29,6 @@
 #include <unordered_map>
 #include <vector>
 
-namespace utils {
-    class Timeval;
-}
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::multiplexer::poll {

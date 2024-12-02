@@ -23,8 +23,6 @@
 #include "iot/mqtt/Mqtt.h" // IWYU pragma: export
 
 namespace iot::mqtt {
-    class ControlPacketDeserializer;
-
     namespace packets {
         class Connect;
         class Disconnect;
@@ -50,7 +48,7 @@ namespace iot::mqtt {
             class Subscribe;
             class Unsubscribe;
         } // namespace packets
-    }     // namespace server
+    } // namespace server
 } // namespace iot::mqtt
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

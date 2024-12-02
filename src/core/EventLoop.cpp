@@ -29,10 +29,8 @@
 #include "utils/Timeval.h"
 #include "utils/system/signal.h"
 
-#include <chrono> // IWYU pragma: keep
+#include <chrono>
 #include <cstring>
-
-// IWYU pragma: no_include <bits/chrono.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -76,24 +74,24 @@ namespace core {
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     bool EventLoop::init(int argc, char* argv[]) {
-        struct sigaction sact {};
+        struct sigaction sact{};
         sigemptyset(&sact.sa_mask);
         sact.sa_flags = 0;
         sact.sa_handler = SIG_IGN;
 
-        struct sigaction oldPipeAct {};
+        struct sigaction oldPipeAct{};
         sigaction(SIGPIPE, &sact, &oldPipeAct);
 
-        struct sigaction oldIntAct {};
+        struct sigaction oldIntAct{};
         sigaction(SIGINT, &sact, &oldIntAct);
 
-        struct sigaction oldTermAct {};
+        struct sigaction oldTermAct{};
         sigaction(SIGTERM, &sact, &oldTermAct);
 
-        struct sigaction oldAlarmAct {};
+        struct sigaction oldAlarmAct{};
         sigaction(SIGALRM, &sact, &oldAlarmAct);
 
-        struct sigaction oldHupAct {};
+        struct sigaction oldHupAct{};
         sigaction(SIGHUP, &sact, &oldHupAct);
 
         logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
@@ -140,12 +138,12 @@ namespace core {
         TickStatus tickStatus = TickStatus::TRACE;
 
         if (eventLoopState == State::INITIALIZED) {
-            struct sigaction sact {};
+            struct sigaction sact{};
             sigemptyset(&sact.sa_mask);
             sact.sa_flags = 0;
             sact.sa_handler = SIG_IGN;
 
-            struct sigaction oldPipeAct {};
+            struct sigaction oldPipeAct{};
             sigaction(SIGPIPE, &sact, &oldPipeAct);
 
             tickStatus = EventLoop::instance()._tick(timeOut);
@@ -162,26 +160,26 @@ namespace core {
     }
 
     int EventLoop::start(const utils::Timeval& timeOut) {
-        struct sigaction sact {};
+        struct sigaction sact{};
         sigemptyset(&sact.sa_mask);
         sact.sa_flags = 0;
         sact.sa_handler = SIG_IGN;
 
-        struct sigaction oldPipeAct {};
+        struct sigaction oldPipeAct{};
         sigaction(SIGPIPE, &sact, &oldPipeAct);
 
         sact.sa_handler = EventLoop::stoponsig;
 
-        struct sigaction oldIntAct {};
+        struct sigaction oldIntAct{};
         sigaction(SIGINT, &sact, &oldIntAct);
 
-        struct sigaction oldTermAct {};
+        struct sigaction oldTermAct{};
         sigaction(SIGTERM, &sact, &oldTermAct);
 
-        struct sigaction oldAlarmAct {};
+        struct sigaction oldAlarmAct{};
         sigaction(SIGALRM, &sact, &oldAlarmAct);
 
-        struct sigaction oldHupAct {};
+        struct sigaction oldHupAct{};
         sigaction(SIGHUP, &sact, &oldHupAct);
 
         if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {

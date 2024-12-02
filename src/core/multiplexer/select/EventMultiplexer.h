@@ -25,10 +25,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace utils {
-    class Timeval;
-}
-
 #include <csignal>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

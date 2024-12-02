@@ -28,7 +28,7 @@ namespace net::config {
 
 #include <cstdint>
 #include <functional>
-#include <string>
+#include <string> // IWYU pragma: export
 
 namespace CLI {
     class App;

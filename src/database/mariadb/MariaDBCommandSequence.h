@@ -26,7 +26,6 @@
 
 namespace database::mariadb {
     class MariaDBCommand;
-    class MariaDBCommandSync;
 } // namespace database::mariadb
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

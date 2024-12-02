@@ -27,8 +27,6 @@
 #include <cerrno>
 #include <sys/uio.h>
 
-// IWYU pragma: no_include <bits/types/struct_iovec.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::dgram {

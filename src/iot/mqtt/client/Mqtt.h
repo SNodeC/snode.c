@@ -23,10 +23,9 @@
 #include "iot/mqtt/Mqtt.h" // IWYU pragma: export
 #include "iot/mqtt/Session.h"
 
-// IWYU pragma: no_include "iot/mqtt/ControlPacketDeserializer.h"
+// IWYU pra gma: no_include "iot/mqtt/ControlPacketDeserializer.h"
 
 namespace iot::mqtt {
-    class ControlPacketDeserializer;
     class Topic;
 
     namespace packets {
