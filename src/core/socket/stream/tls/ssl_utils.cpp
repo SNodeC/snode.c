@@ -112,8 +112,8 @@ namespace core::socket::stream::tls {
                 if (SSL_CTX_load_verify_locations(ctx,
                                                   !sslConfig.caCert.empty() ? sslConfig.caCert.c_str() : nullptr,
                                                   !sslConfig.caCertDir.empty() ? sslConfig.caCertDir.c_str() : nullptr) == 0) {
-                    ssl_log_error(sslConfig.instanceName + " SSL/TLS: CA certificate error loading file '" + sslConfig.caCert + "', dir '" +
-                                  sslConfig.caCertDir + "'");
+                    ssl_log_info(sslConfig.instanceName + " SSL/TLS: CA certificate error loading file '" + sslConfig.caCert + "', dir '" +
+                                 sslConfig.caCertDir + "'");
                     sslErr = true;
                 } else {
                     if (!sslConfig.caCert.empty()) {
@@ -135,7 +135,7 @@ namespace core::socket::stream::tls {
             }
             if (!sslErr && sslConfig.caCertUseDefaultDir) {
                 if (SSL_CTX_set_default_verify_paths(ctx) == 0) {
-                    ssl_log_error(sslConfig.instanceName + " SSL/TLS: CA certificates error load from default openssl CA directory");
+                    ssl_log_info(sslConfig.instanceName + " SSL/TLS: CA certificates error load from default openssl CA directory");
                     sslErr = true;
                 } else {
                     LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates enabled load from default openssl CA directory";
@@ -151,7 +151,7 @@ namespace core::socket::stream::tls {
                 }
                 if (!sslConfig.cert.empty()) {
                     if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.cert.c_str()) == 0) {
-                        ssl_log_error(sslConfig.instanceName + " SSL/TLS: Cert chain error loading from file '" + sslConfig.cert + "'");
+                        ssl_log_info(sslConfig.instanceName + " SSL/TLS: Cert chain error loading from file '" + sslConfig.cert + "'");
                         sslErr = true;
                     } else if (!sslConfig.certKey.empty()) {
                         if (!sslConfig.password.empty()) {
@@ -159,11 +159,11 @@ namespace core::socket::stream::tls {
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(sslConfig.password.c_str()));
                         }
                         if (SSL_CTX_use_PrivateKey_file(ctx, sslConfig.certKey.c_str(), SSL_FILETYPE_PEM) == 0) {
-                            ssl_log_error(sslConfig.instanceName + " SSL/certKey: Cert chain key error loading file '" + sslConfig.certKey +
-                                          "'");
+                            ssl_log_info(sslConfig.instanceName + " SSL/certKey: Cert chain key error loading file '" + sslConfig.certKey +
+                                         "'");
                             sslErr = true;
                         } else if (SSL_CTX_check_private_key(ctx) != 1) {
-                            ssl_log_error(sslConfig.instanceName + " SSL/TLS: Cert chain key error");
+                            ssl_log_info(sslConfig.instanceName + " SSL/TLS: Cert chain key error");
                             LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain not loaded";
                             LOG(TRACE) << "  " << sslConfig.certKey;
                             sslErr = true;
@@ -321,6 +321,8 @@ namespace core::socket::stream::tls {
     void ssl_log(const std::string& message, int sslErr) {
         const utils::PreserveErrno preserveErrno;
 
+        LOG(TRACE) << "---------------: " << sslErr;
+
         switch (sslErr) {
             case SSL_ERROR_NONE:
                 [[fallthrough]];
@@ -341,7 +343,8 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log_error(const std::string& message) {
-        PLOG(TRACE) << "SSL/TLS: " << message;
+        LOG(TRACE) << "SSL/TLS: " << message;
+        LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(ERR_get_error(), nullptr);
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
@@ -351,6 +354,7 @@ namespace core::socket::stream::tls {
 
     void ssl_log_warning(const std::string& message) {
         LOG(TRACE) << message;
+        LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(ERR_get_error(), nullptr);
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
@@ -359,7 +363,8 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log_info(const std::string& message) {
-        PLOG(TRACE) << message;
+        LOG(TRACE) << message;
+        LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(ERR_get_error(), nullptr);
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {

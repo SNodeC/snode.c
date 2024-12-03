@@ -144,7 +144,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
-        LOG(TRACE) << instanceName << ": Do syscall shutdown (RD)";
+        LOG(TRACE) << instanceName << ": Do syscall shutdown (RD, " << getFd() << ")";
 
         SocketReader::shutdownRead();
 
@@ -154,7 +154,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
         if (!SocketWriter::shutdownInProgress) {
-            LOG(TRACE) << instanceName << ": Initiating shutdown process";
+            LOG(TRACE) << instanceName << ": Initiating shutdown process (" << getFd() << ")";
 
             SocketWriter::shutdownWrite([forceClose, this]() -> void {
                 if (forceClose && SocketReader::isEnabled()) {
@@ -181,10 +181,10 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void()>& onShutdown) {
         errno = 0;
 
-        LOG(TRACE) << instanceName << ": Do syscall shutdown (WR)";
+        LOG(TRACE) << instanceName << ": Do syscall shutdown (WR, " << getFd() << ")";
 
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) != 0) {
-            PLOG(TRACE) << instanceName << ": SocketWriter::doWriteShutdown";
+            PLOG(TRACE) << instanceName << ": SocketWriter::doWriteShutdown (" << getFd() << ")";
         }
 
         onShutdown();
@@ -229,7 +229,7 @@ namespace core::socket::stream {
                 [[fallthrough]];
             case SIGHUP:
                 LOG(TRACE) << instanceName << ": Shutting down due to signal '" << strsignal(signum) << "' (SIG"
-                           << utils::system::sigabbrev_np(signum) << " = " << signum << ")";
+                           << utils::system::sigabbrev_np(signum) << " = " << signum << ", " << getFd() << ")";
                 break;
             case SIGALRM:
                 break;

@@ -77,7 +77,7 @@ namespace core::socket::stream::tls {
                           })) {
                       LOG(TRACE) << Super::config->getInstanceName() << " SSL/TLS: Initial handshake running";
                   } else {
-                      ssl_log_error(Super::config->getInstanceName() + " SSL/TLS: Initialization failed");
+                      LOG(TRACE) << Super::config->getInstanceName() + " SSL/TLS: Initialization failed";
 
                       socketConnection->close();
                   }

@@ -73,6 +73,7 @@ namespace core::socket::stream::tls {
                     WriteEventReceiver::resume();
                     break;
                 case SSL_ERROR_NONE:
+                case SSL_ERROR_ZERO_RETURN:
                     onSuccess();
                     ReadEventReceiver::disable();
                     WriteEventReceiver::disable();
@@ -102,6 +103,7 @@ namespace core::socket::stream::tls {
                 WriteEventReceiver::resume();
                 break;
             case SSL_ERROR_NONE:
+            case SSL_ERROR_ZERO_RETURN:
                 onSuccess();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
@@ -130,6 +132,7 @@ namespace core::socket::stream::tls {
             case SSL_ERROR_WANT_WRITE:
                 break;
             case SSL_ERROR_NONE:
+            case SSL_ERROR_ZERO_RETURN:
                 onSuccess();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
