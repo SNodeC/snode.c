@@ -20,8 +20,6 @@
 #ifndef EXPRESS_RESPONSE_H
 #define EXPRESS_RESPONSE_H
 
-// #include "express/Request.h" // IWYU pragma: export
-
 namespace web::http::server {
     class SocketContext;
     class Response;

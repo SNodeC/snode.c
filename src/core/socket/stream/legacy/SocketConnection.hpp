@@ -17,9 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// clang-format off
+#include "core/socket/stream/SocketConnection.hpp"
 #include "core/socket/stream/legacy/SocketConnection.h"
-// clang-format on
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
