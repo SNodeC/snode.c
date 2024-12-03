@@ -36,9 +36,10 @@ namespace core::eventreceiver {
     protected:
         WriteEventReceiver(const std::string& name, const utils::Timeval& timeout);
 
+        virtual void writeTimeout();
+
     private:
         virtual void writeEvent() = 0;
-        virtual void writeTimeout();
 
         void dispatchEvent() final;
         void timeoutEvent() final;

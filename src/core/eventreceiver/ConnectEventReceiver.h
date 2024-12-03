@@ -36,9 +36,10 @@ namespace core::eventreceiver {
     protected:
         ConnectEventReceiver(const std::string& name, const utils::Timeval& timeout);
 
+        virtual void connectTimeout();
+
     private:
         virtual void connectEvent() = 0;
-        virtual void connectTimeout();
 
         void dispatchEvent() final;
         void timeoutEvent() final;

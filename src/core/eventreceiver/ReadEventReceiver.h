@@ -36,9 +36,10 @@ namespace core::eventreceiver {
     protected:
         ReadEventReceiver(const std::string& name, const utils::Timeval& timeout);
 
+        virtual void readTimeout();
+
     private:
         virtual void readEvent() = 0;
-        virtual void readTimeout();
 
         void dispatchEvent() final;
         void timeoutEvent() final;

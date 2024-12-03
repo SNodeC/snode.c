@@ -65,17 +65,14 @@ namespace core {
     }
 
     bool DescriptorEventReceiver::enable(int fd) {
-        if (core::eventLoopState() != core::State::STOPPING) {
-            if (!enabled) {
-                observedFd = fd;
+        if (!enabled) {
+            observedFd = fd;
 
-                enabled = true;
-                descriptorEventPublisher.enable(this);
-            } else {
-                LOG(TRACE) << getName() << " (" << observedFd << "): Double enable";
-            }
+            enabled = true;
+            descriptorEventPublisher.enable(this);
+            LOG(TRACE) << getName() << " (" << observedFd << "): Enabled";
         } else {
-            LOG(TRACE) << getName() << " (" << observedFd << "): Enable after signal";
+            LOG(TRACE) << getName() << " (" << observedFd << "): Double enable";
         }
 
         return enabled;

@@ -64,7 +64,7 @@ namespace core::socket::stream {
         virtual void init();
 
     private:
-        void connectEvent() override;
+        void connectEvent() final;
 
         void unobservedEvent() final;
         void connectTimeout() final;

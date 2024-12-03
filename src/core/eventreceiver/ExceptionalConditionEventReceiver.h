@@ -38,9 +38,10 @@ namespace core::eventreceiver {
     protected:
         ExceptionalConditionEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_OUTOFBAND_INACTIVITY);
 
+        virtual void outOfBandTimeout();
+
     private:
         virtual void outOfBandEvent() = 0;
-        virtual void outOfBandTimeout();
 
         void dispatchEvent() final;
         void timeoutEvent() final;

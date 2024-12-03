@@ -64,7 +64,7 @@ namespace core::socket::stream {
         virtual void init();
 
     private:
-        void acceptEvent() override;
+        void acceptEvent() final;
 
         void unobservedEvent() final;
 

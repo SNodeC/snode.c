@@ -36,9 +36,10 @@ namespace core::eventreceiver {
     protected:
         AcceptEventReceiver(const std::string& name, const utils::Timeval& timeout);
 
+        virtual void acceptTimeout();
+
     private:
         virtual void acceptEvent() = 0;
-        virtual void acceptTimeout();
 
         void dispatchEvent() final;
         void timeoutEvent() final;

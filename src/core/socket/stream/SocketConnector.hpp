@@ -352,7 +352,7 @@ namespace core::socket::stream {
             onStatus(remoteAddress, core::socket::STATE_ERROR);
         }
 
-        disable();
+        core::eventreceiver::ConnectEventReceiver::connectTimeout();
     }
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
