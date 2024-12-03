@@ -12,10 +12,10 @@
 #include <iomanip>
 #include <mysql.h>
 #include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
 #include <sstream>
 #include <string>
 
+// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 // IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 void addQueryParamToUri(std::string& uri, const std::string& queryParamName, const std::string& queryParamValue) {

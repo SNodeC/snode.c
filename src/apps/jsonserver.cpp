@@ -27,12 +27,11 @@
 #include "log/Logger.h"
 
 #include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
 #include <string>
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 
-// using namespace express;
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
     using WebApp = express::legacy::in::WebApp;

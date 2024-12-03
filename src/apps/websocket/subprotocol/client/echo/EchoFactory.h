@@ -30,8 +30,6 @@ namespace apps::websocket::subprotocol::echo::client {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace apps::websocket::subprotocol::echo::client {
