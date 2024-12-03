@@ -30,7 +30,7 @@ namespace core {
             class SocketContextFactory;
             class SocketContext;
         } // namespace stream
-    }     // namespace socket
+    } // namespace socket
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
