@@ -20,7 +20,6 @@
 #include "core/DescriptorEventReceiver.h"
 
 #include "core/DescriptorEventPublisher.h"
-#include "core/State.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
