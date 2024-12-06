@@ -58,29 +58,28 @@ namespace core::socket::stream::tls {
                   onConnect(socketConnection);
               },
               [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // onConnected
+                  LOG(TRACE) << Super::config->getInstanceName() << " SSL/TLS: Start handshake";
                   if (socketConnection->doSSLHandshake(
                           [socketContextFactory, onConnected, socketConnection, instanceName = Super::config->getInstanceName()]()
                               -> void { // onSuccess
-                              LOG(TRACE) << instanceName << " SSL/TLS: Initial handshake success";
-
-                              onConnected(socketConnection);
+                              LOG(TRACE) << instanceName << " SSL/TLS: Handshake success";
 
                               socketConnection->connectSocketContext(socketContextFactory);
 
+                              onConnected(socketConnection);
                           },
                           [socketConnection, instanceName = Super::config->getInstanceName()]() -> void { // onTimeout
-                              LOG(TRACE) << instanceName << " SSL/TLS: Initial handshake timed out";
+                              LOG(TRACE) << instanceName << " SSL/TLS: Handshake timed out";
 
                               socketConnection->close();
                           },
                           [socketConnection, instanceName = Super::config->getInstanceName()](int sslErr) -> void { // onError
-                              ssl_log(instanceName + " SSL/TLS: Initial handshake failed", sslErr);
+                              ssl_log(instanceName + " SSL/TLS: Handshake failed", sslErr);
 
                               socketConnection->close();
                           })) {
-                      LOG(TRACE) << Super::config->getInstanceName() << " SSL/TLS: Initial handshake running";
                   } else {
-                      LOG(TRACE) << Super::config->getInstanceName() + " SSL/TLS: Initialization failed";
+                      LOG(TRACE) << Super::config->getInstanceName() + " SSL/TLS: Handshake failed";
 
                       socketConnection->close();
                   }

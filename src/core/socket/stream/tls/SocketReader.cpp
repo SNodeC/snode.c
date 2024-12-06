@@ -67,17 +67,19 @@ namespace core::socket::stream::tls {
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
-                    LOG(TRACE) << getName() << " SSL/TLS: Zero return";
+                    LOG(TRACE) << getName() << " SSL/TLS: Close_notify received";
+
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | sslShutdownState);
                     doSSLShutdown();
                     errno = 0;
                     ret = 0;
                     break;
                 case SSL_ERROR_SYSCALL: {
+                    LOG(TRACE) << getName() << " SSL/TLS: TCP-FIN | TCP_RST without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
+
                     const utils::PreserveErrno preserveErrno;
 
                     SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
-                    LOG(TRACE) << getName() << " SSL/TLS: TCP-FIN without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
                     doSSLShutdown();
                 }
                     ret = -1;

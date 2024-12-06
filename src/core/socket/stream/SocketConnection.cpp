@@ -75,9 +75,10 @@ namespace core::socket::stream {
         SocketContext* socketContext = socketContextFactory->create(this); // cppcheck-suppress shadowVariable
 
         if (socketContext != nullptr) {
+            LOG(TRACE) << instanceName << " Create SocketContext";
             setSocketContext(socketContext);
         } else {
-            LOG(TRACE) << "SocketConnection: Failed creating new SocketContext";
+            LOG(TRACE) << instanceName << " Failed creating new SocketContext";
             close();
         }
     }
@@ -85,6 +86,8 @@ namespace core::socket::stream {
     void SocketConnection::disconnectCurrentSocketContext() {
         if (socketContext != nullptr) {
             socketContext->onDisconnected();
+
+            LOG(TRACE) << instanceName << " Destroy SocketContext";
             delete socketContext;
         }
     }

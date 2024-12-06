@@ -115,7 +115,7 @@ namespace core::socket::stream {
     void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::init() {
         if (!config->getDisabled() && core::eventLoopState() == core::State::RUNNING) {
             try {
-                LOG(TRACE) << config->getInstanceName() << ": Starting";
+                LOG(TRACE) << config->getInstanceName() << " Starting";
 
                 localAddress = config->Local::getSocketAddress();
 
@@ -167,7 +167,7 @@ namespace core::socket::stream {
                 }
 
                 if (localAddress.useNext()) {
-                    LOG(TRACE) << config->getInstanceName() << ": Using next SocketAddress '"
+                    LOG(TRACE) << config->getInstanceName() << " using next SocketAddress: '"
                                << config->Local::getSocketAddress().toString() << "'";
 
                     onStatus(localAddress, (state | core::socket::State::NO_RETRY));
@@ -177,12 +177,12 @@ namespace core::socket::stream {
                     onStatus(localAddress, state);
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(TRACE) << config->getInstanceName() << ": " << badSocketAddress.what();
+                LOG(TRACE) << config->getInstanceName() << " " << badSocketAddress.what();
 
                 onStatus({}, core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
             }
         } else {
-            LOG(TRACE) << config->getInstanceName() << ": Disabled";
+            LOG(TRACE) << config->getInstanceName() << " disabled";
 
             onStatus({}, core::socket::STATE_DISABLED);
         }
@@ -202,7 +202,7 @@ namespace core::socket::stream {
             PhysicalServerSocket connectedPhysicalSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK),
                                                          physicalServerSocket.getBindAddress());
             if (connectedPhysicalSocket.isValid()) {
-                LOG(TRACE) << config->getInstanceName() << " accept: Success '" << connectedPhysicalSocket.getBindAddress().toString()
+                LOG(TRACE) << config->getInstanceName() << " accept success: '" << connectedPhysicalSocket.getBindAddress().toString()
                            << "'";
 
                 SocketConnection* socketConnection =
@@ -221,7 +221,7 @@ namespace core::socket::stream {
                 onConnect(socketConnection);
                 onConnected(socketConnection);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                PLOG(TRACE) << config->getInstanceName() << " accept: Failed '" << physicalServerSocket.getBindAddress().toString() << "'";
+                PLOG(TRACE) << config->getInstanceName() << " accept failed: '" << physicalServerSocket.getBindAddress().toString() << "'";
             }
         } while (--acceptsPerTick > 0);
     }

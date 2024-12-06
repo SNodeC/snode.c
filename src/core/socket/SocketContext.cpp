@@ -28,7 +28,6 @@
 namespace core::socket {
 
     SocketContext::~SocketContext() {
-        LOG(TRACE) << "SocketContext: destruct";
     }
 
     void SocketContext::sendToPeer(const std::string& data) const {

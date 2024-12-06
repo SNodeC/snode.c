@@ -74,14 +74,14 @@ namespace core::socket::stream::tls {
                     break;
                 case SSL_ERROR_NONE:
                 case SSL_ERROR_ZERO_RETURN:
-                    onSuccess();
                     ReadEventReceiver::disable();
                     WriteEventReceiver::disable();
+                    onSuccess();
                     break;
                 default:
-                    onStatus(sslErr);
                     ReadEventReceiver::disable();
                     WriteEventReceiver::disable();
+                    onStatus(sslErr);
                     break;
             }
         }
@@ -104,14 +104,14 @@ namespace core::socket::stream::tls {
                 break;
             case SSL_ERROR_NONE:
             case SSL_ERROR_ZERO_RETURN:
-                onSuccess();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
+                onSuccess();
                 break;
             default:
-                onStatus(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
+                onStatus(sslErr);
                 break;
         }
     }
@@ -133,14 +133,14 @@ namespace core::socket::stream::tls {
                 break;
             case SSL_ERROR_NONE:
             case SSL_ERROR_ZERO_RETURN:
-                onSuccess();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
+                onSuccess();
                 break;
             default:
-                onStatus(sslErr);
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
+                onStatus(sslErr);
                 break;
         }
     }
@@ -148,18 +148,18 @@ namespace core::socket::stream::tls {
     void TLSShutdown::readTimeout() {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
-            onTimeout();
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
+            onTimeout();
         }
     }
 
     void TLSShutdown::writeTimeout() {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
-            onTimeout();
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
+            onTimeout();
         }
     }
 

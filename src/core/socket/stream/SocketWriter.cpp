@@ -106,10 +106,10 @@ namespace core::socket::stream {
                     source->suspend();
                 }
             } else {
-                LOG(TRACE) << getName() << ": Send request while not enabled";
+                LOG(TRACE) << getName() << " Send request while not enabled";
             }
         } else {
-            LOG(TRACE) << getName() << ": Send request while shutdown in progress";
+            LOG(TRACE) << getName() << " Send request while shutdown in progress";
         }
     }
 
@@ -121,15 +121,15 @@ namespace core::socket::stream {
                 success = source != nullptr;
 
                 if (success) {
-                    LOG(TRACE) << getName() << ": Stream started";
+                    LOG(TRACE) << getName() << " Stream started";
                 } else {
-                    LOG(TRACE) << getName() << ": Stream source is nullptr";
+                    LOG(TRACE) << getName() << " Stream source is nullptr";
                 }
             } else {
-                LOG(TRACE) << getName() << ": Stream request while not enabled";
+                LOG(TRACE) << getName() << " Stream request while not enabled";
             }
         } else {
-            LOG(TRACE) << getName() << ": Stream request while shutdown in progress";
+            LOG(TRACE) << getName() << " Stream request while shutdown in progress";
         }
 
         this->source = source;
@@ -138,7 +138,7 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::streamEof() {
-        LOG(TRACE) << getName() << ": Stream EOF";
+        LOG(TRACE) << getName() << " Stream EOF";
         this->source = nullptr;
     }
 
@@ -152,7 +152,7 @@ namespace core::socket::stream {
                 shutdownInProgress = true;
             } else {
                 SocketWriter::markShutdown = true;
-                LOG(TRACE) << getName() << ": Delay shutdown due to queued data";
+                LOG(TRACE) << getName() << " Delay shutdown due to queued data";
             }
         }
     }

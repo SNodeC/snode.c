@@ -267,7 +267,7 @@ namespace web::http::client {
     }
 
     bool SocketContext::onSignal([[maybe_unused]] int signum) {
-        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: received signal  " << signum;
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: received signal " << signum;
 
         return true;
     }

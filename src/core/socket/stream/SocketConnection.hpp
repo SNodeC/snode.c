@@ -51,13 +51,13 @@ namespace core::socket::stream {
               [this](int errnum) -> void {
                   const utils::PreserveErrno pe(errnum);
 
-                  if (errno == 0) {
-                      LOG(TRACE) << this->instanceName << ": EOF received";
-                  } else {
-                      PLOG(TRACE) << this->instanceName << ": ReadError";
-                  }
-
                   onReadError(errnum);
+
+                  if (errno == 0) {
+                      LOG(TRACE) << this->instanceName << " EOF received";
+                  } else {
+                      PLOG(TRACE) << this->instanceName << " ReadError";
+                  }
               },
               readTimeout,
               readBlockSize,
@@ -67,9 +67,9 @@ namespace core::socket::stream {
               [this](int errnum) -> void {
                   const utils::PreserveErrno pe(errnum);
 
-                  PLOG(TRACE) << this->instanceName << ": OnWriteError";
-
                   onWriteError(errnum);
+
+                  PLOG(TRACE) << this->instanceName << " OnWriteError";
               },
               writeTimeout,
               writeBlockSize,
@@ -121,7 +121,7 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             ret = SocketReader::readFromPeer(chunk, chunkLen);
         } else {
-            LOG(TRACE) << instanceName << ": ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
+            LOG(TRACE) << instanceName << " ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
         }
 
         return ret;
@@ -144,24 +144,28 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
-        LOG(TRACE) << instanceName << ": Do syscall shutdown (RD, " << getFd() << ")";
+        LOG(TRACE) << instanceName << " Shutdown (RD, " << getFd() << ")";
 
         SocketReader::shutdownRead();
 
-        physicalSocket.shutdown(PhysicalSocket::SHUT::RD);
+        if (physicalSocket.shutdown(PhysicalSocket::SHUT::RD) != 0) {
+            PLOG(TRACE) << instanceName << " Shutdown (RD, " << getFd() << ")";
+        } else {
+            LOG(TRACE) << instanceName << " Shutdown (RD, " << getFd() << ") success";
+        }
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
         if (!SocketWriter::shutdownInProgress) {
-            LOG(TRACE) << instanceName << ": Initiating shutdown process (" << getFd() << ")";
+            LOG(TRACE) << instanceName << " Initiating shutdown process (" << getFd() << ")";
 
             SocketWriter::shutdownWrite([forceClose, this]() -> void {
-                if (forceClose && SocketReader::isEnabled()) {
-                    shutdownRead();
-                }
                 if (SocketWriter::isEnabled()) {
                     SocketWriter::disable();
+                }
+                if (forceClose && SocketReader::isEnabled()) {
+                    shutdownRead();
                 }
             });
         }
@@ -181,10 +185,10 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void()>& onShutdown) {
         errno = 0;
 
-        LOG(TRACE) << instanceName << ": Do syscall shutdown (WR, " << getFd() << ")";
-
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) != 0) {
-            PLOG(TRACE) << instanceName << ": SocketWriter::doWriteShutdown (" << getFd() << ")";
+            PLOG(TRACE) << instanceName << " Shutdown (WR, " << getFd() << ")";
+        } else {
+            LOG(TRACE) << instanceName << " Shutdown (WR, " << getFd() << ") success";
         }
 
         onShutdown();
@@ -195,7 +199,7 @@ namespace core::socket::stream {
         std::size_t consumed = socketContext->onReceivedFromPeer();
 
         if (available != 0 && consumed == 0) {
-            LOG(TRACE) << instanceName << ": Data available: " << available << " but nothing read";
+            LOG(TRACE) << instanceName << " Data available: " << available << " but nothing read";
 
             close();
 
@@ -228,7 +232,7 @@ namespace core::socket::stream {
             case SIGABRT:
                 [[fallthrough]];
             case SIGHUP:
-                LOG(TRACE) << instanceName << ": Shutting down due to signal '" << strsignal(signum) << "' (SIG"
+                LOG(TRACE) << instanceName << " Shutting down due to signal '" << strsignal(signum) << "' (SIG"
                            << utils::system::sigabbrev_np(signum) << " = " << signum << ", " << getFd() << ")";
                 break;
             case SIGALRM:
@@ -250,8 +254,8 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::unobservedEvent() {
-        disconnectCurrentSocketContext();
         onDisconnect();
+        disconnectCurrentSocketContext();
 
         delete this;
     }

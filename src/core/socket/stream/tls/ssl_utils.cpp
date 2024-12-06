@@ -321,8 +321,6 @@ namespace core::socket::stream::tls {
     void ssl_log(const std::string& message, int sslErr) {
         const utils::PreserveErrno preserveErrno;
 
-        LOG(TRACE) << "---------------: " << sslErr;
-
         switch (sslErr) {
             case SSL_ERROR_NONE:
                 [[fallthrough]];

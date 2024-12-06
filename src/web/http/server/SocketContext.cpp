@@ -97,7 +97,7 @@ namespace web::http::server {
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response wrong content length";
 
-            shutdownWrite();
+            shutdownWrite(true);
         }
     }
 
@@ -125,7 +125,7 @@ namespace web::http::server {
     }
 
     void SocketContext::onConnected() {
-        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onConnected";
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: Connected";
 
         masterResponse->init();
     }
@@ -145,11 +145,11 @@ namespace web::http::server {
             masterResponse->stopResponse();
         }
 
-        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onDisconnected";
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: Disconnected";
     }
 
     bool SocketContext::onSignal(int signum) {
-        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: onSignal " << signum;
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: Received signal " << signum;
 
         return true;
     }
