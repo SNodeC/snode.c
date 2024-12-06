@@ -26,10 +26,10 @@
 #include "log/Logger.h"
 
 #include <algorithm>
+#include <iterator>
 #include <map>
 #include <nlohmann/json.hpp>
 #include <string>
-#include <vector>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
 
@@ -97,22 +97,20 @@ namespace iot::mqtt::server::broker {
     nlohmann::json Session::toJson() const {
         nlohmann::json json = iot::mqtt::Session::toJson();
 
-        std::vector<nlohmann::json> messageVector;
-        messageVector.reserve(messageQueue.size());
-
-        for (const Message& message : messageQueue) {
-            messageVector.emplace_back(message.toJson());
-        }
-
-        json["message_queue"] = messageVector;
+        std::transform(messageQueue.begin(), messageQueue.end(), std::back_inserter(json["message_queue"]), [](const Message& message) {
+            return message.toJson();
+        });
 
         return json;
     }
 
     void Session::fromJson(const nlohmann::json& json) {
-        for (const nlohmann::json& messageJson : json["message_queue"]) {
-            messageQueue.emplace_back(Message().fromJson(messageJson));
-        }
+        std::transform(json["message_queue"].begin(),
+                       json["message_queue"].end(),
+                       std::back_inserter(messageQueue),
+                       [](const nlohmann::json& jsonMessage) {
+                           return Message().fromJson(jsonMessage);
+                       });
 
         iot::mqtt::Session::fromJson(json);
     }
