@@ -41,25 +41,14 @@ namespace core::socket::stream::tls {
 
             switch (ssl_err) {
                 case SSL_ERROR_NONE:
+                    errno = EAGAIN;
                     break;
-                case SSL_ERROR_WANT_READ: {
-                    const utils::PreserveErrno preserveErrno;
-
-                    LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on write";
-                    doSSLHandshake(
-                        [instanceName = getName()]() -> void {
-                            LOG(TRACE) << instanceName << " SSL/TLS: Renegotiation on write success";
-                        },
-                        [instanceName = getName()]() -> void {
-                            LOG(TRACE) << instanceName << " SSL/TLS: Renegotiation on write timed out";
-                        },
-                        [instanceName = getName()](int ssl_err) -> void {
-                            ssl_log(instanceName + " SSL/TLS: Renegotiation", ssl_err);
-                        });
-                }
+                case SSL_ERROR_WANT_READ:
+                    errno = EAGAIN;
                     ret = -1;
                     break;
                 case SSL_ERROR_WANT_WRITE:
+                    errno = EAGAIN;
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
@@ -67,6 +56,12 @@ namespace core::socket::stream::tls {
                     ret = -1; // on the write side this means a TCP broken pipe
                     break;
                 case SSL_ERROR_SYSCALL:
+                    if (errno == EPIPE) {
+                        std::cerr << "SSL_write error: Broken pipe (SIGPIPE detected)." << std::endl;
+                        errno = EPIPE;
+                    } else {
+                        std::cerr << "SSL_write syscall error: " << strerror(errno) << std::endl;
+                    }
                     ret = -1;
                     break;
                 default:

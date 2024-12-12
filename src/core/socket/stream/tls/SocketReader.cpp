@@ -35,8 +35,6 @@
 namespace core::socket::stream::tls {
 
     ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
-        const int sslShutdownState = SSL_get_shutdown(ssl);
-
         chunkLen = chunkLen > std::numeric_limits<int>::max() ? std::numeric_limits<int>::max() : chunkLen;
         int ret = SSL_read(ssl, chunk, static_cast<int>(chunkLen));
 
@@ -45,43 +43,27 @@ namespace core::socket::stream::tls {
 
             switch (ssl_err) {
                 case SSL_ERROR_NONE:
+                    errno = EAGAIN;
                     break;
                 case SSL_ERROR_WANT_READ:
+                    errno = EAGAIN;
                     ret = -1;
                     break;
-                case SSL_ERROR_WANT_WRITE: {
-                    const utils::PreserveErrno preserveErrno;
-
-                    LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
-                    doSSLHandshake(
-                        [this]() -> void {
-                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
-                        },
-                        [this]() -> void {
-                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
-                        },
-                        [this](int ssl_err) -> void {
-                            ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
-                        });
-                }
+                case SSL_ERROR_WANT_WRITE:
+                    errno = EAGAIN;
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
-                    LOG(TRACE) << getName() << " SSL/TLS: Close_notify received";
-
-                    SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | sslShutdownState);
-                    doSSLShutdown();
                     errno = 0;
                     ret = 0;
                     break;
-                case SSL_ERROR_SYSCALL: {
-                    LOG(TRACE) << getName() << " SSL/TLS: TCP-FIN | TCP_RST without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
-
-                    const utils::PreserveErrno preserveErrno;
-
-                    SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
-                    doSSLShutdown();
-                }
+                case SSL_ERROR_SYSCALL:
+                    if (ret == 0) { // Do not check errno as it is not set in that case.
+                        std::cerr << "EOF detected: Connection closed by peer." << std::endl;
+                        errno = 0;
+                    } else {
+                        std::cerr << "SSL_read syscall error: " << strerror(errno) << std::endl;
+                    }
                     ret = -1;
                     break;
                 default:
