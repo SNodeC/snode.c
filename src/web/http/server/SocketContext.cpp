@@ -107,7 +107,7 @@ namespace web::http::server {
         if (httpClose) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
 
-            shutdownWrite();
+            //            shutdownWrite();
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
 

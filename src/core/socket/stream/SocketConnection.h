@@ -151,6 +151,7 @@ namespace core::socket::stream {
 
     protected:
         void doWriteShutdown(const std::function<void()>& onShutdown) override;
+        void doReadShutdown() override;
 
     private:
         PhysicalSocket physicalSocket;

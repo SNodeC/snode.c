@@ -40,9 +40,6 @@ namespace core::socket::stream::tls {
             const int ssl_err = SSL_get_error(ssl, ret);
 
             switch (ssl_err) {
-                case SSL_ERROR_NONE:
-                    errno = EAGAIN;
-                    break;
                 case SSL_ERROR_WANT_READ:
                     errno = EAGAIN;
                     ret = -1;
@@ -57,15 +54,21 @@ namespace core::socket::stream::tls {
                     break;
                 case SSL_ERROR_SYSCALL:
                     if (errno == EPIPE) {
-                        std::cerr << "SSL_write error: Broken pipe (SIGPIPE detected)." << std::endl;
+                        PLOG(TRACE) << "SSL_write error: Broken pipe (SIGPIPE detected).";
                         errno = EPIPE;
+                    } else if (errno == ECONNRESET) {
+                        PLOG(TRACE) << "Connection reset by peer (ECONNRESET).";
                     } else {
-                        std::cerr << "SSL_write syscall error: " << strerror(errno) << std::endl;
+                        PLOG(TRACE) << "SSL_write syscall error: " << strerror(errno);
                     }
                     ret = -1;
                     break;
+                case SSL_ERROR_SSL:
+                    ssl_log(getName() + " SSL/TLS: Error write failed", ssl_err);
+                    errno = EIO;
+                    break;
                 default:
-                    ssl_log(getName() + " SSL/TLS: Write failed", ssl_err);
+                    LOG(TRACE) << "SSL/TLS: Unexpected error write failed (" << ssl_err << ")";
                     errno = EIO;
                     ret = -1;
                     break;

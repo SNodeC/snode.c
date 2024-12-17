@@ -42,9 +42,6 @@ namespace core::socket::stream::tls {
             const int ssl_err = SSL_get_error(ssl, ret);
 
             switch (ssl_err) {
-                case SSL_ERROR_NONE:
-                    errno = EAGAIN;
-                    break;
                 case SSL_ERROR_WANT_READ:
                     errno = EAGAIN;
                     ret = -1;
@@ -54,20 +51,33 @@ namespace core::socket::stream::tls {
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
+                    LOG(TRACE) << "Close_notify received.";
                     errno = 0;
                     ret = 0;
                     break;
-                case SSL_ERROR_SYSCALL:
-                    if (ret == 0) { // Do not check errno as it is not set in that case.
-                        std::cerr << "EOF detected: Connection closed by peer." << std::endl;
-                        errno = 0;
+                case SSL_ERROR_SYSCALL: // When SSL_get_error(ssl, ret) returns SSL_ERROR_SYSCALL
+                                        // and ret is 0, it indicates that the underlying TCP connection
+                                        // was closed unexpectedly by the peer. This situation typically
+                                        // happens when the peer closes (FIN) the connection without
+                                        // sending a close_notify alert, which violates the SSL/TLS
+                                        // protocol’s  graceful shutdown procedure.
+                    // In case ret is -1 a real syscall error (RST = ECONNRESET)
+                    if (ret == 0) {
+                        LOG(TRACE) << "EOF detected: Connection closed by peer.";
+                        errno = ECONNRESET;
+                    } else if (errno == ECONNRESET) {
+                        PLOG(TRACE) << "Connection reset by peer (ECONNRESET).";
                     } else {
-                        std::cerr << "SSL_read syscall error: " << strerror(errno) << std::endl;
+                        PLOG(TRACE) << "SSL_read syscall error: " << strerror(errno);
                     }
                     ret = -1;
                     break;
-                default:
+                case SSL_ERROR_SSL:
                     ssl_log(getName() + " SSL/TLS: Error read failed", ssl_err);
+                    errno = EIO;
+                    break;
+                default:
+                    LOG(TRACE) << "SSL/TLS: Unexpected error read failed (" << ssl_err << ")";
                     errno = EIO;
                     ret = -1;
                     break;

@@ -53,9 +53,11 @@ namespace core::socket::stream {
         virtual ssize_t read(char* chunk, std::size_t chunkLen) = 0;
 
         void readEvent() final;
-        void signalEvent(int sigNum) final;
 
         std::size_t doRead();
+        void signalEvent(int sigNum) final;
+
+        virtual void doReadShutdown() = 0;
 
     protected:
         void setBlockSize(std::size_t readBlockSize);

@@ -80,7 +80,7 @@ namespace core::socket::stream::tls {
                            const std::function<void(int)>& onStatus,
                            const utils::Timeval& shutdownTimeout);
 
-        void doSSLShutdown() final;
+        void doReadShutdown() final;
 
         void doWriteShutdown(const std::function<void()>& onShutdown) final;
 

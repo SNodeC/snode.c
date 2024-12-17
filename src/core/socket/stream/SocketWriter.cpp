@@ -73,8 +73,9 @@ namespace core::socket::stream {
             } else if ((errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) && isSuspended()) {
                 resume();
             } else {
-                onStatus(errno);
                 disable();
+
+                onStatus(errno);
             }
         } else {
             if (!isSuspended()) {
@@ -82,7 +83,7 @@ namespace core::socket::stream {
             }
 
             if (markShutdown) {
-                shutdownWrite(onShutdown);
+                doWriteShutdown(onShutdown);
             } else if (source != nullptr) {
                 source->resume();
             }
@@ -144,12 +145,13 @@ namespace core::socket::stream {
 
     void SocketWriter::shutdownWrite(const std::function<void()>& onShutdown) {
         if (!shutdownInProgress) {
+            shutdownInProgress = true;
+
             SocketWriter::setTimeout(SocketWriter::terminateTimeout);
 
             SocketWriter::onShutdown = onShutdown;
             if (SocketWriter::writePuffer.empty()) {
                 doWriteShutdown(onShutdown);
-                shutdownInProgress = true;
             } else {
                 SocketWriter::markShutdown = true;
                 LOG(TRACE) << getName() << " Delay shutdown due to queued data";
