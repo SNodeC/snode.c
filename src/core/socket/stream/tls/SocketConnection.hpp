@@ -69,10 +69,8 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocket>
-    SSL* SocketConnection<PhysicalSocket>::startSSL(int fd,
-                                                    SSL_CTX* ctx,
-                                                    const utils::Timeval& sslInitTimeout,
-                                                    const utils::Timeval& sslShutdownTimeout) {
+    SSL* SocketConnection<PhysicalSocket>::startSSL(
+        int fd, SSL_CTX* ctx, const utils::Timeval& sslInitTimeout, const utils::Timeval& sslShutdownTimeout, bool closeNotifyIsEOF) {
         this->sslInitTimeout = sslInitTimeout;
         this->sslShutdownTimeout = sslShutdownTimeout;
         if (ctx != nullptr) {
@@ -82,6 +80,8 @@ namespace core::socket::stream::tls {
                 if (SSL_set_fd(ssl, fd) == 1) {
                     SocketReader::ssl = ssl;
                     SocketWriter::ssl = ssl;
+                    SocketReader::closeNotifyIsEOF = closeNotifyIsEOF;
+                    SocketWriter::closeNotifyIsEOF = closeNotifyIsEOF;
                 } else {
                     SSL_free(ssl);
                     ssl = nullptr;

@@ -47,13 +47,27 @@ namespace core::socket::stream::tls {
                     ret = -1;
                     break;
                 case SSL_ERROR_WANT_WRITE:
+                    LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
+                    doSSLHandshake(
+                        [this]() -> void {
+                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
+                        },
+                        [this]() -> void {
+                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
+                        },
+                        [this](int ssl_err) -> void {
+                            ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
+                        });
                     errno = EAGAIN;
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
                     LOG(TRACE) << "Close_notify received.";
-                    errno = 0;
-                    ret = 0;
+                    if (closeNotifyIsEOF) {
+                        doReadShutdown();
+                    }
+                    errno = closeNotifyIsEOF ? 0 : EAGAIN;
+                    ret = closeNotifyIsEOF ? 0 : -1;
                     break;
                 case SSL_ERROR_SYSCALL: // When SSL_get_error(ssl, ret) returns SSL_ERROR_SYSCALL
                                         // and ret is 0, it indicates that the underlying TCP connection

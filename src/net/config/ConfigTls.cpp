@@ -94,6 +94,13 @@ namespace net::config {
             "timeout",
             TLS_SHUTDOWN_TIMEOUT,
             CLI::PositiveNumber);
+
+        noCloseNotifyIsEOFOpt = addFlag( //
+            "--no-close-notify-is-eof{true}",
+            "Do not interpret a SSL/TLS close_notify alert as EOF",
+            "bool",
+            "false",
+            CLI::IsMember({"true", "false"}));
     }
 
     ConfigTls& ConfigTls::setCert(const std::string& cert) {
@@ -190,6 +197,17 @@ namespace net::config {
 
     ssl_option_t ConfigTls::getSslOptions() const {
         return sslOptionsOpt->as<ssl_option_t>();
+    }
+
+    ConfigTls& ConfigTls::setNoCloseNotifyIsEOF(bool closeNotifyIsEOF) {
+        noCloseNotifyIsEOFOpt //
+            ->default_val(closeNotifyIsEOF ? "true" : "false")
+            ->clear();
+        return *this;
+    }
+
+    bool ConfigTls::getNoCloseNotifyIsEOF() const {
+        return noCloseNotifyIsEOFOpt->as<bool>();
     }
 
     ConfigTls& ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeout) {

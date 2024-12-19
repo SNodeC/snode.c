@@ -75,6 +75,9 @@ namespace net::config {
         ConfigTls& setSslOptions(ssl_option_t sslOptions);
         ssl_option_t getSslOptions() const;
 
+        ConfigTls& setNoCloseNotifyIsEOF(bool noCloseNotifyIsEOF = true);
+        bool getNoCloseNotifyIsEOF() const;
+
     private:
         CLI::Option* certOpt = nullptr;
         CLI::Option* certKeyOpt = nullptr;
@@ -86,6 +89,7 @@ namespace net::config {
         CLI::Option* sslOptionsOpt = nullptr;
         CLI::Option* initTimeoutOpt = nullptr;
         CLI::Option* shutdownTimeoutOpt = nullptr;
+        CLI::Option* noCloseNotifyIsEOFOpt = nullptr;
     };
 
 } // namespace net::config

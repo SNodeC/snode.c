@@ -47,7 +47,8 @@ namespace core::socket::stream::tls {
                   SSL* ssl = socketConnection->startSSL(socketConnection->getFd(),
                                                         this->config->getSslCtx(),
                                                         Super::config->getInitTimeout(),
-                                                        Super::config->getShutdownTimeout());
+                                                        Super::config->getShutdownTimeout(),
+                                                        !Super::config->getNoCloseNotifyIsEOF());
 
                   if (ssl != nullptr) {
                       SSL_set_accept_state(ssl);

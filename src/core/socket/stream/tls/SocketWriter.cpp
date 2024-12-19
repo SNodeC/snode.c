@@ -41,6 +41,17 @@ namespace core::socket::stream::tls {
 
             switch (ssl_err) {
                 case SSL_ERROR_WANT_READ:
+                    LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
+                    doSSLHandshake(
+                        [this]() -> void {
+                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
+                        },
+                        [this]() -> void {
+                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
+                        },
+                        [this](int ssl_err) -> void {
+                            ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
+                        });
                     errno = EAGAIN;
                     ret = -1;
                     break;
@@ -49,7 +60,7 @@ namespace core::socket::stream::tls {
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
-                    errno = EPIPE;
+                    errno = closeNotifyIsEOF ? EPIPE : EAGAIN;
                     ret = -1; // on the write side this means a TCP broken pipe
                     break;
                 case SSL_ERROR_SYSCALL:
