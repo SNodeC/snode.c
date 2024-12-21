@@ -67,6 +67,7 @@ namespace net::config::stream::tls {
             sslConfig.cipherList = getCipherList();
             sslConfig.sslOptions = getSslOptions();
             sslConfig.caCertUseDefaultDir = getCaCertUseDefaultDir();
+            sslConfig.caCertAcceptUnknown = getCaCertAcceptUnknown();
 
             sslCtx = core::socket::stream::tls::ssl_ctx_new(sslConfig);
 
@@ -110,6 +111,8 @@ namespace net::config::stream::tls {
                             sslConfig.caCertDir = std::get<std::string>(value);
                         } else if (key == "CaCertUseDefaultDir") {
                             sslConfig.caCertUseDefaultDir = std::get<bool>(value);
+                        } else if (key == "CaCertAcceptUnknown") {
+                            sslConfig.caCertAcceptUnknown = std::get<bool>(value);
                         } else if (key == "CipherList") {
                             sslConfig.cipherList = std::get<std::string>(value);
                         } else if (key == "SslOptions") {

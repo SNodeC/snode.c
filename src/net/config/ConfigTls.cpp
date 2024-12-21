@@ -67,6 +67,13 @@ namespace net::config {
             "false",
             CLI::IsMember({"true", "false"}));
 
+        caCertAcceptUnknownOpt = addFlag( //
+            "--ca-cert-accept-unknown{true}",
+            "Accept unknown certificates (unsecure)",
+            "bool",
+            "false",
+            CLI::IsMember({"true", "false"}));
+            
         cipherListOpt = addOption( //
             "--cipher-list",
             "Cipher list (OpenSSL syntax)",
@@ -173,6 +180,18 @@ namespace net::config {
 
     bool ConfigTls::getCaCertUseDefaultDir() const {
         return caCertUseDefaultDirOpt->as<bool>();
+    }
+
+    ConfigTls& ConfigTls::setCaCertAcceptUnknown(bool set) {
+        caCertAcceptUnknownOpt //
+            ->default_val(set ? "true" : "false")
+            ->clear();
+
+        return *this;
+    }
+
+    bool ConfigTls::getCaCertAcceptUnknown() const {
+        return caCertAcceptUnknownOpt->as<bool>();
     }
 
     ConfigTls& ConfigTls::setCipherList(const std::string& cipherList) {

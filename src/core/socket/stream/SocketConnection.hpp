@@ -57,6 +57,7 @@ namespace core::socket::stream {
                           PLOG(TRACE) << this->instanceName << " ReadError";
                       }
                   }
+                  SocketReader::disable();
 
                   onReadError(errnum);
               },
@@ -70,6 +71,8 @@ namespace core::socket::stream {
                       const utils::PreserveErrno pe(errnum);
                       PLOG(TRACE) << this->instanceName << " OnWriteError";
                   }
+
+                  SocketWriter::disable();
 
                   onWriteError(errnum);
               },
@@ -158,13 +161,13 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doReadShutdown() {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReadShutdown() {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
         if (!SocketWriter::shutdownInProgress) {
-            LOG(TRACE) << instanceName << " Initiating shutdown process (" << getFd() << ")";
+            LOG(TRACE) << instanceName << " Stop writing (" << getFd() << ")";
 
             SocketWriter::shutdownWrite([forceClose, this]() -> void {
                 if (SocketWriter::isEnabled()) {
@@ -250,11 +253,13 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readTimeout() {
+        LOG(TRACE) << instanceName << " Read timeout (" << getFd() << ")";
         close();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::writeTimeout() {
+        LOG(TRACE) << instanceName << " Write timeout (" << getFd() << ")";
         close();
     }
 

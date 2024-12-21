@@ -151,21 +151,22 @@ namespace core::socket::stream {
 
     protected:
         void doWriteShutdown(const std::function<void()>& onShutdown) override;
-        void doReadShutdown() override;
 
     private:
-        PhysicalSocket physicalSocket;
-
-        void onReceivedFromPeer(std::size_t available) final;
+        void onReadShutdown() override;
 
         void onWriteError(int errnum);
         void onReadError(int errnum);
+
+        void onReceivedFromPeer(std::size_t available) final;
 
         bool onSignal(int signum) final;
 
         void readTimeout() final;
         void writeTimeout() final;
         void unobservedEvent() final;
+
+        PhysicalSocket physicalSocket;
 
         std::function<void()> onDisconnect;
 

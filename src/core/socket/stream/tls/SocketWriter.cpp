@@ -23,7 +23,6 @@
 
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
-#include "utils/PreserveErrno.h"
 
 #include <cerrno>
 #include <openssl/ssl.h>
@@ -65,12 +64,12 @@ namespace core::socket::stream::tls {
                     break;
                 case SSL_ERROR_SYSCALL:
                     if (errno == EPIPE) {
-                        PLOG(TRACE) << "SSL_write error: Broken pipe (SIGPIPE detected).";
+                        PLOG(TRACE) << getName() << " SSL/TLS: Syscal error (SIGPIPE detected) on write.";
                         errno = EPIPE;
                     } else if (errno == ECONNRESET) {
-                        PLOG(TRACE) << "Connection reset by peer (ECONNRESET).";
+                        PLOG(TRACE) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
                     } else {
-                        PLOG(TRACE) << "SSL_write syscall error: " << strerror(errno);
+                        PLOG(TRACE) << getName() << " SSL/TLS: Syscall error on write";
                     }
                     ret = -1;
                     break;
@@ -79,7 +78,7 @@ namespace core::socket::stream::tls {
                     errno = EIO;
                     break;
                 default:
-                    LOG(TRACE) << "SSL/TLS: Unexpected error write failed (" << ssl_err << ")";
+                    LOG(TRACE) << getName() + " SSL/TLS: Unexpected error write failed (" << ssl_err << ")";
                     errno = EIO;
                     ret = -1;
                     break;

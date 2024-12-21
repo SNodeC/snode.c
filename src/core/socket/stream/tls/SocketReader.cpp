@@ -23,7 +23,6 @@
 
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
-#include "utils/PreserveErrno.h"
 
 #include <cerrno>
 #include <limits>
@@ -62,10 +61,7 @@ namespace core::socket::stream::tls {
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
-                    LOG(TRACE) << "Close_notify received.";
-                    if (closeNotifyIsEOF) {
-                        doReadShutdown();
-                    }
+                    LOG(TRACE) << getName() << " SSL/TLS: Close_notify received.";
                     errno = closeNotifyIsEOF ? 0 : EAGAIN;
                     ret = closeNotifyIsEOF ? 0 : -1;
                     break;
@@ -77,12 +73,12 @@ namespace core::socket::stream::tls {
                                         // protocol’s  graceful shutdown procedure.
                     // In case ret is -1 a real syscall error (RST = ECONNRESET)
                     if (ret == 0) {
-                        LOG(TRACE) << "EOF detected: Connection closed by peer.";
+                        LOG(TRACE) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
                         errno = ECONNRESET;
                     } else if (errno == ECONNRESET) {
-                        PLOG(TRACE) << "Connection reset by peer (ECONNRESET).";
+                        PLOG(TRACE) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
                     } else {
-                        PLOG(TRACE) << "SSL_read syscall error: " << strerror(errno);
+                        PLOG(TRACE) << getName() + " SSL/TLS: Syscall error on read";
                     }
                     ret = -1;
                     break;
@@ -91,7 +87,7 @@ namespace core::socket::stream::tls {
                     errno = EIO;
                     break;
                 default:
-                    LOG(TRACE) << "SSL/TLS: Unexpected error read failed (" << ssl_err << ")";
+                    LOG(TRACE) << getName() + " SSL/TLS: Unexpected error read failed (" << ssl_err << ")";
                     errno = EIO;
                     ret = -1;
                     break;
