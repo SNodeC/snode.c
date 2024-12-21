@@ -108,13 +108,13 @@ namespace core::socket::stream::tls {
                 } else {
                     if (!sslConfig.caCert.empty()) {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate loaded";
-                        LOG(TRACE) << "         " << sslConfig.caCert;
+                        LOG(TRACE) << "  " << sslConfig.caCert;
                     } else {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
                     }
                     if (!sslConfig.caCertDir.empty()) {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates load from";
-                        LOG(TRACE) << "         " << sslConfig.caCertDir;
+                        LOG(TRACE) << "  " << sslConfig.caCertDir;
                     } else {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
                     }
