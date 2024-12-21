@@ -73,7 +73,6 @@ namespace core::socket::stream {
                     resume();
                 }
             } else {
-                onReadShutdown();
                 onStatus(errno);
             }
         } else {
@@ -106,6 +105,8 @@ namespace core::socket::stream {
         cursor = 0;
 
         shutdownInProgress = true;
+
+        setTimeout(terminateTimeout);
     }
 
 } // namespace core::socket::stream

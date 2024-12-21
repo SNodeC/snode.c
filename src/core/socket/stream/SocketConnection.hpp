@@ -54,7 +54,7 @@ namespace core::socket::stream {
                       if (errno == 0) {
                           LOG(TRACE) << this->instanceName << " EOF received";
                       } else {
-                          PLOG(TRACE) << this->instanceName << " ReadError";
+                          PLOG(TRACE) << this->instanceName << " OnReadError";
                       }
                   }
                   SocketReader::disable();
@@ -161,10 +161,6 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReadShutdown() {
-    }
-
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
         if (!SocketWriter::shutdownInProgress) {
             LOG(TRACE) << instanceName << " Stop writing (" << getFd() << ")";
@@ -174,7 +170,7 @@ namespace core::socket::stream {
                     SocketWriter::disable();
                 }
                 if (forceClose && SocketReader::isEnabled()) {
-                    shutdownRead();
+                    close();
                 }
             });
         }

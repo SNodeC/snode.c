@@ -146,14 +146,14 @@ namespace core::socket::stream {
         if (!shutdownInProgress) {
             shutdownInProgress = true;
 
-            SocketWriter::setTimeout(SocketWriter::terminateTimeout);
+            setTimeout(terminateTimeout);
 
             SocketWriter::onShutdown = onShutdown;
-            if (SocketWriter::writePuffer.empty()) {
+            if (writePuffer.empty()) {
                 LOG(TRACE) << getName() << ": Shutdown start";
                 doWriteShutdown(onShutdown);
             } else {
-                SocketWriter::markShutdown = true;
+                markShutdown = true;
                 LOG(TRACE) << getName() << ": Shutdown delayed due to queued data";
             }
         }

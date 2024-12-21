@@ -57,8 +57,6 @@ namespace core::socket::stream {
         std::size_t doRead();
         void signalEvent(int sigNum) final;
 
-        virtual void onReadShutdown() = 0;
-
     protected:
         void setBlockSize(std::size_t readBlockSize);
 

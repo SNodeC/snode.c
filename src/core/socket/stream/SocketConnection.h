@@ -153,8 +153,6 @@ namespace core::socket::stream {
         void doWriteShutdown(const std::function<void()>& onShutdown) override;
 
     private:
-        void onReadShutdown() override;
-
         void onWriteError(int errnum);
         void onReadError(int errnum);
 

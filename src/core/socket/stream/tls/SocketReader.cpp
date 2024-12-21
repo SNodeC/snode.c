@@ -85,12 +85,17 @@ namespace core::socket::stream::tls {
                 case SSL_ERROR_SSL:
                     ssl_log(getName() + " SSL/TLS: Error read failed", ssl_err);
                     errno = EIO;
+                    ret = -1;
                     break;
                 default:
                     LOG(TRACE) << getName() + " SSL/TLS: Unexpected error read failed (" << ssl_err << ")";
                     errno = EIO;
                     ret = -1;
                     break;
+            }
+
+            if (ret <= 0 && !(errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)) {
+                onReadShutdown();
             }
         }
 
