@@ -232,8 +232,13 @@ namespace utils {
                 ->type_name("configfile")
                 ->check(!CLI::ExistingDirectory);
 
-            app->add_option("-w,--write-config",
-                            "Write config file and exit") //
+            app->add_option_function<std::string>(
+                   "-w,--write-config",
+                   []([[maybe_unused]] const std::string& configFile) {
+                       throw CLI::CallForWriteConfig(configFile);
+                   },
+                   "Write config file and exit")
+                ->take_last()
                 ->configurable(false)
                 ->default_val(configDirectory + "/" + applicationName + ".conf")
                 ->type_name("[configfile]")
@@ -533,11 +538,6 @@ namespace utils {
         try {
             try {
                 app->parse(argc, argv);
-
-                if ((*app)["--write-config"]->count() > 0) {
-                    throw CLI::CallForWriteConfig((*app)["--write-config"]->as<std::string>());
-                }
-
                 success = true;
             } catch (const DaemonError& e) {
                 std::cout << "Daemon error: " << e.what() << " ... exiting" << std::endl;
@@ -819,7 +819,7 @@ namespace utils {
         if (reqired) {
             app->needs(instance);
 
-            for (const auto& sub : instance->get_subcommands([](CLI::App* sc) -> bool {
+            for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
                      return sc->get_required();
                  })) {
                 instance->needs(sub);
@@ -827,7 +827,7 @@ namespace utils {
         } else {
             app->remove_needs(instance);
 
-            for (const auto& sub : instance->get_subcommands([](CLI::App* sc) -> bool {
+            for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
                      return sc->get_required();
                  })) {
                 instance->remove_needs(sub);
@@ -841,7 +841,7 @@ namespace utils {
         if (disabled) {
             app->remove_needs(instance);
 
-            for (const auto& sub : instance->get_subcommands([](CLI::App* sc) -> bool {
+            for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
                      return !sc->get_disabled();
                  })) {
                 sub->disabled();
@@ -853,7 +853,7 @@ namespace utils {
         } else {
             app->needs(instance);
 
-            for (const auto& sub : instance->get_subcommands([](CLI::App* sc) -> bool {
+            for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
                      return sc->get_disabled();
                  })) {
                 sub->disabled(false);
