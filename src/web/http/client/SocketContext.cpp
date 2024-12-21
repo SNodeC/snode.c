@@ -217,8 +217,6 @@ namespace web::http::client {
     void SocketContext::responseDelivered(bool httpClose) {
         if (httpClose) {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
-
-            shutdownWrite();
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
 
