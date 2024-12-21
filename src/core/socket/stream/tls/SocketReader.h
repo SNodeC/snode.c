@@ -41,13 +41,13 @@ namespace core::socket::stream::tls {
         ssize_t read(char* chunk, std::size_t chunkLen) override;
 
     protected:
-        virtual void doSSLShutdown() = 0;
-
         virtual bool doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onStatus) = 0;
 
         SSL* ssl = nullptr;
+
+        bool closeNotifyIsEOF = true;
     };
 
 } // namespace core::socket::stream::tls

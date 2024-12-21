@@ -73,10 +73,8 @@ namespace core::socket::stream {
                     resume();
                 }
             } else {
-                const int errnum = errno;
-                onStatus(errnum);
-
-                disable();
+                onReadShutdown();
+                onStatus(errno);
             }
         } else {
             span();

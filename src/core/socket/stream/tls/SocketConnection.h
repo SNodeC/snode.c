@@ -67,7 +67,8 @@ namespace core::socket::stream::tls {
         SSL* getSSL() const;
 
     private:
-        SSL* startSSL(int fd, SSL_CTX* ctx, const utils::Timeval& sslInitTimeout, const utils::Timeval& sslShutdownTimeout);
+        SSL* startSSL(
+            int fd, SSL_CTX* ctx, const utils::Timeval& sslInitTimeout, const utils::Timeval& sslShutdownTimeout, bool closeNotifyIsEOF);
 
         void stopSSL();
 
@@ -80,7 +81,7 @@ namespace core::socket::stream::tls {
                            const std::function<void(int)>& onStatus,
                            const utils::Timeval& shutdownTimeout);
 
-        void doSSLShutdown() final;
+        void onReadShutdown() final;
 
         void doWriteShutdown(const std::function<void()>& onShutdown) final;
 

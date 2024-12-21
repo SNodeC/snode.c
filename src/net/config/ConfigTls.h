@@ -69,11 +69,17 @@ namespace net::config {
         ConfigTls& setCaCertUseDefaultDir(bool set = true);
         bool getCaCertUseDefaultDir() const;
 
+        ConfigTls& setCaCertAcceptUnknown(bool set = true);
+        bool getCaCertAcceptUnknown() const;
+
         ConfigTls& setCipherList(const std::string& cipherList);
         std::string getCipherList() const;
 
         ConfigTls& setSslOptions(ssl_option_t sslOptions);
         ssl_option_t getSslOptions() const;
+
+        ConfigTls& setNoCloseNotifyIsEOF(bool noCloseNotifyIsEOF = true);
+        bool getNoCloseNotifyIsEOF() const;
 
     private:
         CLI::Option* certOpt = nullptr;
@@ -82,10 +88,12 @@ namespace net::config {
         CLI::Option* caCertOpt = nullptr;
         CLI::Option* caCertDirOpt = nullptr;
         CLI::Option* caCertUseDefaultDirOpt = nullptr;
+        CLI::Option* caCertAcceptUnknownOpt = nullptr;
         CLI::Option* cipherListOpt = nullptr;
         CLI::Option* sslOptionsOpt = nullptr;
         CLI::Option* initTimeoutOpt = nullptr;
         CLI::Option* shutdownTimeoutOpt = nullptr;
+        CLI::Option* noCloseNotifyIsEOFOpt = nullptr;
     };
 
 } // namespace net::config

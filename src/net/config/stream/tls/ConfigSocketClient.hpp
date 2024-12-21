@@ -54,6 +54,7 @@ namespace net::config::stream::tls {
             sslConfig.cipherList = getCipherList();
             sslConfig.sslOptions = getSslOptions();
             sslConfig.caCertUseDefaultDir = getCaCertUseDefaultDir();
+            sslConfig.caCertAcceptUnknown = getCaCertAcceptUnknown();
 
             sslCtx = core::socket::stream::tls::ssl_ctx_new(sslConfig);
         }

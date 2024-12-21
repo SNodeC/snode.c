@@ -31,7 +31,6 @@
 #include <openssl/asn1.h>
 #include <openssl/err.h>
 #include <openssl/obj_mac.h>
-#include <openssl/opensslv.h>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
@@ -40,8 +39,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {
-
-#define SSL_VERIFY_FLAGS (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE)
 
     static int password_callback(char* buf, int size, [[maybe_unused]] int a, void* u) {
         strncpy(buf, static_cast<char*>(u), static_cast<std::size_t>(size));
@@ -73,12 +70,8 @@ namespace core::socket::stream::tls {
              * it for something special
              */
 
-            switch (err) {
-                case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-                    X509_NAME_oneline(X509_get_issuer_name(curr_cert), buf, 256);
-                    LOG(TRACE) << "  SSL/TLS: No issuer certificate for issuer= " << buf;
-                    break;
-            }
+            X509_NAME_oneline(X509_get_issuer_name(curr_cert), buf, 256);
+            LOG(TRACE) << "  SSL/TLS rejected: " << X509_verify_cert_error_string(err) << " '" << buf << "'";
         }
 
         return preverify_ok;
@@ -94,9 +87,6 @@ namespace core::socket::stream::tls {
         SSL_CTX* ctx = SSL_CTX_new(sslConfig.server ? TLS_server_method() : TLS_client_method());
 
         if (ctx != nullptr) {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-            SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
-#endif
             SSL_CTX_set_read_ahead(ctx, 1);
 
             SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
@@ -118,13 +108,13 @@ namespace core::socket::stream::tls {
                 } else {
                     if (!sslConfig.caCert.empty()) {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate loaded";
-                        LOG(TRACE) << "         " << sslConfig.caCert;
+                        LOG(TRACE) << "  " << sslConfig.caCert;
                     } else {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
                     }
                     if (!sslConfig.caCertDir.empty()) {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates load from";
-                        LOG(TRACE) << "         " << sslConfig.caCertDir;
+                        LOG(TRACE) << "  " << sslConfig.caCertDir;
                     } else {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
                     }
@@ -144,9 +134,14 @@ namespace core::socket::stream::tls {
                 LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from default openssl CA directory";
             }
             if (!sslErr) {
-                if (sslConfig.caCertUseDefaultDir || !sslConfig.caCert.empty() || !sslConfig.caCertDir.empty()) {
-                    SSL_CTX_set_verify_depth(ctx, 5);
-                    SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
+                SSL_CTX_set_verify_depth(ctx, 5);
+                SSL_CTX_set_verify(ctx,
+                                   (sslConfig.caCertAcceptUnknown ? SSL_VERIFY_NONE
+                                    : (!sslConfig.caCert.empty() || !sslConfig.caCertDir.empty() || sslConfig.caCertUseDefaultDir)
+                                        ? SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE | SSL_VERIFY_FAIL_IF_NO_PEER_CERT
+                                        : 0),
+                                   verify_callback);
+                if ((SSL_CTX_get_verify_mode(ctx) & SSL_VERIFY_PEER) != 0) {
                     LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA requested verify";
                 }
                 if (!sslConfig.cert.empty()) {

@@ -58,6 +58,7 @@ namespace core::socket::stream::tls {
         std::string caCert;
         std::string caCertDir;
         bool caCertUseDefaultDir = false;
+        bool caCertAcceptUnknown = false;
         std::string cipherList;
         ssl_option_t sslOptions = 0;
         bool server = false;

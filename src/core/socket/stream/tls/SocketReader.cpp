@@ -23,7 +23,6 @@
 
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
-#include "utils/PreserveErrno.h"
 
 #include <cerrno>
 #include <limits>
@@ -35,8 +34,6 @@
 namespace core::socket::stream::tls {
 
     ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
-        const int sslShutdownState = SSL_get_shutdown(ssl);
-
         chunkLen = chunkLen > std::numeric_limits<int>::max() ? std::numeric_limits<int>::max() : chunkLen;
         int ret = SSL_read(ssl, chunk, static_cast<int>(chunkLen));
 
@@ -44,14 +41,11 @@ namespace core::socket::stream::tls {
             const int ssl_err = SSL_get_error(ssl, ret);
 
             switch (ssl_err) {
-                case SSL_ERROR_NONE:
-                    break;
                 case SSL_ERROR_WANT_READ:
+                    errno = EAGAIN;
                     ret = -1;
                     break;
-                case SSL_ERROR_WANT_WRITE: {
-                    const utils::PreserveErrno preserveErrno;
-
+                case SSL_ERROR_WANT_WRITE:
                     LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
                     doSSLHandshake(
                         [this]() -> void {
@@ -63,29 +57,37 @@ namespace core::socket::stream::tls {
                         [this](int ssl_err) -> void {
                             ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
                         });
-                }
+                    errno = EAGAIN;
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // received close_notify
-                    LOG(TRACE) << getName() << " SSL/TLS: Close_notify received";
-
-                    SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | sslShutdownState);
-                    doSSLShutdown();
-                    errno = 0;
-                    ret = 0;
+                    LOG(TRACE) << getName() << " SSL/TLS: Close_notify received.";
+                    errno = closeNotifyIsEOF ? 0 : EAGAIN;
+                    ret = closeNotifyIsEOF ? 0 : -1;
                     break;
-                case SSL_ERROR_SYSCALL: {
-                    LOG(TRACE) << getName() << " SSL/TLS: TCP-FIN | TCP_RST without close_notify. Emulating SSL_RECEIVED_SHUTDOWN";
-
-                    const utils::PreserveErrno preserveErrno;
-
-                    SSL_set_shutdown(ssl, SSL_get_shutdown(ssl) | SSL_RECEIVED_SHUTDOWN);
-                    doSSLShutdown();
-                }
+                case SSL_ERROR_SYSCALL: // When SSL_get_error(ssl, ret) returns SSL_ERROR_SYSCALL
+                                        // and ret is 0, it indicates that the underlying TCP connection
+                                        // was closed unexpectedly by the peer. This situation typically
+                                        // happens when the peer closes (FIN) the connection without
+                                        // sending a close_notify alert, which violates the SSL/TLS
+                                        // protocol’s  graceful shutdown procedure.
+                    // In case ret is -1 a real syscall error (RST = ECONNRESET)
+                    if (ret == 0) {
+                        LOG(TRACE) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
+                        errno = ECONNRESET;
+                    } else if (errno == ECONNRESET) {
+                        PLOG(TRACE) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
+                    } else {
+                        PLOG(TRACE) << getName() + " SSL/TLS: Syscall error on read";
+                    }
                     ret = -1;
                     break;
-                default:
+                case SSL_ERROR_SSL:
                     ssl_log(getName() + " SSL/TLS: Error read failed", ssl_err);
+                    errno = EIO;
+                    break;
+                default:
+                    LOG(TRACE) << getName() + " SSL/TLS: Unexpected error read failed (" << ssl_err << ")";
                     errno = EIO;
                     ret = -1;
                     break;

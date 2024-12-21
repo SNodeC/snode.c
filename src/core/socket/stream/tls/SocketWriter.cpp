@@ -23,7 +23,6 @@
 
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
-#include "utils/PreserveErrno.h"
 
 #include <cerrno>
 #include <openssl/ssl.h>
@@ -40,37 +39,46 @@ namespace core::socket::stream::tls {
             const int ssl_err = SSL_get_error(ssl, ret);
 
             switch (ssl_err) {
-                case SSL_ERROR_NONE:
-                    break;
-                case SSL_ERROR_WANT_READ: {
-                    const utils::PreserveErrno preserveErrno;
-
-                    LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on write";
+                case SSL_ERROR_WANT_READ:
+                    LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
                     doSSLHandshake(
-                        [instanceName = getName()]() -> void {
-                            LOG(TRACE) << instanceName << " SSL/TLS: Renegotiation on write success";
+                        [this]() -> void {
+                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
                         },
-                        [instanceName = getName()]() -> void {
-                            LOG(TRACE) << instanceName << " SSL/TLS: Renegotiation on write timed out";
+                        [this]() -> void {
+                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
                         },
-                        [instanceName = getName()](int ssl_err) -> void {
-                            ssl_log(instanceName + " SSL/TLS: Renegotiation", ssl_err);
+                        [this](int ssl_err) -> void {
+                            ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
                         });
-                }
+                    errno = EAGAIN;
                     ret = -1;
                     break;
                 case SSL_ERROR_WANT_WRITE:
+                    errno = EAGAIN;
                     ret = -1;
                     break;
                 case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
-                    errno = EPIPE;
+                    errno = closeNotifyIsEOF ? EPIPE : EAGAIN;
                     ret = -1; // on the write side this means a TCP broken pipe
                     break;
                 case SSL_ERROR_SYSCALL:
+                    if (errno == EPIPE) {
+                        PLOG(TRACE) << getName() << " SSL/TLS: Syscal error (SIGPIPE detected) on write.";
+                        errno = EPIPE;
+                    } else if (errno == ECONNRESET) {
+                        PLOG(TRACE) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
+                    } else {
+                        PLOG(TRACE) << getName() << " SSL/TLS: Syscall error on write";
+                    }
                     ret = -1;
                     break;
+                case SSL_ERROR_SSL:
+                    ssl_log(getName() + " SSL/TLS: Error write failed", ssl_err);
+                    errno = EIO;
+                    break;
                 default:
-                    ssl_log(getName() + " SSL/TLS: Write failed", ssl_err);
+                    LOG(TRACE) << getName() + " SSL/TLS: Unexpected error write failed (" << ssl_err << ")";
                     errno = EIO;
                     ret = -1;
                     break;

@@ -73,8 +73,7 @@ namespace core::socket::stream {
             } else if ((errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) && isSuspended()) {
                 resume();
             } else {
-                onStatus(errno);
-                disable();
+                onStatus(retWrite == 0 ? 0 : errno);
             }
         } else {
             if (!isSuspended()) {
@@ -82,7 +81,8 @@ namespace core::socket::stream {
             }
 
             if (markShutdown) {
-                shutdownWrite(onShutdown);
+                LOG(TRACE) << getName() << ": Shutdown restart";
+                doWriteShutdown(onShutdown);
             } else if (source != nullptr) {
                 source->resume();
             }
@@ -106,10 +106,10 @@ namespace core::socket::stream {
                     source->suspend();
                 }
             } else {
-                LOG(TRACE) << getName() << " Send request while not enabled";
+                LOG(TRACE) << getName() << ": Send request while not enabled";
             }
         } else {
-            LOG(TRACE) << getName() << " Send request while shutdown in progress";
+            LOG(TRACE) << getName() << ": Send request while shutdown in progress";
         }
     }
 
@@ -121,15 +121,15 @@ namespace core::socket::stream {
                 success = source != nullptr;
 
                 if (success) {
-                    LOG(TRACE) << getName() << " Stream started";
+                    LOG(TRACE) << getName() << ": Stream started";
                 } else {
-                    LOG(TRACE) << getName() << " Stream source is nullptr";
+                    LOG(TRACE) << getName() << ": Stream source is nullptr";
                 }
             } else {
-                LOG(TRACE) << getName() << " Stream request while not enabled";
+                LOG(TRACE) << getName() << ": Stream request while not enabled";
             }
         } else {
-            LOG(TRACE) << getName() << " Stream request while shutdown in progress";
+            LOG(TRACE) << getName() << ": Stream request while shutdown in progress";
         }
 
         this->source = source;
@@ -138,21 +138,23 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::streamEof() {
-        LOG(TRACE) << getName() << " Stream EOF";
+        LOG(TRACE) << getName() << ": Stream EOF";
         this->source = nullptr;
     }
 
     void SocketWriter::shutdownWrite(const std::function<void()>& onShutdown) {
         if (!shutdownInProgress) {
+            shutdownInProgress = true;
+
             SocketWriter::setTimeout(SocketWriter::terminateTimeout);
 
             SocketWriter::onShutdown = onShutdown;
             if (SocketWriter::writePuffer.empty()) {
+                LOG(TRACE) << getName() << ": Shutdown start";
                 doWriteShutdown(onShutdown);
-                shutdownInProgress = true;
             } else {
                 SocketWriter::markShutdown = true;
-                LOG(TRACE) << getName() << " Delay shutdown due to queued data";
+                LOG(TRACE) << getName() << ": Shutdown delayed due to queued data";
             }
         }
     }

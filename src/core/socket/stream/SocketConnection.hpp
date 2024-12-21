@@ -49,15 +49,17 @@ namespace core::socket::stream {
         , SocketReader(
               instanceName,
               [this](int errnum) -> void {
-                  const utils::PreserveErrno pe(errnum);
+                  {
+                      const utils::PreserveErrno pe(errnum);
+                      if (errno == 0) {
+                          LOG(TRACE) << this->instanceName << " EOF received";
+                      } else {
+                          PLOG(TRACE) << this->instanceName << " ReadError";
+                      }
+                  }
+                  SocketReader::disable();
 
                   onReadError(errnum);
-
-                  if (errno == 0) {
-                      LOG(TRACE) << this->instanceName << " EOF received";
-                  } else {
-                      PLOG(TRACE) << this->instanceName << " ReadError";
-                  }
               },
               readTimeout,
               readBlockSize,
@@ -65,19 +67,22 @@ namespace core::socket::stream {
         , SocketWriter(
               instanceName,
               [this](int errnum) -> void {
-                  const utils::PreserveErrno pe(errnum);
+                  {
+                      const utils::PreserveErrno pe(errnum);
+                      PLOG(TRACE) << this->instanceName << " OnWriteError";
+                  }
+
+                  SocketWriter::disable();
 
                   onWriteError(errnum);
-
-                  PLOG(TRACE) << this->instanceName << " OnWriteError";
               },
               writeTimeout,
               writeBlockSize,
               terminateTimeout)
         , physicalSocket(std::move(physicalSocket))
-        , onDisconnect(onDisconnect)     // cppcheck-suppress selfInitialization
-        , localAddress(localAddress)     // cppcheck-suppress selfInitialization
-        , remoteAddress(remoteAddress) { // cppcheck-suppress selfInitialization
+        , onDisconnect(onDisconnect)
+        , localAddress(localAddress)
+        , remoteAddress(remoteAddress) {
         if (!SocketReader::enable(this->physicalSocket.getFd())) {
             delete this;
         } else if (!SocketWriter::enable(this->physicalSocket.getFd())) {
@@ -156,9 +161,13 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReadShutdown() {
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
         if (!SocketWriter::shutdownInProgress) {
-            LOG(TRACE) << instanceName << " Initiating shutdown process (" << getFd() << ")";
+            LOG(TRACE) << instanceName << " Stop writing (" << getFd() << ")";
 
             SocketWriter::shutdownWrite([forceClose, this]() -> void {
                 if (SocketWriter::isEnabled()) {
@@ -244,11 +253,13 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readTimeout() {
+        LOG(TRACE) << instanceName << " Read timeout (" << getFd() << ")";
         close();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::writeTimeout() {
+        LOG(TRACE) << instanceName << " Write timeout (" << getFd() << ")";
         close();
     }
 

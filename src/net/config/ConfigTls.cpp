@@ -67,6 +67,13 @@ namespace net::config {
             "false",
             CLI::IsMember({"true", "false"}));
 
+        caCertAcceptUnknownOpt = addFlag( //
+            "--ca-cert-accept-unknown{true}",
+            "Accept unknown certificates (unsecure)",
+            "bool",
+            "false",
+            CLI::IsMember({"true", "false"}));
+            
         cipherListOpt = addOption( //
             "--cipher-list",
             "Cipher list (OpenSSL syntax)",
@@ -94,6 +101,13 @@ namespace net::config {
             "timeout",
             TLS_SHUTDOWN_TIMEOUT,
             CLI::PositiveNumber);
+
+        noCloseNotifyIsEOFOpt = addFlag( //
+            "--no-close-notify-is-eof{true}",
+            "Do not interpret a SSL/TLS close_notify alert as EOF",
+            "bool",
+            "false",
+            CLI::IsMember({"true", "false"}));
     }
 
     ConfigTls& ConfigTls::setCert(const std::string& cert) {
@@ -168,6 +182,18 @@ namespace net::config {
         return caCertUseDefaultDirOpt->as<bool>();
     }
 
+    ConfigTls& ConfigTls::setCaCertAcceptUnknown(bool set) {
+        caCertAcceptUnknownOpt //
+            ->default_val(set ? "true" : "false")
+            ->clear();
+
+        return *this;
+    }
+
+    bool ConfigTls::getCaCertAcceptUnknown() const {
+        return caCertAcceptUnknownOpt->as<bool>();
+    }
+
     ConfigTls& ConfigTls::setCipherList(const std::string& cipherList) {
         cipherListOpt //
             ->default_val(cipherList)
@@ -190,6 +216,17 @@ namespace net::config {
 
     ssl_option_t ConfigTls::getSslOptions() const {
         return sslOptionsOpt->as<ssl_option_t>();
+    }
+
+    ConfigTls& ConfigTls::setNoCloseNotifyIsEOF(bool closeNotifyIsEOF) {
+        noCloseNotifyIsEOFOpt //
+            ->default_val(closeNotifyIsEOF ? "true" : "false")
+            ->clear();
+        return *this;
+    }
+
+    bool ConfigTls::getNoCloseNotifyIsEOF() const {
+        return noCloseNotifyIsEOFOpt->as<bool>();
     }
 
     ConfigTls& ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeout) {
