@@ -21,6 +21,7 @@
 
 #include "web/http/client/Request.h"
 #include "web/http/client/Response.h"
+#include "web/websocket/client/SocketContextUpgrade.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -44,9 +45,10 @@ namespace web::websocket::client {
         return "websocket";
     }
 
-    SocketContextUpgrade* SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
-                                                              web::http::client::Request* request,
-                                                              web::http::client::Response* response) {
+    http::SocketContextUpgrade<web::http::client::Request, web::http::client::Response>*
+    SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
+                                        web::http::client::Request* request,
+                                        web::http::client::Response* response) {
         SocketContextUpgrade* socketContext = nullptr;
 
         if (response->get("sec-websocket-accept") == base64::serverWebSocketKey(request->header("Sec-WebSocket-Key"))) {

@@ -21,6 +21,7 @@
 
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
+#include "web/websocket/server/SocketContextUpgrade.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,9 +39,10 @@ namespace web::websocket::server {
         return "websocket";
     }
 
-    SocketContextUpgrade* SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
-                                                              web::http::server::Request* request,
-                                                              web::http::server::Response* response) {
+    http::SocketContextUpgrade<web::http::server::Request, web::http::server::Response>*
+    SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
+                                        web::http::server::Request* request,
+                                        web::http::server::Response* response) {
         SocketContextUpgrade* socketContext = nullptr;
 
         if (request->get("Sec-WebSocket-Version") == "13") {

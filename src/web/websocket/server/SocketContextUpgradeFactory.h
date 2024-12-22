@@ -21,7 +21,6 @@
 #define WEB_WEBSOCKET_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/websocket/server/SocketContextUpgrade.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,9 +39,10 @@ namespace web::websocket::server {
     private:
         std::string name() override;
 
-        SocketContextUpgrade* create(core::socket::stream::SocketConnection* socketConnection,
-                                     web::http::server::Request* request,
-                                     web::http::server::Response* response) override;
+        http::SocketContextUpgrade<web::http::server::Request, web::http::server::Response>*
+        create(core::socket::stream::SocketConnection* socketConnection,
+               web::http::server::Request* request,
+               web::http::server::Response* response) override;
     };
 
     extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerContextUpgradeFactory();
