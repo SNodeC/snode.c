@@ -64,7 +64,7 @@ namespace web::http {
                                                                            const std::string& socketContextUpgradeFactoryFunctionName) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        void* handle = core::DynamicLoader::dlOpen(socketContextUpgradeFactoryLibraryFile, RTLD_LAZY | RTLD_GLOBAL);
+        void* handle = core::DynamicLoader::dlOpen(socketContextUpgradeFactoryLibraryFile);
 
         if (handle != nullptr) {
             SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(

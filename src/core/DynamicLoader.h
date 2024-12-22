@@ -22,7 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/dlfcn.h" // IWYU pragma: keep
+// #include "core/system/dlfcn.h" // IW YU pragma: keep
 
 #include <list>
 #include <map>
@@ -43,9 +43,14 @@ namespace core {
         DynamicLoader() = delete;
         ~DynamicLoader() = delete;
 
-#define dlOpen(libFile, flags) dlRegisterHandle(::dlopen((libFile).c_str(), flags), libFile)
+#define dlOpen(libFile) dlOpenReal(libFile)
 
+        static void* dlOpenReal(const std::string& libFile);
+
+    private:
         static void* dlRegisterHandle(void* handle, const std::string& libFile);
+
+    public:
         static void dlCloseDelayed(void* handle);
         static int dlClose(void* handle);
         static void* dlSym(void* handle, const std::string& symbol);
