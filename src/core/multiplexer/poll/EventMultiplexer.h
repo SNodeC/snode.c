@@ -22,6 +22,10 @@
 
 #include "core/EventMultiplexer.h" // IWYU pragma: export
 
+namespace core {
+    class DescriptorEventReceiver;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/poll.h" // IWYU pragma: export

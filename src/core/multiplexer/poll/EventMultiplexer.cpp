@@ -19,6 +19,7 @@
 
 #include "core/multiplexer/poll/EventMultiplexer.h"
 
+#include "core/DescriptorEventReceiver.h"
 #include "core/multiplexer/poll/DescriptorEventPublisher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

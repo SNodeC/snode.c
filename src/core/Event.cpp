@@ -21,6 +21,7 @@
 
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
+#include "core/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

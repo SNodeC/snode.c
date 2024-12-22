@@ -20,7 +20,6 @@
 #ifndef CORE_EVENTMULTIPLEXER_H
 #define CORE_EVENTMULTIPLEXER_H
 
-#include "core/DescriptorEventReceiver.h" // IWYU pragma: export
 #include "core/TickStatus.h"
 
 namespace core {

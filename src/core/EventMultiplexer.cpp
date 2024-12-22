@@ -20,6 +20,7 @@
 #include "core/EventMultiplexer.h"
 
 #include "core/DescriptorEventPublisher.h"
+#include "core/DescriptorEventReceiver.h"
 #include "core/DynamicLoader.h"
 #include "core/Event.h"
 #include "core/TimerEventPublisher.h"
