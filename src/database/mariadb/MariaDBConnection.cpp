@@ -25,7 +25,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/EventLoop.h"
+#include "core/SNodeC.h"
 #include "log/Logger.h"
 #include "utils/Timeval.h"
 
@@ -86,7 +86,7 @@ namespace database::mariadb {
     MariaDBConnection::~MariaDBConnection() {
         for (MariaDBCommandSequence& mariaDBCommandSequence : commandSequenceQueue) {
             for (MariaDBCommand* mariaDBCommand : mariaDBCommandSequence.sequence()) {
-                if (core::EventLoop::getEventLoopState() == core::State::RUNNING && connected) {
+                if (core::SNodeC::state() == core::State::RUNNING && connected) {
                     mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
                 }
 
