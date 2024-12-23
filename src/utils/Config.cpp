@@ -20,12 +20,12 @@
 #include "utils/Config.h"
 
 #include "utils/Daemon.h"
+#include "utils/Exceptions.h"
 #include "utils/Formatter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-#include "utils/Exceptions.h"
 
 #include <cerrno>
 #include <cstdint>

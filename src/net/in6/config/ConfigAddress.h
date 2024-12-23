@@ -20,9 +20,9 @@
 #ifndef NET_IN6_CONFIG_CONFIGADDRESS_H
 #define NET_IN6_CONFIG_CONFIGADDRESS_H
 
-#include "net/config/ConfigAddressLocal.h"   // IWYU pragma: keep
-#include "net/config/ConfigAddressRemote.h"  // IWYU pragma: keep
-#include "net/config/ConfigAddressReverse.h" // IWYU pragma: keep
+#include "net/config/ConfigAddressLocal.h"
+#include "net/config/ConfigAddressRemote.h"
+#include "net/config/ConfigAddressReverse.h"
 #include "net/in6/SocketAddress.h"
 
 namespace net::config {

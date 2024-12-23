@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Config.h"
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {} // namespace net::config

@@ -38,7 +38,7 @@
 #pragma GCC diagnostic ignored "-Wcovered-switch-default"
 #endif
 #endif
-#include "utils/CLI11.hpp" // IWYU pragma: export
+#include "utils/CLI11.hpp"
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif

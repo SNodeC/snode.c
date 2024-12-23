@@ -19,7 +19,7 @@
 
 #include "net/l2/stream/legacy/config/ConfigSocketServer.h"
 
-#include "net/config/stream/legacy/ConfigSocketServer.hpp" // IWYU pragma: keep
+#include "net/config/stream/legacy/ConfigSocketServer.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

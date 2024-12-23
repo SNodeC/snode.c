@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-// #include "core/system/dlfcn.h" // IW YU pragma: keep
-
 #include <list>
 #include <map>
 #include <string>
