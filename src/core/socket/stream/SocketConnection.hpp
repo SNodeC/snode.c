@@ -52,7 +52,7 @@ namespace core::socket::stream {
                   {
                       const utils::PreserveErrno pe(errnum);
                       if (errno == 0) {
-                          LOG(TRACE) << this->instanceName << " EOF received";
+                          LOG(TRACE) << this->instanceName << " OnReadError: EOF received";
                       } else {
                           PLOG(TRACE) << this->instanceName << " OnReadError";
                       }
@@ -261,8 +261,9 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::unobservedEvent() {
-        onDisconnect();
         disconnectCurrentSocketContext();
+
+        onDisconnect();
 
         delete this;
     }

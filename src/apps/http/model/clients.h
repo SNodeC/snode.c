@@ -43,7 +43,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 static void logResponse(const std::shared_ptr<web::http::client::Request>& req, const std::shared_ptr<web::http::client::Response>& res) {
-    LOG(INFO) << "-- OnResponse";
+    LOG(INFO) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnResponse";
     LOG(INFO) << "   Request: " << req->method << " " << req->url << " HTTP/" << req->httpMajor << "." << req->httpMinor << "\n"
               << httputils::toString(req->method,
                                      req->url,
@@ -63,12 +63,13 @@ namespace apps::http::legacy {
     using Client = web::http::legacy::NET::Client;
     using Request = Client::Request;
     using Response = Client::Response;
+    using SocketConnection = Client::SocketConnection;
 
     Client getClient() {
-        return Client(
+        Client client(
             "httpclient",
             [](const std::shared_ptr<Request>& req) -> void {
-                LOG(INFO) << " -- OnRequestStart";
+                LOG(INFO) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestStart";
 
                 req->httpMinor = 0;
                 req->url = "/";
@@ -274,8 +275,24 @@ namespace apps::http::legacy {
 #endif
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
-                LOG(INFO) << " -- OnRequestEnd";
+                LOG(INFO) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestEnd";
             });
+
+        client.setOnConnect([](SocketConnection* socketConnection) -> void { // onConnect
+            LOG(INFO) << socketConnection->getInstanceName() << ": OnConnect";
+
+            LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+        });
+
+        client.setOnDisconnect([](SocketConnection* socketConnection) -> void { // onDisconnect
+            LOG(INFO) << socketConnection->getInstanceName() << ": OnDisconnect";
+
+            LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+        });
+
+        return client;
     }
 
 } // namespace apps::http::legacy
@@ -295,7 +312,7 @@ namespace apps::http::tls {
         Client client(
             "httpclient",
             [](const std::shared_ptr<Request>& req) -> void {
-                LOG(INFO) << " -- OnRequestStart";
+                LOG(INFO) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestStart";
 
                 req->url = "/";
                 req->set("Connection", "keep-alive");
@@ -389,11 +406,11 @@ namespace apps::http::tls {
                 });
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
-                LOG(INFO) << " -- OnRequestEnd";
+                LOG(INFO) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestEnd";
             });
 
-        client.setOnConnect([&client](SocketConnection* socketConnection) -> void { // onConnect
-            LOG(INFO) << "OnConnect " << client.getConfig().getInstanceName();
+        client.setOnConnect([](SocketConnection* socketConnection) -> void { // onConnect
+            LOG(INFO) << "OnConnect " << socketConnection->getInstanceName();
 
             LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
             LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
@@ -408,9 +425,8 @@ namespace apps::http::tls {
             // }
         });
 
-        client.setOnConnected([&client](SocketConnection* socketConnection) -> void { // onConnected
-            LOG(INFO) << "OnConnected " << client.getConfig().getInstanceName();
-
+        client.setOnConnected([](SocketConnection* socketConnection) -> void { // onConnected
+            LOG(INFO) << socketConnection->getInstanceName() << ": OnConnected";
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
@@ -488,8 +504,8 @@ namespace apps::http::tls {
             }
         });
 
-        client.setOnDisconnect([&client](SocketConnection* socketConnection) -> void { // onDisconnect
-            LOG(INFO) << "OnDisconnect " << client.getConfig().getInstanceName();
+        client.setOnDisconnect([](SocketConnection* socketConnection) -> void { // onDisconnect
+            LOG(INFO) << socketConnection->getInstanceName() << ": OnDisconnect";
 
             LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
             LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();

@@ -21,14 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h"
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace core::socket::stream::legacy {
-
-    ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
-        return core::system::send(this->getRegisteredFd(), chunk, chunkLen, MSG_NOSIGNAL);
-    }
-
-} // namespace core::socket::stream::legacy
+namespace core::socket::stream::legacy {} // namespace core::socket::stream::legacy

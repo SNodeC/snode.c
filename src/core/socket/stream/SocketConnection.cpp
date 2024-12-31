@@ -86,9 +86,9 @@ namespace core::socket::stream {
     void SocketConnection::disconnectCurrentSocketContext() {
         if (socketContext != nullptr) {
             socketContext->onDisconnected();
+            delete socketContext;
 
             LOG(TRACE) << instanceName << " Destroy SocketContext";
-            delete socketContext;
         }
     }
 

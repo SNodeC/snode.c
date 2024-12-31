@@ -52,8 +52,6 @@ namespace core::socket::stream {
                               const utils::Timeval& terminateTimeout);
 
     private:
-        virtual ssize_t write(const char* chunk, std::size_t chunkLen) = 0;
-
         void writeEvent() final;
 
         void signalEvent(int sigNum) final;
@@ -64,6 +62,8 @@ namespace core::socket::stream {
         virtual void doWriteShutdown(const std::function<void()>& onShutdown) = 0;
 
     protected:
+        virtual ssize_t write(const char* chunk, std::size_t chunkLen);
+
         void setBlockSize(std::size_t writeBlockSize);
 
         void sendToPeer(const char* chunk, std::size_t chunkLen);

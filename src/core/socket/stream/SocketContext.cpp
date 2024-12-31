@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
@@ -72,10 +74,12 @@ namespace core::socket::stream {
     }
 
     void SocketContext::onWriteError([[maybe_unused]] int errnum) {
+        LOG(TRACE) << socketConnection->getInstanceName() << " SocketContext: onWriteError";
         shutdownRead();
     }
 
     void SocketContext::onReadError([[maybe_unused]] int errnum) {
+        LOG(TRACE) << socketConnection->getInstanceName() << " SocketContext: onReadError";
         shutdownWrite();
     }
 

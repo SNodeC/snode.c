@@ -33,55 +33,62 @@
 namespace core::socket::stream::tls {
 
     ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
-        int ret = SSL_write(ssl, chunk, static_cast<int>(chunkLen));
+        ssize_t ret = 0;
 
-        if (ret <= 0) {
-            const int ssl_err = SSL_get_error(ssl, ret);
+        if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0 && (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
+            ret = Super::write(chunk, chunkLen);
+        } else {
+            ret = SSL_write(ssl, chunk, static_cast<int>(chunkLen));
 
-            switch (ssl_err) {
-                case SSL_ERROR_WANT_READ:
-                    LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
-                    doSSLHandshake(
-                        [this]() -> void {
-                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
-                        },
-                        [this]() -> void {
-                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
-                        },
-                        [this](int ssl_err) -> void {
-                            ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
-                        });
-                    errno = EAGAIN;
-                    ret = -1;
-                    break;
-                case SSL_ERROR_WANT_WRITE:
-                    errno = EAGAIN;
-                    ret = -1;
-                    break;
-                case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
-                    errno = closeNotifyIsEOF ? EPIPE : EAGAIN;
-                    ret = -1; // on the write side this means a TCP broken pipe
-                    break;
-                case SSL_ERROR_SYSCALL:
-                    if (errno == EPIPE) {
-                        PLOG(TRACE) << getName() << " SSL/TLS: Syscal error (SIGPIPE detected) on write.";
-                        errno = EPIPE;
-                    } else if (errno == ECONNRESET) {
-                        PLOG(TRACE) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
-                    } else {
-                        PLOG(TRACE) << getName() << " SSL/TLS: Syscall error on write";
-                    }
-                    ret = -1;
-                    break;
-                case SSL_ERROR_SSL:
-                    ssl_log(getName() + " SSL/TLS: Error write failed", ssl_err);
-                    errno = EIO;
-                    break;
-                default:
-                    LOG(TRACE) << getName() + " SSL/TLS: Unexpected error write failed (" << ssl_err << ")";
-                    errno = EIO;
-                    ret = -1;
-                    break;
+            if (ret <= 0) {
+                const int ssl_err = SSL_get_error(ssl, static_cast<int>(ret));
+
+                switch (ssl_err) {
+                    case SSL_ERROR_WANT_READ:
+                        LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
+                        doSSLHandshake(
+                            [this]() -> void {
+                                LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
+                            },
+                            [this]() -> void {
+                                LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
+                            },
+                            [this](int ssl_err) -> void {
+                                ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
+                            });
+                        errno = EAGAIN;
+                        ret = -1;
+                        break;
+                    case SSL_ERROR_WANT_WRITE:
+                        errno = EAGAIN;
+                        ret = -1;
+                        break;
+                    case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
+                        LOG(TRACE) << getName() << " SSL/TLS: Close_notify received. Is EOF? " << (closeNotifyIsEOF ? "true" : "false");
+                        errno = closeNotifyIsEOF ? EPIPE : EAGAIN;
+                        ret = -1; // on the write side this means a TCP broken pipe
+                        break;
+                    case SSL_ERROR_SYSCALL:
+                        if (errno == EPIPE) {
+                            PLOG(TRACE) << getName() << " SSL/TLS: Syscal error (SIGPIPE detected) on write.";
+                            errno = EPIPE;
+                        } else if (errno == ECONNRESET) {
+                            PLOG(TRACE) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
+                        } else {
+                            PLOG(TRACE) << getName() << " SSL/TLS: Syscall error on write";
+                        }
+                        ret = -1;
+                        break;
+                    case SSL_ERROR_SSL:
+                        ssl_log(getName() + " SSL/TLS: Error write failed", ssl_err);
+                        errno = EIO;
+                        break;
+                    default:
+                        LOG(TRACE) << getName() + " SSL/TLS: Unexpected error write failed (" << ssl_err << ")";
+                        errno = EIO;
+                        ret = -1;
+                        break;
+                }
             }
         }
 

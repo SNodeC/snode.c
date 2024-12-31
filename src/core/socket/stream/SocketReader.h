@@ -50,14 +50,16 @@ namespace core::socket::stream {
     private:
         virtual void onReceivedFromPeer(std::size_t available) = 0;
 
-        virtual ssize_t read(char* chunk, std::size_t chunkLen) = 0;
-
         void readEvent() final;
 
         std::size_t doRead();
         void signalEvent(int sigNum) final;
 
+        virtual void doWriteShutdown(const std::function<void()>& onShutdown) = 0;
+
     protected:
+        virtual ssize_t read(char* chunk, std::size_t chunkLen);
+
         void setBlockSize(std::size_t readBlockSize);
 
         std::size_t readFromPeer(char* chunk, std::size_t chunkLen);

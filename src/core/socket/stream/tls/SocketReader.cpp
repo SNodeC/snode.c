@@ -34,68 +34,74 @@
 namespace core::socket::stream::tls {
 
     ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
-        chunkLen = chunkLen > std::numeric_limits<int>::max() ? std::numeric_limits<int>::max() : chunkLen;
-        int ret = SSL_read(ssl, chunk, static_cast<int>(chunkLen));
+        ssize_t ret = 0;
 
-        if (ret <= 0) {
-            const int ssl_err = SSL_get_error(ssl, ret);
+        if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
+            ret = Super::read(chunk, chunkLen);
+        } else {
+            chunkLen = chunkLen > std::numeric_limits<int>::max() ? std::numeric_limits<int>::max() : chunkLen;
+            ret = SSL_read(ssl, chunk, static_cast<int>(chunkLen));
 
-            switch (ssl_err) {
-                case SSL_ERROR_WANT_READ:
-                    errno = EAGAIN;
-                    ret = -1;
-                    break;
-                case SSL_ERROR_WANT_WRITE:
-                    LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
-                    doSSLHandshake(
-                        [this]() -> void {
-                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
-                        },
-                        [this]() -> void {
-                            LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
-                        },
-                        [this](int ssl_err) -> void {
-                            ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
-                        });
-                    errno = EAGAIN;
-                    ret = -1;
-                    break;
-                case SSL_ERROR_ZERO_RETURN: // received close_notify
-                    LOG(TRACE) << getName() << " SSL/TLS: Close_notify received.";
-                    errno = closeNotifyIsEOF ? 0 : EAGAIN;
-                    ret = closeNotifyIsEOF ? 0 : -1;
-                    break;
-                case SSL_ERROR_SYSCALL: // When SSL_get_error(ssl, ret) returns SSL_ERROR_SYSCALL
-                                        // and ret is 0, it indicates that the underlying TCP connection
-                                        // was closed unexpectedly by the peer. This situation typically
-                                        // happens when the peer closes (FIN) the connection without
-                                        // sending a close_notify alert, which violates the SSL/TLS
-                                        // protocol’s  graceful shutdown procedure.
-                    // In case ret is -1 a real syscall error (RST = ECONNRESET)
-                    if (ret == 0) {
-                        LOG(TRACE) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
-                        errno = ECONNRESET;
-                    } else if (errno == ECONNRESET) {
-                        PLOG(TRACE) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
-                    } else {
-                        PLOG(TRACE) << getName() + " SSL/TLS: Syscall error on read";
-                    }
-                    ret = -1;
-                    break;
-                case SSL_ERROR_SSL:
-                    ssl_log(getName() + " SSL/TLS: Error read failed", ssl_err);
-                    errno = EIO;
-                    ret = -1;
-                    break;
-                default:
-                    LOG(TRACE) << getName() + " SSL/TLS: Unexpected error read failed (" << ssl_err << ")";
-                    errno = EIO;
-                    ret = -1;
-                    break;
-            }
+            if (ret <= 0) {
+                const int ssl_err = SSL_get_error(ssl, static_cast<int>(ret));
 
-            if (ret <= 0 && !(errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)) {
-                onReadShutdown();
+                switch (ssl_err) {
+                    case SSL_ERROR_WANT_READ:
+                        errno = EAGAIN;
+                        ret = -1;
+                        break;
+                    case SSL_ERROR_WANT_WRITE:
+                        LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
+                        doSSLHandshake(
+                            [this]() -> void {
+                                LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
+                            },
+                            [this]() -> void {
+                                LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
+                            },
+                            [this](int ssl_err) -> void {
+                                ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
+                            });
+                        errno = EAGAIN;
+                        ret = -1;
+                        break;
+                    case SSL_ERROR_ZERO_RETURN: // received close_notify
+                        LOG(TRACE) << getName() << " SSL/TLS: Close_notify received. Is EOF? " << (closeNotifyIsEOF ? "true" : "false");
+                        onReadShutdown();
+                        errno = closeNotifyIsEOF ? 0 : EAGAIN;
+                        ret = closeNotifyIsEOF ? 0 : -1;
+                        break;
+                    case SSL_ERROR_SYSCALL: // When SSL_get_error(ssl, ret) returns SSL_ERROR_SYSCALL
+                                            // and ret is 0, it indicates that the underlying TCP connection
+                                            // was closed unexpectedly by the peer. This situation typically
+                                            // happens when the peer closes (FIN) the connection without
+                                            // sending a close_notify alert, wsocketContexthich violates the SSL/TLS
+                                            // protocol’s  graceful shutdown procedure.
+                        // In case ret is -1 a real syscall error (RST = ECONNRESET)
+                        if (ret == 0) {
+                            LOG(TRACE) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
+                            errno = ECONNRESET;
+                        } else if (errno == ECONNRESET) {
+                            PLOG(TRACE) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
+                        } else {
+                            PLOG(TRACE) << getName() + " SSL/TLS: Syscall error on read";
+                        }
+                        onReadShutdown();
+                        ret = -1;
+                        break;
+                    case SSL_ERROR_SSL:
+                        ssl_log(getName() + " SSL/TLS: Error read failed", ssl_err);
+                        onReadShutdown();
+                        errno = EIO;
+                        ret = -1;
+                        break;
+                    default:
+                        LOG(TRACE) << getName() + " SSL/TLS: Unexpected error read failed (" << ssl_err << ")";
+                        onReadShutdown();
+                        errno = EIO;
+                        ret = -1;
+                        break;
+                }
             }
         }
 

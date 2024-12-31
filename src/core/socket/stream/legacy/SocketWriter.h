@@ -24,9 +24,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <sys/types.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::legacy {
@@ -35,8 +32,6 @@ namespace core::socket::stream::legacy {
     private:
         using Super = core::socket::stream::SocketWriter;
         using Super::Super;
-
-        ssize_t write(const char* chunk, std::size_t chunkLen) override;
     };
 
 } // namespace core::socket::stream::legacy

@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/socket.h"
+
 #include <algorithm>
 #include <cerrno>
 
@@ -48,6 +50,10 @@ namespace core::socket::stream {
     }
 
     void SocketReader::signalEvent([[maybe_unused]] int sigNum) { // Do nothing in case a signal was received
+    }
+
+    ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
+        return core::system::recv(this->getRegisteredFd(), chunk, chunkLen, 0);
     }
 
     std::size_t SocketReader::doRead() {
