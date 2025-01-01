@@ -86,11 +86,11 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case SSL_ERROR_SSL:
-                        ssl_log(getName() + " SSL/TLS: Error write failed", ssl_err);
+                        ssl_log(getName() + " SSL/TLS: Failed", ssl_err);
                         errno = EIO;
                         break;
                     default:
-                        LOG(TRACE) << getName() + " SSL/TLS: Unexpected error write failed (" << ssl_err << ")";
+                        ssl_log(getName() + " SSL/TLS: Unexpected error", ssl_err);
                         errno = EIO;
                         ret = -1;
                         break;

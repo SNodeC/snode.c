@@ -336,7 +336,7 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log_error(const std::string& message) {
-        LOG(TRACE) << "SSL/TLS: " << message;
+        LOG(TRACE) << message;
         LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(ERR_get_error(), nullptr);
 
         unsigned long errorCode = 0;
