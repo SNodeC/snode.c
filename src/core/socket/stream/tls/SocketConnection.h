@@ -76,10 +76,7 @@ namespace core::socket::stream::tls {
                             const std::function<void()>& onTimeout,
                             const std::function<void(int)>& onStatus) final;
 
-        void doSSLShutdown(const std::function<void()>& onSuccess,
-                           const std::function<void()>& onTimeout,
-                           const std::function<void(int)>& onStatus,
-                           const utils::Timeval& shutdownTimeout);
+        void doSSLShutdown();
 
         void onReadShutdown() final;
 
