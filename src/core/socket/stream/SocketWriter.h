@@ -89,6 +89,7 @@ namespace core::socket::stream {
 
         std::size_t blockSize = 0;
 
+    protected:
         utils::Timeval terminateTimeout;
     };
 

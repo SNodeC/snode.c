@@ -23,6 +23,7 @@
 
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
+#include "utils/PreserveErrno.h"
 
 #include <cerrno>
 #include <limits>
@@ -66,8 +67,8 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case SSL_ERROR_ZERO_RETURN: // received close_notify
-                        LOG(TRACE) << getName() << " SSL/TLS: Close_notify received. Is EOF? " << (closeNotifyIsEOF ? "true" : "false");
                         onReadShutdown();
+                        LOG(TRACE) << getName() << " SSL/TLS: Close_notify is" << (closeNotifyIsEOF ? " " : " not ") << "EOF";
                         errno = closeNotifyIsEOF ? 0 : EAGAIN;
                         ret = closeNotifyIsEOF ? 0 : -1;
                         break;
@@ -75,18 +76,19 @@ namespace core::socket::stream::tls {
                                             // and ret is 0, it indicates that the underlying TCP connection
                                             // was closed unexpectedly by the peer. This situation typically
                                             // happens when the peer closes (FIN) the connection without
-                                            // sending a close_notify alert, wsocketContexthich violates the SSL/TLS
+                                            // sending a close_notify alert, which violates the SSL/TLS
                                             // protocol’s  graceful shutdown procedure.
                         // In case ret is -1 a real syscall error (RST = ECONNRESET)
-                        if (ret == 0) {
-                            LOG(TRACE) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
-                            errno = ECONNRESET;
-                        } else if (errno == ECONNRESET) {
-                            PLOG(TRACE) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
-                        } else {
-                            PLOG(TRACE) << getName() + " SSL/TLS: Syscall error on read";
+                        {
+                            utils::PreserveErrno pe;
+
+                            if (ret == 0) {
+                                LOG(TRACE) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
+                                errno = ECONNRESET;
+                            } else {
+                                PLOG(TRACE) << getName() + " SSL/TLS: Syscall error on read";
+                            }
                         }
-                        onReadShutdown();
                         ret = -1;
                         break;
                     case SSL_ERROR_SSL:

@@ -187,21 +187,19 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalSocket>
     void SocketConnection<PhysicalSocket>::onReadShutdown() {
-        LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Close_notify Received";
-
         if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
             if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
-                LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown complete. Close_notify sent and received";
+                LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown complete: Close_notify sent and received";
 
                 SocketWriter::shutdownInProgress = false;
             } else {
-                LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown waiting. Close_notify received but not send";
+                LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown waiting: Close_notify received but not send";
                 doSSLShutdown(
                     [this]() -> void { // thus send one
                         if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-                            LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown complete. Close_notify sent and received";
+                            LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown complete: Close_notify sent and received";
                         } else {
-                            LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown waiting. Close_notify sent but not received";
+                            LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown waiting: Close_notify sent but not received";
                         }
                     },
                     [this]() -> void {
@@ -228,15 +226,15 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalSocket>
     void SocketConnection<PhysicalSocket>::doWriteShutdown(const std::function<void()>& onShutdown) {
-        LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Send close_notify";
         if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
+            LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Send close_notify";
+
             doSSLShutdown(
-                [this, &onShutdown]() -> void { // thus send one
+                [this]() -> void { // thus send one
                     if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-                        LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown complete. Close_notify sent and received";
-                        Super::doWriteShutdown(onShutdown);
+                        LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown complete: Close_notify sent and received";
                     } else {
-                        LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown waiting. Close_notify sent but not received";
+                        LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown waiting: Close_notify sent but not received";
                     }
                 },
                 [this]() -> void {
@@ -253,7 +251,6 @@ namespace core::socket::stream::tls {
                 },
                 sslShutdownTimeout);
         } else {
-            LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown close_notify already send";
             Super::doWriteShutdown(onShutdown);
         }
     }

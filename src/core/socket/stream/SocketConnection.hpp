@@ -71,7 +71,6 @@ namespace core::socket::stream {
                       const utils::PreserveErrno pe(errnum);
                       PLOG(TRACE) << this->instanceName << " OnWriteError";
                   }
-
                   SocketWriter::disable();
 
                   onWriteError(errnum);
@@ -190,10 +189,12 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void()>& onShutdown) {
         errno = 0;
 
-        if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) != 0) {
-            PLOG(TRACE) << instanceName << " Shutdown (WR, " << getFd() << ")";
-        } else {
+        setTimeout(SocketWriter::terminateTimeout);
+
+        if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) == 0) {
             LOG(TRACE) << instanceName << " Shutdown (WR, " << getFd() << ") success";
+        } else {
+            PLOG(TRACE) << instanceName << " Shutdown (WR, " << getFd() << ")";
         }
 
         onShutdown();

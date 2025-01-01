@@ -151,8 +151,6 @@ namespace core::socket::stream {
         if (!shutdownInProgress) {
             shutdownInProgress = true;
 
-            setTimeout(terminateTimeout);
-
             SocketWriter::onShutdown = onShutdown;
             if (writePuffer.empty()) {
                 LOG(TRACE) << getName() << ": Shutdown start";

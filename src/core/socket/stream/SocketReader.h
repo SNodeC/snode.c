@@ -55,8 +55,6 @@ namespace core::socket::stream {
         std::size_t doRead();
         void signalEvent(int sigNum) final;
 
-        virtual void doWriteShutdown(const std::function<void()>& onShutdown) = 0;
-
     protected:
         virtual ssize_t read(char* chunk, std::size_t chunkLen);
 
@@ -77,6 +75,7 @@ namespace core::socket::stream {
 
         bool shutdownInProgress = false;
 
+    protected:
         utils::Timeval terminateTimeout;
     };
 
