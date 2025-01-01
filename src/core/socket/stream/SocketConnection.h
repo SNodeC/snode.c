@@ -152,8 +152,8 @@ namespace core::socket::stream {
     protected:
         void doWriteShutdown(const std::function<void()>& onShutdown) override;
 
-        virtual void onWriteError(int errnum);
-        virtual void onReadError(int errnum);
+        void onWriteError(int errnum);
+        void onReadError(int errnum);
 
     private:
         void onReceivedFromPeer(std::size_t available) final;

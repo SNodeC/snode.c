@@ -85,9 +85,6 @@ namespace core::socket::stream::tls {
 
         void doWriteShutdown(const std::function<void()>& onShutdown) final;
 
-        void onWriteError(int errnum) final;
-        void onReadError(int errnum) final;
-
         SSL* ssl = nullptr;
 
         utils::Timeval sslInitTimeout;

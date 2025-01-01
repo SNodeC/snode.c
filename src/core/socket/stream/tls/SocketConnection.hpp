@@ -255,18 +255,4 @@ namespace core::socket::stream::tls {
         }
     }
 
-    template <typename PhysicalSocket>
-    void SocketConnection<PhysicalSocket>::onWriteError(int errnum) {
-        if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-            Super::onWriteError(errnum);
-        }
-    }
-
-    template <typename PhysicalSocket>
-    void SocketConnection<PhysicalSocket>::onReadError(int errnum) {
-        if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-            Super::onReadError(errnum);
-        }
-    }
-
 } // namespace core::socket::stream::tls
