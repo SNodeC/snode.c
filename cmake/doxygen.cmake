@@ -40,6 +40,8 @@ if(DOXYGEN_FOUND)
             COMMAND rm -rf ${SNODEC_DOC_ROOTDIR}/html
             COMMAND rm -f ${SNODEC_DOC_ROOTDIR}/inline_umlgraph_cache_all.pu
             COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
+            COMMAND mkdir -p ${SNODEC_DOC_ROOTDIR}/html/docs/assets/
+            COMMAND cp -a ${CMAKE_SOURCE_DIR}/docs/assets/README ${SNODEC_DOC_ROOTDIR}/html/docs/assets/
             WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/src"
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM
@@ -49,6 +51,8 @@ if(DOXYGEN_FOUND)
             doc-fast
             COMMAND rm -f ${SNODEC_DOC_ROOTDIR}/inline_umlgraph_cache_all.pu
             COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
+            COMMAND mkdir -p ${SNODEC_DOC_ROOTDIR}/html/docs/assets/
+            COMMAND cp -a ${CMAKE_SOURCE_DIR}/docs/assets/README ${SNODEC_DOC_ROOTDIR}/html/docs/assets/
             WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/src"
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM
