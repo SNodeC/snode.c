@@ -1,6 +1,6 @@
 # SNode.C - a slim toolkit for network communication
 # Copyright (C) Volker Christian <me@vchrist.at>
-#               2020, 2021, 2022, 2023, 2024
+#               2020, 2021, 2022, 2023, 2024, 2025
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free

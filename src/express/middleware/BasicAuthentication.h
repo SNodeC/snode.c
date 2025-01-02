@@ -1,7 +1,7 @@
 /*
  * SNode.C - a slim toolkit for network communication
  * Copyright (C) Volker Christian <me@vchrist.at>
- *               2020, 2021, 2022, 2023, 2024
+ *               2020, 2021, 2022, 2023, 2024, 2025
  * Json Middleware 2020, 2021 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer
  * Github <MarleneMayr><moseranna><MatteoMatteoMatteo><peregrin-tuk>
  *
