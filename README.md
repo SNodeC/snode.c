@@ -863,7 +863,9 @@ During package installation a new *unix group* with member *root* is created, us
 
 # Fundamental Architecture
 
-![BasicArchitectureEchoServerClient](./docs/assets/README/BasicArchitectureEchoServerClient.png)*The fundamental architecture by means of the EchoServer and EchoClient applications. `SCF` is an abbreviation for `SocketContextFactory`*
+![BasicArchitectureEchoServerClient" style="max-width: 100%;](./docs/assets/README/BasicArchitectureEchoServerClient.png)*The fundamental architecture by means of the EchoServer and EchoClient applications. `SCF` is an abbreviation for `SocketContextFactory`*
+
+<img src="./docs/assets/README/BasicArchitectureEchoServerClient.png" alt="drawing" style="max-width: 100%;"/>
 
 ## Network Layer
 
