@@ -194,13 +194,13 @@ The code of this demo application can be found on [github](https://github.com/SN
 
 For the *server role* we just need to create an object of type
 
-``` c++
+```cpp
 net::in::stream::legacy::SocketServer<SocketContextFactory>
 ```
 
 called [*server instance*](#SocketServer-Classes) and for the *client role* an object of type
 
-``` c++
+```cpp
 net::in::stream::legacy::SocketClient<SocketContextFactory>
 ```
 
@@ -232,7 +232,7 @@ The `create()` method of our `EchoServerContextFactory` returns a pointer to the
 
 ***Note***: A pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
-``` c++
+```cpp
 #include "EchoServerContext.h"
 #include <core/socket/stream/SocketContextFactory.h>
 
@@ -250,7 +250,7 @@ The `create()` method of our `EchoClientContextFactory` returns a pointer to the
 
 ***Note***: A pointer to a  `core::socket::stream::SocketConnection` is passed as argument to the constructor of our `EchoServerContext`.
 
-``` c++
+```cpp
 #include "EchoClientContext.h"
 #include <core/socket/stream/SocketContextFactory.h>
 
@@ -289,7 +289,7 @@ In the `onReceivedFromPeer()` method, we can retrieve that data using the method
 
 Sending data to the client is done using the method `sendToPeer()`, which is also provided by the `core::socket::stream::SocketContext` class.
 
-``` c++
+```cpp
 #include <core/socket/SocketAddress.h>
 #include <core/socket/stream/SocketConnection.h>
 #include <core/socket/stream/SocketContext.h>
@@ -343,7 +343,7 @@ Unlike the `EchoServerContext`, the `EchoClientContext` *needs* an overridden `o
 
 And like in the `EchoServerContext`, `readFromPeer()` and `sendToPeer()` is used in the `onReceivedFromPeer()` to receive and reflect the data.
 
-``` c++
+```cpp
 #include <core/socket/SocketAddress.h>
 #include <core/socket/stream/SocketConnection.h>
 #include <core/socket/stream/SocketContext.h>
@@ -402,13 +402,13 @@ Now we can combine everything to implement the server and client applications. H
 
 At the very beginning SNode.C must be *initialized* by calling
 
-```c++
+```cpp
 core::SNodeC::init(argc, argv);
 ```
 
 and at the end of the main applications the *event-loop* of SNode.C is *started* by calling
 
-```c++
+```cpp
 core::SNodeC::start();
 ```
 
@@ -420,7 +420,7 @@ SNode.C provides a view [overloaded `listen()`](#listen-methods) methods whose a
 
 Here we use IPv4 and the `listen()` method which expects a port number, here `8001`, as argument. Note that we do not bind the `echoServer` to a specific network interface. Thus it can be contacted via all active physical network interfaces.
 
-``` c++
+```cpp
 #include "EchoServerContextFactory.h"
 
 #include <core/SNodeC.h>
@@ -473,7 +473,7 @@ Equivalent to the server instance a client instance provides a view [overloaded 
 
 Here it is assumed that we talk to an IPv4 server which runs on the same machine as the client. Thus we pass the host name `localhost` and port number `8001` as arguments to the `connect()` method.
 
-``` cpp
+```cpp
 #include "EchoClientContextFactory.h"
 
 #include <core/SNodeC.h>
@@ -1005,7 +1005,7 @@ which itself are derived from the abstract non template base class `core::socket
 
 Equivalent to the `SocketAddress` type, each `SocketServer` and `SocketClient` class provides its correct `SocketConnection` type as nested data type. This type can be obtained from a concrete `SocketServer` or `SocketClient` class using
 
-```c++
+```cpp
 using SocketConnection = <ConcreteServerOrClientType>::SocketConnection;
 ```
 
@@ -1017,19 +1017,19 @@ Additionally the encrypting `SocketConnection` objects provide the method `SSL* 
 
 - Get the unserlying descriptor used for communication.
 
-  ```c++
+  ```cpp
   int getFd();
   ```
 
 - Get the pointer to OpenSSL's `SSL` structure.
 
-  ```c++
+  ```cpp
   SSL* getSSL();
   ```
 
 - Enqueue data to be send to the peer.
 
-  ```c++
+  ```cpp
   void sendToPeer(const char* junk, std::size_t junkLen);
   void sendToPeer(const std::string& data);
   void sendToPeer(const std::vector<char>& data);
@@ -1038,32 +1038,32 @@ Additionally the encrypting `SocketConnection` objects provide the method `SSL* 
 
 - Read already received data from peer.
 
-  ```c++
+  ```cpp
   std::size_t readFromPeer(char* junk, std::size_t junkLen);
   ```
 
 - Shut down socket either for reading or writing.  If `forceClose` is `true` the reading end will also be shut down.
 
-  ```c++
+  ```cpp
   void shutdownRead();
   void shutdownWrite(bool forceClose = false);
   ```
 
 - Hard close the connection without a prior shutdown.
 
-  ```c++
+  ```cpp
   void close();
   ```
 
 - Set the inactivity timeout of a connection (default 60 seconds). If no data has been transfered within this amount of time the connection is terminated.
 
-  ```c++
+  ```cpp
   void setTimeout(utils::Timeval& timeout);
   ```
 
 - Check if a connection has been created successfully.
 
-  ```c++
+  ```cpp
   bool isValid();
   ```
 
@@ -1079,7 +1079,7 @@ Thus, the full lists of constructors of the `SocketServer` and `SocketClient` cl
 
 #### All Constructors of `SocketServer` Classes
 
-```c++
+```cpp
 SocketServer(const std::string& instanceName,
              const std::function<void(SocketServer::SocketConnection*)>& onConnect,
              const std::function<void(SocketServer::SocketConnection*)>& onConnected,
@@ -1098,7 +1098,7 @@ SocketServer(const Args&&);
 
 #### All Constructors of `SocketClient` Classes
 
-```c++
+```cpp
 SocketClient(const std::string& instanceName,
              const std::function<void(SocketClient::SocketConnection*)>& onConnect,
              const std::function<void(SocketClient::SocketConnection*)>& onConnected,
@@ -1143,7 +1143,7 @@ As the name suggests this callback is executed after a connection to the peer ha
 
 For a concrete `SocketServer` instance (here an anonymous instance) the constructors expecting callbacks can be used like
 
-```c++
+```cpp
 using EchoServer = net::in::stream::legacy::SocketServer<EchoServerContextFactory>;
 using SocketAddress = EchoServer::SocketAddress;
 using SocketConnection = EchoServer::SocketConnection;
@@ -1163,7 +1163,7 @@ echoServer.listen(...);
 
 and for a concrete `SocketClient` class like
 
-```c++
+```cpp
 using EchoClient = net::in::stream::legacy::SocketServer<EchoClientContextFactory>;
 using SocketAddress = EchoClient::SocketAddress;
 using SocketConnection = EchoClient::SocketConnection;
@@ -1191,7 +1191,7 @@ In case `SocketServer` and `SocketClient` instances have been created using a co
 
 like for example
 
-```c++
+```cpp
 using EchoServer = net::in::stream::legacy::SocketServer<EchoServerContextFactory>;
 using SocketAddress = EchoServer::SocketAddress;
 using SocketConnection = EchoServer::SocketConnection;
@@ -1215,7 +1215,7 @@ echoServer.listen(...);
 
 and
 
-```c++
+```cpp
 using EchoClient = net::in::stream::legacy::SocketServer<EchoClientContextFactory>;
 using SocketAddress = EchoClient::SocketAddress;
 using SocketConnection = EchoClient::SocketConnection;
@@ -1266,7 +1266,7 @@ As already mentioned, for convenience each `SocketServer` class provides its own
 
 All `listen()` methods expect a *status callback* as argument which is called in case the socket has been created and switched into the listen state or an error has occurred. The signature of this callback is
 
-```c++
+```cpp
 const std::function<void(const SocketAddress&, const core::socket::State& state)>
 ```
 
@@ -1276,7 +1276,7 @@ The local (bound) `SocketAddress` and a `state` object is passed to this callbac
 
 The type of the `SocketAddress` needs to match with the type of the `SocketServer` and can be acquired from a concrete `SocketServer` type by
 
-```c++
+```cpp
 using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
 ```
 
@@ -1284,33 +1284,33 @@ using SocketAddress = <ConcreteSocketServerType>::SocketAddress;
 
 The `const core::socket::State& state` object passed to the callback reports the status of the `SocketServer`. It can 
 
-- ```c++
-  state == core::socket::State::OK
-  ```
+```cpp
+state == core::socket::State::OK
+```
   
-  The `ServerSocket` instance has been created successfully and is ready for accepting incoming client connections.
+The `ServerSocket` instance has been created successfully and is ready for accepting incoming client connections.
   
-- ```c++
-  state == core::socket::State::DISABLED
-  ```
+```cpp
+state == core::socket::State::DISABLED
+```
 
-  The `ServerSocket` instance is disabled
+The `ServerSocket` instance is disabled
 
-- ```c++
-  state == core::socket::State::ERROR
-  ```
+```cpp
+state == core::socket::State::ERROR
+```
   
-  During switching to the listening state a recoverable error has occurred. In case a *retry* is configured for this instance the listen attempt is retried automatically.
+During switching to the listening state a recoverable error has occurred. In case a *retry* is configured for this instance the listen attempt is retried automatically.
   
-- ```c++
-  state == core::socket::State::FATAL
-  ```
+```cpp
+state == core::socket::State::FATAL
+```
   
-  A non recoverable error has occurred. No listen-retry is done.
+A nonee recoverable error has occurred. No listen-retry is done.
 
 #### Common `listen()` Methods
 
-```c++
+```cpp
 void listen(const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
 void listen(const SocketAddress& localAddress,
@@ -1321,10 +1321,9 @@ void listen(const SocketAddress& localAddress,
             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 ```
 
-
 #### IPv4 specific `listen()` Methods
 
-```c++
+```cpp
 void listen(uint16_t port,
             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
@@ -1344,7 +1343,7 @@ void listen(const std::string& ipOrHostname,
 
 #### IPv6 specific `listen()` Methods
 
-```c++
+```cpp
 void listen(uint16_t port,
             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
@@ -1365,7 +1364,7 @@ void listen(const std::string& ipOrHostname,
 
 #### Unix Domain Socket specific `listen()` Methods
 
-```c++
+```cpp
 void listen(const std::string& sunPath,
             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
@@ -1376,7 +1375,7 @@ void listen(const std::string& sunPath,
 
 #### Bluetooth RFCOMM specific `listen()` Methods
 
-```c++
+```cpp
 void listen(uint8_t channel,
             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
@@ -1396,7 +1395,7 @@ void listen(const std::string& btAddress,
 
 #### Bluetooth L2CAP specific `listen()` Methods
 
-```c++
+```cpp
 void listen(uint16_t psm,
             const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
@@ -1444,7 +1443,7 @@ As already mentioned above, for convenience each `SocketClient` class provides i
 
 All `connect()` methods expect a *status callback* as argument which is called in case the socket has been created and connected to the peer or an error has occurred. The signature of this callback is
 
-```c++
+```cpp
 const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus)>
 ```
 
@@ -1454,7 +1453,7 @@ The peers `SocketAddress` and a `state` value is passed to this callback as argu
 
 The type of the `SocketAddress` needs to match with the type of the `SocketClient` and can be acquired from a concrete `SocketClient` type by
 
-```c++
+```cpp
 using SocketAddress = <ConcreteSocketClientType>::SocketAddress;
 ```
 
@@ -1462,33 +1461,33 @@ using SocketAddress = <ConcreteSocketClientType>::SocketAddress;
 
 The `const core::socket::State& state` value passed to the callback reports the status of the `SocketServer`.
 
-- ```c++
-  state == core::socket::State::OK
-  ```
+```cpp
+state == core::socket::State::OK
+```
   
-  The `ClientSocket` instance has been created and connected to the peer successfully.
+The `ClientSocket` instance has been created and connected to the peer successfully.
   
-- ```c++
-  state == core::socket::State::DISABLED
-  ```
+```cpp
+state == core::socket::State::DISABLED
+```
   
-  The `ClientSocket` instance is disabled
+The `ClientSocket` instance is disabled
   
-- ```c++
-  state == core::socket::State::ERROR
-  ```
+```cpp
+state == core::socket::State::ERROR
+```
   
-  During switching to the connected state a recoverable error has occurred. In case a *retry* is configured for this instance the connect attempt is retried automatically.
+During switching to the connected state a recoverable error has occurred. In case a *retry* is configured for this instance the connect attempt is retried automatically.
   
-- ```
-  state == core::socket::State::FATAL
-  ```
+```
+state == core::socket::State::FATAL
+```
   
-  A non recoverable error has occurred. No connect-retry is done.
+A non recoverable error has occurred. No connect-retry is done.
 
 #### Common `connect()` Methods
 
-```c++
+```cpp
 void connect(const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
 void connect(const SocketAddress& remoteAddress,
@@ -1501,7 +1500,7 @@ void connect(const SocketAddress& remoteAddress,
 
 #### IPv4 specific `connect()` Methods
 
-```c++
+```cpp
 void connect(const std::string& ipOrHostname,
              uint16_t port,
              const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
@@ -1525,7 +1524,7 @@ void connect(const std::string& ipOrHostname,
 
 #### IPv6 specific `connect()` Methods
 
-```c++
+```cpp
 void connect(const std::string& ipOrHostname,
              uint16_t port,
              const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
@@ -1549,7 +1548,7 @@ void connect(const std::string& ipOrHostname,
 
 #### Unix Domain Socket specific `connect()` Methods
 
-```c++
+```cpp
 void connect(const std::string& sunPath,
              const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
 
@@ -1560,7 +1559,7 @@ void connect(const std::string& sunPath,
 
 #### Bluetooth RFCOMM specific `connect()` Methods
 
-```c++
+```cpp
 void connect(const std::string& btAddress,
              uint8_t channel,
              const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
@@ -1584,7 +1583,7 @@ void connect(const std::string& btAddress,
 
 #### Bluetooth L2CAP specific `connect()` Methods
 
-```c++
+```cpp
 void connect(const std::string& btAddress,
              uint16_t psm,
              const std::function<void(const SocketAddress&, const core::socket::State&)>& onStatus);
@@ -2241,7 +2240,7 @@ In case a CA-certificate is configured either on the server and/or the client si
 
 If the *echo* server instance would have been created using a SSL/TLS-SocketServer class like e.g.
 
-```c++
+```cpp
 using EchoServer = net::in::stream::tls::SocketServer<EchoServerContextFactory>;
 using SocketAddress = EchoServer::SocketAddress;
 
@@ -2250,7 +2249,7 @@ EchoServer echoServer("echo");
 
 than SSL/TLS could be configured in-code using
 
-```c++
+```cpp
 echoServer.getConfig().setCaCert("<path to X.509 CA certificate>");      // Has to be in PEM format
 echoServer.getConfig().setCert("<path to X.509 certificate chain>");     // Has to be in PEM format
 echoServer.getConfig().setCertKey("<path to X.509 certificate key>");    // Has to be in PEM format
@@ -2259,7 +2258,7 @@ echoServer.getConfig().setCertKeyPassword("<certificate key password>");
 
 The same technique can be used for the client instance
 
-```c++
+```cpp
 using EchoClient = net::in::stream::tls::SocketClient<EchoClientContextFactory>;
 using SocketAddress = EchoClient::SocketAddress;
 
@@ -2424,7 +2423,7 @@ For instance, if the echo server shall also communicate via e.g. Unix-Domain soc
 
 In that case the Main-Application would look like
 
-```c++
+```cpp
  int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
@@ -2508,7 +2507,7 @@ In that case the Main-Application would look like
 
 and the client application with an additional Unix-Domain socket instance look like
 
-```c++
+```cpp
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
@@ -2633,7 +2632,7 @@ This application uses the high-level web API *express* which is very similar to 
 
 The use of X.509 certificates for encrypted communication is demonstrated also.
 
-``` cpp
+```cpp
 #include <express/legacy/in/WebApp.h>
 #include <express/tls/in/WebApp.h>
 #include <express/middleware/StaticMiddleware.h>
@@ -2723,7 +2722,7 @@ int main(int argc, char* argv[]) {
 
 The high-level web API provides the methods `get()`, `post()`, `put()`, etc like node.js/express.
 
-``` cpp
+```cpp
 #include <express/legacy/in/WebApp.h>
 #include <express/tls/in/WebApp.h>
 #include <log/Logger.h>
@@ -2835,13 +2834,13 @@ int main(int argc, char* argv[]) {
 
 ## Extract Server and Client Information (host name, IP, port, SSL/TLS information)
 
-``` cpp
+```cpp
 To be documented soon
 ```
 
 ## Using Regular Expressions in Routes
 
-``` cpp
+```cpp
 To be documented soon
 ```
 
