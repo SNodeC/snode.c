@@ -156,7 +156,7 @@ namespace utils {
         if (kill(pid, SIGTERM) != 0) {
             throw DaemonError("kill()");
         }
-        struct pollfd pollfd {};
+        struct pollfd pollfd{};
         pollfd.fd = pidfd;
         pollfd.events = POLLIN;
 

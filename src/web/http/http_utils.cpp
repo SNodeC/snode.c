@@ -133,7 +133,7 @@ namespace httputils {
     }
 
     struct tm from_http_date(const std::string& http_date) {
-        struct tm tm {};
+        struct tm tm{};
 
         strptime(http_date.c_str(), "%a, %d %b %Y %H:%M:%S", &tm);
         tm.tm_zone = "GMT";
@@ -144,7 +144,7 @@ namespace httputils {
     std::string file_mod_http_date(const std::string& filePath) {
         char buf[100];
 
-        struct stat attrib {};
+        struct stat attrib{};
         stat(filePath.c_str(), &attrib); // TODO: to core::system
 
         (void) strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&(attrib.st_mtime))); // TODO: to core::system

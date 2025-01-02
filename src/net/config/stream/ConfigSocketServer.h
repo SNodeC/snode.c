@@ -32,8 +32,7 @@
 namespace net::config::stream {
 
     template <template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressLocalT,
-              template <template <typename SocketAddress> typename ConfigAddressTypeT>
-              typename ConfigAddressRemoteT>
+              template <template <typename SocketAddress> typename ConfigAddressTypeT> typename ConfigAddressRemoteT>
     class ConfigSocketServer
         : public ConfigAddressLocalT<net::config::ConfigAddressLocal>
         , public ConfigAddressRemoteT<net::config::ConfigAddressReverse>

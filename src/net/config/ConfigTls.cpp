@@ -73,7 +73,7 @@ namespace net::config {
             "bool",
             "false",
             CLI::IsMember({"true", "false"}));
-            
+
         cipherListOpt = addOption( //
             "--cipher-list",
             "Cipher list (OpenSSL syntax)",
