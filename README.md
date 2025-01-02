@@ -659,7 +659,7 @@ This libraries are already integrated directly in SNode.C. Thus they need not be
 
 To install all dependencies on Debian style systems just run
 
-``` sh
+```sh
 sudo apt update
 sudo apt install git cmake make ninja-build g++ clang pkg-config
 sudo apt install iwyu clang-format cmake-format doxygen
@@ -671,7 +671,7 @@ sudo apt install libbluetooth-dev libmagic-dev libmariadb-dev
 
 After installing all dependencies SNode.C can be cloned from github, compiled and installed.
 
-``` sh
+```sh
 mkdir snode.c
 cd snode.c
 git clone https://github.com/SNodeC/snode.c.git
