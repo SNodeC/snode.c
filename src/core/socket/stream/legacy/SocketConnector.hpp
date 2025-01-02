@@ -29,7 +29,7 @@
 namespace core::socket::stream::legacy {
 
     template <typename PhysicalClientSocket, typename Config>
-    core::socket::stream::legacy::SocketConnector<PhysicalClientSocket, Config>::SocketConnector(
+    SocketConnector<PhysicalClientSocket, Config>::SocketConnector(
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
@@ -55,7 +55,7 @@ namespace core::socket::stream::legacy {
     }
 
     template <typename PhysicalClientSocket, typename Config>
-    void core::socket::stream::legacy::SocketConnector<PhysicalClientSocket, Config>::useNextSocketAddress() {
+    void SocketConnector<PhysicalClientSocket, Config>::useNextSocketAddress() {
         new SocketConnector(*this);
     }
 

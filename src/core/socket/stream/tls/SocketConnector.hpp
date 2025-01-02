@@ -35,7 +35,7 @@
 namespace core::socket::stream::tls {
 
     template <typename PhysicalClientSocket, typename Config>
-    core::socket::stream::tls::SocketConnector<PhysicalClientSocket, Config>::SocketConnector(
+    SocketConnector<PhysicalClientSocket, Config>::SocketConnector(
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
@@ -50,7 +50,6 @@ namespace core::socket::stream::tls {
                                                         Super::config->getInitTimeout(),
                                                         Super::config->getShutdownTimeout(),
                                                         !Super::config->getNoCloseNotifyIsEOF());
-
                   if (ssl != nullptr) {
                       SSL_set_connect_state(ssl);
                       ssl_set_sni(ssl, Super::config->getSni());
@@ -103,7 +102,7 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalClientSocket, typename Config>
-    void core::socket::stream::tls::SocketConnector<PhysicalClientSocket, Config>::useNextSocketAddress() {
+    void SocketConnector<PhysicalClientSocket, Config>::useNextSocketAddress() {
         new SocketConnector(*this);
     }
 

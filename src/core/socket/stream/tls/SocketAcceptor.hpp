@@ -49,7 +49,6 @@ namespace core::socket::stream::tls {
                                                         Super::config->getInitTimeout(),
                                                         Super::config->getShutdownTimeout(),
                                                         !Super::config->getNoCloseNotifyIsEOF());
-
                   if (ssl != nullptr) {
                       SSL_set_accept_state(ssl);
                   }
