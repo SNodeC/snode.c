@@ -56,7 +56,7 @@ namespace web::websocket {
                                         const std::string& subProtocolFactoryFunctionName) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
-            void* handle = core::DynamicLoader::dlOpen(subProtocolLibraryFile);
+            void* handle = core::DynamicLoader::dlOpen(subProtocolLibraryFile, RTLD_LAZY | RTLD_GLOBAL);
 
             if (handle != nullptr) {
                 SubProtocolFactory* (*getSubProtocolFactory)() =

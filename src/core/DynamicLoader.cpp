@@ -21,7 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/dlfcn.h"
 #include "log/Logger.h"
 
 #include <algorithm>
@@ -32,10 +31,6 @@ namespace core {
 
     std::map<void*, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
     std::list<void*> DynamicLoader::closeHandles;
-
-    void* DynamicLoader::dlOpenReal(const std::string& libFile) {
-        return dlRegisterHandle(core::system::dlopen((libFile).c_str(), RTLD_LAZY | RTLD_GLOBAL), libFile);
-    }
 
     void* DynamicLoader::dlRegisterHandle(void* handle, const std::string& libFile) {
         if (handle != nullptr) {
