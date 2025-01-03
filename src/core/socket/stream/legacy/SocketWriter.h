@@ -32,6 +32,9 @@ namespace core::socket::stream::legacy {
     private:
         using Super = core::socket::stream::SocketWriter;
         using Super::Super;
+
+    public:
+        ~SocketWriter() override;
     };
 
 } // namespace core::socket::stream::legacy

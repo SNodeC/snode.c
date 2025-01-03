@@ -32,6 +32,9 @@ namespace core::socket::stream::legacy {
     private:
         using Super = core::socket::stream::SocketReader;
         using Super::Super;
+
+    public:
+        ~SocketReader() override;
     };
 
 } // namespace core::socket::stream::legacy

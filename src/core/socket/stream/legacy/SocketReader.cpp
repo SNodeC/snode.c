@@ -23,4 +23,9 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace core::socket::stream::legacy {} // namespace core::socket::stream::legacy
+namespace core::socket::stream::legacy {
+
+    SocketReader::~SocketReader() {
+    }
+
+} // namespace core::socket::stream::legacy
