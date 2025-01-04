@@ -42,8 +42,8 @@ namespace core::socket::stream::tls {
                              const std::function<void(void)>& onTimeout,
                              const std::function<void(int)>& onStatus,
                              const utils::Timeval& timeout)
-        : ReadEventReceiver(instanceName + " SSL/TLS: Shutdown", timeout)
-        , WriteEventReceiver(instanceName + " SSL/TLS: Shutdown", timeout)
+        : ReadEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
+        , WriteEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)

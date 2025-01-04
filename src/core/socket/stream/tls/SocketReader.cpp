@@ -53,16 +53,17 @@ namespace core::socket::stream::tls {
                         break;
                     case SSL_ERROR_WANT_WRITE:
                         LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
-                        doSSLHandshake(
-                            [this]() -> void {
-                                LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
-                            },
-                            [this]() -> void {
-                                LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
-                            },
-                            [this](int ssl_err) -> void {
-                                ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
-                            });
+                        LOG(TRACE) << "SSL/TLS: "
+                                   << doSSLHandshake(
+                                          [this]() -> void {
+                                              LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
+                                          },
+                                          [this]() -> void {
+                                              LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
+                                          },
+                                          [this](int ssl_err) -> void {
+                                              ssl_log(getName() + " SSL/TLS: Renegotiation on read", ssl_err);
+                                          });
                         errno = EAGAIN;
                         ret = -1;
                         break;
@@ -92,7 +93,7 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case SSL_ERROR_SSL:
-                        ssl_log(getName() + " SSL/TLS: Failed", ssl_err);
+                        ssl_log(getName() + " SSL/TLS: Read failed", ssl_err);
                         onReadShutdown();
                         errno = EIO;
                         ret = -1;
