@@ -294,7 +294,7 @@ namespace web::http::client {
         return success;
     }
 
-    bool Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status) {
+    void Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status) {
         std::string name;
 
         if (!masterRequest.expired()) {
@@ -330,8 +330,6 @@ namespace web::http::client {
         }
 
         status(name);
-
-        return !name.empty();
     }
 
     bool Request::sendFile(const std::string& file,

@@ -92,7 +92,7 @@ namespace web::http::client {
                 const std::string& protocols,
                 const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                 const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
-        bool upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status);
+        void upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status);
         bool
         sendFile(const std::string& file,
                  const std::function<void(int errnum)>& onStatus,
