@@ -43,7 +43,7 @@ namespace core {
         DynamicLoader() = delete;
         ~DynamicLoader() = delete;
 
-#define dlOpen(libFile, flags) dlRegisterHandle(::dlopen((libFile).c_str(), flags), libFile)
+#define dlOpen(libFile) dlRegisterHandle(core::system::dlopen((libFile).c_str(), RTLD_LOCAL | RTLD_LAZY), libFile)
 
         static void* dlRegisterHandle(void* handle, const std::string& libFile);
         static void dlCloseDelayed(void* handle);
