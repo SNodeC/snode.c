@@ -29,7 +29,7 @@
 TowerCalculator::TowerCalculator()
     : core::EventReceiver("TowerCalculator")
     , currentValue(0)
-    , state(State::WAITING) {
+    , state(State::NEXT) {
 }
 
 void TowerCalculator::calculate(long startValue) {
@@ -39,7 +39,7 @@ void TowerCalculator::calculate(long startValue) {
 }
 
 void TowerCalculator::calculate() {
-    if (!values.empty() && state == State::WAITING) {
+    if (!values.empty() && state == State::NEXT) {
         currentValue = values.front();
         values.pop_front();
 
@@ -73,11 +73,11 @@ void TowerCalculator::onEvent([[maybe_unused]] const utils::Timeval& currentTime
                 std::cout << currentValue << std::endl;
                 divisor++;
             } else {
-                state = State::WAITING;
+                state = State::NEXT;
             }
             span();
             break;
-        case State::WAITING:
+        case State::NEXT:
             calculate();
             break;
     }

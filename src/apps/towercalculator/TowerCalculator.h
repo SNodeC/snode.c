@@ -38,7 +38,7 @@ public:
     void calculate(long startValue);
 
 protected:
-    enum class State { WAITING, MULTIPLY, DIVIDE };
+    enum class State { NEXT, MULTIPLY, DIVIDE };
 
     void calculate();
 
