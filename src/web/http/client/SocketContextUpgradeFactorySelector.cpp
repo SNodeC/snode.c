@@ -25,7 +25,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #if !defined(NDEBUG)
-
 #include "log/Logger.h"
 
 #include <cstdlib>
@@ -41,9 +40,6 @@ namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector::load(const std::string& socketContextUpgradeName) {
-        const std::string socketContextUpgradeFactoryLibraryFile = socketContextUpgradeName + "-client.so." SOVERSION;
-        const std::string socketContextUpgradeFactoryFunctionName = socketContextUpgradeName + "ClientContextUpgradeFactory";
-
         std::string httpUpgradeInstallLibdir = HTTP_UPGRADE_INSTALL_LIBDIR;
 
 #if !defined(NDEBUG)
@@ -53,9 +49,9 @@ namespace web::http::client {
         }
 #endif
 
-        return Super::load(socketContextUpgradeName,
-                           httpUpgradeInstallLibdir + "/libsnodec-" + socketContextUpgradeFactoryLibraryFile,
-                           socketContextUpgradeFactoryFunctionName);
+        return load(socketContextUpgradeName,
+                    httpUpgradeInstallLibdir + "/libsnodec-" + socketContextUpgradeName + "-client.so." SOVERSION,
+                    "socketContextUpgradeFactory");
     }
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {

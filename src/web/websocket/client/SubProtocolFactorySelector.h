@@ -60,7 +60,6 @@ namespace web::websocket::client {
         }
 
         using web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::allowDlOpen;
-        static void allowDlOpen();
 
     private:
         SubProtocolFactory* load(const std::string& subProtocolName) override;

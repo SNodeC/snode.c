@@ -59,8 +59,6 @@ namespace web::websocket::server {
             SubProtocolFactorySelector::instance()->Super::link(subProtocolName, getSubProtocolFactory);
         }
 
-        static void allowDlOpen();
-
     private:
         SubProtocolFactory* load(const std::string& subProtocolName) override;
 

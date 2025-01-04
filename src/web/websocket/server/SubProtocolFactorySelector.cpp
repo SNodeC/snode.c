@@ -45,10 +45,6 @@ namespace web::websocket::server {
     SubProtocolFactorySelector::~SubProtocolFactorySelector() {
     }
 
-    void SubProtocolFactorySelector::allowDlOpen() {
-        SubProtocolFactorySelector::instance()->Super::allowDlOpen();
-    }
-
     SubProtocolFactorySelector::SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
         const std::string websocketSubprotocolLibraryFile = "libsnodec-websocket-" + subProtocolName + "-server.so." SOVERSION;
 
