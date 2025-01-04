@@ -294,10 +294,8 @@ namespace web::http::client {
         return success;
     }
 
-    bool Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(bool)>& status) {
-        bool upgraded = false;
-
-        core::socket::stream::SocketContext* newSocketContext = nullptr;
+    bool Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status) {
+        std::string name;
 
         if (!masterRequest.expired()) {
             if (response != nullptr) {
@@ -306,12 +304,11 @@ namespace web::http::client {
                         web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
 
                     if (socketContextUpgradeFactory != nullptr) {
-                        newSocketContext = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
-                        if (newSocketContext != nullptr) {
-                            LOG(DEBUG) << "HTTP: SocketContextUpgrade created";
-                            socketContext->switchSocketContext(newSocketContext);
-                            newSocketContext = nullptr;
-                            upgraded = true;
+                        core::socket::stream::SocketContext* socketContextUpgrade =
+                            socketContextUpgradeFactory->create(socketContext->getSocketConnection());
+                        if (socketContextUpgrade != nullptr) {
+                            name = socketContextUpgradeFactory->name();
+                            socketContext->switchSocketContext(socketContextUpgrade);
                         } else {
                             LOG(DEBUG) << "HTTP: SocketContextUpgrade not created";
                             socketContext->close();
@@ -332,9 +329,9 @@ namespace web::http::client {
             LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
         }
 
-        status(upgraded);
+        status(name);
 
-        return upgraded;
+        return !name.empty();
     }
 
     bool Request::sendFile(const std::string& file,

@@ -80,11 +80,11 @@ int main(int argc, char* argv[]) {
         VLOG(2) << "user-agent: " << req->get("user-agent");
 
         if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
-            res->upgrade(req, [&subProtocol = req->get("upgrade"), res](bool success) -> void {
-                if (success) {
-                    VLOG(1) << "Successful upgrade to '" << subProtocol << "'";
+            res->upgrade(req, [req, res](const std::string& name) -> void {
+                if (!name.empty()) {
+                    VLOG(1) << "Successful upgrade to '" << name << "'  requested: " << req->get("upgrade");
                 } else {
-                    VLOG(1) << "Can not upgrade to '" << subProtocol << "'";
+                    VLOG(1) << "Can not upgrade to any of '" << req->get("upgrade") << "'";
                 }
                 res->end();
             });
@@ -151,11 +151,11 @@ int main(int argc, char* argv[]) {
             VLOG(2) << "user-agent: " << req->get("user-agent");
 
             if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
-                res->upgrade(req, [req, res](bool success) -> void {
-                    if (success) {
-                        VLOG(1) << "Successful upgrade to '" << req->get("upgrade") << "'";
+                res->upgrade(req, [req, res](const std::string& name) -> void {
+                    if (!name.empty()) {
+                        VLOG(1) << "Successful upgrade to '" << name << "'  requested: " << req->get("upgrade");
                     } else {
-                        VLOG(1) << "Can not upgrade to '" << req->get("upgrade") << "'";
+                        VLOG(1) << "Can not upgrade to any of '" << req->get("upgrade") << "'";
                     }
                     res->end();
                 });

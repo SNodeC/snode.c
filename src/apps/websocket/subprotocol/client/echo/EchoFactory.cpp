@@ -35,6 +35,6 @@ namespace apps::websocket::subprotocol::echo::client {
 
 } // namespace apps::websocket::subprotocol::echo::client
 
-extern "C" apps::websocket::subprotocol::echo::client::EchoFactory* echoClientSubProtocolFactory() {
+extern "C" apps::websocket::subprotocol::echo::client::EchoFactory* subProtocolFactory() {
     return new apps::websocket::subprotocol::echo::client::EchoFactory(NAME);
 }

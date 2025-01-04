@@ -80,7 +80,7 @@ namespace web::http::server {
         void send(const char* chunk, std::size_t chunkLen);
         void send(const std::string& chunk);
         void sendStatus(int statusCode);
-        void upgrade(const std::shared_ptr<Request>& request, const std::function<void(bool)>& status);
+        void upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string&)>& status);
         void sendFile(const std::string& file, const std::function<void(int)>& callback);
         void end();
 
