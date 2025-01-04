@@ -76,7 +76,6 @@ namespace core::socket::stream::tls {
 
                             if (errno == EPIPE) {
                                 PLOG(TRACE) << getName() << " SSL/TLS: Syscal error (SIGPIPE detected) on write.";
-                                errno = EPIPE;
                             } else if (errno == ECONNRESET) {
                                 PLOG(TRACE) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
                             } else {

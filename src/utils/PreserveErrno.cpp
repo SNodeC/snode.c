@@ -30,6 +30,10 @@ namespace utils {
         errno = newErrno;
     }
 
+    void PreserveErrno::setErrno(int newErrno) {
+        errnum = newErrno;
+    }
+
     PreserveErrno::~PreserveErrno() {
         errno = errnum;
     }

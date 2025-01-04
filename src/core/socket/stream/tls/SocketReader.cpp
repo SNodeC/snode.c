@@ -85,7 +85,7 @@ namespace core::socket::stream::tls {
 
                             if (ret == 0) {
                                 LOG(TRACE) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
-                                errno = ECONNRESET;
+                                pe.setErrno(ECONNRESET);
                             } else {
                                 PLOG(TRACE) << getName() + " SSL/TLS: Syscall error on read";
                             }

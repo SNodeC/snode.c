@@ -32,6 +32,8 @@ namespace utils {
     public:
         explicit PreserveErrno(int newErrno = errno);
 
+        void setErrno(int newErrno);
+
         ~PreserveErrno();
 
     private:
