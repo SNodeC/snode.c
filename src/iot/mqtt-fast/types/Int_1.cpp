@@ -30,7 +30,7 @@ namespace iot::mqtt_fast::types {
     }
 
     std::size_t Int_1::construct() {
-        const std::size_t consumed = read(buffer + length - needed, static_cast<std::size_t>(needed));
+        const std::size_t consumed = read(buffer + length - needed, needed);
 
         needed -= consumed;
         completed = needed == 0;

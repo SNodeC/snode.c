@@ -41,7 +41,7 @@ namespace database::mariadb {
         , public MariaDBClientSyncAPI {
     public:
         MariaDBCommandSequence() = default;
-        MariaDBCommandSequence(MariaDBCommandSequence&& mariaDBCommandSequence) = default;
+        MariaDBCommandSequence(MariaDBCommandSequence&& mariaDBCommandSequence) noexcept = default;
         ~MariaDBCommandSequence() override = default;
 
         MariaDBCommandSequence& operator=(MariaDBCommandSequence&& mariaDBCommandSequence) = default;

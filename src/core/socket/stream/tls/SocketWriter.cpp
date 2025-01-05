@@ -72,7 +72,7 @@ namespace core::socket::stream::tls {
                     case SSL_ERROR_SYSCALL:
                         // In case ret is -1 a real syscall error (RST = ECONNRESET)
                         {
-                            utils::PreserveErrno pe;
+                            const utils::PreserveErrno pe;
 
                             if (errno == EPIPE) {
                                 PLOG(TRACE) << getName() << " SSL/TLS: Syscal error (SIGPIPE detected) on write.";

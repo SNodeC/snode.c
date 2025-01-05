@@ -81,7 +81,7 @@ namespace core::socket::stream::tls {
                                             // protocol’s  graceful shutdown procedure.
                         // In case ret is -1 a real syscall error (RST = ECONNRESET)
                         {
-                            utils::PreserveErrno pe;
+                            const utils::PreserveErrno pe;
 
                             if (ret == 0) {
                                 PLOG(TRACE) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";

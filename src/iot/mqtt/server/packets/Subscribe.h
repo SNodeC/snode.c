@@ -41,7 +41,6 @@ namespace iot::mqtt::server::packets {
         std::size_t deserializeVP(iot::mqtt::MqttContext* mqttContext) override;
         void deliverPacket(iot::mqtt::server::Mqtt* mqtt) override;
 
-    private:
         iot::mqtt::types::String topic;
         iot::mqtt::types::UInt8 qoS;
 

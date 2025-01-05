@@ -25,11 +25,9 @@
 #include "web/http/CookieOptions.h"
 #include "web/http/TransferEncoding.h"
 
-namespace core {
-    namespace socket::stream {
-        class SocketContext;
-    }
-} // namespace core
+namespace core::socket::stream {
+    class SocketContext;
+} // namespace core::socket::stream
 
 namespace web::http::server {
     class Request;

@@ -22,11 +22,9 @@
 
 #include "core/DescriptorEventPublisher.h" // IWYU pragma: export
 
-namespace core {
-    namespace multiplexer::poll {
-        class PollFdsManager;
-    } // namespace multiplexer::poll
-} // namespace core
+namespace core::multiplexer::poll {
+    class PollFdsManager;
+} // namespace core::multiplexer::poll
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
