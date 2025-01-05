@@ -36,7 +36,7 @@ namespace core::socket::stream::tls {
     ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
         ssize_t ret = 0;
 
-        if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0 && (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
+        if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
             ret = Super::write(chunk, chunkLen);
         } else {
             ret = SSL_write(ssl, chunk, static_cast<int>(chunkLen));
