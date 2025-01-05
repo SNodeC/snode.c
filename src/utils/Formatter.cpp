@@ -197,8 +197,6 @@ namespace CLI {
 
         out << get_label("Usage") << ":" << (name.empty() ? "" : " ") << name;
 
-        const std::vector<std::string> groups = app->get_groups();
-
         // Print an Options badge if any options exist
         const std::vector<const Option*> non_pos_options = app->get_options([](const Option* opt) {
             return opt->nonpositional();
