@@ -209,12 +209,13 @@ namespace core {
         }
 
         sigaction(SIGPIPE, &oldPipeAct, nullptr);
-        sigaction(SIGINT, &oldIntAct, nullptr);
         sigaction(SIGTERM, &oldTermAct, nullptr);
         sigaction(SIGALRM, &oldAlarmAct, nullptr);
         sigaction(SIGHUP, &oldHupAct, nullptr);
 
         free();
+
+        sigaction(SIGINT, &oldIntAct, nullptr);
 
         return stopsig;
     }
@@ -251,7 +252,7 @@ namespace core {
             const std::chrono::duration<double> seconds = t2 - t1;
 
             timeout -= seconds.count();
-        } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED));
+        } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS));
 
         LOG(TRACE) << "Core: Terminate all stalled DescriptorEventReceivers";
 
