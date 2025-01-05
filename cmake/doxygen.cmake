@@ -43,7 +43,7 @@ if(DOXYGEN_FOUND)
             COMMAND mkdir -p ${SNODEC_DOC_ROOTDIR}/html/docs/assets/
             COMMAND cp -a ${CMAKE_SOURCE_DIR}/docs/assets/README
                     ${SNODEC_DOC_ROOTDIR}/html/docs/assets/
-            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/src"
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM
         )
@@ -55,7 +55,7 @@ if(DOXYGEN_FOUND)
             COMMAND mkdir -p ${SNODEC_DOC_ROOTDIR}/html/docs/assets/
             COMMAND cp -a ${CMAKE_SOURCE_DIR}/docs/assets/README
                     ${SNODEC_DOC_ROOTDIR}/html/docs/assets/
-            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/src"
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM
         )
