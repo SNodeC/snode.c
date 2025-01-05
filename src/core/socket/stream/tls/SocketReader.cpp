@@ -84,7 +84,7 @@ namespace core::socket::stream::tls {
                             utils::PreserveErrno pe;
 
                             if (ret == 0) {
-                                LOG(TRACE) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
+                                PLOG(TRACE) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
                                 pe.setErrno(ECONNRESET);
                             } else {
                                 PLOG(TRACE) << getName() + " SSL/TLS: Syscall error on read";
@@ -95,7 +95,6 @@ namespace core::socket::stream::tls {
                     case SSL_ERROR_SSL:
                         ssl_log(getName() + " SSL/TLS: Read failed", ssl_err);
                         onReadShutdown();
-                        errno = EIO;
                         ret = -1;
                         break;
                     default:

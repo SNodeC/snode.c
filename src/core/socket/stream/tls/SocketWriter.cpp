@@ -86,7 +86,7 @@ namespace core::socket::stream::tls {
                         break;
                     case SSL_ERROR_SSL:
                         ssl_log(getName() + " SSL/TLS: Failed", ssl_err);
-                        errno = EIO;
+                        ret = -1;
                         break;
                     default:
                         ssl_log(getName() + " SSL/TLS: Unexpected error", ssl_err);
