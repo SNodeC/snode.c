@@ -163,8 +163,6 @@ namespace core::socket::stream::tls {
                     LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Close_notify received and sent";
                 } else {
                     LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Close_notify sent";
-
-                    Super::setTimeout(SocketWriter::terminateTimeout);
                 }
             },
             [this, resumeSocketReader, resumeSocketWriter]() -> void { // onTimeout
