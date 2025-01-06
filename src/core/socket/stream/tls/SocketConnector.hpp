@@ -59,7 +59,7 @@ namespace core::socket::stream::tls {
               },
               [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // onConnected
                   LOG(TRACE) << Super::config->getInstanceName() << " SSL/TLS: Start handshake";
-                  if (socketConnection->doSSLHandshake(
+                  if (!socketConnection->doSSLHandshake(
                           [socketContextFactory, onConnected, socketConnection, instanceName = Super::config->getInstanceName()]()
                               -> void { // onSuccess
                               LOG(TRACE) << instanceName << " SSL/TLS: Handshake success";
@@ -78,7 +78,6 @@ namespace core::socket::stream::tls {
 
                               socketConnection->close();
                           })) {
-                  } else {
                       LOG(TRACE) << Super::config->getInstanceName() + " SSL/TLS: Handshake failed";
 
                       socketConnection->close();
