@@ -91,6 +91,7 @@ namespace utils {
         app->formatter(helpFormatter);
 
         app->config_formatter(std::make_shared<CLI::ConfigFormatter>());
+        app->get_config_formatter_base()->arrayDelimiter(' ');
 
         app->option_defaults()->take_last();
         app->option_defaults()->group(app->get_formatter()->get_label("Nonpersistent Options"));
@@ -266,6 +267,7 @@ namespace utils {
                 });
 
             addStandardFlags(app.get());
+            //            app->get_config_formatter_base()->arrayDelemiter('' ');
 
             logLevelOpt = app->add_option( //
                                  "-l,--log-level",

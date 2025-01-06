@@ -74,9 +74,7 @@ namespace CLI {
                     if (default_also) {
                         static_assert(std::string::npos + static_cast<std::string::size_type>(1) == 0,
                                       "std::string::npos + static_cast<std::string::size_type>(1) != 0");
-                        if (!value.empty() &&
-                            opt->get_default_str() ==
-                                value.substr(0, value.find_last_of('"')).substr(value.find('"') + static_cast<std::string::size_type>(1))) {
+                        if (!value.empty() && opt->get_default_str() == value) {
                             value.clear();
                         }
                         if (!opt->get_default_str().empty()) {
