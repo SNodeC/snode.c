@@ -22,7 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/dlfcn.h" // IWYU pragma: keep
+#include "core/system/dlfcn.h"
 
 #include <list>
 #include <map>

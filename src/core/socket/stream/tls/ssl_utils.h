@@ -34,7 +34,6 @@
 #include <openssl/types.h>
 #elif OPENSSL_VERSION_NUMBER >= 0x10100000L
 #include <openssl/ossl_typ.h>
-
 #endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

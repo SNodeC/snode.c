@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/l2/phy/PhysicalSocket.hpp"      // IWYU pragma: export
-#include "net/l2/phy/stream/PhysicalSocket.h" // IWYU pragma: export
+#include "net/l2/phy/PhysicalSocket.hpp"
+#include "net/l2/phy/stream/PhysicalSocket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
