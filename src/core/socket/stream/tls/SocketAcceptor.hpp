@@ -94,10 +94,6 @@ namespace core::socket::stream::tls {
         : Super(socketAcceptor) {
     }
 
-    template <typename PhysicalSocketServer, typename Config>
-    SocketAcceptor<PhysicalSocketServer, Config>::~SocketAcceptor() {
-    }
-
     template <typename PhysicalClientSocket, typename Config>
     void core::socket::stream::tls::SocketAcceptor<PhysicalClientSocket, Config>::useNextSocketAddress() {
         new SocketAcceptor(*this);

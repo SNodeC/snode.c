@@ -57,8 +57,6 @@ namespace core::socket::stream::tls {
 
         SocketAcceptor(const SocketAcceptor& socketAcceptor);
 
-        ~SocketAcceptor() override;
-
     private:
         void useNextSocketAddress() override;
 

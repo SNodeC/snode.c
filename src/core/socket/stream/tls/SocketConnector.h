@@ -55,8 +55,6 @@ namespace core::socket::stream::tls {
 
         SocketConnector(const SocketConnector& socketConnector);
 
-        ~SocketConnector() override;
-
     private:
         void useNextSocketAddress() override;
 

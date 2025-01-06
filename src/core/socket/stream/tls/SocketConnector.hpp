@@ -96,10 +96,6 @@ namespace core::socket::stream::tls {
         : Super::SocketConnector(socketConnector) {
     }
 
-    template <typename PhysicalSocketClient, typename Config>
-    SocketConnector<PhysicalSocketClient, Config>::~SocketConnector() {
-    }
-
     template <typename PhysicalClientSocket, typename Config>
     void SocketConnector<PhysicalClientSocket, Config>::useNextSocketAddress() {
         new SocketConnector(*this);
