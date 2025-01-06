@@ -57,34 +57,34 @@ namespace net::config {
             std::string defaultValue;
 
             for (const auto& [domain, sniCertConf] : sniCerts) {
-                defaultValue += (!defaultValue.empty() ? "%% " : "") + domain + " ";
+                defaultValue += (!defaultValue.empty() ? "\"%%\", \"" : "\"") + domain + "\", ";
 
                 for (const auto& [key, value] : sniCertConf) {
-                    defaultValue += key + " ";
+                    defaultValue += "\"" + key + "\", ";
 
                     if (key == "Cert") {
-                        defaultValue += std::get<std::string>(value) + " ";
+                        defaultValue += "\"" + std::get<std::string>(value) + "\", ";
                     } else if (key == "CertKey") {
-                        defaultValue += std::get<std::string>(value) + " ";
+                        defaultValue += "\"" + std::get<std::string>(value) + "\", ";
                     } else if (key == "CertKeyPassword") {
-                        defaultValue += std::get<std::string>(value) + " ";
+                        defaultValue += "\"" + std::get<std::string>(value) + "\", ";
                     } else if (key == "CaCert") {
-                        defaultValue += std::get<std::string>(value) + " ";
+                        defaultValue += "\"" + std::get<std::string>(value) + "\", ";
                     } else if (key == "CaCertDir") {
-                        defaultValue += std::get<std::string>(value) + " ";
+                        defaultValue += "\"" + std::get<std::string>(value) + "\", ";
                     } else if (key == "CaCertUseDefaultDir") {
-                        defaultValue += std::get<bool>(value) ? "true " : "false ";
+                        defaultValue += std::get<bool>(value) ? "\"true\", " : "\"false\", ";
                     } else if (key == "CipherList") {
-                        defaultValue += std::get<std::string>(value) + " ";
+                        defaultValue += "\"" + std::get<std::string>(value) + "\", ";
                     } else if (key == "SslOptions") {
-                        defaultValue += std::to_string(std::get<ssl_option_t>(value)) + " ";
+                        defaultValue += "\"" + std::to_string(std::get<ssl_option_t>(value)) + "\", ";
                     }
                 }
             }
 
             defaultValue.pop_back();
 
-            return defaultValue;
+            return "[" + defaultValue + " \"\"]";
         });
 
         forceSniOpt = addFlag( //
