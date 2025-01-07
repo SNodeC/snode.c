@@ -19,6 +19,7 @@
 
 #include "web/websocket/server/SocketContextUpgrade.h"
 
+#include "web/websocket/SocketContextUpgrade.hpp"
 #include "web/websocket/SubProtocolFactory.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
@@ -63,3 +64,6 @@ namespace web::websocket::server {
     }
 
 } // namespace web::websocket::server
+
+template class web::websocket::
+    SocketContextUpgrade<web::websocket::server::SubProtocol, web::http::server::Request, web::http::server::Response>;

@@ -80,204 +80,46 @@ namespace web::websocket {
 
         SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
-                             Role role)
-            : Super(socketConnection, socketContextUpgradeFactory)
-            , web::websocket::SubProtocolContext(role == Role::CLIENT) {
-        }
+                             Role role);
 
     public:
         ~SocketContextUpgrade() override = default;
 
     private:
-        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) override {
-            Transmitter::sendMessage(opCode, message, messageLength);
-        }
+        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) override;
+        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) override;
+        void sendMessageFrame(const char* message, std::size_t messageLength) override;
+        void sendMessageEnd(const char* message, std::size_t messageLength) override;
+        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0) override;
+        void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0) override;
+        void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) override;
+        void sendClose(const char* message, std::size_t messageLength) override;
 
-        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) override {
-            Transmitter::sendMessageStart(opCode, message, messageLength);
-        }
-
-        void sendMessageFrame(const char* message, std::size_t messageLength) override {
-            Transmitter::sendMessageFrame(message, messageLength);
-        }
-
-        void sendMessageEnd(const char* message, std::size_t messageLength) override {
-            Transmitter::sendMessageEnd(message, messageLength);
-        }
-
-        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0) override {
-            sendMessage(9, reason, reasonLength);
-        }
-
-        void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0) override {
-            sendMessage(10, reason, reasonLength);
-        }
-
-        void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) override {
-            std::size_t closePayloadLength = reasonLength + 2;
-            char* closePayload = new char[closePayloadLength];
-
-            *reinterpret_cast<uint16_t*>(closePayload) = htobe16(statusCode); // cppcheck-suppress uninitdata
-
-            if (reasonLength > 0) {
-                memcpy(closePayload + 2, reason, reasonLength);
-            }
-
-            sendClose(closePayload, closePayloadLength);
-
-            delete[] closePayload;
-        }
-
-        void sendClose(const char* message, std::size_t messageLength) override {
-            if (!closeSent) {
-                LOG(DEBUG) << "WebSocket: Sending close to peer";
-
-                sendMessage(8, message, messageLength);
-
-                setTimeout(CLOSE_SOCKET_TIMEOUT);
-
-                closeSent = true;
-            }
-        }
-
-        core::socket::stream::SocketConnection* getSocketConnection() override {
-            return web::http::SocketContextUpgrade<RequestT, ResponseT>::getSocketConnection();
-        }
+        core::socket::stream::SocketConnection* getSocketConnection() override;
 
         /* WSReceiver */
-        void onMessageStart(int opCode) override {
-            receivedOpCode = opCode;
+        void onMessageStart(int opCode) override;
+        void onMessageData(const char* chunk, uint64_t chunkLen) override;
+        void onMessageEnd() override;
+        void onMessageError(uint16_t errnum) override;
 
-            switch (opCode) {
-                case SubProtocolContext::OpCode::CLOSE:
-                    [[fallthrough]];
-                case SubProtocolContext::OpCode::PING:
-                    [[fallthrough]];
-                case SubProtocolContext::OpCode::PONG:
-                    break;
-                default:
-                    subProtocol->onMessageStart(opCode);
-                    break;
-            }
-        }
-
-        void onMessageData(const char* chunk, uint64_t chunkLen) override {
-            switch (receivedOpCode) {
-                case SubProtocolContext::OpCode::CLOSE:
-                    [[fallthrough]];
-                case SubProtocolContext::OpCode::PING:
-                    [[fallthrough]];
-                case SubProtocolContext::OpCode::PONG:
-                    pongCloseData += std::string(chunk, static_cast<std::size_t>(chunkLen));
-                    break;
-                default:
-                    std::size_t chunkOffset = 0;
-
-                    do {
-                        std::size_t sendChunkLen =
-                            (chunkLen - chunkOffset <= SIZE_MAX) ? static_cast<std::size_t>(chunkLen - chunkOffset) : SIZE_MAX;
-                        subProtocol->onMessageData(chunk + chunkOffset, sendChunkLen);
-                        chunkOffset += sendChunkLen;
-                    } while (chunkLen - chunkOffset > 0);
-                    break;
-            }
-        }
-
-        void onMessageEnd() override {
-            switch (receivedOpCode) {
-                case SubProtocolContext::OpCode::CLOSE:
-                    if (closeSent) { // active close
-                        closeSent = false;
-                        LOG(DEBUG) << "WebSocket: Close confirmed from peer";
-                    } else { // passive close
-                        LOG(DEBUG) << "WebSocket: Close request received - replying with close";
-                        sendClose(pongCloseData.data(), pongCloseData.length());
-                        pongCloseData.clear();
-                        shutdownWrite();
-                    }
-                    break;
-                case SubProtocolContext::OpCode::PING:
-                    sendPong(pongCloseData.data(), pongCloseData.length());
-                    pongCloseData.clear();
-                    break;
-                case SubProtocolContext::OpCode::PONG:
-                    subProtocol->onPongReceived();
-                    break;
-                default:
-                    subProtocol->onMessageEnd();
-                    break;
-            }
-        }
-
-        void onMessageError(uint16_t errnum) override {
-            subProtocol->onMessageError(errnum);
-            sendClose(errnum);
-        }
-
-        std::size_t readFrameData(char* chunk, std::size_t chunkLen) override {
-            return readFromPeer(chunk, chunkLen);
-        }
+        std::size_t readFrameData(char* chunk, std::size_t chunkLen) override;
 
         /* Callbacks (API) socketConnection -> WSProtocol */
-        void onConnected() override {
-            LOG(INFO) << "WebSocket: connected";
-            subProtocol->onConnected();
-        }
+        void onConnected() override;
+        void onDisconnected() override;
 
-        void onDisconnected() override {
-            subProtocol->onDisconnected();
-            LOG(INFO) << "WebSocket: disconnected";
-        }
-
-        bool onSignal(int sig) override {
-            return subProtocol->onSignal(sig);
-        }
+        bool onSignal(int sig) override;
 
         /* Facade to SocketContext used from WSTransmitter */
-        void sendFrameData(uint8_t data) const override {
-            if (!closeSent) {
-                sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
-            }
-        }
-
-        void sendFrameData(uint16_t data) const override {
-            if (!closeSent) {
-                uint16_t sendData = htobe16(data);
-                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint16_t));
-            }
-        }
-
-        void sendFrameData(uint32_t data) const override {
-            if (!closeSent) {
-                uint32_t sendData = htobe32(data);
-                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint32_t));
-            }
-        }
-
-        void sendFrameData(uint64_t data) const override {
-            if (!closeSent) {
-                uint64_t sendData = htobe64(data);
-                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint64_t));
-            }
-        }
-
-        void sendFrameData(const char* frame, uint64_t frameLength) const override {
-            if (!closeSent) {
-                uint64_t frameOffset = 0;
-
-                do {
-                    std::size_t sendChunkLen =
-                        (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
-                    sendToPeer(frame + frameOffset, sendChunkLen);
-                    frameOffset += sendChunkLen;
-                } while (frameLength - frameOffset > 0);
-            }
-        }
+        void sendFrameData(uint8_t data) const override;
+        void sendFrameData(uint16_t data) const override;
+        void sendFrameData(uint32_t data) const override;
+        void sendFrameData(uint64_t data) const override;
+        void sendFrameData(const char* frame, uint64_t frameLength) const override;
 
         /* SocketContext */
-        std::size_t onReceivedFromPeer() override {
-            return Receiver::receive();
-        }
+        std::size_t onReceivedFromPeer() override;
 
     protected:
         SubProtocol* subProtocol = nullptr;
@@ -289,21 +131,7 @@ namespace web::websocket {
 
         std::string pongCloseData;
 
-        void dumpFrame(char* frame, uint64_t frameLength) {
-            const unsigned int modul = 4;
-
-            std::stringstream stringStream;
-
-            for (std::size_t i = 0; i < frameLength; i++) {
-                stringStream << std::setfill('0') << std::setw(2) << std::hex
-                             << static_cast<unsigned int>(static_cast<unsigned char>(frame[i])) << " ";
-
-                if ((i + 1) % modul == 0 || i == frameLength) { // cppcheck-suppress knownConditionTrueFalse
-                    LOG(TRACE) << "WebSocket: Frame = " << stringStream.str();
-                    stringStream.str("");
-                }
-            }
-        }
+        void dumpFrame(char* frame, uint64_t frameLength);
     };
 
 } // namespace web::websocket

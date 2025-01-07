@@ -54,8 +54,8 @@ namespace web::websocket::client {
 
         ~SubProtocolFactorySelector() override;
 
-        template <typename SubProtocolFactoryT>
-        static void link(const std::string& subProtocolName, SubProtocolFactoryT* (*getSubProtocolFactory)()) {
+        template <typename SubProtocolFactory>
+        static void link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)()) {
             SubProtocolFactorySelector::instance()->Super::link(subProtocolName, getSubProtocolFactory);
         }
 

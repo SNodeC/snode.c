@@ -38,6 +38,7 @@ set(WEBSOCKETBASE_CPP Receiver.cpp SubProtocolContext.cpp Transmitter.cpp)
 set(WEBSOCKETBASE_H
     Receiver.h
     SocketContextUpgrade.h
+    SocketContextUpgrade.hpp
     SubProtocol.h
     SubProtocol.hpp
     SubProtocolContext.h
@@ -52,6 +53,7 @@ add_library(snodec::websocket ALIAS websocket)
 target_include_directories(
     websocket PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                      "$<INSTALL_INTERFACE:include/snode.c>"
+
 )
 
 target_link_libraries(websocket PUBLIC logger)
