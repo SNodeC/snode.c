@@ -44,6 +44,7 @@ set(WEBSOCKETBASE_H
     SubProtocolContext.h
     SubProtocolFactory.h
     SubProtocolFactorySelector.h
+    SubProtocolFactorySelector.hpp
     Transmitter.h
 )
 

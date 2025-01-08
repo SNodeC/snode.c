@@ -21,6 +21,7 @@
 
 #include "utils/Config.h"
 #include "web/websocket/SubProtocolFactory.h"
+#include "web/websocket/SubProtocolFactorySelector.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,6 +44,10 @@ namespace web::websocket::client {
     }
 
     SubProtocolFactorySelector::~SubProtocolFactorySelector() {
+    }
+
+    void SubProtocolFactorySelector::allowDlOpen() {
+        instance()->Super::allowDlOpen();
     }
 
     SubProtocolFactorySelector::SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
@@ -73,3 +78,5 @@ namespace web::websocket::client {
     }
 
 } // namespace web::websocket::client
+
+template class web::websocket::SubProtocolFactorySelector<web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>>;

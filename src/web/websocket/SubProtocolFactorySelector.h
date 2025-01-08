@@ -20,14 +20,10 @@
 #ifndef WEB_WEBSOCKET_SUBPROTOCOLSELECTOR_H
 #define WEB_WEBSOCKET_SUBPROTOCOLSELECTOR_H
 
-#include "core/DynamicLoader.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include "core/DynamicLoader.h"
 
-#include <filesystem>
-#include <list>
 #include <map>
 #include <string>
 
@@ -50,66 +46,15 @@ namespace web::websocket {
         virtual ~SubProtocolFactorySelector() = default;
 
         virtual SubProtocolFactory* load(const std::string& subProtocolName) = 0;
-
         static SubProtocolFactory* load(const std::string& subProtocolName,
                                         const std::string& subProtocolLibraryFile,
-                                        const std::string& subProtocolFactoryFunctionName) {
-            SubProtocolFactory* subProtocolFactory = nullptr;
-
-            void* handle = core::DynamicLoader::dlOpen(subProtocolLibraryFile);
-
-            if (handle != nullptr) {
-                SubProtocolFactory* (*getSubProtocolFactory)() =
-                    reinterpret_cast<SubProtocolFactory* (*) ()>(core::DynamicLoader::dlSym(handle, subProtocolFactoryFunctionName));
-                if (getSubProtocolFactory != nullptr) {
-                    subProtocolFactory = getSubProtocolFactory();
-                    if (subProtocolFactory != nullptr) {
-                        subProtocolFactory->setHandle(handle);
-                        LOG(DEBUG) << "WebSocket: SubProtocolFactory created successfull: " << subProtocolName;
-                    } else {
-                        LOG(DEBUG) << "WebSocket: SubProtocolFactory not created: " << subProtocolName;
-                        core::DynamicLoader::dlClose(handle);
-                    }
-                } else {
-                    LOG(DEBUG) << "WebSocket: Optaining function \"" << subProtocolFactoryFunctionName
-                               << "\" in plugin failed: " << core::DynamicLoader::dlError();
-                    core::DynamicLoader::dlClose(handle);
-                }
-            }
-
-            return subProtocolFactory;
-        }
+                                        const std::string& subProtocolFactoryFunctionName);
 
     public:
-        SubProtocolFactory* select(const std::string& subProtocolName) {
-            SubProtocolFactory* subProtocolFactory = nullptr;
+        SubProtocolFactory* select(const std::string& subProtocolName);
+        SubProtocolFactory* select(const std::string& subProtocolName, Role role);
 
-            if (subProtocolFactories.contains(subProtocolName)) {
-                subProtocolFactory = subProtocolFactories[subProtocolName];
-            }
-
-            return subProtocolFactory;
-        }
-
-        SubProtocolFactory* select(const std::string& subProtocolName, [[maybe_unused]] Role role) {
-            SubProtocolFactory* subProtocolFactory = select(subProtocolName);
-
-            if (subProtocolFactory == nullptr) {
-                if (linkedSubProtocolFactories.contains(subProtocolName)) {
-                    SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
-                    subProtocolFactory = plugin();
-                } else if (!onlyLinked) {
-                    subProtocolFactory = load(subProtocolName);
-                }
-
-                if (subProtocolFactory != nullptr) {
-                    subProtocolFactories.insert({subProtocolName, subProtocolFactory});
-                }
-            }
-
-            return subProtocolFactory;
-        }
-
+        template <typename SubProtocolFactory>
         void unload(SubProtocolFactory* subProtocolFactory) {
             std::string name = subProtocolFactory->getName();
 
@@ -126,9 +71,7 @@ namespace web::websocket {
         }
 
     protected:
-        void allowDlOpen() {
-            onlyLinked = false;
-        }
+        void allowDlOpen();
 
         template <typename SubProtocolFactory>
         void link(const std::string& subProtocolName, SubProtocolFactory* (*subProtocolFactory)()) {

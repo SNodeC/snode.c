@@ -54,12 +54,12 @@ namespace web::websocket::client {
 
         ~SubProtocolFactorySelector() override;
 
+        static void allowDlOpen();
+
         template <typename SubProtocolFactory>
         static void link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)()) {
             SubProtocolFactorySelector::instance()->Super::link(subProtocolName, getSubProtocolFactory);
         }
-
-        using web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::allowDlOpen;
 
     private:
         SubProtocolFactory* load(const std::string& subProtocolName) override;
@@ -68,5 +68,7 @@ namespace web::websocket::client {
     };
 
 } // namespace web::websocket::client
+
+extern template class web::websocket::SubProtocolFactorySelector<web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>>;
 
 #endif // WEB_WEBSOCKET_CLIENT_SUBPROTOCOLSELECTOR_H
