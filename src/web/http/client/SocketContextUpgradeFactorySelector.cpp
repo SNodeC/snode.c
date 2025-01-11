@@ -51,7 +51,7 @@ namespace web::http::client {
 
         return load(socketContextUpgradeName,
                     httpUpgradeInstallLibdir + "/libsnodec-" + socketContextUpgradeName + "-client.so." SOVERSION,
-                    "socketContextUpgradeFactory");
+                    socketContextUpgradeName + "ClientSocketContextUpgradeFactory");
     }
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {

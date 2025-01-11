@@ -97,12 +97,12 @@ namespace web::websocket::server {
         static bool linked = false;
 
         if (!linked) {
-            web::http::server::SocketContextUpgradeFactory::link("websocket", socketContextUpgradeFactory);
+            web::http::server::SocketContextUpgradeFactory::link("websocket", websocketServerSocketContextUpgradeFactory);
             linked = true;
         }
     }
 
-    extern "C" web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory() {
+    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory() {
         return new SocketContextUpgradeFactory();
     }
 

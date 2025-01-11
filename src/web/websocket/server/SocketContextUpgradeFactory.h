@@ -45,7 +45,7 @@ namespace web::websocket::server {
                web::http::server::Response* response) override;
     };
 
-    extern "C" web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory();
+    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory();
 
 } // namespace web::websocket::server
 

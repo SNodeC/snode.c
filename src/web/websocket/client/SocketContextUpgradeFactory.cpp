@@ -72,12 +72,12 @@ namespace web::websocket::client {
         static bool linked = false;
 
         if (!linked) {
-            web::http::client::SocketContextUpgradeFactory::link("websocket", socketContextUpgradeFactory);
+            web::http::client::SocketContextUpgradeFactory::link("websocket", websocketClientSocketContextUpgradeFactory);
             linked = true;
         }
     }
 
-    extern "C" web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory() {
+    extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientSocketContextUpgradeFactory() {
         return new SocketContextUpgradeFactory();
     }
 
