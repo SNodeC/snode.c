@@ -38,7 +38,7 @@ namespace apps::websocket::subprotocol::echo::server {
     }
 
     void Echo::onConnected() {
-        VLOG(1) << "Echo connected:";
+        VLOG(1) << "Echo connected";
 
         sendMessage("Welcome to SimpleChat");
         sendMessage("=====================");

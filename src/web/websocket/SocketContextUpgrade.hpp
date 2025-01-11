@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "core/socket/stream/SocketConnection.h"
 #include "web/websocket/SocketContextUpgrade.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -91,7 +92,7 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void web::websocket::SocketContextUpgrade<SubProtocol, Request, Response>::sendClose(const char* message, std::size_t messageLength) {
         if (!closeSent) {
-            LOG(DEBUG) << "WebSocket: Sending close to peer";
+            LOG(DEBUG) << this->getSocketConnection()->getInstanceName() << " WebSocket: Sending close to peer";
 
             sendMessage(8, message, messageLength);
 
@@ -152,9 +153,10 @@ namespace web::websocket {
             case SubProtocolContext::OpCode::CLOSE:
                 if (closeSent) { // active close
                     closeSent = false;
-                    LOG(DEBUG) << "WebSocket: Close confirmed from peer";
+                    LOG(DEBUG) << this->getSocketConnection()->getInstanceName() << " WebSocket: Close confirmed from peer";
                 } else { // passive close
-                    LOG(DEBUG) << "WebSocket: Close request received - replying with close";
+                    LOG(DEBUG) << this->getSocketConnection()->getInstanceName()
+                               << " WebSocket: Close request received - replying with close";
                     sendClose(pongCloseData.data(), pongCloseData.length());
                     pongCloseData.clear();
                     shutdownWrite();
@@ -186,14 +188,14 @@ namespace web::websocket {
 
     template <typename SubProtocol, typename Request, typename Response>
     void web::websocket::SocketContextUpgrade<SubProtocol, Request, Response>::onConnected() {
-        LOG(INFO) << "WebSocket: connected";
+        LOG(INFO) << this->getSocketConnection()->getInstanceName() << " WebSocket: connected";
         subProtocol->onConnected();
     }
 
     template <typename SubProtocol, typename Request, typename Response>
     void web::websocket::SocketContextUpgrade<SubProtocol, Request, Response>::onDisconnected() {
         subProtocol->onDisconnected();
-        LOG(INFO) << "WebSocket: disconnected";
+        LOG(INFO) << this->getSocketConnection()->getInstanceName() << " WebSocket: disconnected";
     }
 
     template <typename SubProtocol, typename Request, typename Response>

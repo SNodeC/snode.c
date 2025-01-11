@@ -38,7 +38,7 @@ namespace apps::websocket::subprotocol::echo::client {
     }
 
     void Echo::onConnected() {
-        VLOG(1) << "Echo connected:";
+        VLOG(1) << "Echo connected";
     }
 
     void Echo::onMessageStart(int opCode) {

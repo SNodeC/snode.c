@@ -79,22 +79,22 @@ namespace core::socket::stream {
             : SocketClient(
                   name,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
-                      LOG(INFO) << "OnConnect " << name;
+                      LOG(INFO) << name << ": OnConnect";
 
-                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "\tPeer: " << socketConnection->getRemoteAddress().toString();
+                      LOG(INFO) << "  Local: " << socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "  Peer: " << socketConnection->getRemoteAddress().toString();
                   },
                   [name](SocketConnection* socketConnection) -> void { // onConnected
-                      LOG(INFO) << "OnConnected " << name;
+                      LOG(INFO) << name << ": OnConnected ";
 
-                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+                      LOG(INFO) << "  Local: " << socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "  Peer:  " << socketConnection->getRemoteAddress().toString();
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
-                      LOG(INFO) << "OnDisconnect " << name;
+                      LOG(INFO) << name << ": OnDisconnect ";
 
-                      LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+                      LOG(INFO) << "  Local: " << socketConnection->getLocalAddress().toString();
+                      LOG(INFO) << "  Peer:  " << socketConnection->getRemoteAddress().toString();
                   },
                   std::forward<Args>(args)...) {
         }
@@ -118,9 +118,8 @@ namespace core::socket::stream {
                         if (client.getConfig().getReconnect() && core::eventLoopState() == core::State::RUNNING) {
                             double relativeReconnectTimeout = client.getConfig().getReconnectTime();
 
-                            LOG(INFO) << "Client OnDisconnect: " << client.getConfig().getInstanceName();
-                            LOG(INFO) << "  "
-                                      << "  reconnecting in " << relativeReconnectTimeout << " seconds";
+                            LOG(INFO) << client.getConfig().getInstanceName() << ": OnStatus";
+                            LOG(INFO) << "  reconnecting in " << relativeReconnectTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
                                 [client, onStatus]() -> void {
@@ -163,9 +162,8 @@ namespace core::socket::stream {
                                 utils::Random::getInRange(-client.getConfig().getRetryJitter(), client.getConfig().getRetryJitter()) *
                                 relativeRetryTimeout / 100.;
 
-                            LOG(INFO) << "Client OnStatus: " << client.getConfig().getInstanceName();
-                            LOG(INFO) << "  "
-                                      << " retrying in " << relativeRetryTimeout << " seconds";
+                            LOG(INFO) << client.getConfig().getInstanceName() << ": OnStatus";
+                            LOG(INFO) << "  retrying in " << relativeRetryTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
                                 [client, onStatus, tries, retryTimeoutScale]() mutable -> void {
