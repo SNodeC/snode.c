@@ -669,7 +669,6 @@ namespace utils {
             } else {
                 instance //
                     ->option_defaults();
-                //                    ->take_first();
             }
         }
 

@@ -72,7 +72,7 @@ namespace net::un {
     }
 
     std::string SocketAddress::toString([[maybe_unused]] bool expanded) const {
-        return sockAddr.sun_path[0] != '\0' ? std::string(sockAddr.sun_path) : std::string("@").append(std::string(sockAddr.sun_path + 1));
+        return sockAddr.sun_path[0] != '\0' ? sockAddr.sun_path : std::string("@").append(sockAddr.sun_path + 1);
     }
 
 } // namespace net::un
