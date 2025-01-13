@@ -150,10 +150,8 @@ namespace net::in {
     }
 
     std::string SocketAddress::toString(bool expanded) const {
-        return std::string(host)
-            .append(":")
-            .append(std::to_string(port))
-            .append(expanded ? std::string(" (").append(canonName).append(")") : "");
+        return std::string(host).append(expanded ? std::string(":").append(std::to_string(port)).append(" (").append(canonName).append(")")
+                                                 : "");
     }
 
     bool SocketAddress::useNext() {
