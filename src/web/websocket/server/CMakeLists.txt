@@ -26,7 +26,7 @@ set(WEBSOCKETSERVER_CPP
 
 set(WEBSOCKETSERVER_H
     GroupsManager.h SocketContextUpgrade.h SocketContextUpgradeFactory.h
-    SubProtocol.h SubProtocolFactorySelector.h
+    SubProtocol.h SubProtocolFactory.h SubProtocolFactorySelector.h
 )
 
 add_library(websocket-server SHARED ${WEBSOCKETSERVER_CPP} ${WEBSOCKETSERVER_H})
