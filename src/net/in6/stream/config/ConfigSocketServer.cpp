@@ -91,7 +91,6 @@ namespace net::in6::stream::config {
 
         reusePortOpt //
             ->default_val(reusePort ? "true" : "false")
-            ->take_all()
             ->clear();
 
         return *this;
@@ -110,7 +109,6 @@ namespace net::in6::stream::config {
 
         iPv6OnlyOpt //
             ->default_val(iPv6Only ? "true" : "false")
-            ->take_all()
             ->clear();
 
         return *this;
