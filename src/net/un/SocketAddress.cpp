@@ -71,17 +71,9 @@ namespace net::un {
         return sunPath;
     }
 
-#if defined(__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wrestrict"
-// Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105329
-#endif
     std::string SocketAddress::toString([[maybe_unused]] bool expanded) const {
         return sockAddr.sun_path[0] != '\0' ? std::string(sockAddr.sun_path) : std::string("@").append(std::string(sockAddr.sun_path + 1));
     }
-#if defined(__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER)
-#pragma GCC diagnostic pop
-#endif
 
 } // namespace net::un
 
