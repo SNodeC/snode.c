@@ -154,11 +154,12 @@ namespace core::socket::stream::tls {
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(sslConfig.password.c_str()));
                         }
                         if (SSL_CTX_use_PrivateKey_file(ctx, sslConfig.certKey.c_str(), SSL_FILETYPE_PEM) == 0) {
-                            ssl_log_info(sslConfig.instanceName + " SSL/certKey: Cert chain key error loading file '" + sslConfig.certKey +
+                            ssl_log_info(sslConfig.instanceName + " SSL/TLS: Cert chain key error loading file '" + sslConfig.certKey +
                                          "'");
                             sslErr = true;
                         } else if (SSL_CTX_check_private_key(ctx) != 1) {
                             ssl_log_info(sslConfig.instanceName + " SSL/TLS: Cert chain key error");
+
                             LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain not loaded";
                             LOG(TRACE) << "  " << sslConfig.certKey;
                             sslErr = true;
@@ -337,31 +338,31 @@ namespace core::socket::stream::tls {
 
     void ssl_log_error(const std::string& message) {
         LOG(TRACE) << message;
-        LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(ERR_get_error(), nullptr);
+        LOG(TRACE) << "  " << ERR_error_string(ERR_get_error(), nullptr);
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(errorCode, nullptr);
+            LOG(TRACE) << "  " << ERR_error_string(errorCode, nullptr);
         }
     }
 
     void ssl_log_warning(const std::string& message) {
         LOG(TRACE) << message;
-        LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(ERR_get_error(), nullptr);
+        LOG(TRACE) << "  " << ERR_error_string(ERR_get_error(), nullptr);
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(errorCode, nullptr);
+            LOG(TRACE) << "  " << ERR_error_string(errorCode, nullptr);
         }
     }
 
     void ssl_log_info(const std::string& message) {
         LOG(TRACE) << message;
-        LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(ERR_get_error(), nullptr);
+        LOG(TRACE) << "  " << ERR_error_string(ERR_get_error(), nullptr);
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(TRACE) << "SSL/TLS: |-- with SSL " << ERR_error_string(errorCode, nullptr);
+            LOG(TRACE) << "  " << ERR_error_string(errorCode, nullptr);
         }
     }
 

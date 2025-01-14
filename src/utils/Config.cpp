@@ -684,7 +684,7 @@ namespace utils {
             ->disable_flag_override();
 
         app //
-            ->add_flag_function(
+            ->add_flag(
                 "--command-line{standard}",
                 [app]([[maybe_unused]] std::int64_t count) {
                     const std::string& result = app->get_option("--command-line")->as<std::string>();
@@ -741,7 +741,7 @@ namespace utils {
             ->set_help_flag();
 
         app //
-            ->add_flag_function(
+            ->add_flag(
                 "-h{standard},--help{standard}",
                 [app]([[maybe_unused]] std::int64_t count) {
                     const std::size_t disabledCount =
@@ -788,7 +788,7 @@ namespace utils {
             ->set_help_flag();
 
         app //
-            ->add_flag_function(
+            ->add_flag(
                 "-h,--help",
                 []([[maybe_unused]] std::int64_t count) {
                     throw CLI::CallForHelp();

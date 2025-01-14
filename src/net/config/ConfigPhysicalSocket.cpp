@@ -25,7 +25,6 @@
 
 #include "log/Logger.h"
 
-#include <cstdint>
 #include <functional>
 #include <sys/socket.h>
 

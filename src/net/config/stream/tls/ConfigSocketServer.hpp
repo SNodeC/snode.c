@@ -76,13 +76,6 @@ namespace net::config::stream::tls {
             }
         }
 
-        return sslCtx;
-    }
-
-    template <typename ConfigSocketServerBase>
-    SSL_CTX* ConfigSocketServer<ConfigSocketServerBase>::getSniCtx(const std::string& serverNameIndication) {
-        SSL_CTX* sniCtx = nullptr;
-
         if (sniCtxMap.empty()) {
             std::map<std::string, SSL_CTX*> sslSans = core::socket::stream::tls::ssl_get_sans(sslCtx);
 
@@ -124,12 +117,12 @@ namespace net::config::stream::tls {
 
                     if (newCtx != nullptr) {
                         sniCtxs.push_back(newCtx);
-                        sniCtxMap.insert({domain, newCtx});
+                        sniCtxMap.insert_or_assign(domain, newCtx);
 
                         LOG(TRACE) << getInstanceName() << " SSL/TLS: SSL_CTX (E) sni for '" << domain << "' explicitly installed";
 
                         for (const auto& [san, ctx] : core::socket::stream::tls::ssl_get_sans(newCtx)) {
-                            sniCtxMap.insert({san, ctx});
+                            sniCtxMap.insert_or_assign(san, ctx);
 
                             LOG(TRACE) << getInstanceName() << " SSL/TLS: SSL_CTX (S) sni for '" << san << "' from SAN installed";
                         }
@@ -144,7 +137,14 @@ namespace net::config::stream::tls {
             }
         }
 
+        return sslCtx;
+    }
+
+    template <typename ConfigSocketServerBase>
+    SSL_CTX* ConfigSocketServer<ConfigSocketServerBase>::getSniCtx(const std::string& serverNameIndication) {
         LOG(TRACE) << getInstanceName() << " SSL/TLS: Lookup for sni='" << serverNameIndication << "' in sni certificates";
+
+        SSL_CTX* sniCtx = nullptr;
 
         std::map<std::string, SSL_CTX*>::iterator sniPairIt = std::find_if(
             sniCtxMap.begin(), sniCtxMap.end(), [&serverNameIndication, this](const std::pair<std::string, SSL_CTX*>& sniPair) -> bool {
