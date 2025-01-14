@@ -81,6 +81,7 @@ namespace net::in::stream::config {
 
         reusePortOpt //
             ->default_val(reusePort ? "true" : "false")
+            ->take_all()
             ->clear();
 
         return *this;

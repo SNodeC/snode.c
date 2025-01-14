@@ -93,7 +93,7 @@ namespace utils {
         app->config_formatter(std::make_shared<CLI::ConfigFormatter>());
         app->get_config_formatter_base()->arrayDelimiter(' ');
 
-        app->option_defaults()->take_first();
+        app->option_defaults()->take_last();
         app->option_defaults()->group(app->get_formatter()->get_label("Nonpersistent Options"));
 
         logger::Logger::init();
@@ -147,7 +147,7 @@ namespace utils {
                     (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
                         ~std::filesystem::perms::others_all);
                 if (geteuid() == 0) {
-                    struct group* gr = nullptr;
+                    struct group* gr = nullptr; // cppcheck-suppress shadowVariable
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(configDirectory.c_str(), euid, gr->gr_gid) < 0) {
                             std::cout << "Warning: Can not set group ownership of '" << configDirectory
@@ -172,7 +172,7 @@ namespace utils {
                                              (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
                                                  ~std::filesystem::perms::others_all);
                 if (geteuid() == 0) {
-                    struct group* gr = nullptr;
+                    struct group* gr = nullptr; // cppcheck-suppress shadowVariable
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(logDirectory.c_str(), euid, gr->gr_gid) < 0) {
                             std::cout << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec':" << strerror(errno)
@@ -197,7 +197,7 @@ namespace utils {
                                              (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
                                                  ~std::filesystem::perms::others_all);
                 if (geteuid() == 0) {
-                    struct group* gr = nullptr;
+                    struct group* gr = nullptr; // cppcheck-suppress shadowVariable
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(pidDirectory.c_str(), euid, gr->gr_gid) < 0) {
                             std::cout << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec':" << strerror(errno)
@@ -239,6 +239,7 @@ namespace utils {
                        throw CLI::CallForWriteConfig(configFile);
                    },
                    "Write config file and exit")
+                ->take_last()
                 ->configurable(false)
                 ->default_val(configDirectory + "/" + applicationName + ".conf")
                 ->type_name("[configfile]")
@@ -266,6 +267,7 @@ namespace utils {
                 });
 
             addStandardFlags(app.get());
+            //            app->get_config_formatter_base()->arrayDelemiter('' ');
 
             logLevelOpt = app->add_option( //
                                  "-l,--log-level",
@@ -286,6 +288,7 @@ namespace utils {
             quietOpt = app->add_flag( //
                               "-q{true},!-u,--quiet{true}",
                               "Quiet mode") //
+                           ->take_last()
                            ->default_val("false")
                            ->type_name("bool")
                            ->check(CLI::IsMember({"true", "false"}))
@@ -302,6 +305,7 @@ namespace utils {
             enforceLogFileOpt = app->add_flag( //
                                        "-e{true},!-n,--enforce-log-file{true}",
                                        "Enforce writing of logs to file for foreground applications") //
+                                    ->take_last()
                                     ->default_val("false")
                                     ->type_name("bool")
                                     ->check(CLI::IsMember({"true", "false"}))
@@ -310,6 +314,7 @@ namespace utils {
             daemonizeOpt = app->add_flag( //
                                   "-d{true},!-f,--daemonize{true}",
                                   "Start application as daemon") //
+                               ->take_last()
                                ->default_val("false")
                                ->type_name("bool")
                                ->check(CLI::IsMember({"true", "false"}))
@@ -662,13 +667,14 @@ namespace utils {
             ->option_defaults()
             ->configurable(!instance->get_disabled());
 
-        if (!instance->get_disabled()) {
+        if (!instance->get_disabled() && !aliases.empty()) {
             if (aliases.contains(name)) {
                 instance //
                     ->alias(aliases[name]);
             } else {
                 instance //
-                    ->option_defaults();
+                    ->option_defaults()
+                    ->take_first();
             }
         }
 
@@ -677,15 +683,14 @@ namespace utils {
 
     CLI::App* Config::addStandardFlags(CLI::App* app) {
         app //
-            ->add_flag_function(
+            ->add_flag_callback(
                 "-s,--show-config",
-                [app]([[maybe_unused]] std::int64_t count) {
+                [app]() {
                     throw CLI::CallForShowConfig(app);
                 },
                 "Show current configuration and exit") //
             ->configurable(false)
-            ->disable_flag_override()
-            ->trigger_on_parse();
+            ->disable_flag_override();
 
         app //
             ->add_flag_function(
@@ -734,9 +739,9 @@ namespace utils {
                 "  required: View required options only\n"
                 "  full: View the full set of options with their default or configured values\n"
                 "  default: View the full set of options with their default values")
+            ->take_last()
             ->configurable(false)
-            ->check(CLI::IsMember({"standard", "required", "full", "default"}))
-            ->trigger_on_parse();
+            ->check(CLI::IsMember({"standard", "required", "full", "default"}));
 
         return app;
     }
@@ -781,9 +786,10 @@ namespace utils {
                     }
                 },
                 "Print help message")
+            ->take_last()
             ->configurable(false)
-            ->check(CLI::IsMember({"standard", "expanded"}))
-            ->trigger_on_parse();
+            ->check(CLI::IsMember({"standard", "expanded"}));
+        //            ->trigger_on_parse();
 
         return app;
     }
@@ -805,9 +811,8 @@ namespace utils {
                     throw CLI::CallForHelp();
                 },
                 "Print help message")
-            ->configurable(false)
-            ->disable_flag_override()
-            ->trigger_on_parse();
+            ->configurable(false);
+        //            ->trigger_on_parse();
 
         return app;
     }
@@ -848,7 +853,6 @@ namespace utils {
                 }
             }
         } else {
-            instance->required();
             app->needs(instance);
 
             for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
@@ -861,6 +865,8 @@ namespace utils {
                 }
             }
         }
+
+        instance->required(!disabled);
     }
 
     bool Config::removeInstance(CLI::App* instance) {
@@ -872,6 +878,7 @@ namespace utils {
     CLI::Option* Config::addStringOption(const std::string& name, const std::string& description, const std::string& typeName) {
         applicationOptions[name] = app //
                                        ->add_option(name, description)
+                                       ->take_last()
                                        ->type_name(typeName)
                                        ->configurable()
                                        ->required()

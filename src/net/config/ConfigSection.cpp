@@ -111,7 +111,8 @@ namespace net::config {
 
         CLI::Option* opt = section //
                                ->add_flag(name, description)
-                               ->type_name(typeName);
+                               ->type_name(typeName)
+                               ->take_last();
 
         if (opt->get_configurable()) {
             opt->group(section->get_formatter()->get_label("Persistent Options"));
@@ -137,6 +138,7 @@ namespace net::config {
 
         CLI::Option* opt = section //
                                ->add_flag_function(name, callback, description)
+                               ->take_last()
                                ->default_val(defaultValue)
                                ->type_name(typeName);
 

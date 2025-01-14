@@ -72,6 +72,7 @@ namespace net::config {
                              },
                              "Disable this instance")
                          ->trigger_on_parse()
+                         ->take_last()
                          ->default_val("false")
                          ->type_name("bool")
                          ->check(CLI::IsMember({"true", "false"}))
