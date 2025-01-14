@@ -60,7 +60,7 @@ namespace net::in6::stream::config {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
 
-        reusePortOpt = net::config::ConfigPhysicalSocket::add_socket_option( //
+        reusePortOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
             "--reuse-port{true}",
             SOL_SOCKET,
             SO_REUSEPORT,
@@ -69,7 +69,7 @@ namespace net::in6::stream::config {
             XSTR(REUSE_PORT),
             CLI::IsMember({"true", "false"}));
 
-        iPv6OnlyOpt = net::config::ConfigPhysicalSocket::add_socket_option( //
+        iPv6OnlyOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
             "--ipv6-only{true}",
             IPPROTO_IPV6,
             IPV6_V6ONLY,
@@ -91,7 +91,6 @@ namespace net::in6::stream::config {
 
         reusePortOpt //
             ->default_val(reusePort ? "true" : "false")
-            ->take_all()
             ->clear();
 
         return *this;
@@ -110,7 +109,6 @@ namespace net::in6::stream::config {
 
         iPv6OnlyOpt //
             ->default_val(iPv6Only ? "true" : "false")
-            ->take_all()
             ->clear();
 
         return *this;

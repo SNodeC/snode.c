@@ -25,7 +25,6 @@
 
 #include "utils/Timeval.h"
 
-#include <cstdint>
 #include <functional>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -39,7 +38,7 @@ namespace net::config {
         : Super(instance) {
         reconnectOpt = addFlagFunction( //
             "--reconnect{true}",
-            [this](int64_t) -> void {
+            [this]() {
                 if (!this->reconnectOpt->as<bool>()) {
                     this->reconnectTimeOpt->clear();
                 }

@@ -23,7 +23,6 @@
 
 #include "utils/Config.h"
 
-#include <cstdint>
 #include <functional>
 #include <memory>
 
@@ -65,14 +64,13 @@ namespace net::config {
         utils::Config::addHelp(instanceSc);
 
         disableOpt = instanceSc
-                         ->add_flag_function(
+                         ->add_flag_callback(
                              "--disabled{true}",
-                             [this]([[maybe_unused]] int64_t count) -> void {
+                             [this]() -> void {
                                  utils::Config::disabled(instanceSc, disableOpt->as<bool>());
                              },
                              "Disable this instance")
                          ->trigger_on_parse()
-                         ->take_last()
                          ->default_val("false")
                          ->type_name("bool")
                          ->check(CLI::IsMember({"true", "false"}))

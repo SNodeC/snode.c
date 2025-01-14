@@ -59,7 +59,7 @@ namespace net::in::stream::config {
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
         net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
 
-        reusePortOpt = net::config::ConfigPhysicalSocket::add_socket_option( //
+        reusePortOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
             "--reuse-port{true}",
             SOL_SOCKET,
             SO_REUSEPORT,
@@ -81,7 +81,6 @@ namespace net::in::stream::config {
 
         reusePortOpt //
             ->default_val(reusePort ? "true" : "false")
-            ->take_all()
             ->clear();
 
         return *this;

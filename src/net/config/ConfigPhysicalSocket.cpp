@@ -38,7 +38,7 @@ namespace net::config {
 
     ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
         : ConfigSection(instance, "socket", "Configuration of socket behavior") {
-        reuseAddressOpt = add_socket_option( //
+        reuseAddressOpt = addSocketOption( //
             "--reuse-address{true}",
             SOL_SOCKET,
             SO_REUSEADDR,
@@ -56,7 +56,7 @@ namespace net::config {
 
         retryOnFatalOpt = addFlagFunction( //
             "--retry-on-fatal{true}",
-            [this](int64_t) -> void {
+            [this]() {
                 if (retryOnFatalOpt->as<bool>() && !retryOpt->as<bool>()) {
                     throw CLI::RequiresError(retryOnFatalOpt->get_name(), retryOpt->get_name().append("=true"));
                 }
@@ -112,16 +112,16 @@ namespace net::config {
         return socketOptionsMap;
     }
 
-    CLI::Option* ConfigPhysicalSocket::add_socket_option(const std::string& name,
-                                                         int optLevel,
-                                                         int optName,
-                                                         const std::string& description,
-                                                         const std::string& typeName,
-                                                         const std::string& defaultValue,
-                                                         const CLI::Validator& validator) {
-        return net::config::ConfigSection::addFlagFunction(
+    CLI::Option* ConfigPhysicalSocket::addSocketOption(const std::string& name,
+                                                       int optLevel,
+                                                       int optName,
+                                                       const std::string& description,
+                                                       const std::string& typeName,
+                                                       const std::string& defaultValue,
+                                                       const CLI::Validator& validator) {
+        return addFlagFunction(
             name,
-            [this, strippedName = name.substr(0, name.find('{')), optLevel, optName](int64_t) -> void {
+            [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]() {
                 try {
                     if (section->get_option(strippedName)->as<bool>()) {
                         socketOptionsMap.emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, 1));
