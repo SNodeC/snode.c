@@ -73,10 +73,7 @@ namespace core::multiplexer::epoll {
     void DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const {
         const utils::PreserveErrno preserveErrno;
 
-        epoll_event ePollEvent{};
-
-        ePollEvent.data.ptr = eventReceiver;
-        ePollEvent.events = events;
+        epoll_event ePollEvent{events, {eventReceiver}};
 
         core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &ePollEvent);
     }

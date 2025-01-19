@@ -48,19 +48,8 @@ namespace core::multiplexer::select {
     }
 
     void FdSet::zero() {
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#ifdef __has_warning
-#if __has_warning("-Wreserved-identifier")
-#pragma GCC diagnostic ignored "-Wreserved-identifier"
-#endif
-#endif
-#endif
         FD_ZERO(&registered);
         FD_ZERO(&active);
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
     }
 
     fd_set& FdSet::get() {

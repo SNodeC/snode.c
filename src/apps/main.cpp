@@ -1,21 +1,3 @@
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#ifdef __has_warning
-#if __has_warning("-Wfloat-equal")
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#endif
-#endif
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
 #include <cstdint>
 #include <iostream>
 #include <string>
