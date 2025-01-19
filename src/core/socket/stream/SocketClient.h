@@ -38,14 +38,14 @@
 
 namespace core::socket::stream {
 
+    /** Sequence diagram showing how a connect to a peer is performed.
+    @startuml
+    !include core/socket/stream/pu/SocketClient.pu
+    @enduml
+    */
     template <typename SocketConnectorT, typename SocketContextFactoryT, typename... Args>
         requires std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
     class SocketClient : public core::socket::Socket<typename SocketConnectorT::Config> {
-        /** Sequence diagram showing how a connect to a peer is performed.
-        @startuml
-        !include core/socket/stream/pu/SocketClient.pu
-        @enduml
-        */
     private:
         using SocketConnector = SocketConnectorT;
         using SocketContextFactory = SocketContextFactoryT;

@@ -36,6 +36,11 @@ namespace core::socket::stream {
 
 namespace core::socket::stream {
 
+    /** Sequence diagram showing how a connect to a peer is performed.
+    @startuml
+    !include core/socket/stream/pu/SocketAcceptor.pu
+    @enduml
+    */
     template <typename PhysicalSocketServerT, typename ConfigT, template <typename PhysicalSocketServer> typename SocketConnectionT>
     class SocketAcceptor : protected core::eventreceiver::AcceptEventReceiver {
     private:
