@@ -42,80 +42,84 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-static web::http::client::ResponseParser* getResponseParser(core::socket::stream::SocketContext* socketContext) {
-    web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
-        socketContext,
-        []() -> void {
-            VLOG(0) << "++   OnStarted";
-        },
-        []([[maybe_unused]] web::http::client::Response&& res) -> void {
-            VLOG(0) << "++   OnParsed";
-        },
-        [](int status, const std::string& reason) -> void {
-            VLOG(0) << "++   OnError: " + std::to_string(status) + " - " + reason;
-        });
+namespace apps::http {
 
-    return responseParser;
-}
+    static web::http::client::ResponseParser* getResponseParser(core::socket::stream::SocketContext* socketContext) {
+        web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
+            socketContext,
+            []() -> void {
+                VLOG(0) << "++   OnStarted";
+            },
+            []([[maybe_unused]] web::http::client::Response&& res) -> void {
+                VLOG(0) << "++   OnParsed";
+            },
+            [](int status, const std::string& reason) -> void {
+                VLOG(0) << "++   OnError: " + std::to_string(status) + " - " + reason;
+            });
 
-class SimpleSocketProtocol : public core::socket::stream::SocketContext {
-public:
-    explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
-        : core::socket::stream::SocketContext(socketConnection) {
-        responseParser = getResponseParser(this);
+        return responseParser;
     }
 
-    ~SimpleSocketProtocol() override;
+    class SimpleSocketProtocol : public core::socket::stream::SocketContext {
+    public:
+        explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
+            : core::socket::stream::SocketContext(socketConnection) {
+            responseParser = getResponseParser(this);
+        }
 
-    void onConnected() override {
-        VLOG(0) << "SimpleSocketProtocol connected";
+        ~SimpleSocketProtocol() override;
+
+        void onConnected() override {
+            VLOG(0) << "SimpleSocketProtocol connected";
+        }
+        void onDisconnected() override {
+            VLOG(0) << "SimpleSocketProtocol disconnected";
+        }
+
+        bool onSignal([[maybe_unused]] int signum) override {
+            return true;
+        }
+
+        std::size_t onReceivedFromPeer() override {
+            return responseParser->parse();
+        }
+
+        void onWriteError(int errnum) override {
+            core::socket::stream::SocketContext::onWriteError(errnum);
+            shutdownRead();
+        }
+
+        void onReadError(int errnum) override {
+            core::socket::stream::SocketContext::onReadError(errnum);
+            shutdownWrite();
+        }
+
+    private:
+        web::http::client::ResponseParser* responseParser;
+    };
+
+    SimpleSocketProtocol::~SimpleSocketProtocol() {
+        delete responseParser;
     }
-    void onDisconnected() override {
-        VLOG(0) << "SimpleSocketProtocol disconnected";
+
+    class SimpleSocketProtocolFactory : public core::socket::stream::SocketContextFactory {
+    public:
+        ~SimpleSocketProtocolFactory() override;
+
+    private:
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
+            return new SimpleSocketProtocol(socketConnection);
+        }
+    };
+
+    SimpleSocketProtocolFactory::~SimpleSocketProtocolFactory() {
     }
 
-    bool onSignal([[maybe_unused]] int signum) override {
-        return true;
-    }
-
-    std::size_t onReceivedFromPeer() override {
-        return responseParser->parse();
-    }
-
-    void onWriteError(int errnum) override {
-        core::socket::stream::SocketContext::onWriteError(errnum);
-        shutdownRead();
-    }
-
-    void onReadError(int errnum) override {
-        core::socket::stream::SocketContext::onReadError(errnum);
-        shutdownWrite();
-    }
-
-private:
-    web::http::client::ResponseParser* responseParser;
-};
-
-SimpleSocketProtocol::~SimpleSocketProtocol() {
-    delete responseParser;
-}
-
-class SimpleSocketProtocolFactory : public core::socket::stream::SocketContextFactory {
-public:
-    ~SimpleSocketProtocolFactory() override;
-
-private:
-    core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
-        return new SimpleSocketProtocol(socketConnection);
-    }
-};
-
-SimpleSocketProtocolFactory::~SimpleSocketProtocolFactory() {
-}
+} // namespace apps::http
 
 namespace tls {
 
-    using SocketClient = net::in::stream::tls::SocketClient<SimpleSocketProtocolFactory>;
+    using SocketClient = net::in::stream::tls::SocketClient<apps::http::SimpleSocketProtocolFactory>;
     using SocketAddress = SocketClient::SocketAddress;
     using SocketConnection = SocketClient::SocketConnection;
 
@@ -253,7 +257,7 @@ namespace tls {
 
 namespace legacy {
 
-    using SocketClient = net::in::stream::legacy::SocketClient<SimpleSocketProtocolFactory>;
+    using SocketClient = net::in::stream::legacy::SocketClient<apps::http::SimpleSocketProtocolFactory>;
     using SocketAddress = SocketClient::SocketAddress;
     using SocketConnection = SocketClient::SocketConnection;
 

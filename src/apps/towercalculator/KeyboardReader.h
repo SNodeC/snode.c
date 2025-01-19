@@ -28,17 +28,21 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-class KeyboardReader : core::eventreceiver::ReadEventReceiver {
-public:
-    explicit KeyboardReader(const std::function<void(long)>& cb);
+namespace apps::towercalculator {
 
-protected:
-    void readEvent() override;
-    void unobservedEvent() override;
+    class KeyboardReader : core::eventreceiver::ReadEventReceiver {
+    public:
+        explicit KeyboardReader(const std::function<void(long)>& cb);
 
-    std::function<void(long)> callBack;
+    protected:
+        void readEvent() override;
+        void unobservedEvent() override;
 
-    // void foo(long value);
-};
+        std::function<void(long)> callBack;
+
+        // void foo(long value);
+    };
+
+} // namespace apps::towercalculator
 
 #endif // KEYBOARDREADER_H

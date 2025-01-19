@@ -29,29 +29,33 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-class TowerCalculator : public core::EventReceiver {
-public:
-    void* operator new(std::size_t size) = delete;
+namespace apps::towercalculator {
 
-    TowerCalculator();
+    class TowerCalculator : public core::EventReceiver {
+    public:
+        void* operator new(std::size_t size) = delete;
 
-    void calculate(long startValue);
+        TowerCalculator();
 
-protected:
-    enum class State { NEXT, MULTIPLY, DIVIDE };
+        void calculate(long startValue);
 
-    void calculate();
+    protected:
+        enum class State { NEXT, MULTIPLY, DIVIDE };
 
-    void onEvent(const utils::Timeval& currentTime) override;
+        void calculate();
 
-    long currentValue;
+        void onEvent(const utils::Timeval& currentTime) override;
 
-    std::deque<long> values;
+        long currentValue;
 
-    int multiplicator = 1;
-    int divisor = 2;
+        std::deque<long> values;
 
-    State state;
-};
+        int multiplicator = 1;
+        int divisor = 2;
+
+        State state;
+    };
+
+} // namespace apps::towercalculator
 
 #endif // TOWERCALCULATOR_H

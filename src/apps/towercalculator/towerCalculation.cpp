@@ -30,12 +30,12 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    TowerCalculator towerCalculator;
+    apps::towercalculator::TowerCalculator towerCalculator;
 
     towerCalculator.calculate(25);
     towerCalculator.calculate(100);
 
-    const KeyboardReader keyboardReader([&towerCalculator](long startValue) -> void {
+    const apps::towercalculator::KeyboardReader keyboardReader([&towerCalculator](long startValue) -> void {
         towerCalculator.calculate(startValue);
     });
 

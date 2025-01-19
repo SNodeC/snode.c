@@ -44,7 +44,7 @@ std::string getNewUUID() {
 }
 
 std::string hashSha1(const std::string& str) {
-    class SHA1 checksum;
+    utils::SHA1 checksum;
     checksum.update(str);
     return checksum.final();
 }
