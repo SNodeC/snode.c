@@ -131,10 +131,10 @@ int main(int argc, char* argv[]) {
                           }
                       });
 
-        //            tlsApp.getConfig().setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
-        //            tlsApp.getConfig().setCertKey(
-        //                "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
-        //            tlsApp.getConfig().setCertKeyPassword("snode.c");
+        tlsApp.getConfig().setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
+        tlsApp.getConfig().setCertKey(
+            "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
+        tlsApp.getConfig().setCertKeyPassword("snode.c");
     }
 
     WebApp::start();
