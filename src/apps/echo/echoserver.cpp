@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     //    server.getConfig().setDisabled(false);
 
     server.listen([instanceName = server.getConfig().getInstanceName()](const SocketServer::SocketAddress& socketAddress,
-                                                                        const core::socket::State& state) -> void {
+                                                                        const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
@@ -83,28 +83,28 @@ int main(int argc, char* argv[]) {
 /*
 #if (NET_TYPE == IN) // in
 #if (STREAM_TYPE == LEGACY)
-    server.listen(8080, 5, [](const SocketServer::Socket& socket, int errnum) -> void {
+    server.listen(8080, 5, [](const SocketServer::Socket& socket, int errnum) {
 #elif (STREAM_TYPE == TLS)
-    server.listen(8088, 5, [](const SocketServer::Socket& socket, int errnum) -> void {
+    server.listen(8088, 5, [](const SocketServer::Socket& socket, int errnum) {
 #endif
 #elif (NET_TYPE == IN6) // in6
 #if (STREAM_TYPE == LEGACY)
-    server.listen(8080, 5, [](const SocketServer::Socket& socket, int errnum) -> void {
+    server.listen(8080, 5, [](const SocketServer::Socket& socket, int errnum) {
 #elif (STREAM_TYPE == TLS)
-     server.listen(8088, 5, [](const SocketServer::Socket& socket, int errnum) -> void {
+     server.listen(8088, 5, [](const SocketServer::Socket& socket, int errnum) {
 #endif
 #elif (NET_TYPE == L2) //
     // ATLAS: 10:3D:1C:AC:BA:9C
     // TITAN: A4:B1:C1:2C:82:37
     // USB: 44:01:BB:A3:63:32
 
-    // server.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const SocketServer::Socket& socket, int errnum) -> void { // titan
-     server.listen("10:3D:1C:AC:BA:9C", 0x1023, 5, [](const SocketServer::Socket& socket, int errnum) -> void { // titan
+    // server.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const SocketServer::Socket& socket, int errnum) { // titan
+     server.listen("10:3D:1C:AC:BA:9C", 0x1023, 5, [](const SocketServer::Socket& socket, int errnum) { // titan
 #elif (NET_TYPE == RC) // rf
-    // server.listen("A4:B1:C1:2C:82:37", 1, 5, [](const SocketServer::Socket& socket, int errnum) -> void { // titan
-     server.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const SocketServer::Socket& socket, int errnum) -> void { // titan
+    // server.listen("A4:B1:C1:2C:82:37", 1, 5, [](const SocketServer::Socket& socket, int errnum) { // titan
+     server.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const SocketServer::Socket& socket, int errnum) { // titan
 #elif (NET_TYPE == UN) // un
-     server.listen("/tmp/testme", 5, [](const SocketServer::Socket& socket, int errnum) -> void { // titan
+     server.listen("/tmp/testme", 5, [](const SocketServer::Socket& socket, int errnum) { // titan
 #endif
         if (errnum != 0) {
             PLOG(FATAL) << "listen";

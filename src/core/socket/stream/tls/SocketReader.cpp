@@ -55,13 +55,13 @@ namespace core::socket::stream::tls {
                         LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
                         LOG(TRACE) << "SSL/TLS: "
                                    << doSSLHandshake(
-                                          [this]() -> void {
+                                          [this]() {
                                               LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
                                           },
-                                          [this]() -> void {
+                                          [this]() {
                                               LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
                                           },
-                                          [this](int ssl_err) -> void {
+                                          [this](int ssl_err) {
                                               ssl_log(getName() + " SSL/TLS: Renegotiation on read", ssl_err);
                                           });
                         errno = EAGAIN;

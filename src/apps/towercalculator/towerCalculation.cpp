@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     towerCalculator.calculate(25);
     towerCalculator.calculate(100);
 
-    const apps::towercalculator::KeyboardReader keyboardReader([&towerCalculator](long startValue) -> void {
+    const apps::towercalculator::KeyboardReader keyboardReader([&towerCalculator](long startValue) {
         towerCalculator.calculate(startValue);
     });
 

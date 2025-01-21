@@ -49,7 +49,7 @@ namespace core::socket::stream {
 
     void SocketWriter::signalEvent(int sigNum) {
         if (onSignal(sigNum)) {
-            shutdownWrite([this]() -> void {
+            shutdownWrite([this]() {
                 SocketWriter::disable();
             });
         }

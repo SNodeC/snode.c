@@ -255,7 +255,7 @@ namespace web::http::server {
                 absolutFileName = std::filesystem::canonical(absolutFileName);
 
                 if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                    core::file::FileReader::open(absolutFileName)->pipe(this, [this, &absolutFileName, &callback](int errnum) -> void {
+                    core::file::FileReader::open(absolutFileName)->pipe(this, [this, &absolutFileName, &callback](int errnum) {
                         callback(errnum);
 
                         if (errnum == 0) {

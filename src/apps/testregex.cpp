@@ -62,7 +62,7 @@ Router router(database::mariadb::MariaDBClient& db) {
 
                 req->setAttribute<std::string, "html-table">(std::string());
 
-                req->getAttribute<std::string, "html-table">([&userId](std::string& table) -> void {
+                req->getAttribute<std::string, "html-table">([&userId](std::string& table) {
                     table = "<html>\n"
                             "  <head>\n"
                             "    <title>"
@@ -83,10 +83,10 @@ Router router(database::mariadb::MariaDBClient& db) {
                 int i = 0;
                 db.query(
                     "SELECT * FROM snodec where username = '" + userId + "'",
-                    [next, req, i](const MYSQL_ROW row) mutable -> void {
+                    [next, req, i](const MYSQL_ROW row) mutable {
                         if (row != nullptr) {
                             i++;
-                            req->getAttribute<std::string, "html-table">([row, &i](std::string& table) -> void {
+                            req->getAttribute<std::string, "html-table">([row, &i](std::string& table) {
                                 table.append("      <tr>\n"
                                              "        <td>\n" +
                                              std::to_string(i) +
@@ -103,7 +103,7 @@ Router router(database::mariadb::MariaDBClient& db) {
                                              "      </tr>\n");
                             });
                         } else {
-                            req->getAttribute<std::string, "html-table">([](std::string& table) -> void {
+                            req->getAttribute<std::string, "html-table">([](std::string& table) {
                                 table.append(std::string("    </table>\n"
                                                          "  </body>\n"
                                                          "</html>\n"));
@@ -112,7 +112,7 @@ Router router(database::mariadb::MariaDBClient& db) {
                             next();
                         }
                     },
-                    [res, userId](const std::string& errorString, unsigned int errorNumber) -> void {
+                    [res, userId](const std::string& errorString, unsigned int errorNumber) {
                         VLOG(0) << "Error: " << errorString << " : " << errorNumber;
                         res->status(404).send(userId + ": " + errorString + " - " + std::to_string(errorNumber));
                     });
@@ -133,10 +133,10 @@ Router router(database::mariadb::MariaDBClient& db) {
             VLOG(0) << "SendResult";
 
             req->getAttribute<std::string, "html-table">(
-                [res](std::string& table) -> void {
+                [res](std::string& table) {
                     res->send(table);
                 },
-                [res](const std::string&) -> void {
+                [res](const std::string&) {
                     res->end();
                 });
         });
@@ -167,10 +167,10 @@ Router router(database::mariadb::MariaDBClient& db) {
 
         db.exec(
             "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
-            [userId, userName]() -> void {
+            [userId, userName]() {
                 VLOG(0) << "Inserted: -> " << userId << " - " << userName;
             },
-            [](const std::string& errorString, unsigned int errorNumber) -> void {
+            [](const std::string& errorString, unsigned int errorNumber) {
                 VLOG(0) << "Error: " << errorString << " : " << errorNumber;
             });
 
@@ -240,7 +240,7 @@ int main(int argc, char* argv[]) {
 
         legacyApp.use(router(db));
 
-        legacyApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
+        legacyApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << "legacy-testregex: listening on '" << socketAddress.toString() << "'";
@@ -257,14 +257,14 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        legacyApp.setOnConnect([](legacy::in::WebApp::SocketConnection* socketConnection) -> void {
+        legacyApp.setOnConnect([](legacy::in::WebApp::SocketConnection* socketConnection) {
             VLOG(0) << "OnConnect:";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
-        legacyApp.setOnDisconnect([](legacy::in::WebApp::SocketConnection* socketConnection) -> void {
+        legacyApp.setOnDisconnect([](legacy::in::WebApp::SocketConnection* socketConnection) {
             VLOG(0) << "OnDisconnect:";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -275,7 +275,7 @@ int main(int argc, char* argv[]) {
 
         tlsApp.use(legacyApp);
 
-        tlsApp.listen(8088, [](const tls::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) -> void {
+        tlsApp.listen(8088, [](const tls::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << "tls-testregex: listening on '" << socketAddress.toString() << "'";
@@ -292,7 +292,7 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.setOnConnect([](tls::in::WebApp::SocketConnection* socketConnection) -> void {
+        tlsApp.setOnConnect([](tls::in::WebApp::SocketConnection* socketConnection) {
             VLOG(0) << "OnConnect:";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -379,7 +379,7 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.setOnDisconnect([](tls::in::WebApp::SocketConnection* socketConnection) -> void {
+        tlsApp.setOnDisconnect([](tls::in::WebApp::SocketConnection* socketConnection) {
             VLOG(0) << "OnDisconnect:";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();

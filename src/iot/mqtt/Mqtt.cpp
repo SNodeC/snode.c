@@ -161,7 +161,7 @@ namespace iot::mqtt {
             LOG(TRACE) << "MQTT: Keep alive initialized with: " << keepAlive;
 
             keepAliveTimer = core::timer::Timer::singleshotTimer(
-                [this, keepAlive]() -> void {
+                [this, keepAlive]() {
                     LOG(DEBUG) << "MQTT: Keep-alive timer expired. Interval was: " << keepAlive;
                     mqttContext->close();
                 },

@@ -40,14 +40,14 @@ int main(int argc, char* argv[]) {
 
     const Client jsonClient(
         "legacy",
-        [](const std::shared_ptr<Request>& req) -> void {
+        [](const std::shared_ptr<Request>& req) {
             VLOG(0) << "-- OnRequest";
             req->method = "POST";
             req->url = "/index.html";
             req->type("application/json");
             req->set("Connection", "close");
             req->send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}",
-                      []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                      []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                           VLOG(0) << "-- OnResponse";
                           VLOG(0) << "     Status:";
                           VLOG(0) << "       " << res->httpVersion;
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
                                   << "------------ end body ------------";
                       });
         },
-        []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
+        []([[maybe_unused]] const std::shared_ptr<Request>& req) {
             LOG(INFO) << " -- OnRequestEnd";
         });
 
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
                        8080,
                        [instanceName = jsonClient.getConfig().getInstanceName()](
                            const SocketAddress& socketAddress,
-                           const core::socket::State& state) -> void { // example.com:81 simulate connect timeout
+                           const core::socket::State& state) { // example.com:81 simulate connect timeout
                            switch (state) {
                                case core::socket::State::OK:
                                    VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
                            8080,
                            [instanceName = jsonClient.getConfig().getInstanceName()](
                                const SocketAddress& socketAddress,
-                               const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                               const core::socket::State& state) { // example.com:81 simulate connnect timeout
                                switch (state) {
                                    case core::socket::State::OK:
                                        VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
                            });
     */
     /*
-        jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) -> void {
+        jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }

@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
         }
 
         VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
-        res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int errnum) -> void {
+        res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int errnum) {
             if (errnum == 0) {
                 VLOG(1) << req->url;
             } else {
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
         });
     });
 
-    legacyApp.get("/ws", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+    legacyApp.get("/ws", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
         VLOG(1) << "HTTP GET on legacy /ws";
 
         const std::string uri = req->originalUrl;
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
         VLOG(2) << "user-agent: " << req->get("user-agent");
 
         if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
-            res->upgrade(req, [req, res](const std::string& name) -> void {
+            res->upgrade(req, [req, res](const std::string& name) {
                 if (!name.empty()) {
                     VLOG(1) << "Successful upgrade to '" << name << "'  requested: " << req->get("upgrade");
                 } else {
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.listen([instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
-                                                                              const core::socket::State& state) -> void {
+                                                                              const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
@@ -125,14 +125,14 @@ int main(int argc, char* argv[]) {
             }
 
             VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
-            res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int ret) -> void {
+            res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int ret) {
                 if (ret != 0) {
                     PLOG(ERROR) << req->url;
                 }
             });
         });
 
-        tlsApp.get("/ws", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+        tlsApp.get("/ws", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
             VLOG(1) << "HTTP GET on tls /ws";
 
             const std::string uri = req->originalUrl;
@@ -151,7 +151,7 @@ int main(int argc, char* argv[]) {
             VLOG(2) << "user-agent: " << req->get("user-agent");
 
             if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
-                res->upgrade(req, [req, res](const std::string& name) -> void {
+                res->upgrade(req, [req, res](const std::string& name) {
                     if (!name.empty()) {
                         VLOG(1) << "Successful upgrade to '" << name << "'  requested: " << req->get("upgrade");
                     } else {
@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
         });
 
         tlsApp.listen([instanceName = tlsApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
-                                                                            const core::socket::State& state) -> void {
+                                                                            const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";

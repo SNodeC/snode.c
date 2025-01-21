@@ -429,7 +429,7 @@ namespace web::http::client {
             absolutFileName = std::filesystem::canonical(absolutFileName);
 
             if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                core::file::FileReader::open(absolutFileName)->pipe(this, [this, &atomar, &absolutFileName, &onStatus](int errnum) -> void {
+                core::file::FileReader::open(absolutFileName)->pipe(this, [this, &atomar, &absolutFileName, &onStatus](int errnum) {
                     errno = errnum;
                     onStatus(errnum);
 

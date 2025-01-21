@@ -50,7 +50,7 @@ namespace core::socket::stream::tls {
         : Super(
               instanceName,
               std::move(physicalSocket),
-              [onDisconnect, this]() -> void {
+              [onDisconnect, this]() {
                   onDisconnect(this);
               },
               configuredServer,
@@ -118,14 +118,14 @@ namespace core::socket::stream::tls {
             TLSHandshake::doHandshake(
                 Super::getInstanceName(),
                 ssl,
-                [onSuccess, this]() -> void { // onSuccess
+                [onSuccess, this]() { // onSuccess
                     SocketReader::span();
                     onSuccess();
                 },
-                [onTimeout]() -> void { // onTimeout
+                [onTimeout]() { // onTimeout
                     onTimeout();
                 },
-                [onStatus](int sslErr) -> void { // onStatus
+                [onStatus](int sslErr) { // onStatus
                     onStatus(sslErr);
                 },
                 sslInitTimeout);
@@ -152,7 +152,7 @@ namespace core::socket::stream::tls {
         TLSShutdown::doShutdown(
             Super::getInstanceName(),
             ssl,
-            [this, resumeSocketReader, resumeSocketWriter]() -> void { // onSuccess
+            [this, resumeSocketReader, resumeSocketWriter]() { // onSuccess
                 if (resumeSocketReader) {
                     SocketReader::resume();
                 }
@@ -171,7 +171,7 @@ namespace core::socket::stream::tls {
                     }
                 }
             },
-            [this, resumeSocketReader, resumeSocketWriter]() -> void { // onTimeout
+            [this, resumeSocketReader, resumeSocketWriter]() { // onTimeout
                 if (resumeSocketReader) {
                     SocketReader::resume();
                 }
@@ -179,11 +179,11 @@ namespace core::socket::stream::tls {
                     SocketWriter::resume();
                 }
                 LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown handshake timed out";
-                Super::doWriteShutdown([this]() -> void {
+                Super::doWriteShutdown([this]() {
                     SocketConnection::close();
                 });
             },
-            [this, resumeSocketReader, resumeSocketWriter](int sslErr) -> void { // onStatus
+            [this, resumeSocketReader, resumeSocketWriter](int sslErr) { // onStatus
                 if (resumeSocketReader) {
                     SocketReader::resume();
                 }
@@ -191,7 +191,7 @@ namespace core::socket::stream::tls {
                     SocketWriter::resume();
                 }
                 ssl_log(Super::getInstanceName() + " SSL/TLS: Shutdown handshake failed", sslErr);
-                Super::doWriteShutdown([this]() -> void {
+                Super::doWriteShutdown([this]() {
                     SocketConnection::close();
                 });
             },

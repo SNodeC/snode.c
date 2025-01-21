@@ -47,13 +47,13 @@ namespace web::http::client {
         , masterRequest(std::make_shared<Request>(this, getSocketConnection()->getConfiguredServer()))
         , parser(
               this,
-              [this]() -> void {
+              [this]() {
                   responseStarted();
               },
-              [this](web::http::client::Response&& response) -> void {
+              [this](web::http::client::Response&& response) {
                   deliverResponse(std::move(response));
               },
-              [this](int status, const std::string& reason) -> void {
+              [this](int status, const std::string& reason) {
                   deliverResponseParseError(status, reason);
               }) {
         masterRequest->setMasterRequest(masterRequest);
@@ -107,7 +107,7 @@ namespace web::http::client {
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request initiating failed: " << requestLine;
 
-            core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
+            core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {
                 if (!masterRequest.expired()) {
                     if (!pendingRequests.empty()) {
                         initiateRequest(pendingRequests.front());
@@ -135,7 +135,7 @@ namespace web::http::client {
             deliveredRequests.emplace_back(std::move(request));
 
             if (pipelinedRequests) {
-                core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
+                core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {
                     if (!masterRequest.expired()) {
                         if (!pendingRequests.empty()) {
                             initiateRequest(pendingRequests.front());
@@ -221,7 +221,7 @@ namespace web::http::client {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
 
             if (!pipelinedRequests) {
-                core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() -> void {
+                core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {
                     if (!masterRequest.expired()) {
                         if (!pendingRequests.empty()) {
                             initiateRequest(pendingRequests.front());

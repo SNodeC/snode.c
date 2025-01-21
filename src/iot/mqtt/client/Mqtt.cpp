@@ -180,7 +180,7 @@ namespace iot::mqtt::client {
             initSession(&session, keepAlive);
 
             pingTimer = core::timer::Timer::intervalTimer(
-                [this]() -> void {
+                [this]() {
                     sendPingreq();
                 },
                 keepAlive);

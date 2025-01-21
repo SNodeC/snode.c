@@ -38,7 +38,7 @@ namespace iot::mqtt {
                                                 iot::mqtt::Mqtt* mqtt)
         : WSSubProtocolRole(subProtocolContext, name, 0)
         , iot::mqtt::MqttContext(mqtt)
-        , onReceivedFromPeerEvent([this]([[maybe_unused]] const utils::Timeval& currentTime) -> void {
+        , onReceivedFromPeerEvent([this]([[maybe_unused]] const utils::Timeval& currentTime) {
             iot::mqtt::MqttContext::onReceivedFromPeer();
 
             if (size > 0) {

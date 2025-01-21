@@ -94,7 +94,7 @@ namespace net::config {
             "false",
             CLI::IsMember({"true", "false"}));
 
-        section->final_callback([this]() -> void {
+        section->final_callback([this]() {
             for (auto& [domain, sniMap] : configuredSniCerts) {
                 if (domain.empty()) {
                     sniCertsOpt //

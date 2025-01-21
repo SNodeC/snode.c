@@ -17,8 +17,8 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     const core::pipe::Pipe pipe(
-        []([[maybe_unused]] core::pipe::PipeSource& pipeSource, [[maybe_unused]] core::pipe::PipeSink& pipeSink) -> void {
-            pipeSink.setOnData([&pipeSource](const char* chunk, std::size_t chunkLen) -> void {
+        []([[maybe_unused]] core::pipe::PipeSource& pipeSource, [[maybe_unused]] core::pipe::PipeSink& pipeSink) {
+            pipeSink.setOnData([&pipeSource](const char* chunk, std::size_t chunkLen) {
                 const std::string string(chunk, chunkLen);
                 VLOG(0) << "Pipe Data: " << string;
                 pipeSource.send(chunk, chunkLen);
@@ -26,21 +26,21 @@ int main(int argc, char* argv[]) {
                 // pipeSource.disable();
             });
 
-            pipeSink.setOnEof([]() -> void {
+            pipeSink.setOnEof([]() {
                 VLOG(0) << "Pipe EOF";
             });
 
-            pipeSink.setOnError([]([[maybe_unused]] int errnum) -> void {
+            pipeSink.setOnError([]([[maybe_unused]] int errnum) {
                 VLOG(0) << "PipeSink";
             });
 
-            pipeSource.setOnError([]([[maybe_unused]] int errnum) -> void {
+            pipeSource.setOnError([]([[maybe_unused]] int errnum) {
                 VLOG(0) << "PipeSource";
             });
 
             pipeSource.send("Hello World!");
         },
-        []([[maybe_unused]] int errnum) -> void {
+        []([[maybe_unused]] int errnum) {
             PLOG(ERROR) << "Pipe not created";
         });
 

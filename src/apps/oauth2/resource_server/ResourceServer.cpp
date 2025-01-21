@@ -29,22 +29,22 @@ int main(int argc, char* argv[]) {
         }
 
         const web::http::legacy::in::Client legacyClient(
-            [](web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
+            [](web::http::legacy::in::Client::SocketConnection* socketConnection) {
                 VLOG(0) << "OnConnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
-            []([[maybe_unused]] web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
+            []([[maybe_unused]] web::http::legacy::in::Client::SocketConnection* socketConnection) {
                 VLOG(0) << "OnConnected";
             },
-            [](web::http::legacy::in::Client::SocketConnection* socketConnection) -> void {
+            [](web::http::legacy::in::Client::SocketConnection* socketConnection) {
                 VLOG(0) << "OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
-            [queryAccessToken, queryClientId, res](const std::shared_ptr<web::http::client::Request>& request) -> void {
+            [queryAccessToken, queryClientId, res](const std::shared_ptr<web::http::client::Request>& request) {
                 VLOG(0) << "OnRequestBegin";
                 request->url = "/oauth2/token/validate?client_id=" + queryClientId;
                 request->method = "POST";
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
                 const std::string requestJsonString{requestJson.dump(4)};
                 request->send(requestJsonString,
                               [res]([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& request,
-                                    const std::shared_ptr<web::http::client::Response>& response) -> void {
+                                    const std::shared_ptr<web::http::client::Response>& response) {
                                   VLOG(0) << "OnResponse";
                                   VLOG(0) << "Response: " << std::string(response->body.begin(), response->body.end());
                                   if (std::stoi(response->statusCode) != 200) {
@@ -66,14 +66,14 @@ int main(int argc, char* argv[]) {
                                   }
                               });
             },
-            []([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& req) -> void {
+            []([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& req) {
                 LOG(INFO) << " -- OnRequestEnd";
             });
 
         legacyClient.connect(
             "localhost",
             8082,
-            [](const web::http::legacy::in::Client::SocketAddress& socketAddress, const core::socket::State& state) -> void {
+            [](const web::http::legacy::in::Client::SocketAddress& socketAddress, const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
                         VLOG(1) << "OAuth2ResourceServer: connected to '" << socketAddress.toString() << "'";

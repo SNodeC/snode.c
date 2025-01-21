@@ -42,17 +42,17 @@ namespace web::http::server {
         , masterResponse(std::make_shared<Response>(this))
         , parser(
               this,
-              [this]() -> void {
+              [this]() {
                   requestStarted();
               },
-              [this](web::http::server::Request&& request) -> void {
+              [this](web::http::server::Request&& request) {
                   if (!currentRequest) {
                       deliverRequest(request);
                   } else {
                       pendingRequests.emplace_back(std::move(request));
                   }
               },
-              [this](int status, const std::string& reason) -> void {
+              [this](int status, const std::string& reason) {
                   LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parse error: " << reason << " (" << status
                              << ") ";
 
@@ -111,7 +111,7 @@ namespace web::http::server {
         } else {
             LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
 
-            core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->masterResponse)]() -> void {
+            core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->masterResponse)]() {
                 if (!response.expired()) {
                     if (!pendingRequests.empty()) {
                         deliverRequest(pendingRequests.front());

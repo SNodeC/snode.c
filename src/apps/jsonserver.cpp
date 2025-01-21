@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 
     legacyApp.listen(8080,
                      [instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
-                                                                              const core::socket::State& state) -> void {
+                                                                              const core::socket::State& state) {
                          switch (state) {
                              case core::socket::State::OK:
                                  VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
@@ -69,11 +69,11 @@ int main(int argc, char* argv[]) {
         std::string jsonString;
 
         req->getAttribute<nlohmann::json>(
-            [&jsonString](nlohmann::json& json) -> void {
+            [&jsonString](nlohmann::json& json) {
                 jsonString = json.dump(4);
                 VLOG(0) << "Application received body: " << jsonString;
             },
-            [](const std::string& key) -> void {
+            [](const std::string& key) {
                 VLOG(0) << key << " attribute not found";
             });
 

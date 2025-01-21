@@ -39,7 +39,7 @@ namespace core::socket::stream::legacy {
         : Super(
               socketContextFactory,
               onConnect,
-              [socketContextFactory, onConnected](SocketConnection* socketConnection) -> void {
+              [socketContextFactory, onConnected](SocketConnection* socketConnection) {
                   socketConnection->connectSocketContext(socketContextFactory);
 
                   onConnected(socketConnection);

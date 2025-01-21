@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
         // if (req.query("grant_type")) {}
         if (!req->query("code").empty()) {
             res->sendFile("/home/rathalin/projects/snode.c/src/oauth2/client_app/vue-frontend-oauth2-client/dist/index.html",
-                          [req](int ret) -> void {
+                          [req](int ret) {
                               if (ret != 0) {
                                   PLOG(ERROR) << req->url;
                               }

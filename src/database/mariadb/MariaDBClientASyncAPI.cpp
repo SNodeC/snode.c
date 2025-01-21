@@ -46,18 +46,18 @@ namespace database::mariadb {
                                                          const std::function<void(const std::string&, unsigned int)>& onError) {
         return execute_async(new database::mariadb::commands::async::MariaDBQueryCommand(
                                  sql,
-                                 []() -> void {
+                                 []() {
                                  },
                                  onError))
             .execute_async(new database::mariadb::commands::sync::MariaDBUseResultCommand(
-                [&lastResult = this->lastResult](MYSQL_RES* result) -> void {
+                [&lastResult = this->lastResult](MYSQL_RES* result) {
                     lastResult = result;
                 },
                 onError))
             .execute_async(new database::mariadb::commands::async::MariaDBFetchRowCommand(lastResult, onQuery, onError))
             .execute_async(new database::mariadb::commands::async::MariaDBFreeResultCommand(
                 lastResult,
-                [this]() -> void {
+                [this]() {
                     lastResult = nullptr;
                 },
                 onError));

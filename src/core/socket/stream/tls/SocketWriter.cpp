@@ -48,13 +48,13 @@ namespace core::socket::stream::tls {
                     case SSL_ERROR_WANT_READ:
                         LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
                         doSSLHandshake(
-                            [this]() -> void {
+                            [this]() {
                                 LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
                             },
-                            [this]() -> void {
+                            [this]() {
                                 LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
                             },
-                            [this](int ssl_err) -> void {
+                            [this](int ssl_err) {
                                 ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
                             });
                         errno = EAGAIN;

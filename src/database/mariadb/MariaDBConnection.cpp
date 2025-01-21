@@ -48,7 +48,7 @@ namespace database::mariadb {
 
         execute_async(std::move(MariaDBCommandSequence().execute_async(new database::mariadb::commands::async::MariaDBConnectCommand(
             connectionDetails,
-            [this]() -> void {
+            [this]() {
                 if (mysql_errno(mysql) == 0) {
                     const int fd = mysql_get_socket(mysql);
 
@@ -75,10 +75,10 @@ namespace database::mariadb {
                     LOG(WARNING) << "MariaDB: Got no valid descriptor: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
                 }
             },
-            []() -> void {
+            []() {
                 LOG(DEBUG) << "MariaDB: Connect success";
             },
-            [](const std::string& errorString, unsigned int errorNumber) -> void {
+            [](const std::string& errorString, unsigned int errorNumber) {
                 LOG(WARNING) << "MariaDB: Connect error: " << errorString << " : " << errorNumber;
             }))));
     }

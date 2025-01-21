@@ -64,7 +64,7 @@ namespace express::middleware {
                 }
             },
             [&root = this->root] APPLICATION(req, res) {
-                res->sendFile(root + req->url, [&root, req, res](int ret) -> void {
+                res->sendFile(root + req->url, [&root, req, res](int ret) {
                     PLOG(INFO) << "Express StaticMiddleware: GET " + req->url + " -> " + root + req->url;
 
                     if (ret != 0) {

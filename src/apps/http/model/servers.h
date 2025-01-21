@@ -74,7 +74,7 @@ namespace apps::http::tls {
     WebApp getWebApp(const std::string& name) {
         WebApp webApp(name, getRouter());
 
-        webApp.setOnConnect([webApp](SocketConnection* socketConnection) -> void { // onConnect
+        webApp.setOnConnect([webApp](SocketConnection* socketConnection) { // onConnect
             LOG(INFO) << "OnConnect " << webApp.getConfig().getInstanceName();
 
             LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
@@ -90,7 +90,7 @@ namespace apps::http::tls {
             // }
         });
 
-        webApp.setOnConnected([webApp](SocketConnection* socketConnection) -> void { // onConnected
+        webApp.setOnConnected([webApp](SocketConnection* socketConnection) { // onConnected
             LOG(INFO) << "OnConnected " << webApp.getConfig().getInstanceName();
 
             //            webApp.use(express::middleware::StaticMiddleware(htmlRoot->as<std::string>()));
@@ -172,7 +172,7 @@ namespace apps::http::tls {
             }
         });
 
-        webApp.setOnDisconnect([webApp](SocketConnection* socketConnection) -> void { // onDisconnect
+        webApp.setOnDisconnect([webApp](SocketConnection* socketConnection) { // onDisconnect
             LOG(INFO) << "OnDisconnect " << webApp.getConfig().getInstanceName();
 
             LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();

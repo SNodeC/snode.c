@@ -37,8 +37,8 @@ int main(int argc, char* argv[]) {
     const Client client = apps::http::STREAM::getClient();
 
     client.connect([instanceName = client.getConfig().getInstanceName()](
-                       const SocketAddress& socketAddress,
-                       const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                       const core::socket::SocketAddress& socketAddress,
+                       const core::socket::State& state) { // example.com:81 simulate connnect timeout
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
@@ -61,15 +61,15 @@ int main(int argc, char* argv[]) {
 /*
 #if (NET_TYPE == IN) // in
 #if (STREAM_TYPE == LEGACY)
-    client.connect("localhost", 8080, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+    client.connect("localhost", 8080, [](const SocketAddress& socketAddress, const core::socket::State& state) {
 #elif (STREAM_TYPE == TLS)
-    client.connect("localhost", 8088, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+    client.connect("localhost", 8088, [](const SocketAddress& socketAddress, const core::socket::State& state) {
 #endif
 #elif (NET_TYPE == IN6) // in6
 #if (STREAM_TYPE == LEGACY)
-        client.connect("localhost", 8080, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+        client.connect("localhost", 8080, [](const SocketAddress& socketAddress, const core::socket::State& state) {
 #elif (STREAM_TYPE == TLS)
-        client.connect("localhost", 8088, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+        client.connect("localhost", 8088, [](const SocketAddress& socketAddress, const core::socket::State& state) {
 #endif
 #elif (NET_TYPE == L2) // l2
     // ATLAS: 10:3D:1C:AC:BA:9C
@@ -77,12 +77,12 @@ int main(int argc, char* argv[]) {
     // USB: 44:01:BB:A3:63:32
 
     // client.connect("A4:B1:C1:2C:82:37", 0x1023, "44:01:BB:A3:63:32", [](const SocketAddress& socketAddress, const core::socket::State&
-state) -> void { client.connect("10:3D:1C:AC:BA:9C", 0x1023, "44:01:BB:A3:63:32", [](const SocketAddress& socketAddress, const
-core::socket::State& state) -> void { #elif (NET_TYPE == RC) // rf
+state) { client.connect("10:3D:1C:AC:BA:9C", 0x1023, "44:01:BB:A3:63:32", [](const SocketAddress& socketAddress, const
+core::socket::State& state) { #elif (NET_TYPE == RC) // rf
     // client.connect("A4:B1:C1:2C:82:37", 1, "44:01:BB:A3:63:32", [](const SocketAddress& socketAddress, const core::socket::State& state)
--> void { client.connect("10:3D:1C:AC:BA:9C", 1, "44:01:BB:A3:63:32", [](const SocketAddress& socketAddress, const core::socket::State&
-state) -> void { #elif (NET_TYPE == UN) // un client.connect("/tmp/testme", [](const SocketAddress& socketAddress, const
-core::socket::State& state) -> void { #endif if (errnum != 0) { PLOG(ERROR) << "OnError: " << errnum; } else { VLOG(0) << "snode.c
+{ client.connect("10:3D:1C:AC:BA:9C", 1, "44:01:BB:A3:63:32", [](const SocketAddress& socketAddress, const core::socket::State&
+state) { #elif (NET_TYPE == UN) // un client.connect("/tmp/testme", [](const SocketAddress& socketAddress, const
+core::socket::State& state) { #endif if (errnum != 0) { PLOG(ERROR) << "OnError: " << errnum; } else { VLOG(0) << "snode.c
 connecting to " << socketAddress.toString();
         }
 

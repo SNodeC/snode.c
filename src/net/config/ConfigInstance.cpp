@@ -63,7 +63,7 @@ namespace net::config {
         disableOpt = instanceSc
                          ->add_flag_callback(
                              "--disabled{true}",
-                             [this]() -> void {
+                             [this]() {
                                  utils::Config::disabled(instanceSc, disableOpt->as<bool>());
                              },
                              "Disable this instance")

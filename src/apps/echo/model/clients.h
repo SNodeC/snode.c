@@ -67,7 +67,7 @@ namespace apps::echo::model::tls {
     EchoSocketClient getClient() {
         EchoSocketClient client("echoclient");
 
-        client.setOnConnect([&client](SocketConnection* socketConnection) -> void { // onConnect
+        client.setOnConnect([&client](SocketConnection* socketConnection) { // onConnect
             VLOG(0) << "OnConnect " << client.getConfig().getInstanceName();
 
             VLOG(0) << "\tLocal: " << socketConnection->getLocalAddress().toString();
@@ -83,7 +83,7 @@ namespace apps::echo::model::tls {
             // }
         });
 
-        client.setOnConnected([&client](SocketConnection* socketConnection) -> void { // onConnected
+        client.setOnConnected([&client](SocketConnection* socketConnection) { // onConnected
             VLOG(0) << "OnConnected " << client.getConfig().getInstanceName();
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
@@ -163,7 +163,7 @@ namespace apps::echo::model::tls {
             }
         });
 
-        client.setOnDisconnect([&client](SocketConnection* socketConnection) -> void { // onDisconnect
+        client.setOnDisconnect([&client](SocketConnection* socketConnection) { // onDisconnect
             VLOG(0) << "OnDisconnect " << client.getConfig().getInstanceName();
 
             VLOG(0) << "\tLocal: " << socketConnection->getLocalAddress().toString();

@@ -40,14 +40,14 @@ int main(int argc, char* argv[]) {
 
         const LegacyClient legacyClient(
             "legacy",
-            [](const std::shared_ptr<Request>& req) -> void {
+            [](const std::shared_ptr<Request>& req) {
                 VLOG(1) << "OnRequestBegin";
 
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
                 if (!req->upgrade("/ws/",
                                   "upgradeprotocol, websocket",
-                                  [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                                  [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                                       VLOG(1) << "OnResponse";
                                       VLOG(2) << "  Status:";
                                       VLOG(2) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
                                           }
                                       }
 
-                                      req->upgrade(res, [req](const std::string& name) -> void {
+                                      req->upgrade(res, [req](const std::string& name) {
                                           if (!name.empty()) {
                                               VLOG(1) << "Successful upgrade to '" << name << "' requested: " << req->header("Upgrade");
                                           } else {
@@ -75,12 +75,12 @@ int main(int argc, char* argv[]) {
                     VLOG(1) << "Initiating upgrade to any of 'upgradeprotocol, websocket' failed";
                 }
             },
-            []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
+            []([[maybe_unused]] const std::shared_ptr<Request>& req) {
                 LOG(INFO) << "OnRequestEnd";
             });
 
         legacyClient.connect([instanceName = legacyClient.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
-                                                                                         const core::socket::State& state) -> void {
+                                                                                         const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
@@ -104,14 +104,14 @@ int main(int argc, char* argv[]) {
 
         const TlsClient tlsClient(
             "tls",
-            [](const std::shared_ptr<Request>& req) -> void {
+            [](const std::shared_ptr<Request>& req) {
                 VLOG(1) << "OnRequestBegin";
 
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
                 if (!req->upgrade("/ws/",
                                   "upgradeprotocol, websocket",
-                                  [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) -> void {
+                                  [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                                       VLOG(1) << "OnResponse";
                                       VLOG(2) << "  Status:";
                                       VLOG(2) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
                                           }
                                       }
 
-                                      req->upgrade(res, [req](const std::string& name) -> void {
+                                      req->upgrade(res, [req](const std::string& name) {
                                           if (!name.empty()) {
                                               VLOG(1) << "Successful upgrade to '" << name << "' requested: " << req->header("Upgrade");
                                           } else {
@@ -139,12 +139,12 @@ int main(int argc, char* argv[]) {
                     VLOG(1) << "Initiating upgrade to any of 'upgradeprotocol, websocket' failed";
                 }
             },
-            []([[maybe_unused]] const std::shared_ptr<Request>& req) -> void {
+            []([[maybe_unused]] const std::shared_ptr<Request>& req) {
                 LOG(INFO) << "OnRequestEnd";
             });
 
         tlsClient.connect([instanceName = tlsClient.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress,
-                                                                                   const core::socket::State& state) -> void {
+                                                                                   const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";

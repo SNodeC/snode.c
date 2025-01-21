@@ -42,7 +42,7 @@ namespace web::websocket {
         , subProtocolContext(subProtocolContext) {
         if (pingInterval > 0) {
             pingTimer = core::timer::Timer::intervalTimer(
-                [this, maxFlyingPings](const std::function<void()>& stop) -> void {
+                [this, maxFlyingPings](const std::function<void()>& stop) {
                     if (flyingPings < maxFlyingPings) {
                         LOG(INFO) << "WebSocket: Ping sent";
                         sendPing();

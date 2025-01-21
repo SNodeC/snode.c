@@ -48,7 +48,7 @@ namespace core::socket::stream {
         : SocketConnection(instanceName, configuredServer)
         , SocketReader(
               instanceName,
-              [this](int errnum) -> void {
+              [this](int errnum) {
                   {
                       const utils::PreserveErrno pe(errnum);
                       if (errno == 0) {
@@ -66,7 +66,7 @@ namespace core::socket::stream {
               terminateTimeout)
         , SocketWriter(
               instanceName,
-              [this](int errnum) -> void {
+              [this](int errnum) {
                   {
                       const utils::PreserveErrno pe(errnum);
                       PLOG(TRACE) << this->instanceName << " OnWriteError";
@@ -164,7 +164,7 @@ namespace core::socket::stream {
         if (!SocketWriter::shutdownInProgress) {
             LOG(TRACE) << instanceName << " Stop writing (" << getFd() << ")";
 
-            SocketWriter::shutdownWrite([forceClose, this]() -> void {
+            SocketWriter::shutdownWrite([forceClose, this]() {
                 if (SocketWriter::isEnabled()) {
                     SocketWriter::disable();
                 }

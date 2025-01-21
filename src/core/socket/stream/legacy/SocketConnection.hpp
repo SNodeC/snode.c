@@ -43,7 +43,7 @@ namespace core::socket::stream::legacy {
         : Super(
               instanceName,
               std::move(physicalSocket),
-              [onDisconnect, this]() -> void {
+              [onDisconnect, this]() {
                   onDisconnect(this);
               },
               configuredServer,

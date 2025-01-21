@@ -44,7 +44,7 @@ namespace core::socket::stream::tls {
         const std::shared_ptr<Config>& config)
         : Super(
               socketContextFactory,
-              [onConnect, this](SocketConnection* socketConnection) -> void { // onConnect
+              [onConnect, this](SocketConnection* socketConnection) { // onConnect
                   SSL* ssl = socketConnection->startSSL(socketConnection->getFd(),
                                                         this->config->getSslCtx(),
                                                         Super::config->getInitTimeout(),
@@ -57,23 +57,23 @@ namespace core::socket::stream::tls {
 
                   onConnect(socketConnection);
               },
-              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) -> void { // onConnected
+              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) { // onConnected
                   LOG(TRACE) << Super::config->getInstanceName() << " SSL/TLS: Start handshake";
                   if (!socketConnection->doSSLHandshake(
                           [socketContextFactory, onConnected, socketConnection, instanceName = Super::config->getInstanceName()]()
-                              -> void { // onSuccess
+                              { // onSuccess
                               LOG(TRACE) << instanceName << " SSL/TLS: Handshake success";
 
                               socketConnection->connectSocketContext(socketContextFactory);
 
                               onConnected(socketConnection);
                           },
-                          [socketConnection, instanceName = Super::config->getInstanceName()]() -> void { // onTimeout
+                          [socketConnection, instanceName = Super::config->getInstanceName()]() { // onTimeout
                               LOG(TRACE) << instanceName << " SSL/TLS: Handshake timed out";
 
                               socketConnection->close();
                           },
-                          [socketConnection, instanceName = Super::config->getInstanceName()](int sslErr) -> void { // onError
+                          [socketConnection, instanceName = Super::config->getInstanceName()](int sslErr) { // onError
                               ssl_log(instanceName + " SSL/TLS: Handshake failed", sslErr);
 
                               socketConnection->close();
@@ -83,7 +83,7 @@ namespace core::socket::stream::tls {
                       socketConnection->close();
                   }
               },
-              [onDisconnect, instanceName = config->getInstanceName()](SocketConnection* socketConnection) -> void { // onDisconnect
+              [onDisconnect, instanceName = config->getInstanceName()](SocketConnection* socketConnection) { // onDisconnect
                   socketConnection->stopSSL();
                   onDisconnect(socketConnection);
               },

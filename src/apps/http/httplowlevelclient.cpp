@@ -47,13 +47,13 @@ namespace apps::http {
     static web::http::client::ResponseParser* getResponseParser(core::socket::stream::SocketContext* socketContext) {
         web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
             socketContext,
-            []() -> void {
+            []() {
                 VLOG(0) << "++   OnStarted";
             },
-            []([[maybe_unused]] web::http::client::Response&& res) -> void {
+            []([[maybe_unused]] web::http::client::Response&& res) {
                 VLOG(0) << "++   OnParsed";
             },
-            [](int status, const std::string& reason) -> void {
+            [](int status, const std::string& reason) {
                 VLOG(0) << "++   OnError: " + std::to_string(status) + " - " + reason;
             });
 
@@ -126,7 +126,7 @@ namespace tls {
     SocketClient getClient() {
         SocketClient tlsClient(
             "tls",
-            [](SocketConnection* socketConnection) -> void { // onConnect
+            [](SocketConnection* socketConnection) { // onConnect
                 VLOG(0) << "OnConnect";
 
                 VLOG(0) << "\tServer: " << socketConnection->getRemoteAddress().toString();
@@ -141,7 +141,7 @@ namespace tls {
                 //   socketConnection->close();
                 // }
             },
-            [](SocketConnection* socketConnection) -> void { // onConnected
+            [](SocketConnection* socketConnection) { // onConnected
                 VLOG(0) << "OnConnected";
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
@@ -221,7 +221,7 @@ namespace tls {
 
                 socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
-            [](SocketConnection* socketConnection) -> void { // onDisconnect
+            [](SocketConnection* socketConnection) { // onDisconnect
                 VLOG(0) << "OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -234,7 +234,7 @@ namespace tls {
         tlsClient.connect(remoteAddress,
                           [instanceName = tlsClient.getConfig().getInstanceName()](
                               const SocketAddress& socketAddress,
-                              const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                              const core::socket::State& state) { // example.com:81 simulate connnect timeout
                               switch (state) {
                                   case core::socket::State::OK:
                                       VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
@@ -264,18 +264,18 @@ namespace legacy {
     SocketClient getLegacyClient() {
         SocketClient legacyClient(
             "legacy",
-            [](SocketConnection* socketConnection) -> void { // OnConnect
+            [](SocketConnection* socketConnection) { // OnConnect
                 VLOG(0) << "OnConnect";
 
                 VLOG(0) << "\tServer: " << socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " << socketConnection->getLocalAddress().toString();
             },
-            [](SocketConnection* socketConnection) -> void { // onConnected
+            [](SocketConnection* socketConnection) { // onConnected
                 VLOG(0) << "OnConnected";
 
                 socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
-            [](SocketConnection* socketConnection) -> void { // onDisconnect
+            [](SocketConnection* socketConnection) { // onDisconnect
                 VLOG(0) << "OnDisconnect";
 
                 VLOG(0) << "\tServer: " << socketConnection->getRemoteAddress().toString();
@@ -292,7 +292,7 @@ namespace legacy {
         legacyClient.connect(remoteAddress,
                              [instanceName = legacyClient.getConfig().getInstanceName()](
                                  const tls::SocketAddress& socketAddress,
-                                 const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                                 const core::socket::State& state) { // example.com:81 simulate connnect timeout
                                  switch (state) {
                                      case core::socket::State::OK:
                                          VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
@@ -325,7 +325,7 @@ int main(int argc, char* argv[]) {
         legacyClient.connect(legacyRemoteAddress,
                              [instanceName = legacyClient.getConfig().getInstanceName()](
                                  const tls::SocketAddress& socketAddress,
-                                 const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                                 const core::socket::State& state) { // example.com:81 simulate connnect timeout
                                  switch (state) {
                                      case core::socket::State::OK:
                                          VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
@@ -349,7 +349,7 @@ int main(int argc, char* argv[]) {
         tlsClient.connect(tlsRemoteAddress,
                           [instanceName = tlsClient.getConfig().getInstanceName()](
                               const tls::SocketAddress& socketAddress,
-                              const core::socket::State& state) -> void { // example.com:81 simulate connnect timeout
+                              const core::socket::State& state) { // example.com:81 simulate connnect timeout
                               switch (state) {
                                   case core::socket::State::OK:
                                       VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";

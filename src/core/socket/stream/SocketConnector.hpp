@@ -39,7 +39,6 @@ namespace core::socket::stream {
         typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
         SocketAddress localPeerAddress;
-
         if (physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
             try {
                 localPeerAddress = config->Local::getSocketAddress(localSockAddr, localSockAddrLen);
@@ -89,7 +88,7 @@ namespace core::socket::stream {
         , onDisconnect(onDisconnect)
         , onStatus(onStatus)
         , config(config) {
-        atNextTick([this]() -> void {
+        atNextTick([this]() {
             init();
         });
     }
@@ -103,7 +102,7 @@ namespace core::socket::stream {
         , onDisconnect(socketConnector.onDisconnect)
         , onStatus(socketConnector.onStatus)
         , config(socketConnector.config) {
-        atNextTick([this]() -> void {
+        atNextTick([this]() {
             init();
         });
     }

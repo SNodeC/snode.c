@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
                   "</html>\n");
     });
 
-    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, const core::socket::State& state) -> void {
+    legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "legacyApp: listening on '" << socketAddress.toString() << "'";
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(legacyApp);
 
-    tlsApp.listen("localhost", 8088, [](const TLSSocketAddress& socketAddress, const core::socket::State& state) -> void {
+    tlsApp.listen("localhost", 8088, [](const TLSSocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "tlsApp: listening on '" << socketAddress.toString() << "'";

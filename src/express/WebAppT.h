@@ -59,7 +59,7 @@ namespace express {
             : WebApp(router)
             , Server(name,
                      [rootRoute = this->rootRoute](const std::shared_ptr<web::http::server::Request>& req,
-                                                   const std::shared_ptr<web::http::server::Response>& res) -> void { // onRequestReady
+                                                   const std::shared_ptr<web::http::server::Response>& res) { // onRequestReady
                          rootRoute->dispatch(Controller(req, res));
                      }) {
         }

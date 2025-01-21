@@ -88,7 +88,7 @@ namespace core::socket::stream {
         , onDisconnect(onDisconnect)
         , onStatus(onStatus)
         , config(config) {
-        atNextTick([this]() -> void {
+        atNextTick([this]() {
             init();
         });
     }
@@ -102,7 +102,7 @@ namespace core::socket::stream {
         , onDisconnect(socketAcceptor.onDisconnect)
         , onStatus(socketAcceptor.onStatus)
         , config(socketAcceptor.config) {
-        atNextTick([this]() -> void {
+        atNextTick([this]() {
             init();
         });
     }

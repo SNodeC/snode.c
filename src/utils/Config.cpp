@@ -253,7 +253,7 @@ namespace utils {
                    "Make an instance also known as an alias in configuration files")
                 ->configurable(false)
                 ->type_name("instance=instance_alias [instance=instance_alias [...]]")
-                ->each([](const std::string& item) -> void {
+                ->each([](const std::string& item) {
                     const auto it = item.find('=');
                     if (it != std::string::npos) {
                         aliases[item.substr(0, it)] = item.substr(it + 1);
@@ -340,7 +340,7 @@ namespace utils {
     bool Config::bootstrap() {
         aliases.clear();
 
-        app->final_callback([]() -> void {
+        app->final_callback([]() {
             if (daemonizeOpt->as<bool>() && (*app)["--show-config"]->count() == 0 && (*app)["--write-config"]->count() == 0 &&
                 (*app)["--command-line"]->count() == 0) {
                 std::cout << "Running as daemon (double fork)" << std::endl;

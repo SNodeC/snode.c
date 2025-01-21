@@ -78,19 +78,19 @@ namespace core::socket::stream {
         SocketClient(const std::string& name, Args&&... args)
             : SocketClient(
                   name,
-                  [name](SocketConnection* socketConnection) -> void { // onConnect
+                  [name](SocketConnection* socketConnection) { // onConnect
                       LOG(INFO) << name << ": OnConnect";
 
                       LOG(INFO) << "  Local: " << socketConnection->getLocalAddress().toString();
                       LOG(INFO) << "  Peer: " << socketConnection->getRemoteAddress().toString();
                   },
-                  [name](SocketConnection* socketConnection) -> void { // onConnected
+                  [name](SocketConnection* socketConnection) { // onConnected
                       LOG(INFO) << name << ": OnConnected ";
 
                       LOG(INFO) << "  Local: " << socketConnection->getLocalAddress().toString();
                       LOG(INFO) << "  Peer:  " << socketConnection->getRemoteAddress().toString();
                   },
-                  [name](SocketConnection* socketConnection) -> void { // onDisconnect
+                  [name](SocketConnection* socketConnection) { // onDisconnect
                       LOG(INFO) << name << ": OnDisconnect ";
 
                       LOG(INFO) << "  Local: " << socketConnection->getLocalAddress().toString();
@@ -112,7 +112,7 @@ namespace core::socket::stream {
                     socketContextFactory,
                     onConnect,
                     onConnected,
-                    [client = *this, onStatus](SocketConnection* socketConnection) -> void {
+                    [client = *this, onStatus](SocketConnection* socketConnection) {
                         client.onDisconnect(socketConnection);
 
                         if (client.getConfig().getReconnect() && core::eventLoopState() == core::State::RUNNING) {
@@ -122,7 +122,7 @@ namespace core::socket::stream {
                             LOG(INFO) << "  reconnecting in " << relativeReconnectTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
-                                [client, onStatus]() -> void {
+                                [client, onStatus]() {
                                     client.getConfig().Local::renew();
                                     client.getConfig().Remote::renew();
 
@@ -132,7 +132,7 @@ namespace core::socket::stream {
                         }
                     },
                     [client = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
-                                                                         core::socket::State state) -> void {
+                                                                         core::socket::State state) {
                         bool retry = (state & core::socket::State::NO_RETRY) == 0 &&
                                      (client.getConfig().getRetryTries() == 0 || tries < client.getConfig().getRetryTries());
                         state &= ~core::socket::State::NO_RETRY;
@@ -166,7 +166,7 @@ namespace core::socket::stream {
                             LOG(INFO) << "  retrying in " << relativeRetryTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
-                                [client, onStatus, tries, retryTimeoutScale]() mutable -> void {
+                                [client, onStatus, tries, retryTimeoutScale]() mutable {
                                     client.getConfig().Local::renew();
                                     client.getConfig().Remote::renew();
 
