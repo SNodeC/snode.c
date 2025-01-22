@@ -32,7 +32,6 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     using Client = apps::http::STREAM::Client;
-    using SocketAddress = Client::SocketAddress;
 
     const Client client = apps::http::STREAM::getClient();
 

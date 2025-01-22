@@ -54,7 +54,7 @@ namespace apps::http::legacy {
     using WebApp = express::legacy::NET::WebApp;
     using SocketConnection = WebApp::SocketConnection;
 
-    WebApp getWebApp(const std::string& name) {
+    static WebApp getWebApp(const std::string& name) {
         WebApp webApp = WebApp(name, getRouter());
 
         return webApp;
@@ -71,7 +71,7 @@ namespace apps::http::tls {
     using WebApp = express::tls::NET::WebApp;
     using SocketConnection = WebApp::SocketConnection;
 
-    WebApp getWebApp(const std::string& name) {
+    static WebApp getWebApp(const std::string& name) {
         WebApp webApp(name, getRouter());
 
         webApp.setOnConnect([webApp](SocketConnection* socketConnection) { // onConnect
