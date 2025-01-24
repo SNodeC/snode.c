@@ -45,7 +45,7 @@ namespace core::socket::stream::tls {
               socketContextFactory,
               [onConnect, this](SocketConnection* socketConnection) { // onConnect
                   SSL* ssl = socketConnection->startSSL(socketConnection->getFd(),
-                                                        this->config->getSslCtx(),
+                                                        Super::config->getSslCtx(),
                                                         Super::config->getInitTimeout(),
                                                         Super::config->getShutdownTimeout(),
                                                         !Super::config->getNoCloseNotifyIsEOF());
@@ -58,8 +58,10 @@ namespace core::socket::stream::tls {
               [socketContextFactory, onConnected, this](SocketConnection* socketConnection) { // on Connected
                   LOG(TRACE) << Super::config->getInstanceName() << " SSL/TLS: Start handshake";
                   if (!socketConnection->doSSLHandshake(
-                          [socketContextFactory, onConnected, socketConnection, instanceName = Super::config->getInstanceName()]()
-                              { // onSuccess
+                          [socketContextFactory,
+                           onConnected,
+                           socketConnection,
+                           instanceName = Super::config->getInstanceName()]() { // onSuccess
                               LOG(TRACE) << instanceName << " SSL/TLS: Handshake success";
 
                               socketConnection->connectSocketContext(socketContextFactory);
@@ -95,7 +97,7 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalClientSocket, typename Config>
-    void core::socket::stream::tls::SocketAcceptor<PhysicalClientSocket, Config>::useNextSocketAddress() {
+    void SocketAcceptor<PhysicalClientSocket, Config>::useNextSocketAddress() {
         new SocketAcceptor(*this);
     }
 
@@ -104,9 +106,7 @@ namespace core::socket::stream::tls {
         if (!config->getDisabled()) {
             LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
 
-            masterSslCtx = config->getSslCtx();
-
-            if (masterSslCtx != nullptr) {
+            if (config->getSslCtx() != nullptr) {
                 LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
                 Super::init();
             } else {

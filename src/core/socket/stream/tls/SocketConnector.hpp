@@ -46,7 +46,7 @@ namespace core::socket::stream::tls {
               socketContextFactory,
               [onConnect, this](SocketConnection* socketConnection) { // onConnect
                   SSL* ssl = socketConnection->startSSL(socketConnection->getFd(),
-                                                        this->config->getSslCtx(),
+                                                        Super::config->getSslCtx(),
                                                         Super::config->getInitTimeout(),
                                                         Super::config->getShutdownTimeout(),
                                                         !Super::config->getNoCloseNotifyIsEOF());
@@ -60,8 +60,10 @@ namespace core::socket::stream::tls {
               [socketContextFactory, onConnected, this](SocketConnection* socketConnection) { // onConnected
                   LOG(TRACE) << Super::config->getInstanceName() << " SSL/TLS: Start handshake";
                   if (!socketConnection->doSSLHandshake(
-                          [socketContextFactory, onConnected, socketConnection, instanceName = Super::config->getInstanceName()]()
-                              { // onSuccess
+                          [socketContextFactory,
+                           onConnected,
+                           socketConnection,
+                           instanceName = Super::config->getInstanceName()]() { // onSuccess
                               LOG(TRACE) << instanceName << " SSL/TLS: Handshake success";
 
                               socketConnection->connectSocketContext(socketContextFactory);
@@ -93,7 +95,7 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalSocketServer, typename Config>
     SocketConnector<PhysicalSocketServer, Config>::SocketConnector(const SocketConnector& socketConnector)
-        : Super::SocketConnector(socketConnector) {
+        : Super(socketConnector) {
     }
 
     template <typename PhysicalClientSocket, typename Config>
@@ -106,9 +108,7 @@ namespace core::socket::stream::tls {
         if (!config->getDisabled()) {
             LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
 
-            const SSL_CTX* ctx = config->getSslCtx();
-
-            if (ctx != nullptr) {
+            if (config->getSslCtx() != nullptr) {
                 LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
                 Super::init();
             } else {
