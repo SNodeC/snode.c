@@ -54,24 +54,27 @@ namespace core::socket::stream::tls {
         X509* curr_cert = X509_STORE_CTX_get_current_cert(ctx);
         const int depth = X509_STORE_CTX_get_error_depth(ctx);
 
-        char buf[256];
-        X509_NAME_oneline(X509_get_subject_name(curr_cert), buf, 256);
+        char subjectName[256];
+        X509_NAME_oneline(X509_get_subject_name(curr_cert), subjectName, 256);
+
+        char issuerName[256];
+        X509_NAME_oneline(X509_get_issuer_name(curr_cert), issuerName, 256);
 
         if (preverify_ok != 0) {
-            LOG(TRACE) << "  SSL/TLS: Verify success at depth=" << depth << ": " << buf;
+            LOG(DEBUG) << "SSL/TLS verify success at depth=" << depth;
+            LOG(DEBUG) << "   Issuer: " << issuerName;
+            LOG(DEBUG) << "  Subject: " << subjectName;
         } else {
             const int err = X509_STORE_CTX_get_error(ctx);
-
-            LOG(TRACE) << "  SSL/TLS: Verify error at depth=" << depth << ": verifyErr=" << err << ", "
-                       << X509_verify_cert_error_string(err);
 
             /*
              * At this point, err contains the last verification error. We can use
              * it for something special
              */
 
-            X509_NAME_oneline(X509_get_issuer_name(curr_cert), buf, 256);
-            LOG(TRACE) << "  SSL/TLS rejected: " << X509_verify_cert_error_string(err) << " '" << buf << "'";
+            LOG(DEBUG) << "  SSL/TLS verify error at depth=" << depth << ": " << X509_verify_cert_error_string(err);
+            LOG(DEBUG) << "     Issuer: " << issuerName;
+            LOG(DEBUG) << "    Subject: " << subjectName;
         }
 
         return preverify_ok;
@@ -102,19 +105,19 @@ namespace core::socket::stream::tls {
                 if (SSL_CTX_load_verify_locations(ctx,
                                                   !sslConfig.caCert.empty() ? sslConfig.caCert.c_str() : nullptr,
                                                   !sslConfig.caCertDir.empty() ? sslConfig.caCertDir.c_str() : nullptr) == 0) {
-                    ssl_log_info(sslConfig.instanceName + " SSL/TLS: CA certificate error loading file '" + sslConfig.caCert + "', dir '" +
-                                 sslConfig.caCertDir + "'");
+                    ssl_log_error(sslConfig.instanceName + " SSL/TLS: CA certificate error loading file '" + sslConfig.caCert + "', dir '" +
+                                  sslConfig.caCertDir + "'");
                     sslErr = true;
                 } else {
                     if (!sslConfig.caCert.empty()) {
-                        LOG(INFO) << sslConfig.instanceName << " SSL/TLS: CA certificate loaded";
-                        LOG(INFO) << "  " << sslConfig.caCert;
+                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate loaded";
+                        LOG(TRACE) << "  " << sslConfig.caCert;
                     } else {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
                     }
                     if (!sslConfig.caCertDir.empty()) {
-                        LOG(INFO) << sslConfig.instanceName << " SSL/TLS: CA certificates load from";
-                        LOG(INFO) << "  " << sslConfig.caCertDir;
+                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates load from";
+                        LOG(TRACE) << "  " << sslConfig.caCertDir;
                     } else {
                         LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
                     }
@@ -128,7 +131,7 @@ namespace core::socket::stream::tls {
                     ssl_log_error(sslConfig.instanceName + " SSL/TLS: CA certificates error load from default openssl CA directory");
                     sslErr = true;
                 } else {
-                    LOG(INFO) << sslConfig.instanceName << " SSL/TLS: CA certificates enabled load from default openssl CA directory";
+                    LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates enabled load from default openssl CA directory";
                 }
             } else {
                 LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from default openssl CA directory";
@@ -142,7 +145,7 @@ namespace core::socket::stream::tls {
                                         : 0),
                                    verify_callback);
                 if ((SSL_CTX_get_verify_mode(ctx) & SSL_VERIFY_PEER) != 0) {
-                    LOG(INFO) << sslConfig.instanceName << " SSL/TLS: CA requested verify";
+                    LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA requested verify";
                 }
                 if (!sslConfig.cert.empty()) {
                     if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.cert.c_str()) == 0) {
@@ -160,14 +163,14 @@ namespace core::socket::stream::tls {
                         } else if (SSL_CTX_check_private_key(ctx) != 1) {
                             ssl_log_error(sslConfig.instanceName + " SSL/TLS: Cert chain key error");
 
-                            LOG(ERROR) << "  " << sslConfig.certKey;
+                            LOG(TRACE) << "  " << sslConfig.certKey;
                             sslErr = true;
                         } else {
-                            LOG(INFO) << sslConfig.instanceName << " SSL/TLS: Cert chain key loaded";
-                            LOG(INFO) << "  " << sslConfig.certKey;
+                            LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain key loaded";
+                            LOG(TRACE) << "  " << sslConfig.certKey;
 
-                            LOG(INFO) << sslConfig.instanceName << " SSL/TLS: Cert chain loaded";
-                            LOG(INFO) << "  " << sslConfig.cert;
+                            LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain loaded";
+                            LOG(TRACE) << "  " << sslConfig.cert;
                         }
                     }
                 }
@@ -328,6 +331,9 @@ namespace core::socket::stream::tls {
                 } else {
                     ssl_log_info(message);
                 }
+                break;
+            case SSL_ERROR_SSL:
+                ssl_log_error(message);
                 break;
             default:
                 ssl_log_warning(message);

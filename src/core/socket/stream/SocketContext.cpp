@@ -25,6 +25,8 @@
 
 #include "log/Logger.h"
 
+#include <cerrno>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
@@ -34,6 +36,7 @@ namespace core::socket::stream {
     }
 
     void SocketContext::switchSocketContext(SocketContext* newSocketContext) {
+        LOG(DEBUG) << socketConnection->getInstanceName() << ": Register new SocketContext";
         socketConnection->switchSocketContext(newSocketContext);
     }
 
@@ -73,13 +76,21 @@ namespace core::socket::stream {
         socketConnection->shutdownWrite(forceClose);
     }
 
-    void SocketContext::onWriteError([[maybe_unused]] int errnum) {
-        LOG(TRACE) << socketConnection->getInstanceName() << " SocketContext: onWriteError";
+    void SocketContext::onWriteError(int errnum) {
+        errno = errnum;
+
+        PLOG(DEBUG) << socketConnection->getInstanceName() << " SocketContext: onWriteError";
         shutdownRead();
     }
 
-    void SocketContext::onReadError([[maybe_unused]] int errnum) {
-        LOG(TRACE) << socketConnection->getInstanceName() << " SocketContext: onReadError";
+    void SocketContext::onReadError(int errnum) {
+        errno = errnum;
+
+        if (errno == 0) {
+            LOG(DEBUG) << socketConnection->getInstanceName() << " SocketContext: EOF received";
+        } else {
+            PLOG(DEBUG) << socketConnection->getInstanceName() << " SocketContext: onReadError";
+        }
         shutdownWrite();
     }
 

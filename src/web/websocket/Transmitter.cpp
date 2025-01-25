@@ -59,7 +59,7 @@ namespace web::websocket {
             const std::size_t sendFrameLength =
                 (messageLength - messageOffset <= WSMAXFRAMEPAYLOADLENGTH) ? messageLength - messageOffset : WSMAXFRAMEPAYLOADLENGTH;
 
-            const bool fin = (sendFrameLength == messageLength - messageOffset) && end; // cppcheck-suppress knownConditionTrueFalse
+            const bool fin = (sendFrameLength == messageLength - messageOffset) && end;
 
             sendFrame(fin, opCode, message + messageOffset, sendFrameLength);
 

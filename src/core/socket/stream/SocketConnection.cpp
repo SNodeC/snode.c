@@ -44,10 +44,11 @@ namespace core::socket::stream {
 
     void SocketConnection::setSocketContext(SocketContext* socketContext) {
         if (socketContext != nullptr) { // Perform a pending SocketContextSwitch
+            LOG(DEBUG) << instanceName << ": Connecting SocketContext";
             this->socketContext = socketContext;
             socketContext->onConnected();
         } else {
-            LOG(TRACE) << "SocketConnection: Set socket context unsuccessful: no new SocketContext";
+            LOG(ERROR) << instanceName << ": Connecting SocketContext failed: no new SocketContext";
         }
     }
 
@@ -75,10 +76,10 @@ namespace core::socket::stream {
         SocketContext* socketContext = socketContextFactory->create(this);
 
         if (socketContext != nullptr) {
-            LOG(TRACE) << instanceName << " Create SocketContext";
+            LOG(DEBUG) << instanceName << ": Creating SocketContext successful";
             setSocketContext(socketContext);
         } else {
-            LOG(TRACE) << instanceName << " Failed creating new SocketContext";
+            LOG(ERROR) << instanceName << ": Failed creating SocketContext";
             close();
         }
     }
@@ -88,7 +89,7 @@ namespace core::socket::stream {
             socketContext->onDisconnected();
             delete socketContext;
 
-            LOG(TRACE) << instanceName << " Destroy SocketContext";
+            LOG(DEBUG) << instanceName << ": SocketContext disconnected";
         }
     }
 

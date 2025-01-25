@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
         if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
             res->upgrade(req, [req, res](const std::string& name) {
                 if (!name.empty()) {
-                    VLOG(1) << "Successful upgrade to '" << name << "'  requested: " << req->get("upgrade");
+                    VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->get("upgrade");
                 } else {
                     VLOG(1) << "Can not upgrade to any of '" << req->get("upgrade") << "'";
                 }
@@ -93,23 +93,23 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    legacyApp.listen([instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
-                                                                              const core::socket::State& state) {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << instanceName << " disabled";
-                break;
-            case core::socket::State::ERROR:
-                LOG(ERROR) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                break;
-            case core::socket::State::FATAL:
-                LOG(FATAL) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                break;
-        }
-    });
+    legacyApp.listen(
+        [instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << instanceName << " disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    break;
+            }
+        });
 
     {
         using TlsWebApp = express::tls::in::WebApp;
@@ -118,6 +118,8 @@ int main(int argc, char* argv[]) {
         using SocketAddress = TlsWebApp::SocketAddress;
 
         const TlsWebApp tlsApp("tls");
+
+        tlsApp.use(express::middleware::VerboseRequest());
 
         tlsApp.get("/", [] APPLICATION(req, res) {
             if (req->url == "/" || req->url == "/index.html") {
@@ -153,7 +155,7 @@ int main(int argc, char* argv[]) {
             if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
                 res->upgrade(req, [req, res](const std::string& name) {
                     if (!name.empty()) {
-                        VLOG(1) << "Successful upgrade to '" << name << "'  requested: " << req->get("upgrade");
+                        VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->get("upgrade");
                     } else {
                         VLOG(1) << "Can not upgrade to any of '" << req->get("upgrade") << "'";
                     }
@@ -164,23 +166,23 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.listen([instanceName = tlsApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
-                                                                            const core::socket::State& state) {
-            switch (state) {
-                case core::socket::State::OK:
-                    VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
-                    break;
-                case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << " disabled";
-                    break;
-                case core::socket::State::ERROR:
-                    LOG(ERROR) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                    break;
-                case core::socket::State::FATAL:
-                    LOG(FATAL) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                    break;
-            }
-        });
+        tlsApp.listen(
+            [instanceName = tlsApp.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
+                switch (state) {
+                    case core::socket::State::OK:
+                        VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                        break;
+                    case core::socket::State::DISABLED:
+                        VLOG(1) << instanceName << " disabled";
+                        break;
+                    case core::socket::State::ERROR:
+                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        break;
+                    case core::socket::State::FATAL:
+                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        break;
+                }
+            });
     }
 
     return express::WebApp::start();

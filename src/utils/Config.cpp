@@ -278,7 +278,7 @@ namespace utils {
             verboseLevelOpt = app->add_option( //
                                      "-v,--verbose-level",
                                      "Verbose level") //
-                                  ->default_val(1)
+                                  ->default_val(2)
                                   ->type_name("level")
                                   ->check(CLI::Range(0, 10))
                                   ->group(app->get_formatter()->get_label("Persistent Options"));

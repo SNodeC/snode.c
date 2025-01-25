@@ -152,10 +152,10 @@ namespace core::socket::stream {
 
         SocketReader::shutdownRead();
 
-        if (physicalSocket.shutdown(PhysicalSocket::SHUT::RD) != 0) {
-            PLOG(TRACE) << instanceName << " Shutdown (RD, " << getFd() << ")";
+        if (physicalSocket.shutdown(PhysicalSocket::SHUT::RD) == 0) {
+            LOG(DEBUG) << instanceName << " Shutdown (RD, " << getFd() << ") success";
         } else {
-            LOG(TRACE) << instanceName << " Shutdown (RD, " << getFd() << ") success";
+            PLOG(ERROR) << instanceName << " Shutdown (RD, " << getFd() << ")";
         }
     }
 
@@ -191,10 +191,12 @@ namespace core::socket::stream {
 
         setTimeout(SocketWriter::terminateTimeout);
 
+        LOG(TRACE) << instanceName << " Shutdown (WR, " << getFd() << ")";
+
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) == 0) {
-            LOG(TRACE) << instanceName << " Shutdown (WR, " << getFd() << ") success";
+            LOG(DEBUG) << instanceName << " Shutdown (WR, " << getFd() << ") success";
         } else {
-            PLOG(TRACE) << instanceName << " Shutdown (WR, " << getFd() << ")";
+            PLOG(ERROR) << instanceName << " Shutdown (WR, " << getFd() << ")";
         }
 
         onShutdown();
@@ -238,7 +240,7 @@ namespace core::socket::stream {
             case SIGABRT:
                 [[fallthrough]];
             case SIGHUP:
-                LOG(TRACE) << instanceName << " Shutting down due to signal '" << strsignal(signum) << "' (SIG"
+                LOG(DEBUG) << instanceName << " Shutting down due to signal '" << strsignal(signum) << "' (SIG"
                            << utils::system::sigabbrev_np(signum) << " = " << signum << ", " << getFd() << ")";
                 break;
             case SIGALRM:
@@ -250,13 +252,13 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readTimeout() {
-        LOG(TRACE) << instanceName << " Read timeout (" << getFd() << ")";
+        LOG(WARNING) << instanceName << " Read timeout (" << getFd() << ")";
         close();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::writeTimeout() {
-        LOG(TRACE) << instanceName << " Write timeout (" << getFd() << ")";
+        LOG(WARNING) << instanceName << " Write timeout (" << getFd() << ")";
         close();
     }
 

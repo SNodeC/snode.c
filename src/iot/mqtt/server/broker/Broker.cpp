@@ -56,10 +56,10 @@ namespace iot::mqtt::server::broker {
                     retainTree.fromJson(sessionStoreJson["retain_tree"]);
                     subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
 
-                    LOG(DEBUG) << "MQTT Broker: Persistent session data loaded successful";
+                    LOG(INFO) << "MQTT Broker: Persistent session data loaded successful";
                 } catch (const nlohmann::json::exception&) {
-                    LOG(DEBUG) << "MQTT Broker: Starting with empty session: Session store '" << sessionStoreFileName
-                               << "' empty or corrupted";
+                    LOG(INFO) << "MQTT Broker: Starting with empty session: Session store '" << sessionStoreFileName
+                              << "' empty or corrupted";
 
                     sessionStore.clear();
                     retainTree.clear();
@@ -71,7 +71,7 @@ namespace iot::mqtt::server::broker {
 
                 LOG(INFO) << "MQTT Broker: Restoring saved session done";
             } else {
-                PLOG(INFO) << "MQTT Broker: Could not read session store '" << sessionStoreFileName << "'";
+                PLOG(WARNING) << "MQTT Broker: Could not read session store '" << sessionStoreFileName << "'";
             }
         } else {
             LOG(INFO) << "MQTT Broker: Session not reloaded: Session store filename empty";
@@ -107,9 +107,9 @@ namespace iot::mqtt::server::broker {
 
                 sessionStoreFile.close();
 
-                LOG(DEBUG) << "MQTT Broker: Session store written '" << sessionStoreFileName << "'";
+                LOG(INFO) << "MQTT Broker: Session store written '" << sessionStoreFileName << "'";
             } else {
-                PLOG(DEBUG) << "MQTT Broker: Could not write session store '" << sessionStoreFileName << "'";
+                PLOG(ERROR) << "MQTT Broker: Could not write session store '" << sessionStoreFileName << "'";
             }
         } else {
             LOG(INFO) << "MQTT Broker: Session not saved: Session store filename empty";
@@ -185,10 +185,10 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::restartSession(const std::string& clientId) {
-        LOG(DEBUG) << "MQTT Broker:   Retained: Send Publish: " << clientId;
+        LOG(INFO) << "MQTT Broker:   Retained: Send PUBLISH: " << clientId;
         subscribtionTree.appear(clientId);
 
-        LOG(DEBUG) << "MQTT Broker:   Queued: Send Publish: " << clientId;
+        LOG(INFO) << "MQTT Broker:   Queued: Send PUBLISH: " << clientId;
         sessionStore[clientId].publishQueued();
     }
 
@@ -202,7 +202,8 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool retain) {
-        LOG(DEBUG) << "MQTT Broker: Send Publish: " << clientId;
+        LOG(INFO) << "MQTT Broker: Send PUBLISH: " << clientId;
+
         sessionStore[clientId].sendPublish(message, qoS, retain);
     }
 

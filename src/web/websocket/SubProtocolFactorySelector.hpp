@@ -45,7 +45,7 @@ namespace web::websocket {
                 subProtocolFactory = getSubProtocolFactory();
                 if (subProtocolFactory != nullptr) {
                     subProtocolFactory->setHandle(handle);
-                    LOG(DEBUG) << "WebSocket: SubProtocolFactory created successfull: " << subProtocolName;
+                    LOG(DEBUG) << "WebSocket: SubProtocolFactory created successful: " << subProtocolName;
                 } else {
                     LOG(DEBUG) << "WebSocket: SubProtocolFactory not created: " << subProtocolName;
                     core::DynamicLoader::dlClose(handle);

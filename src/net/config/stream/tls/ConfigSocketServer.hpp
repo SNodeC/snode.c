@@ -127,13 +127,13 @@ namespace net::config::stream::tls {
                             LOG(TRACE) << getInstanceName() << " SSL/TLS: SSL_CTX (S) sni for '" << san << "' from SAN installed";
                         }
                     } else {
-                        LOG(TRACE) << getInstanceName() << " SSL/TLS: Can not create SNI_SSL_CTX for domain '" << domain << "'";
+                        LOG(WARNING) << getInstanceName() << " SSL/TLS: Can not create SNI_SSL_CTX for domain '" << domain << "'";
                     }
                 }
             }
             LOG(TRACE) << getInstanceName() << " SSL/TLS: SNI list result:";
             for (const auto& [sni, ctx] : sniCtxMap) {
-                LOG(TRACE) << "  SNI: " << sni;
+                LOG(TRACE) << "  " << sni;
             }
         }
 
@@ -142,21 +142,21 @@ namespace net::config::stream::tls {
 
     template <typename ConfigSocketServerBase>
     SSL_CTX* ConfigSocketServer<ConfigSocketServerBase>::getSniCtx(const std::string& serverNameIndication) {
-        LOG(TRACE) << getInstanceName() << " SSL/TLS: Lookup for sni='" << serverNameIndication << "' in sni certificates";
+        LOG(TRACE) << getInstanceName() << " SSL/TLS SNI: Lookup for sni='" << serverNameIndication << "' in sni certificates";
 
         SSL_CTX* sniCtx = nullptr;
 
         std::map<std::string, SSL_CTX*>::iterator sniPairIt = std::find_if(
             sniCtxMap.begin(), sniCtxMap.end(), [&serverNameIndication, this](const std::pair<std::string, SSL_CTX*>& sniPair) -> bool {
-                LOG(TRACE) << getInstanceName() << " SSL/TLS:  .. " << sniPair.first.c_str();
+                LOG(TRACE) << getInstanceName() << " SSL/TLS SNI:  .. " << sniPair.first.c_str();
                 return core::socket::stream::tls::match(sniPair.first.c_str(), serverNameIndication.c_str());
             });
 
         if (sniPairIt != sniCtxMap.end()) {
-            LOG(TRACE) << getInstanceName() << " SSL/TLS: found '" << sniPairIt->first << "'";
+            LOG(TRACE) << getInstanceName() << " SSL/TLS SNI: found for " << serverNameIndication << " -> '" << sniPairIt->first << "'";
             sniCtx = sniPairIt->second;
         } else {
-            LOG(TRACE) << getInstanceName() << " SSL/TLS: not found";
+            LOG(WARNING) << getInstanceName() << " SSL/TL SNI: not found for " << serverNameIndication;
         }
 
         return sniCtx;
@@ -172,20 +172,21 @@ namespace net::config::stream::tls {
 
         if (!serverNameIndication.empty()) {
             SSL_CTX* sniSslCtx = config->getSniCtx(serverNameIndication);
+
             if (sniSslCtx != nullptr) {
-                LOG(TRACE) << config->getInstanceName() << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
+                LOG(DEBUG) << config->getInstanceName() << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
                 core::socket::stream::tls::ssl_set_ssl_ctx(ssl, sniSslCtx);
             } else if (config->getForceSni()) {
-                LOG(TRACE) << config->getInstanceName() << " SSL/TLS: No sni certificate found for '" << serverNameIndication
+                LOG(ERROR) << config->getInstanceName() << " SSL/TLS: No sni certificate found for '" << serverNameIndication
                            << "' but forceSni set - terminating";
                 ret = SSL_CLIENT_HELLO_ERROR;
                 *al = SSL_AD_UNRECOGNIZED_NAME;
             } else {
-                LOG(TRACE) << config->getInstanceName() << " SSL/TLS: No sni certificate found for '" << serverNameIndication
-                           << "'. Still using master certificate";
+                LOG(WARNING) << config->getInstanceName() << " SSL/TLS: No sni certificate found for '" << serverNameIndication
+                             << "'. Still using master certificate";
             }
         } else {
-            LOG(TRACE) << config->getInstanceName() << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
+            LOG(DEBUG) << config->getInstanceName() << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
         }
 
         return ret;

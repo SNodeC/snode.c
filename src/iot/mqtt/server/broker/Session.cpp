@@ -42,19 +42,21 @@ namespace iot::mqtt::server::broker {
     }
 
     void Session::sendPublish(Message& message, uint8_t qoS, bool retain) {
-        LOG(DEBUG) << "MQTT Broker:   TopicName: " << message.getTopic();
-        LOG(DEBUG) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
+        LOG(INFO) << "MQTT Broker:   TopicName: " << message.getTopic();
+        LOG(INFO) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
         LOG(DEBUG) << "MQTT Broker:   QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
+            LOG(DEBUG) << "MQTT Broker:   ClientId: " << mqtt->getClientId();
+            LOG(DEBUG) << "MQTT Broker:   OriginClientId: " << message.getOriginClientId();
+
             if ((mqtt->getReflect() || mqtt->getClientId() != message.getOriginClientId())) {
                 mqtt->sendPublish(message.getTopic(),
                                   message.getMessage(),
                                   std::min(message.getQoS(), qoS),
                                   !mqtt->getReflect() ? message.getOriginRetain() || retain : retain);
             } else {
-                LOG(DEBUG) << "MQTT Broker:   Suppress reflection to origin to avoid message looping";
-                LOG(DEBUG) << "               Origin: " << message.getOriginClientId();
+                LOG(INFO) << "MQTT Broker:     Suppress reflection to origin to avoid message looping";
             }
         } else {
             if (message.getQoS() == 0) {
@@ -67,11 +69,11 @@ namespace iot::mqtt::server::broker {
     }
 
     void Session::publishQueued() {
-        LOG(DEBUG) << "MQTT Broker:     send queued messages ...";
+        LOG(INFO) << "MQTT Broker:     send queued messages ...";
         for (iot::mqtt::server::broker::Message& message : messageQueue) {
             sendPublish(message, message.getQoS(), false);
         }
-        LOG(DEBUG) << "MQTT Broker:     ... done";
+        LOG(INFO) << "MQTT Broker:     ... done";
 
         messageQueue.clear();
     }

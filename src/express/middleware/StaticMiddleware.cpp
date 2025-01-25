@@ -19,6 +19,9 @@
 
 #include "express/middleware/StaticMiddleware.h"
 
+#include "core/socket/stream/SocketConnection.h"
+#include "web/http/server/SocketContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -35,18 +38,24 @@ namespace express::middleware {
             [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
                 req, res, next) {
                 if (req->method == "GET") {
+                    LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getInstanceName()
+                               << " Express StaticMiddleware correct method: " << req->method;
+
                     if (connectionState == web::http::ConnectionState::Close) {
                         res->set("Connection", "close");
                     } else if (connectionState == web::http::ConnectionState::Keep) {
                         res->set("Connection", "keep-alive");
                     }
                     res->set(stdHeaders);
+
                     for (auto& [value, options] : stdCookies) {
                         res->cookie(value, options.getValue(), options.getOptions());
                     }
                     next();
                 } else {
-                    LOG(INFO) << "Express StaticMiddleware: Wrong method " << req->method;
+                    LOG(ERROR) << res->getSocketContext()->getSocketConnection()->getInstanceName()
+                               << " Express StaticMiddleware wrong method: " << req->method;
+
                     if (connectionState == web::http::ConnectionState::Close) {
                         res->set("Connection", "close");
                     } else if (connectionState == web::http::ConnectionState::Keep) {
@@ -57,7 +66,8 @@ namespace express::middleware {
             },
             [] MIDDLEWARE(req, res, next) {
                 if (req->url == "/") {
-                    LOG(INFO) << "Express StaticMiddleware: REDIRECTING " + req->url + " -> " + "/index.html";
+                    LOG(INFO) << res->getSocketContext()->getSocketConnection()->getInstanceName()
+                              << " Express StaticMiddleware Redirecting: " << req->url << " -> " << "/index.html'";
                     res->redirect(308, "/index.html");
                 } else {
                     next();
@@ -65,9 +75,13 @@ namespace express::middleware {
             },
             [&root = this->root] APPLICATION(req, res) {
                 res->sendFile(root + req->url, [&root, req, res](int ret) {
-                    PLOG(INFO) << "Express StaticMiddleware: GET " + req->url + " -> " + root + req->url;
+                    if (ret == 0) {
+                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getInstanceName() << " Express StaticMiddleware: GET "
+                                  << req->url + " -> " << root + req->url;
+                    } else {
+                        PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getInstanceName() << " Express StaticMiddleware "
+                                    << req->url + " -> " << root + req->url;
 
-                    if (ret != 0) {
                         res->status(404).end();
                     }
                 });

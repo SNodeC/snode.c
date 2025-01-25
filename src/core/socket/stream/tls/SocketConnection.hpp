@@ -160,9 +160,9 @@ namespace core::socket::stream::tls {
                     SocketWriter::resume();
                 }
                 if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-                    LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Close_notify received and sent";
+                    LOG(DEBUG) << Super::getInstanceName() << " SSL/TLS: Close_notify received and sent";
                 } else {
-                    LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Close_notify sent";
+                    LOG(DEBUG) << Super::getInstanceName() << " SSL/TLS: Close_notify sent";
 
                     if (SSL_get_shutdown(ssl) == SSL_SENT_SHUTDOWN && SocketWriter::closeNotifyIsEOF) {
                         LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Close_notify is EOF: setting sslShutdownTimeout to "
@@ -178,7 +178,7 @@ namespace core::socket::stream::tls {
                 if (resumeSocketWriter) {
                     SocketWriter::resume();
                 }
-                LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Shutdown handshake timed out";
+                LOG(ERROR) << Super::getInstanceName() << " SSL/TLS: Shutdown handshake timed out";
                 Super::doWriteShutdown([this]() {
                     SocketConnection::close();
                 });
@@ -202,16 +202,16 @@ namespace core::socket::stream::tls {
     void SocketConnection<PhysicalSocket>::onReadShutdown() {
         if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
             if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
-                LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Close_notify sent and received";
+                LOG(DEBUG) << Super::getInstanceName() << " SSL/TLS: Close_notify sent and received";
 
                 SocketWriter::shutdownInProgress = false;
             } else {
-                LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Close_notify received";
+                LOG(DEBUG) << Super::getInstanceName() << " SSL/TLS: Close_notify received";
 
                 doSSLShutdown();
             }
         } else {
-            LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Unexpected EOF error";
+            LOG(ERROR) << Super::getInstanceName() << " SSL/TLS: Unexpected EOF error";
 
             SocketWriter::shutdownInProgress = false;
             SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
@@ -221,7 +221,7 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocket>
     void SocketConnection<PhysicalSocket>::doWriteShutdown(const std::function<void()>& onShutdown) {
         if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
-            LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Send close_notify";
+            LOG(DEBUG) << Super::getInstanceName() << " SSL/TLS: Send close_notify";
 
             doSSLShutdown();
         } else {

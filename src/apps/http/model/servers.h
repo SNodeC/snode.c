@@ -75,10 +75,10 @@ namespace apps::http::tls {
         WebApp webApp(name, getRouter());
 
         webApp.setOnConnect([webApp](SocketConnection* socketConnection) { // onConnect
-            LOG(INFO) << "OnConnect " << webApp.getConfig().getInstanceName();
+            VLOG(1) << "OnConnect " << webApp.getConfig().getInstanceName();
 
-            LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -91,23 +91,21 @@ namespace apps::http::tls {
         });
 
         webApp.setOnConnected([webApp](SocketConnection* socketConnection) { // onConnected
-            LOG(INFO) << "OnConnected " << webApp.getConfig().getInstanceName();
-
-            //            webApp.use(express::middleware::StaticMiddleware(htmlRoot->as<std::string>()));
+            VLOG(1) << "OnConnected " << webApp.getConfig().getInstanceName();
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                LOG(INFO) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
-                                 std::string(X509_verify_cert_error_string(verifyErr));
+                VLOG(1) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
+                               std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                LOG(INFO) << "\t   Subject: " + std::string(str);
+                VLOG(1) << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                LOG(INFO) << "\t   Issuer: " + std::string(str);
+                VLOG(1) << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -168,15 +166,15 @@ namespace apps::http::tls {
 #endif
                 X509_free(server_cert);
             } else {
-                LOG(INFO) << "\tPeer certificate: no certificate";
+                LOG(WARNING) << "\tPeer certificate: no certificate";
             }
         });
 
         webApp.setOnDisconnect([webApp](SocketConnection* socketConnection) { // onDisconnect
-            LOG(INFO) << "OnDisconnect " << webApp.getConfig().getInstanceName();
+            VLOG(1) << "OnDisconnect " << webApp.getConfig().getInstanceName();
 
-            LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         return webApp;

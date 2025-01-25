@@ -43,17 +43,17 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 static void logResponse(const std::shared_ptr<web::http::client::Request>& req, const std::shared_ptr<web::http::client::Response>& res) {
-    LOG(INFO) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnResponse";
-    LOG(INFO) << "   Request: " << req->method << " " << req->url << " HTTP/" << req->httpMajor << "." << req->httpMinor << "\n"
-              << httputils::toString(req->method,
-                                     req->url,
-                                     "HTTP/" + std::to_string(req->httpMajor) + "." + std::to_string(req->httpMinor),
-                                     req->getQueries(),
-                                     req->getHeaders(),
-                                     req->getCookies(),
-                                     {})
-              << "\n"
-              << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
+    VLOG(1) << req->getSocketContext()->getSocketConnection()->getInstanceName() << " HTTP response: " << req->method << " " << req->url
+            << " HTTP/" << req->httpMajor << "." << req->httpMinor << "\n"
+            << httputils::toString(req->method,
+                                   req->url,
+                                   "HTTP/" + std::to_string(req->httpMajor) + "." + std::to_string(req->httpMinor),
+                                   req->getQueries(),
+                                   req->getHeaders(),
+                                   req->getCookies(),
+                                   {})
+            << "\n"
+            << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
 }
 
 #if (STREAM_TYPE == LEGACY) // legacy
@@ -69,7 +69,7 @@ namespace apps::http::legacy {
         Client client(
             "httpclient",
             [](const std::shared_ptr<Request>& req) {
-                LOG(INFO) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestStart";
+                VLOG(1) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestStart";
 
                 req->httpMinor = 0;
                 req->url = "/";
@@ -173,7 +173,6 @@ namespace apps::http::legacy {
                 req->httpMinor = 1;
                 req->method = "POST";
                 req->url = "/";
-                //                req->set("Connection", "keep-alive");
                 req->set("Test", "aaa");
                 req->setTrailer("MyTrailer1",
                                 "MyTrailerValue1"); // Full trailer processing. Header field "Trailer" set and the Trailer itself is also
@@ -188,12 +187,14 @@ namespace apps::http::legacy {
                 req->sendFile(
                     "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
                     [req](int ret) {
-                        PLOG(INFO) << "HTTP-Client: POST /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-
                         if (ret == 0) {
-                            LOG(INFO) << "Send /home/voc/projects/snodec/snode.c/CMakeLists.txt started";
+                            VLOG(1) << req->getSocketContext()->getSocketConnection()->getInstanceName()
+                                    << " HTTP: Request accepted: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                            VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         } else {
-                            LOG(INFO) << "Send /home/voc/projects/snodec/snode.c/CMakeLists.txt failed";
+                            LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getInstanceName()
+                                       << " HTTP: Request failed: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                            PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
 
                             req->set("Connection", "close");
                             req->end([]([[maybe_unused]] const std::shared_ptr<Request>& req,
@@ -213,9 +214,13 @@ namespace apps::http::legacy {
                             "/home/voc/projects/snodec/snode.c/CMakeLists.tt",
                             [req](int ret) {
                                 if (ret == 0) {
-                                    LOG(INFO) << "HTTP-Client: POST  /home/voc/projects/snodec/snode.c/CMakeLists.tt started";
+                                    VLOG(1) << req->getSocketContext()->getSocketConnection()->getInstanceName()
+                                            << " HTTP: Request accepted: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                    VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
                                 } else {
-                                    PLOG(INFO) << "HTTP-Client: POST  /home/voc/projects/snodec/snode.c/CMakeLists.tt failed";
+                                    LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getInstanceName()
+                                               << " HTTP: Request failed: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                    PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
 
                                     req->init();
                                     req->method = "GET";
@@ -231,6 +236,14 @@ namespace apps::http::legacy {
                                 logResponse(req, res);
                             });
                     });
+                req->init();
+                req->method = "GET";
+                req->url = "/";
+                req->set("Connection", "close");
+                req->set("Test", "xxx");
+                req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                    logResponse(req, res);
+                });
                 core::EventReceiver::atNextTick([req]() {
                     req->method = "POST";
                     req->url = "/";
@@ -239,12 +252,19 @@ namespace apps::http::legacy {
                     req->sendFile(
                         "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
                         [req](int ret) {
-                            PLOG(INFO) << "HTTP-Client: POST /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-
                             if (ret == 0) {
-                                LOG(INFO) << "Send /home/voc/projects/snodec/snode.c/CMakeLists.txt started";
+                                VLOG(1) << req->getSocketContext()->getSocketConnection()->getInstanceName()
+                                        << " HTTP: Request accepted: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                             } else {
-                                LOG(INFO) << "Send /home/voc/projects/snodec/snode.c/CMakeLists.txt failed";
+                                LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getInstanceName()
+                                           << " HTTP: Request failed: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+
+                                req->set("Connection", "close");
+                                req->end([]([[maybe_unused]] const std::shared_ptr<Request>& req,
+                                            [[maybe_unused]] const std::shared_ptr<Response>& res) {
+                                });
                             }
                         },
                         [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -260,12 +280,19 @@ namespace apps::http::legacy {
                     req->sendFile(
                         "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
                         [req](int ret) {
-                            PLOG(INFO) << "HTTP-Client: POST /home/voc/projects/snodec/snode.c/CMakeLists.txt ";
-
                             if (ret == 0) {
-                                LOG(INFO) << "Send /home/voc/projects/snodec/snode.c/CMakeLists.txt started ";
+                                VLOG(1) << req->getSocketContext()->getSocketConnection()->getInstanceName()
+                                        << " HTTP: Request accepted: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                             } else {
-                                LOG(INFO) << " Send /home/voc/projects/snodec/snode.c/CMakeLists.txt failed";
+                                LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getInstanceName()
+                                           << " HTTP: Request failed: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+
+                                req->set("Connection", "close");
+                                req->end([]([[maybe_unused]] const std::shared_ptr<Request>& req,
+                                            [[maybe_unused]] const std::shared_ptr<Response>& res) {
+                                });
                             }
                         },
                         [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -275,21 +302,21 @@ namespace apps::http::legacy {
 #endif
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
-                LOG(INFO) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestEnd";
+                VLOG(1) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestEnd";
             });
 
         client.setOnConnect([](SocketConnection* socketConnection) { // onConnect
-            LOG(INFO) << socketConnection->getInstanceName() << ": OnConnect";
+            VLOG(1) << socketConnection->getInstanceName() << ": OnConnect";
 
-            LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         client.setOnDisconnect([](SocketConnection* socketConnection) { // onDisconnect
-            LOG(INFO) << socketConnection->getInstanceName() << ": OnDisconnect";
+            VLOG(1) << socketConnection->getInstanceName() << ": OnDisconnect";
 
-            LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         return client;
@@ -312,7 +339,7 @@ namespace apps::http::tls {
         Client client(
             "httpclient",
             [](const std::shared_ptr<Request>& req) {
-                LOG(INFO) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestStart";
+                VLOG(1) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestStart";
 
                 req->url = "/";
                 req->set("Connection", "keep-alive");
@@ -406,14 +433,14 @@ namespace apps::http::tls {
                 });
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
-                LOG(INFO) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestEnd";
+                VLOG(1) << req->getSocketContext()->getSocketConnection()->getInstanceName() << ": OnRequestEnd";
             });
 
         client.setOnConnect([](SocketConnection* socketConnection) { // onConnect
-            LOG(INFO) << "OnConnect " << socketConnection->getInstanceName();
+            VLOG(1) << "OnConnect " << socketConnection->getInstanceName();
 
-            LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -426,20 +453,20 @@ namespace apps::http::tls {
         });
 
         client.setOnConnected([](SocketConnection* socketConnection) { // onConnected
-            LOG(INFO) << socketConnection->getInstanceName() << ": OnConnected";
+            VLOG(1) << socketConnection->getInstanceName() << ": OnConnected";
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                LOG(INFO) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
-                                 std::string(X509_verify_cert_error_string(verifyErr));
+                VLOG(1) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
+                               std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                LOG(INFO) << "\t   Subject: " + std::string(str);
+                VLOG(1) << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                LOG(INFO) << "\t   Issuer: " + std::string(str);
+                VLOG(1) << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -476,14 +503,14 @@ namespace apps::http::tls {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
+                        VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
+                        VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
                     } else {
-                        VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                     }
                 }
 #ifdef __GNUC__
@@ -500,15 +527,15 @@ namespace apps::http::tls {
 #endif
                 X509_free(server_cert);
             } else {
-                LOG(INFO) << "\tPeer certificate: no certificate";
+                VLOG(1) << "\tPeer certificate: no certificate";
             }
         });
 
         client.setOnDisconnect([](SocketConnection* socketConnection) { // onDisconnect
-            LOG(INFO) << socketConnection->getInstanceName() << ": OnDisconnect";
+            VLOG(1) << socketConnection->getInstanceName() << ": OnDisconnect";
 
-            LOG(INFO) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            LOG(INFO) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         return client;

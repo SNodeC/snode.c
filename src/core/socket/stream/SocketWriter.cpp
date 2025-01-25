@@ -111,10 +111,10 @@ namespace core::socket::stream {
                     source->suspend();
                 }
             } else {
-                LOG(TRACE) << getName() << ": Send request while not enabled";
+                LOG(WARNING) << getName() << ": Send while not enabled";
             }
         } else {
-            LOG(TRACE) << getName() << ": Send request while shutdown in progress";
+            LOG(WARNING) << getName() << ": Send while shutdown in progress";
         }
     }
 
@@ -128,13 +128,13 @@ namespace core::socket::stream {
                 if (success) {
                     LOG(TRACE) << getName() << ": Stream started";
                 } else {
-                    LOG(TRACE) << getName() << ": Stream source is nullptr";
+                    LOG(WARNING) << getName() << ": Stream source is nullptr";
                 }
             } else {
-                LOG(TRACE) << getName() << ": Stream request while not enabled";
+                LOG(WARNING) << getName() << ": Stream while not enabled";
             }
         } else {
-            LOG(TRACE) << getName() << ": Stream request while shutdown in progress";
+            LOG(WARNING) << getName() << ": Stream while shutdown in progress";
         }
 
         this->source = source;

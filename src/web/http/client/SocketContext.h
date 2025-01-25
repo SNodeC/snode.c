@@ -53,6 +53,8 @@ namespace web::http::client {
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd,
                       bool pipelinedRequests);
 
+        ~SocketContext() override;
+
     private:
         void requestPrepared(Request&& request);
         void initiateRequest(Request& request);

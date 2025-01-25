@@ -44,11 +44,11 @@ namespace web::websocket {
             pingTimer = core::timer::Timer::intervalTimer(
                 [this, maxFlyingPings](const std::function<void()>& stop) {
                     if (flyingPings < maxFlyingPings) {
-                        LOG(INFO) << "WebSocket: Ping sent";
+                        LOG(DEBUG) << "WebSocket: Ping sent";
                         sendPing();
                         flyingPings++;
                     } else {
-                        LOG(INFO) << "WebSocket: MaxFlyingPings exceeded - closing";
+                        LOG(WARNING) << "WebSocket: MaxFlyingPings exceeded - closing";
                         sendClose();
                         stop();
                     }
@@ -116,7 +116,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::onPongReceived() {
-        LOG(INFO) << "WebSocket: Pong received";
+        LOG(DEBUG) << "WebSocket: Pong received";
         flyingPings = 0;
     }
 

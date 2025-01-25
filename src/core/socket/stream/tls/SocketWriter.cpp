@@ -49,10 +49,10 @@ namespace core::socket::stream::tls {
                         LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
                         doSSLHandshake(
                             [this]() {
-                                LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
+                                LOG(DEBUG) << getName() << " SSL/TLS: Renegotiation on read success";
                             },
                             [this]() {
-                                LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
+                                LOG(WARNING) << getName() << " SSL/TLS: Renegotiation on read timed out";
                             },
                             [this](int ssl_err) {
                                 ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
@@ -65,7 +65,7 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
-                        LOG(TRACE) << getName() << " SSL/TLS: Close_notify received. Is EOF? " << (closeNotifyIsEOF ? "true" : "false");
+                        LOG(DEBUG) << getName() << " SSL/TLS: Close_notify received. Is EOF? " << (closeNotifyIsEOF ? "true" : "false");
                         errno = closeNotifyIsEOF ? EPIPE : EAGAIN;
                         ret = -1; // on the write side this means a TCP broken pipe
                         break;
@@ -75,11 +75,11 @@ namespace core::socket::stream::tls {
                             const utils::PreserveErrno pe;
 
                             if (errno == EPIPE) {
-                                PLOG(TRACE) << getName() << " SSL/TLS: Syscal error (SIGPIPE detected) on write.";
+                                PLOG(WARNING) << getName() << " SSL/TLS: Syscal error (SIGPIPE detected) on write.";
                             } else if (errno == ECONNRESET) {
-                                PLOG(TRACE) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
+                                PLOG(WARNING) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
                             } else {
-                                PLOG(TRACE) << getName() << " SSL/TLS: Syscall error on write";
+                                PLOG(WARNING) << getName() << " SSL/TLS: Syscall error on write";
                             }
                         }
                         ret = -1;

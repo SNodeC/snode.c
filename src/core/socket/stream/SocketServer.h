@@ -70,26 +70,27 @@ namespace core::socket::stream {
             : SocketServer("", onConnect, onConnected, onDisconnect, std::forward<Args>(args)...) {
         }
 
+        // VLOG() is used hire as this are log messages for the application
         SocketServer(const std::string& name, Args&&... args)
             : SocketServer(
                   name,
                   [name](SocketConnection* socketConnection) { // onConnect
-                      LOG(INFO) << name << ": OnConnect";
+                      VLOG(2) << name << ": OnConnect";
 
-                      LOG(INFO) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "  Peer:  " << socketConnection->getRemoteAddress().toString();
+                      VLOG(2) << "  Local: " << socketConnection->getLocalAddress().toString();
+                      VLOG(2) << "   Peer: " << socketConnection->getRemoteAddress().toString();
                   },
                   [name](SocketConnection* socketConnection) { // onConnected
-                      LOG(INFO) << name << ": OnConnected";
+                      VLOG(2) << name << ": OnConnected";
 
-                      LOG(INFO) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "  Peer:  " << socketConnection->getRemoteAddress().toString();
+                      VLOG(2) << "  Local: " << socketConnection->getLocalAddress().toString();
+                      VLOG(2) << "   Peer: " << socketConnection->getRemoteAddress().toString();
                   },
                   [name](SocketConnection* socketConnection) { // onDisconnect
-                      LOG(INFO) << name << ": OnDisconnect";
+                      VLOG(2) << name << ": OnDisconnect";
 
-                      LOG(INFO) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(INFO) << "  Peer:  " << socketConnection->getRemoteAddress().toString();
+                      VLOG(2) << "  Local: " << socketConnection->getLocalAddress().toString();
+                      VLOG(2) << "   Peer: " << socketConnection->getRemoteAddress().toString();
                   },
                   std::forward<Args>(args)...) {
         }

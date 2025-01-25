@@ -265,7 +265,7 @@ namespace web::websocket {
                          << " ";
 
             if ((i + 1) % modul == 0 || i == frameLength) {
-                LOG(TRACE) << "WebSocket: Frame = " << stringStream.str();
+                LOG(DEBUG) << "WebSocket: Frame = " << stringStream.str();
                 stringStream.str("");
             }
         }

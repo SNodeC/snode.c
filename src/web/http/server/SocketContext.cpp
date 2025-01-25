@@ -43,17 +43,20 @@ namespace web::http::server {
         , parser(
               this,
               [this]() {
-                  requestStarted();
+                  LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP Request started";
               },
               [this](web::http::server::Request&& request) {
-                  if (!currentRequest) {
-                      deliverRequest(request);
-                  } else {
-                      pendingRequests.emplace_back(std::move(request));
+                  LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP Request parsed: " << request.method << " " << request.url
+                            << " HTTP/" << request.httpMajor << "." << request.httpMinor;
+
+                  pendingRequests.emplace_back(std::make_shared<Request>(std::move(request)));
+
+                  if (pendingRequests.size() == 1) {
+                      deliverRequest();
                   }
               },
               [this](int status, const std::string& reason) {
-                  LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parse error: " << reason << " (" << status
+                  LOG(ERROR) << getSocketConnection()->getInstanceName() << " HTTP Request parse error: " << reason << " (" << status
                              << ") ";
 
                   masterResponse->status(status).send(reason);
@@ -62,32 +65,42 @@ namespace web::http::server {
               }) {
     }
 
-    void SocketContext::requestStarted() {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request started";
-    }
+    void SocketContext::deliverRequest() {
+        if (!pendingRequests.empty()) {
+            const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
-    void SocketContext::deliverRequest(web::http::server::Request& request) {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request parsed " << request.method << " " << request.url;
+            LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP Request ready: " << pendingRequest->method << " "
+                      << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
 
-        currentRequest = std::make_shared<Request>(std::move(request));
+            masterResponse->init();
+            masterResponse->httpMajor = pendingRequest->httpMajor;
+            masterResponse->httpMinor = pendingRequest->httpMinor;
 
-        masterResponse->init();
-        masterResponse->httpMajor = currentRequest->httpMajor;
-        masterResponse->httpMinor = currentRequest->httpMinor;
-        const std::string connection = currentRequest->get("Connection");
-        if (!connection.empty()) {
-            masterResponse->set("Connection", connection);
+            const std::string connection = pendingRequest->get("Connection");
+            if (!connection.empty()) {
+                masterResponse->set("Connection", connection);
+            }
+
+            onRequestReady(pendingRequest, masterResponse);
+        } else {
+            LOG(INFO) << getSocketConnection()->getInstanceName() << " HTT Request: No more pending";
         }
-
-        onRequestReady(currentRequest, masterResponse);
     }
 
     void SocketContext::responseStarted() {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response started";
+        const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
+
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP Response started: " << pendingRequest->method << " "
+                  << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
     }
 
     void SocketContext::responseCompleted(bool success) {
         if (success) {
+            const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
+
+            LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP Response completed: " << pendingRequest->method << " "
+                      << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+
             httpClose = masterResponse->connectionState == ConnectionState::Close ||
                         (masterResponse->connectionState == ConnectionState::Default &&
                          ((masterResponse->httpMajor == 0 && masterResponse->httpMinor == 9) ||
@@ -95,30 +108,29 @@ namespace web::http::server {
 
             requestCompleted();
         } else {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Response wrong content length";
+            LOG(WARNING) << getSocketConnection()->getInstanceName() << " HTTP Response wrong content length";
 
             shutdownWrite(true);
         }
     }
 
     void SocketContext::requestCompleted() {
-        LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Request completed";
+        const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
+
+        LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP Request completed: " << pendingRequest->method << " "
+                  << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
 
         if (httpClose) {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
+            LOG(INFO) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Close";
 
             shutdownWrite();
         } else {
-            LOG(TRACE) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
+            LOG(DEBUG) << getSocketConnection()->getInstanceName() << " HTTP: Connection = Keep-Alive";
 
             core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->masterResponse)]() {
                 if (!response.expired()) {
-                    if (!pendingRequests.empty()) {
-                        deliverRequest(pendingRequests.front());
-                        pendingRequests.pop_front();
-                    } else {
-                        currentRequest = nullptr;
-                    }
+                    pendingRequests.pop_front();
+                    deliverRequest();
                 }
             });
         }

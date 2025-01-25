@@ -272,7 +272,7 @@ namespace core {
     }
 
     void EventLoop::stoponsig(int sig) {
-        LOG(INFO) << "Core: Received signal '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
+        LOG(TRACE) << "Core: Received signal '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
         stopsig = sig;
         stop();
     }

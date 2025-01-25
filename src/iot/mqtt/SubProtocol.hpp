@@ -86,10 +86,10 @@ namespace iot::mqtt {
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
         if (opCode == web::websocket::SubProtocolContext::OpCode::TEXT) {
-            LOG(DEBUG) << "WSMQTT: Wrong Opcode: " << opCode;
+            LOG(ERROR) << "WSMQTT: Wrong Opcode: " << opCode;
             this->end(true);
         } else {
-            LOG(TRACE) << "WSMQTT: Message START: " << opCode;
+            LOG(DEBUG) << "WSMQTT: Message START: " << opCode;
         }
     }
 
@@ -97,13 +97,13 @@ namespace iot::mqtt {
     void SubProtocol<WSSubProtocolRole>::onMessageData(const char* chunk, std::size_t chunkLen) {
         data.append(std::string(chunk, chunkLen));
 
-        LOG(TRACE) << "WebSocket: Frame Data:\n"
+        LOG(DEBUG) << "WebSocket: Frame Data:\n"
                    << std::string(32, ' ').append(utils::hexDump(std::vector<char>(chunk, chunk + chunkLen), 32));
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageEnd() {
-        LOG(TRACE) << "WSMQTT: Message END";
+        LOG(DEBUG) << "WSMQTT: Message END";
 
         buffer.insert(buffer.end(), data.begin(), data.end());
         size += data.size();
@@ -121,13 +121,13 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) {
-        LOG(DEBUG) << "WSMQTT: Message error: " << errnum;
+        LOG(ERROR) << "WSMQTT: Message error: " << errnum;
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onDisconnected() {
         iot::mqtt::MqttContext::onDisconnected();
-        LOG(INFO) << "WSMQTT: disconnected:";
+        LOG(DEBUG) << "WSMQTT: disconnected:";
     }
 
     template <typename WSSubProtocolRole>

@@ -233,8 +233,8 @@ namespace web::http::client {
     }
 
     void Request::responseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
-        LOG(TRACE) << "HTTP: Response parse error: " << request->method << " " << request->url << " "
-                   << "HTTP/" << request->httpMajor << "." << request->httpMinor << ": " << message;
+        LOG(WARNING) << "HTTP: Response parse error: " << request->method << " " << request->url << " "
+                     << "HTTP/" << request->httpMajor << "." << request->httpMinor << ": " << message;
     }
 
     bool Request::send(const char* chunk,
@@ -304,29 +304,39 @@ namespace web::http::client {
                         web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
 
                     if (socketContextUpgradeFactory != nullptr) {
+                        name = socketContextUpgradeFactory->name();
+
+                        LOG(DEBUG) << "HTTP upgrade: SocketContextUpgradeFactory created successful: " << name;
+
                         core::socket::stream::SocketContext* socketContextUpgrade =
                             socketContextUpgradeFactory->create(socketContext->getSocketConnection());
+
                         if (socketContextUpgrade != nullptr) {
-                            name = socketContextUpgradeFactory->name();
+                            LOG(DEBUG) << "HTTP upgrade: SocketContextUpgrade created successful: " << name;
+
                             socketContext->switchSocketContext(socketContextUpgrade);
                         } else {
-                            LOG(DEBUG) << "HTTP: SocketContextUpgrade not created";
+                            LOG(DEBUG) << "HTTP upgrade: Create SocketContextUpgrade failed: " << name;
+
                             socketContext->close();
                         }
                     } else {
-                        LOG(DEBUG) << "HTTP: SocketContextUpgradeFactory not existing";
+                        LOG(DEBUG) << "HTTP upgrade: SocketContextUpgradeFactory not supported by server: " << header("upgrade");
+
                         socketContext->close();
                     }
                 } else {
-                    LOG(DEBUG) << "HTTP: Response did not contain upgrade";
+                    LOG(DEBUG) << "HTTP upgrade: Not any protocol supported by server: " << header("upgrade");
+
                     socketContext->close();
                 }
             } else {
-                LOG(DEBUG) << "HTTP: Upgrade internal error: Response has gone away";
+                LOG(ERROR) << "HTTP upgrade: Response has gone away";
+
                 socketContext->close();
             }
         } else {
-            LOG(DEBUG) << "HTTP: Upgrade error: SocketContext has gone away";
+            LOG(ERROR) << "HTTP upgrade: SocketContext has gone away";
         }
 
         status(name);
@@ -474,7 +484,6 @@ namespace web::http::client {
             socketContextUpgradeFactory->checkRefCount();
 
             executeSendHeader();
-
         } else {
             socketContext->close();
         }
@@ -616,4 +625,5 @@ namespace web::http::client {
     SocketContext* Request::getSocketContext() const {
         return socketContext;
     }
+
 } // namespace web::http::client

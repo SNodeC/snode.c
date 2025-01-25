@@ -53,23 +53,22 @@ namespace core::socket::stream::tls {
                         break;
                     case SSL_ERROR_WANT_WRITE:
                         LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
-                        LOG(TRACE) << "SSL/TLS: "
-                                   << doSSLHandshake(
-                                          [this]() {
-                                              LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read success";
-                                          },
-                                          [this]() {
-                                              LOG(TRACE) << getName() << " SSL/TLS: Renegotiation on read timed out";
-                                          },
-                                          [this](int ssl_err) {
-                                              ssl_log(getName() + " SSL/TLS: Renegotiation on read", ssl_err);
-                                          });
+                        doSSLHandshake(
+                            [this]() {
+                                LOG(DEBUG) << getName() << " SSL/TLS: Renegotiation on read success";
+                            },
+                            [this]() {
+                                LOG(WARNING) << getName() << " SSL/TLS: Renegotiation on read timed out";
+                            },
+                            [this](int ssl_err) {
+                                ssl_log(getName() + " SSL/TLS: Renegotiation on read", ssl_err);
+                            });
                         errno = EAGAIN;
                         ret = -1;
                         break;
                     case SSL_ERROR_ZERO_RETURN: // received close_notify
+                        LOG(DEBUG) << getName() << " SSL/TLS: Close_notify is" << (closeNotifyIsEOF ? " " : " not ") << "EOF";
                         onReadShutdown();
-                        LOG(TRACE) << getName() << " SSL/TLS: Close_notify is" << (closeNotifyIsEOF ? " " : " not ") << "EOF";
                         errno = closeNotifyIsEOF ? 0 : EAGAIN;
                         ret = closeNotifyIsEOF ? 0 : -1;
                         break;
@@ -84,9 +83,9 @@ namespace core::socket::stream::tls {
                             const utils::PreserveErrno pe;
 
                             if (ret == 0) {
-                                PLOG(TRACE) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
+                                PLOG(DEBUG) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
                             } else {
-                                PLOG(TRACE) << getName() + " SSL/TLS: Syscall error on read";
+                                PLOG(WARNING) << getName() + " SSL/TLS: Syscall error on read";
                             }
                         }
                         ret = -1;

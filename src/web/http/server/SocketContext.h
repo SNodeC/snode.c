@@ -54,8 +54,7 @@ namespace web::http::server {
                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady);
 
     private:
-        void requestStarted();
-        void deliverRequest(web::http::server::Request& request);
+        void deliverRequest();
         void responseStarted();
         void responseCompleted(bool success);
         void requestCompleted();
@@ -68,9 +67,7 @@ namespace web::http::server {
         bool onSignal(int signum) override;
         void onWriteError(int errnum) override;
 
-        std::list<Request> pendingRequests;
-
-        std::shared_ptr<Request> currentRequest = nullptr;
+        std::list<std::shared_ptr<Request>> pendingRequests;
         std::shared_ptr<Response> masterResponse;
 
         RequestParser parser;

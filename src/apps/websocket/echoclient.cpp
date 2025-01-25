@@ -43,6 +43,8 @@ int main(int argc, char* argv[]) {
             [](const std::shared_ptr<Request>& req) {
                 VLOG(1) << "OnRequestBegin";
 
+                VLOG(1) << "Requesting upgrade to 'websocket' and any of the subprotocols 'subprotocol' and 'echo'";
+
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
                 if (!req->upgrade("/ws/",
@@ -50,13 +52,13 @@ int main(int argc, char* argv[]) {
                                   [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                                       VLOG(1) << "OnResponse";
                                       VLOG(2) << "  Status:";
-                                      VLOG(2) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
+                                      VLOG(2) << "    " << res->httpVersion << " " << res->statusCode << " " << res->reason;
                                       VLOG(2) << "  Headers:";
                                       for (const auto& [field, value] : res->headers) {
                                           VLOG(2) << "    " << field + " = " + value;
                                       }
 
-                                      VLOG(2) << "     Cookies:";
+                                      VLOG(2) << "  Cookies:";
                                       for (const auto& [name, cookie] : res->cookies) {
                                           VLOG(2) << "    " + name + " = " + cookie.getValue();
                                           for (const auto& [option, value] : cookie.getOptions()) {
@@ -66,7 +68,7 @@ int main(int argc, char* argv[]) {
 
                                       req->upgrade(res, [req](const std::string& name) {
                                           if (!name.empty()) {
-                                              VLOG(1) << "Successful upgrade to '" << name << "' requested: " << req->header("Upgrade");
+                                              VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->header("Upgrade");
                                           } else {
                                               VLOG(1) << "Can not upgrade to any of '" << req->header("Upgrade") << "'";
                                           }
@@ -76,7 +78,7 @@ int main(int argc, char* argv[]) {
                 }
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
-                LOG(INFO) << "OnRequestEnd";
+                VLOG(1) << "OnRequestEnd";
             });
 
         legacyClient.connect([instanceName = legacyClient.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
@@ -89,10 +91,10 @@ int main(int argc, char* argv[]) {
                     VLOG(1) << instanceName << " disabled";
                     break;
                 case core::socket::State::ERROR:
-                    LOG(ERROR) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    LOG(FATAL) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         }); // Connection:keep-alive\r\n\r\n"
@@ -107,6 +109,8 @@ int main(int argc, char* argv[]) {
             [](const std::shared_ptr<Request>& req) {
                 VLOG(1) << "OnRequestBegin";
 
+                VLOG(1) << "Requesting upgrade to 'websocket' and any of the subprotocols 'subprotocol' and 'echo'";
+
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
                 if (!req->upgrade("/ws/",
@@ -114,13 +118,13 @@ int main(int argc, char* argv[]) {
                                   [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                                       VLOG(1) << "OnResponse";
                                       VLOG(2) << "  Status:";
-                                      VLOG(2) << "       " << res->httpVersion << " " << res->statusCode << " " << res->reason;
+                                      VLOG(2) << "    " << res->httpVersion << " " << res->statusCode << " " << res->reason;
                                       VLOG(2) << "  Headers:";
                                       for (const auto& [field, value] : res->headers) {
                                           VLOG(2) << "    " << field + " = " + value;
                                       }
 
-                                      VLOG(2) << "     Cookies:";
+                                      VLOG(2) << "  Cookies:";
                                       for (const auto& [name, cookie] : res->cookies) {
                                           VLOG(2) << "    " + name + " = " + cookie.getValue();
                                           for (const auto& [option, value] : cookie.getOptions()) {
@@ -130,7 +134,7 @@ int main(int argc, char* argv[]) {
 
                                       req->upgrade(res, [req](const std::string& name) {
                                           if (!name.empty()) {
-                                              VLOG(1) << "Successful upgrade to '" << name << "' requested: " << req->header("Upgrade");
+                                              VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->header("Upgrade");
                                           } else {
                                               VLOG(1) << "Can not upgrade to any of '" << req->header("Upgrade") << "'";
                                           }
@@ -140,7 +144,7 @@ int main(int argc, char* argv[]) {
                 }
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
-                LOG(INFO) << "OnRequestEnd";
+                VLOG(1) << "OnRequestEnd";
             });
 
         tlsClient.connect([instanceName = tlsClient.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress,
@@ -153,10 +157,10 @@ int main(int argc, char* argv[]) {
                     VLOG(1) << instanceName << " disabled";
                     break;
                 case core::socket::State::ERROR:
-                    LOG(ERROR) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    LOG(FATAL) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         }); // Connection:keep-alive\r\n\r\n"

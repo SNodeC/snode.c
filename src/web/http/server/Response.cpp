@@ -27,6 +27,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/system/time.h"
 #include "web/http/CiStringMap.h"
 #include "web/http/http_utils.h"
@@ -228,19 +229,34 @@ namespace web::http::server {
 
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();
+                        LOG(DEBUG) << "HTTP upgrade: SocketContextUpgradeFactory created successful: " << name;
+
                         socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
-                        if (socketContextUpgrade == nullptr) {
+
+                        if (socketContextUpgrade != nullptr) {
+                            LOG(DEBUG) << "HTTP upgrade: SocketContextUpgrade created successful: " << name;
+                        } else {
+                            LOG(DEBUG) << "HTTP upgrade: Create SocketContextUpgrade failed: " << name;
+
                             set("Connection", "close").status(404);
                         }
                     } else {
+                        LOG(DEBUG) << "HTTP upgrade: SocketContextUpgradeFactory not supported: " << request->get("upgrade");
+
                         set("Connection", "close").status(404);
                     }
                 } else {
+                    LOG(DEBUG) << "HTTP upgrade: No upgrade requested";
+
                     set("Connection", "close").status(400);
                 }
             } else {
+                LOG(ERROR) << "HTTP upgrade: Request has gone away";
+
                 set("Connection", "close").status(500);
             }
+        } else {
+            LOG(ERROR) << "HTTP upgrade: SocketContext has gone away";
         }
 
         status(name);
