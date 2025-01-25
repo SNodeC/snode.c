@@ -20,8 +20,10 @@
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #ifdef __GNUC__
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
 #ifdef __has_warning
 #if __has_warning("-Wweak-vtables")
 #pragma GCC diagnostic ignored "-Wweak-vtables"
@@ -30,7 +32,9 @@
 #pragma GCC diagnostic ignored "-Wcovered-switch-default"
 #endif
 #endif
+#endif
 #include "utils/CLI11.hpp" // IWYU pragma: export
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
 

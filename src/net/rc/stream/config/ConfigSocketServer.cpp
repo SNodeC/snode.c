@@ -29,6 +29,7 @@ namespace net::config {
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
 #ifdef __has_warning
 #if __has_warning("-Wweak-vtables")
 #pragma GCC diagnostic ignored "-Wweak-vtables"
@@ -37,7 +38,9 @@ namespace net::config {
 #pragma GCC diagnostic ignored "-Wcovered-switch-default"
 #endif
 #endif
+#endif
 #include "utils/CLI11.hpp"
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
 
