@@ -130,8 +130,6 @@ namespace web::websocket {
         int receivedOpCode = 0;
 
         std::string pongCloseData;
-
-        void dumpFrame(char* frame, uint64_t frameLength);
     };
 
 } // namespace web::websocket

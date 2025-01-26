@@ -33,19 +33,27 @@
 namespace utils {
 
     // From: https://gist.github.com/shreyasbharath/32a8092666303a916e24a81b18af146b
-    std::string hexDump(const std::vector<char>& bytes, int prefixLength) {
+    std::string hexDump(const std::vector<char>& bytes, int prefixLength, bool prefixAtFirstLine) {
+        return hexDump(bytes.data(), bytes.size(), prefixLength, prefixAtFirstLine);
+    }
+
+    std::string hexDump(const std::string& string, int prefixLength, bool prefixAtFirstLine) {
+        return hexDump(string.data(), string.length(), prefixLength, prefixAtFirstLine);
+    }
+
+    std::string hexDump(const char* bytes, std::size_t length, int prefixLength, bool prefixAtFirstLine) {
         std::stringstream hexStream;
 
-        if (!bytes.empty()) {
+        if (length > 0) {
             uint8_t buff[17];
             size_t i = 0;
 
             hexStream << std::hex;
 
-            int currentPrefixLength = 0;
+            int currentPrefixLength = prefixAtFirstLine ? prefixLength : 0;
 
             // Process every byte in the data.
-            for (i = 0; i < bytes.size(); i++) {
+            for (i = 0; i < length; i++) {
                 // Multiple of 16 means new line (with line offset).
 
                 if ((i % 16) == 0) {
@@ -59,7 +67,6 @@ namespace utils {
                     hexStream << std::setw(currentPrefixLength) << std::setfill(' ') << ""
                               << ": " << std::setw(8) << std::setfill('0') << static_cast<unsigned int>(i);
                     hexStream << Color::Code::FG_DEFAULT << " ";
-                    currentPrefixLength = prefixLength;
                 }
 
                 // Now the hex code for the specific character.
@@ -74,6 +81,8 @@ namespace utils {
                     buff[i % 16] = static_cast<uint8_t>(bytes[i]);
                 }
                 buff[(i % 16) + 1] = '\0';
+
+                currentPrefixLength = prefixLength;
             }
 
             hexStream << std::dec;

@@ -21,7 +21,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+#include "utils/hexdump.h"
+
 #include <endian.h>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -102,6 +106,10 @@ namespace web::websocket {
         };
 
         MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(randomDevice)};
+
+        if (payloadLength > 0) {
+            LOG(TRACE) << "WebSocket send: Frame data\n" << utils::hexDump(payload, payloadLength, 32, true);
+        }
 
         if (masking) {
             sendFrameData(htobe32(maskingKeyAsArray.keyAsValue));

@@ -22,8 +22,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/hexdump.h"
 
 #include <endian.h>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -205,6 +207,8 @@ namespace web::websocket {
                         *(payloadChunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payLoadNumBytes - payLoadNumBytesLeft) % 4);
                 }
             }
+
+            LOG(TRACE) << "WebSocket receive: Frame data\n" << utils::hexDump(payloadChunk, payloadChunkLen, 32, true);
 
             onMessageData(payloadChunk, payloadChunkLen);
 
