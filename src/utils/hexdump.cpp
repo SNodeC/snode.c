@@ -41,7 +41,7 @@ namespace utils {
         return hexDump(string.data(), string.length(), prefixLength, prefixAtFirstLine);
     }
 
-    std::string hexDump(const char* bytes, std::size_t length, int prefixLength, bool prefixAtFirstLine) {
+    std::string hexDump(const char* bytes, uint64_t length, int prefixLength, bool prefixAtFirstLine) {
         std::stringstream hexStream;
 
         if (length > 0) {

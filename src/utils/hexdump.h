@@ -22,7 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -32,7 +32,7 @@ namespace utils {
 
     std::string hexDump(const std::vector<char>& bytes, int prefixLength = 0, bool prefixAtFirstLine = false);
     std::string hexDump(const std::string& string, int prefixLength = 0, bool prefixAtFirstLine = false);
-    std::string hexDump(const char* bytes, std::size_t length, int prefixLength = 0, bool prefixAtFirstLine = false);
+    std::string hexDump(const char* bytes, uint64_t length, int prefixLength = 0, bool prefixAtFirstLine = false);
 
 } // namespace utils
 
