@@ -30,8 +30,9 @@
 
 namespace core::socket::stream {
 
-    SocketConnection::SocketConnection(const std::string& instanceName, const std::string& configuredServer)
+    SocketConnection::SocketConnection(const std::string& instanceName, int fd, const std::string& configuredServer)
         : instanceName(instanceName)
+        , connectionName(instanceName + " [" + std::to_string(fd) + "]")
         , configuredServer(configuredServer) {
     }
 
@@ -44,11 +45,11 @@ namespace core::socket::stream {
 
     void SocketConnection::setSocketContext(SocketContext* socketContext) {
         if (socketContext != nullptr) { // Perform a pending SocketContextSwitch
-            LOG(DEBUG) << instanceName << ": Connecting SocketContext";
+            LOG(DEBUG) << connectionName << ": Connecting SocketContext";
             this->socketContext = socketContext;
             socketContext->onConnected();
         } else {
-            LOG(ERROR) << instanceName << ": Connecting SocketContext failed: no new SocketContext";
+            LOG(ERROR) << connectionName << ": Connecting SocketContext failed: no new SocketContext";
         }
     }
 
@@ -68,18 +69,22 @@ namespace core::socket::stream {
         return instanceName;
     }
 
+    const std::string& SocketConnection::getConnectionName() const {
+        return connectionName;
+    }
+
     const std::string& SocketConnection::getConfiguredServer() const {
         return configuredServer;
     }
 
-    void SocketConnection::connectSocketContext(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory) {
+    void SocketConnection::connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory) {
         SocketContext* socketContext = socketContextFactory->create(this);
 
         if (socketContext != nullptr) {
-            LOG(DEBUG) << instanceName << ": Creating SocketContext successful";
+            LOG(DEBUG) << connectionName << ": Creating SocketContext successful";
             setSocketContext(socketContext);
         } else {
-            LOG(ERROR) << instanceName << ": Failed creating SocketContext";
+            LOG(ERROR) << connectionName << ": Failed creating SocketContext";
             close();
         }
     }
@@ -89,7 +94,7 @@ namespace core::socket::stream {
             socketContext->onDisconnected();
             delete socketContext;
 
-            LOG(DEBUG) << instanceName << ": SocketContext disconnected";
+            LOG(DEBUG) << connectionName << ": SocketContext disconnected";
         }
     }
 

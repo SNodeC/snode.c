@@ -38,7 +38,7 @@ namespace express::middleware {
             [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
                 req, res, next) {
                 if (req->method == "GET") {
-                    LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getInstanceName()
+                    LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName()
                                << " Express StaticMiddleware correct method: " << req->method;
 
                     if (connectionState == web::http::ConnectionState::Close) {
@@ -53,7 +53,7 @@ namespace express::middleware {
                     }
                     next();
                 } else {
-                    LOG(ERROR) << res->getSocketContext()->getSocketConnection()->getInstanceName()
+                    LOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName()
                                << " Express StaticMiddleware wrong method: " << req->method;
 
                     if (connectionState == web::http::ConnectionState::Close) {
@@ -66,7 +66,7 @@ namespace express::middleware {
             },
             [] MIDDLEWARE(req, res, next) {
                 if (req->url == "/") {
-                    LOG(INFO) << res->getSocketContext()->getSocketConnection()->getInstanceName()
+                    LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
                               << " Express StaticMiddleware Redirecting: " << req->url << " -> " << "/index.html'";
                     res->redirect(308, "/index.html");
                 } else {
@@ -76,10 +76,10 @@ namespace express::middleware {
             [&root = this->root] APPLICATION(req, res) {
                 res->sendFile(root + req->url, [&root, req, res](int ret) {
                     if (ret == 0) {
-                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getInstanceName() << " Express StaticMiddleware: GET "
+                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware: GET "
                                   << req->url + " -> " << root + req->url;
                     } else {
-                        PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getInstanceName() << " Express StaticMiddleware "
+                        PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
                                     << req->url + " -> " << root + req->url;
 
                         res->status(404).end();

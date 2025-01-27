@@ -27,12 +27,12 @@
 #include "utils/system/signal.h"
 
 #include <cstddef>
+#include <string>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
-
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(const std::string& instanceName,
                                                                                      PhysicalSocket&& physicalSocket,
@@ -45,16 +45,16 @@ namespace core::socket::stream {
                                                                                      std::size_t readBlockSize,
                                                                                      std::size_t writeBlockSize,
                                                                                      const utils::Timeval& terminateTimeout)
-        : SocketConnection(instanceName, configuredServer)
+        : SocketConnection(instanceName, physicalSocket.getFd(), configuredServer)
         , SocketReader(
-              instanceName,
+              instanceName + " [" + std::to_string(physicalSocket.getFd()) + "]",
               [this](int errnum) {
                   {
                       const utils::PreserveErrno pe(errnum);
                       if (errno == 0) {
-                          LOG(TRACE) << this->instanceName << " OnReadError: EOF received";
+                          LOG(TRACE) << connectionName << " OnReadError: EOF received";
                       } else {
-                          PLOG(TRACE) << this->instanceName << " OnReadError";
+                          PLOG(TRACE) << connectionName << " OnReadError";
                       }
                   }
                   SocketReader::disable();
@@ -65,11 +65,11 @@ namespace core::socket::stream {
               readBlockSize,
               terminateTimeout)
         , SocketWriter(
-              instanceName,
+              instanceName + " [" + std::to_string(physicalSocket.getFd()) + "]",
               [this](int errnum) {
                   {
                       const utils::PreserveErrno pe(errnum);
-                      PLOG(TRACE) << this->instanceName << " OnWriteError";
+                      PLOG(TRACE) << connectionName << " OnWriteError";
                   }
                   SocketWriter::disable();
 
@@ -125,7 +125,7 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             ret = SocketReader::readFromPeer(chunk, chunkLen);
         } else {
-            LOG(TRACE) << instanceName << " ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch still in progress";
+            LOG(TRACE) << connectionName << " ReadFromPeer: New SocketContext != nullptr: SocketContextSwitch still in progress";
         }
 
         return ret;
@@ -148,21 +148,21 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
-        LOG(TRACE) << instanceName << " Shutdown (RD, " << getFd() << ")";
+        LOG(TRACE) << connectionName << ": Shutdown (RD)";
 
         SocketReader::shutdownRead();
 
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::RD) == 0) {
-            LOG(DEBUG) << instanceName << " Shutdown (RD, " << getFd() << ") success";
+            LOG(DEBUG) << connectionName << " Shutdown (RD): success";
         } else {
-            PLOG(ERROR) << instanceName << " Shutdown (RD, " << getFd() << ")";
+            PLOG(ERROR) << connectionName << " Shutdown (RD)";
         }
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
         if (!SocketWriter::shutdownInProgress) {
-            LOG(TRACE) << instanceName << " Stop writing (" << getFd() << ")";
+            LOG(TRACE) << connectionName << ": Stop writing";
 
             SocketWriter::shutdownWrite([forceClose, this]() {
                 if (SocketWriter::isEnabled()) {
@@ -191,12 +191,12 @@ namespace core::socket::stream {
 
         setTimeout(SocketWriter::terminateTimeout);
 
-        LOG(TRACE) << instanceName << " Shutdown (WR, " << getFd() << ")";
+        LOG(TRACE) << connectionName << ": Shutdown (WR)";
 
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) == 0) {
-            LOG(DEBUG) << instanceName << " Shutdown (WR, " << getFd() << ") success";
+            LOG(DEBUG) << connectionName << " Shutdown (WR): success";
         } else {
-            PLOG(ERROR) << instanceName << " Shutdown (WR, " << getFd() << ")";
+            PLOG(ERROR) << connectionName << " Shutdown (WR)";
         }
 
         onShutdown();
@@ -207,7 +207,7 @@ namespace core::socket::stream {
         std::size_t consumed = socketContext->onReceivedFromPeer();
 
         if (available != 0 && consumed == 0) {
-            LOG(TRACE) << instanceName << " Data available: " << available << " but nothing read";
+            LOG(TRACE) << connectionName << ": Data available: " << available << " but nothing read";
 
             close();
 
@@ -240,8 +240,8 @@ namespace core::socket::stream {
             case SIGABRT:
                 [[fallthrough]];
             case SIGHUP:
-                LOG(DEBUG) << instanceName << " Shutting down due to signal '" << strsignal(signum) << "' (SIG"
-                           << utils::system::sigabbrev_np(signum) << " = " << signum << ", " << getFd() << ")";
+                LOG(DEBUG) << connectionName << ": Shutting down due to signal '" << strsignal(signum) << "' (SIG"
+                           << utils::system::sigabbrev_np(signum) << " [" << signum << "])";
                 break;
             case SIGALRM:
                 break;
@@ -252,13 +252,13 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readTimeout() {
-        LOG(WARNING) << instanceName << " Read timeout (" << getFd() << ")";
+        LOG(WARNING) << connectionName << ": Read timeout";
         close();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::writeTimeout() {
-        LOG(WARNING) << instanceName << " Write timeout (" << getFd() << ")";
+        LOG(WARNING) << connectionName << ": Write timeout";
         close();
     }
 

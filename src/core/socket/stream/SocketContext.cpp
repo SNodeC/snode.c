@@ -36,7 +36,7 @@ namespace core::socket::stream {
     }
 
     void SocketContext::switchSocketContext(SocketContext* newSocketContext) {
-        LOG(DEBUG) << socketConnection->getInstanceName() << ": Register new SocketContext";
+        LOG(DEBUG) << socketConnection->getConnectionName() << ": Register new SocketContext";
         socketConnection->switchSocketContext(newSocketContext);
     }
 
@@ -79,7 +79,7 @@ namespace core::socket::stream {
     void SocketContext::onWriteError(int errnum) {
         errno = errnum;
 
-        PLOG(DEBUG) << socketConnection->getInstanceName() << " SocketContext: onWriteError";
+        PLOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: onWriteError";
         shutdownRead();
     }
 
@@ -87,9 +87,9 @@ namespace core::socket::stream {
         errno = errnum;
 
         if (errno == 0) {
-            LOG(DEBUG) << socketConnection->getInstanceName() << " SocketContext: EOF received";
+            LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: EOF received";
         } else {
-            PLOG(DEBUG) << socketConnection->getInstanceName() << " SocketContext: onReadError";
+            PLOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: onReadError";
         }
         shutdownWrite();
     }

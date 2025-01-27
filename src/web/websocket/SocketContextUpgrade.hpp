@@ -88,7 +88,7 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendClose(const char* message, std::size_t messageLength) {
         if (!closeSent) {
-            LOG(DEBUG) << this->getSocketConnection()->getInstanceName() << " WebSocket: Sending close to peer";
+            LOG(DEBUG) << this->getSocketConnection()->getConnectionName() << " WebSocket: Sending close to peer";
 
             sendMessage(8, message, messageLength);
 
@@ -149,9 +149,9 @@ namespace web::websocket {
             case SubProtocolContext::OpCode::CLOSE:
                 if (closeSent) { // active close
                     closeSent = false;
-                    LOG(DEBUG) << getSocketConnection()->getInstanceName() << " WebSocket: Close confirmed from peer";
+                    LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocket: Close confirmed from peer";
                 } else { // passive close
-                    LOG(DEBUG) << getSocketConnection()->getInstanceName() << " WebSocket: Close request received - replying with close";
+                    LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocket: Close request received - replying with close";
                     sendClose(pongCloseData.data(), pongCloseData.length());
                     pongCloseData.clear();
                     shutdownWrite();
@@ -183,14 +183,14 @@ namespace web::websocket {
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onConnected() {
-        LOG(INFO) << getSocketConnection()->getInstanceName() << " WebSocket: connected";
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " WebSocket: connected";
         subProtocol->onConnected();
     }
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onDisconnected() {
         subProtocol->onDisconnected();
-        LOG(INFO) << this->getSocketConnection()->getInstanceName() << " WebSocket: disconnected";
+        LOG(INFO) << this->getSocketConnection()->getConnectionName() << " WebSocket: disconnected";
     }
 
     template <typename SubProtocol, typename Request, typename Response>

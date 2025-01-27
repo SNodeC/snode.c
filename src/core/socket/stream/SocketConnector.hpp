@@ -42,12 +42,15 @@ namespace core::socket::stream {
         if (physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
             try {
                 localPeerAddress = config->Local::getSocketAddress(localSockAddr, localSockAddrLen);
-                LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (local): " << localPeerAddress.toString();
+                LOG(TRACE) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+                           << "  PeerAddress (local): " << localPeerAddress.toString();
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(WARNING) << config->getInstanceName() << std::setw(24) << " PeerAddress (local): " << badSocketAddress.what();
+                LOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+                             << "  PeerAddress (local): " << badSocketAddress.what();
             }
         } else {
-            PLOG(WARNING) << config->getInstanceName() << std::setw(24) << " PeerAddress (local) not retrievable";
+            PLOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+                          << " PeerAddress (local) not retrievable";
         }
 
         return localPeerAddress;
@@ -62,12 +65,15 @@ namespace core::socket::stream {
         if (physicalSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
             try {
                 remotePeerAddress = config->Remote::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                LOG(TRACE) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote): " << remotePeerAddress.toString();
+                LOG(TRACE) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+                           << "  PeerAddress (remote): " << remotePeerAddress.toString();
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(WARNING) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote): " << badSocketAddress.what();
+                LOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+                             << "  PeerAddress (remote): " << badSocketAddress.what();
             }
         } else {
-            PLOG(WARNING) << config->getInstanceName() << std::setw(24) << " PeerAddress (remote) not retrievable";
+            PLOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+                          << " PeerAddress (remote) not retrievable";
         }
 
         return remotePeerAddress;
@@ -81,7 +87,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
-        : core::eventreceiver::ConnectEventReceiver(config->getInstanceName() + " SocketConnector:", 0)
+        : core::eventreceiver::ConnectEventReceiver(config->getInstanceName() + " SocketConnector", 0)
         , socketContextFactory(socketContextFactory)
         , onConnect(onConnect)
         , onConnected(onConnected)
@@ -95,7 +101,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
     SocketConnector<PhysicalSocketServer, Config, SocketConnection>::SocketConnector(const SocketConnector& socketConnector)
-        : core::eventreceiver::ConnectEventReceiver(socketConnector.config->getInstanceName() + " SocketConnector:", 0)
+        : core::eventreceiver::ConnectEventReceiver(socketConnector.config->getInstanceName() + " SocketConnector", 0)
         , socketContextFactory(socketConnector.socketContextFactory)
         , onConnect(socketConnector.onConnect)
         , onConnected(socketConnector.onConnected)
@@ -196,7 +202,8 @@ namespace core::socket::stream {
                             onStatus(remoteAddress, state);
                         }
                     } else {
-                        LOG(DEBUG) << config->getInstanceName() << " connect success: '" << remoteAddress.toString() << "'";
+                        LOG(DEBUG) << config->getInstanceName() << " [" << physicalClientSocket.getFd() << "] connect success: '"
+                                   << remoteAddress.toString() << "'";
 
                         onStatus(remoteAddress, core::socket::STATE_OK);
 
@@ -246,7 +253,8 @@ namespace core::socket::stream {
             const utils::PreserveErrno pe(cErrno);            // errno = cErrno
 
             if (errno == 0) {
-                LOG(DEBUG) << config->getInstanceName() << " connect success: '" << remoteAddress.toString() << "'";
+                LOG(DEBUG) << config->getInstanceName() << " [" << physicalClientSocket.getFd() << "] connect success: '"
+                           << remoteAddress.toString() << "'";
 
                 onStatus(remoteAddress, core::socket::STATE_OK);
 

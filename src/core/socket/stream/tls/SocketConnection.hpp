@@ -116,7 +116,7 @@ namespace core::socket::stream::tls {
             }
 
             TLSHandshake::doHandshake(
-                Super::getInstanceName(),
+                Super::getConnectionName(),
                 ssl,
                 [onSuccess, this]() { // onSuccess
                     SocketReader::span();
@@ -150,7 +150,7 @@ namespace core::socket::stream::tls {
         }
 
         TLSShutdown::doShutdown(
-            Super::getInstanceName(),
+            Super::getConnectionName(),
             ssl,
             [this, resumeSocketReader, resumeSocketWriter]() { // onSuccess
                 if (resumeSocketReader) {
@@ -160,12 +160,12 @@ namespace core::socket::stream::tls {
                     SocketWriter::resume();
                 }
                 if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-                    LOG(DEBUG) << Super::getInstanceName() << " SSL/TLS: Close_notify received and sent";
+                    LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Close_notify received and sent";
                 } else {
-                    LOG(DEBUG) << Super::getInstanceName() << " SSL/TLS: Close_notify sent";
+                    LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Close_notify sent";
 
                     if (SSL_get_shutdown(ssl) == SSL_SENT_SHUTDOWN && SocketWriter::closeNotifyIsEOF) {
-                        LOG(TRACE) << Super::getInstanceName() << " SSL/TLS: Close_notify is EOF: setting sslShutdownTimeout to "
+                        LOG(TRACE) << Super::getConnectionName() << " SSL/TLS: Close_notify is EOF: setting sslShutdownTimeout to "
                                    << sslShutdownTimeout << " sec";
                         Super::setTimeout(sslShutdownTimeout);
                     }
@@ -178,7 +178,7 @@ namespace core::socket::stream::tls {
                 if (resumeSocketWriter) {
                     SocketWriter::resume();
                 }
-                LOG(ERROR) << Super::getInstanceName() << " SSL/TLS: Shutdown handshake timed out";
+                LOG(ERROR) << Super::getConnectionName() << " SSL/TLS: Shutdown handshake timed out";
                 Super::doWriteShutdown([this]() {
                     SocketConnection::close();
                 });
@@ -190,7 +190,7 @@ namespace core::socket::stream::tls {
                 if (resumeSocketWriter) {
                     SocketWriter::resume();
                 }
-                ssl_log(Super::getInstanceName() + " SSL/TLS: Shutdown handshake failed", sslErr);
+                ssl_log(Super::getConnectionName() + " SSL/TLS: Shutdown handshake failed", sslErr);
                 Super::doWriteShutdown([this]() {
                     SocketConnection::close();
                 });
@@ -202,16 +202,16 @@ namespace core::socket::stream::tls {
     void SocketConnection<PhysicalSocket>::onReadShutdown() {
         if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
             if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
-                LOG(DEBUG) << Super::getInstanceName() << " SSL/TLS: Close_notify sent and received";
+                LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Close_notify sent and received";
 
                 SocketWriter::shutdownInProgress = false;
             } else {
-                LOG(DEBUG) << Super::getInstanceName() << " SSL/TLS: Close_notify received";
+                LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Close_notify received";
 
                 doSSLShutdown();
             }
         } else {
-            LOG(ERROR) << Super::getInstanceName() << " SSL/TLS: Unexpected EOF error";
+            LOG(ERROR) << Super::getConnectionName() << " SSL/TLS: Unexpected EOF error";
 
             SocketWriter::shutdownInProgress = false;
             SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
@@ -221,7 +221,7 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocket>
     void SocketConnection<PhysicalSocket>::doWriteShutdown(const std::function<void()>& onShutdown) {
         if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
-            LOG(DEBUG) << Super::getInstanceName() << " SSL/TLS: Send close_notify";
+            LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Send close_notify";
 
             doSSLShutdown();
         } else {

@@ -69,9 +69,9 @@ namespace core {
 
             enabled = true;
             descriptorEventPublisher.enable(this);
-            LOG(TRACE) << getName() << " (" << observedFd << "): Enabled";
+            LOG(TRACE) << getName() << ": Enabled";
         } else {
-            LOG(WARNING) << getName() << " (" << observedFd << "): Double enable";
+            LOG(WARNING) << getName() << ": Double enable";
         }
 
         return enabled;
@@ -87,9 +87,9 @@ namespace core {
         if (enabled) {
             enabled = false;
             descriptorEventPublisher.disable(this);
-            LOG(TRACE) << getName() << " (" << observedFd << "): Disabled";
+            LOG(TRACE) << getName() << ": Disabled";
         } else {
-            LOG(WARNING) << getName() << " (" << observedFd << "): Double disable";
+            LOG(WARNING) << getName() << ": Double disable";
         }
     }
 
@@ -107,10 +107,10 @@ namespace core {
                 suspended = true;
                 descriptorEventPublisher.suspend(this);
             } else {
-                LOG(WARNING) << getName() << " (" << observedFd << "): Double suspend";
+                LOG(WARNING) << getName() << ": Double suspend";
             }
         } else {
-            LOG(WARNING) << getName() << " (" << observedFd << "): Suspend while not enabled";
+            LOG(WARNING) << getName() << ": Suspend while not enabled";
         }
     }
 
@@ -121,10 +121,10 @@ namespace core {
                 lastTriggered = utils::Timeval::currentTime();
                 descriptorEventPublisher.resume(this);
             } else {
-                LOG(WARNING) << getName() << " (" << observedFd << "): Double resume";
+                LOG(WARNING) << getName() << ": Double resume";
             }
         } else {
-            LOG(WARNING) << getName() << " (" << observedFd << "): Resume while not enabled";
+            LOG(WARNING) << getName() << ": Resume while not enabled";
         }
     }
 

@@ -52,7 +52,9 @@ namespace core::socket::stream {
 
     class SocketConnection {
     public:
-        SocketConnection(const std::string& instanceName, const std::string& configuredServer);
+        SocketConnection(const std::string& instanceName, int fd, const std::string& configuredServer);
+
+        virtual int getFd() const = 0;
 
     protected:
         virtual ~SocketConnection();
@@ -76,6 +78,8 @@ namespace core::socket::stream {
         virtual void shutdownWrite(bool forceClose) = 0;
 
         const std::string& getInstanceName() const;
+        const std::string& getConnectionName() const;
+
         const std::string& getConfiguredServer() const;
 
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
@@ -86,7 +90,7 @@ namespace core::socket::stream {
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
     protected:
-        void connectSocketContext(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory);
+        void connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
 
         void disconnectCurrentSocketContext();
 
@@ -94,6 +98,8 @@ namespace core::socket::stream {
         core::socket::stream::SocketContext* newSocketContext = nullptr;
 
         std::string instanceName;
+        std::string connectionName;
+
         std::string configuredServer;
     };
 
@@ -129,7 +135,7 @@ namespace core::socket::stream {
         ~SocketConnectionT() override;
 
     public:
-        int getFd() const;
+        int getFd() const final;
 
         void setTimeout(const utils::Timeval& timeout) final;
 
