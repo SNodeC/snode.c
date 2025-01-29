@@ -55,30 +55,29 @@ namespace core::socket::stream::tls {
                       SSL_set_accept_state(ssl);
                   }
               },
-              [socketContextFactory, onConnected, this](SocketConnection* socketConnection) { // on Connected
-                  LOG(TRACE) << Super::config->getInstanceName() << " SSL/TLS: Start handshake";
+              [socketContextFactory, onConnected](SocketConnection* socketConnection) { // on Connected
+                  LOG(TRACE) << socketConnection->getConnectionName() << " SSL/TLS: Start handshake";
                   if (!socketConnection->doSSLHandshake(
                           [socketContextFactory,
                            onConnected,
-                           socketConnection,
-                           instanceName = Super::config->getInstanceName()]() { // onSuccess
-                              LOG(DEBUG) << instanceName << " SSL/TLS: Handshake success";
+                           socketConnection]() { // onSuccess
+                              LOG(DEBUG) << socketConnection->getConnectionName() << " SSL/TLS: Handshake success";
 
                               onConnected(socketConnection);
 
                               socketConnection->connectSocketContext(socketContextFactory);
                           },
-                          [socketConnection, instanceName = Super::config->getInstanceName()]() { // onTimeout
-                              LOG(ERROR) << instanceName << "SSL/TLS: Handshake timed out";
+                          [socketConnection]() { // onTimeout
+                              LOG(ERROR) << socketConnection->getConnectionName() << "SSL/TLS: Handshake timed out";
 
                               socketConnection->close();
                           },
-                          [socketConnection, instanceName = Super::config->getInstanceName()](int sslErr) { //
-                              ssl_log(instanceName + " SSL/TLS: Handshake failed", sslErr);
+                          [socketConnection](int sslErr) { //
+                              ssl_log(socketConnection->getConnectionName() + " SSL/TLS: Handshake failed", sslErr);
 
                               socketConnection->close();
                           })) {
-                      LOG(ERROR) << Super::config->getInstanceName() + " SSL/TLS: Handshake failed";
+                      LOG(ERROR) << socketConnection->getConnectionName() + " SSL/TLS: Handshake failed";
 
                       socketConnection->close();
                   }
