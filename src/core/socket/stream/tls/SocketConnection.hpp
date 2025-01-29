@@ -77,6 +77,8 @@ namespace core::socket::stream::tls {
             ssl = SSL_new(ctx);
 
             if (ssl != nullptr) {
+                SSL_set_ex_data(ssl, 0, const_cast<std::string*>(&Super::getConnectionName()));
+
                 if (SSL_set_fd(ssl, fd) == 1) {
                     SocketReader::ssl = ssl;
                     SocketWriter::ssl = ssl;

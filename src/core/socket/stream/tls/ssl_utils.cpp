@@ -51,6 +51,10 @@ namespace core::socket::stream::tls {
     }
 
     static int verify_callback(int preverify_ok, X509_STORE_CTX* ctx) {
+        SSL* ssl = static_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
+
+        std::string connectionName = *static_cast<std::string*>(SSL_get_ex_data(ssl, 0));
+
         X509* curr_cert = X509_STORE_CTX_get_current_cert(ctx);
         const int depth = X509_STORE_CTX_get_error_depth(ctx);
 
@@ -61,7 +65,7 @@ namespace core::socket::stream::tls {
         X509_NAME_oneline(X509_get_issuer_name(curr_cert), issuerName, 256);
 
         if (preverify_ok != 0) {
-            LOG(DEBUG) << "SSL/TLS verify success at depth=" << depth;
+            LOG(DEBUG) << connectionName << ": SSL/TLS verify success at depth=" << depth;
             LOG(DEBUG) << "   Issuer: " << issuerName;
             LOG(DEBUG) << "  Subject: " << subjectName;
         } else {
@@ -72,9 +76,9 @@ namespace core::socket::stream::tls {
              * it for something special
              */
 
-            LOG(DEBUG) << "  SSL/TLS verify error at depth=" << depth << ": " << X509_verify_cert_error_string(err);
-            LOG(DEBUG) << "     Issuer: " << issuerName;
-            LOG(DEBUG) << "    Subject: " << subjectName;
+            LOG(DEBUG) << connectionName << ": SSL/TLS verify error at depth=" << depth << ": " << X509_verify_cert_error_string(err);
+            LOG(DEBUG) << "   Issuer: " << issuerName;
+            LOG(DEBUG) << "  Subject: " << subjectName;
         }
 
         return preverify_ok;

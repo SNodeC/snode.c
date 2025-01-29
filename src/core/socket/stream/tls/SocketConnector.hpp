@@ -54,6 +54,8 @@ namespace core::socket::stream::tls {
                                                         !Super::config->getNoCloseNotifyIsEOF());
                   if (ssl != nullptr) {
                       SSL_set_connect_state(ssl);
+                      SSL_set_ex_data(ssl, 1, Super::config.get());
+
                       ssl_set_sni(ssl, Super::config->getSni());
                   }
               },

@@ -70,10 +70,6 @@ namespace net::config::stream::tls {
             sslConfig.caCertAcceptUnknown = getCaCertAcceptUnknown();
 
             sslCtx = core::socket::stream::tls::ssl_ctx_new(sslConfig);
-
-            if (sslCtx != nullptr) {
-                SSL_CTX_set_client_hello_cb(sslCtx, clientHelloCallback, this);
-            }
         }
 
         if (sniCtxMap.empty()) {
@@ -160,36 +156,6 @@ namespace net::config::stream::tls {
         }
 
         return sniCtx;
-    }
-
-    template <typename ConfigSocketServerBase>
-    int ConfigSocketServer<ConfigSocketServerBase>::clientHelloCallback(SSL* ssl, int* al, void* arg) {
-        int ret = SSL_CLIENT_HELLO_SUCCESS;
-
-        ConfigSocketServer* config = static_cast<ConfigSocketServer*>(arg);
-
-        std::string serverNameIndication = core::socket::stream::tls::ssl_get_servername_from_client_hello(ssl);
-
-        if (!serverNameIndication.empty()) {
-            SSL_CTX* sniSslCtx = config->getSniCtx(serverNameIndication);
-
-            if (sniSslCtx != nullptr) {
-                LOG(DEBUG) << config->getInstanceName() << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
-                core::socket::stream::tls::ssl_set_ssl_ctx(ssl, sniSslCtx);
-            } else if (config->getForceSni()) {
-                LOG(ERROR) << config->getInstanceName() << " SSL/TLS: No sni certificate found for '" << serverNameIndication
-                           << "' but forceSni set - terminating";
-                ret = SSL_CLIENT_HELLO_ERROR;
-                *al = SSL_AD_UNRECOGNIZED_NAME;
-            } else {
-                LOG(WARNING) << config->getInstanceName() << " SSL/TLS: No sni certificate found for '" << serverNameIndication
-                             << "'. Still using master certificate";
-            }
-        } else {
-            LOG(DEBUG) << config->getInstanceName() << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
-        }
-
-        return ret;
     }
 
 } // namespace net::config::stream::tls

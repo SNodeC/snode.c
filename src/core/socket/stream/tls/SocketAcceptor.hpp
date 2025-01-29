@@ -34,7 +34,7 @@
 namespace core::socket::stream::tls {
 
     template <typename PhysicalServerSocket, typename Config>
-    core::socket::stream::tls::SocketAcceptor<PhysicalServerSocket, Config>::SocketAcceptor(
+    SocketAcceptor<PhysicalServerSocket, Config>::SocketAcceptor(
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
@@ -53,6 +53,7 @@ namespace core::socket::stream::tls {
                                                         !Super::config->getNoCloseNotifyIsEOF());
                   if (ssl != nullptr) {
                       SSL_set_accept_state(ssl);
+                      SSL_set_ex_data(ssl, 1, Super::config.get());
                   }
               },
               [socketContextFactory, onConnected](SocketConnection* socketConnection) { // on Connected
@@ -104,9 +105,13 @@ namespace core::socket::stream::tls {
     void SocketAcceptor<PhysicalSocketServer, Config>::init() {
         if (!config->getDisabled()) {
             LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
+            SSL_CTX* sslCtx = config->getSslCtx();
 
-            if (config->getSslCtx() != nullptr) {
+            if (sslCtx != nullptr) {
                 LOG(DEBUG) << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
+
+                SSL_CTX_set_client_hello_cb(sslCtx, clientHelloCallback, nullptr);
+
                 Super::init();
             } else {
                 LOG(ERROR) << config->getInstanceName() << " SSL/TLS: SSL/TLS creation failed";
@@ -117,6 +122,37 @@ namespace core::socket::stream::tls {
         } else {
             Super::init();
         }
+    }
+
+    template <typename PhysicalSocketServer, typename Config>
+    int SocketAcceptor<PhysicalSocketServer, Config>::clientHelloCallback(SSL* ssl, int* al, [[maybe_unused]] void* arg) {
+        int ret = SSL_CLIENT_HELLO_SUCCESS;
+
+        std::string connectionName = *static_cast<std::string*>(SSL_get_ex_data(ssl, 0));
+        Config* config = static_cast<Config*>(SSL_get_ex_data(ssl, 1));
+
+        std::string serverNameIndication = core::socket::stream::tls::ssl_get_servername_from_client_hello(ssl);
+
+        if (!serverNameIndication.empty()) {
+            SSL_CTX* sniSslCtx = config->getSniCtx(serverNameIndication);
+
+            if (sniSslCtx != nullptr) {
+                LOG(DEBUG) << connectionName << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
+                core::socket::stream::tls::ssl_set_ssl_ctx(ssl, sniSslCtx);
+            } else if (config->getForceSni()) {
+                LOG(ERROR) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
+                           << "' but forceSni set - terminating";
+                ret = SSL_CLIENT_HELLO_ERROR;
+                *al = SSL_AD_UNRECOGNIZED_NAME;
+            } else {
+                LOG(WARNING) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
+                             << "'. Still using master certificate";
+            }
+        } else {
+            LOG(DEBUG) << connectionName << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
+        }
+
+        return ret;
     }
 
 } // namespace core::socket::stream::tls

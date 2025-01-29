@@ -30,6 +30,7 @@ namespace core::socket::stream::tls {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 using SSL_CTX = struct ssl_ctx_st;
+using SSL = struct ssl_st;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -58,6 +59,8 @@ namespace core::socket::stream::tls {
         SocketAcceptor(const SocketAcceptor& socketAcceptor);
 
     private:
+        static int clientHelloCallback(SSL* ssl, int* al, void* arg);
+
         void useNextSocketAddress() override;
 
         void init() final;
