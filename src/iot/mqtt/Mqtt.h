@@ -70,7 +70,7 @@ namespace iot::mqtt {
         virtual void onDisconnected();
         virtual bool onSignal(int sig) = 0;
 
-        core::socket::stream::SocketConnection* getSocketConnection();
+        core::socket::stream::SocketConnection* getSocketConnection() const;
 
     private:
         std::size_t onReceivedFromPeer();
@@ -115,7 +115,7 @@ namespace iot::mqtt {
 
     protected:
         void printVP(const iot::mqtt::ControlPacket& packet) const;
-        static void printFixedHeader(const iot::mqtt::FixedHeader& fixedHeader);
+        void printFixedHeader(const iot::mqtt::FixedHeader& fixedHeader) const;
 
         std::string clientId;
 

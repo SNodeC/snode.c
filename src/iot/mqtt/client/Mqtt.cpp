@@ -19,6 +19,7 @@
 
 #include "iot/mqtt/client/Mqtt.h"
 
+#include "core/socket/stream/SocketConnection.h"
 #include "iot/mqtt/MqttContext.h"
 #include "iot/mqtt/client/packets/Connack.h"
 #include "iot/mqtt/client/packets/Pingresp.h"
@@ -170,12 +171,14 @@ namespace iot::mqtt::client {
     }
 
     void Mqtt::_onConnack(const iot::mqtt::client::packets::Connack& connack) {
-        LOG(INFO) << "MQTT Client:   Acknowledge Flag: " << static_cast<int>(connack.getAcknowledgeFlags());
-        LOG(INFO) << "MQTT Client:   Return code: " << static_cast<int>(connack.getReturnCode());
-        LOG(INFO) << "MQTT Client:   Session present: " << connack.getSessionPresent();
+        LOG(INFO) << getSocketConnection()->getConnectionName()
+                  << " MQTT Client:   Acknowledge Flag: " << static_cast<int>(connack.getAcknowledgeFlags());
+        LOG(INFO) << getSocketConnection()->getConnectionName()
+                  << " MQTT Client:   Return code: " << static_cast<int>(connack.getReturnCode());
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " MQTT Client:   Session present: " << connack.getSessionPresent();
 
         if (connack.getReturnCode() != MQTT_CONNACK_ACCEPT) {
-            LOG(ERROR) << "MQTT Client:   Negative ack received";
+            LOG(ERROR) << getSocketConnection()->getConnectionName() << " MQTT Client:   Negative ack received";
         } else {
             initSession(&session, keepAlive);
 
@@ -197,11 +200,11 @@ namespace iot::mqtt::client {
 
     void Mqtt::_onSuback(const iot::mqtt::client::packets::Suback& suback) {
         if (suback.getPacketIdentifier() == 0) {
-            LOG(ERROR) << "MQTT Client:   PackageIdentifier missing";
+            LOG(ERROR) << getSocketConnection()->getConnectionName() << " MQTT Client:   PackageIdentifier missing";
             mqttContext->end(true);
         } else {
-            LOG(DEBUG) << "MQTT Client:  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                       << suback.getPacketIdentifier();
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " MQTT Client:  PacketIdentifier: 0x" << std::hex
+                       << std::setfill('0') << std::setw(4) << suback.getPacketIdentifier();
 
             std::stringstream ss;
             std::list<uint8_t>::size_type i = 0;
@@ -215,7 +218,7 @@ namespace iot::mqtt::client {
                 ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(returnCode) << " "; // << " | ";
             }
 
-            LOG(DEBUG) << "MQTT Client:  Return codes: " << ss.str();
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " MQTT Client:  Return codes: " << ss.str();
 
             onSuback(suback);
         }
@@ -223,11 +226,11 @@ namespace iot::mqtt::client {
 
     void Mqtt::_onUnsuback(const iot::mqtt::client::packets::Unsuback& unsuback) {
         if (unsuback.getPacketIdentifier() == 0) {
-            LOG(ERROR) << "MQTT Client:  PacketIdentifier missing";
+            LOG(ERROR) << getSocketConnection()->getConnectionName() << " MQTT Client:  PacketIdentifier missing";
             mqttContext->end(true);
         } else {
-            LOG(DEBUG) << "MQTT Client:  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                       << unsuback.getPacketIdentifier();
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " MQTT Client:  PacketIdentifier: 0x" << std::hex
+                       << std::setfill('0') << std::setw(4) << unsuback.getPacketIdentifier();
 
             onUnsuback(unsuback);
         }
@@ -249,7 +252,7 @@ namespace iot::mqtt::client {
                            bool loopPrevention) { // Client
         this->clientId = clientId;
 
-        LOG(INFO) << "MQTT Client: CONNECT send: " << clientId;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " MQTT Client: CONNECT send: " << clientId;
 
         send(iot::mqtt::packets::Connect(
             clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password, loopPrevention));

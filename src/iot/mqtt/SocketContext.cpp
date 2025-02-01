@@ -51,15 +51,15 @@ namespace iot::mqtt {
     }
 
     std::size_t SocketContext::recv(char* chunk, std::size_t chunklen) {
-        return core::socket::stream::SocketContext::readFromPeer(chunk, chunklen);
+        return readFromPeer(chunk, chunklen);
     }
 
     void SocketContext::send(const char* chunk, std::size_t chunklen) {
-        core::socket::stream::SocketContext::sendToPeer(chunk, chunklen);
+        sendToPeer(chunk, chunklen);
     }
 
     void SocketContext::end(bool fatal) {
-        core::socket::stream::SocketContext::shutdownWrite(fatal);
+        shutdownWrite(fatal);
     }
 
     void SocketContext::close() {
