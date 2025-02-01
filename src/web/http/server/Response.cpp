@@ -21,6 +21,7 @@
 
 #include "SocketContext.h"
 #include "core/file/FileReader.h"
+#include "core/socket/stream/SocketConnection.h"
 #include "web/http/MimeTypes.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
@@ -229,34 +230,38 @@ namespace web::http::server {
 
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();
-                        LOG(DEBUG) << "HTTP upgrade: SocketContextUpgradeFactory created successful: " << name;
+                        LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
+                                   << " HTTP upgrade: SocketContextUpgradeFactory created successful: " << name;
 
                         socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                         if (socketContextUpgrade != nullptr) {
-                            LOG(DEBUG) << "HTTP upgrade: SocketContextUpgrade created successful: " << name;
+                            LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
+                                       << " HTTP upgrade: SocketContextUpgrade created successful: " << name;
                         } else {
-                            LOG(DEBUG) << "HTTP upgrade: Create SocketContextUpgrade failed: " << name;
+                            LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
+                                       << " HTTP upgrade: Create SocketContextUpgrade failed: " << name;
 
                             set("Connection", "close").status(404);
                         }
                     } else {
-                        LOG(DEBUG) << "HTTP upgrade: SocketContextUpgradeFactory not supported: " << request->get("upgrade");
+                        LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
+                                   << " HTTP upgrade: SocketContextUpgradeFactory not supported: " << request->get("upgrade");
 
                         set("Connection", "close").status(404);
                     }
                 } else {
-                    LOG(DEBUG) << "HTTP upgrade: No upgrade requested";
+                    LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName() << " HTTP upgrade: No upgrade requested";
 
                     set("Connection", "close").status(400);
                 }
             } else {
-                LOG(ERROR) << "HTTP upgrade: Request has gone away";
+                LOG(ERROR) << socketContext->getSocketConnection()->getConnectionName() << " HTTP upgrade: Request has gone away";
 
                 set("Connection", "close").status(500);
             }
         } else {
-            LOG(ERROR) << "HTTP upgrade: SocketContext has gone away";
+            LOG(ERROR) << socketContext->getSocketConnection()->getConnectionName() << " HTTP upgrade: SocketContext has gone away";
         }
 
         status(name);

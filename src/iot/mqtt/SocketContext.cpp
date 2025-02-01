@@ -42,7 +42,7 @@ namespace iot::mqtt {
         return iot::mqtt::MqttContext::onSignal(sig);
     }
 
-    core::socket::stream::SocketConnection* SocketContext::getSocketConnection() {
+    core::socket::stream::SocketConnection* SocketContext::getSocketConnection() const {
         return core::socket::stream::SocketContext::getSocketConnection();
     }
 

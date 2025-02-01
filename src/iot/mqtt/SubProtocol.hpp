@@ -80,7 +80,7 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onConnected() {
-        LOG(INFO) << "WSMQTT: connected:";
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " WSMQTT: connected:";
         iot::mqtt::MqttContext::onConnected();
     }
 
@@ -143,7 +143,7 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    core::socket::stream::SocketConnection* SubProtocol<WSSubProtocolRole>::getSocketConnection() {
+    core::socket::stream::SocketConnection* SubProtocol<WSSubProtocolRole>::getSocketConnection() const {
         return WSSubProtocolRole::subProtocolContext->getSocketConnection();
     }
 

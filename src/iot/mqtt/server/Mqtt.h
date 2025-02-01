@@ -67,7 +67,7 @@ namespace iot::mqtt::server {
         using Super = iot::mqtt::Mqtt;
 
     public:
-        explicit Mqtt(const std::shared_ptr<iot::mqtt::server::broker::Broker>& broker);
+        explicit Mqtt(const std::string& connectionName, const std::shared_ptr<broker::Broker>& broker);
 
         ~Mqtt() override;
 

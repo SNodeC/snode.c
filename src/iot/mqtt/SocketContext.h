@@ -51,7 +51,7 @@ namespace iot::mqtt {
         void onDisconnected() override;
         bool onSignal(int sig) override;
 
-        core::socket::stream::SocketConnection* getSocketConnection() override;
+        core::socket::stream::SocketConnection* getSocketConnection() const override;
 
         std::size_t recv(char* chunk, std::size_t chunklen) override;
         void send(const char* chunk, std::size_t chunklen) override;

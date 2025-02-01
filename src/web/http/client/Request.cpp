@@ -20,6 +20,7 @@
 #include "web/http/client/Request.h"
 
 #include "core/file/FileReader.h"
+#include "core/socket/stream/SocketConnection.h"
 #include "web/http/MimeTypes.h"
 #include "web/http/client/SocketContext.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
@@ -233,7 +234,8 @@ namespace web::http::client {
     }
 
     void Request::responseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
-        LOG(WARNING) << "HTTP: Response parse error: " << request->method << " " << request->url << " "
+        LOG(WARNING) << request->getSocketContext()->getSocketConnection()->getConnectionName()
+                     << " HTTP: Response parse error: " << request->method << " " << request->url << " "
                      << "HTTP/" << request->httpMajor << "." << request->httpMinor << ": " << message;
     }
 
@@ -306,37 +308,42 @@ namespace web::http::client {
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();
 
-                        LOG(DEBUG) << "HTTP upgrade: SocketContextUpgradeFactory created successful: " << name;
+                        LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
+                                   << " HTTP upgrade: SocketContextUpgradeFactory created successful: " << name;
 
                         core::socket::stream::SocketContext* socketContextUpgrade =
                             socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                         if (socketContextUpgrade != nullptr) {
-                            LOG(DEBUG) << "HTTP upgrade: SocketContextUpgrade created successful: " << name;
+                            LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
+                                       << " HTTP upgrade: SocketContextUpgrade created successful: " << name;
 
                             socketContext->switchSocketContext(socketContextUpgrade);
                         } else {
-                            LOG(DEBUG) << "HTTP upgrade: Create SocketContextUpgrade failed: " << name;
+                            LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
+                                       << " HTTP upgrade: Create SocketContextUpgrade failed: " << name;
 
                             socketContext->close();
                         }
                     } else {
-                        LOG(DEBUG) << "HTTP upgrade: SocketContextUpgradeFactory not supported by server: " << header("upgrade");
+                        LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
+                                   << " HTTP upgrade: SocketContextUpgradeFactory not supported by server: " << header("upgrade");
 
                         socketContext->close();
                     }
                 } else {
-                    LOG(DEBUG) << "HTTP upgrade: Not any protocol supported by server: " << header("upgrade");
+                    LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
+                               << " HTTP upgrade: Not any protocol supported by server: " << header("upgrade");
 
                     socketContext->close();
                 }
             } else {
-                LOG(ERROR) << "HTTP upgrade: Response has gone away";
+                LOG(ERROR) << socketContext->getSocketConnection()->getConnectionName() << " HTTP upgrade: Response has gone away";
 
                 socketContext->close();
             }
         } else {
-            LOG(ERROR) << "HTTP upgrade: SocketContext has gone away";
+            LOG(ERROR) << socketContext->getSocketConnection()->getConnectionName() << " HTTP upgrade: SocketContext has gone away";
         }
 
         status(name);

@@ -23,10 +23,6 @@
 #include "core/timer/Timer.h"     // IWYU pragma: export
 #include "iot/mqtt/FixedHeader.h" // IWYU pragma: export
 
-namespace core::socket::stream {
-    class SocketConnection;
-}
-
 namespace iot::mqtt {
     class ControlPacket;
     class ControlPacketDeserializer;
@@ -55,8 +51,8 @@ namespace iot::mqtt {
 
     class Mqtt {
     public:
-        Mqtt() = default;
-        explicit Mqtt(const std::string& clientId);
+        Mqtt(const std::string& connectionName);
+        Mqtt(const std::string& connectionName, const std::string& clientId);
 
         Mqtt(Mqtt&&) = delete;
         Mqtt(const Mqtt&) = delete;
@@ -70,12 +66,16 @@ namespace iot::mqtt {
         virtual void onDisconnected();
         virtual bool onSignal(int sig) = 0;
 
-        core::socket::stream::SocketConnection* getSocketConnection() const;
+        const std::string& getConnectionName() const;
 
     private:
         std::size_t onReceivedFromPeer();
         void setMqttContext(MqttContext* mqttContext);
 
+    public:
+        const MqttContext* getMqttContext() const;
+
+    private:
         virtual iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& staticHeader) = 0;
         virtual void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
 
@@ -117,6 +117,7 @@ namespace iot::mqtt {
         void printVP(const iot::mqtt::ControlPacket& packet) const;
         void printFixedHeader(const iot::mqtt::FixedHeader& fixedHeader) const;
 
+        std::string connectionName;
         std::string clientId;
 
     private:

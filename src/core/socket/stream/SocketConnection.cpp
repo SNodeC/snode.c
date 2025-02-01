@@ -32,7 +32,7 @@ namespace core::socket::stream {
 
     SocketConnection::SocketConnection(const std::string& instanceName, int fd, const std::string& configuredServer)
         : instanceName(instanceName)
-        , connectionName(instanceName + " [" + std::to_string(fd) + "]")
+        , connectionName("[" + std::to_string(fd) + "]" + (!instanceName.empty() ? " " : "") + instanceName)
         , configuredServer(configuredServer) {
     }
 

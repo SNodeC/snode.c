@@ -63,14 +63,14 @@ namespace web::http::client {
     }
 
     SocketContext::~SocketContext() {
-        if (deliveredRequests.size() > 0) {
+        if (!deliveredRequests.empty()) {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Responses missed";
             for (const Request& request : deliveredRequests) {
                 LOG(DEBUG) << "  " << request.method << " " << request.url << " HTTP/" << request.httpMajor << "." << request.httpMinor;
             }
         }
 
-        if (pendingRequests.size() > 0) {
+        if (!pendingRequests.empty()) {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Requests ignored";
             for (const Request& request : pendingRequests) {
                 LOG(DEBUG) << "  " << request.method << " " << request.url << " HTTP/" << request.httpMajor << "." << request.httpMinor;

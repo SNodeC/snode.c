@@ -48,7 +48,7 @@ namespace iot::mqtt {
         virtual std::size_t recv(char* chunk, std::size_t chunklen) = 0;
         virtual void send(const char* chunk, std::size_t chunklen) = 0;
 
-        virtual core::socket::stream::SocketConnection* getSocketConnection() = 0;
+        virtual core::socket::stream::SocketConnection* getSocketConnection() const = 0;
 
         virtual void end(bool fatal = false) = 0;
         virtual void close() = 0;

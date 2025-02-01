@@ -83,7 +83,7 @@ namespace iot::mqtt {
         void onDisconnected() override;
         bool onSignal(int sig) override;
 
-        core::socket::stream::SocketConnection* getSocketConnection() override;
+        core::socket::stream::SocketConnection* getSocketConnection() const override;
 
         OnReceivedFromPeerEvent onReceivedFromPeerEvent;
 
