@@ -20,6 +20,12 @@
 #ifndef WEB_WEBSOCKET_TRANSMITTER_H
 #define WEB_WEBSOCKET_TRANSMITTER_H
 
+namespace core::socket::stream {
+
+    class SocketConnection;
+
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -40,7 +46,7 @@ namespace web::websocket {
         virtual ~Transmitter();
 
     protected:
-        Transmitter(bool masking);
+        Transmitter(core::socket::stream::SocketConnection* socketConnection, bool masking);
 
         void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
 
@@ -53,16 +59,21 @@ namespace web::websocket {
 
         void sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength);
 
-        virtual void sendFrameData(uint8_t data) const = 0;
-        virtual void sendFrameData(uint16_t data) const = 0;
-        virtual void sendFrameData(uint32_t data) const = 0;
-        virtual void sendFrameData(uint64_t data) const = 0;
-        virtual void sendFrameData(const char* frame, uint64_t frameLength) const = 0;
+        void sendFrameData(uint8_t data) const;
+        void sendFrameData(uint16_t data) const;
+        void sendFrameData(uint32_t data) const;
+        void sendFrameData(uint64_t data) const;
+        void sendFrameData(const char* frame, uint64_t frameLength) const;
 
         std::random_device randomDevice;
         std::uniform_int_distribution<uint32_t> distribution{0, UINT32_MAX};
 
+        core::socket::stream::SocketConnection* socketConnection = nullptr;
+
         bool masking = false;
+
+    protected:
+        bool closeSent = false;
     };
 
 } // namespace web::websocket

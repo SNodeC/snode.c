@@ -40,7 +40,7 @@ namespace web::websocket {
         : protected Receiver
         , protected Transmitter {
     public:
-        SubProtocolContext(bool role);
+        SubProtocolContext(core::socket::stream::SocketConnection* socketConnection, bool role);
         SubProtocolContext(const SubProtocolContext&) = delete;
 
         ~SubProtocolContext() override;

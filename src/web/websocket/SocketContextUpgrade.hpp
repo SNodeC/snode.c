@@ -34,7 +34,7 @@ namespace web::websocket {
         web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
         Role role)
         : Super(socketConnection, socketContextUpgradeFactory)
-        , web::websocket::SubProtocolContext(role == Role::CLIENT) {
+        , SubProtocolContext(socketConnection, role == Role::CLIENT) {
     }
 
     template <typename SubProtocol, typename Request, typename Response>
@@ -190,58 +190,12 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onDisconnected() {
         subProtocol->onDisconnected();
-        LOG(INFO) << this->getSocketConnection()->getConnectionName() << " WebSocket: disconnected";
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " WebSocket: disconnected";
     }
 
     template <typename SubProtocol, typename Request, typename Response>
     bool SocketContextUpgrade<SubProtocol, Request, Response>::onSignal(int sig) {
         return subProtocol->onSignal(sig);
-    }
-
-    template <typename SubProtocol, typename Request, typename Response>
-    void SocketContextUpgrade<SubProtocol, Request, Response>::sendFrameData(uint8_t data) const {
-        if (!closeSent) {
-            sendFrameData(reinterpret_cast<char*>(&data), sizeof(uint8_t));
-        }
-    }
-
-    template <typename SubProtocol, typename Request, typename Response>
-    void SocketContextUpgrade<SubProtocol, Request, Response>::sendFrameData(uint16_t data) const {
-        if (!closeSent) {
-            uint16_t sendData = htobe16(data);
-            sendFrameData(reinterpret_cast<char*>(&sendData), sizeof(uint16_t));
-        }
-    }
-
-    template <typename SubProtocol, typename Request, typename Response>
-    void SocketContextUpgrade<SubProtocol, Request, Response>::sendFrameData(uint32_t data) const {
-        if (!closeSent) {
-            uint32_t sendData = htobe32(data);
-            sendFrameData(reinterpret_cast<char*>(&sendData), sizeof(uint32_t));
-        }
-    }
-
-    template <typename SubProtocol, typename Request, typename Response>
-    void SocketContextUpgrade<SubProtocol, Request, Response>::sendFrameData(uint64_t data) const {
-        if (!closeSent) {
-            uint64_t sendData = htobe64(data);
-            sendFrameData(reinterpret_cast<char*>(&sendData), sizeof(uint64_t));
-        }
-    }
-
-    template <typename SubProtocol, typename Request, typename Response>
-    void SocketContextUpgrade<SubProtocol, Request, Response>::sendFrameData(const char* frame, uint64_t frameLength) const {
-        if (!closeSent) {
-            uint64_t frameOffset = 0;
-
-            do {
-                std::size_t sendChunkLen =
-                    (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
-
-                sendToPeer(frame + frameOffset, sendChunkLen);
-                frameOffset += sendChunkLen;
-            } while (frameLength - frameOffset > 0);
-        }
     }
 
     template <typename SubProtocol, typename Request, typename Response>

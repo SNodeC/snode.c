@@ -55,7 +55,7 @@ namespace web::websocket {
     template <typename SubProtocolT, typename RequestT, typename ResponseT>
     class SocketContextUpgrade
         : public web::http::SocketContextUpgrade<RequestT, ResponseT>
-        , public web::websocket::SubProtocolContext {
+        , public SubProtocolContext {
     public:
         SocketContextUpgrade() = delete;
         SocketContextUpgrade(const SocketContextUpgrade&) = delete;
@@ -111,13 +111,6 @@ namespace web::websocket {
 
         bool onSignal(int sig) override;
 
-        /* Facade to SocketContext used from WSTransmitter */
-        void sendFrameData(uint8_t data) const override;
-        void sendFrameData(uint16_t data) const override;
-        void sendFrameData(uint32_t data) const override;
-        void sendFrameData(uint64_t data) const override;
-        void sendFrameData(const char* frame, uint64_t frameLength) const override;
-
         /* SocketContext */
         std::size_t onReceivedFromPeer() override;
 
@@ -125,8 +118,6 @@ namespace web::websocket {
         SubProtocol* subProtocol = nullptr;
 
     private:
-        bool closeSent = false;
-
         int receivedOpCode = 0;
 
         std::string pongCloseData;

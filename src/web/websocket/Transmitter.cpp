@@ -19,6 +19,8 @@
 
 #include "web/websocket/Transmitter.h"
 
+#include "core/socket/stream/SocketConnection.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -33,8 +35,9 @@ constexpr int WSMAXFRAMEPAYLOADLENGTH = 1024;
 
 namespace web::websocket {
 
-    Transmitter::Transmitter(bool masking)
-        : masking(masking) {
+    Transmitter::Transmitter(core::socket::stream::SocketConnection* socketConnection, bool masking)
+        : socketConnection(socketConnection)
+        , masking(masking) {
     }
 
     Transmitter::~Transmitter() {
@@ -125,6 +128,48 @@ namespace web::websocket {
             for (uint64_t i = 0; i < payloadLength; i++) {
                 *(const_cast<char*>(payload) + i) = static_cast<char>(*(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4));
             }
+        }
+    }
+
+    void Transmitter::sendFrameData(uint8_t data) const {
+        if (!closeSent) {
+            sendFrameData(reinterpret_cast<char*>(&data), sizeof(uint8_t));
+        }
+    }
+
+    void Transmitter::sendFrameData(uint16_t data) const {
+        if (!closeSent) {
+            uint16_t sendData = htobe16(data);
+            sendFrameData(reinterpret_cast<char*>(&sendData), sizeof(uint16_t));
+        }
+    }
+
+    void Transmitter::sendFrameData(uint32_t data) const {
+        if (!closeSent) {
+            uint32_t sendData = htobe32(data);
+            sendFrameData(reinterpret_cast<char*>(&sendData), sizeof(uint32_t));
+        }
+    }
+
+    void Transmitter::sendFrameData(uint64_t data) const {
+        if (!closeSent) {
+            uint64_t sendData = htobe64(data);
+            sendFrameData(reinterpret_cast<char*>(&sendData), sizeof(uint64_t));
+        }
+    }
+
+    void Transmitter::sendFrameData(const char* frame, uint64_t frameLength) const {
+        if (!closeSent) {
+            uint64_t frameOffset = 0;
+
+            do {
+                std::size_t sendChunkLen =
+                    (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
+
+                socketConnection->sendToPeer(frame + frameOffset, sendChunkLen);
+
+                frameOffset += sendChunkLen;
+            } while (frameLength - frameOffset > 0);
         }
     }
 
