@@ -195,7 +195,7 @@ namespace core::socket::stream {
                         if (enable(physicalClientSocket.getFd())) {
                             LOG(DEBUG) << config->getInstanceName() << " connect in progress: '" << remoteAddress.toString() << "'";
                         } else {
-                            LOG(DEBUG) << config->getInstanceName() << " connect in progress: '" << remoteAddress.toString() << "'";
+                            LOG(DEBUG) << config->getInstanceName() << " not enabled: '" << remoteAddress.toString() << "'";
 
                             state = core::socket::STATE(core::socket::STATE_FATAL, ECANCELED, "SocketConnector not enabled");
 
