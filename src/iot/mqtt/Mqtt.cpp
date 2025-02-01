@@ -20,6 +20,7 @@
 #include "Mqtt.h"
 
 #include "MqttContext.h"
+#include "core/socket/stream/SocketConnection.h"
 #include "iot/mqtt/ControlPacketDeserializer.h"
 #include "iot/mqtt/Session.h"
 #include "iot/mqtt/packets/Puback.h"
@@ -175,6 +176,8 @@ namespace iot::mqtt {
                 },
                 keepAlive);
         }
+
+        mqttContext->getSocketConnection()->setTimeout(0);
     }
 
     void Mqtt::send(const ControlPacket& controlPacket) const {
