@@ -177,11 +177,6 @@ namespace web::websocket {
     }
 
     template <typename SubProtocol, typename Request, typename Response>
-    std::size_t SocketContextUpgrade<SubProtocol, Request, Response>::readFrameData(char* chunk, std::size_t chunkLen) {
-        return readFromPeer(chunk, chunkLen);
-    }
-
-    template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onConnected() {
         LOG(INFO) << getSocketConnection()->getConnectionName() << " WebSocket: connected";
         subProtocol->onConnected();

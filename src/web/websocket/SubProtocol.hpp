@@ -47,6 +47,8 @@ namespace web::websocket {
                         sendPing();
                         flyingPings++;
                     } else {
+                        LOG(WARNING) << getSocketConnection()->getConnectionName() << " WebSocket: MaxFlyingPings exceeded - closing";
+
                         sendClose();
                         stop();
                     }
@@ -105,12 +107,12 @@ namespace web::websocket {
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::sendPing(const char* reason, std::size_t reasonLength) const {
         LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocket: Ping sent";
+
         subProtocolContext->sendPing(reason, reasonLength);
     }
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
-        LOG(WARNING) << getSocketConnection()->getConnectionName() << " WebSocket: MaxFlyingPings exceeded - closing";
         subProtocolContext->sendClose(statusCode, reason, reasonLength);
     }
 

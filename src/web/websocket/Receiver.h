@@ -20,6 +20,12 @@
 #ifndef WEB_WEBSOCKET_RECEVIER_H
 #define WEB_WEBSOCKET_RECEVIER_H
 
+namespace core::socket::stream {
+
+    class SocketConnection;
+
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -35,7 +41,7 @@ namespace web::websocket {
 
     class Receiver {
     public:
-        Receiver() = default;
+        Receiver(core::socket::stream::SocketConnection* socketConnection);
 
         Receiver(const Receiver&) = delete;
         Receiver& operator=(const Receiver&) = delete;
@@ -61,7 +67,7 @@ namespace web::websocket {
         virtual void onMessageEnd() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
 
-        virtual std::size_t readFrameData(char* chunk, std::size_t chunkLen) = 0;
+        std::size_t readFrameData(char* chunk, std::size_t chunkLen);
 
         void reset();
 
@@ -90,6 +96,8 @@ namespace web::websocket {
         char elengthChunk[8]{};
         char maskingKeyChunk[4]{};
         char payloadChunk[MAX_PAYLOAD_JUNK_LEN]{};
+
+        core::socket::stream::SocketConnection* socketConnection = nullptr;
     };
 
 } // namespace web::websocket

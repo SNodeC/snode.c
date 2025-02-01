@@ -26,7 +26,8 @@
 namespace web::websocket {
 
     SubProtocolContext::SubProtocolContext(core::socket::stream::SocketConnection* socketConnection, bool role)
-        : Transmitter(socketConnection, role) {
+        : Receiver(socketConnection)
+        , Transmitter(socketConnection, role) {
     }
 
     SubProtocolContext::~SubProtocolContext() {

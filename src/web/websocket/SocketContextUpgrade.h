@@ -103,8 +103,6 @@ namespace web::websocket {
         void onMessageEnd() override;
         void onMessageError(uint16_t errnum) override;
 
-        std::size_t readFrameData(char* chunk, std::size_t chunkLen) override;
-
         /* Callbacks (API) socketConnection -> WSProtocol */
         void onConnected() override;
         void onDisconnected() override;

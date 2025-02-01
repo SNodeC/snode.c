@@ -19,6 +19,8 @@
 
 #include "web/websocket/Receiver.h"
 
+#include "core/socket/stream/SocketConnection.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -30,6 +32,10 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket {
+
+    Receiver::Receiver(core::socket::stream::SocketConnection* socketConnection)
+        : socketConnection(socketConnection) {
+    }
 
     Receiver::~Receiver() {
     }
@@ -246,6 +252,10 @@ namespace web::websocket {
         maskingKeyNumBytesLeft = 4;
 
         errorState = 0;
+    }
+
+    std::size_t Receiver::readFrameData(char* chunk, std::size_t chunkLen) {
+        return socketConnection->readFromPeer(chunk, chunkLen);
     }
 
 } // namespace web::websocket
