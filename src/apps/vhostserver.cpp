@@ -34,7 +34,7 @@
 using namespace express;
 
 Router getRouter(const std::string& webRoot) {
-    Router router;
+    const Router router;
 
     router.use(middleware::StaticMiddleware(webRoot));
 
