@@ -91,6 +91,22 @@ add_link_options(LINKER:--as-needed)
 
 set(SNODEC_SOVERSION ${snode.c_VERSION_MAJOR})
 
+option(SNODEC_DISABLE_LOGLEVEL_LOGGING "Disable LOG() and PLOG() logging")
+option(SNODEC_DISABLE_VERBOSE_LOGGING "Disable VLOG() logging")
+
+if(SNODEC_DISABLE_LOGLEVEL_LOGGING)
+    add_compile_definitions(ELPP_DISABLE_TRACE_LOGS)
+    add_compile_definitions(ELPP_DISABLE_DEBUG_LOGS)
+    add_compile_definitions(ELPP_DISABLE_INFO_LOGS)
+    add_compile_definitions(ELPP_DISABLE_WARNING_LOGS)
+    add_compile_definitions(ELPP_DISABLE_ERROR_LOGS)
+    add_compile_definitions(ELPP_DISABLE_FATAL_LOGS)
+endif(SNODEC_DISABLE_LOGLEVEL_LOGGING)
+
+if(SNODEC_DISABLE_VERBOSE_LOGGING)
+    add_compile_definitions(ELPP_DISABLE_VERBOSE_LOGS)
+endif(SNODEC_DISABLE_VERBOSE_LOGGING)
+
 add_subdirectory(log)
 add_subdirectory(utils)
 add_subdirectory(core)
