@@ -41,16 +41,16 @@ namespace iot::mqtt::packets {
     public:
         Connect();
 
-        explicit Connect(const std::string& clientId,
-                         uint16_t keepAlive,
-                         bool cleanSession,
-                         const std::string& willTopic,
-                         const std::string& willMessage,
-                         uint8_t willQoS,
-                         bool willRetain,
-                         const std::string& username,
-                         const std::string& password,
-                         bool loopPrevention);
+        Connect(const std::string& clientId,
+                uint16_t keepAlive,
+                bool cleanSession,
+                const std::string& willTopic,
+                const std::string& willMessage,
+                uint8_t willQoS,
+                bool willRetain,
+                const std::string& username,
+                const std::string& password,
+                bool loopPrevention);
 
     private:
         std::vector<char> serializeVP() const override;
