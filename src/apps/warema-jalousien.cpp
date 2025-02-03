@@ -50,8 +50,8 @@ int main(int argc, char* argv[]) {
     //    tls::WebApp wa;
 
     webApp.get("/jalousien/:id", [] APPLICATION(req, res) {
-        VLOG(0) << "Param: " << req->param("id");
-        VLOG(0) << "Qurey: " << req->query("action");
+        VLOG(1) << "Param: " << req->param("id");
+        VLOG(1) << "Qurey: " << req->query("action");
 
         std::string arguments = "aircontrol -t " + jalousien[req->param("id")] + "_" + actions[req->query("action")];
 

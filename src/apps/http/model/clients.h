@@ -485,7 +485,7 @@ namespace apps::http::tls {
 #ifdef __GNUC_
 #pragma GCC diagnostic pop
 #endif
-                VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
+                VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
 #ifdef __GNUC__
 #pragma GCC diagnostic push

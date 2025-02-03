@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
         if (errnum != 0) {
             PLOG(ERROR) << "OnError: " << errnum;
         } else {
-            VLOG(0) << "snode.c connected";
+            VLOG(1) << "snode.c connected";
         }
 
 #ifdef NET_TYPE

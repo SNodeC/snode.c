@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
         errno = errnum;
         PLOG(ERROR) << "OnError: " << socketAddress.toString();
     } else {
-        VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+        VLOG(1) << "snode.c connecting to " << socketAddress.toString();
     }
 
 #ifdef NET_TYPE

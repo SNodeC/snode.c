@@ -68,10 +68,10 @@ namespace apps::echo::model::tls {
         EchoSocketServer server("echoserver");
 
         server.setOnConnect([&server](SocketConnection* socketConnection) { // onConnect
-            VLOG(0) << "OnConnect " << server.getConfig().getInstanceName();
+            VLOG(1) << "OnConnect " << server.getConfig().getInstanceName();
 
-            VLOG(0) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -84,21 +84,21 @@ namespace apps::echo::model::tls {
         });
 
         server.setOnConnected([&server](SocketConnection* socketConnection) { // onConnected
-            VLOG(0) << "OnConnected " << server.getConfig().getInstanceName();
+            VLOG(1) << "OnConnected " << server.getConfig().getInstanceName();
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                VLOG(0) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
+                VLOG(1) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
                                std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                VLOG(0) << "\t   Subject: " + std::string(str);
+                VLOG(1) << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                VLOG(0) << "\t   Issuer: " + std::string(str);
+                VLOG(1) << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -117,7 +117,7 @@ namespace apps::echo::model::tls {
 #ifdef __GNUC_
 #pragma GCC diagnostic pop
 #endif
-                VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
+                VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -135,14 +135,14 @@ namespace apps::echo::model::tls {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
+                        VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
+                        VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
                     } else {
-                        VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                     }
                 }
 #ifdef __GNUC__
@@ -159,15 +159,15 @@ namespace apps::echo::model::tls {
 #endif
                 X509_free(server_cert);
             } else {
-                VLOG(0) << "\tPeer certificate: no certificate";
+                VLOG(1) << "\tPeer certificate: no certificate";
             }
         });
 
         server.setOnDisconnect([&server](SocketConnection* socketConnection) { // onDisconnect
-            VLOG(0) << "OnDisconnect " << server.getConfig().getInstanceName();
+            VLOG(1) << "OnDisconnect " << server.getConfig().getInstanceName();
 
-            VLOG(0) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         return server;

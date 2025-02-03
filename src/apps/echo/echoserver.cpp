@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
         if (errnum != 0) {
             PLOG(FATAL) << "listen";
         } else {
-            VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
+            VLOG(1) << "snode.c listening on " << socket.getBindAddress().toString();
         }
 
 #ifdef NET_TYPE

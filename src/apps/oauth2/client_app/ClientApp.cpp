@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
             }
             tokenRequestUri += "&client_id=911a821a-ea2d-11ec-8e2e-08002771075f";
             tokenRequestUri += "&redirect_uri=http://localhost:8081/oauth2";
-            VLOG(0) << "Recieving auth code from auth server: " << req.query("code") << ", requesting token from " << tokenRequestUri;
+            VLOG(1) << "Recieving auth code from auth server: " << req.query("code") << ", requesting token from " << tokenRequestUri;
             res.redirect(tokenRequestUri);
             */
         }

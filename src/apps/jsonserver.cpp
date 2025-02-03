@@ -71,10 +71,10 @@ int main(int argc, char* argv[]) {
         req->getAttribute<nlohmann::json>(
             [&jsonString](nlohmann::json& json) {
                 jsonString = json.dump(4);
-                VLOG(0) << "Application received body: " << jsonString;
+                VLOG(1) << "Application received body: " << jsonString;
             },
             [](const std::string& key) {
-                VLOG(0) << key << " attribute not found";
+                VLOG(1) << key << " attribute not found";
             });
 
         res->send(jsonString);

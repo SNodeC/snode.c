@@ -53,11 +53,11 @@ Router router(database::mariadb::MariaDBClient& db) {
         .get(
             "/query/:userId",
             [] MIDDLEWARE(req, res, next) {
-                VLOG(0) << "Move on to the next route to query database";
+                VLOG(1) << "Move on to the next route to query database";
                 next();
             },
             [&db] MIDDLEWARE(req, res, next) { // http://localhost:8080/query/123
-                VLOG(0) << "UserId: " << req->params["userId"];
+                VLOG(1) << "UserId: " << req->params["userId"];
                 std::string userId = req->params["userId"];
 
                 req->setAttribute<std::string, "html-table">(std::string());
@@ -108,29 +108,29 @@ Router router(database::mariadb::MariaDBClient& db) {
                                                          "  </body>\n"
                                                          "</html>\n"));
                             });
-                            VLOG(0) << "Move on to the next route to send result";
+                            VLOG(1) << "Move on to the next route to send result";
                             next();
                         }
                     },
                     [res, userId](const std::string& errorString, unsigned int errorNumber) {
-                        VLOG(0) << "Error: " << errorString << " : " << errorNumber;
+                        VLOG(1) << "Error: " << errorString << " : " << errorNumber;
                         res->status(404).send(userId + ": " + errorString + " - " + std::to_string(errorNumber));
                     });
             },
             [] MIDDLEWARE(req, res, next) {
-                VLOG(0) << "And again 1: Move on to the next route to send result";
+                VLOG(1) << "And again 1: Move on to the next route to send result";
                 next();
             },
             [] MIDDLEWARE(req, res, next) {
-                VLOG(0) << "And again 2: Move on to the next route to send result";
+                VLOG(1) << "And again 2: Move on to the next route to send result";
                 next();
             })
         .get([] MIDDLEWARE(req, res, next) {
-            VLOG(0) << "And again 3: Move on to the next route to send result";
+            VLOG(1) << "And again 3: Move on to the next route to send result";
             next();
         })
         .get([] APPLICATION(req, res) {
-            VLOG(0) << "SendResult";
+            VLOG(1) << "SendResult";
 
             req->getAttribute<std::string, "html-table">(
                 [res](std::string& table) {
@@ -141,9 +141,9 @@ Router router(database::mariadb::MariaDBClient& db) {
                 });
         });
     router.get("/account/:userId(\\d*)/:userName", [&db] APPLICATION(req, res) { // http://localhost:8080/account/123/perfectNDSgroup
-        VLOG(0) << "Show account of";
-        VLOG(0) << "UserId: " << req->params["userId"];
-        VLOG(0) << "UserName: " << req->params["userName"];
+        VLOG(1) << "Show account of";
+        VLOG(1) << "UserId: " << req->params["userId"];
+        VLOG(1) << "UserName: " << req->params["userName"];
 
         const std::string response = "<html>"
                                      "  <head>"
@@ -168,18 +168,18 @@ Router router(database::mariadb::MariaDBClient& db) {
         db.exec(
             "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
             [userId, userName]() {
-                VLOG(0) << "Inserted: -> " << userId << " - " << userName;
+                VLOG(1) << "Inserted: -> " << userId << " - " << userName;
             },
             [](const std::string& errorString, unsigned int errorNumber) {
-                VLOG(0) << "Error: " << errorString << " : " << errorNumber;
+                VLOG(1) << "Error: " << errorString << " : " << errorNumber;
             });
 
         res->send(response);
     });
     router.get("/asdf/:testRegex1(d\\d{3}e)/jklö/:testRegex2", [] APPLICATION(req, res) { // http://localhost:8080/asdf/d123e/jklö/hallo
-        VLOG(0) << "Testing Regex";
-        VLOG(0) << "Regex1: " << req->params["testRegex1"];
-        VLOG(0) << "Regex2: " << req->params["testRegex2"];
+        VLOG(1) << "Testing Regex";
+        VLOG(1) << "Regex1: " << req->params["testRegex1"];
+        VLOG(1) << "Regex2: " << req->params["testRegex2"];
 
         const std::string response = "<html>"
                                      "  <head>"
@@ -201,9 +201,9 @@ Router router(database::mariadb::MariaDBClient& db) {
         res->send(response);
     });
     router.get("/search/:search", [] APPLICATION(req, res) { // http://localhost:8080/search/buxtehude123
-        VLOG(0) << "Show Search of";
-        VLOG(0) << "Search: " << req->params["search"];
-        VLOG(0) << "Queries: " << req->query("test");
+        VLOG(1) << "Show Search of";
+        VLOG(1) << "Search: " << req->params["search"];
+        VLOG(1) << "Queries: " << req->query("test");
 
         res->send(req->params["search"]);
     });
@@ -258,17 +258,17 @@ int main(int argc, char* argv[]) {
         });
 
         legacyApp.setOnConnect([](legacy::in::WebApp::SocketConnection* socketConnection) {
-            VLOG(0) << "OnConnect:";
+            VLOG(1) << "OnConnect:";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
         legacyApp.setOnDisconnect([](legacy::in::WebApp::SocketConnection* socketConnection) {
-            VLOG(0) << "OnDisconnect:";
+            VLOG(1) << "OnDisconnect:";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
         tls::in::WebApp tlsApp("tls-testregex");
@@ -293,28 +293,28 @@ int main(int argc, char* argv[]) {
         });
 
         tlsApp.setOnConnect([](tls::in::WebApp::SocketConnection* socketConnection) {
-            VLOG(0) << "OnConnect:";
+            VLOG(1) << "OnConnect:";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
         tlsApp.setOnConnected([](tls::in::WebApp::SocketConnection* socketConnection) {
-            VLOG(0) << "OnConnected:";
+            VLOG(1) << "OnConnected:";
 
             X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
 
             if (client_cert != nullptr) {
                 const long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                VLOG(0) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                VLOG(1) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), nullptr, 0);
-                VLOG(0) << "\t   Subject: " + std::string(str);
+                VLOG(1) << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(client_cert), nullptr, 0);
-                VLOG(0) << "\t   Issuer: " + std::string(str);
+                VLOG(1) << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -333,7 +333,7 @@ int main(int argc, char* argv[]) {
 #ifdef __GNUC_
 #pragma GCC diagnostic pop
 #endif
-                VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
+                VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -351,14 +351,14 @@ int main(int argc, char* argv[]) {
                         const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
+                        VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
+                        VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
                     } else {
-                        VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                     }
                 }
 #ifdef __GNUC__
@@ -375,15 +375,15 @@ int main(int argc, char* argv[]) {
 #endif
                 X509_free(client_cert);
             } else {
-                VLOG(0) << "\tClient certificate: no certificate";
+                VLOG(1) << "\tClient certificate: no certificate";
             }
         });
 
         tlsApp.setOnDisconnect([](tls::in::WebApp::SocketConnection* socketConnection) {
-            VLOG(0) << "OnDisconnect:";
+            VLOG(1) << "OnDisconnect:";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
     }
 

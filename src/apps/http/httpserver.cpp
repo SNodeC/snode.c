@@ -107,7 +107,7 @@ state) { // titan #elif (NET_TYPE == RC) // rf
     // webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
 // titan webApp.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
 // titan #elif (NET_TYPE == UN) // un webApp.listen("/tmp/testme", 5, [](const WebApp::SocketAddress& socketAddress, const
-core::socket::State& state) { // titan #endif if (errnum != 0) { PLOG(FATAL) << "listen"; } else { VLOG(0) << "snode.c listening on
+core::socket::State& state) { // titan #endif if (errnum != 0) { PLOG(FATAL) << "listen"; } else { VLOG(1) << "snode.c listening on
 " << socketAddress.toString();
         }
 

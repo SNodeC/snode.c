@@ -81,7 +81,7 @@ core::socket::State& state) { #elif (NET_TYPE == RC) // rf
     // client.connect("A4:B1:C1:2C:82:37", 1, "44:01:BB:A3:63:32", [](const SocketAddress& socketAddress, const core::socket::State& state)
 { client.connect("10:3D:1C:AC:BA:9C", 1, "44:01:BB:A3:63:32", [](const SocketAddress& socketAddress, const core::socket::State&
 state) { #elif (NET_TYPE == UN) // un client.connect("/tmp/testme", [](const SocketAddress& socketAddress, const
-core::socket::State& state) { #endif if (errnum != 0) { PLOG(ERROR) << "OnError: " << errnum; } else { VLOG(0) << "snode.c
+core::socket::State& state) { #endif if (errnum != 0) { PLOG(ERROR) << "OnError: " << errnum; } else { VLOG(1) << "snode.c
 connecting to " << socketAddress.toString();
         }
 

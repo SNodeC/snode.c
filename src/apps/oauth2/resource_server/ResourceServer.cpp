@@ -23,40 +23,40 @@ int main(int argc, char* argv[]) {
         const std::string queryAccessToken{req->query("access_token")};
         const std::string queryClientId{req->query("client_id")};
         if (queryAccessToken.empty() || queryClientId.empty()) {
-            VLOG(0) << "Missing access_token or client_id in body";
+            VLOG(1) << "Missing access_token or client_id in body";
             res->sendStatus(401);
             return;
         }
 
         const web::http::legacy::in::Client legacyClient(
             [](web::http::legacy::in::Client::SocketConnection* socketConnection) {
-                VLOG(0) << "OnConnect";
+                VLOG(1) << "OnConnect";
 
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             []([[maybe_unused]] web::http::legacy::in::Client::SocketConnection* socketConnection) {
-                VLOG(0) << "OnConnected";
+                VLOG(1) << "OnConnected";
             },
             [](web::http::legacy::in::Client::SocketConnection* socketConnection) {
-                VLOG(0) << "OnDisconnect";
+                VLOG(1) << "OnDisconnect";
 
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             [queryAccessToken, queryClientId, res](const std::shared_ptr<web::http::client::Request>& request) {
-                VLOG(0) << "OnRequestBegin";
+                VLOG(1) << "OnRequestBegin";
                 request->url = "/oauth2/token/validate?client_id=" + queryClientId;
                 request->method = "POST";
-                VLOG(0) << "ClientId: " << queryClientId;
-                VLOG(0) << "AccessToken: " << queryAccessToken;
+                VLOG(1) << "ClientId: " << queryClientId;
+                VLOG(1) << "AccessToken: " << queryAccessToken;
                 const nlohmann::json requestJson = {{"access_token", queryAccessToken}, {"client_id", queryClientId}};
                 const std::string requestJsonString{requestJson.dump(4)};
                 request->send(requestJsonString,
                               [res]([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& request,
                                     const std::shared_ptr<web::http::client::Response>& response) {
-                                  VLOG(0) << "OnResponse";
-                                  VLOG(0) << "Response: " << std::string(response->body.begin(), response->body.end());
+                                  VLOG(1) << "OnResponse";
+                                  VLOG(1) << "Response: " << std::string(response->body.begin(), response->body.end());
                                   if (std::stoi(response->statusCode) != 200) {
                                       const nlohmann::json errorJson = {{"error", "Invalid access token"}};
                                       res->status(401).send(errorJson.dump(4));

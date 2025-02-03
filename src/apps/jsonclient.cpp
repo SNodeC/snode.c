@@ -41,34 +41,34 @@ int main(int argc, char* argv[]) {
     const Client jsonClient(
         "legacy",
         [](const std::shared_ptr<Request>& req) {
-            VLOG(0) << "-- OnRequest";
+            VLOG(1) << "-- OnRequest";
             req->method = "POST";
             req->url = "/index.html";
             req->type("application/json");
             req->set("Connection", "close");
             req->send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}",
                       []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                          VLOG(0) << "-- OnResponse";
-                          VLOG(0) << "     Status:";
-                          VLOG(0) << "       " << res->httpVersion;
-                          VLOG(0) << "       " << res->statusCode;
-                          VLOG(0) << "       " << res->reason;
+                          VLOG(1) << "-- OnResponse";
+                          VLOG(1) << "     Status:";
+                          VLOG(1) << "       " << res->httpVersion;
+                          VLOG(1) << "       " << res->statusCode;
+                          VLOG(1) << "       " << res->reason;
 
-                          VLOG(0) << "     Headers:";
+                          VLOG(1) << "     Headers:";
                           for (const auto& [field, value] : res->headers) {
-                              VLOG(0) << "       " << field + " = " + value;
+                              VLOG(1) << "       " << field + " = " + value;
                           }
 
-                          VLOG(0) << "     Cookies:";
+                          VLOG(1) << "     Cookies:";
                           for (const auto& [name, cookie] : res->cookies) {
-                              VLOG(0) << "       " + name + " = " + cookie.getValue();
+                              VLOG(1) << "       " + name + " = " + cookie.getValue();
                               for (const auto& [option, value] : cookie.getOptions()) {
-                                  VLOG(0) << "         " + option + " = " + value;
+                                  VLOG(1) << "         " + option + " = " + value;
                               }
                           }
 
                           res->body.push_back(0);
-                          VLOG(0) << "     Body:\n----------- start body -----------" << res->body.data()
+                          VLOG(1) << "     Body:\n----------- start body -----------" << res->body.data()
                                   << "------------ end body ------------";
                       });
         },

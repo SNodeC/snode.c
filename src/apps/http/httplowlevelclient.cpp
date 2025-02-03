@@ -48,13 +48,13 @@ namespace apps::http {
         web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
             socketContext,
             []() {
-                VLOG(0) << "++   OnStarted";
+                VLOG(1) << "++   OnStarted";
             },
             []([[maybe_unused]] web::http::client::Response&& res) {
-                VLOG(0) << "++   OnParsed";
+                VLOG(1) << "++   OnParsed";
             },
             [](int status, const std::string& reason) {
-                VLOG(0) << "++   OnError: " + std::to_string(status) + " - " + reason;
+                VLOG(1) << "++   OnError: " + std::to_string(status) + " - " + reason;
             });
 
         return responseParser;
@@ -70,10 +70,10 @@ namespace apps::http {
         ~SimpleSocketProtocol() override;
 
         void onConnected() override {
-            VLOG(0) << "SimpleSocketProtocol connected";
+            VLOG(1) << "SimpleSocketProtocol connected";
         }
         void onDisconnected() override {
-            VLOG(0) << "SimpleSocketProtocol disconnected";
+            VLOG(1) << "SimpleSocketProtocol disconnected";
         }
 
         bool onSignal([[maybe_unused]] int signum) override {
@@ -127,10 +127,10 @@ namespace tls {
         SocketClient tlsClient(
             "tls",
             [](SocketConnection* socketConnection) { // onConnect
-                VLOG(0) << "OnConnect";
+                VLOG(1) << "OnConnect";
 
-                VLOG(0) << "\tServer: " << socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " << socketConnection->getLocalAddress().toString();
+                VLOG(1) << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                VLOG(1) << "\tClient: " << socketConnection->getLocalAddress().toString();
 
                 /* Enable automatic hostname checks */
                 // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -142,20 +142,20 @@ namespace tls {
                 // }
             },
             [](SocketConnection* socketConnection) { // onConnected
-                VLOG(0) << "OnConnected";
+                VLOG(1) << "OnConnected";
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
                     const long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                    VLOG(0) << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                    VLOG(1) << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                     char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                    VLOG(0) << "        Subject: " + std::string(str);
+                    VLOG(1) << "        Subject: " + std::string(str);
                     OPENSSL_free(str);
 
                     str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                    VLOG(0) << "        Issuer: " + std::string(str);
+                    VLOG(1) << "        Issuer: " + std::string(str);
                     OPENSSL_free(str);
 
                     // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -174,7 +174,7 @@ namespace tls {
 #ifdef __GNUC_
 #pragma GCC diagnostic pop
 #endif
-                    VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
+                    VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
                     for (int32_t i = 0; i < altNameCount; ++i) {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -192,14 +192,14 @@ namespace tls {
                             const std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                            VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
+                            VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
                         } else if (generalName->type == GEN_DNS) {
                             const std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                            VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
+                            VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
                         } else {
-                            VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                            VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                         }
                     }
 #ifdef __GNUC__
@@ -216,16 +216,16 @@ namespace tls {
 #endif
                     X509_free(server_cert);
                 } else {
-                    VLOG(0) << "     Server certificate: no certificate";
+                    VLOG(1) << "     Server certificate: no certificate";
                 }
 
                 socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) { // onDisconnect
-                VLOG(0) << "OnDisconnect";
+                VLOG(1) << "OnDisconnect";
 
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
             });
 
@@ -265,29 +265,29 @@ namespace legacy {
         SocketClient legacyClient(
             "legacy",
             [](SocketConnection* socketConnection) { // OnConnect
-                VLOG(0) << "OnConnect";
+                VLOG(1) << "OnConnect";
 
-                VLOG(0) << "\tServer: " << socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " << socketConnection->getLocalAddress().toString();
+                VLOG(1) << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                VLOG(1) << "\tClient: " << socketConnection->getLocalAddress().toString();
             },
             [](SocketConnection* socketConnection) { // onConnected
-                VLOG(0) << "OnConnected";
+                VLOG(1) << "OnConnected";
 
                 socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) { // onDisconnect
-                VLOG(0) << "OnDisconnect";
+                VLOG(1) << "OnDisconnect";
 
-                VLOG(0) << "\tServer: " << socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " << socketConnection->getLocalAddress().toString();
+                VLOG(1) << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                VLOG(1) << "\tClient: " << socketConnection->getLocalAddress().toString();
             });
 
         SocketAddress remoteAddress("localhost", 8080);
 
         remoteAddress.init();
 
-        VLOG(0) << "###############': " << remoteAddress.getCanonName();
-        VLOG(0) << "###############': " << remoteAddress.toString();
+        VLOG(1) << "###############': " << remoteAddress.getCanonName();
+        VLOG(1) << "###############': " << remoteAddress.toString();
 
         legacyClient.connect(remoteAddress,
                              [instanceName = legacyClient.getConfig().getInstanceName()](
