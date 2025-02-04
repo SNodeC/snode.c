@@ -46,8 +46,8 @@ namespace web::http::server {
                   LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP Request started";
               },
               [this](web::http::server::Request&& request) {
-                  LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP Request parsed: " << request.method << " " << request.url
-                            << " HTTP/" << request.httpMajor << "." << request.httpMinor;
+                  LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP Request parsed: " << request.method << " "
+                            << request.url << " HTTP/" << request.httpMajor << "." << request.httpMinor;
 
                   pendingRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
@@ -58,8 +58,6 @@ namespace web::http::server {
               [this](int status, const std::string& reason) {
                   LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP Request parse error: " << reason << " (" << status
                              << ") ";
-
-                  masterResponse->status(status).send(reason);
 
                   shutdownWrite(true);
               }) {
@@ -83,7 +81,7 @@ namespace web::http::server {
 
             onRequestReady(pendingRequest, masterResponse);
         } else {
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTT Request: No more pending";
+            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP Request: No more pending";
         }
     }
 
