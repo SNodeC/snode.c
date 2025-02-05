@@ -71,9 +71,7 @@ int main(int argc, char* argv[]) {
             });
 
         legacyClient.connect(
-            "localhost",
-            8082,
-            [](const web::http::legacy::in::Client::SocketAddress& socketAddress, const core::socket::State& state) {
+            "localhost", 8082, [](const web::http::legacy::in::Client::SocketAddress& socketAddress, const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
                         VLOG(1) << "OAuth2ResourceServer: connected to '" << socketAddress.toString() << "'";

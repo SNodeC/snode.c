@@ -88,13 +88,13 @@ namespace net::config {
                              const CLI::Validator& additionalValidator);
 
         CLI::Option* addFlagFunction(const std::string& name,
-                                     const std::function<void ()> &callback,
+                                     const std::function<void()>& callback,
                                      const std::string& description,
                                      const std::string& typeName,
                                      const std::string& defaultValue);
 
         CLI::Option* addFlagFunction(const std::string& name,
-                                     const std::function<void ()> &callback,
+                                     const std::function<void()>& callback,
                                      const std::string& description,
                                      const std::string& typeName,
                                      const std::string& defaultValue,

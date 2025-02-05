@@ -80,12 +80,12 @@ namespace net::config {
 
     protected:
         CLI::Option* addSocketOption(const std::string& name,
-                                       int optLevel,
-                                       int optName,
-                                       const std::string& description,
-                                       const std::string& typeName,
-                                       const std::string& defaultValue,
-                                       const CLI::Validator& validator);
+                                     int optLevel,
+                                     int optName,
+                                     const std::string& description,
+                                     const std::string& typeName,
+                                     const std::string& defaultValue,
+                                     const CLI::Validator& validator);
 
     private:
         CLI::Option* reuseAddressOpt = nullptr;

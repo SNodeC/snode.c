@@ -51,23 +51,23 @@ int main(int argc, char* argv[]) {
     //    webApp.addSniCerts(sniCerts);
     //    webApp.forceSni();
 #endif
-    webApp.listen([instanceName = webApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
-                                                                        const core::socket::State& state) {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << instanceName << ": disabled";
-                break;
-            case core::socket::State::ERROR:
-                LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                break;
-            case core::socket::State::FATAL:
-                LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                break;
-        }
-    });
+    webApp.listen(
+        [instanceName = webApp.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << instanceName << ": disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    break;
+                case core::socket::State::FATAL:
+                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    break;
+            }
+        });
 
     return WebApp::start();
 }

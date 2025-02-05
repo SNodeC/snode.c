@@ -35,23 +35,23 @@ int main(int argc, char* argv[]) {
     using SocketAddress = SocketClient::SocketAddress;
     const SocketClient client = apps::echo::model::STREAM::getClient();
 
-    client.connect([instanceName = client.getConfig().getInstanceName()](const SocketAddress& socketAddress,
-                                                                         const core::socket::State& state) {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << instanceName << ": disabled";
-                break;
-            case core::socket::State::ERROR:
-                LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                break;
-            case core::socket::State::FATAL:
-                LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                break;
-        }
-    });
+    client.connect(
+        [instanceName = client.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << instanceName << ": disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    break;
+                case core::socket::State::FATAL:
+                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    break;
+            }
+        });
     /*
         client.connect([](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {

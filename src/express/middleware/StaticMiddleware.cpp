@@ -76,8 +76,8 @@ namespace express::middleware {
             [&root = this->root] APPLICATION(req, res) {
                 res->sendFile(root + req->url, [&root, req, res](int ret) {
                     if (ret == 0) {
-                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware: GET "
-                                  << req->url + " -> " << root + req->url;
+                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                                  << " Express StaticMiddleware: GET " << req->url + " -> " << root + req->url;
                     } else {
                         PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
                                     << req->url + " -> " << root + req->url;

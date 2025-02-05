@@ -357,8 +357,7 @@ int main(int argc, char* argv[]) {
                                             })
                                         .query(
                                             "select last_insert_id()",
-                                            [req, res, &db, accessToken, accessTokenExpireSeconds, refreshToken](
-                                                const MYSQL_ROW row) {
+                                            [req, res, &db, accessToken, accessTokenExpireSeconds, refreshToken](const MYSQL_ROW row) {
                                                 if (row != nullptr) {
                                                     db.exec(
                                                         "update client "
