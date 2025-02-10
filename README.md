@@ -739,16 +739,8 @@ Second step is to patch the default OpenWRT package feeds to add the SNode.C fee
 
 ```sh
 cd <SDK_DIR>
-echo "src-git snodec https://github.com/SNodeC/owrt-packages.git;vopenwrt-23.05" >> feeds.conf.default
+echo "src-git snodec https://github.com/SNodeC/OpenWRT" >> feeds.conf.default
 ```
-
-In case you want to try the latest developments of SNode.C run
-
-```sh
-echo "src-git snodec https://github.com/SNodeC/owrt-packages.git;vopenwrt-23.05-HEAD" >> feeds.conf.default
-```
-
-instead.
 
 ### Install the SNode.C Package and its Dependencies
 
@@ -756,7 +748,7 @@ In the third step, all source packages required to compile SNode.C are installed
 
 ```sh
 cd <SDK_DIR>
-./scripts/feeds update base snodec # Only the feeds base and snodec are necessary
+./scripts/feeds update base packages snodec # Only the feeds base, packages and snodec are necessary
 ./scripts/feeds install snode.c
 ```
 
