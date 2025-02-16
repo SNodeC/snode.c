@@ -17,7 +17,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-find_package(OpenSSL)
+find_package(OpenSSL REQUIRED)
 
 if(NOT OpenSSL_FOUND)
     message(FATAL_TRACE " libssl-dev not found:\n"
