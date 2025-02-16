@@ -128,7 +128,7 @@ namespace core::socket::stream::tls {
     int SocketAcceptor<PhysicalSocketServer, Config>::clientHelloCallback(SSL* ssl, int* al, [[maybe_unused]] void* arg) {
         int ret = SSL_CLIENT_HELLO_SUCCESS;
 
-        std::string connectionName = *static_cast<std::string*>(SSL_get_ex_data(ssl, 0));
+        const std::string connectionName = *static_cast<std::string*>(SSL_get_ex_data(ssl, 0));
         Config* config = static_cast<Config*>(SSL_get_ex_data(ssl, 1));
 
         std::string serverNameIndication = core::socket::stream::tls::ssl_get_servername_from_client_hello(ssl);

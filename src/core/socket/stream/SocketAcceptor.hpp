@@ -179,15 +179,16 @@ namespace core::socket::stream {
                     }
                 }
 
+                SocketAddress currentLocalAddress = localAddress;
                 if (localAddress.useNext()) {
+                    onStatus(currentLocalAddress, (state | core::socket::State::NO_RETRY));
+
                     LOG(DEBUG) << config->getInstanceName() << " using next SocketAddress: '"
                                << config->Local::getSocketAddress().toString() << "'";
 
-                    onStatus(localAddress, (state | core::socket::State::NO_RETRY));
-
                     useNextSocketAddress();
                 } else {
-                    onStatus(localAddress, state);
+                    onStatus(currentLocalAddress, state);
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 LOG(DEBUG) << config->getInstanceName() << " " << badSocketAddress.what();

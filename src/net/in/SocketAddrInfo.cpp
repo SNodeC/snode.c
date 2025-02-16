@@ -52,6 +52,14 @@ namespace net::in {
     }
 
     bool SocketAddrInfo::useNext() {
+        // Lookup for a AddrInfo holding a ai_next AddrInfo which differ from the current one.
+        // Especially localhost on IPv4 can lead to more than one entries representing the same SockAddr.
+        // Thus, do not use this further SockAddr.
+        while (currentAddrInfo != nullptr && currentAddrInfo->ai_next != nullptr &&
+               std::memcmp(currentAddrInfo->ai_addr, currentAddrInfo->ai_next->ai_addr, sizeof(sockaddr_in)) == 0) {
+            currentAddrInfo = currentAddrInfo->ai_next;
+        }
+
         if (currentAddrInfo != nullptr) {
             currentAddrInfo = currentAddrInfo->ai_next;
         }

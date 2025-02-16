@@ -181,15 +181,16 @@ namespace core::socket::stream {
                                 break;
                         }
 
+                        SocketAddress currentRemoteAddress = remoteAddress;
                         if (remoteAddress.useNext()) {
-                            onStatus(remoteAddress, state | core::socket::State::NO_RETRY);
+                            onStatus(currentRemoteAddress, state | core::socket::State::NO_RETRY);
 
                             LOG(DEBUG) << config->getInstanceName() << " using next SocketAddress: '"
                                        << config->Remote::getSocketAddress().toString() << "'";
 
                             useNextSocketAddress();
                         } else {
-                            onStatus(remoteAddress, state);
+                            onStatus(currentRemoteAddress, state);
                         }
                     } else if (PhysicalClientSocket::connectInProgress(errno)) {
                         if (enable(physicalClientSocket.getFd())) {
@@ -277,59 +278,62 @@ namespace core::socket::stream {
                 disable();
             } else if (PhysicalClientSocket::connectInProgress(errno)) {
                 LOG(TRACE) << config->getInstanceName() << " connect still in progress: '" << remoteAddress.toString() << "'";
-            } else if (remoteAddress.useNext()) {
-                core::socket::State state = core::socket::STATE_OK;
-
-                switch (errno) {
-                    case EADDRINUSE:
-                    case EADDRNOTAVAIL:
-                    case ECONNREFUSED:
-                    case ENETUNREACH:
-                    case ENOENT:
-                    case EHOSTDOWN:
-                        PLOG(DEBUG) << config->getInstanceName() << " connect: '" << remoteAddress.toString() << "'";
-
-                        state = core::socket::STATE_ERROR;
-                        break;
-                    default:
-                        PLOG(DEBUG) << config->getInstanceName() << ": connect: '" << remoteAddress.toString() << "'";
-
-                        state = core::socket::STATE_FATAL;
-                        break;
-                }
-
-                onStatus(remoteAddress, (state | core::socket::State::NO_RETRY));
-
-                LOG(DEBUG) << config->getInstanceName() << " using next SocketAddress: '" << config->Remote::getSocketAddress().toString()
-                           << "'";
-
-                useNextSocketAddress();
-
-                disable();
             } else {
-                core::socket::State state = core::socket::STATE_OK;
+                SocketAddress currentRemoteAddress = remoteAddress;
+                if (remoteAddress.useNext()) {
+                    core::socket::State state = core::socket::STATE_OK;
 
-                switch (errno) {
-                    case EADDRINUSE:
-                    case EADDRNOTAVAIL:
-                    case ECONNREFUSED:
-                    case ENETUNREACH:
-                    case ENOENT:
-                    case EHOSTDOWN:
-                        PLOG(DEBUG) << config->getInstanceName() << " connect: '" << remoteAddress.toString() << "'";
+                    switch (errno) {
+                        case EADDRINUSE:
+                        case EADDRNOTAVAIL:
+                        case ECONNREFUSED:
+                        case ENETUNREACH:
+                        case ENOENT:
+                        case EHOSTDOWN:
+                            PLOG(DEBUG) << config->getInstanceName() << " connect: '" << remoteAddress.toString() << "'";
 
-                        state = core::socket::STATE_ERROR;
-                        break;
-                    default:
-                        PLOG(DEBUG) << config->getInstanceName() << " connect: '" << remoteAddress.toString() << "'";
+                            state = core::socket::STATE_ERROR;
+                            break;
+                        default:
+                            PLOG(DEBUG) << config->getInstanceName() << ": connect: '" << remoteAddress.toString() << "'";
 
-                        state = core::socket::STATE_FATAL;
-                        break;
+                            state = core::socket::STATE_FATAL;
+                            break;
+                    }
+
+                    onStatus(currentRemoteAddress, (state | core::socket::State::NO_RETRY));
+
+                    LOG(DEBUG) << config->getInstanceName() << " using next SocketAddress: '"
+                               << config->Remote::getSocketAddress().toString() << "'";
+
+                    useNextSocketAddress();
+
+                    disable();
+                } else {
+                    core::socket::State state = core::socket::STATE_OK;
+
+                    switch (errno) {
+                        case EADDRINUSE:
+                        case EADDRNOTAVAIL:
+                        case ECONNREFUSED:
+                        case ENETUNREACH:
+                        case ENOENT:
+                        case EHOSTDOWN:
+                            PLOG(DEBUG) << config->getInstanceName() << " connect: '" << remoteAddress.toString() << "'";
+
+                            state = core::socket::STATE_ERROR;
+                            break;
+                        default:
+                            PLOG(DEBUG) << config->getInstanceName() << " connect: '" << remoteAddress.toString() << "'";
+
+                            state = core::socket::STATE_FATAL;
+                            break;
+                    }
+
+                    onStatus(currentRemoteAddress, state);
+
+                    disable();
                 }
-
-                onStatus(remoteAddress, state);
-
-                disable();
             }
         } else {
             PLOG(DEBUG) << config->getInstanceName() << " getsockopt syscall error: '" << remoteAddress.toString() << "'";
@@ -348,6 +352,7 @@ namespace core::socket::stream {
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectTimeout() {
         LOG(TRACE) << config->getInstanceName() << " connect timeout " << remoteAddress.toString();
 
+        SocketAddress currentRemoteAddress = remoteAddress;
         if (remoteAddress.useNext()) {
             LOG(DEBUG) << config->getInstanceName() << " using next SocketAddress: '" << config->Remote::getSocketAddress().toString()
                        << "'";
@@ -357,7 +362,7 @@ namespace core::socket::stream {
             LOG(DEBUG) << config->getInstanceName() << " connect timeout '" << remoteAddress.toString() << "'";
             errno = ETIMEDOUT;
 
-            onStatus(remoteAddress, core::socket::STATE_ERROR);
+            onStatus(currentRemoteAddress, core::socket::STATE_ERROR);
         }
 
         core::eventreceiver::ConnectEventReceiver::connectTimeout();

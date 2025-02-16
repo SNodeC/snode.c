@@ -157,7 +157,9 @@ namespace net::in {
     bool SocketAddress::useNext() {
         const bool useNext = socketAddrInfo->useNext();
 
-        sockAddr = socketAddrInfo->getSockAddr();
+        if (useNext) {
+            sockAddr = socketAddrInfo->getSockAddr();
+        }
 
         return useNext;
     }
