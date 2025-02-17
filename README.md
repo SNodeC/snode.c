@@ -4,10 +4,11 @@
 
 The development of the  framework began during the summer semester 2020 as part of the course *Network and Distributed Systems* in the master's program [Interactive Media](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [Informatics, Communications and Media](https://www.fh-ooe.at/en/campus-hagenberg/) at the [University of Applied Sciences Upper Austria, Campus Hagenberg](https://www.fh-ooe.at/en/campus-hagenberg/), to give students an insight into the fundamental techniques of network and web frameworks.
 
-Main focus (but not only) of the framework is on *Machine to Machine* (M2M) communication and in particular on the field of *Internet of Things* (IoT). As such, the SNode.C reference project [MQTT-Suite](https://github.com/SNodeC/mqttsuite) exists, which provides *mqttbroker*, *mqttintegrator*, and *wsmqttintegrator*, *mqttbridge*, and *wsmqttbridge* applications.
+Main focus (but not only) of the framework is on *Machine to Machine* (M2M) communication and in particular on the field of *Internet of Things* (IoT). As such, the SNode.C reference project [MQTTSuite](https://github.com/SNodeC/mqttsuite) exists, which provides *MQTTBroker*, *MQTTIntegrator*, and *MQTTBridge* applications.
 
 # Table of Content
 <!--ts-->
+
 * [Simple NODE in C++ (SNode.C)](#simple-node-in-c-snodec)
 * [Table of Content](#table-of-content)
 * [License](#license)
