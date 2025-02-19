@@ -42,7 +42,7 @@ namespace express::dispatcher {
 
         const std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-        if ((controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0 &&
+        if ((controller.getRequest()->url.rfind(absoluteMountPath, 0) == 0 &&
              (mountPoint.method == "use" || controller.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
             for (Route& route : routes) {
                 dispatched = route.dispatch(controller, absoluteMountPath);
