@@ -63,6 +63,9 @@ int main(int argc, char* argv[]) {
         vh3.get("/", [] APPLICATION(req, res) {
             res->send("Hello! I am VHOST ceres.home.vchrist.at.");
         });
+        vh3.get("/test", [] APPLICATION(req, res) {
+            res->send("Test Route on VHOST ceres.home.vchrist.at.");
+        });
         legacyApp.use(vh3);
 
         legacyApp.use([] APPLICATION(req, res) {
