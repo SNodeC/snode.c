@@ -81,7 +81,6 @@ namespace express {
 
         bool strict = true;
 
-        friend class Route;
         friend class Controller;
 
         template <typename Server>

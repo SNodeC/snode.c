@@ -73,12 +73,8 @@ namespace express {
     }
 
     void RootRoute::dispatch(Controller& controller) {
-        if (!Route::dispatch(controller, "")) {
-            if (strict) {
-                controller.getResponse()->sendStatus(404);
-            } else if (controller.laxRouting() && !Route::dispatch(controller, "")) {
-                controller.getResponse()->sendStatus(404);
-            }
+        if (!Route::dispatch(controller)) {
+            controller.getResponse()->sendStatus(404);
         }
     }
 

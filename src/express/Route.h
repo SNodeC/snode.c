@@ -59,14 +59,14 @@ namespace express {
     public:
         Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
-    protected:
+    private:
         Route();
 
         bool dispatch(Controller& controller);
+
         bool dispatch(Controller& controller, const std::string& parentMountPath);
         bool dispatchNext(Controller& controller, const std::string& parentMountPath);
 
-    private:
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
 

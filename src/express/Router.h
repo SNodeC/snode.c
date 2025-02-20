@@ -72,7 +72,7 @@ namespace express {
 
 namespace express {
 
-    class Router /*: protected express::dispatcher::Route*/ {
+    class Router {
     public:
         Router();
         Router(const Router&) = default;
