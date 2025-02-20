@@ -53,6 +53,7 @@ namespace express {
 
         std::string originalUrl;
         std::string path;
+        std::string file;
         std::map<std::string, std::string> params;
 
     private:

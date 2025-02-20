@@ -25,6 +25,7 @@
 
 #include "web/http/http_utils.h"
 
+#include <tuple>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -53,8 +54,15 @@ namespace express {
         originalUrl = url;
         url = httputils::url_decode(httputils::str_split_last(originalUrl, '?').first);
 
-        if (url.length() > 2 && url.ends_with("/")) {
-            path = url.substr(0, url.length() - 1);
+        if (url.length() <= 2 || !url.ends_with("/")) {
+            std::tie(path, file) = httputils::str_split_last(url, '/');
+
+            if (path.empty()) {
+                path = "/";
+            }
+        } else if (url.ends_with("/")) {
+            path = url;
+            path.pop_back();
         }
 
         return *this;
