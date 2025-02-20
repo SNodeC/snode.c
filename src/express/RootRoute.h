@@ -59,7 +59,9 @@ namespace express {
     public:
         RootRoute() = default;
 
-    protected:
+    private:
+        void setStrictRouting(bool strictRouting);
+
         void dispatch(Controller&& controller);
         void dispatch(Controller& controller);
 
@@ -79,8 +81,7 @@ namespace express {
         DECLARE_ROOTROUTE_REQUESTMETHOD(patch)
         DECLARE_ROOTROUTE_REQUESTMETHOD(head)
 
-        bool strict = true;
-
+        friend class Router;
         friend class Controller;
 
         template <typename Server>

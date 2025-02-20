@@ -77,7 +77,7 @@ namespace express {
         Router();
         Router(const Router&) = default;
 
-        void laxRouting(bool strict = false);
+        void strictRouting(bool strictRouting = true) const;
 
         DECLARE_ROUTER_REQUESTMETHOD(use)
         DECLARE_ROUTER_REQUESTMETHOD(all)

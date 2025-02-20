@@ -41,10 +41,11 @@ namespace express::dispatcher {
         if ((controller.getFlags() & Controller::NEXT) == 0) {
             const std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-            if (((controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0 ||
+            if ((((!controller.getStrictRouting() && controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0) ||
                   controller.getRequest()->url.rfind(absoluteMountPath, 0) == 0) &&
                  mountPoint.method == "use") ||
-                ((absoluteMountPath == controller.getRequest()->url || absoluteMountPath == controller.getRequest()->path ||
+                ((absoluteMountPath == controller.getRequest()->url ||
+                  (!controller.getStrictRouting() && absoluteMountPath == controller.getRequest()->path) ||
                   checkForUrlMatch(absoluteMountPath, controller.getRequest()->url)) &&
                  (controller.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
                 dispatched = true;

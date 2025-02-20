@@ -126,16 +126,12 @@ namespace express {
         return dispatched;
     }
 
-    bool Controller::laxRouting() {
-        bool ret = false;
+    void Controller::setStrictRouting(bool strictRouting) {
+        this->strictRouting = strictRouting;
+    }
 
-        if (!request->url.ends_with('/')) {
-            request->url.append("/");
-
-            ret = true;
-        }
-
-        return ret;
+    bool Controller::getStrictRouting() const {
+        return strictRouting;
     }
 
 } // namespace express

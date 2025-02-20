@@ -52,9 +52,9 @@ namespace express {
     Request& Request::extend() {
         originalUrl = url;
         url = httputils::url_decode(httputils::str_split_last(originalUrl, '?').first);
-        path = httputils::str_split_last(url, '/').first;
-        if (path.empty()) {
-            path = std::string("/");
+
+        if (url.length() > 2 && url.ends_with("/")) {
+            path = url.substr(0, url.length() - 1);
         }
 
         return *this;

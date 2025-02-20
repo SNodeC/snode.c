@@ -36,6 +36,10 @@ namespace express::dispatcher {
         return routes;
     }
 
+    void RouterDispatcher::setStrictRouting(bool strictRouting) {
+        this->strictRouting = strictRouting;
+    }
+
     bool
     RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
@@ -44,6 +48,8 @@ namespace express::dispatcher {
 
         if ((controller.getRequest()->url.rfind(absoluteMountPath, 0) == 0 &&
              (mountPoint.method == "use" || controller.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
+            controller.setStrictRouting(strictRouting);
+
             for (Route& route : routes) {
                 dispatched = route.dispatch(controller, absoluteMountPath);
 

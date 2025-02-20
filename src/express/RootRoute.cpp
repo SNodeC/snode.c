@@ -66,6 +66,10 @@ namespace express {
         return std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getRoutes();
     }
 
+    void RootRoute::setStrictRouting(bool strictRouting) {
+        std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->setStrictRouting(strictRouting);
+    }
+
     void RootRoute::dispatch(Controller&& controller) {
         controller.setRootRoute(this);
 

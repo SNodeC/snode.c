@@ -61,7 +61,9 @@ namespace express {
         bool nextRouter();
         bool dispatchNext(const std::string& parentMountPath);
 
-        bool laxRouting();
+        void setStrictRouting(bool strictRouting);
+
+        bool getStrictRouting() const;
 
         enum Flags { NONE = 0, NEXT = 1 << 0, NEXT_ROUTE = 1 << 1, NEXT_ROUTER = 1 << 2 };
 
@@ -73,6 +75,8 @@ namespace express {
 
         mutable Route* lastRoute = nullptr;
         Route* currentRoute = nullptr;
+
+        bool strictRouting;
 
         unsigned long lastTick = 0;
 
