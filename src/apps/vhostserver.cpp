@@ -54,14 +54,37 @@ int main(int argc, char* argv[]) {
         legacyApp.use(vh1);
 
         const Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8080");
-        vh2.get("/", [] APPLICATION(req, res) {
-            res->send("Hello! I am VHOST atlas.home.vchrist.at.");
-        });
+        vh2.get("/",
+                [] MIDDLEWARE(req, res, next) {
+                    if (req->query("how").empty()) {
+                        next();
+                    } else if (req->query("how") == "route") {
+                        next("route");
+                    } else if (req->query("how") == "router") {
+                        next("router");
+                    }
+                })
+            .get([] APPLICATION(req, res) {
+                res->send("Hello! I am VHOST atlas.home.vchrist.at.");
+            });
         legacyApp.use(vh2);
 
         const Router& vh3 = middleware::VHost("ceres.home.vchrist.at:8080");
+        vh3.get("/",
+                [] MIDDLEWARE(req, res, next) {
+                    if (req->query("how").empty()) {
+                        next();
+                    } else if (req->query("how") == "route") {
+                        next("route");
+                    } else if (req->query("how") == "router") {
+                        next("router");
+                    }
+                })
+            .get([] APPLICATION(req, res) {
+                res->send("Hello! I am VHOST ceres.home.vchrist.at.");
+            });
         vh3.get("/", [] APPLICATION(req, res) {
-            res->send("Hello! I am VHOST ceres.home.vchrist.at.");
+            res->send("Hello, next route on ceres.home.vchrist.at");
         });
         vh3.get("/test", [] APPLICATION(req, res) {
             res->send("Test Route on VHOST ceres.home.vchrist.at.");
