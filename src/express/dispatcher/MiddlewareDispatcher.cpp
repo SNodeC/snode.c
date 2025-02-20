@@ -41,15 +41,46 @@ namespace express::dispatcher {
         if ((controller.getFlags() & Controller::NEXT) == 0) {
             const std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-            if ((((!controller.getStrictRouting() && controller.getRequest()->path.rfind(absoluteMountPath, 0) == 0) ||
-                  controller.getRequest()->url.rfind(absoluteMountPath, 0) == 0) &&
-                 mountPoint.method == "use") ||
-                ((absoluteMountPath == controller.getRequest()->url ||
-                  (!controller.getStrictRouting() && absoluteMountPath == controller.getRequest()->path) ||
-                  checkForUrlMatch(absoluteMountPath, controller.getRequest()->url)) &&
-                 (controller.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
-                dispatched = true;
+            const bool requestMatched = dispatched =
+                // clang-format off
+                (
+                    (
+                        (
+                            mountPoint.method == controller.getRequest()->method
+                        ) || (
+                            mountPoint.method == "all"
+                        )
+                    ) && (
+                        (
+                            absoluteMountPath == controller.getRequest()->url
+                        ) || (
+                            (
+                                !controller.getStrictRouting()
+                            ) && (
+                                absoluteMountPath == controller.getRequest()->path
+                            )
+                        ) || (
+                            checkForUrlMatch(absoluteMountPath, controller.getRequest()->url)
+                        )
+                    )
+                ) || (
+                    (
+                        mountPoint.method == "use"
+                    ) && (
+                        (
+                            controller.getRequest()->url.starts_with(absoluteMountPath)
+                        ) || (
+                            (
+                                !controller.getStrictRouting()
+                            ) && (
+                                controller.getRequest()->path.starts_with(absoluteMountPath)
+                            )
+                        )
+                    )
+                );
+            // clang-format on
 
+            if (requestMatched) {
                 if (hasResult(absoluteMountPath)) {
                     setParams(absoluteMountPath, *controller.getRequest());
                 }

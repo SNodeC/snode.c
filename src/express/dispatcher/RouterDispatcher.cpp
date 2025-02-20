@@ -46,8 +46,24 @@ namespace express::dispatcher {
 
         const std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
-        if ((controller.getRequest()->url.rfind(absoluteMountPath, 0) == 0 &&
-             (mountPoint.method == "use" || controller.getRequest()->method == mountPoint.method || mountPoint.method == "all"))) {
+        const bool requestMatched =
+            // clang-format off
+            (
+                (
+                    controller.getRequest()->url.starts_with(absoluteMountPath)
+                ) && (
+                    (
+                        mountPoint.method == controller.getRequest()->method
+                    ) || (
+                        mountPoint.method == "all"
+                    ) || (
+                        mountPoint.method == "use"
+                    )
+                )
+            );
+        // clang-format on
+
+        if (requestMatched) {
             controller.setStrictRouting(strictRouting);
 
             for (Route& route : routes) {
