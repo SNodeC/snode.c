@@ -43,26 +43,30 @@ namespace express::dispatcher {
         if ((controller.getFlags() & Controller::NEXT) == 0) {
             const std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
 
+            const std::string requestMethod = controller.getRequest()->method;
+            const std::string requestUrl = controller.getRequest()->url;
+            const std::string requestPath = controller.getRequest()->path;
+
             const bool requestMatched = dispatched =
                 // clang-format off
                 (
                     (
                         (
-                            mountPoint.method == controller.getRequest()->method
+                            mountPoint.method == requestMethod
                         ) || (
                             mountPoint.method == "all"
                         )
                     ) && (
                         (
-                            absoluteMountPath == controller.getRequest()->url
+                            absoluteMountPath == requestUrl
                         ) || (
                             (
                                 !controller.getStrictRouting()
                             ) && (
-                                absoluteMountPath == controller.getRequest()->path
+                                absoluteMountPath == requestPath
                             )
                         ) || (
-                            checkForUrlMatch(absoluteMountPath, controller.getRequest()->url)
+                            checkForUrlMatch(absoluteMountPath, requestUrl)
                         )
                     )
                 ) || (
@@ -70,12 +74,12 @@ namespace express::dispatcher {
                         mountPoint.method == "use"
                     ) && (
                         (
-                            controller.getRequest()->url.starts_with(absoluteMountPath)
+                            requestUrl.starts_with(absoluteMountPath)
                         ) || (
                             (
                                 !controller.getStrictRouting()
                             ) && (
-                                controller.getRequest()->path.starts_with(absoluteMountPath)
+                                requestPath.starts_with(absoluteMountPath)
                             )
                         )
                     )
