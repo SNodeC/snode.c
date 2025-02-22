@@ -50,8 +50,8 @@ namespace express::dispatcher {
         const std::string requestUrl = controller.getRequest()->url;
         const std::string requestPath = controller.getRequest()->path;
 
+        // clang-format off
         const bool requestMatched =
-            // clang-format off
             (
                 (
                     (

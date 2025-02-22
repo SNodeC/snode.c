@@ -38,7 +38,7 @@ namespace express::dispatcher {
     bool ApplicationDispatcher::dispatch(express::Controller& controller,
                                          const std::string& parentMountPath,
                                          const express::MountPoint& mountPoint) {
-        bool dispatched = false;
+        bool requestMatched = false;
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
             const std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
@@ -47,8 +47,8 @@ namespace express::dispatcher {
             const std::string requestUrl = controller.getRequest()->url;
             const std::string requestPath = controller.getRequest()->path;
 
-            const bool requestMatched = dispatched =
-                // clang-format off
+            // clang-format off
+            requestMatched =
                 (
                     (
                         (
@@ -95,7 +95,7 @@ namespace express::dispatcher {
             }
         }
 
-        return dispatched;
+        return requestMatched;
     }
 
 } // namespace express::dispatcher
