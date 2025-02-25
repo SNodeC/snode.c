@@ -67,6 +67,7 @@ namespace express::middleware {
         static class StaticMiddleware& instance(const std::string& root);
 
     public:
+        StaticMiddleware& setIndex(const std::string& index);
         StaticMiddleware& clearStdHeaders();
         StaticMiddleware& setStdHeaders(const std::map<std::string, std::string>& stdHeaders);
         StaticMiddleware& appendStdHeaders(const std::map<std::string, std::string>& stdHeaders);
@@ -77,6 +78,7 @@ namespace express::middleware {
 
     private:
         std::string root;
+        std::string index;
         std::map<std::string, std::string> stdHeaders = {{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}};
         std::map<std::string, web::http::CookieOptions> stdCookies;
         web::http::ConnectionState defaultConnectionState = web::http::ConnectionState::Default;

@@ -55,7 +55,8 @@
 namespace express::middleware {
 
     StaticMiddleware::StaticMiddleware(const std::string& root)
-        : root(root) {
+        : root(root)
+        , index("index.html") {
         use(
             [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
                 req, res, next) {
@@ -86,11 +87,11 @@ namespace express::middleware {
                     res->sendStatus(405);
                 }
             },
-            [] MIDDLEWARE(req, res, next) {
-                if (req->url == "/") {
+            [&index = this->index] MIDDLEWARE(req, res, next) {
+                if (req->url.ends_with("/")) {
                     LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
                               << " Express StaticMiddleware Redirecting: " << req->url << " -> " << "/index.html'";
-                    res->redirect(308, "/index.html");
+                    res->redirect(308, req->url + index);
                 } else {
                     next();
                 }
@@ -108,6 +109,12 @@ namespace express::middleware {
                     }
                 });
             });
+    }
+
+    class StaticMiddleware& StaticMiddleware::setIndex(const std::string& index) {
+        this->index = index;
+
+        return *this;
     }
 
     class StaticMiddleware& StaticMiddleware::clearStdHeaders() {
