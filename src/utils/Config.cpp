@@ -887,7 +887,7 @@ namespace utils {
 
         applicationOptions[name] //
             ->required(false)
-            ->default_val(defaultValue);
+            ->default_str(defaultValue);
 
         app->remove_needs(applicationOptions[name]);
 

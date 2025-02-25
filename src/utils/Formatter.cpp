@@ -74,7 +74,7 @@ namespace CLI {
                     if (default_also) {
                         static_assert(std::string::npos + static_cast<std::string::size_type>(1) == 0,
                                       "std::string::npos + static_cast<std::string::size_type>(1) != 0");
-                        if (!value.empty() && opt->get_default_str() == value) {
+                        if (!value.empty() && detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, characterQuote) == value) {
                             value.clear();
                         }
                         if (!opt->get_default_str().empty()) {
