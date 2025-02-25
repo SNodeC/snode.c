@@ -136,7 +136,10 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
 
 # License
 
-SNode.C is released under the [GNU Lesser General Public License, Version 3](https://www.gnu.org/licenses/lgpl-3.0.html.en).
+SNode.C  is dual-licensed under MIT and LGPL-3.0 (or any later version).
+You can choose between one of them if you use this work.
+
+`SPDX-License-Identifier: MIT OR LGPL-3.0-or-later`
 
 # Copyright
 
