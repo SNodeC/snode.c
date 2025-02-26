@@ -89,9 +89,13 @@ namespace express::middleware {
             },
             [&index = this->index] MIDDLEWARE(req, res, next) {
                 if (req->url.ends_with("/")) {
-                    LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                              << " Express StaticMiddleware Redirecting: " << req->url << " -> " << "/index.html'";
-                    res->redirect(308, req->url + index);
+                    if (!index.empty()) {
+                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                                  << " Express StaticMiddleware Redirecting: " << req->url << " -> " << req->url + index;
+                        res->redirect(308, req->url + index);
+                    } else {
+                        res->status(404).send("Unsupported resource: " + req->url);
+                    }
                 } else {
                     next();
                 }
