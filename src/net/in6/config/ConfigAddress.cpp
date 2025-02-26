@@ -169,7 +169,7 @@ namespace net::in6::config {
         } catch ([[maybe_unused]] const SocketAddress::BadSocketAddress& badSocketAddress) {
             try {
                 socketAddress = Super::getSocketAddress(sockAddr, sockAddrLen);
-            } catch ([[maybe_unused]] const SocketAddress::BadSocketAddress& badSocketAddress) { // cppcheck-suppress shadowVariable
+            } catch ([[maybe_unused]] const SocketAddress::BadSocketAddress& badSocketAddress) {
                 throw;
             }
         }
