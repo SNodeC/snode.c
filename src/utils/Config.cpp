@@ -778,8 +778,7 @@ namespace utils {
                             .size();
 
                     for (auto* instance : app->get_subcommands({})) {
-                        const std::string& group = instance->get_group();
-                        if (group == "Instance") {
+                        if (instance->get_group() == "Instance") {
                             if (instance->get_option("--disabled")->as<bool>()) {
                                 instance->group(std::string("Instance").append((disabledCount > 1) ? "s" : "").append(" (disabled)"));
                             } else {
@@ -799,8 +798,7 @@ namespace utils {
                 },
                 "Print help message")
             ->configurable(false)
-            ->check(CLI::IsMember({"standard", "expanded"}))
-            ->trigger_on_parse();
+            ->check(CLI::IsMember({"standard", "expanded"}));
 
         return app;
     }
@@ -817,8 +815,7 @@ namespace utils {
                 },
                 "Print help message")
             ->configurable(false)
-            ->disable_flag_override()
-            ->trigger_on_parse();
+            ->disable_flag_override();
 
         return app;
     }
