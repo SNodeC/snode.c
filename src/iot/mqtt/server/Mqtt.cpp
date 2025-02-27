@@ -268,7 +268,7 @@ namespace iot::mqtt::server {
             willFlag = connect.getWillFlag();
             cleanSession = connect.getCleanSession();
 
-            if (initSession(1.5 * keepAlive)) {
+            if (initSession(keepAlive)) {
                 onConnect(connect);
             } else {
                 mqttContext->end(true);
