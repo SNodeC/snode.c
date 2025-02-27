@@ -89,7 +89,7 @@ namespace core::multiplexer::poll {
     void DescriptorEventPublisher::spanActiveEvents() {
         pollfd* pollfds = pollFds.getEvents();
 
-        const std::unordered_map<int, PollFdsManager::PollFdIndex>& pollFdsIndices = pollFds.getPollFdIndices();
+        const PollFdsManager::pollfdindex_map& pollFdsIndices = pollFds.getPollFdIndices();
 
         for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             const pollfd& pollFd = pollfds[pollFdsIndices.find(fd)->second.index];

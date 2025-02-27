@@ -43,8 +43,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <random>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {

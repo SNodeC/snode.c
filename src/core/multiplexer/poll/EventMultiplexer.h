@@ -52,7 +52,13 @@ namespace core {
 
 #include "core/system/poll.h" // IWYU pragma: export
 
+#include <functional>
+#include <limits>
+#include <new>
+#include <tuple>
+#include <type_traits>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -60,11 +66,80 @@ namespace core {
 namespace core::multiplexer::poll {
 
     class PollFdsManager {
-    public:
-        struct PollFdIndex {
-            std::vector<pollfd>::size_type index;
-            short events; // cppcheck-suppress unusedStructMember
+    private:
+        template <typename T>
+        class NFdsAllocator {
+        public:
+            using value_type = T;
+            using pointer = T*;
+            using const_pointer = const T*;
+            using void_pointer = void*;
+            using const_void_pointer = const void*;
+            using difference_type = std::make_signed<nfds_t>::type;
+            using size_type = nfds_t;
+
+            // Default constructor
+            NFdsAllocator() noexcept {
+            }
+
+            // Copy constructor template
+            template <typename U>
+            NFdsAllocator(const NFdsAllocator<U>& /*unused*/) noexcept {
+            }
+
+            // Allocate memory for n objects of type T.
+            T* allocate(size_type n) {
+                if (n > max_size()) {
+                    throw std::bad_alloc();
+                }
+                // ::operator new allocates raw memory
+                T* ptr = static_cast<T*>(::operator new(n * sizeof(T)));
+                return ptr;
+            }
+
+            // Deallocate memory for n objects of type T.
+            void deallocate(T* p, size_type /*n*/) noexcept {
+                ::operator delete(p);
+            }
+
+            // Return the maximum number of T objects that can be allocated.
+            size_type max_size() const noexcept {
+                return std::numeric_limits<size_type>::max() / sizeof(T);
+            }
+
+            // Construct an object of type U at the given memory location using placement new.
+            template <typename U, typename... Args>
+            void construct(U* p, Args&&... args) {
+                ::new (reinterpret_cast<void*>(p)) U(std::forward<Args>(args)...);
+            }
+
+            // Destroy an object of type U by explicitly calling its destructor.
+            template <typename U>
+            void destroy(U* p) noexcept {
+                p->~U();
+            }
+
+            template <typename U>
+            bool operator==(const NFdsAllocator<U>& /*unused*/) {
+                return true;
+            }
+
+            template <typename U>
+            bool operator!=(const NFdsAllocator<U>& /*unused*/) {
+                return false;
+            }
         };
+
+    public:
+        using pollfd_vector = std::vector<pollfd, NFdsAllocator<pollfd>>;
+
+        struct PollFdIndex {
+            pollfd_vector::size_type index;
+            short events;
+        };
+
+        using pollfdindex_map =
+            std::unordered_map<int, PollFdIndex, std::hash<int>, std::equal_to<>, NFdsAllocator<std::pair<const int, PollFdIndex>>>;
 
         explicit PollFdsManager();
 
@@ -75,7 +150,7 @@ namespace core::multiplexer::poll {
 
         pollfd* getEvents();
 
-        const std::unordered_map<int, PollFdIndex>& getPollFdIndices() const;
+        const pollfdindex_map& getPollFdIndices() const;
 
         nfds_t getCurrentSize() const;
 
@@ -83,8 +158,8 @@ namespace core::multiplexer::poll {
         nfds_t nextIndex = 0;
         void compress();
 
-        std::vector<pollfd> pollfds;
-        std::unordered_map<int, PollFdIndex> pollFdIndices;
+        pollfd_vector pollfds;
+        pollfdindex_map pollFdIndices;
     };
 
     class EventMultiplexer : public core::EventMultiplexer {

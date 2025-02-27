@@ -67,6 +67,11 @@ set_target_properties(
                                  OUTPUT_NAME snodec-net-rc-stream-tls
 )
 
+set(NET-RC-STREAM-TLS
+    "net-rc-stream-tls"
+    CACHE INTERNAL "net-rc-stream-tls component"
+)
+
 install(
     TARGETS net-rc-stream-tls
     EXPORT snodec_net-rc-stream-tls_Targets

@@ -71,33 +71,7 @@ macro(load_component_with_dependencies _comp _lspace _ladd)
 endmacro()
 
 set(_supported_components
-    core
-    core-socket-stream-legacy
-    core-socket-stream-tls
-    net-in-stream-legacy
-    net-in6-stream-legacy
-    net-rc-stream-legacy
-    net-l2-stream-legacy
-    net-un-stream-legacy
-    net-in-stream-tls
-    net-in6-stream-tls
-    net-rc-stream-tls
-    net-l2-stream-tls
-    net-un-stream-tls
-    net-un-dgram
-    db-mariadb
-    http
-    http-server
-    http-client
-    http-server-express
-    websocket-server
-    websocket-client
-    mqtt
-    mqtt-fast
-    mqtt-server
-    mqtt-client
-    mqtt-server-websocket
-    mqtt-client-websocket
+    @SUPPORTED_COMPONENTS@
 )
 
 foreach(_comp ${snodec_FIND_COMPONENTS})

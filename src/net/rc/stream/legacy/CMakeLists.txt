@@ -69,6 +69,11 @@ set_target_properties(
                                     OUTPUT_NAME snodec-net-rc-stream-legacy
 )
 
+set(NET-RC-STREAM-LEGACY
+    "net-rc-stream-legacy"
+    CACHE INTERNAL "net-rc-stream-legacy component"
+)
+
 install(
     TARGETS net-rc-stream-legacy
     EXPORT snodec_net-rc-stream-legacy_Targets

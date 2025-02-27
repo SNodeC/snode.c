@@ -95,7 +95,7 @@ namespace core::multiplexer::poll {
     }
 
     void PollFdsManager::muxDel(int fd, short event) {
-        const std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
+        const pollfdindex_map::iterator itPollFdIndex = pollFdIndices.find(fd);
 
         PollFdIndex& pollFdIndex = itPollFdIndex->second;
 
@@ -141,7 +141,7 @@ namespace core::multiplexer::poll {
         return pollfds.data();
     }
 
-    const std::unordered_map<int, PollFdsManager::PollFdIndex>& PollFdsManager::getPollFdIndices() const {
+    const PollFdsManager::pollfdindex_map& PollFdsManager::getPollFdIndices() const {
         return pollFdIndices;
     }
 

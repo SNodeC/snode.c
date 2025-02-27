@@ -118,8 +118,8 @@ namespace net::in6 {
         addrinfo addrInfoHints{};
 
         addrInfoHints.ai_family = Super::getAddressFamily();
-        addrInfoHints.ai_flags =
-            hints.aiFlags | AI_ADDRCONFIG | AI_CANONNAME /*| AI_CANONIDN*/ | AI_ALL; // AI_CANONIDN produces a still reachable memory leak
+        addrInfoHints.ai_flags = hints.aiFlags | AI_ADDRCONFIG |
+                                 AI_CANONNAME /*| AI_CANONIDN*/ /*| AI_ALL*/; // AI_CANONIDN produces a still reachable memory leak
         addrInfoHints.ai_socktype = hints.aiSockType;
         addrInfoHints.ai_protocol = hints.aiProtocol;
 

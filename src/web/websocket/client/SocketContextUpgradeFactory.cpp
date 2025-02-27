@@ -51,9 +51,37 @@
 
 #include <unistd.h>
 
+#if !defined(HAVE_GETENTROPY)
+#include <cstddef>
+#include <sys/types.h>
+#if defined(SYS_GETRANDOM)
+#include <sys/syscall.h>
+#else
+#include <fcntl.h>
+#endif
+#endif
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::client {
+
+#if !defined(HAVE_GETENTROPY)
+    int getentropy(void* buf, size_t buflen);
+    int getentropy(void* buf, size_t buflen) {
+#ifdef SYS_GETRANDOM
+        const ssize_t ret = syscall(SYS_getrandom, buf, buflen, 0);
+#else
+        // Fallback to /dev/urandom if necessary
+        const int fd = open("/dev/urandom", O_RDONLY);
+        if (fd == -1) {
+            return -1;
+        }
+        const ssize_t ret = read(fd, buf, buflen);
+        close(fd);
+#endif
+        return (ret == static_cast<ssize_t>(buflen)) ? 0 : -1;
+    }
+#endif
 
     void SocketContextUpgradeFactory::prepare(http::client::Request& request) {
         unsigned char ebytes[16];

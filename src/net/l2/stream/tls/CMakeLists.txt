@@ -67,6 +67,11 @@ set_target_properties(
                                  OUTPUT_NAME snodec-net-l2-stream-tls
 )
 
+set(NET-L2-STREAM-TLS
+    "net-l2-stream-tls"
+    CACHE INTERNAL "net-l2-stream-tls component"
+)
+
 install(
     TARGETS net-l2-stream-tls
     EXPORT snodec_net-l2-stream-tls_Targets

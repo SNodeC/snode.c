@@ -69,6 +69,11 @@ set_target_properties(
                                     OUTPUT_NAME snodec-net-l2-stream-legacy
 )
 
+set(NET-L2-STREAM-LEGACY
+    "net-l2-stream-legacy"
+    CACHE INTERNAL "net-l2-stream-legacy component"
+)
+
 install(
     TARGETS net-l2-stream-legacy
     EXPORT snodec_net-l2-stream-legacy_Targets

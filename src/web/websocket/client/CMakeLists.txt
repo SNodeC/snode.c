@@ -50,6 +50,25 @@ set(WEBSOCKETCLIENT_H SocketContextUpgrade.h SocketContextUpgradeFactory.h
                       SubProtocol.h SubProtocolFactorySelector.h
 )
 
+include(CheckSymbolExists)
+check_symbol_exists(getentropy "sys/random.h" HAVE_GETENTROPY)
+
+if(${HAVE_GETENTROPY})
+    set_property(
+        SOURCE SocketContextUpgradeFactory.cpp
+        APPEND
+        PROPERTY COMPILE_DEFINITIONS HAVE_GETENTROPY=YES
+    )
+    check_symbol_exists(SYS_getrandom "sys/syscall.h" SYS_GETRANDOM)
+    if(${SYS_getrandom})
+        set_property(
+            SOURCE SocketContextUpgradeFactory.cpp
+            APPEND
+            PROPERTY COMPILE_DEFINITIONS SYS_GETRANDOM=YES
+        )
+    endif(${SYS_getrandom})
+endif(${HAVE_GETENTROPY})
+
 add_library(websocket-client SHARED ${WEBSOCKETCLIENT_CPP} ${WEBSOCKETCLIENT_H})
 add_library(snodec::websocket-client ALIAS websocket-client)
 

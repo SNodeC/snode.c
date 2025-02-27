@@ -40,6 +40,7 @@
 # Collect all currently added targets in all subdirectories
 function(get_all_targets_dependencies RESULT DIR)
     get_property(SUBDIRECTORIES DIRECTORY "${DIR}" PROPERTY SUBDIRECTORIES)
+
     foreach(SUBDIRECTORIE IN LISTS SUBDIRECTORIES)
         get_all_targets_dependencies(${RESULT} "${SUBDIRECTORIE}")
     endforeach(SUBDIRECTORIE IN LISTS SUBDIRECTORIES)

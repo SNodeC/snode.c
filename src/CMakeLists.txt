@@ -106,6 +106,7 @@ add_compile_options(
     $<$<CXX_COMPILER_ID:Clang>:-Wno-documentation-unknown-command>
     $<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,16.0>>:-Wno-unsafe-buffer-usage>
     $<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,18.0>>:-Wno-switch-default>
+    $<$<AND:$<STREQUAL:${CMAKE_SYSTEM_NAME},Android>,$<BOOL:$ENV{TERMUX_VERSION}>>:-Wno-deprecated-declarations>
 )
 
 add_link_options(LINKER:--as-needed)
@@ -146,6 +147,37 @@ get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES web)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES express)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES database)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES iot)
+
+set(SUPPORTED_COMPONENTS
+    core
+    core-socket-stream-legacy
+    core-socket-stream-tls
+    net-in-stream-legacy
+    net-in6-stream-legacy
+    net-un-stream-legacy
+    net-in-stream-tls
+    net-in6-stream-tls
+    net-un-stream-tls
+    ${NET-RC-STREAM-LEGACY}
+    ${NET-RC-STREAM-TLS}
+    ${NET-L2-STREAM-LEGACY}
+    ${NET-L2-STREAM-TLS}
+    net-un-dgram
+    db-mariadb
+    http
+    http-server
+    http-client
+    http-server-express
+    websocket-server
+    websocket-client
+    mqtt
+    mqtt-fast
+    mqtt-server
+    mqtt-client
+    mqtt-server-websocket
+    mqtt-client-websocket
+)
+string(JOIN "\n    " SUPPORTED_COMPONENTS ${SUPPORTED_COMPONENTS})
 
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
