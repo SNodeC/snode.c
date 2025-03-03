@@ -106,7 +106,8 @@ add_compile_options(
     $<$<CXX_COMPILER_ID:Clang>:-Wno-documentation-unknown-command>
     $<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,16.0>>:-Wno-unsafe-buffer-usage>
     $<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,18.0>>:-Wno-switch-default>
-    $<$<BOOL:$ENV{TERMUX_ARCH}>:-Wno-deprecated-declarations>
+    $<$<OR:$<STREQUAL:${CMAKE_SYSTEM_NAME},Android>,$<BOOL:$ENV{TERMUX_ARCH}>>:-Wno-deprecated-declarations>
+
 )
 
 add_link_options(LINKER:--as-needed)
