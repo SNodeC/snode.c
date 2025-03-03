@@ -52,11 +52,11 @@ namespace core {
 
 #include "core/system/poll.h" // IWYU pragma: export
 
+#include <cstddef>
 #include <functional>
 #include <limits>
 #include <new>
 #include <tuple>
-#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -67,71 +67,83 @@ namespace core::multiplexer::poll {
 
     class PollFdsManager {
     private:
-        template <typename T>
-        class NFdsAllocator {
+        template <typename T, typename S>
+        class VarSizeTypeAllocator {
         public:
+            // Standard allocator typedefs
             using value_type = T;
             using pointer = T*;
             using const_pointer = const T*;
             using void_pointer = void*;
             using const_void_pointer = const void*;
-            using difference_type = std::make_signed<nfds_t>::type;
-            using size_type = nfds_t;
+            // Use nfds_t as the size_type.
+            using size_type = S;
+            using difference_type = std::ptrdiff_t;
 
-            // Default constructor
-            NFdsAllocator() noexcept {
+            // Rebind allocator to type U.
+            template <typename U>
+            struct rebind {
+                using other = VarSizeTypeAllocator<U, S>;
+            };
+
+            // Constructors
+            VarSizeTypeAllocator() noexcept {
             }
 
-            // Copy constructor template
+            VarSizeTypeAllocator(const VarSizeTypeAllocator&) noexcept = default;
+
             template <typename U>
-            NFdsAllocator(const NFdsAllocator<U>& /*unused*/) noexcept {
+            VarSizeTypeAllocator(const VarSizeTypeAllocator<U, S>& /*unused*/) noexcept {
+            }
+
+            ~VarSizeTypeAllocator() {
             }
 
             // Allocate memory for n objects of type T.
-            T* allocate(size_type n) {
+            pointer allocate(size_type n) {
                 if (n > max_size()) {
                     throw std::bad_alloc();
                 }
-                // ::operator new allocates raw memory
-                T* ptr = static_cast<T*>(::operator new(n * sizeof(T)));
-                return ptr;
+                // Allocate using the global operator new.
+                return static_cast<pointer>(::operator new(n * sizeof(T)));
             }
 
             // Deallocate memory for n objects of type T.
-            void deallocate(T* p, size_type /*n*/) noexcept {
+            void deallocate(pointer p, size_type /*n*/) noexcept {
                 ::operator delete(p);
             }
 
-            // Return the maximum number of T objects that can be allocated.
+            // Returns the maximum number of T objects that can be allocated.
             size_type max_size() const noexcept {
                 return std::numeric_limits<size_type>::max() / sizeof(T);
             }
 
-            // Construct an object of type U at the given memory location using placement new.
+            // Construct an object of type U at the given memory location.
             template <typename U, typename... Args>
             void construct(U* p, Args&&... args) {
-                ::new (reinterpret_cast<void*>(p)) U(std::forward<Args>(args)...);
+                ::new (static_cast<void*>(p)) U(std::forward<Args>(args)...);
             }
 
-            // Destroy an object of type U by explicitly calling its destructor.
+            // Destroy an object of type U.
             template <typename U>
             void destroy(U* p) noexcept {
                 p->~U();
             }
 
+            // Equality comparisons.
             template <typename U>
-            bool operator==(const NFdsAllocator<U>& /*unused*/) {
+            bool operator==(const VarSizeTypeAllocator<U, S>& /*unused*/) const noexcept {
                 return true;
             }
 
             template <typename U>
-            bool operator!=(const NFdsAllocator<U>& /*unused*/) {
+            bool operator!=(const VarSizeTypeAllocator<U, S>& /*unused*/) const noexcept {
                 return false;
             }
         };
 
     public:
-        using pollfd_vector = std::vector<pollfd, NFdsAllocator<pollfd>>;
+        using pollfd_vector = std::vector<pollfd, VarSizeTypeAllocator<pollfd, nfds_t>>;
 
         struct PollFdIndex {
             pollfd_vector::size_type index;
@@ -139,7 +151,7 @@ namespace core::multiplexer::poll {
         };
 
         using pollfdindex_map =
-            std::unordered_map<int, PollFdIndex, std::hash<int>, std::equal_to<>, NFdsAllocator<std::pair<const int, PollFdIndex>>>;
+            std::unordered_map<int, PollFdIndex, std::hash<int>, std::equal_to<>, VarSizeTypeAllocator<std::pair<const int, PollFdIndex>, nfds_t>>;
 
         explicit PollFdsManager();
 
