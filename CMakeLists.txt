@@ -40,10 +40,11 @@
 cmake_minimum_required(VERSION 3.18)
 
 project(
-    snode.c
-    DESCRIPTION "Simple Node in C++ Frakework"
-    VERSION 0.90.0
+    SNode.C
+    DESCRIPTION "Simple Node in C++, a Slim Network Framework"
+    VERSION 1.0.0
 )
+set(SNODEC_SOVERSION ${SNode.C_VERSION_MAJOR})
 
 set(ignoreMe ${CMAKE_VERBOSE_MAKEFILE})
 

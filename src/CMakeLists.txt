@@ -107,12 +107,9 @@ add_compile_options(
     $<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,16.0>>:-Wno-unsafe-buffer-usage>
     $<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,18.0>>:-Wno-switch-default>
     $<$<OR:$<STREQUAL:${CMAKE_SYSTEM_NAME},Android>,$<BOOL:$ENV{TERMUX_ARCH}>>:-Wno-deprecated-declarations>
-
 )
 
 add_link_options(LINKER:--as-needed)
-
-set(SNODEC_SOVERSION ${snode.c_VERSION_MAJOR})
 
 option(SNODEC_DISABLE_LOGLEVEL_LOGGING "Disable LOG() and PLOG() logging")
 option(SNODEC_DISABLE_VERBOSE_LOGGING "Disable VLOG() logging")
@@ -189,8 +186,9 @@ configure_package_config_file(
 
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/snodecConfigVersion.cmake
-    VERSION "${snode.c_VERSION_MAJOR}.${snode.c_VERSION_MINOR}"
-    COMPATIBILITY SameMajorVersion
+    VERSION
+        "${SNode.C_VERSION_MAJOR}.${SNode.C_VERSION_MINOR}.${SNode.C_VERSION_PATCH}"
+    COMPATIBILITY SameMinorVersion
 )
 
 install(

@@ -150,8 +150,11 @@ namespace core::multiplexer::poll {
             short events;
         };
 
-        using pollfdindex_map =
-            std::unordered_map<int, PollFdIndex, std::hash<int>, std::equal_to<>, VarSizeTypeAllocator<std::pair<const int, PollFdIndex>, nfds_t>>;
+        using pollfdindex_map = std::unordered_map<int,
+                                                   PollFdIndex,
+                                                   std::hash<int>,
+                                                   std::equal_to<>,
+                                                   VarSizeTypeAllocator<std::pair<const int, PollFdIndex>, nfds_t>>;
 
         explicit PollFdsManager();
 

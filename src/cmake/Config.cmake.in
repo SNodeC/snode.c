@@ -70,9 +70,7 @@ macro(load_component_with_dependencies _comp _lspace _ladd)
     endif(NOT ${_comp}_LOADED)
 endmacro()
 
-set(_supported_components
-    @SUPPORTED_COMPONENTS@
-)
+set(_supported_components @SUPPORTED_COMPONENTS@)
 
 foreach(_comp ${snodec_FIND_COMPONENTS})
     if(NOT _comp IN_LIST _supported_components)
