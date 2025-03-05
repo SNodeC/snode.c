@@ -47,6 +47,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+// Workaround for https://android.googlesource.com/platform/bionic/+/refs/heads/main/libc/include/netdb.h#205
+#ifdef __ANDROID__
+#include <cstddef>
+#define HOSTLEN_CAST(A) static_cast<std::size_t>((A))
+#define SERVLEN_CAST(A) static_cast<std::size_t>((A))
+#else
+#define HOSTLEN_CAST(A) ((A))
+#define SERVLEN_CAST(A) ((A))
+#endif
+
 namespace core::system {
 
     int getaddrinfo(const char* node, const char* service, const struct addrinfo* hints, struct addrinfo** res) {
@@ -61,7 +71,7 @@ namespace core::system {
 
     int getnameinfo(const sockaddr* addr, socklen_t addrlen, char* host, socklen_t hostlen, char* serv, socklen_t servlen, int flags) {
         errno = 0;
-        return ::getnameinfo(addr, addrlen, host, hostlen, serv, servlen, flags);
+        return ::getnameinfo(addr, addrlen, host, HOSTLEN_CAST(hostlen), serv, SERVLEN_CAST(servlen), flags);
     }
 
 } // namespace core::system

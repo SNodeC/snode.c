@@ -42,7 +42,7 @@ cmake_minimum_required(VERSION 3.18)
 project(
     SNode.C
     DESCRIPTION "Simple Node in C++, a Slim Network Framework"
-    VERSION 1.0.0
+    VERSION 1.0.1
 )
 set(SNODEC_SOVERSION ${SNode.C_VERSION_MAJOR})
 
