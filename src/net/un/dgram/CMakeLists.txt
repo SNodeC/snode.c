@@ -54,8 +54,10 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-un-dgram PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                          snodec-net-un-dgram
+    net-un-dgram
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-net-un-dgram
 )
 
 install(

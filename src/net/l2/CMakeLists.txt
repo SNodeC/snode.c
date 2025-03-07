@@ -59,8 +59,10 @@ if(BLUEZ_FOUND)
     )
 
     set_target_properties(
-        net-l2 PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                        snodec-net-l2
+        net-l2
+        PROPERTIES VERSION ${SNode.C_VERSION}
+                   SOVERSION ${SNODEC_SOVERSION}
+                   OUTPUT_NAME snodec-net-l2
     )
 
     install(

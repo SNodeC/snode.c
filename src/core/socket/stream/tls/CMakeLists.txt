@@ -86,8 +86,9 @@ else(NOT OpenSSL_FOUND)
 
     set_target_properties(
         core-socket-stream-tls
-        PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                 snodec-core-socket-stream-tls
+        PROPERTIES VERSION ${SNode.C_VERSION}
+                   SOVERSION ${SNODEC_SOVERSION}
+                   OUTPUT_NAME snodec-core-socket-stream-tls
     )
 
     install(

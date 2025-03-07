@@ -68,8 +68,9 @@ target_link_libraries(core-socket-stream-legacy PUBLIC core-socket-stream)
 
 set_target_properties(
     core-socket-stream-legacy
-    PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                             snodec-core-socket-stream-legacy
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-core-socket-stream-legacy
 )
 
 install(

@@ -75,7 +75,8 @@ target_link_libraries(http-server PUBLIC http)
 
 set_target_properties(
     http-server
-    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-http-server
                LIBRARY_OUTPUT_DIRECTORY "${HTTP_COMPILE_LIBDIR}"
                BUILD_RPATH "${HTTP_COMPILE_LIBDIR}"

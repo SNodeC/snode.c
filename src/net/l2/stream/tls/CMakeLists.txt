@@ -63,8 +63,10 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-l2-stream-tls PROPERTIES SOVERSION ${SNODEC_SOVERSION}
-                                 OUTPUT_NAME snodec-net-l2-stream-tls
+    net-l2-stream-tls
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-net-l2-stream-tls
 )
 
 set(NET-L2-STREAM-TLS

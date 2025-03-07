@@ -127,7 +127,8 @@ target_link_libraries(http PUBLIC core-socket-stream ${LIBMAGIC_LIBRARIES})
 
 set_target_properties(
     http
-    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-http
                LIBRARY_OUTPUT_DIRECTORY ${HTTP_COMPILE_LIBDIR}
                HTTP_INSTALL_RPATH ${HTTP_INSTALL_RPATH}

@@ -92,7 +92,10 @@ if(NLOHMANN_JSON_FOUND)
     )
 
     set_target_properties(
-        mqtt PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-mqtt
+        mqtt
+        PROPERTIES VERSION ${SNode.C_VERSION}
+                   SOVERSION ${SNODEC_SOVERSION}
+                   OUTPUT_NAME snodec-mqtt
     )
 
     install(

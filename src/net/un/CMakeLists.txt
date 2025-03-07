@@ -54,7 +54,10 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-un PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-net-un
+    net-un
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-net-un
 )
 
 install(

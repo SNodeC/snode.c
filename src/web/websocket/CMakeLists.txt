@@ -84,6 +84,7 @@ set_target_properties(
     websocket
     PROPERTIES OUTPUT_NAME "snodec-websocket"
                LIBRARY_OUTPUT_DIRECTORY "${HTTP_UPGRADE_COMPILE_LIBDIR}"
+               VERSION ${SNode.C_VERSION}
                SOVERSION ${SNODEC_SOVERSION}
                WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR
                ${WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR}

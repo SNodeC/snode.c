@@ -62,8 +62,10 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-in-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                           snodec-net-in-stream
+    net-in-stream
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-net-in-stream
 )
 
 install(

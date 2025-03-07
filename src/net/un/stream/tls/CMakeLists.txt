@@ -63,8 +63,10 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-un-stream-tls PROPERTIES SOVERSION ${SNODEC_SOVERSION}
-                                 OUTPUT_NAME snodec-net-un-stream-tls
+    net-un-stream-tls
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-net-un-stream-tls
 )
 
 install(

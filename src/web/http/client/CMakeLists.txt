@@ -93,7 +93,8 @@ target_link_libraries(
 
 set_target_properties(
     http-client
-    PROPERTIES SOVERSION ${SNODEC_SOVERSION}
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-http-client
                LIBRARY_OUTPUT_DIRECTORY "${HTTP_COMPILE_LIBDIR}"
                BUILD_RPATH "${HTTP_COMPILE_LIBDIR}"

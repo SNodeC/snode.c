@@ -59,8 +59,10 @@ if(BLUEZ_FOUND)
     )
 
     set_target_properties(
-        net-rc PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                        snodec-net-rc
+        net-rc
+        PROPERTIES VERSION ${SNode.C_VERSION}
+                   SOVERSION ${SNODEC_SOVERSION}
+                   OUTPUT_NAME snodec-net-rc
     )
 
     install(

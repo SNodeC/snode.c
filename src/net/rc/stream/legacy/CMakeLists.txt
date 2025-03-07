@@ -65,8 +65,10 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-rc-stream-legacy PROPERTIES SOVERSION ${SNODEC_SOVERSION}
-                                    OUTPUT_NAME snodec-net-rc-stream-legacy
+    net-rc-stream-legacy
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-net-rc-stream-legacy
 )
 
 set(NET-RC-STREAM-LEGACY

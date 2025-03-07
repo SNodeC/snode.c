@@ -60,8 +60,10 @@ target_include_directories(
 )
 
 set_target_properties(
-    net-un-phy-stream PROPERTIES SOVERSION ${SNODEC_SOVERSION}
-                                 OUTPUT_NAME snodec-net-un-phy-stream
+    net-un-phy-stream
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-net-un-phy-stream
 )
 
 install(

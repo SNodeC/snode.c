@@ -102,8 +102,10 @@ if(LIBMARIADB_FOUND)
     )
 
     set_target_properties(
-        db-mariadb PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                            snodec-db-mariadb
+        db-mariadb
+        PROPERTIES VERSION ${SNode.C_VERSION}
+                   SOVERSION ${SNODEC_SOVERSION}
+                   OUTPUT_NAME snodec-db-mariadb
     )
 
     install(

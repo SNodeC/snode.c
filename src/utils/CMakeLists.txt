@@ -89,7 +89,10 @@ target_include_directories(
 target_link_libraries(utils PUBLIC logger)
 
 set_target_properties(
-    utils PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME snodec-utils
+    utils
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-utils
 )
 
 install(

@@ -54,8 +54,10 @@ target_include_directories(
 target_link_libraries(core-socket PUBLIC core)
 
 set_target_properties(
-    core-socket PROPERTIES SOVERSION ${SNODEC_SOVERSION} OUTPUT_NAME
-                                                         snodec-core-socket
+    core-socket
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-core-socket
 )
 
 install(
