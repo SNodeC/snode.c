@@ -477,6 +477,10 @@ namespace utils {
                     }
 
                     if (!value.empty()) {
+                        if (value.starts_with("[") && value.ends_with("]")) {
+                            value = value.substr(1, value.size() - 2);
+                        }
+
                         out << "--" << option->get_single_name() << ((option->get_items_expected_max() == 0) ? "=" : " ") << value << " ";
                     }
                 }
