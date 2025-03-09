@@ -129,7 +129,7 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalSocketClient, typename Config>
     void SocketConnector<PhysicalSocketClient, Config>::init() {
-        if (!config->getDisabled()) {
+        if (core::eventLoopState() == core::State::RUNNING && !config->getDisabled()) {
             LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
 
             if (config->getSslCtx() != nullptr) {
