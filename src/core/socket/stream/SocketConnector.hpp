@@ -277,6 +277,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectEvent() {
         int cErrno = 0;
+
         if (physicalClientSocket.getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed
             const utils::PreserveErrno pe(cErrno);            // errno = cErrno
 

@@ -242,7 +242,7 @@ namespace core::socket::stream {
             PhysicalServerSocket connectedPhysicalSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK),
                                                          physicalServerSocket.getBindAddress());
             if (connectedPhysicalSocket.isValid()) {
-                LOG(DEBUG) << config->getInstanceName() << " [" << connectedPhysicalSocket.getFd() << "] accept success: '"
+                LOG(DEBUG) << "[" << connectedPhysicalSocket.getFd() << " ]" << config->getInstanceName() << ": accept success: '"
                            << connectedPhysicalSocket.getBindAddress().toString() << "'";
 
                 SocketConnection* socketConnection =

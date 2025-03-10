@@ -134,6 +134,7 @@ namespace core::socket::stream::tls {
 
             if (config->getSslCtx() != nullptr) {
                 LOG(DEBUG) << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
+
                 Super::init();
             } else {
                 LOG(ERROR) << config->getInstanceName() << " SSL/TLS: SSL_CTX creation failed";
