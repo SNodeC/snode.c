@@ -623,10 +623,10 @@ namespace utils {
                 }
                 throw;
             }
-        } catch (const CLI::ParseError&) {
+        } catch ([[maybe_unused]] const CLI::ParseError& e) {
             std::cout << std::endl << "Append -h or --help  to your command line for more information." << std::endl;
         } catch (const CLI::Error& e) {
-            std::cout << "Error: " << e.get_name() << " " << e.what() << std::endl;
+            std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
             std::cout << "Append -h or --help to your command line for more information." << std::endl;
         }
 
