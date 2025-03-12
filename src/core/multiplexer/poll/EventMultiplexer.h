@@ -76,7 +76,6 @@ namespace core::multiplexer::poll {
             using const_pointer = const T*;
             using void_pointer = void*;
             using const_void_pointer = const void*;
-            // Use nfds_t as the size_type.
             using size_type = S;
             using difference_type = std::ptrdiff_t;
 
