@@ -73,9 +73,13 @@ namespace net::in6::stream::config {
         ConfigSocketServer& setIPv6Only(bool iPv6Only = true);
         bool getIPv6Only() const;
 
+        ConfigSocketServer& setDisableNagleAlgorithm(bool disableNagleAlgorithm = true);
+        bool getDisableNagleAlgorithm() const;
+
     private:
         CLI::Option* reusePortOpt = nullptr;
         CLI::Option* iPv6OnlyOpt = nullptr;
+        CLI::Option* disableNagleAlgorithmOpt = nullptr;
     };
 
 } // namespace net::in6::stream::config

@@ -60,6 +60,12 @@ namespace net::in::stream::config {
         explicit ConfigSocketClient(net::config::ConfigInstance* instance);
 
         ~ConfigSocketClient() override;
+
+        ConfigSocketClient& setDisableNagleAlgorithm(bool disableNagleAlgorithm = true);
+        bool getDisableNagleAlgorithm() const;
+
+    private:
+        CLI::Option* disableNagleAlgorithmOpt = nullptr;
     };
 
 } // namespace net::in::stream::config

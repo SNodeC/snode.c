@@ -53,6 +53,13 @@ append_source_file_config(
 append_source_file_config(
     config/ConfigSocketServer.cpp IPV6_ONLY "IPv6 only" false
 )
+append_source_file_config(
+    config/ConfigSocketServer.cpp DISABLE_NAGLE_ALGORITHM "Disable nagle algorithm" false
+)
+
+append_source_file_config(
+    config/ConfigSocketClient.cpp DISABLE_NAGLE_ALGORITHM "Disable nagle algorithm" false
+)
 
 add_library(net-in6-stream SHARED ${NET-IN6-STREAM_CPP} ${NET-IN6-STREAM_H})
 add_library(snodec::net-in6-stream ALIAS net-in6-stream)

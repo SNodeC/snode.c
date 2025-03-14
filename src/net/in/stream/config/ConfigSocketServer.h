@@ -70,8 +70,12 @@ namespace net::in::stream::config {
         ConfigSocketServer& setReusePort(bool reusePort = true);
         bool getReusePort() const;
 
+        ConfigSocketServer& setDisableNagleAlgorithm(bool disableNagleAlgorithm = true);
+        bool getDisableNagleAlgorithm() const;
+
     private:
         CLI::Option* reusePortOpt = nullptr;
+        CLI::Option* disableNagleAlgorithmOpt = nullptr;
     };
 
 } // namespace net::in::stream::config

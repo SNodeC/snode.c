@@ -65,6 +65,7 @@
 #include "core/system/netdb.h"
 
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -98,6 +99,15 @@ namespace net::in6::stream::config {
             "Turn of IPv6 dual stack mode",
             "bool",
             XSTR(IPV6_ONLY),
+            CLI::IsMember({"true", "false"}));
+
+        disableNagleAlgorithmOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
+            "--disable-nagle-algorithm{true}",
+            IPPROTO_TCP,
+            TCP_NODELAY,
+            "Turn of Nagle algorithm",
+            "bool",
+            XSTR(DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false"}));
     }
 
@@ -138,6 +148,24 @@ namespace net::in6::stream::config {
 
     bool ConfigSocketServer::getIPv6Only() const {
         return iPv6OnlyOpt->as<bool>();
+    }
+
+    ConfigSocketServer& ConfigSocketServer::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
+        if (disableNagleAlgorithm) {
+            addSocketOption(IPPROTO_TCP, TCP_NODELAY, 1);
+        } else {
+            removeSocketOption(TCP_NODELAY);
+        }
+
+        disableNagleAlgorithmOpt //
+            ->default_val(disableNagleAlgorithm ? "true" : "false")
+            ->clear();
+
+        return *this;
+    }
+
+    bool ConfigSocketServer::getDisableNagleAlgorithm() const {
+        return disableNagleAlgorithmOpt->as<bool>();
     }
 
 } // namespace net::in6::stream::config

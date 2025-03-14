@@ -45,11 +45,32 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#ifdef __has_warning
+#if __has_warning("-Wweak-vtables")
+#pragma GCC diagnostic ignored "-Wweak-vtables"
+#endif
+#if __has_warning("-Wcovered-switch-default")
+#pragma GCC diagnostic ignored "-Wcovered-switch-default"
+#endif
+#endif
+#endif
+#include "utils/CLI11.hpp"
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
 #include "core/system/socket.h"
 
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#define XSTR(s) STR(s)
+#define STR(s) #s
 
 namespace net::in6::stream::config {
 
@@ -62,9 +83,36 @@ namespace net::in6::stream::config {
         net::in6::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiProtocol(IPPROTO_TCP);
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
+
+        disableNagleAlgorithmOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
+            "--disable-nagle-algorithm{true}",
+            IPPROTO_TCP,
+            TCP_NODELAY,
+            "Turn of Nagle algorithm",
+            "bool",
+            XSTR(DISABLE_NAGLE_ALGORITHM),
+            CLI::IsMember({"true", "false"}));
     }
 
     ConfigSocketClient::~ConfigSocketClient() {
+    }
+
+    ConfigSocketClient& ConfigSocketClient::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
+        if (disableNagleAlgorithm) {
+            addSocketOption(IPPROTO_TCP, TCP_NODELAY, 1);
+        } else {
+            removeSocketOption(TCP_NODELAY);
+        }
+
+        disableNagleAlgorithmOpt //
+            ->default_val(disableNagleAlgorithm ? "true" : "false")
+            ->clear();
+
+        return *this;
+    }
+
+    bool ConfigSocketClient::getDisableNagleAlgorithm() const {
+        return disableNagleAlgorithmOpt->as<bool>();
     }
 
 } // namespace net::in6::stream::config
