@@ -77,15 +77,22 @@ namespace net::phy {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::open(const std::map<int, const net::phy::PhysicalSocketOption>& socketOptions, Flags flags) {
+    int PhysicalSocket<SocketAddress>::open(const std::map<int, std::map<int, const PhysicalSocketOption>>& socketOptionsMapMap,
+                                            Flags flags) {
         int ret = Super::operator=(core::system::socket(domain, type | flags, protocol)).getFd();
 
         if (ret >= 0) {
-            for (const auto& [optName, socketOption] : socketOptions) {
-                int setSockoptRet =
-                    setSockopt(socketOption.getOptLevel(), socketOption.getOptName(), socketOption.getOptValue(), socketOption.getOptLen());
+            for (const auto& [optLevel, socketOptionsMap] : socketOptionsMapMap) {
+                for (const auto& [optName, socketOption] : socketOptionsMap) {
+                    int setSockoptRet = setSockopt(
+                        socketOption.getOptLevel(), socketOption.getOptName(), socketOption.getOptValue(), socketOption.getOptLen());
 
-                ret = (ret >= 0 && setSockoptRet < 0) ? setSockoptRet : ret;
+                    ret = (ret >= 0 && setSockoptRet < 0) ? setSockoptRet : ret;
+
+                    if (ret < 0) {
+                        break;
+                    }
+                }
 
                 if (ret < 0) {
                     break;

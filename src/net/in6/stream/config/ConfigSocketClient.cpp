@@ -66,6 +66,7 @@
 
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -101,7 +102,7 @@ namespace net::in6::stream::config {
         if (disableNagleAlgorithm) {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 1);
         } else {
-            removeSocketOption(TCP_NODELAY);
+            removeSocketOption(IPPROTO_TCP, TCP_NODELAY);
         }
 
         disableNagleAlgorithmOpt //

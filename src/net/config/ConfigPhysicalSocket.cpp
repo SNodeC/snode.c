@@ -129,8 +129,8 @@ namespace net::config {
         retryLimitOpt->needs(retryOpt);
     }
 
-    const std::map<int, const net::phy::PhysicalSocketOption>& ConfigPhysicalSocket::getSocketOptions() {
-        return socketOptionsMap;
+    const std::map<int, std::map<int, const net::phy::PhysicalSocketOption>>& ConfigPhysicalSocket::getSocketOptions() {
+        return socketOptionsMapMap;
     }
 
     CLI::Option* ConfigPhysicalSocket::addSocketOption(const std::string& name,
@@ -145,9 +145,12 @@ namespace net::config {
             [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]() {
                 try {
                     if (section->get_option(strippedName)->as<bool>()) {
-                        socketOptionsMap.emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, 1));
+                        socketOptionsMapMap[optLevel].emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, 1));
                     } else {
-                        socketOptionsMap.erase(optName);
+                        socketOptionsMapMap[optLevel].erase(optName);
+                        if (socketOptionsMapMap[optLevel].empty()) {
+                            socketOptionsMapMap.erase(optLevel);
+                        }
                     }
                 } catch (CLI::OptionNotFound& err) {
                     LOG(ERROR) << err.what();
@@ -160,25 +163,28 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, int optValue) {
-        socketOptionsMap.emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue));
+        socketOptionsMapMap[optLevel].emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue));
 
         return *this;
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::string& optValue) {
-        socketOptionsMap.emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue));
+        socketOptionsMapMap[optLevel].emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue));
 
         return *this;
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, const std::vector<char>& optValue) {
-        socketOptionsMap.emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue));
+        socketOptionsMapMap[optLevel].emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, optValue));
 
         return *this;
     }
 
-    ConfigPhysicalSocket& ConfigPhysicalSocket::removeSocketOption(int optName) {
-        socketOptionsMap.erase(optName);
+    ConfigPhysicalSocket& ConfigPhysicalSocket::removeSocketOption([[maybe_unused]] int optLevel, int optName) {
+        socketOptionsMapMap[optLevel].erase(optName);
+        if (socketOptionsMapMap[optLevel].empty()) {
+            socketOptionsMapMap.erase(optLevel);
+        }
 
         return *this;
     }
@@ -187,7 +193,7 @@ namespace net::config {
         if (reuseAddress) {
             addSocketOption(SOL_SOCKET, SO_REUSEADDR, 1);
         } else {
-            removeSocketOption(SO_REUSEADDR);
+            removeSocketOption(SOL_SOCKET, SO_REUSEADDR);
         }
 
         reuseAddressOpt //

@@ -51,6 +51,7 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
 #include <map>
 #include <vector>
 
@@ -68,13 +69,13 @@ namespace net::config {
         explicit ConfigPhysicalSocket(ConfigInstance* instance);
 
     public:
-        const std::map<int, const net::phy::PhysicalSocketOption>& getSocketOptions();
+        const std::map<int, std::map<int, const net::phy::PhysicalSocketOption>>& getSocketOptions();
 
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, int optValue);
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, const std::string& optValue);
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, const std::vector<char>& optValue);
 
-        ConfigPhysicalSocket& removeSocketOption(int optName);
+        ConfigPhysicalSocket& removeSocketOption(int optLevel, int optName);
 
         ConfigPhysicalSocket& setReuseAddress(bool reuseAddress = true);
         bool getReuseAddress() const;
@@ -119,7 +120,9 @@ namespace net::config {
         CLI::Option* retryLimitOpt = nullptr;
         CLI::Option* retryJitterOpt = nullptr;
 
-        std::map<int, const net::phy::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
+        std::map<int, std::map<int, const net::phy::PhysicalSocketOption>> socketOptionsMapMap;
+
+        //        std::map<int, const net::phy::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
     };
 
 } // namespace net::config

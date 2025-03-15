@@ -108,7 +108,7 @@ namespace net::in::stream::config {
         if (reusePort) {
             addSocketOption(SOL_SOCKET, SO_REUSEPORT, 1);
         } else {
-            removeSocketOption(SO_REUSEPORT);
+            removeSocketOption(SOL_SOCKET, SO_REUSEPORT);
         }
 
         reusePortOpt //
@@ -126,7 +126,7 @@ namespace net::in::stream::config {
         if (disableNagleAlgorithm) {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 1);
         } else {
-            removeSocketOption(TCP_NODELAY);
+            removeSocketOption(IPPROTO_TCP, TCP_NODELAY);
         }
 
         disableNagleAlgorithmOpt //
