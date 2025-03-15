@@ -83,13 +83,22 @@ namespace net::in6::stream::config {
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
 
+        reuseAddressOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
+            "--reuse-address{true}",
+            SOL_SOCKET,
+            SO_REUSEADDR,
+            "Reuse socket address",
+            "bool",
+            XSTR(IN6_REUSE_ADDRESS),
+            CLI::IsMember({"true", "false"}));
+
         reusePortOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
             "--reuse-port{true}",
             SOL_SOCKET,
             SO_REUSEPORT,
-            "Reuse socket address",
+            "Reuse port number",
             "bool",
-            XSTR(REUSE_PORT),
+            XSTR(IN6_REUSE_PORT),
             CLI::IsMember({"true", "false"}));
 
         iPv6OnlyOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
@@ -97,28 +106,46 @@ namespace net::in6::stream::config {
             IPPROTO_IPV6,
             IPV6_V6ONLY,
             "Turn of IPv6 dual stack mode",
-            "bool",
-            XSTR(IPV6_ONLY),
-            CLI::IsMember({"true", "false"}));
+            "tristat",
+            XSTR(IN6_IPV6_ONLY),
+            CLI::IsMember({"true", "false", "default"}));
 
         disableNagleAlgorithmOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
             "--disable-nagle-algorithm{true}",
             IPPROTO_TCP,
             TCP_NODELAY,
             "Turn of Nagle algorithm",
-            "bool",
-            XSTR(DISABLE_NAGLE_ALGORITHM),
-            CLI::IsMember({"true", "false"}));
+            "tristat",
+            XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM),
+            CLI::IsMember({"true", "false", "default"}));
     }
 
     ConfigSocketServer::~ConfigSocketServer() {
+    }
+
+    ConfigSocketServer& ConfigSocketServer::setReuseAddress(bool reuseAddress) {
+        if (reuseAddress) {
+            addSocketOption(SOL_SOCKET, SO_REUSEADDR, 1);
+        } else {
+            addSocketOption(SOL_SOCKET, SO_REUSEADDR, 0);
+        }
+
+        reuseAddressOpt //
+            ->default_val(reuseAddress ? "true" : "false")
+            ->clear();
+
+        return *this;
+    }
+
+    bool ConfigSocketServer::getReuseAddress() const {
+        return reuseAddressOpt->as<bool>();
     }
 
     ConfigSocketServer& ConfigSocketServer::setReusePort(bool reusePort) {
         if (reusePort) {
             addSocketOption(SOL_SOCKET, SO_REUSEPORT, 1);
         } else {
-            removeSocketOption(SOL_SOCKET, SO_REUSEPORT);
+            addSocketOption(SOL_SOCKET, SO_REUSEPORT, 0);
         }
 
         reusePortOpt //
@@ -136,7 +163,7 @@ namespace net::in6::stream::config {
         if (iPv6Only) {
             addSocketOption(IPPROTO_IPV6, IPV6_V6ONLY, 1);
         } else {
-            removeSocketOption(IPPROTO_IPV6, IPV6_V6ONLY);
+            addSocketOption(IPPROTO_IPV6, IPV6_V6ONLY, 0);
         }
 
         iPv6OnlyOpt //
@@ -154,7 +181,7 @@ namespace net::in6::stream::config {
         if (disableNagleAlgorithm) {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 1);
         } else {
-            removeSocketOption(IPPROTO_TCP, TCP_NODELAY);
+            addSocketOption(IPPROTO_TCP, TCP_NODELAY, 0);
         }
 
         disableNagleAlgorithmOpt //

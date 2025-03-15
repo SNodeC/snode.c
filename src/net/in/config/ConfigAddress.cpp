@@ -70,7 +70,7 @@ namespace net::in::config {
             "--numeric-reverse{true}",
             "Suppress reverse host name lookup",
             "bool",
-            XSTR(IPV4_NUMERIC_REVERSE),
+            XSTR(IN_NUMERIC_REVERSE),
             CLI::IsMember({"true", "false"}));
     }
 
@@ -128,14 +128,14 @@ namespace net::in::config {
             "--numeric{true}",
             "Suppress host name lookup",
             "bool",
-            XSTR(IPV4_NUMERIC),
+            XSTR(IN_NUMERIC),
             CLI::IsMember({"true", "false"}));
 
         numericReverseOpt = Super::addFlag( //
             "--numeric-reverse{true}",
             "Suppress reverse host name lookup",
             "bool",
-            XSTR(IPV4_NUMERIC_REVERSE),
+            XSTR(IN_NUMERIC_REVERSE),
             CLI::IsMember({"true", "false"}));
     }
 

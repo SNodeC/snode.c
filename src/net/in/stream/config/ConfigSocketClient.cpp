@@ -89,9 +89,9 @@ namespace net::in::stream::config {
             IPPROTO_TCP,
             TCP_NODELAY,
             "Turn of Nagle algorithm",
-            "bool",
-            XSTR(DISABLE_NAGLE_ALGORITHM),
-            CLI::IsMember({"true", "false"}));
+            "tristat",
+            XSTR(IN_CLIENT_DISABLE_NAGLE_ALGORITHM),
+            CLI::IsMember({"true", "false", "default"}));
     }
 
     ConfigSocketClient::~ConfigSocketClient() {
@@ -101,7 +101,7 @@ namespace net::in::stream::config {
         if (disableNagleAlgorithm) {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 1);
         } else {
-            removeSocketOption(IPPROTO_TCP, TCP_NODELAY);
+            addSocketOption(IPPROTO_TCP, TCP_NODELAY, 0);
         }
 
         disableNagleAlgorithmOpt //

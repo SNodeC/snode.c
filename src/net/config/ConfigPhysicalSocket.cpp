@@ -48,7 +48,6 @@
 #include "log/Logger.h"
 
 #include <functional>
-#include <sys/socket.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -59,15 +58,6 @@ namespace net::config {
 
     ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
         : ConfigSection(instance, "socket", "Configuration of socket behavior") {
-        reuseAddressOpt = addSocketOption( //
-            "--reuse-address{true}",
-            SOL_SOCKET,
-            SO_REUSEADDR,
-            "Reuse socket address",
-            "bool",
-            XSTR(REUSE_ADDRESS),
-            CLI::IsMember({"true", "false"}));
-
         retryOpt = addFlag( //
             "--retry{true}",
             "Automatically retry listen|connect",
@@ -141,25 +131,32 @@ namespace net::config {
                                                        const std::string& defaultValue,
                                                        const CLI::Validator& validator) {
         return addFlagFunction(
-            name,
-            [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]() {
-                try {
-                    if (section->get_option(strippedName)->as<bool>()) {
-                        socketOptionsMapMap[optLevel].emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, 1));
-                    } else {
-                        socketOptionsMapMap[optLevel].erase(optName);
-                        if (socketOptionsMapMap[optLevel].empty()) {
-                            socketOptionsMapMap.erase(optLevel);
-                        }
-                    }
-                } catch (CLI::OptionNotFound& err) {
-                    LOG(ERROR) << err.what();
-                }
-            },
-            description,
-            typeName,
-            defaultValue,
-            validator);
+                   name,
+                   [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]() {
+                       try {
+                           try {
+                               if (section->get_option(strippedName)->as<bool>()) {
+                                   socketOptionsMapMap[optLevel].emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, 1));
+                               } else {
+                                   socketOptionsMapMap[optLevel].emplace(optName, net::phy::PhysicalSocketOption(optLevel, optName, 0));
+                               }
+                           } catch ([[maybe_unused]] CLI::ConversionError& err) {
+                               if (socketOptionsMapMap.contains(optLevel)) {
+                                   socketOptionsMapMap[optLevel].erase(optName);
+                                   if (socketOptionsMapMap[optLevel].empty()) {
+                                       socketOptionsMapMap.erase(optLevel);
+                                   }
+                               }
+                           }
+                       } catch (CLI::OptionNotFound& err) {
+                           LOG(ERROR) << err.what();
+                       }
+                   },
+                   description,
+                   typeName,
+                   defaultValue,
+                   validator)
+            ->force_callback();
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::addSocketOption(int optLevel, int optName, int optValue) {
@@ -187,24 +184,6 @@ namespace net::config {
         }
 
         return *this;
-    }
-
-    ConfigPhysicalSocket& ConfigPhysicalSocket::setReuseAddress(bool reuseAddress) {
-        if (reuseAddress) {
-            addSocketOption(SOL_SOCKET, SO_REUSEADDR, 1);
-        } else {
-            removeSocketOption(SOL_SOCKET, SO_REUSEADDR);
-        }
-
-        reuseAddressOpt //
-            ->default_val(reuseAddress ? "true" : "false")
-            ->clear();
-
-        return *this;
-    }
-
-    bool ConfigPhysicalSocket::getReuseAddress() const {
-        return reuseAddressOpt->as<bool>();
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetry(bool retry) {

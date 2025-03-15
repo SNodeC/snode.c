@@ -157,9 +157,15 @@ namespace net::config {
         section->disabled(false);
 
         CLI::Option* opt = section //
-                               ->add_flag_callback(name, callback, description)
+                               ->add_flag_function(
+                                   name,
+                                   [callback](std::int64_t) {
+                                       callback();
+                                   },
+                                   description)
                                ->default_val(defaultValue)
-                               ->type_name(typeName);
+                               ->type_name(typeName)
+                               ->take_last();
         if (opt->get_configurable()) {
             opt->group(section->get_formatter()->get_label("Persistent Options"));
         }

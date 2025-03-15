@@ -44,16 +44,16 @@ set(NET-IN6_CPP SocketAddress.cpp SocketAddrInfo.cpp config/ConfigAddress.cpp)
 set(NET-IN6_H SocketAddress.h SocketAddrInfo.h config/ConfigAddress.h)
 
 append_source_file_config(
-    config/ConfigAddress.cpp IPV6_NUMERIC "Suppress host name lookup" false
+    config/ConfigAddress.cpp IN6_NUMERIC "Suppress host name lookup" false
 )
 
 append_source_file_config(
-    config/ConfigAddress.cpp IPV6_NUMERIC_REVERSE
+    config/ConfigAddress.cpp IN6_NUMERIC_REVERSE
     "Suppress reverse host name lookup" false
 )
 
 append_source_file_config(
-    config/ConfigAddress.cpp IPV4_MAPPED "IPv4-mapped IPv6 addresses" false
+    config/ConfigAddress.cpp IN6_IPV4_MAPPED "IPv4-mapped IPv6 addresses" false
 )
 
 add_library(net-in6 SHARED ${NET-IN6_CPP} ${NET-IN6_H})

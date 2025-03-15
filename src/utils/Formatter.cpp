@@ -101,6 +101,9 @@ namespace CLI {
                         }
                         if (!opt->get_default_str().empty()) {
                             defaultValue = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, characterQuote);
+                            if (defaultValue == "\"default\"") {
+                                defaultValue = "default";
+                            }
                         } else if (opt->get_expected_min() == 0) {
                             defaultValue = "false";
                         } else if (opt->get_run_callback_for_default()) {
@@ -120,6 +123,9 @@ namespace CLI {
                     if (!value.empty()) {
                         if (!opt->get_fnames().empty()) {
                             value = opt->get_flag_value(name, value);
+                        }
+                        if (value == "\"default\"") {
+                            value = "default";
                         }
                         out << name << valueDelimiter << value << "\n\n";
                     } else {

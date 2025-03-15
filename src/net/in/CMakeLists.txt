@@ -44,11 +44,11 @@ set(NET-IN_CPP SocketAddress.cpp SocketAddrInfo.cpp config/ConfigAddress.cpp)
 set(NET-IN_H SocketAddress.h SocketAddrInfo.h config/ConfigAddress.h)
 
 append_source_file_config(
-    config/ConfigAddress.cpp IPV4_NUMERIC "Suppress host name lookup" false
+    config/ConfigAddress.cpp IN_NUMERIC "Suppress host name lookup" false
 )
 
 append_source_file_config(
-    config/ConfigAddress.cpp IPV4_NUMERIC_REVERSE
+    config/ConfigAddress.cpp IN_NUMERIC_REVERSE
     "Suppress reverse host name lookup" false
 )
 

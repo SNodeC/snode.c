@@ -67,6 +67,9 @@ namespace net::in6::stream::config {
         ~ConfigSocketServer() override;
 
     public:
+        ConfigSocketServer& setReuseAddress(bool reuseAddress = true);
+        bool getReuseAddress() const;
+
         ConfigSocketServer& setReusePort(bool reusePort = true);
         bool getReusePort() const;
 
@@ -77,6 +80,7 @@ namespace net::in6::stream::config {
         bool getDisableNagleAlgorithm() const;
 
     private:
+        CLI::Option* reuseAddressOpt = nullptr;
         CLI::Option* reusePortOpt = nullptr;
         CLI::Option* iPv6OnlyOpt = nullptr;
         CLI::Option* disableNagleAlgorithmOpt = nullptr;

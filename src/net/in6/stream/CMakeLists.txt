@@ -48,17 +48,20 @@ set(NET-IN6-STREAM_H SocketClient.h SocketServer.h config/ConfigSocketClient.h
 )
 
 append_source_file_config(
-    config/ConfigSocketServer.cpp REUSE_PORT "Reuse port (IPv4/IPv6)" false
+    config/ConfigSocketServer.cpp IN6_REUSE_ADDRESS "Reuse address" false
 )
 append_source_file_config(
-    config/ConfigSocketServer.cpp IPV6_ONLY "IPv6 only" false
+    config/ConfigSocketServer.cpp IN6_REUSE_PORT "Reuse port (IPv6)" false
 )
 append_source_file_config(
-    config/ConfigSocketServer.cpp DISABLE_NAGLE_ALGORITHM "Disable nagle algorithm" false
+    config/ConfigSocketServer.cpp IN6_IPV6_ONLY "IPv6 only" default
+)
+append_source_file_config(
+    config/ConfigSocketServer.cpp IN6_SERVER_DISABLE_NAGLE_ALGORITHM "Disable nagle algorithm" default
 )
 
 append_source_file_config(
-    config/ConfigSocketClient.cpp DISABLE_NAGLE_ALGORITHM "Disable nagle algorithm" false
+    config/ConfigSocketClient.cpp IN6_CLIENT_DISABLE_NAGLE_ALGORITHM "Disable nagle algorithm" default
 )
 
 add_library(net-in6-stream SHARED ${NET-IN6-STREAM_CPP} ${NET-IN6-STREAM_H})

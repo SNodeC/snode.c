@@ -131,9 +131,6 @@ append_source_file_config(
 )
 
 append_source_file_config(
-    config/ConfigPhysicalSocket.cpp REUSE_ADDRESS "Reuse address" false
-)
-append_source_file_config(
     config/ConfigPhysicalSocket.cpp RETRY "Retry listen and connect" false
 )
 append_source_file_config(

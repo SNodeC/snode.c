@@ -51,7 +51,6 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
 #include <map>
 #include <vector>
 
@@ -76,9 +75,6 @@ namespace net::config {
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, const std::vector<char>& optValue);
 
         ConfigPhysicalSocket& removeSocketOption(int optLevel, int optName);
-
-        ConfigPhysicalSocket& setReuseAddress(bool reuseAddress = true);
-        bool getReuseAddress() const;
 
         ConfigPhysicalSocket& setRetry(bool retry = true);
         bool getRetry() const;
@@ -111,7 +107,6 @@ namespace net::config {
                                      const CLI::Validator& validator);
 
     private:
-        CLI::Option* reuseAddressOpt = nullptr;
         CLI::Option* retryOpt = nullptr;
         CLI::Option* retryOnFatalOpt = nullptr;
         CLI::Option* retryTriesOpt = nullptr;
