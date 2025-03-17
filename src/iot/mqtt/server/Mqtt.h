@@ -124,6 +124,8 @@ namespace iot::mqtt::server {
         void sendUnsuback(uint16_t packetIdentifier) const;
         void sendPingresp() const;
 
+        std::list<std::string> getSubscriptions() const;
+
         std::string getProtocol() const;
         uint8_t getLevel() const;
         uint8_t getConnectFlags() const;

@@ -180,6 +180,10 @@ namespace iot::mqtt::server::broker {
         subscribtionTree.unsubscribe(topic, clientId);
     }
 
+    std::list<std::string> Broker::getSubscriptions(const std::string& clientId) const {
+        return subscribtionTree.getSubscriptions(clientId);
+    }
+
     bool Broker::hasSession(const std::string& clientId) {
         return sessionStore.contains(clientId);
     }

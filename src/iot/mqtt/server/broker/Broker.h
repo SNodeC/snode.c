@@ -53,6 +53,7 @@ namespace iot::mqtt::server {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <list>
 #include <map>
 #include <memory>
 #include <string>
@@ -80,6 +81,8 @@ namespace iot::mqtt::server::broker {
         void publish(const std::string& originClientId, const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
         uint8_t subscribe(const std::string& clientId, const std::string& topic, uint8_t qoS);
         void unsubscribe(const std::string& clientId, const std::string& topic);
+
+        std::list<std::string> getSubscriptions(const std::string& clientId) const;
 
         bool hasSession(const std::string& clientId);
         bool hasActiveSession(const std::string& clientId);

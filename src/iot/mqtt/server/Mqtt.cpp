@@ -361,6 +361,10 @@ namespace iot::mqtt::server {
         send(iot::mqtt::packets::Pingresp());
     }
 
+    std::list<std::string> Mqtt::getSubscriptions() const {
+        return broker->getSubscriptions(clientId);
+    }
+
     std::string Mqtt::getProtocol() const {
         return protocol;
     }

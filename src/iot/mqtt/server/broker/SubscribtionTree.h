@@ -50,6 +50,7 @@ namespace iot::mqtt::server::broker {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <list>
 #include <map>
 #include <nlohmann/json_fwd.hpp>
 #include <string>
@@ -74,6 +75,8 @@ namespace iot::mqtt::server::broker {
         nlohmann::json toJson() const;
         void fromJson(const nlohmann::json& json);
 
+        std::list<std::string> getSubscriptions(const std::string& clientId) const;
+
         void clear();
 
     private:
@@ -90,17 +93,21 @@ namespace iot::mqtt::server::broker {
             bool unsubscribe(const std::string& clientId, std::string topic);
             bool unsubscribe(const std::string& clientId);
 
+            std::list<std::string> getSubscriptions(const std::string& clientId) const;
+
             TopicLevel& fromJson(const nlohmann::json& json);
             nlohmann::json toJson() const;
 
             void clear();
 
         private:
-            std::map<std::string, uint8_t> clientIds;
-
-            std::map<std::string, TopicLevel> topicLevels;
+            std::list<std::string> getSubscriptions(const std::string& absoluteTopicLevel, const std::string& clientId) const;
 
             iot::mqtt::server::broker::Broker* broker;
+
+            std::map<std::string, uint8_t> clientIds;
+            std::map<std::string, TopicLevel> topicLevels;
+
             std::string topicLevel;
         };
 

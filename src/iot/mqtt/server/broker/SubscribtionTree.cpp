@@ -104,6 +104,26 @@ namespace iot::mqtt::server::broker {
         head.unsubscribe(clientId);
     }
 
+    std::list<std::string> SubscribtionTree::getSubscriptions(const std::string& clientId) const {
+        std::list<std::string> subscriptions = head.getSubscriptions(clientId);
+
+        return subscriptions;
+    }
+    
+    void SubscribtionTree::fromJson(const nlohmann::json& json) {
+        if (!json.empty()) {
+            head.fromJson(json);
+        }
+    }
+
+    nlohmann::json SubscribtionTree::toJson() const {
+        return head.toJson();
+    }
+
+    void SubscribtionTree::clear() {
+        head.clear();
+    }
+
     SubscribtionTree::TopicLevel::TopicLevel(Broker* broker, const std::string& topicLevel)
         : broker(broker)
         , topicLevel(topicLevel) {
@@ -257,6 +277,27 @@ namespace iot::mqtt::server::broker {
         return json;
     }
 
+    std::list<std::string> SubscribtionTree::TopicLevel::getSubscriptions(const std::string& clientId) const {
+        return getSubscriptions("", clientId);
+    }
+
+    std::list<std::string> SubscribtionTree::TopicLevel::getSubscriptions(const std::string& absoluteTopicLevel,
+                                                                          const std::string& clientId) const {
+        std::list<std::string> topicLevelList;
+
+        for (const auto& [topicLevelName, nextTopicLevel] : topicLevels) {
+            const std::string currentAbsoluteTopicLevel = absoluteTopicLevel + topicLevelName;
+
+            if (nextTopicLevel.clientIds.contains(clientId)) {
+                topicLevelList.push_back(currentAbsoluteTopicLevel);
+            }
+
+            topicLevelList.splice(topicLevelList.end(), nextTopicLevel.getSubscriptions(currentAbsoluteTopicLevel + "/", clientId));
+        }
+
+        return topicLevelList;
+    }
+
     SubscribtionTree::TopicLevel& SubscribtionTree::TopicLevel::fromJson(const nlohmann::json& json) {
         clientIds.clear();
         topicLevels.clear();
@@ -278,20 +319,6 @@ namespace iot::mqtt::server::broker {
 
     void SubscribtionTree::TopicLevel::clear() {
         *this = TopicLevel(broker, "");
-    }
-
-    void SubscribtionTree::fromJson(const nlohmann::json& json) {
-        if (!json.empty()) {
-            head.fromJson(json);
-        }
-    }
-
-    void SubscribtionTree::clear() {
-        head.clear();
-    }
-
-    nlohmann::json SubscribtionTree::toJson() const {
-        return head.toJson();
     }
 
 } // namespace iot::mqtt::server::broker
