@@ -109,7 +109,7 @@ namespace iot::mqtt::server::broker {
 
         return subscriptions;
     }
-    
+
     void SubscribtionTree::fromJson(const nlohmann::json& json) {
         if (!json.empty()) {
             head.fromJson(json);

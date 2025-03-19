@@ -57,11 +57,13 @@ append_source_file_config(
     config/ConfigSocketServer.cpp IN6_IPV6_ONLY "IPv6 only" default
 )
 append_source_file_config(
-    config/ConfigSocketServer.cpp IN6_SERVER_DISABLE_NAGLE_ALGORITHM "Disable nagle algorithm" default
+    config/ConfigSocketServer.cpp IN6_SERVER_DISABLE_NAGLE_ALGORITHM
+    "Disable nagle algorithm" default
 )
 
 append_source_file_config(
-    config/ConfigSocketClient.cpp IN6_CLIENT_DISABLE_NAGLE_ALGORITHM "Disable nagle algorithm" default
+    config/ConfigSocketClient.cpp IN6_CLIENT_DISABLE_NAGLE_ALGORITHM
+    "Disable nagle algorithm" default
 )
 
 add_library(net-in6-stream SHARED ${NET-IN6-STREAM_CPP} ${NET-IN6-STREAM_H})

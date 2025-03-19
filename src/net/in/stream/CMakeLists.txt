@@ -54,11 +54,13 @@ append_source_file_config(
     config/ConfigSocketServer.cpp IN_REUSE_PORT "Reuse port (IPv4)" false
 )
 append_source_file_config(
-    config/ConfigSocketServer.cpp IN_SERVER_DISABLE_NAGLE_ALGORITHM "Disable nagle algorithm" default
+    config/ConfigSocketServer.cpp IN_SERVER_DISABLE_NAGLE_ALGORITHM
+    "Disable nagle algorithm" default
 )
 
 append_source_file_config(
-    config/ConfigSocketClient.cpp IN_CLIENT_DISABLE_NAGLE_ALGORITHM "Disable nagle algorithm" default
+    config/ConfigSocketClient.cpp IN_CLIENT_DISABLE_NAGLE_ALGORITHM
+    "Disable nagle algorithm" default
 )
 
 add_library(net-in-stream SHARED ${NET-IN-STREAM_CPP} ${NET-IN-STREAM_H})
