@@ -93,6 +93,9 @@ namespace iot::mqtt::server {
 
         ~Mqtt() override;
 
+        void subscribe(const std::string& topic, uint8_t qoS) const;
+        void unsubscribe(const std::string& topic) const;
+
     private:
         iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) final;
         void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
