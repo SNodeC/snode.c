@@ -1,4 +1,4 @@
-<p align="center"><img src="./docs/assets/Logo/Logo-All-Horizontal.png" style="width: 50%;" /></p>
+<p align="center"><img src="./docs/assets/Logo/Logo-All-Horizontal.png" style="width: 70%;" /></p>
 
 [Simple NODE in C++ (SNode.C)](https://snodec.github.io/snode.c-doc/html/index.html) is a very simple to use, lightweight, highly extensible, event driven, layer-based framework for network applications in the spirit of node.js written entirely in C\+\+.
 
