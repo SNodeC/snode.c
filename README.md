@@ -9,6 +9,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
 
 # Table of Content
 <!--ts-->
+* [Simple Node in C++ (SNode.C)](#simple-node-in-c-snodec)
 * [Table of Content](#table-of-content)
 * [License](#license)
 * [Copyright](#copyright)
@@ -130,7 +131,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: runner, at: Wed Mar 26 19:09:28 UTC 2025 -->
+<!-- Added by: runner, at: Sat Mar 29 16:46:49 UTC 2025 -->
 
 <!--te-->
 
