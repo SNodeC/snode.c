@@ -81,7 +81,7 @@ Router router(database::mariadb::MariaDBClient& db) {
         res->send("Done\n");
     });
 
-    router.get(R"(/:id([^/]+))", [] APPLICATION(req, res) {
+    router.get(R"(/:id(([^/]+)(/)?$))", [] APPLICATION(req, res) {
         std::cout << "Hier 2 ************" << std::endl;
         std::cout << "Params: " << req->params["id"] << std::endl;
         res->send("Done\n");
