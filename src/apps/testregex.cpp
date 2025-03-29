@@ -68,26 +68,26 @@ using namespace express;
 Router router(database::mariadb::MariaDBClient& db) {
     const Router router;
 
-    router.get(R"(/hallo/:id([^/]+))", [] APPLICATION(req, res) {
+    router.get(R"(/r1/:id([^/]+))", [] APPLICATION(req, res) {
         std::cout << "Hier 1a ************" << std::endl;
         std::cout << "Params: " << req->params["id"] << std::endl;
         res->send("Done\n");
     });
 
-    router.get(R"(/hallo/:id/:subcollection)", [] APPLICATION(req, res) {
+    router.get(R"(/r1/:id/:subcollection)", [] APPLICATION(req, res) {
         std::cout << "Hier 1b ************" << std::endl;
         std::cout << "Params: " << req->params["id"] << std::endl;
         std::cout << "Params: " << req->params["subcollection"] << std::endl;
         res->send("Done\n");
     });
 
-    router.get(R"(/:id)", [] APPLICATION(req, res) {
+    router.get(R"(/r2/:id)", [] APPLICATION(req, res) {
         std::cout << "Hier 2a ************" << std::endl;
         std::cout << "Params: " << req->params["id"] << std::endl;
         res->send("Done\n");
     });
 
-    router.get(R"(/:id/:subcollection)", [] APPLICATION(req, res) {
+    router.get(R"(/r2/:id/:subcollection)", [] APPLICATION(req, res) {
         std::cout << "Hier 2b ************" << std::endl;
         std::cout << "Params: " << req->params["id"] << std::endl;
         std::cout << "Params: " << req->params["subcollection"] << std::endl;
@@ -95,7 +95,7 @@ Router router(database::mariadb::MariaDBClient& db) {
     });
 
     router.get("/test/:variable(\\d)/:uri", [] APPLICATION(req, res) { // http://localhost:8080/test/1/urlstring
-        std::cout << "TEST" << std::endl;
+        std::cout << "Hier 3 ************" << std::endl;
         std::cout << "Params: " << req->params["variable"] << std::endl;
         std::cout << "Params: " << req->params["uri"] << std::endl;
         res->send("Done\n");
