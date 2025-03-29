@@ -46,8 +46,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <sstream>
-#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -65,12 +63,28 @@ namespace express::dispatcher {
         return s;
     }
 
-    std::vector<std::string> explode(const std::string& s, char delim) {
+    std::vector<std::string> explode(const std::string& input, char delim) {
         std::vector<std::string> result;
-        std::istringstream iss(s);
+        std::string current;
+        int parenDepth = 0;
 
-        for (std::string token; std::getline(iss, token, delim);) {
-            result.push_back(std::move(token));
+        for (const char ch : input) {
+            if (ch == '(') {
+                parenDepth++;
+                current += ch;
+            } else if (ch == ')') {
+                parenDepth--;
+                current += ch;
+            } else if (ch == delim && parenDepth == 0) {
+                result.push_back(current);
+                current.clear();
+            } else {
+                current += ch;
+            }
+        }
+
+        if (!current.empty()) {
+            result.push_back(current);
         }
 
         return result;

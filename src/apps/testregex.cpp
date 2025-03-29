@@ -70,7 +70,30 @@ Router router(database::mariadb::MariaDBClient& db) {
 
     router.get("/test/:variable(\\d)/:uri", [] APPLICATION(req, res) { // http://localhost:8080/test/1/urlstring
         std::cout << "TEST" << std::endl;
+        std::cout << "Params: " << req->params["variable"] << std::endl;
+        std::cout << "Params: " << req->params["uri"] << std::endl;
+        res->send("Done\n");
     });
+
+    router.get(R"(/hallo/:id([^/]+))", [] APPLICATION(req, res) {
+        std::cout << "Hier 1 ************" << std::endl;
+        std::cout << "Params: " << req->params["id"] << std::endl;
+        res->send("Done\n");
+    });
+
+    router.get(R"(/:id([^/]+))", [] APPLICATION(req, res) {
+        std::cout << "Hier 2 ************" << std::endl;
+        std::cout << "Params: " << req->params["id"] << std::endl;
+        res->send("Done\n");
+    });
+
+    router.get(R"(/:id/:subcollection)", [] APPLICATION(req, res) {
+        std::cout << "Hier 3 ************" << std::endl;
+        std::cout << "Params: " << req->params["id"] << std::endl;
+        std::cout << "Params: " << req->params["subcollection"] << std::endl;
+        res->send("Done\n");
+    });
+
     router
         .get(
             "/query/:userId",
