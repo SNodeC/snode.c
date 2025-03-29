@@ -122,6 +122,8 @@ namespace express::dispatcher {
                 if (smatch.size() > 1) {
                     if (smatch[1] != "") {
                         regex = smatch[1];
+                    } else if (i == explodedString.size() - 1) {
+                        regex = "([^/]+)(/)?$";
                     }
                 }
 

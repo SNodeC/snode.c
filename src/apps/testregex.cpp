@@ -74,14 +74,14 @@ Router router(database::mariadb::MariaDBClient& db) {
         res->send("Done\n");
     });
 
-    router.get(R"(/hallo/:id([^/]+)/:subcollection)", [] APPLICATION(req, res) {
+    router.get(R"(/hallo/:id/:subcollection)", [] APPLICATION(req, res) {
         std::cout << "Hier 1b ************" << std::endl;
         std::cout << "Params: " << req->params["id"] << std::endl;
         std::cout << "Params: " << req->params["subcollection"] << std::endl;
         res->send("Done\n");
     });
 
-    router.get(R"(/:id(([^/]+)(/)?$))", [] APPLICATION(req, res) {
+    router.get(R"(/:id)", [] APPLICATION(req, res) {
         std::cout << "Hier 2a ************" << std::endl;
         std::cout << "Params: " << req->params["id"] << std::endl;
         res->send("Done\n");
