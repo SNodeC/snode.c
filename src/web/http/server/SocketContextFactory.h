@@ -63,11 +63,10 @@ namespace core::socket {
 
 namespace web::http::server {
 
-    template <typename RequestT, typename ResponseT>
-    class SocketContextFactory : public web::http::SocketContextFactory<web::http::server::SocketContext, RequestT, ResponseT> {
+    class SocketContextFactory : public web::http::SocketContextFactory<web::http::server::SocketContext> {
     public:
-        using Request = RequestT;
-        using Response = ResponseT;
+        using Request = web::http::server::Request;
+        using Response = web::http::server::Response;
 
         explicit SocketContextFactory(
             const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
@@ -75,9 +74,7 @@ namespace web::http::server {
         }
 
     private:
-        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
-            return new web::http::server::SocketContext(socketConnection, onRequestReady);
-        }
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
 
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onRequestReady;
     };

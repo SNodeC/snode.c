@@ -51,7 +51,7 @@
 
 namespace express::tls::in6 {
 
-    using WebApp = WebAppT<web::http::tls::in6::ServerBase<web::http::server::Request, web::http::server::Response>>;
+    using WebApp = WebAppT<web::http::tls::in6::Server>;
 
 } // namespace express::tls::in6
 

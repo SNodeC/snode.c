@@ -52,10 +52,7 @@
 
 namespace web::http::legacy::un {
 
-    template <typename Request, typename Response>
-    using ServerBase = web::http::server::Server<net::un::stream::legacy::SocketServer, Request, Response>;
-
-    using Server = ServerBase<web::http::server::Request, web::http::server::Response>;
+    using Server = web::http::server::Server<net::un::stream::legacy::SocketServer>;
 
 } // namespace web::http::legacy::un
 

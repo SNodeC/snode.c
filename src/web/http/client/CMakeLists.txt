@@ -47,8 +47,9 @@ set(HTTPCLIENT_CPP
     RequestCommand.cpp
     Response.cpp
     ResponseParser.cpp
-    SocketContextUpgradeFactory.cpp
     SocketContext.cpp
+    SocketContextFactory.cpp
+    SocketContextUpgradeFactory.cpp
     SocketContextUpgradeFactorySelector.cpp
 )
 

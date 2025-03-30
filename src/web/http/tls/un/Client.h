@@ -51,10 +51,7 @@
 
 namespace web::http::tls::un {
 
-    template <typename Request, typename Response>
-    using ClientBase = web::http::client::Client<net::un::stream::tls::SocketClient, Request, Response>;
-
-    using Client = ClientBase<web::http::client::Request, web::http::client::Response>;
+    using Client = web::http::client::Client<net::un::stream::tls::SocketClient>;
 
 } // namespace web::http::tls::un
 

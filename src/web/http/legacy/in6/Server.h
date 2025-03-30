@@ -52,10 +52,7 @@
 
 namespace web::http::legacy::in6 {
 
-    template <typename Request, typename Response>
-    using ServerBase = web::http::server::Server<net::in6::stream::legacy::SocketServer, Request, Response>;
-
-    using Server = ServerBase<web::http::server::Request, web::http::server::Response>;
+    using Server = web::http::server::Server<net::in6::stream::legacy::SocketServer>;
 
 } // namespace web::http::legacy::in6
 

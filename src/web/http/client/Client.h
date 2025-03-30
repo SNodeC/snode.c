@@ -53,20 +53,20 @@
 
 namespace web::http::client {
 
-    template <template <typename SocketContextFactoryT, typename... Args> typename SocketClientT, typename RequestT, typename ResponseT>
+    template <template <typename SocketContextFactoryT, typename... Args> typename SocketClientT>
     class Client
-        : public SocketClientT<web::http::client::SocketContextFactory<RequestT, ResponseT>,
-                               std::function<void(const std::shared_ptr<RequestT>&)>,
-                               std::function<void(const std::shared_ptr<RequestT>&)>,
+        : public SocketClientT<web::http::client::SocketContextFactory,
+                               std::function<void(const std::shared_ptr<web::http::client::Request>&)>,
+                               std::function<void(const std::shared_ptr<web::http::client::Request>&)>,
                                std::function<net::config::ConfigInstance&()>> {
     public:
-        using Request = RequestT;
-        using Response = ResponseT;
+        using Request = web::http::client::Request;
+        using Response = web::http::client::Response;
 
     private:
-        using Super = SocketClientT<web::http::client::SocketContextFactory<Request, Response>,
-                                    std::function<void(const std::shared_ptr<Request>&)>,
-                                    std::function<void(const std::shared_ptr<RequestT>&)>,
+        using Super = SocketClientT<web::http::client::SocketContextFactory,
+                                    std::function<void(const std::shared_ptr<web::http::client::Request>&)>,
+                                    std::function<void(const std::shared_ptr<web::http::client::Request>&)>,
                                     std::function<net::config::ConfigInstance&()>>; // this makes it an HTTP client;
 
     public:

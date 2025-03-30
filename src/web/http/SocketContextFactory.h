@@ -50,13 +50,9 @@
 
 namespace web::http {
 
-    template <typename SocketContextT, typename RequestT, typename ResponseT>
+    template <typename SocketContextT>
     class SocketContextFactory : public core::socket::stream::SocketContextFactory {
     protected:
-        using Request = RequestT;
-        using Response = ResponseT;
-        using SocketContext = SocketContextT;
-
         SocketContextFactory() = default;
         ~SocketContextFactory() override = default;
     };

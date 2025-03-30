@@ -53,18 +53,19 @@
 
 namespace web::http::server {
 
-    template <template <typename SocketContextFactoryT, typename... Args> typename SocketServerT, typename RequestT, typename ResponseT>
+    template <template <typename SocketContextFactoryT, typename... Args> typename SocketServerT>
     class Server
-        : public SocketServerT<web::http::server::SocketContextFactory<RequestT, ResponseT>,
-                               std::function<void(const std::shared_ptr<RequestT>&, const std::shared_ptr<ResponseT>&)>> { // this makes
-                                                                                                                           // it an
-                                                                                                                           // HTTP server
+        : public SocketServerT<web::http::server::SocketContextFactory,
+                               std::function<void(const std::shared_ptr<web::http::server::Request>&,
+                                                  const std::shared_ptr<web::http::server::Response>&)>> { // this makes
+                                                                                                           // it an
+                                                                                                           // HTTP server
     public:
-        using Request = RequestT;
-        using Response = ResponseT;
+        using Request = web::http::server::Request;
+        using Response = web::http::server::Response;
 
     private:
-        using Super = SocketServerT<web::http::server::SocketContextFactory<Request, Response>,
+        using Super = SocketServerT<web::http::server::SocketContextFactory,
                                     std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>>;
 
     public:

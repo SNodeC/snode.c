@@ -52,10 +52,7 @@
 
 namespace web::http::tls::in {
 
-    template <typename Request, typename Response>
-    using ServerBase = web::http::server::Server<net::in::stream::tls::SocketServer, Request, Response>;
-
-    using Server = ServerBase<web::http::server::Request, web::http::server::Response>;
+    using Server = web::http::server::Server<net::in::stream::tls::SocketServer>;
 
 } // namespace web::http::tls::in
 

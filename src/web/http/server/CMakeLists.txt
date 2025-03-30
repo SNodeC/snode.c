@@ -40,8 +40,13 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(HTTPSERVER_CPP
-    Request.cpp RequestParser.cpp Response.cpp SocketContextUpgradeFactory.cpp
-    SocketContext.cpp SocketContextUpgradeFactorySelector.cpp
+    Request.cpp
+    RequestParser.cpp
+    Response.cpp
+    SocketContext.cpp
+    SocketContextFactory.cpp
+    SocketContextUpgradeFactory.cpp
+    SocketContextUpgradeFactorySelector.cpp
 )
 
 set(HTTPSERVER_H

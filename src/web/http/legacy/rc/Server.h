@@ -52,10 +52,7 @@
 
 namespace web::http::legacy::rc {
 
-    template <typename Request, typename Response>
-    using ServerBase = web::http::server::Server<net::rc::stream::legacy::SocketServer, Request, Response>;
-
-    using Server = ServerBase<web::http::server::Request, web::http::server::Response>;
+    using Server = web::http::server::Server<net::rc::stream::legacy::SocketServer>;
 
 } // namespace web::http::legacy::rc
 

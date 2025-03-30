@@ -39,20 +39,16 @@
  * THE SOFTWARE.
  */
 
-#ifndef WEB_HTTP_TLS_IN6_CLIENT_H
-#define WEB_HTTP_TLS_IN6_CLIENT_H
-
-#include "net/in6/stream/tls/SocketClient.h" // IWYU pragma: export
-#include "web/http/client/Client.h"          // IWYU pragma: export
+#include "web/http/server/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::tls::in6 {
+namespace web::http::server {
 
-    using Client = web::http::client::Client<net::in6::stream::tls::SocketClient>;
+    core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
+        return new web::http::server::SocketContext(socketConnection, onRequestReady);
+    }
 
-} // namespace web::http::tls::in6
-
-#endif // WEB_HTTP_TLS_IN6_CLIENT_H
+} // namespace web::http::server

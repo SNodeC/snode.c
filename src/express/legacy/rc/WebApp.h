@@ -51,7 +51,7 @@
 
 namespace express::legacy::rc {
 
-    using WebApp = WebAppT<web::http::legacy::rc::ServerBase<web::http::server::Request, web::http::server::Response>>;
+    using WebApp = WebAppT<web::http::legacy::rc::Server>;
 
 } // namespace express::legacy::rc
 

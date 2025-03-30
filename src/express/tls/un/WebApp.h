@@ -51,7 +51,7 @@
 
 namespace express::tls::un {
 
-    using WebApp = WebAppT<web::http::tls::un::ServerBase<web::http::server::Request, web::http::server::Response>>;
+    using WebApp = WebAppT<web::http::tls::un::Server>;
 
 } // namespace express::tls::un
 
