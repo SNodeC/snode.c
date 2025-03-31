@@ -69,11 +69,11 @@ namespace iot::mqtt::server::broker {
 
     class Broker {
     public:
-        explicit Broker(uint8_t maxQoS);
+        Broker(uint8_t maxQoS, const std::string& sessionStoreFileName);
 
         ~Broker();
 
-        static std::shared_ptr<Broker> instance(uint8_t maxQoS);
+        static std::shared_ptr<Broker> instance(uint8_t maxQoS, const std::string& sessionStoreFileName);
 
         void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
         void unsubscribe(const std::string& clientId);

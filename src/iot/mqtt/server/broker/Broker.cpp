@@ -58,8 +58,8 @@
 
 namespace iot::mqtt::server::broker {
 
-    Broker::Broker(uint8_t maxQoS)
-        : sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") // NOLINT
+    Broker::Broker(uint8_t maxQoS, const std::string& sessionStoreFileName)
+        : sessionStoreFileName(sessionStoreFileName) // NOLINT
         , maxQoS(maxQoS)
         , subscribtionTree(this)
         , retainTree(this) {
@@ -138,8 +138,8 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    std::shared_ptr<Broker> Broker::instance(uint8_t maxQoS) {
-        static const std::shared_ptr<Broker> broker = std::make_shared<Broker>(maxQoS);
+    std::shared_ptr<Broker> Broker::instance(uint8_t maxQoS, const std::string& sessionStoreFileName) {
+        static const std::shared_ptr<Broker> broker = std::make_shared<Broker>(maxQoS, sessionStoreFileName);
 
         return broker;
     }

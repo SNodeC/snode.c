@@ -85,7 +85,7 @@ namespace iot::mqtt::client {
     public:
         using Super = iot::mqtt::Mqtt;
 
-        explicit Mqtt(const std::string& connectionName, const std::string& clientId);
+        explicit Mqtt(const std::string& connectionName, const std::string& clientId, const std::string& sessionStoreFileName);
 
         ~Mqtt() override;
 

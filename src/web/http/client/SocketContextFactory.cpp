@@ -52,4 +52,3 @@ namespace web::http::client {
     }
 
 } // namespace web::http::client
-

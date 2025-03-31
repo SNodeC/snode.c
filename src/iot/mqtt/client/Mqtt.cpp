@@ -76,9 +76,9 @@
 
 namespace iot::mqtt::client {
 
-    Mqtt::Mqtt(const std::string& connectionName, const std::string& clientId)
+    Mqtt::Mqtt(const std::string& connectionName, const std::string& clientId, const std::string& sessionStoreFileName)
         : Super(connectionName, clientId)
-        , sessionStoreFileName((getenv("MQTT_SESSION_STORE") != nullptr) ? getenv("MQTT_SESSION_STORE") : "") { // NOLINT
+        , sessionStoreFileName(sessionStoreFileName) { // NOLINT
         if (!sessionStoreFileName.empty()) {
             std::ifstream sessionStoreFile(sessionStoreFileName);
 
