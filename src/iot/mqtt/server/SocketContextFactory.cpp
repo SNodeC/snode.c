@@ -49,8 +49,12 @@
 
 namespace iot::mqtt::server {
 
+    SocketContextFactory::SocketContextFactory(const std::string& sessionStoreFileName)
+        : broker(std::make_shared<iot::mqtt::server::broker::Broker>(SUBSCRIBTION_MAX_QOS, sessionStoreFileName)) {
+    }
+
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
-        return create(socketConnection, std::make_shared<iot::mqtt::server::broker::Broker>(SUBSCRIBTION_MAX_QOS, "SessionStore"));
+        return create(socketConnection, broker);
     }
 
 } // namespace iot::mqtt::server

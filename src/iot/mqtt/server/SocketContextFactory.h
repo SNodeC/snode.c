@@ -56,6 +56,7 @@ namespace iot::mqtt::server::broker {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <memory>
+#include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -63,13 +64,14 @@ namespace iot::mqtt::server {
 
     class SocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
-        SocketContextFactory() = default;
+        SocketContextFactory(const std::string& sessionStoreFileName);
 
     private:
         virtual core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection,
                                                             std::shared_ptr<iot::mqtt::server::broker::Broker> broker) = 0;
 
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
+        std::shared_ptr<iot::mqtt::server::broker::Broker> broker;
     };
 
 } // namespace iot::mqtt::server
