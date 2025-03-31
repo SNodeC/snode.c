@@ -183,6 +183,10 @@ namespace iot::mqtt::server::broker {
         return subscribtionTree.getSubscriptions(clientId);
     }
 
+    std::map<std::string, std::list<std::pair<std::string, uint8_t>>> Broker::getSubscriptionTree() const {
+        return subscribtionTree.getSubscriptionTree();
+    }
+
     bool Broker::hasSession(const std::string& clientId) {
         return sessionStore.contains(clientId);
     }

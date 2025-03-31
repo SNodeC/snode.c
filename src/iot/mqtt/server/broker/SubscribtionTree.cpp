@@ -51,7 +51,6 @@
 #include <algorithm>
 #include <nlohmann/json.hpp>
 #include <string>
-#include <utility>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
 
@@ -108,6 +107,10 @@ namespace iot::mqtt::server::broker {
         std::list<std::string> subscriptions = head.getSubscriptions(clientId);
 
         return subscriptions;
+    }
+
+    std::map<std::string, std::list<std::pair<std::string, uint8_t>>> SubscribtionTree::getSubscriptionTree() const {
+        return head.getSubscriptionTree();
     }
 
     void SubscribtionTree::fromJson(const nlohmann::json& json) {
@@ -281,6 +284,10 @@ namespace iot::mqtt::server::broker {
         return getSubscriptions("", clientId);
     }
 
+    std::map<std::string, std::list<std::pair<std::string, uint8_t>>> SubscribtionTree::TopicLevel::getSubscriptionTree() const {
+        return getSubscriptionTree("");
+    }
+
     std::list<std::string> SubscribtionTree::TopicLevel::getSubscriptions(const std::string& absoluteTopicLevel,
                                                                           const std::string& clientId) const {
         std::list<std::string> topicLevelList;
@@ -296,6 +303,26 @@ namespace iot::mqtt::server::broker {
         }
 
         return topicLevelList;
+    }
+
+    std::map<std::string, std::list<std::pair<std::string, uint8_t>>>
+    SubscribtionTree::TopicLevel::getSubscriptionTree(const std::string& absoluteTopicLevel) const {
+        std::map<std::string, std::list<std::pair<std::string, uint8_t>>> topicLevelTree;
+
+        for (const auto& [topicLevelName, nextTopicLevel] : topicLevels) {
+            const std::string currentAbsoluteTopicLevel = absoluteTopicLevel + topicLevelName;
+
+            for (const auto& clientId : nextTopicLevel.clientIds) {
+                topicLevelTree[currentAbsoluteTopicLevel].emplace_back(clientId);
+            }
+
+            std::map<std::string, std::list<std::pair<std::string, uint8_t>>> subSubscriptionTree =
+                nextTopicLevel.getSubscriptionTree(currentAbsoluteTopicLevel + "/");
+
+            topicLevelTree.insert(subSubscriptionTree.begin(), subSubscriptionTree.end());
+        }
+
+        return topicLevelTree;
     }
 
     SubscribtionTree::TopicLevel& SubscribtionTree::TopicLevel::fromJson(const nlohmann::json& json) {
