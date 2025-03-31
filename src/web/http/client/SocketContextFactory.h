@@ -46,11 +46,14 @@
 #include "web/http/client/ConfigHTTP.h"
 #include "web/http/client/SocketContext.h" // IWYU pragma: export
 
-namespace core::socket::stream {
-    class SocketConnection;
-} // namespace core::socket::stream
+namespace net::config {
+    class ConfigInstance;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <functional>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

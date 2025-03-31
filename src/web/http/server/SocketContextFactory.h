@@ -53,11 +53,9 @@
 #include "web/http/SocketContextFactory.h"
 #include "web/http/server/SocketContext.h" // IWYU pragma: export
 
-namespace core::socket {
-    class SocketConnection;
-} // namespace core::socket
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
