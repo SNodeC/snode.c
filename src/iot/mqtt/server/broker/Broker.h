@@ -57,6 +57,9 @@ namespace iot::mqtt::server {
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
+
+// IWYU pragma: no_include <iterator>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -83,6 +86,7 @@ namespace iot::mqtt::server::broker {
         void unsubscribe(const std::string& clientId, const std::string& topic);
 
         std::list<std::string> getSubscriptions(const std::string& clientId) const;
+        std::map<std::string, std::list<std::pair<std::string, uint8_t>>> getSubscriptionTree() const;
 
         bool hasSession(const std::string& clientId);
         bool hasActiveSession(const std::string& clientId);

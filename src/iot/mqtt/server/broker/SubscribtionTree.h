@@ -54,6 +54,9 @@ namespace iot::mqtt::server::broker {
 #include <map>
 #include <nlohmann/json_fwd.hpp>
 #include <string>
+#include <utility>
+
+// IWYU pragma: no_include <iterator>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -76,6 +79,7 @@ namespace iot::mqtt::server::broker {
         void fromJson(const nlohmann::json& json);
 
         std::list<std::string> getSubscriptions(const std::string& clientId) const;
+        std::map<std::string, std::list<std::pair<std::string, uint8_t>>> getSubscriptionTree() const;
 
         void clear();
 
@@ -95,6 +99,8 @@ namespace iot::mqtt::server::broker {
 
             std::list<std::string> getSubscriptions(const std::string& clientId) const;
 
+            std::map<std::string, std::list<std::pair<std::string, uint8_t>>> getSubscriptionTree() const;
+
             TopicLevel& fromJson(const nlohmann::json& json);
             nlohmann::json toJson() const;
 
@@ -102,6 +108,8 @@ namespace iot::mqtt::server::broker {
 
         private:
             std::list<std::string> getSubscriptions(const std::string& absoluteTopicLevel, const std::string& clientId) const;
+            std::map<std::string, std::list<std::pair<std::string, uint8_t>>>
+            getSubscriptionTree(const std::string& absoluteTopicLevel) const;
 
             iot::mqtt::server::broker::Broker* broker;
 
