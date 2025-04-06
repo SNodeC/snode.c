@@ -51,6 +51,7 @@ namespace iot::mqtt::server::broker {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <list>
 #include <map>
 #include <nlohmann/json_fwd.hpp>
 #include <string>
@@ -69,6 +70,8 @@ namespace iot::mqtt::server::broker {
         nlohmann::json toJson() const;
         void fromJson(const nlohmann::json& json);
 
+        std::list<std::pair<std::string, std::string>> getRetainedTree() const;
+
         void clear();
 
     private:
@@ -81,6 +84,8 @@ namespace iot::mqtt::server::broker {
 
             void appear(const std::string& clientId, std::string topic, uint8_t qoS);
 
+            std::list<std::pair<std::string, std::string>> getRetainTree() const;
+
             TopicLevel& fromJson(const nlohmann::json& json);
             nlohmann::json toJson() const;
 
@@ -88,6 +93,8 @@ namespace iot::mqtt::server::broker {
 
         private:
             void appear(const std::string& clientId, uint8_t clientQoS);
+
+            std::list<std::pair<std::string, std::string>> getRetainTree(const std::string& absoluteTopicLevel) const;
 
             Message message;
 

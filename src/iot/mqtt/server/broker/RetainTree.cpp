@@ -82,6 +82,10 @@ namespace iot::mqtt::server::broker {
         }
     }
 
+    std::list<std::pair<std::string, std::string>> RetainTree::getRetainedTree() const {
+        return head.getRetainTree();
+    }
+
     nlohmann::json RetainTree::toJson() const {
         return head.toJson();
     }
@@ -180,6 +184,10 @@ namespace iot::mqtt::server::broker {
         }
     }
 
+    std::list<std::pair<std::string, std::string>> RetainTree::TopicLevel::getRetainTree() const {
+        return getRetainTree("");
+    }
+
     void RetainTree::TopicLevel::appear(const std::string& clientId, uint8_t clientQoS) {
         if (!message.getTopic().empty()) {
             LOG(INFO) << "MQTT Broker: Retained Topic found:";
@@ -197,6 +205,21 @@ namespace iot::mqtt::server::broker {
         for (auto& [topicLevel, topicTree] : subTopicLevels) {
             topicTree.appear(clientId, clientQoS);
         }
+    }
+
+    std::list<std::pair<std::string, std::string>> RetainTree::TopicLevel::getRetainTree(const std::string& absoluteTopicLevel) const {
+        std::list<std::pair<std::string, std::string>> topicLevelTree;
+        for (const auto& [topicLevelName, nextTopicLevel] : subTopicLevels) {
+            const std::string composedAbsoluteTopicLevelName = absoluteTopicLevel + topicLevelName;
+
+            if (!nextTopicLevel.message.getMessage().empty()) {
+                topicLevelTree.emplace_back(composedAbsoluteTopicLevelName, nextTopicLevel.message.getMessage());
+            }
+
+            topicLevelTree.splice(topicLevelTree.end(), nextTopicLevel.getRetainTree(composedAbsoluteTopicLevelName + "/"));
+        }
+
+        return topicLevelTree;
     }
 
     nlohmann::json RetainTree::TopicLevel::toJson() const {
