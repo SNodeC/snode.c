@@ -164,21 +164,24 @@ namespace web::websocket {
     }
 
     std::size_t Receiver::readELength() {
+        char elengthChunk[8]{};
+
         const std::size_t ret = readFrameData(elengthChunk, elengthNumBytesLeft);
 
+        const std::size_t cursor = static_cast<std::size_t>(elengthNumBytes - elengthNumBytesLeft);
         for (std::size_t i = 0; i < ret; i++) {
-            payLoadNumBytes |= *reinterpret_cast<uint64_t*>(elengthChunk + i) << (elengthNumBytes - elengthNumBytesLeft) * 8;
-
+            eLength.asBytes[cursor + i] = elengthChunk[i];
             elengthNumBytesLeft--;
         }
 
         if (elengthNumBytesLeft == 0) {
+            uint16_t* elength = reinterpret_cast<uint16_t*>(&eLength.asValue);
             switch (elengthNumBytes) {
                 case 2:
-                    payLoadNumBytes = payLoadNumBytesLeft = be16toh(static_cast<uint16_t>(payLoadNumBytes));
+                    payLoadNumBytes = payLoadNumBytesLeft = be16toh(*elength);
                     break;
                 case 8:
-                    payLoadNumBytes = payLoadNumBytesLeft = be64toh(payLoadNumBytes);
+                    payLoadNumBytes = payLoadNumBytesLeft = be64toh(eLength.asValue);
                     break;
             }
 
@@ -196,17 +199,17 @@ namespace web::websocket {
     }
 
     std::size_t Receiver::readMaskingKey() {
+        char maskingKeyChunk[4]{};
+
         const std::size_t ret = readFrameData(maskingKeyChunk, maskingKeyNumBytesLeft);
 
+        const std::size_t cursor = static_cast<std::size_t>(maskingKeyNumBytes - maskingKeyNumBytesLeft);
         for (std::size_t i = 0; i < ret; i++) {
-            maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(maskingKeyChunk + i))
-                          << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
-            maskingKeyNumBytesLeft--;
+            maskingKey[cursor + i] = maskingKeyChunk[i];
+            maskingKeyNumBytesLeft -= 1;
         }
 
         if (maskingKeyNumBytesLeft == 0) {
-            maskingKeyAsArray = {.key = maskingKey};
-
             if (payLoadNumBytes > 0) {
                 parserState = ParserState::PAYLOAD;
             } else {
@@ -221,9 +224,10 @@ namespace web::websocket {
     }
 
     std::size_t Receiver::readPayload() {
+        char payloadChunk[MAX_PAYLOAD_JUNK_LEN]{};
+
         const std::size_t payloadChunkLeft = (MAX_PAYLOAD_JUNK_LEN <= payLoadNumBytesLeft) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
                                                                                            : static_cast<std::size_t>(payLoadNumBytesLeft);
-
         const std::size_t ret = readFrameData(payloadChunk, payloadChunkLeft);
 
         if (ret > 0) {
@@ -231,8 +235,7 @@ namespace web::websocket {
 
             if (masked) {
                 for (std::size_t i = 0; i < payloadChunkLen; i++) {
-                    *(payloadChunk + i) =
-                        *(payloadChunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payLoadNumBytes - payLoadNumBytesLeft) % 4);
+                    *(payloadChunk + i) = *(payloadChunk + i) ^ *(maskingKey + (i + payLoadNumBytes - payLoadNumBytesLeft) % 4);
                 }
             }
 
@@ -268,8 +271,6 @@ namespace web::websocket {
         payLoadNumBytes = 0;
         payLoadNumBytesLeft = 0;
 
-        maskingKey = 0;
-        maskingKeyAsArray = {.key = 0};
         maskingKeyNumBytes = 4;
         maskingKeyNumBytesLeft = 4;
 

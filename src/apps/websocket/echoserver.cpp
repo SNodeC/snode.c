@@ -66,23 +66,6 @@ int main(int argc, char* argv[]) {
 
     legacyApp.use(express::middleware::VerboseRequest());
 
-    legacyApp.get("/", [] APPLICATION(req, res) {
-        VLOG(1) << "HTTP GET on "
-                << "/";
-        if (req->url == "/" || req->url == "/index.html") {
-            req->url = "/wstest.html";
-        }
-
-        VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
-        res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int errnum) {
-            if (errnum == 0) {
-                VLOG(1) << req->url;
-            } else {
-                VLOG(1) << "HTTP response send file failed: " << std::strerror(errnum);
-            }
-        });
-    });
-
     legacyApp.get("/ws", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
         VLOG(1) << "HTTP GET on legacy /ws";
 
@@ -115,6 +98,23 @@ int main(int argc, char* argv[]) {
         }
     });
 
+    legacyApp.get("/", [] APPLICATION(req, res) {
+        VLOG(1) << "HTTP GET on "
+                << "/";
+        if (req->url == "/" || req->url == "/index.html") {
+            req->url = "/wstest.html";
+        }
+
+        VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
+        res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int errnum) {
+            if (errnum == 0) {
+                VLOG(1) << req->url;
+            } else {
+                VLOG(1) << "HTTP response send file failed: " << std::strerror(errnum);
+            }
+        });
+    });
+
     legacyApp.listen(
         [instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
@@ -142,19 +142,6 @@ int main(int argc, char* argv[]) {
         const TlsWebApp tlsApp("tls");
 
         tlsApp.use(express::middleware::VerboseRequest());
-
-        tlsApp.get("/", [] APPLICATION(req, res) {
-            if (req->url == "/" || req->url == "/index.html") {
-                req->url = "/wstest.html";
-            }
-
-            VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
-            res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int ret) {
-                if (ret != 0) {
-                    PLOG(ERROR) << req->url;
-                }
-            });
-        });
 
         tlsApp.get("/ws", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
             VLOG(1) << "HTTP GET on tls /ws";
@@ -186,6 +173,19 @@ int main(int argc, char* argv[]) {
             } else {
                 res->sendStatus(404);
             }
+        });
+
+        tlsApp.get("/", [] APPLICATION(req, res) {
+            if (req->url == "/" || req->url == "/index.html") {
+                req->url = "/wstest.html";
+            }
+
+            VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
+            res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int ret) {
+                if (ret != 0) {
+                    PLOG(ERROR) << req->url;
+                }
+            });
         });
 
         tlsApp.listen(

@@ -73,11 +73,6 @@ namespace web::websocket {
         std::size_t receive();
 
     private:
-        union MaskingKey {
-            uint32_t key;
-            char keyAsArray[4];
-        };
-
         std::size_t readOpcode();
         std::size_t readLength();
         std::size_t readELength();
@@ -102,22 +97,23 @@ namespace web::websocket {
 
         uint8_t opCode = 0;
 
+        char maskingKey[4];
+
+        union ELength {
+            uint64_t asValue;
+            char asBytes[8];
+        } eLength{};
+
         uint8_t elengthNumBytes = 0;
         uint8_t elengthNumBytesLeft = 0;
 
         uint64_t payLoadNumBytes = 0;
         uint64_t payLoadNumBytesLeft = 0;
 
-        uint32_t maskingKey = 0;
-        MaskingKey maskingKeyAsArray{};
         uint8_t maskingKeyNumBytes = 4;
         uint8_t maskingKeyNumBytesLeft = 4;
 
         uint16_t errorState = 0;
-
-        char elengthChunk[8]{};
-        char maskingKeyChunk[4]{};
-        char payloadChunk[MAX_PAYLOAD_JUNK_LEN]{};
 
         core::socket::stream::SocketConnection* socketConnection = nullptr;
     };

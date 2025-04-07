@@ -137,7 +137,7 @@ namespace web::websocket {
         }
 
         if (masking) {
-            sendFrameData(htobe32(maskingKeyAsArray.keyAsValue));
+            sendFrameData(maskingKeyAsArray.keyAsBytes, 4);
 
             for (uint64_t i = 0; i < payloadLength; i++) {
                 *(const_cast<char*>(payload) + i) = static_cast<char>(*(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4));
