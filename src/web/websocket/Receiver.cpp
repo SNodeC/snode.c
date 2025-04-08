@@ -163,28 +163,59 @@ namespace web::websocket {
         return ret;
     }
 
-    std::size_t Receiver::readELength() {
-        char elengthChunk[8]{};
+    std::size_t Receiver::readFrameData(char* chunk, std::size_t chunkLen) {
+        return socketConnection->readFromPeer(chunk, chunkLen);
+    }
+
+    std::size_t Receiver::readELength2() {
+        char elengthChunk[2];
 
         const std::size_t ret = readFrameData(elengthChunk, elengthNumBytesLeft);
 
         const std::size_t cursor = static_cast<std::size_t>(elengthNumBytes - elengthNumBytesLeft);
         for (std::size_t i = 0; i < ret; i++) {
-            eLength.asBytes[cursor + i] = elengthChunk[i];
+            eLength2.asBytes[cursor + i] = elengthChunk[i];
             elengthNumBytesLeft--;
         }
 
         if (elengthNumBytesLeft == 0) {
-            uint16_t* elength = reinterpret_cast<uint16_t*>(&eLength.asValue);
-            switch (elengthNumBytes) {
-                case 2:
-                    payLoadNumBytes = payLoadNumBytesLeft = be16toh(*elength);
-                    break;
-                case 8:
-                    payLoadNumBytes = payLoadNumBytesLeft = be64toh(eLength.asValue);
-                    break;
-            }
+            payLoadNumBytes = payLoadNumBytesLeft = be16toh(eLength2.asValue);
+        }
 
+        return ret;
+    }
+
+    std::size_t Receiver::readELength8() {
+        char elengthChunk[8];
+
+        const std::size_t ret = readFrameData(elengthChunk, elengthNumBytesLeft);
+
+        const std::size_t cursor = static_cast<std::size_t>(elengthNumBytes - elengthNumBytesLeft);
+        for (std::size_t i = 0; i < ret; i++) {
+            eLength8.asBytes[cursor + i] = elengthChunk[i];
+            elengthNumBytesLeft--;
+        }
+
+        if (elengthNumBytesLeft == 0) {
+            payLoadNumBytes = payLoadNumBytesLeft = be64toh(eLength8.asValue);
+        }
+
+        return ret;
+    }
+
+    std::size_t Receiver::readELength() {
+        std::size_t ret = 0;
+
+        switch (elengthNumBytes) {
+            case 2:
+                ret = readELength2();
+                break;
+            case 8:
+                ret = readELength8();
+                break;
+        }
+
+        if (elengthNumBytesLeft == 0) {
             if ((payLoadNumBytes & static_cast<uint64_t>(0x01) << 63) != 0) {
                 parserState = ParserState::ERROR;
                 errorState = 1004;
@@ -275,10 +306,6 @@ namespace web::websocket {
         maskingKeyNumBytesLeft = 4;
 
         errorState = 0;
-    }
-
-    std::size_t Receiver::readFrameData(char* chunk, std::size_t chunkLen) {
-        return socketConnection->readFromPeer(chunk, chunkLen);
     }
 
 } // namespace web::websocket

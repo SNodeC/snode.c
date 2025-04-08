@@ -79,12 +79,15 @@ namespace web::websocket {
         std::size_t readMaskingKey();
         std::size_t readPayload();
 
+        std::size_t readFrameData(char* chunk, std::size_t chunkLen);
+
+        std::size_t readELength2();
+        std::size_t readELength8();
+
         virtual void onMessageStart(int opCode) = 0;
         virtual void onMessageData(const char* chunk, uint64_t chunkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
-
-        std::size_t readFrameData(char* chunk, std::size_t chunkLen);
 
         void reset();
 
@@ -99,10 +102,15 @@ namespace web::websocket {
 
         char maskingKey[4];
 
-        union ELength {
+        union ELength8 {
             uint64_t asValue;
             char asBytes[8];
-        } eLength{};
+        } eLength8{};
+
+        union ELength2 {
+            uint16_t asValue;
+            char asBytes[2];
+        } eLength2{};
 
         uint8_t elengthNumBytes = 0;
         uint8_t elengthNumBytesLeft = 0;
