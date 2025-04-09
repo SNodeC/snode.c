@@ -148,8 +148,12 @@ namespace express {
         return dispatched;
     }
 
-    void Controller::setStrictRouting(bool strictRouting) {
+    bool Controller::setStrictRouting(bool strictRouting) {
+        const bool oldStrictRouting = this->strictRouting;
+
         this->strictRouting = strictRouting;
+
+        return oldStrictRouting;
     }
 
     bool Controller::getStrictRouting() const {

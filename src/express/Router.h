@@ -99,7 +99,7 @@ namespace express {
         Router();
         Router(const Router&) = default;
 
-        void strictRouting(bool strictRouting = true) const;
+        const Router& setStrictRouting(bool strictRouting = true) const;
 
         DECLARE_ROUTER_REQUESTMETHOD(use)
         DECLARE_ROUTER_REQUESTMETHOD(all)

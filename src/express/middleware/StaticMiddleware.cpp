@@ -57,7 +57,7 @@ namespace express::middleware {
     StaticMiddleware::StaticMiddleware(const std::string& root)
         : root(root)
         , index("index.html") {
-        use(
+        get(
             [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
                 req, res, next) {
                 if (req->method == "GET") {
@@ -94,7 +94,7 @@ namespace express::middleware {
                                   << " Express StaticMiddleware Redirecting: " << req->url << " -> " << req->url + index;
                         res->redirect(308, req->url + index);
                     } else {
-                        res->status(404).send("Unsupported resource: " + req->url);
+                        res->status(404).send("Unsupported resource: " + req->url + "\n");
                     }
                 } else {
                     next();
@@ -109,7 +109,7 @@ namespace express::middleware {
                         PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
                                     << req->url + " -> " << root + req->url;
 
-                        res->status(404).end();
+                        res->sendStatus(404);
                     }
                 });
             });

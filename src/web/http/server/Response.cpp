@@ -311,9 +311,12 @@ namespace web::http::server {
                                     set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
                                 }
                             }
+                        } else {
+                            status(404);
                         }
                     });
                 } else {
+                    status(404);
                     errno = EEXIST;
                     callback(errno);
                 }

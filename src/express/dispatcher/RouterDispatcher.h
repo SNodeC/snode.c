@@ -61,7 +61,9 @@ namespace express::dispatcher {
     public:
         std::list<express::Route>& getRoutes();
 
-        void setStrictRouting(bool strictRouting);
+        bool setStrictRouting(bool strictRouting);
+
+        bool getStrictRouting() const;
 
     private:
         bool dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;

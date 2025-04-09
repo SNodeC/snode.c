@@ -79,7 +79,12 @@ namespace express {
 
     class Route {
     public:
+        enum class StrictRouting { INHERIT, STRICT, LAX };
+
         Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
+
+        Route& setStrictRouting(bool strict = true);
+        const StrictRouting& getStrictRouting() const;
 
     private:
         Route();
@@ -91,6 +96,8 @@ namespace express {
 
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
+
+        StrictRouting strictRouting = StrictRouting::INHERIT;
 
     public:
         DECLARE_ROUTE_REQUESTMETHOD(use)

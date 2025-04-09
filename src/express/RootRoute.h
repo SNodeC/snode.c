@@ -82,7 +82,7 @@ namespace express {
         RootRoute() = default;
 
     private:
-        void setStrictRouting(bool strictRouting);
+        bool setStrictRouting(bool strictRouting);
 
         void dispatch(Controller&& controller);
         void dispatch(Controller& controller);

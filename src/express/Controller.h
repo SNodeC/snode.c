@@ -83,7 +83,7 @@ namespace express {
         bool nextRouter();
         bool dispatchNext(const std::string& parentMountPath);
 
-        void setStrictRouting(bool strictRouting);
+        bool setStrictRouting(bool strictRouting);
 
         bool getStrictRouting() const;
 

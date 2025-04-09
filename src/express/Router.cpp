@@ -75,8 +75,10 @@ namespace express {
         : rootRoute(std::make_shared<RootRoute>()) {
     }
 
-    void Router::strictRouting(bool strictRouting) const {
+    const Router& Router::setStrictRouting(bool strictRouting) const {
         rootRoute->setStrictRouting(strictRouting);
+
+        return *this;
     }
 
     DEFINE_ROUTER_REQUESTMETHOD(use, "use")

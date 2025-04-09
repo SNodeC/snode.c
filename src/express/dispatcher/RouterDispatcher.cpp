@@ -58,8 +58,16 @@ namespace express::dispatcher {
         return routes;
     }
 
-    void RouterDispatcher::setStrictRouting(bool strictRouting) {
+    bool RouterDispatcher::setStrictRouting(bool strictRouting) {
+        bool oldStrictRouting = this->strictRouting;
+
         this->strictRouting = strictRouting;
+
+        return oldStrictRouting;
+    }
+
+    bool RouterDispatcher::getStrictRouting() const {
+        return strictRouting;
     }
 
     bool
@@ -76,15 +84,7 @@ namespace express::dispatcher {
         const bool requestMatched =
             (
                 (
-                    (
-                        requestUrl.starts_with(absoluteMountPath)
-                    ) || (
-                        (
-                            !strictRouting
-                        ) && (
-                            requestPath.starts_with(absoluteMountPath)
-                        )
-                    )
+                    requestUrl.starts_with(absoluteMountPath)
                 ) && (
                     (
                         mountPoint.method == controller.getRequest()->method
@@ -98,10 +98,12 @@ namespace express::dispatcher {
         // clang-format on
 
         if (requestMatched) {
-            controller.setStrictRouting(strictRouting);
-
             for (Route& route : routes) {
+                const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
+
                 dispatched = route.dispatch(controller, absoluteMountPath);
+
+                controller.setStrictRouting(oldStrictRouting);
 
                 if (dispatched || controller.nextRouter()) {
                     break;
