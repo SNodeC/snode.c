@@ -283,7 +283,7 @@ namespace web::http::server {
                 set("Connection", "close").status(500);
             }
         } else {
-            LOG(ERROR) << socketContext->getSocketConnection()->getConnectionName() << " HTTP upgrade: SocketContext has gone away";
+            LOG(ERROR) << "HTTP upgrade: SocketContext has gone away";
         }
 
         status(name);
