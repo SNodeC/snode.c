@@ -57,6 +57,8 @@ namespace express::middleware {
     StaticMiddleware::StaticMiddleware(const std::string& root)
         : root(root)
         , index("index.html") {
+        setStrictRouting(false);
+
         get(
             [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
                 req, res, next) {
