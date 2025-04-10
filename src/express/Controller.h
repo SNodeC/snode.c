@@ -80,7 +80,7 @@ namespace express {
         int getFlags() const;
 
         void next(const std::string& how) const;
-        bool nextRouter();
+        bool nextRouterCalled();
         bool dispatchNext(const std::string& parentMountPath);
 
         bool setStrictRouting(bool strictRouting);

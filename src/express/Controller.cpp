@@ -119,7 +119,7 @@ namespace express {
         }
     }
 
-    bool Controller::nextRouter() {
+    bool Controller::nextRouterCalled() {
         const bool breakDispatching = lastRoute == currentRoute && (flags & Controller::NEXT_ROUTER) != 0;
 
         if (breakDispatching) {

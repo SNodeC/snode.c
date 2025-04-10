@@ -83,9 +83,17 @@ namespace express::dispatcher {
         // clang-format off
         const bool requestMatched =
             (
-                (
-                    requestUrl.starts_with(absoluteMountPath)
-                ) && (
+                    (
+                        (
+                            requestUrl.starts_with(absoluteMountPath)
+                        ) || (
+                            (
+                                !controller.getStrictRouting()
+                            ) && (
+                                requestPath.starts_with(absoluteMountPath)
+                            )
+                        )
+                    ) && (
                     (
                         mountPoint.method == controller.getRequest()->method
                     ) || (
@@ -105,7 +113,7 @@ namespace express::dispatcher {
 
                 controller.setStrictRouting(oldStrictRouting);
 
-                if (dispatched || controller.nextRouter()) {
+                if (dispatched || controller.nextRouterCalled()) {
                     break;
                 }
             }
