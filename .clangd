@@ -1,5 +1,2 @@
 Diagnostics:
   UnusedIncludes: None
-
-CompileFlags:
-  Add: [-Wno-unused-include-directive]

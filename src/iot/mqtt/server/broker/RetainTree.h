@@ -51,10 +51,12 @@ namespace iot::mqtt::server::broker {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <iterator>
 #include <list>
 #include <map>
 #include <nlohmann/json_fwd.hpp>
 #include <string>
+#include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
