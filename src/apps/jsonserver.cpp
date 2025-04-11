@@ -58,11 +58,9 @@ int main(int argc, char* argv[]) {
 
     WebApp::init(argc, argv);
 
-    //    el::Loggers::setVModules("jsonserver*=0");
-
     using SocketAddress = WebApp::SocketAddress;
 
-    WebApp legacyApp("legacy-jsonserver");
+    const WebApp legacyApp("legacy-jsonserver");
 
     legacyApp.use(express::middleware::JsonMiddleware());
 
