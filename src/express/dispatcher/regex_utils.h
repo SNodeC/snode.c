@@ -72,8 +72,6 @@ namespace express::dispatcher {
 
     bool checkForUrlMatch(const std::string& cpath, const std::string& reqpath);
 
-    std::string path_concat(const std::string& first, const std::string& second);
-
 } // namespace express::dispatcher
 
 #endif // EXPRESS_DISPATCHER_REGEX_UTILS_H

@@ -163,24 +163,6 @@ namespace express::dispatcher {
         }
     }
 
-    std::string path_concat(const std::string& first, const std::string& second) {
-        std::string result;
-
-        if (first.back() == '/' && second.front() == '/') {
-            result = first + second.substr(1);
-        } else if (first.back() != '/' && second.front() != '/') {
-            result = first + '/' + second;
-        } else {
-            result = first + second;
-        }
-
-        if (result.length() > 1 && result.back() == '/') {
-            result.pop_back();
-        }
-
-        return result;
-    }
-
     bool checkForUrlMatch(const std::string& cpath, const std::string& reqpath) {
         return hasResult(cpath) && matchFunction(cpath, reqpath);
     }

@@ -55,7 +55,7 @@
 namespace express::middleware {
 
     JsonMiddleware::JsonMiddleware() {
-        use([] MIDDLEWARE(req, res, next) {
+        use("/", [] MIDDLEWARE(req, res, next) {
             try {
                 // parse body string with json library
                 // store it as type json from nlohmann library

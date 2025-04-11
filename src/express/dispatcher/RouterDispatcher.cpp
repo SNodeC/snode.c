@@ -44,9 +44,10 @@
 #include "express/Controller.h"
 #include "express/Request.h"
 #include "express/Route.h"
-#include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <memory>
 
@@ -74,7 +75,7 @@ namespace express::dispatcher {
     RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
-        const std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
+        const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
 
         const std::string requestMethod = controller.getRequest()->method;
         const std::string requestUrl = controller.getRequest()->url;
@@ -105,7 +106,13 @@ namespace express::dispatcher {
             );
         // clang-format on
 
+        LOG(TRACE) << "Express: R - RequestUrl: " << controller.getRequest()->url;
+        LOG(TRACE) << "Express: R - RequestPath: " << controller.getRequest()->path;
+        LOG(TRACE) << "Express: R - AbsoluteMountPath: " << absoluteMountPath;
+        LOG(TRACE) << "Express: R - StrictRouting: " << controller.getStrictRouting();
+
         if (requestMatched) {
+            LOG(TRACE) << "      MATCH";
             for (Route& route : routes) {
                 const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
 
@@ -113,10 +120,18 @@ namespace express::dispatcher {
 
                 controller.setStrictRouting(oldStrictRouting);
 
+                if (dispatched) {
+                    LOG(TRACE) << "Express: R - Dispatched: " << dispatched;
+                }
+                if (controller.nextRouterCalled()) {
+                    LOG(TRACE) << "Express: R - NextRouter called - breaking dispatching";
+                }
                 if (dispatched || controller.nextRouterCalled()) {
                     break;
                 }
             }
+        } else {
+            LOG(TRACE) << "      NO MQTCH";
         }
 
         return dispatched;

@@ -48,6 +48,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
@@ -63,7 +65,7 @@ namespace express::dispatcher {
         bool requestMatched = false;
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
-            const std::string absoluteMountPath = path_concat(parentMountPath, mountPoint.relativeMountPath);
+            const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
 
             const std::string requestMethod = controller.getRequest()->method;
             const std::string requestUrl = controller.getRequest()->url;
@@ -80,12 +82,12 @@ namespace express::dispatcher {
                         )
                     ) && (
                         (
-                            absoluteMountPath == requestUrl
+                            requestUrl == absoluteMountPath
                         ) || (
                             (
                                 !controller.getStrictRouting()
                             ) && (
-                                requestPath.starts_with(absoluteMountPath)
+                                requestUrl.starts_with(absoluteMountPath)
                             )
                         ) || (
                             checkForUrlMatch(absoluteMountPath, requestUrl)
@@ -97,23 +99,25 @@ namespace express::dispatcher {
                     ) && (
                         (
                             requestUrl.starts_with(absoluteMountPath)
-                        ) || (
-                            (
-                                !controller.getStrictRouting()
-                            ) && (
-                                requestPath.starts_with(absoluteMountPath)
-                            )
                         )
                     )
                 );
             // clang-format on
 
+            LOG(TRACE) << "Express: A - RequestUrl: " << controller.getRequest()->url;
+            LOG(TRACE) << "Express: A - RequestPath: " << controller.getRequest()->path;
+            LOG(TRACE) << "Express: A - AbsoluteMountPath: " << absoluteMountPath;
+            LOG(TRACE) << "Express: A - StrictRouting: " << controller.getStrictRouting();
+
             if (requestMatched) {
+                LOG(TRACE) << "      MATCH";
                 if (hasResult(absoluteMountPath)) {
                     setParams(absoluteMountPath, *controller.getRequest());
                 }
 
                 lambda(controller.getRequest(), controller.getResponse());
+            } else {
+                LOG(TRACE) << "      NO MQTCH";
             }
         }
 

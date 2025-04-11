@@ -60,6 +60,7 @@ namespace express::middleware {
         setStrictRouting(false);
 
         get(
+            "/",
             [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
                 req, res, next) {
                 if (req->method == "GET") {
