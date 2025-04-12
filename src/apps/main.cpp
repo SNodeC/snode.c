@@ -59,20 +59,23 @@ int main(int argc, char* argv[]) {
     });
 
     routeRouter.get("/route", [] APPLICATION(req, res) {
-        VLOG(0) << "RoouteRoute Matches: " << req->originalUrl;
+        VLOG(0) << "RouteRoute Matches: " << req->originalUrl;
     });
 
-    emptyRouter.get(emptyRouter);
-    emptyRouter.get(routeRouter);
-
-    routeRouter.get("/route", emptyRouter);
-    routeRouter.get("/route", routeRouter);
+    routeRouter.setStrictRouting();
+    emptyRouter.setStrictRouting();
 
     emptyWebapp.get(emptyRouter);
     emptyWebapp.get(routeRouter);
 
     routeWebapp.get("/route", emptyRouter);
     routeWebapp.get("/route", routeRouter);
+
+    emptyRouter.setStrictRouting();
+    routeRouter.setStrictRouting();
+
+    emptyWebapp.setStrictRouting();
+    routeWebapp.setStrictRouting();
 
     emptyWebapp.listen(
         8080,
