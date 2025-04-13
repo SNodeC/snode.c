@@ -67,6 +67,8 @@ namespace express::dispatcher {
 
     private:
         bool dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
+        std::list<std::string>
+        getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const override;
 
         const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, express::Next&)> lambda;
     };

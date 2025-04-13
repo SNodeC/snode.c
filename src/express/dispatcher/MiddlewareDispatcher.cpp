@@ -41,14 +41,16 @@
 
 #include "express/dispatcher/MiddlewareDispatcher.h"
 
-#include "express/MountPoint.h"
 #include "express/Next.h"
 #include "express/Request.h"
+#include "express/Route.h"
 #include "express/dispatcher/regex_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+
+#include <list>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -128,6 +130,18 @@ namespace express::dispatcher {
         }
 
         return requestMatched;
+    }
+
+    std::list<std::string>
+    MiddlewareDispatcher::getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const {
+        std::list<std::string> routes{"M " + parentMountPath + mountPoint.relativeMountPath + (!strictRouting ? "*" : "")};
+        routes.push_back("  " + mountPoint.method + " " + mountPoint.relativeMountPath);
+
+        if (nextRoute) {
+            routes.splice(routes.end(), nextRoute->getRoute(parentMountPath, strictRouting));
+        }
+
+        return routes;
     }
 
 } // namespace express::dispatcher

@@ -50,6 +50,7 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
 #include <memory>
 #include <string>
 
@@ -70,9 +71,13 @@ namespace express {
         virtual bool dispatch(Controller& controller, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
         bool dispatchNext(Controller& controller, const std::string& parentMountPath);
 
-    private:
+        virtual std::list<std::string>
+        getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const = 0;
+
+    protected:
         std::shared_ptr<Route> nextRoute = nullptr;
 
+    private:
         friend class Route;
     };
 

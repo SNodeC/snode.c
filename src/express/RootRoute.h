@@ -90,6 +90,8 @@ namespace express {
         std::shared_ptr<dispatcher::RouterDispatcher> getDispatcher() const;
         std::list<Route>& routes() const;
 
+        std::list<std::string> getRoutes() const;
+
     public:
         DECLARE_ROOTROUTE_REQUESTMETHOD(use)
         DECLARE_ROOTROUTE_REQUESTMETHOD(all)

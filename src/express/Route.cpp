@@ -89,12 +89,13 @@ namespace express {
         if (originalIsInherit) {
             strictRouting = controller.getStrictRouting() ? StrictRouting::STRICT : StrictRouting::LAX;
         }
-        const bool oldStrictRouting = controller.setStrictRouting(strictRouting == StrictRouting::STRICT);
 
+        const bool oldStrictRouting = controller.setStrictRouting(strictRouting == StrictRouting::STRICT);
 
         bool dispatched = dispatcher->dispatch(controller, parentMountPath, mountPoint);
 
         controller.setStrictRouting(oldStrictRouting);
+
         if (originalIsInherit) {
             strictRouting = StrictRouting::INHERIT;
         }
@@ -108,6 +109,13 @@ namespace express {
 
     bool Route::dispatchNext(Controller& controller, const std::string& parentMountPath) {
         return dispatcher->dispatchNext(controller, parentMountPath);
+    }
+
+    std::list<std::string> Route::getRoute(const std::string& parentMountPath, bool strictRouting) const {
+        const bool concreteStrictRouting =
+            this->strictRouting == StrictRouting::INHERIT ? strictRouting : this->strictRouting == StrictRouting::STRICT;
+
+        return dispatcher->getRoutes(parentMountPath, mountPoint, concreteStrictRouting);
     }
 
     Route& Route::setStrictRouting(bool strict) {

@@ -60,6 +60,7 @@ namespace express {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <list>
 #include <memory>
 #include <string>
 
@@ -85,6 +86,8 @@ namespace express {
 
         Route& setStrictRouting(bool strict = true);
         const StrictRouting& getStrictRouting() const;
+
+        std::list<std::string> getRoute(const std::string& parentMountPath, bool strictRouting) const;
 
     private:
         Route();

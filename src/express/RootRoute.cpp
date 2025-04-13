@@ -88,6 +88,10 @@ namespace express {
         return std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getRoutes();
     }
 
+    std::list<std::string> RootRoute::getRoutes() const {
+        return std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getRoutes("", mountPoint);
+    }
+
     bool RootRoute::setStrictRouting(bool strictRouting) {
         const bool oldStrictRouting = std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getStrictRouting();
 
@@ -103,11 +107,14 @@ namespace express {
     }
 
     void RootRoute::dispatch(Controller& controller) {
-        controller.setStrictRouting(std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getStrictRouting());
+        const bool oldStrictRoute =
+            controller.setStrictRouting(std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getStrictRouting());
 
         if (!Route::dispatch(controller)) {
             controller.getResponse()->sendStatus(404);
         }
+
+        controller.setStrictRouting(oldStrictRoute);
     }
 
     DEFINE_ROOTROUTE_REQUESTMETHOD(use, "use")

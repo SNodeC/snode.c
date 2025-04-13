@@ -131,4 +131,21 @@ namespace express::dispatcher {
         return dispatched;
     }
 
+    std::list<std::string> RouterDispatcher::getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint) const {
+        return getRoutes(parentMountPath, mountPoint, strictRouting);
+    }
+
+    std::list<std::string>
+    RouterDispatcher::getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const {
+        std::list<std::string> collectedRoutes;
+
+        for (const Route& route : routes) {
+            collectedRoutes.splice(
+                collectedRoutes.end(),
+                route.getRoute(parentMountPath + "$" + mountPoint.relativeMountPath + "$", this->strictRouting ? true : strictRouting));
+        }
+
+        return collectedRoutes;
+    }
+
 } // namespace express::dispatcher

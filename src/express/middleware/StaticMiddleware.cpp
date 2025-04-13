@@ -63,32 +63,19 @@ namespace express::middleware {
             "/",
             [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
                 req, res, next) {
-                if (req->method == "GET") {
-                    LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                               << " Express StaticMiddleware correct method: " << req->method;
+                LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express " << req->method;
 
-                    if (connectionState == web::http::ConnectionState::Close) {
-                        res->set("Connection", "close");
-                    } else if (connectionState == web::http::ConnectionState::Keep) {
-                        res->set("Connection", "keep-alive");
-                    }
-                    res->set(stdHeaders);
-
-                    for (auto& [value, options] : stdCookies) {
-                        res->cookie(value, options.getValue(), options.getOptions());
-                    }
-                    next();
-                } else {
-                    LOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                               << " Express StaticMiddleware wrong method: " << req->method;
-
-                    if (connectionState == web::http::ConnectionState::Close) {
-                        res->set("Connection", "close");
-                    } else if (connectionState == web::http::ConnectionState::Keep) {
-                        res->set("Connection", "keep-alive");
-                    }
-                    res->sendStatus(405);
+                if (connectionState == web::http::ConnectionState::Close) {
+                    res->set("Connection", "close");
+                } else if (connectionState == web::http::ConnectionState::Keep) {
+                    res->set("Connection", "keep-alive");
                 }
+                res->set(stdHeaders);
+
+                for (auto& [value, options] : stdCookies) {
+                    res->cookie(value, options.getValue(), options.getOptions());
+                }
+                next();
             },
             [&index = this->index] MIDDLEWARE(req, res, next) {
                 if (req->url.ends_with("/")) {

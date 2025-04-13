@@ -54,6 +54,9 @@
 
 #include "log/Logger.h"
 
+#include <algorithm>
+#include <list>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace express;
@@ -83,6 +86,13 @@ int main(int argc, char* argv[]) {
 
         webApp.getConfig().addSniCerts(sniCerts);
 #endif
+
+        VLOG(1) << "Routes:";
+        for (std::string& route : webApp.getRoutes()) {
+            route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
+
+            VLOG(1) << "  " << route;
+        }
 
         webApp.listen([instanceName = webApp.getConfig().getInstanceName()](const core::socket::SocketAddress& socketAddress,
                                                                             const core::socket::State& state) {

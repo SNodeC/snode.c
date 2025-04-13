@@ -81,6 +81,10 @@ namespace express {
         return *this;
     }
 
+    std::list<std::string> Router::getRoutes() const {
+        return rootRoute->getRoutes();
+    }
+
     DEFINE_ROUTER_REQUESTMETHOD(use, "use")
     DEFINE_ROUTER_REQUESTMETHOD(all, "all")
     DEFINE_ROUTER_REQUESTMETHOD(get, "GET")

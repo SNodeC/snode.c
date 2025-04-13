@@ -54,6 +54,7 @@ namespace express {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional> // IWYU pragma: export
+#include <list>
 #include <memory>
 #include <string>
 
@@ -100,6 +101,8 @@ namespace express {
         Router(const Router&) = default;
 
         const Router& setStrictRouting(bool strictRouting = true) const;
+
+        std::list<std::string> getRoutes() const;
 
         DECLARE_ROUTER_REQUESTMETHOD(use)
         DECLARE_ROUTER_REQUESTMETHOD(all)
