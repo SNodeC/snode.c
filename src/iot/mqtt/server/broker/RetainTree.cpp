@@ -76,6 +76,10 @@ namespace iot::mqtt::server::broker {
         head.appear(clientId, topic, qoS);
     }
 
+    void RetainTree::release(const std::string& topic) {
+        head.release(topic);
+    }
+
     void RetainTree::fromJson(const nlohmann::json& json) {
         if (!json.empty()) {
             head.fromJson(json);

@@ -69,6 +69,8 @@ namespace iot::mqtt::server::broker {
         void retain(Message&& message);
         void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
 
+        void release(const std::string& topic);
+
         nlohmann::json toJson() const;
         void fromJson(const nlohmann::json& json);
 
