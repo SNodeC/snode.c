@@ -85,10 +85,12 @@ namespace iot::mqtt::server::broker {
         uint8_t subscribe(const std::string& clientId, const std::string& topic, uint8_t qoS);
         void unsubscribe(const std::string& clientId, const std::string& topic);
 
+        void release(const std::string& topic);
+
         std::list<std::string> getSubscriptions(const std::string& clientId) const;
         std::map<std::string, std::list<std::pair<std::string, uint8_t>>> getSubscriptionTree() const;
 
-        iot::mqtt::server::broker::RetainTree& getRetainedTree();
+        std::list<std::pair<std::string, std::string>> getRetainTree();
 
         bool hasSession(const std::string& clientId);
         bool hasActiveSession(const std::string& clientId);

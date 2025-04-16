@@ -74,7 +74,7 @@ namespace iot::mqtt::server::broker {
         nlohmann::json toJson() const;
         void fromJson(const nlohmann::json& json);
 
-        std::list<std::pair<std::string, std::string>> getRetainedTree() const;
+        std::list<std::pair<std::string, std::string>> getRetainTree() const;
 
         void clear();
 
