@@ -98,7 +98,7 @@ namespace iot::mqtt::server::broker {
         private:
             void appear(const std::string& clientId, uint8_t clientQoS);
 
-            std::list<std::pair<std::string, std::string>> getRetainTree(const std::string& absoluteTopicLevel) const;
+            std::list<std::pair<std::string, std::string>> getRetainTree(const std::string& absoluteParentTopicLevel) const;
 
             Message message;
 

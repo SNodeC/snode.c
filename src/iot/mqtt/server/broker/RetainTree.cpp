@@ -179,8 +179,8 @@ namespace iot::mqtt::server::broker {
             if (foundNode != subTopicLevels.end()) {
                 foundNode->second.appear(clientId, topic, qoS);
             } else if (topicLevel == "+") {
-                for (auto& [notUsed, topicTree] : subTopicLevels) {
-                    topicTree.appear(clientId, topic, qoS);
+                for (auto& [notUsed, subTopicLevel] : subTopicLevels) {
+                    subTopicLevel.appear(clientId, topic, qoS);
                 }
             } else if (topicLevel == "#") {
                 appear(clientId, qoS);
@@ -206,21 +206,22 @@ namespace iot::mqtt::server::broker {
             LOG(INFO) << "MQTT Broker: ... distributing message completed";
         }
 
-        for (auto& [topicLevel, topicTree] : subTopicLevels) {
-            topicTree.appear(clientId, clientQoS);
+        for (auto& [topicLevel, subTopicLevel] : subTopicLevels) {
+            subTopicLevel.appear(clientId, clientQoS);
         }
     }
 
-    std::list<std::pair<std::string, std::string>> RetainTree::TopicLevel::getRetainTree(const std::string& absoluteTopicLevel) const {
+    std::list<std::pair<std::string, std::string>>
+    RetainTree::TopicLevel::getRetainTree(const std::string& absoluteParentTopicLevel) const {
         std::list<std::pair<std::string, std::string>> topicLevelTree;
-        for (const auto& [topicLevelName, nextTopicLevel] : subTopicLevels) {
-            const std::string composedAbsoluteTopicLevelName = absoluteTopicLevel + topicLevelName;
+        for (const auto& [topicLevel, subTopicLevel] : subTopicLevels) {
+            const std::string absoluteTopicLevel = absoluteParentTopicLevel + topicLevel;
 
-            if (!nextTopicLevel.message.getMessage().empty()) {
-                topicLevelTree.emplace_back(composedAbsoluteTopicLevelName, nextTopicLevel.message.getMessage());
+            if (!subTopicLevel.message.getMessage().empty()) {
+                topicLevelTree.emplace_back(absoluteTopicLevel, subTopicLevel.message.getMessage());
             }
 
-            topicLevelTree.splice(topicLevelTree.end(), nextTopicLevel.getRetainTree(composedAbsoluteTopicLevelName + "/"));
+            topicLevelTree.splice(topicLevelTree.end(), subTopicLevel.getRetainTree(absoluteTopicLevel + "/"));
         }
 
         return topicLevelTree;

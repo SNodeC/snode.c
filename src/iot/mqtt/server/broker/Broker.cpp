@@ -143,14 +143,6 @@ namespace iot::mqtt::server::broker {
         return broker;
     }
 
-    void Broker::appear(const std::string& clientId, const std::string& topic, uint8_t qoS) {
-        retainTree.appear(clientId, topic, qoS);
-    }
-
-    void Broker::unsubscribe(const std::string& clientId) {
-        subscribtionTree.unsubscribe(clientId);
-    }
-
     void
     Broker::publish(const std::string& originClientId, const std::string& topic, const std::string& message, uint8_t qoS, bool retain) {
         subscribtionTree.publish(Message(originClientId, topic, message, qoS, retain));
@@ -158,57 +150,6 @@ namespace iot::mqtt::server::broker {
         if (retain) {
             retainTree.retain(Message(originClientId, topic, message, qoS, retain));
         }
-    }
-
-    uint8_t Broker::subscribe(const std::string& clientId, const std::string& topic, uint8_t qoS) {
-        qoS = std::min(maxQoS, qoS);
-        uint8_t returnCode = 0;
-
-        if (subscribtionTree.subscribe(topic, clientId, qoS)) {
-            retainTree.appear(clientId, topic, qoS);
-
-            returnCode = SUBSCRIBTION_SUCCESS | qoS;
-        } else {
-            returnCode = SUBSCRIBTION_FAILURE;
-        }
-
-        return returnCode;
-    }
-
-    void Broker::unsubscribe(const std::string& clientId, const std::string& topic) {
-        subscribtionTree.unsubscribe(topic, clientId);
-    }
-
-    void Broker::release(const std::string& topic) {
-        retainTree.release(topic);
-    }
-
-    std::list<std::string> Broker::getSubscriptions(const std::string& clientId) const {
-        return subscribtionTree.getSubscriptions(clientId);
-    }
-
-    std::map<std::string, std::list<std::pair<std::string, uint8_t>>> Broker::getSubscriptionTree() const {
-        return subscribtionTree.getSubscriptionTree();
-    }
-
-    std::list<std::pair<std::string, std::string>> Broker::getRetainTree() {
-        return retainTree.getRetainTree();
-    }
-
-    bool Broker::hasSession(const std::string& clientId) {
-        return sessionStore.contains(clientId);
-    }
-
-    bool Broker::hasActiveSession(const std::string& clientId) {
-        return hasSession(clientId) && sessionStore[clientId].isActive();
-    }
-
-    bool Broker::hasRetainedSession(const std::string& clientId) {
-        return hasSession(clientId) && !sessionStore[clientId].isActive();
-    }
-
-    bool Broker::isActiveSession(const std::string& clientId, const iot::mqtt::server::Mqtt* mqtt) {
-        return hasSession(clientId) && sessionStore[clientId].isOwnedBy(mqtt);
     }
 
     Session* Broker::newSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt) {
@@ -236,6 +177,65 @@ namespace iot::mqtt::server::broker {
     void Broker::deleteSession(const std::string& clientId) {
         subscribtionTree.unsubscribe(clientId);
         sessionStore.erase(clientId);
+    }
+
+    bool Broker::hasSession(const std::string& clientId) {
+        return sessionStore.contains(clientId);
+    }
+
+    bool Broker::hasActiveSession(const std::string& clientId) {
+        return hasSession(clientId) && sessionStore[clientId].isActive();
+    }
+
+    bool Broker::hasRetainedSession(const std::string& clientId) {
+        return hasSession(clientId) && !sessionStore[clientId].isActive();
+    }
+
+    bool Broker::isActiveSession(const std::string& clientId, const iot::mqtt::server::Mqtt* mqtt) {
+        return hasSession(clientId) && sessionStore[clientId].isOwnedBy(mqtt);
+    }
+
+    void Broker::appear(const std::string& clientId, const std::string& topic, uint8_t qoS) {
+        retainTree.appear(clientId, topic, qoS);
+    }
+
+    void Broker::release(const std::string& topic) {
+        retainTree.release(topic);
+    }
+
+    uint8_t Broker::subscribe(const std::string& clientId, const std::string& topic, uint8_t qoS) {
+        qoS = std::min(maxQoS, qoS);
+        uint8_t returnCode = 0;
+
+        if (subscribtionTree.subscribe(topic, clientId, qoS)) {
+            retainTree.appear(clientId, topic, qoS);
+
+            returnCode = SUBSCRIBTION_SUCCESS | qoS;
+        } else {
+            returnCode = SUBSCRIBTION_FAILURE;
+        }
+
+        return returnCode;
+    }
+
+    void Broker::unsubscribe(const std::string& clientId) {
+        subscribtionTree.unsubscribe(clientId);
+    }
+
+    void Broker::unsubscribe(const std::string& clientId, const std::string& topic) {
+        subscribtionTree.unsubscribe(topic, clientId);
+    }
+
+    std::list<std::string> Broker::getSubscriptions(const std::string& clientId) const {
+        return subscribtionTree.getSubscriptions(clientId);
+    }
+
+    std::map<std::string, std::list<std::pair<std::string, uint8_t>>> Broker::getSubscriptionTree() const {
+        return subscribtionTree.getSubscriptionTree();
+    }
+
+    std::list<std::pair<std::string, std::string>> Broker::getRetainTree() {
+        return retainTree.getRetainTree();
     }
 
     void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool retain) {

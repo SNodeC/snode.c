@@ -78,31 +78,30 @@ namespace iot::mqtt::server::broker {
 
         static std::shared_ptr<Broker> instance(uint8_t maxQoS, const std::string& sessionStoreFileName);
 
-        void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
-        void unsubscribe(const std::string& clientId);
-
         void publish(const std::string& originClientId, const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
-        uint8_t subscribe(const std::string& clientId, const std::string& topic, uint8_t qoS);
-        void unsubscribe(const std::string& clientId, const std::string& topic);
 
-        void release(const std::string& topic);
+        Session* newSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
+        Session* renewSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
 
-        std::list<std::string> getSubscriptions(const std::string& clientId) const;
-        std::map<std::string, std::list<std::pair<std::string, uint8_t>>> getSubscriptionTree() const;
-
-        std::list<std::pair<std::string, std::string>> getRetainTree();
+        void restartSession(const std::string& clientId);
+        void retainSession(const std::string& clientId);
+        void deleteSession(const std::string& clientId);
 
         bool hasSession(const std::string& clientId);
         bool hasActiveSession(const std::string& clientId);
         bool hasRetainedSession(const std::string& clientId);
-
         bool isActiveSession(const std::string& clientId, const Mqtt* mqtt);
 
-        Session* newSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
-        Session* renewSession(const std::string& clientId, iot::mqtt::server::Mqtt* mqtt);
-        void restartSession(const std::string& clientId);
-        void retainSession(const std::string& clientId);
-        void deleteSession(const std::string& clientId);
+        void appear(const std::string& clientId, const std::string& topic, uint8_t qoS);
+        void release(const std::string& topic);
+        uint8_t subscribe(const std::string& clientId, const std::string& topic, uint8_t qoS);
+        void unsubscribe(const std::string& clientId);
+        void unsubscribe(const std::string& clientId, const std::string& topic);
+
+        std::list<std::string> getSubscriptions(const std::string& clientId) const;
+
+        std::map<std::string, std::list<std::pair<std::string, uint8_t>>> getSubscriptionTree() const;
+        std::list<std::pair<std::string, std::string>> getRetainTree();
 
         void sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool retain);
 
