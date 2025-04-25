@@ -257,6 +257,22 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> onDisconnect;
     };
 
+    template <typename SocketClient, typename... Args>
+    SocketClient getClient(const std::string& instanceName,
+                           const std::function<void(typename SocketClient::Config&)>& configurator,
+                           Args&&... socketContextFactoryArgs) {
+        const SocketClient socketClient(instanceName, std::forward<Args>(socketContextFactoryArgs)...);
+
+        configurator(socketClient.getConfig());
+
+        return socketClient;
+    }
+
+    template <typename SocketClient, typename... Args>
+    SocketClient getClient(const std::string& instanceName, Args&&... socketContextFactoryArgs) {
+        return SocketClient(instanceName, std::forward<Args>(socketContextFactoryArgs)...);
+    }
+
 } // namespace core::socket::stream
 
 #endif // CORE_SOCKET_STREAM_SOCKETCLIENT_H
