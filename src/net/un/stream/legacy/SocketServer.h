@@ -85,7 +85,7 @@ namespace net::un::stream::legacy {
                                                                   typename SocketServer<SocketContextFactory>::Config&>>>
     SocketServer<SocketContextFactory, SocketContextFactoryArgs...> getServer(const std::string& instanceName,
                                                                               SocketContextFactoryArgs&&... socketContextFactoryArgs) {
-        return getServer<SocketServer<SocketContextFactory, SocketContextFactoryArgs...>>(
+        return core::socket::stream::getServer<SocketServer<SocketContextFactory, SocketContextFactoryArgs...>>(
             instanceName, std::forward<SocketContextFactoryArgs>(socketContextFactoryArgs)...);
     }
 

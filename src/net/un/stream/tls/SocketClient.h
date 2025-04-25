@@ -85,7 +85,7 @@ namespace net::un::stream::tls {
                                                                   typename SocketClient<SocketContextFactory>::Config&>>>
     SocketClient<SocketContextFactory, SocketContextFactoryArgs...> getClient(const std::string& instanceName,
                                                                               SocketContextFactoryArgs&&... socketContextFactoryArgs) {
-        return getClient<SocketClient<SocketContextFactory, SocketContextFactoryArgs...>>(
+        return core::socket::stream::getClient<SocketClient<SocketContextFactory, SocketContextFactoryArgs...>>(
             instanceName, std::forward<SocketContextFactoryArgs>(socketContextFactoryArgs)...);
     }
 
