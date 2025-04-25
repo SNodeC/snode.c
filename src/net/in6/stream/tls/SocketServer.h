@@ -55,6 +55,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+#include <tuple>
+#include <utility>
+#include <variant>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::in6::stream::tls {
@@ -64,6 +69,25 @@ namespace net::in6::stream::tls {
                                                         net::in6::stream::tls::config::ConfigSocketServer,
                                                         SocketContextFactoryT,
                                                         Args...>;
+
+    template <typename SocketContextFactory, typename... SocketContextFactoryArgs>
+    SocketServer<SocketContextFactory, SocketContextFactoryArgs...>
+    getServer(const std::string& instanceName,
+              const std::function<void(typename SocketServer<SocketContextFactory, SocketContextFactoryArgs...>::Config&)>& configurator,
+              SocketContextFactoryArgs&&... socketContextFactoryArgs) {
+        return core::socket::stream::getServer<SocketServer<SocketContextFactory, SocketContextFactoryArgs...>>(
+            instanceName, configurator, std::forward<SocketContextFactoryArgs>(socketContextFactoryArgs)...);
+    }
+
+    template <typename SocketContextFactory,
+              typename... SocketContextFactoryArgs,
+              typename = std::enable_if_t<not std::is_invocable_v<std::tuple_element_t<0, std::tuple<SocketContextFactoryArgs...>>,
+                                                                  typename SocketServer<SocketContextFactory>::Config&>>>
+    SocketServer<SocketContextFactory, SocketContextFactoryArgs...> getServer(const std::string& instanceName,
+                                                                              SocketContextFactoryArgs&&... socketContextFactoryArgs) {
+        return getServer<SocketServer<SocketContextFactory, SocketContextFactoryArgs...>>(
+            instanceName, std::forward<SocketContextFactoryArgs>(socketContextFactoryArgs)...);
+    }
 
 } // namespace net::in6::stream::tls
 

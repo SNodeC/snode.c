@@ -54,7 +54,8 @@
 #include "utils/Random.h"
 
 #include <algorithm>
-#include <functional> // IWYU pragma: export
+#include <functional>  // IWYU pragma: export
+#include <type_traits> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -249,6 +250,22 @@ namespace core::socket::stream {
         std::size_t currentError = 0;
         std::size_t currentFatal = 0;
     };
+
+    template <typename SocketServer, typename... Args>
+    SocketServer getServer(const std::string& instanceName,
+                           const std::function<void(typename SocketServer::Config&)>& configurator,
+                           Args&&... socketContextFactoryArgs) {
+        const SocketServer socketServer(instanceName, std::forward<Args>(socketContextFactoryArgs)...);
+
+        configurator(socketServer.getConfig());
+
+        return socketServer;
+    }
+
+    template <typename SocketServer, typename... Args>
+    SocketServer getServer(const std::string& instanceName, Args&&... socketContextFactoryArgs) {
+        return SocketServer(instanceName, std::forward<Args>(socketContextFactoryArgs)...);
+    }
 
 } // namespace core::socket::stream
 
