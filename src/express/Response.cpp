@@ -79,17 +79,17 @@ namespace express {
         sendFile(file, onError);
     }
 
-    void Response::redirect(const std::string& loc) {
-        redirect(302, loc);
+    void Response::redirect(const std::string& loc, const std::string& html) {
+        redirect(302, loc, html);
     }
 
-    void Response::redirect(int state, const std::string& loc) {
+    void Response::redirect(int state, const std::string& loc, const std::string& html) {
         location(loc);
-        sendStatus(state);
+        sendStatus(state, html);
     }
 
-    void Response::sendStatus(int state) {
-        this->status(state).send(web::http::StatusCode::reason(state) + "\r\n");
+    void Response::sendStatus(int state, const std::string& html) {
+        this->status(state).send(!html.empty() ? html : web::http::StatusCode::reason(state) + "\r\n");
     }
 
     Response& Response::attachment(const std::string& fileName) {

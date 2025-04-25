@@ -83,10 +83,10 @@ namespace express {
         void download(const std::string& file, const std::function<void(int)>& onError);
         void download(const std::string& file, const std::string& fileName, const std::function<void(int)>& onError);
 
-        void redirect(const std::string& loc);
-        void redirect(int state, const std::string& loc);
+        void redirect(const std::string& loc, const std::string& html = {});
+        void redirect(int state, const std::string& loc, const std::string& html = {});
 
-        void sendStatus(int state);
+        void sendStatus(int state, const std::string& html = {});
 
         Response& attachment(const std::string& fileName = "");
         Response& location(const std::string& loc);

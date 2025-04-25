@@ -75,8 +75,8 @@ namespace iot::mqtt::server::packets {
                 if (!level.isComplete()) {
                     break;
                 }
-                reflect = (level & 0x80) == 0; // msb in level == 1 -> do not reflect message to origin (try_private in mosquitto)
                 level = level & ~0x80;
+                reflect = (level & 0x80) == 0; // msb in level == 1 -> do not reflect message to origin (try_private in mosquitto)
 
                 state++;
                 [[fallthrough]];
