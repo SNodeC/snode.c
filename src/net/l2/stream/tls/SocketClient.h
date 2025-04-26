@@ -72,10 +72,10 @@ namespace net::l2::stream::tls {
 
     template <typename SocketContextFactory, typename... SocketContextFactoryArgs>
     SocketClient<SocketContextFactory, SocketContextFactoryArgs...>
-    getClient(const std::string& instanceName,
+    Client(const std::string& instanceName,
               const std::function<void(typename SocketClient<SocketContextFactory, SocketContextFactoryArgs...>::Config&)>& configurator,
               SocketContextFactoryArgs&&... socketContextFactoryArgs) {
-        return core::socket::stream::getClient<SocketClient<SocketContextFactory, SocketContextFactoryArgs...>>(
+        return core::socket::stream::Client<SocketClient<SocketContextFactory, SocketContextFactoryArgs...>>(
             instanceName, configurator, std::forward<SocketContextFactoryArgs>(socketContextFactoryArgs)...);
     }
 
@@ -83,9 +83,9 @@ namespace net::l2::stream::tls {
               typename... SocketContextFactoryArgs,
               typename = std::enable_if_t<not std::is_invocable_v<std::tuple_element_t<0, std::tuple<SocketContextFactoryArgs...>>,
                                                                   typename SocketClient<SocketContextFactory>::Config&>>>
-    SocketClient<SocketContextFactory, SocketContextFactoryArgs...> getClient(const std::string& instanceName,
+    SocketClient<SocketContextFactory, SocketContextFactoryArgs...> Client(const std::string& instanceName,
                                                                               SocketContextFactoryArgs&&... socketContextFactoryArgs) {
-        return core::socket::stream::getClient<SocketClient<SocketContextFactory, SocketContextFactoryArgs...>>(
+        return core::socket::stream::Client<SocketClient<SocketContextFactory, SocketContextFactoryArgs...>>(
             instanceName, std::forward<SocketContextFactoryArgs>(socketContextFactoryArgs)...);
     }
 
