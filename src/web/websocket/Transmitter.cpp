@@ -185,7 +185,7 @@ namespace web::websocket {
             uint64_t frameOffset = 0;
 
             do {
-                std::size_t sendChunkLen =
+                const std::size_t sendChunkLen =
                     (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
 
                 socketConnection->sendToPeer(frame + frameOffset, sendChunkLen);
