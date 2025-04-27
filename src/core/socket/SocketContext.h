@@ -79,6 +79,15 @@ namespace core::socket {
 
         virtual void close() = 0;
 
+        virtual std::size_t getTotalSent() const = 0;
+        virtual std::size_t getTotalQueued() const = 0;
+
+        virtual std::size_t getTotalRead() const = 0;
+        virtual std::size_t getTotalProcessed() const = 0;
+
+        virtual std::string getOnlineSince() const = 0;
+        virtual std::string getOnlineDuration() const = 0;
+
     protected:
         virtual std::size_t onReceivedFromPeer() = 0;
 

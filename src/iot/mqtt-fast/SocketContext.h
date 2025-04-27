@@ -72,9 +72,9 @@ namespace iot::mqtt_fast {
 
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <list>
 #include <string>
-#include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

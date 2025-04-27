@@ -69,6 +69,9 @@ namespace core::socket::stream {
                               std::size_t blockSize,
                               const utils::Timeval& terminateTimeout);
 
+        std::size_t getTotalRead() const;
+        std::size_t getTotalProcessed() const;
+
     private:
         virtual void onReceivedFromPeer(std::size_t available) = 0;
 
@@ -91,6 +94,9 @@ namespace core::socket::stream {
 
         std::vector<char> readBuffer;
         std::size_t blockSize = 0;
+
+        std::size_t totalRead = 0;
+        std::size_t totalProcessed = 0;
 
         std::size_t size = 0;
         std::size_t cursor = 0;

@@ -112,8 +112,19 @@ namespace core::socket::stream {
                   [name](SocketConnection* socketConnection) { // onDisconnect
                       VLOG(2) << name << ": OnDisconnect";
 
-                      VLOG(2) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      VLOG(2) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+                      VLOG(2) << "            Local: " << socketConnection->getLocalAddress().toString();
+                      VLOG(2) << "             Peer: " << socketConnection->getRemoteAddress().toString();
+
+                      VLOG(2) << "     Online Since: " << socketConnection->getOnlineSince();
+                      VLOG(2) << "  Online Duration: " << socketConnection->getOnlineDuration();
+
+                      VLOG(2) << "     Total Queued: " << socketConnection->getTotalQueued();
+                      VLOG(2) << "       Total Sent: " << socketConnection->getTotalSent();
+                      VLOG(2) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
+                      VLOG(2) << "       Total Read: " << socketConnection->getTotalRead();
+                      VLOG(2) << "  Total Processed: " << socketConnection->getTotalProcessed();
+                      VLOG(2) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
+
                   },
                   std::forward<Args>(args)...) {
         }

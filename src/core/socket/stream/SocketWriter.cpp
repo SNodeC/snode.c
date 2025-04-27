@@ -53,7 +53,6 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
-
     SocketWriter::SocketWriter(const std::string& instanceName,
                                const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout,
@@ -63,6 +62,14 @@ namespace core::socket::stream {
         , onStatus(onStatus)
         , blockSize(blockSize)
         , terminateTimeout(terminateTimeout) {
+    }
+
+    std::size_t SocketWriter::getTotalSent() const {
+        return totalSent;
+    }
+
+    std::size_t SocketWriter::getTotalQueued() const {
+        return totalQueued;
     }
 
     void SocketWriter::writeEvent() {
@@ -87,6 +94,7 @@ namespace core::socket::stream {
             const ssize_t retWrite = write(writePuffer.data(), writeLen);
 
             if (retWrite > 0) {
+                totalSent += static_cast<std::size_t>(retWrite);
                 writePuffer.erase(writePuffer.begin(), writePuffer.begin() + retWrite);
 
                 if (writePuffer.capacity() > writePuffer.size() * 2) {
@@ -128,6 +136,7 @@ namespace core::socket::stream {
                 }
 
                 writePuffer.insert(writePuffer.end(), chunk, chunk + chunkLen);
+                totalQueued += chunkLen;
 
                 if (source != nullptr && writePuffer.size() > 5 * blockSize) {
                     source->suspend();

@@ -222,7 +222,7 @@ namespace iot::mqtt::client {
             mqttContext->end(true);
         } else {
             LOG(DEBUG) << connectionName << " MQTT Client:  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                       << suback.getPacketIdentifier();
+                       << suback.getPacketIdentifier() << std::dec;
 
             std::stringstream ss;
             std::list<uint8_t>::size_type i = 0;
@@ -248,7 +248,7 @@ namespace iot::mqtt::client {
             mqttContext->end(true);
         } else {
             LOG(DEBUG) << connectionName << " MQTT Client:  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                       << unsuback.getPacketIdentifier();
+                       << unsuback.getPacketIdentifier() << std::dec;
 
             onUnsuback(unsuback);
         }

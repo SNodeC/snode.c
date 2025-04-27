@@ -63,6 +63,14 @@ namespace core::socket::stream {
         setBlockSize(blockSize);
     }
 
+    std::size_t SocketReader::getTotalRead() const {
+        return totalRead;
+    }
+
+    std::size_t SocketReader::getTotalProcessed() const {
+        return totalProcessed;
+    }
+
     void SocketReader::readEvent() {
         const std::size_t available = doRead();
 
@@ -90,6 +98,8 @@ namespace core::socket::stream {
                 retRead = read(readBuffer.data() + size, readLen);
             }
             if (retRead > 0) {
+                totalRead += static_cast<std::size_t>(retRead);
+
                 size += static_cast<std::size_t>(retRead);
 
                 if (!isSuspended()) {
@@ -122,6 +132,7 @@ namespace core::socket::stream {
 
         cursor += maxReturn;
         size -= maxReturn;
+        totalProcessed += maxReturn;
 
         return maxReturn;
     }

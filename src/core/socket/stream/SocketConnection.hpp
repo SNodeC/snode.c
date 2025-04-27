@@ -208,6 +208,26 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalSent() const {
+        return SocketWriter::getTotalSent();
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalQueued() const {
+        return SocketWriter::getTotalQueued();
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalRead() const {
+        return SocketReader::getTotalRead();
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
+    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalProcessed() const {
+        return SocketReader::getTotalProcessed();
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void()>& onShutdown) {
         errno = 0;
 

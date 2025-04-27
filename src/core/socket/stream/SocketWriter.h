@@ -73,9 +73,11 @@ namespace core::socket::stream {
                               std::size_t blockSize,
                               const utils::Timeval& terminateTimeout);
 
+        std::size_t getTotalSent() const;
+        std::size_t getTotalQueued() const;
+
     private:
         void writeEvent() final;
-
         void signalEvent(int sigNum) final;
 
         void doWrite();
@@ -110,6 +112,9 @@ namespace core::socket::stream {
         core::pipe::Source* source = nullptr;
 
         std::size_t blockSize = 0;
+
+        std::size_t totalQueued = 0;
+        std::size_t totalSent = 0;
 
     protected:
         utils::Timeval terminateTimeout;

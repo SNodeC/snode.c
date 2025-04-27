@@ -55,7 +55,9 @@ namespace core::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <chrono>
 #include <cstddef>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -67,6 +69,7 @@ namespace core::socket::stream {
 
     public:
         explicit SocketContext(core::socket::stream::SocketConnection* socketConnection);
+        ~SocketContext() override;
 
         using Super::sendToPeer;
 
@@ -82,6 +85,15 @@ namespace core::socket::stream {
         void shutdownWrite(bool forceClose = false);
         void close() override;
 
+        std::size_t getTotalSent() const override;
+        std::size_t getTotalQueued() const override;
+
+        std::size_t getTotalRead() const override;
+        std::size_t getTotalProcessed() const override;
+
+        std::string getOnlineSince() const override;
+        std::string getOnlineDuration() const override;
+
         SocketConnection* getSocketConnection() const;
         virtual void switchSocketContext(SocketContext* newSocketContext);
 
@@ -93,7 +105,21 @@ namespace core::socket::stream {
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
 
+        void onAttached();
+        void onDetached();
+
+        static std::string timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint);
+        static std::string
+        durationToString(const std::chrono::time_point<std::chrono::system_clock>& bevore,
+                         const std::chrono::time_point<std::chrono::system_clock>& later = std::chrono::system_clock::now());
+
         core::socket::stream::SocketConnection* socketConnection;
+
+        std::string onlineSince;
+        std::size_t alreadyTotalQueued = 0;
+        std::size_t alreadyTotalProcessed = 0;
+
+        std::chrono::time_point<std::chrono::system_clock> onlineSinceTimePoint;
 
         template <typename PhysicalSocketT, class SocketReaderT, class SocketWriterT>
         friend class SocketConnectionT;

@@ -48,6 +48,12 @@
 
 #include "log/Logger.h"
 
+#include <ctime>
+#include <iomanip>
+#include <sstream>
+#include <vector>
+struct tm;
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
@@ -55,7 +61,8 @@ namespace core::socket::stream {
     SocketConnection::SocketConnection(const std::string& instanceName, int fd, const std::string& configuredServer)
         : instanceName(instanceName)
         , connectionName("[" + std::to_string(fd) + "]" + (!instanceName.empty() ? " " : "") + instanceName)
-        , configuredServer(configuredServer) {
+        , configuredServer(configuredServer)
+        , onlineSinceTimePoint(std::chrono::system_clock::now()) {
     }
 
     SocketConnection::~SocketConnection() {
@@ -67,9 +74,11 @@ namespace core::socket::stream {
 
     void SocketConnection::setSocketContext(SocketContext* socketContext) {
         if (socketContext != nullptr) { // Perform a pending SocketContextSwitch
-            LOG(DEBUG) << connectionName << ": Connecting SocketContext";
             this->socketContext = socketContext;
-            socketContext->onConnected();
+
+            socketContext->onAttached();
+
+            LOG(DEBUG) << connectionName << ": SocketContext attached";
         } else {
             LOG(ERROR) << connectionName << ": Connecting SocketContext failed: no new SocketContext";
         }
@@ -99,6 +108,18 @@ namespace core::socket::stream {
         return configuredServer;
     }
 
+    SocketContext* SocketConnection::getSocketContext() const {
+        return socketContext;
+    }
+
+    std::string SocketConnection::getOnlineSince() const {
+        return timePointToString(onlineSinceTimePoint);
+    }
+
+    std::string SocketConnection::getOnlineDuration() const {
+        return durationToString(onlineSinceTimePoint);
+    }
+
     void SocketConnection::connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory) {
         SocketContext* socketContext = socketContextFactory->create(this);
 
@@ -113,11 +134,51 @@ namespace core::socket::stream {
 
     void SocketConnection::disconnectCurrentSocketContext() {
         if (socketContext != nullptr) {
-            socketContext->onDisconnected();
+            socketContext->onDetached();
             delete socketContext;
 
-            LOG(DEBUG) << connectionName << ": SocketContext disconnected";
+            LOG(DEBUG) << connectionName << ": SocketContext detached";
         }
+    }
+
+    std::string SocketConnection::timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint) {
+        const std::time_t time = std::chrono::system_clock::to_time_t(timePoint);
+        std::tm* tm_ptr = std::gmtime(&time);
+
+        char buffer[100];
+        std::string onlineSince = "Formatting error";
+
+        // Format: "2025-02-02 14:30:00"
+        if (std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", tm_ptr) > 0) {
+            onlineSince = std::string(buffer) + " UTC";
+        }
+
+        return onlineSince;
+    }
+
+    std::string SocketConnection::durationToString(const std::chrono::time_point<std::chrono::system_clock>& bevore,
+                                                   const std::chrono::time_point<std::chrono::system_clock>& later) {
+        using seconds_duration_type = std::chrono::duration<std::chrono::seconds::rep>::rep;
+
+        const seconds_duration_type totalSeconds = std::chrono::duration_cast<std::chrono::seconds>(later - bevore).count();
+
+        // Compute days, hours, minutes, and seconds
+        const seconds_duration_type days = totalSeconds / 86400; // 86400 seconds in a day
+        seconds_duration_type remainder = totalSeconds % 86400;
+        const seconds_duration_type hours = remainder / 3600;
+        remainder = remainder % 3600;
+        const seconds_duration_type minutes = remainder / 60;
+        const seconds_duration_type seconds = remainder % 60;
+
+        // Format the components into a string using stringstream
+        std::ostringstream oss;
+        if (days > 0) {
+            oss << days << " day" << (days == 1 ? "" : "s") << ", ";
+        }
+        oss << std::setw(2) << std::setfill('0') << hours << ":" << std::setw(2) << std::setfill('0') << minutes << ":" << std::setw(2)
+            << std::setfill('0') << seconds;
+
+        return oss.str();
     }
 
 } // namespace core::socket::stream

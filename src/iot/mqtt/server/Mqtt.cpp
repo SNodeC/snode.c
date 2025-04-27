@@ -298,7 +298,7 @@ namespace iot::mqtt::server {
             mqttContext->end(true);
         } else {
             LOG(DEBUG) << connectionName << " MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                       << subscribe.getPacketIdentifier();
+                       << subscribe.getPacketIdentifier() << std::dec;
 
             for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
                 LOG(INFO) << connectionName << " MQTT Broker:   Topic filter: '" << topic.getName()
@@ -323,7 +323,7 @@ namespace iot::mqtt::server {
             mqttContext->end(true);
         } else {
             LOG(DEBUG) << connectionName << " MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                       << unsubscribe.getPacketIdentifier();
+                       << unsubscribe.getPacketIdentifier() << std::dec;
 
             for (const std::string& topic : unsubscribe.getTopics()) {
                 LOG(INFO) << connectionName << " MQTT Broker:   Topic: " << topic;

@@ -59,6 +59,7 @@ namespace core::socket::stream {
 #include <functional>
 #include <list>
 #include <memory> // IWYU pragma: export
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

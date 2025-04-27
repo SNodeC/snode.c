@@ -311,7 +311,7 @@ namespace iot::mqtt {
             mqttContext->end(true);
         } else {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                       << puback.getPacketIdentifier();
+                       << puback.getPacketIdentifier() << std::dec;
         }
 
         onPuback(puback);
@@ -323,7 +323,7 @@ namespace iot::mqtt {
             mqttContext->end(true);
         } else {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                       << pubrec.getPacketIdentifier();
+                       << pubrec.getPacketIdentifier() << std::dec;
 
             session->publishMap.erase(pubrec.getPacketIdentifier());
             session->pubrelPacketIdentifierSet.insert(pubrec.getPacketIdentifier());
@@ -340,7 +340,7 @@ namespace iot::mqtt {
             mqttContext->end(true);
         } else {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                       << pubrel.getPacketIdentifier();
+                       << pubrel.getPacketIdentifier() << std::dec;
 
             session->publishPacketIdentifierSet.erase(pubrel.getPacketIdentifier());
 
@@ -356,7 +356,7 @@ namespace iot::mqtt {
             mqttContext->end(true);
         } else {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                       << pubcomp.getPacketIdentifier();
+                       << pubcomp.getPacketIdentifier() << std::dec;
 
             session->publishMap.erase(pubcomp.getPacketIdentifier());
             session->pubrelPacketIdentifierSet.erase(pubcomp.getPacketIdentifier());
@@ -380,7 +380,8 @@ namespace iot::mqtt {
         LOG(TRACE) << connectionName << " MQTT: Received data (fixed header):\n" << toHexString(fixedHeader.serialize());
 
         LOG(DEBUG) << connectionName << " MQTT: Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
-                   << static_cast<uint16_t>(fixedHeader.getType()) << " (" << iot::mqtt::mqttPackageName[fixedHeader.getType()] << ")";
+                   << static_cast<uint16_t>(fixedHeader.getType()) << " (" << iot::mqtt::mqttPackageName[fixedHeader.getType()] << ")"
+                   << std::dec;
         LOG(DEBUG) << connectionName << " MQTT:   PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
                    << static_cast<uint16_t>(fixedHeader.getFlags()) << std::dec;
         LOG(DEBUG) << connectionName << " MQTT:   RemainingLength: " << fixedHeader.getRemainingLength();

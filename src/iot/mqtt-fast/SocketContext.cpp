@@ -51,6 +51,7 @@
 #include <cstdint>
 #include <iomanip>
 #include <sstream>
+#include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

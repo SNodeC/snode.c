@@ -59,6 +59,7 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <variant>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

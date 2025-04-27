@@ -61,12 +61,13 @@ namespace utils {
     class Timeval;
 }
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <functional>
 #include <memory>
 #include <string>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -75,6 +76,7 @@ namespace core::socket::stream {
     class SocketConnection {
     public:
         SocketConnection(const std::string& instanceName, int fd, const std::string& configuredServer);
+        SocketConnection(const SocketConnection&) = delete;
 
         virtual int getFd() const = 0;
 
@@ -104,12 +106,29 @@ namespace core::socket::stream {
 
         const std::string& getConfiguredServer() const;
 
+        SocketContext* getSocketContext() const;
+
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
         virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
 
         virtual void close() = 0;
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
+
+        virtual std::size_t getTotalSent() const = 0;
+        virtual std::size_t getTotalQueued() const = 0;
+
+        virtual std::size_t getTotalRead() const = 0;
+        virtual std::size_t getTotalProcessed() const = 0;
+
+        std::string getOnlineSince() const;
+        std::string getOnlineDuration() const;
+
+    private:
+        static std::string timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint);
+        static std::string
+        durationToString(const std::chrono::time_point<std::chrono::system_clock>& bevore,
+                         const std::chrono::time_point<std::chrono::system_clock>& later = std::chrono::system_clock::now());
 
     protected:
         void connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
@@ -123,6 +142,8 @@ namespace core::socket::stream {
         std::string connectionName;
 
         std::string configuredServer;
+
+        std::chrono::time_point<std::chrono::system_clock> onlineSinceTimePoint;
     };
 
     template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT>
@@ -176,6 +197,12 @@ namespace core::socket::stream {
         void shutdownWrite(bool forceClose) final;
 
         void close() final;
+
+        std::size_t getTotalSent() const override;
+        std::size_t getTotalQueued() const override;
+
+        std::size_t getTotalRead() const override;
+        std::size_t getTotalProcessed() const override;
 
     protected:
         void doWriteShutdown(const std::function<void()>& onShutdown) override;
