@@ -90,9 +90,10 @@ namespace web::websocket {
 
         LOG(DEBUG) << getSocketConnection()->getInstanceName() << ": Subprotocol " << name << " detached";
 
-        LOG(DEBUG) << "     Online since: " << getSocketConnection()->getSocketContext()->getOnlineSince();
-        LOG(DEBUG) << "     Total queued: " << getSocketConnection()->getSocketContext()->getTotalQueued();
-        LOG(DEBUG) << "  Total processed: " << getSocketConnection()->getSocketContext()->getTotalProcessed();
+        LOG(DEBUG) << "     Online Since: " << getOnlineSince();
+        LOG(DEBUG) << "  Online Duration: " << getOnlineDuration();
+        LOG(DEBUG) << "     Total Queued: " << getTotalQueued();
+        LOG(DEBUG) << "  Total Processed: " << getTotalProcessed();
     }
 
     template <typename SocketContextUpgrade>
@@ -162,6 +163,26 @@ namespace web::websocket {
     template <typename SocketContextUpgrade>
     core::socket::stream::SocketConnection* SubProtocol<SocketContextUpgrade>::getSocketConnection() const {
         return subProtocolContext->getSocketConnection();
+    }
+
+    template <typename SocketContextUpgrade>
+    std::size_t SubProtocol<SocketContextUpgrade>::getTotalQueued() const {
+        return getSocketConnection()->getSocketContext()->getTotalQueued();
+    }
+
+    template <typename SocketContextUpgrade>
+    std::size_t SubProtocol<SocketContextUpgrade>::getTotalProcessed() const {
+        return getSocketConnection()->getSocketContext()->getTotalProcessed();
+    }
+
+    template <typename SocketContextUpgrade>
+    std::string SubProtocol<SocketContextUpgrade>::getOnlineSince() const {
+        return getSocketConnection()->getSocketContext()->getOnlineSince();
+    }
+
+    template <typename SocketContextUpgrade>
+    std::string SubProtocol<SocketContextUpgrade>::getOnlineDuration() const {
+        return getSocketConnection()->getSocketContext()->getOnlineDuration();
     }
 
 } // namespace web::websocket

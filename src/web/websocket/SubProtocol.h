@@ -111,6 +111,12 @@ namespace web::websocket {
         const std::string& getName();
         core::socket::stream::SocketConnection* getSocketConnection() const;
 
+        std::size_t getTotalQueued() const;
+        std::size_t getTotalProcessed() const;
+
+        std::string getOnlineSince() const;
+        std::string getOnlineDuration() const;
+
     private:
         const std::string name;
 

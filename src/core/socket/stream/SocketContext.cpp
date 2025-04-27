@@ -162,9 +162,10 @@ namespace core::socket::stream {
         onDisconnected();
 
         LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: detach";
-        LOG(DEBUG) << "     Online since: " << SocketContext::getOnlineSince();
-        LOG(DEBUG) << "     Total queued: " << SocketContext::getTotalQueued();
-        LOG(DEBUG) << "  Total processed: " << SocketContext::getTotalProcessed();
+        LOG(DEBUG) << "     Online since: " << getOnlineSince();
+        LOG(DEBUG) << "  Online duration: " << getOnlineDuration();
+        LOG(DEBUG) << "     Total queued: " << getTotalQueued();
+        LOG(DEBUG) << "  Total processed: " << getTotalProcessed();
     }
 
     std::string SocketContext::timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint) {
