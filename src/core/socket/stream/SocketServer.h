@@ -124,7 +124,6 @@ namespace core::socket::stream {
                       VLOG(2) << "       Total Read: " << socketConnection->getTotalRead();
                       VLOG(2) << "  Total Processed: " << socketConnection->getTotalProcessed();
                       VLOG(2) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
-
                   },
                   std::forward<Args>(args)...) {
         }
