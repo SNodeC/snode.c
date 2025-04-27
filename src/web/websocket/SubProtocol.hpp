@@ -40,6 +40,7 @@
  */
 
 #include "core/socket/stream/SocketConnection.h"
+#include "core/socket/stream/SocketContext.h"
 #include "web/websocket/SubProtocol.h"
 #include "web/websocket/SubProtocolContext.h" // IWYU pragma: export
 
@@ -79,11 +80,19 @@ namespace web::websocket {
         }
 
         getSocketConnection()->setTimeout(0);
+
+        LOG(DEBUG) << getSocketConnection()->getInstanceName() << ": Subprotocol " << name << " attached";
     }
 
     template <typename SocketContextUpgrade>
     SubProtocol<SocketContextUpgrade>::~SubProtocol() {
         pingTimer.cancel();
+
+        LOG(DEBUG) << getSocketConnection()->getInstanceName() << ": Subprotocol " << name << " detached";
+
+        LOG(DEBUG) << "     Online since: " << getSocketConnection()->getSocketContext()->getOnlineSince();
+        LOG(DEBUG) << "     Total queued: " << getSocketConnection()->getSocketContext()->getTotalQueued();
+        LOG(DEBUG) << "  Total processed: " << getSocketConnection()->getSocketContext()->getTotalProcessed();
     }
 
     template <typename SocketContextUpgrade>

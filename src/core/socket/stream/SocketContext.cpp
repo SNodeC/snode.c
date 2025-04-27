@@ -60,15 +60,15 @@ namespace core::socket::stream {
     SocketContext::SocketContext(SocketConnection* socketConnection)
         : socketConnection(socketConnection)
         , onlineSinceTimePoint(std::chrono::system_clock::now()) {
-        LOG(DEBUG) << socketConnection->getConnectionName() << ": SocketContext created";
+        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: created";
     }
 
     SocketContext::~SocketContext() {
-        LOG(DEBUG) << socketConnection->getConnectionName() << ": SocketContext disconnected";
+        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: disconnected";
     }
 
     void SocketContext::switchSocketContext(SocketContext* newSocketContext) {
-        LOG(DEBUG) << socketConnection->getConnectionName() << ": SocketContext switch";
+        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: switch";
         socketConnection->switchSocketContext(newSocketContext);
     }
 
@@ -149,22 +149,22 @@ namespace core::socket::stream {
         shutdownWrite();
     }
 
-    void SocketContext::onAttached() {
+    void SocketContext::attach() {
         alreadyTotalQueued = socketConnection->getTotalQueued();
         alreadyTotalProcessed = socketConnection->getTotalProcessed();
 
-        LOG(TRACE) << socketConnection->getConnectionName() << " SocketContext: OnAttached:";
+        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: attach";
 
         onConnected();
     }
 
-    void SocketContext::onDetached() {
+    void SocketContext::detach() {
         onDisconnected();
 
-        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: OnDetached:";
-        LOG(DEBUG) << "       Online since: " << SocketContext::getOnlineSince();
-        LOG(DEBUG) << "       Total queued: " << SocketContext::getTotalQueued();
-        LOG(DEBUG) << "    Total processed: " << SocketContext::getTotalProcessed();
+        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: detach";
+        LOG(DEBUG) << "     Online since: " << SocketContext::getOnlineSince();
+        LOG(DEBUG) << "     Total queued: " << SocketContext::getTotalQueued();
+        LOG(DEBUG) << "  Total processed: " << SocketContext::getTotalProcessed();
     }
 
     std::string SocketContext::timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint) {

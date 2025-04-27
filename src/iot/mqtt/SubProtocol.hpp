@@ -150,7 +150,7 @@ namespace iot::mqtt {
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onDisconnected() {
         iot::mqtt::MqttContext::onDisconnected();
-        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WSMQTT: disconnected:";
+        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WSMQTT: disconnected";
     }
 
     template <typename WSSubProtocolRole>
