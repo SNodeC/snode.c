@@ -81,14 +81,14 @@ namespace web::websocket {
 
         getSocketConnection()->setTimeout(0);
 
-        LOG(DEBUG) << getSocketConnection()->getInstanceName() << ": Subprotocol " << name << " attached";
+        LOG(DEBUG) << getSocketConnection()->getConnectionName() << ": Subprotocol " << name << " attached";
     }
 
     template <typename SocketContextUpgrade>
     SubProtocol<SocketContextUpgrade>::~SubProtocol() {
         pingTimer.cancel();
 
-        LOG(DEBUG) << getSocketConnection()->getInstanceName() << ": Subprotocol " << name << " detached";
+        LOG(DEBUG) << getSocketConnection()->getConnectionName() << ": Subprotocol " << name << " detached";
 
         LOG(DEBUG) << "     Online Since: " << getOnlineSince();
         LOG(DEBUG) << "  Online Duration: " << getOnlineDuration();

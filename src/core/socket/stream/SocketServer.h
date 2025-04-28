@@ -97,20 +97,20 @@ namespace core::socket::stream {
         SocketServer(const std::string& name, Args&&... args)
             : SocketServer(
                   name,
-                  [name](SocketConnection* socketConnection) { // onConnect
-                      VLOG(2) << name << ": OnConnect";
+                  [](SocketConnection* socketConnection) { // onConnect
+                      VLOG(2) << socketConnection->getConnectionName() << ": OnConnect";
 
                       VLOG(2) << "  Local: " << socketConnection->getLocalAddress().toString();
                       VLOG(2) << "   Peer: " << socketConnection->getRemoteAddress().toString();
                   },
-                  [name](SocketConnection* socketConnection) { // onConnected
-                      VLOG(2) << name << ": OnConnected";
+                  [](SocketConnection* socketConnection) { // onConnected
+                      VLOG(2) << socketConnection->getConnectionName() << ": OnConnected";
 
                       VLOG(2) << "  Local: " << socketConnection->getLocalAddress().toString();
                       VLOG(2) << "   Peer: " << socketConnection->getRemoteAddress().toString();
                   },
-                  [name](SocketConnection* socketConnection) { // onDisconnect
-                      VLOG(2) << name << ": OnDisconnect";
+                  [](SocketConnection* socketConnection) { // onDisconnect
+                      VLOG(2) << socketConnection->getConnectionName() << ": OnDisconnect";
 
                       VLOG(2) << "            Local: " << socketConnection->getLocalAddress().toString();
                       VLOG(2) << "             Peer: " << socketConnection->getRemoteAddress().toString();
