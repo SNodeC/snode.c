@@ -51,8 +51,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef MAX_READ_JUNKSIZE
-#define MAX_READ_JUNKSIZE 16384
+#ifndef MAX_READ_CHUNKSIZE
+#define MAX_READ_CHUNKSIZE 16384
 #endif
 
 namespace core::pipe {
@@ -70,9 +70,9 @@ namespace core::pipe {
 
     void PipeSink::readEvent() {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static char chunk[MAX_READ_JUNKSIZE];
+        static char chunk[MAX_READ_CHUNKSIZE];
 
-        const ssize_t ret = core::system::read(getRegisteredFd(), chunk, MAX_READ_JUNKSIZE);
+        const ssize_t ret = core::system::read(getRegisteredFd(), chunk, MAX_READ_CHUNKSIZE);
 
         if (ret > 0) {
             if (onData) {

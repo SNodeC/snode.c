@@ -255,10 +255,11 @@ namespace web::websocket {
     }
 
     std::size_t Receiver::readPayload() {
-        char payloadChunk[MAX_PAYLOAD_JUNK_LEN]{};
+        char payloadChunk[MAX_PAYLOAD_CHUNK_LEN]{};
 
-        const std::size_t payloadChunkLeft = (MAX_PAYLOAD_JUNK_LEN <= payLoadNumBytesLeft) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
-                                                                                           : static_cast<std::size_t>(payLoadNumBytesLeft);
+        const std::size_t payloadChunkLeft = (MAX_PAYLOAD_CHUNK_LEN <= payLoadNumBytesLeft)
+                                                 ? static_cast<std::size_t>(MAX_PAYLOAD_CHUNK_LEN)
+                                                 : static_cast<std::size_t>(payLoadNumBytesLeft);
         const std::size_t ret = readFrameData(payloadChunk, payloadChunkLeft);
 
         if (ret > 0) {

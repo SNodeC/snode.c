@@ -51,8 +51,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef MAX_SEND_JUNKSIZE
-#define MAX_SEND_JUNKSIZE 16384
+#ifndef MAX_SEND_CHUNKSIZE
+#define MAX_SEND_CHUNKSIZE 16384
 #endif
 
 namespace core::pipe {
@@ -92,7 +92,7 @@ namespace core::pipe {
 
     void PipeSource::writeEvent() {
         const ssize_t ret = core::system::write(
-            getRegisteredFd(), writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
+            getRegisteredFd(), writeBuffer.data(), (writeBuffer.size() < MAX_SEND_CHUNKSIZE) ? writeBuffer.size() : MAX_SEND_CHUNKSIZE);
 
         if (ret > 0) {
             writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
