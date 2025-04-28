@@ -42,12 +42,6 @@
 #ifndef WEB_WEBSOCKET_TRANSMITTER_H
 #define WEB_WEBSOCKET_TRANSMITTER_H
 
-namespace core::socket::stream {
-
-    class SocketConnection;
-
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -68,7 +62,7 @@ namespace web::websocket {
         virtual ~Transmitter();
 
     protected:
-        Transmitter(core::socket::stream::SocketConnection* socketConnection, bool masking);
+        Transmitter(bool masking);
 
         void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
 
@@ -87,10 +81,10 @@ namespace web::websocket {
         void sendFrameData(uint64_t data) const;
         void sendFrameData(const char* frame, uint64_t frameLength) const;
 
+        virtual void sendFrameChunk(const char* data, std::size_t dataLength) const = 0;
+
         std::random_device randomDevice;
         std::uniform_int_distribution<uint32_t> distribution{0, UINT32_MAX};
-
-        core::socket::stream::SocketConnection* socketConnection = nullptr;
 
         bool masking = false;
 

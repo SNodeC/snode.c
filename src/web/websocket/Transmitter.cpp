@@ -41,8 +41,6 @@
 
 #include "web/websocket/Transmitter.h"
 
-#include "core/socket/stream/SocketConnection.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -57,9 +55,8 @@ constexpr int WSMAXFRAMEPAYLOADLENGTH = 1024;
 
 namespace web::websocket {
 
-    Transmitter::Transmitter(core::socket::stream::SocketConnection* socketConnection, bool masking)
-        : socketConnection(socketConnection)
-        , masking(masking) {
+    Transmitter::Transmitter(bool masking)
+        : masking(masking) {
     }
 
     Transmitter::~Transmitter() {
@@ -188,7 +185,7 @@ namespace web::websocket {
                 const std::size_t sendChunkLen =
                     (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
 
-                socketConnection->sendToPeer(frame + frameOffset, sendChunkLen);
+                sendFrameChunk(frame + frameOffset, sendChunkLen);
 
                 frameOffset += sendChunkLen;
             } while (frameLength - frameOffset > 0);

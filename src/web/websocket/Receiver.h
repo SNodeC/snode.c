@@ -42,12 +42,6 @@
 #ifndef WEB_WEBSOCKET_RECEVIER_H
 #define WEB_WEBSOCKET_RECEVIER_H
 
-namespace core::socket::stream {
-
-    class SocketConnection;
-
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -63,7 +57,7 @@ namespace web::websocket {
 
     class Receiver {
     public:
-        Receiver(core::socket::stream::SocketConnection* socketConnection);
+        Receiver(bool maskingExpected);
 
         Receiver(const Receiver&) = delete;
         Receiver& operator=(const Receiver&) = delete;
@@ -73,13 +67,13 @@ namespace web::websocket {
         std::size_t receive();
 
     private:
+        std::size_t readFrameData(char* chunk, std::size_t chunkLen);
+
         std::size_t readOpcode();
         std::size_t readLength();
         std::size_t readELength();
         std::size_t readMaskingKey();
         std::size_t readPayload();
-
-        std::size_t readFrameData(char* chunk, std::size_t chunkLen);
 
         std::size_t readELength2();
         std::size_t readELength8();
@@ -91,12 +85,16 @@ namespace web::websocket {
 
         void reset();
 
+        virtual std::size_t readFrameChunk(char* chunk, std::size_t chunkLen) const = 0;
+
         // Parser state
         enum struct ParserState { BEGIN, OPCODE, LENGTH, ELENGTH, MASKINGKEY, PAYLOAD, ERROR } parserState = ParserState::BEGIN;
 
         bool fin = false;
         bool continuation = false;
         bool masked = false;
+
+        bool maskingExpected = false;
 
         uint8_t opCode = 0;
 
@@ -122,8 +120,6 @@ namespace web::websocket {
         uint8_t maskingKeyNumBytesLeft = 4;
 
         uint16_t errorState = 0;
-
-        core::socket::stream::SocketConnection* socketConnection = nullptr;
     };
 
 } // namespace web::websocket

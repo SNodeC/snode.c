@@ -41,8 +41,6 @@
 
 #include "web/websocket/Receiver.h"
 
-#include "core/socket/stream/SocketConnection.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -55,8 +53,8 @@
 
 namespace web::websocket {
 
-    Receiver::Receiver(core::socket::stream::SocketConnection* socketConnection)
-        : socketConnection(socketConnection) {
+    Receiver::Receiver(bool maskingExpected)
+        : maskingExpected(maskingExpected) {
     }
 
     Receiver::~Receiver() {
@@ -99,6 +97,10 @@ namespace web::websocket {
         return consumed;
     }
 
+    std::size_t Receiver::readFrameData(char* chunk, std::size_t chunkLen) {
+        return readFrameChunk(chunk, chunkLen);
+    }
+
     std::size_t Receiver::readOpcode() {
         char byte = 0;
         const std::size_t ret = readFrameData(&byte, 1);
@@ -133,42 +135,42 @@ namespace web::websocket {
             const uint8_t lengthByte = static_cast<uint8_t>(byte);
 
             masked = (lengthByte & 0b10000000) != 0;
-            payLoadNumBytes = payLoadNumBytesLeft = lengthByte & 0b01111111;
+            if (masked == maskingExpected) {
+                payLoadNumBytes = payLoadNumBytesLeft = lengthByte & 0b01111111;
 
-            if (payLoadNumBytes > 125) {
-                switch (payLoadNumBytes) {
-                    case 126:
-                        elengthNumBytes = elengthNumBytesLeft = 2;
-                        break;
-                    case 127:
-                        elengthNumBytes = elengthNumBytesLeft = 8;
-                        break;
-                }
-                parserState = ParserState::ELENGTH;
-                payLoadNumBytes = payLoadNumBytesLeft = 0;
-            } else {
-                if (masked) {
-                    parserState = ParserState::MASKINGKEY;
-                } else if (payLoadNumBytes > 0) {
-                    parserState = ParserState::PAYLOAD;
-                } else {
-                    if (fin) {
-                        onMessageEnd();
+                if (payLoadNumBytes > 125) {
+                    switch (payLoadNumBytes) {
+                        case 126:
+                            elengthNumBytes = elengthNumBytesLeft = 2;
+                            break;
+                        case 127:
+                            elengthNumBytes = elengthNumBytesLeft = 8;
+                            break;
                     }
-                    reset();
+                    parserState = ParserState::ELENGTH;
+                    payLoadNumBytes = payLoadNumBytesLeft = 0;
+                } else {
+                    if (masked) {
+                        parserState = ParserState::MASKINGKEY;
+                    } else if (payLoadNumBytes > 0) {
+                        parserState = ParserState::PAYLOAD;
+                    } else {
+                        if (fin) {
+                            onMessageEnd();
+                        }
+                        reset();
+                    }
                 }
+            } else {
+                parserState = ParserState::ERROR;
             }
         }
 
         return ret;
     }
 
-    std::size_t Receiver::readFrameData(char* chunk, std::size_t chunkLen) {
-        return socketConnection->readFromPeer(chunk, chunkLen);
-    }
-
     std::size_t Receiver::readELength2() {
-        char elengthChunk[2];
+        char elengthChunk[2]{};
 
         const std::size_t ret = readFrameData(elengthChunk, elengthNumBytesLeft);
 
@@ -186,7 +188,7 @@ namespace web::websocket {
     }
 
     std::size_t Receiver::readELength8() {
-        char elengthChunk[8];
+        char elengthChunk[8]{};
 
         const std::size_t ret = readFrameData(elengthChunk, elengthNumBytesLeft);
 

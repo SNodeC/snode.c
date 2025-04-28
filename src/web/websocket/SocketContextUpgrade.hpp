@@ -56,7 +56,7 @@ namespace web::websocket {
         web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
         Role role)
         : Super(socketConnection, socketContextUpgradeFactory)
-        , SubProtocolContext(socketConnection, role == Role::CLIENT) {
+        , SubProtocolContext(role == Role::CLIENT) {
     }
 
     template <typename SubProtocol, typename Request, typename Response>
@@ -118,6 +118,16 @@ namespace web::websocket {
 
             closeSent = true;
         }
+    }
+
+    template <typename SubProtocol, typename Request, typename Response>
+    void SocketContextUpgrade<SubProtocol, Request, Response>::sendFrameChunk(const char* message, std::size_t messageLength) const {
+        Super::sendToPeer(message, messageLength);
+    }
+
+    template <typename SubProtocol, typename Request, typename Response>
+    std::size_t SocketContextUpgrade<SubProtocol, Request, Response>::readFrameChunk(char* chunk, std::size_t chunkLen) const {
+        return Super::readFromPeer(chunk, chunkLen);
     }
 
     template <typename SubProtocol, typename Request, typename Response>

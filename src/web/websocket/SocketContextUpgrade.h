@@ -117,6 +117,9 @@ namespace web::websocket {
         void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) override;
         void sendClose(const char* message, std::size_t messageLength) override;
 
+        void sendFrameChunk(const char* chunk, std::size_t chunkLen) const final;
+        std::size_t readFrameChunk(char* chunk, std::size_t chunkLen) const final;
+
         core::socket::stream::SocketConnection* getSocketConnection() override;
 
         /* WSReceiver */
