@@ -62,6 +62,7 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
         Transmitter::sendMessage(opCode, message, messageLength);
+        payloadTotalSent += messageLength;
     }
 
     template <typename SubProtocol, typename Request, typename Response>
@@ -73,11 +74,13 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendMessageFrame(const char* message, std::size_t messageLength) {
         Transmitter::sendMessageFrame(message, messageLength);
+        payloadTotalSent += messageLength;
     }
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendMessageEnd(const char* message, std::size_t messageLength) {
         Transmitter::sendMessageEnd(message, messageLength);
+        payloadTotalSent += messageLength;
     }
 
     template <typename SubProtocol, typename Request, typename Response>
@@ -110,7 +113,8 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendClose(const char* message, std::size_t messageLength) {
         if (!closeSent) {
-            LOG(DEBUG) << this->getSocketConnection()->getConnectionName() << " WebSocket: Sending close to peer";
+            LOG(DEBUG) << this->getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
+                       << "' sending close to peer";
 
             sendMessage(8, message, messageLength);
 
@@ -131,7 +135,7 @@ namespace web::websocket {
     }
 
     template <typename SubProtocol, typename Request, typename Response>
-    core::socket::stream::SocketConnection* SocketContextUpgrade<SubProtocol, Request, Response>::getSocketConnection() {
+    core::socket::stream::SocketConnection* SocketContextUpgrade<SubProtocol, Request, Response>::getSocketConnection() const {
         return web::http::SocketContextUpgrade<Request, Response>::getSocketConnection();
     }
 
@@ -173,6 +177,8 @@ namespace web::websocket {
                 } while (chunkLen - chunkOffset > 0);
                 break;
         }
+
+        payloadTotalRead += chunkLen;
     }
 
     template <typename SubProtocol, typename Request, typename Response>
@@ -181,11 +187,15 @@ namespace web::websocket {
             case SubProtocolContext::OpCode::CLOSE:
                 if (closeSent) { // active close
                     closeSent = false;
-                    LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocket: Close confirmed from peer";
+                    LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
+                               << "' close confirmed from peer";
                 } else { // passive close
-                    LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocket: Close request received - replying with close";
+                    LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
+                               << "' close request received - replying with close";
+
                     sendClose(pongCloseData.data(), pongCloseData.length());
                     pongCloseData.clear();
+
                     shutdownWrite();
                 }
                 break;
@@ -210,14 +220,15 @@ namespace web::websocket {
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onConnected() {
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " WebSocket: connected";
-        subProtocol->onConnected();
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name << "' connected";
+        subProtocol->attach();
     }
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onDisconnected() {
-        subProtocol->onDisconnected();
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " WebSocket: disconnected";
+        subProtocol->detach();
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " WebSocketContext:  Subprotocol '" << subProtocol->name
+                  << "' disconnected";
     }
 
     template <typename SubProtocol, typename Request, typename Response>
@@ -228,6 +239,26 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     std::size_t SocketContextUpgrade<SubProtocol, Request, Response>::onReceivedFromPeer() {
         return Receiver::receive();
+    }
+
+    template <typename SubProtocol, typename Request, typename Response>
+    std::size_t SocketContextUpgrade<SubProtocol, Request, Response>::getPayloadTotalSent() const {
+        return payloadTotalSent;
+    }
+
+    template <typename SubProtocol, typename Request, typename Response>
+    std::size_t SocketContextUpgrade<SubProtocol, Request, Response>::getPayloadTotalRead() const {
+        return payloadTotalRead;
+    }
+
+    template <typename SubProtocol, typename Request, typename Response>
+    std::string SocketContextUpgrade<SubProtocol, Request, Response>::getOnlineSince() const {
+        return Super::getOnlineSince();
+    }
+
+    template <typename SubProtocol, typename Request, typename Response>
+    std::string SocketContextUpgrade<SubProtocol, Request, Response>::getOnlineDuration() const {
+        return Super::getOnlineDuration();
     }
 
 } // namespace web::websocket

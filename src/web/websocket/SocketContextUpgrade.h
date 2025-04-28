@@ -120,7 +120,7 @@ namespace web::websocket {
         void sendFrameChunk(const char* chunk, std::size_t chunkLen) const final;
         std::size_t readFrameChunk(char* chunk, std::size_t chunkLen) const final;
 
-        core::socket::stream::SocketConnection* getSocketConnection() override;
+        core::socket::stream::SocketConnection* getSocketConnection() const override;
 
         /* WSReceiver */
         void onMessageStart(int opCode) override;
@@ -137,6 +137,12 @@ namespace web::websocket {
         /* SocketContext */
         std::size_t onReceivedFromPeer() override;
 
+        std::size_t getPayloadTotalSent() const override;
+        std::size_t getPayloadTotalRead() const override;
+
+        std::string getOnlineSince() const override;
+        std::string getOnlineDuration() const override;
+
     protected:
         SubProtocol* subProtocol = nullptr;
 
@@ -144,6 +150,9 @@ namespace web::websocket {
         int receivedOpCode = 0;
 
         std::string pongCloseData;
+
+        std::size_t payloadTotalSent = 0;
+        std::size_t payloadTotalRead = 0;
     };
 
 } // namespace web::websocket

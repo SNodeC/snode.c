@@ -164,7 +164,7 @@ namespace core::socket::stream {
         LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: detach";
         LOG(DEBUG) << "     Online Since: " << getOnlineSince();
         LOG(DEBUG) << "  Online Duration: " << getOnlineDuration();
-        LOG(DEBUG) << "     Total Queued: " << getTotalQueued();
+        LOG(DEBUG) << "       Total Sent: " << getTotalQueued();
         LOG(DEBUG) << "  Total Processed: " << getTotalProcessed();
     }
 

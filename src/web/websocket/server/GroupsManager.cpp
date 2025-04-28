@@ -95,7 +95,7 @@ namespace web::websocket::server {
                                       std::size_t messageLength,
                                       const SubProtocol* excludedClient) {
         if (groups.contains(group)) {
-            for (const SubProtocol* client : groups[group]) {
+            for (SubProtocol* client : groups[group]) {
                 if (client != excludedClient) {
                     client->sendMessage(message, messageLength);
                 }
@@ -105,7 +105,7 @@ namespace web::websocket::server {
 
     void GroupsManager::sendBroadcast(const std::string& group, const std::string& message, const SubProtocol* excludedClient) {
         if (groups.contains(group)) {
-            for (const SubProtocol* client : groups[group]) {
+            for (SubProtocol* client : groups[group]) {
                 if (client != excludedClient) {
                     client->sendMessage(message);
                 }
@@ -118,7 +118,7 @@ namespace web::websocket::server {
                                            std::size_t messageLength,
                                            const SubProtocol* excludedClient) {
         if (groups.contains(group)) {
-            for (const SubProtocol* client : groups[group]) {
+            for (SubProtocol* client : groups[group]) {
                 if (client != excludedClient) {
                     client->sendMessageStart(message, messageLength);
                 }
@@ -135,7 +135,7 @@ namespace web::websocket::server {
                                            std::size_t messageLength,
                                            const SubProtocol* excludedClient) {
         if (groups.contains(group)) {
-            for (const SubProtocol* client : groups[group]) {
+            for (SubProtocol* client : groups[group]) {
                 if (client != excludedClient) {
                     client->sendMessageFrame(message, messageLength);
                 }
@@ -152,7 +152,7 @@ namespace web::websocket::server {
                                          std::size_t messageLength,
                                          const SubProtocol* excludedClient) {
         if (groups.contains(group)) {
-            for (const SubProtocol* client : groups[group]) {
+            for (SubProtocol* client : groups[group]) {
                 if (client != excludedClient) {
                     client->sendMessageEnd(message, messageLength);
                 }

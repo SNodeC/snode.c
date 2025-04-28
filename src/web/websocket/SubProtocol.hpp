@@ -40,7 +40,6 @@
  */
 
 #include "core/socket/stream/SocketConnection.h"
-#include "core/socket/stream/SocketContext.h"
 #include "web/websocket/SubProtocol.h"
 #include "web/websocket/SubProtocolContext.h" // IWYU pragma: export
 
@@ -70,7 +69,8 @@ namespace web::websocket {
                         sendPing();
                         flyingPings++;
                     } else {
-                        LOG(WARNING) << getSocketConnection()->getConnectionName() << " WebSocket: MaxFlyingPings exceeded - closing";
+                        LOG(WARNING) << this->subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '"
+                                     << this->name << "': MaxFlyingPings exceeded - closing";
 
                         sendClose();
                         stop();
@@ -81,19 +81,14 @@ namespace web::websocket {
 
         getSocketConnection()->setTimeout(0);
 
-        LOG(DEBUG) << getSocketConnection()->getConnectionName() << ": Subprotocol " << name << " attached";
+        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': created";
     }
 
     template <typename SocketContextUpgrade>
     SubProtocol<SocketContextUpgrade>::~SubProtocol() {
         pingTimer.cancel();
 
-        LOG(DEBUG) << getSocketConnection()->getConnectionName() << ": Subprotocol " << name << " detached";
-
-        LOG(DEBUG) << "     Online Since: " << getOnlineSince();
-        LOG(DEBUG) << "  Online Duration: " << getOnlineDuration();
-        LOG(DEBUG) << "     Total Queued: " << getTotalQueued();
-        LOG(DEBUG) << "  Total Processed: " << getTotalProcessed();
+        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': destroyed";
     }
 
     template <typename SocketContextUpgrade>
@@ -138,7 +133,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::sendPing(const char* reason, std::size_t reasonLength) const {
-        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocket: Ping sent";
+        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': Ping sent";
 
         subProtocolContext->sendPing(reason, reasonLength);
     }
@@ -149,8 +144,25 @@ namespace web::websocket {
     }
 
     template <typename SocketContextUpgrade>
+    void SubProtocol<SocketContextUpgrade>::attach() {
+        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': attach";
+
+        onConnected();
+    }
+
+    template <typename SocketContextUpgrade>
+    void SubProtocol<SocketContextUpgrade>::detach() {
+        onDisconnected();
+
+        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': detached";
+
+        LOG(DEBUG) << "       Total Payload sent: " << getPayloadTotalSent();
+        LOG(DEBUG) << "  Total Payload processed: " << getPayloadTotalRead();
+    }
+
+    template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::onPongReceived() {
-        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " WebSocket: Pong received";
+        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': Pong received";
 
         flyingPings = 0;
     }
@@ -166,23 +178,23 @@ namespace web::websocket {
     }
 
     template <typename SocketContextUpgrade>
-    std::size_t SubProtocol<SocketContextUpgrade>::getTotalQueued() const {
-        return getSocketConnection()->getSocketContext()->getTotalQueued();
+    std::size_t SubProtocol<SocketContextUpgrade>::getPayloadTotalSent() const {
+        return subProtocolContext->getPayloadTotalSent();
     }
 
     template <typename SocketContextUpgrade>
-    std::size_t SubProtocol<SocketContextUpgrade>::getTotalProcessed() const {
-        return getSocketConnection()->getSocketContext()->getTotalProcessed();
+    std::size_t SubProtocol<SocketContextUpgrade>::getPayloadTotalRead() const {
+        return subProtocolContext->getPayloadTotalRead();
     }
 
     template <typename SocketContextUpgrade>
     std::string SubProtocol<SocketContextUpgrade>::getOnlineSince() const {
-        return getSocketConnection()->getSocketContext()->getOnlineSince();
+        return subProtocolContext->getOnlineSince();
     }
 
     template <typename SocketContextUpgrade>
     std::string SubProtocol<SocketContextUpgrade>::getOnlineDuration() const {
-        return getSocketConnection()->getSocketContext()->getOnlineDuration();
+        return subProtocolContext->getOnlineDuration();
     }
 
 } // namespace web::websocket

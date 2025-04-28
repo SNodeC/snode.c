@@ -95,6 +95,8 @@ namespace web::websocket {
 
     private:
         /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
+        void attach();
+        void detach();
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
         virtual bool onSignal(int sig) = 0;
@@ -111,8 +113,8 @@ namespace web::websocket {
         const std::string& getName();
         core::socket::stream::SocketConnection* getSocketConnection() const;
 
-        std::size_t getTotalQueued() const;
-        std::size_t getTotalProcessed() const;
+        std::size_t getPayloadTotalSent() const;
+        std::size_t getPayloadTotalRead() const;
 
         std::string getOnlineSince() const;
         std::string getOnlineDuration() const;

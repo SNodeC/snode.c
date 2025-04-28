@@ -53,6 +53,7 @@ namespace core::socket::stream {
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -78,7 +79,13 @@ namespace web::websocket {
         virtual void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0) = 0;
         virtual void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) = 0;
 
-        virtual core::socket::stream::SocketConnection* getSocketConnection() = 0;
+        virtual core::socket::stream::SocketConnection* getSocketConnection() const = 0;
+
+        virtual std::size_t getPayloadTotalSent() const = 0;
+        virtual std::size_t getPayloadTotalRead() const = 0;
+
+        virtual std::string getOnlineSince() const = 0;
+        virtual std::string getOnlineDuration() const = 0;
 
         enum OpCode { CONTINUATION = 0x00, TEXT = 0x01, BINARY = 0x02, CLOSE = 0x08, PING = 0x09, PONG = 0x0A };
 

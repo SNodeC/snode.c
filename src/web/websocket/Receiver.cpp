@@ -51,6 +51,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#ifndef MAX_PAYLOAD_CHUNK_LEN
+#define MAX_PAYLOAD_CHUNK_LEN 16384
+#endif
+
 namespace web::websocket {
 
     Receiver::Receiver(bool maskingExpected)
