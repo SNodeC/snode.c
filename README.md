@@ -322,21 +322,21 @@ private:
 
     std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework
                                                 // and thus are ready for preccessing.
-        char junk[4096];
+        char chunk[4096];
 
-        std::size_t junkLen = readFromPeer(junk, 4096); // Fetch data.
-                                                        // In case there are less than 4096 bytes available return at
-                                                        // least that amount of data.
-                                                        // In case more than 4096 bytes are available
-                                                        // onReceivedFromPeer will be called again.
-                                                        // No error can occure here.
-        if (junkLen > 0) {
-            VLOG(1) << "Data to reflect: " << std::string(junk, junkLen);
-            sendToPeer(junk, junkLen); // Reflect the received data back to the client.
-                                       // Out of memory is the only error which can occure here.
+        std::size_t chunkLen = readFromPeer(chunk, 4096); // Fetch data.
+                                                          // In case there are less than 4096 bytes available return at
+                                                          // least that amount of data.
+                                                          // In case more than 4096 bytes are available
+                                                          // onReceivedFromPeer will be called again.
+                                                          // No error can occure here.
+        if (chunkLen > 0) {
+            VLOG(1) << "Data to reflect: " << std::string(chunk, chunkLen);
+            sendToPeer(chunk, chunkLen); // Reflect the received data back to the client.
+                                         // Out of memory is the only error which can occure here.
         }
 
-        return junkLen; // Return the amount of data processed to the framework.
+        return chunkLen; // Return the amount of data processed to the framework.
     }
 };
 ```
@@ -379,21 +379,21 @@ private:
 
     std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework
                                                 // and thus are ready for preccessing.
-        char junk[4096];
+        char chunk[4096];
 
-        std::size_t junkLen = readFromPeer(junk, 4096); // Fetch data.
-                                                        // In case there are less than 4096 bytes available return at
-                                                        // least that amount of data.
-                                                        // In case more than 4096 bytes are available
-                                                        // onReceivedFromPeer will be called again.
-                                                        // No error can occure here.
-        if (junkLen > 0) {
-            VLOG(1) << "Data to reflect: " << std::string(junk, junkLen);
-            sendToPeer(junk, junkLen); // Reflect the received data back to the server.
-                                       // Out of memory is the only error which can occure here.
+        std::size_t chunkLen = readFromPeer(chunk, 4096); // Fetch data.
+                                                          // In case there are less than 4096 bytes available return at
+                                                          // least that amount of data.
+                                                          // In case more than 4096 bytes are available
+                                                          // onReceivedFromPeer will be called again.
+                                                          // No error can occure here.
+        if (chunkLen > 0) {
+            VLOG(1) << "Data to reflect: " << std::string(chunk, chunkLen);
+            sendToPeer(chunk, chunkLen); // Reflect the received data back to the server.
+                                         // Out of memory is the only error which can occure here.
         }
 
-        return junkLen; // Return the amount of data processed to the framework.
+        return chunkLen; // Return the amount of data processed to the framework.
     }
 };
 ```
@@ -1030,7 +1030,7 @@ Additionally the encrypting `SocketConnection` objects provide the method `SSL* 
 - Enqueue data to be send to the peer.
 
   ```cpp
-  void sendToPeer(const char* junk, std::size_t junkLen);
+  void sendToPeer(const char* chunk, std::size_t chunkLen);
   void sendToPeer(const std::string& data);
   void sendToPeer(const std::vector<char>& data);
   void sendToPeer(const std::vector<int8_t>& data);
@@ -1039,7 +1039,7 @@ Additionally the encrypting `SocketConnection` objects provide the method `SSL* 
 - Read already received data from peer.
 
   ```cpp
-  std::size_t readFromPeer(char* junk, std::size_t junkLen);
+  std::size_t readFromPeer(char* chunk, std::size_t chunkLen);
   ```
 
 - Shut down socket either for reading or writing.  If `forceClose` is `true` the reading end will also be shut down.
