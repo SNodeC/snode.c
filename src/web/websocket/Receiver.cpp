@@ -101,6 +101,10 @@ namespace web::websocket {
         return consumed;
     }
 
+    std::size_t Receiver::getPayloadTotalRead() const {
+        return payloadTotalRead;
+    }
+
     std::size_t Receiver::readFrameData(char* chunk, std::size_t chunkLen) {
         return readFrameChunk(chunk, chunkLen);
     }
@@ -140,10 +144,10 @@ namespace web::websocket {
 
             masked = (lengthByte & 0b10000000) != 0;
             if (masked == maskingExpected) {
-                payLoadNumBytes = payLoadNumBytesLeft = lengthByte & 0b01111111;
+                payloadNumBytes = payloadNumBytesLeft = lengthByte & 0b01111111;
 
-                if (payLoadNumBytes > 125) {
-                    switch (payLoadNumBytes) {
+                if (payloadNumBytes > 125) {
+                    switch (payloadNumBytes) {
                         case 126:
                             elengthNumBytes = elengthNumBytesLeft = 2;
                             break;
@@ -152,11 +156,11 @@ namespace web::websocket {
                             break;
                     }
                     parserState = ParserState::ELENGTH;
-                    payLoadNumBytes = payLoadNumBytesLeft = 0;
+                    payloadNumBytes = payloadNumBytesLeft = 0;
                 } else {
                     if (masked) {
                         parserState = ParserState::MASKINGKEY;
-                    } else if (payLoadNumBytes > 0) {
+                    } else if (payloadNumBytes > 0) {
                         parserState = ParserState::PAYLOAD;
                     } else {
                         if (fin) {
@@ -185,7 +189,7 @@ namespace web::websocket {
         }
 
         if (elengthNumBytesLeft == 0) {
-            payLoadNumBytes = payLoadNumBytesLeft = be16toh(eLength2.asValue);
+            payloadNumBytes = payloadNumBytesLeft = be16toh(eLength2.asValue);
         }
 
         return ret;
@@ -203,7 +207,7 @@ namespace web::websocket {
         }
 
         if (elengthNumBytesLeft == 0) {
-            payLoadNumBytes = payLoadNumBytesLeft = be64toh(eLength8.asValue);
+            payloadNumBytes = payloadNumBytesLeft = be64toh(eLength8.asValue);
         }
 
         return ret;
@@ -222,7 +226,7 @@ namespace web::websocket {
         }
 
         if (elengthNumBytesLeft == 0) {
-            if ((payLoadNumBytes & static_cast<uint64_t>(0x01) << 63) != 0) {
+            if ((payloadNumBytes & static_cast<uint64_t>(0x01) << 63) != 0) {
                 parserState = ParserState::ERROR;
                 errorState = 1004;
             } else if (masked) {
@@ -247,7 +251,7 @@ namespace web::websocket {
         }
 
         if (maskingKeyNumBytesLeft == 0) {
-            if (payLoadNumBytes > 0) {
+            if (payloadNumBytes > 0) {
                 parserState = ParserState::PAYLOAD;
             } else {
                 if (fin) {
@@ -263,9 +267,9 @@ namespace web::websocket {
     std::size_t Receiver::readPayload() {
         char payloadChunk[MAX_PAYLOAD_CHUNK_LEN]{};
 
-        const std::size_t payloadChunkLeft = (MAX_PAYLOAD_CHUNK_LEN <= payLoadNumBytesLeft)
+        const std::size_t payloadChunkLeft = (MAX_PAYLOAD_CHUNK_LEN <= payloadNumBytesLeft)
                                                  ? static_cast<std::size_t>(MAX_PAYLOAD_CHUNK_LEN)
-                                                 : static_cast<std::size_t>(payLoadNumBytesLeft);
+                                                 : static_cast<std::size_t>(payloadNumBytesLeft);
         const std::size_t ret = readFrameData(payloadChunk, payloadChunkLeft);
 
         if (ret > 0) {
@@ -273,7 +277,7 @@ namespace web::websocket {
 
             if (masked) {
                 for (std::size_t i = 0; i < payloadChunkLen; i++) {
-                    *(payloadChunk + i) = *(payloadChunk + i) ^ *(maskingKey + (i + payLoadNumBytes - payLoadNumBytesLeft) % 4);
+                    *(payloadChunk + i) = *(payloadChunk + i) ^ *(maskingKey + (i + payloadNumBytes - payloadNumBytesLeft) % 4);
                 }
             }
 
@@ -281,10 +285,11 @@ namespace web::websocket {
 
             onMessageData(payloadChunk, payloadChunkLen);
 
-            payLoadNumBytesLeft -= payloadChunkLen;
+            payloadNumBytesLeft -= payloadChunkLen;
+            payloadTotalRead += payloadChunkLen;
         }
 
-        if (payLoadNumBytesLeft == 0) {
+        if (payloadNumBytesLeft == 0) {
             if (fin) {
                 onMessageEnd();
             }
@@ -306,8 +311,8 @@ namespace web::websocket {
         elengthNumBytes = 0;
         elengthNumBytesLeft = 0;
 
-        payLoadNumBytes = 0;
-        payLoadNumBytesLeft = 0;
+        payloadNumBytes = 0;
+        payloadNumBytesLeft = 0;
 
         maskingKeyNumBytes = 4;
         maskingKeyNumBytesLeft = 4;

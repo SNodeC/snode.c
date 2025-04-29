@@ -62,6 +62,8 @@ namespace web::websocket {
 
         std::size_t receive();
 
+        std::size_t getPayloadTotalRead() const;
+
     private:
         std::size_t readFrameData(char* chunk, std::size_t chunkLen);
 
@@ -109,13 +111,15 @@ namespace web::websocket {
         uint8_t elengthNumBytes = 0;
         uint8_t elengthNumBytesLeft = 0;
 
-        uint64_t payLoadNumBytes = 0;
-        uint64_t payLoadNumBytesLeft = 0;
+        uint64_t payloadNumBytes = 0;
+        uint64_t payloadNumBytesLeft = 0;
 
         uint8_t maskingKeyNumBytes = 4;
         uint8_t maskingKeyNumBytesLeft = 4;
 
         uint16_t errorState = 0;
+
+        std::size_t payloadTotalRead = 0;
     };
 
 } // namespace web::websocket

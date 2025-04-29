@@ -150,9 +150,6 @@ namespace web::websocket {
         int receivedOpCode = 0;
 
         std::string pongCloseData;
-
-        std::size_t payloadTotalSent = 0;
-        std::size_t payloadTotalRead = 0;
     };
 
 } // namespace web::websocket

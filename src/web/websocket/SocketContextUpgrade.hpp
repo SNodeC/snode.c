@@ -62,7 +62,6 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
         Transmitter::sendMessage(opCode, message, messageLength);
-        payloadTotalSent += messageLength;
     }
 
     template <typename SubProtocol, typename Request, typename Response>
@@ -74,13 +73,11 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendMessageFrame(const char* message, std::size_t messageLength) {
         Transmitter::sendMessageFrame(message, messageLength);
-        payloadTotalSent += messageLength;
     }
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendMessageEnd(const char* message, std::size_t messageLength) {
         Transmitter::sendMessageEnd(message, messageLength);
-        payloadTotalSent += messageLength;
     }
 
     template <typename SubProtocol, typename Request, typename Response>
@@ -176,7 +173,6 @@ namespace web::websocket {
                 } while (chunkLen - chunkOffset > 0);
                 break;
         }
-        payloadTotalRead += static_cast<std::size_t>(chunkLen);
     }
 
     template <typename SubProtocol, typename Request, typename Response>
@@ -241,12 +237,12 @@ namespace web::websocket {
 
     template <typename SubProtocol, typename Request, typename Response>
     std::size_t SocketContextUpgrade<SubProtocol, Request, Response>::getPayloadTotalSent() const {
-        return payloadTotalSent;
+        return Transmitter::getPayloadTotalSent();
     }
 
     template <typename SubProtocol, typename Request, typename Response>
     std::size_t SocketContextUpgrade<SubProtocol, Request, Response>::getPayloadTotalRead() const {
-        return payloadTotalRead;
+        return Receiver::getPayloadTotalRead();
     }
 
     template <typename SubProtocol, typename Request, typename Response>

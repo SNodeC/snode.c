@@ -70,6 +70,8 @@ namespace web::websocket {
         void sendMessageFrame(const char* message, std::size_t messageLength);
         void sendMessageEnd(const char* message, std::size_t messageLength);
 
+        std::size_t getPayloadTotalSent() const;
+
     private:
         void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength);
 
@@ -90,6 +92,9 @@ namespace web::websocket {
 
     protected:
         bool closeSent = false;
+
+    private:
+        std::size_t payloadTotalSent = 0;
     };
 
 } // namespace web::websocket
