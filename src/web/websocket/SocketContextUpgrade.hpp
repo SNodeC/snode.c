@@ -168,7 +168,6 @@ namespace web::websocket {
                 break;
             default:
                 std::size_t chunkOffset = 0;
-
                 do {
                     std::size_t sendChunkLen =
                         (chunkLen - chunkOffset <= SIZE_MAX) ? static_cast<std::size_t>(chunkLen - chunkOffset) : SIZE_MAX;
@@ -177,8 +176,7 @@ namespace web::websocket {
                 } while (chunkLen - chunkOffset > 0);
                 break;
         }
-
-        payloadTotalRead += chunkLen;
+        payloadTotalRead += static_cast<std::size_t>(chunkLen);
     }
 
     template <typename SubProtocol, typename Request, typename Response>
