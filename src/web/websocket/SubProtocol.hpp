@@ -80,15 +80,11 @@ namespace web::websocket {
         }
 
         getSocketConnection()->setTimeout(0);
-
-        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': created";
     }
 
     template <typename SocketContextUpgrade>
     SubProtocol<SocketContextUpgrade>::~SubProtocol() {
         pingTimer.cancel();
-
-        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': destroyed";
     }
 
     template <typename SocketContextUpgrade>
