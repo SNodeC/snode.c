@@ -270,8 +270,8 @@ namespace core::socket::stream {
 
     template <typename SocketClient, typename... Args>
     SocketClient Client(const std::string& instanceName,
-                           const std::function<void(typename SocketClient::Config&)>& configurator,
-                           Args&&... socketContextFactoryArgs) {
+                        const std::function<void(typename SocketClient::Config&)>& configurator,
+                        Args&&... socketContextFactoryArgs) {
         const SocketClient socketClient(instanceName, std::forward<Args>(socketContextFactoryArgs)...);
 
         configurator(socketClient.getConfig());
