@@ -45,10 +45,6 @@
 #include "iot/mqtt/types/TypeBase.h"
 #include "iot/mqtt/types/UInt16.h"
 
-namespace iot::mqtt {
-    class MqttContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
