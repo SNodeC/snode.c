@@ -72,9 +72,11 @@ namespace iot::mqtt_fast {
 
 #include <cstddef>
 #include <cstdint>
-#include <format>
 #include <list>
 #include <string>
+#include <vector> // IWYU pragma: keep
+
+// IWYU pragma: no_include <format>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

@@ -64,10 +64,12 @@ namespace utils {
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <format>
+#include <vector> // IWYU pragma: keep
 #include <functional>
 #include <memory>
 #include <string>
+
+// IWYU pragma: no_include <format>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
