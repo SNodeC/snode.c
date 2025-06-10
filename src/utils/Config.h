@@ -120,11 +120,12 @@ namespace utils {
                             bool configurable = true,
                             const std::string& groupName = "Application Options");
 
+        static std::shared_ptr<CLI::App> app;
+
     private:
         static bool parse1();
         static bool parse2();
 
-        static std::shared_ptr<CLI::App> app;
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
         static int argc;

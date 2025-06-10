@@ -103,6 +103,8 @@ namespace iot::mqtt {
         std::vector<char> serialize() const;
 
         const std::string& getName() const;
+
+    protected:
         uint8_t getType() const;
         uint8_t getFlags() const;
 
