@@ -204,30 +204,36 @@ namespace core {
         struct sigaction oldHupAct{};
         sigaction(SIGHUP, &sact, &oldHupAct);
 
-        if (eventLoopState == State::INITIALIZED && utils::Config::bootstrap()) {
-            eventLoopState = State::RUNNING;
-            core::TickStatus tickStatus = TickStatus::SUCCESS;
+        if (eventLoopState == State::INITIALIZED) {
+            if (utils::Config::bootstrap()) {
+                eventLoopState = State::RUNNING;
+                core::TickStatus tickStatus = TickStatus::SUCCESS;
 
-            LOG(TRACE) << "Core::EventLoop: started";
+                LOG(TRACE) << "Core::EventLoop: started";
 
-            do {
-                tickStatus = EventLoop::instance()._tick(timeOut);
-            } while ((tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED) && eventLoopState == State::RUNNING);
+                do {
+                    tickStatus = EventLoop::instance()._tick(timeOut);
+                } while ((tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED) && eventLoopState == State::RUNNING);
 
-            switch (tickStatus) {
-                case TickStatus::SUCCESS:
-                    LOG(TRACE) << "Core::EventLoop: Stopped";
-                    break;
-                case TickStatus::NOOBSERVER:
-                    LOG(TRACE) << "Core::EventLoop: No Observer";
-                    break;
-                case TickStatus::INTERRUPTED:
-                    LOG(TRACE) << "Core::EventLoop: Interrupted";
-                    break;
-                case TickStatus::TRACE:
-                    PLOG(FATAL) << "Core::EventLoop: _tick()";
-                    break;
+                switch (tickStatus) {
+                    case TickStatus::SUCCESS:
+                        LOG(TRACE) << "Core::EventLoop: Stopped";
+                        break;
+                    case TickStatus::NOOBSERVER:
+                        LOG(TRACE) << "Core::EventLoop: No Observer";
+                        break;
+                    case TickStatus::INTERRUPTED:
+                        LOG(TRACE) << "Core::EventLoop: Interrupted";
+                        break;
+                    case TickStatus::TRACE:
+                        PLOG(FATAL) << "Core::EventLoop: _tick()";
+                        break;
+                }
+            } else {
+                stopsig = -2;
             }
+        } else {
+            stopsig = -1;
         }
 
         sigaction(SIGPIPE, &oldPipeAct, nullptr);
@@ -239,7 +245,7 @@ namespace core {
 
         sigaction(SIGINT, &oldIntAct, nullptr);
 
-        return stopsig;
+        return -stopsig;
     }
 
     void EventLoop::stop() {

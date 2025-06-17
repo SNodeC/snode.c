@@ -630,10 +630,6 @@ namespace utils {
             std::cout << "Append -h or --help to your command line for more information." << std::endl;
         }
 
-        if (!success) {
-            logger::Logger::setQuiet();
-        }
-
         return success;
     }
 
