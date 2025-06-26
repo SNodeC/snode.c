@@ -60,7 +60,7 @@ namespace iot::mqtt::server::broker {
     Broker::Broker(uint8_t maxQoS, const std::string& sessionStoreFileName)
         : sessionStoreFileName(sessionStoreFileName) // NOLINT
         , maxQoS(maxQoS)
-        , subscribtionTree(this)
+        , subscriptionTree(this)
         , retainTree(this) {
         if (!sessionStoreFileName.empty()) {
             std::ifstream sessionStoreFile(sessionStoreFileName);
@@ -75,7 +75,7 @@ namespace iot::mqtt::server::broker {
                         sessionStore[clientId].fromJson(sessionJson);
                     }
                     retainTree.fromJson(sessionStoreJson["retain_tree"]);
-                    subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
+                    subscriptionTree.fromJson(sessionStoreJson["subscription_tree"]);
 
                     LOG(INFO) << "MQTT Broker: Persistent session data loaded successful";
                 } catch (const nlohmann::json::exception&) {
@@ -84,7 +84,7 @@ namespace iot::mqtt::server::broker {
 
                     sessionStore.clear();
                     retainTree.clear();
-                    subscribtionTree.clear();
+                    subscriptionTree.clear();
                 }
 
                 sessionStoreFile.close();
@@ -107,7 +107,7 @@ namespace iot::mqtt::server::broker {
                 sessionStoreJson["session_store"][clientId] = session.toJson();
             }
             sessionStoreJson["retain_tree"] = retainTree.toJson();
-            sessionStoreJson["subscribtion_tree"] = subscribtionTree.toJson();
+            sessionStoreJson["subscription_tree"] = subscriptionTree.toJson();
 
             if (sessionStoreJson["session_store"].empty()) {
                 sessionStoreJson.erase("session_store");
@@ -115,8 +115,8 @@ namespace iot::mqtt::server::broker {
             if (sessionStoreJson["retain_tree"].empty()) {
                 sessionStoreJson.erase("retain_tree");
             }
-            if (sessionStoreJson["subscribtion_tree"].empty()) {
-                sessionStoreJson.erase("subscribtion_tree");
+            if (sessionStoreJson["subscription_tree"].empty()) {
+                sessionStoreJson.erase("subscription_tree");
             }
 
             std::ofstream sessionStoreFile(sessionStoreFileName);
@@ -145,7 +145,7 @@ namespace iot::mqtt::server::broker {
 
     void
     Broker::publish(const std::string& originClientId, const std::string& topic, const std::string& message, uint8_t qoS, bool retain) {
-        subscribtionTree.publish(Message(originClientId, topic, message, qoS, retain));
+        subscriptionTree.publish(Message(originClientId, topic, message, qoS, retain));
 
         if (retain) {
             retainTree.retain(Message(originClientId, topic, message, qoS, retain));
@@ -164,7 +164,7 @@ namespace iot::mqtt::server::broker {
 
     void Broker::restartSession(const std::string& clientId) {
         LOG(INFO) << "MQTT Broker:   Retained: Send PUBLISH: " << clientId;
-        subscribtionTree.appear(clientId);
+        subscriptionTree.appear(clientId);
 
         LOG(INFO) << "MQTT Broker:   Queued: Send PUBLISH: " << clientId;
         sessionStore[clientId].publishQueued();
@@ -175,7 +175,7 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::deleteSession(const std::string& clientId) {
-        subscribtionTree.unsubscribe(clientId);
+        subscriptionTree.unsubscribe(clientId);
         sessionStore.erase(clientId);
     }
 
@@ -207,31 +207,31 @@ namespace iot::mqtt::server::broker {
         qoS = std::min(maxQoS, qoS);
         uint8_t returnCode = 0;
 
-        if (subscribtionTree.subscribe(topic, clientId, qoS)) {
+        if (subscriptionTree.subscribe(topic, clientId, qoS)) {
             retainTree.appear(clientId, topic, qoS);
 
-            returnCode = SUBSCRIBTION_SUCCESS | qoS;
+            returnCode = SUBSCRIPTION_SUCCESS | qoS;
         } else {
-            returnCode = SUBSCRIBTION_FAILURE;
+            returnCode = SUBSCRIPTION_FAILURE;
         }
 
         return returnCode;
     }
 
     void Broker::unsubscribe(const std::string& clientId) {
-        subscribtionTree.unsubscribe(clientId);
+        subscriptionTree.unsubscribe(clientId);
     }
 
     void Broker::unsubscribe(const std::string& clientId, const std::string& topic) {
-        subscribtionTree.unsubscribe(topic, clientId);
+        subscriptionTree.unsubscribe(topic, clientId);
     }
 
     std::list<std::string> Broker::getSubscriptions(const std::string& clientId) const {
-        return subscribtionTree.getSubscriptions(clientId);
+        return subscriptionTree.getSubscriptions(clientId);
     }
 
     std::map<std::string, std::list<std::pair<std::string, uint8_t>>> Broker::getSubscriptionTree() const {
-        return subscribtionTree.getSubscriptionTree();
+        return subscriptionTree.getSubscriptionTree();
     }
 
     std::list<std::pair<std::string, std::string>> Broker::getRetainTree() {

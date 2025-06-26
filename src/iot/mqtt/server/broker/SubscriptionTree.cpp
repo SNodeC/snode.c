@@ -39,7 +39,7 @@
  * THE SOFTWARE.
  */
 
-#include "iot/mqtt/server/broker/SubscribtionTree.h"
+#include "iot/mqtt/server/broker/SubscriptionTree.h"
 
 #include "iot/mqtt/Mqtt.h"
 #include "iot/mqtt/server/broker/Broker.h"
@@ -58,15 +58,15 @@
 
 namespace iot::mqtt::server::broker {
 
-    SubscribtionTree::SubscribtionTree(iot::mqtt::server::broker::Broker* broker)
+    SubscriptionTree::SubscriptionTree(iot::mqtt::server::broker::Broker* broker)
         : head(broker, "") {
     }
 
-    void SubscribtionTree::appear(const std::string& clientId) {
+    void SubscriptionTree::appear(const std::string& clientId) {
         head.appear(clientId, "");
     }
 
-    bool SubscribtionTree::subscribe(const std::string& topic, const std::string& clientId, uint8_t qoS) {
+    bool SubscriptionTree::subscribe(const std::string& topic, const std::string& clientId, uint8_t qoS) {
         bool success = false;
 
         auto hashCount = std::ranges::count(topic, '#');
@@ -81,7 +81,7 @@ namespace iot::mqtt::server::broker {
         return success;
     }
 
-    void SubscribtionTree::publish(Message&& message) {
+    void SubscriptionTree::publish(Message&& message) {
         auto hashCount = std::ranges::count(message.getTopic(), '#');
         if (!message.getTopic().empty() && (hashCount == 0 || (hashCount == 1 && message.getTopic().ends_with('#')))) {
             head.publish(message, message.getTopic());
@@ -90,7 +90,7 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    void SubscribtionTree::unsubscribe(const std::string& topic, const std::string& clientId) {
+    void SubscriptionTree::unsubscribe(const std::string& topic, const std::string& clientId) {
         auto hashCount = std::ranges::count(topic, '#');
         if (!topic.empty() && (hashCount == 0 || (hashCount == 1 && topic.ends_with('#')))) {
             head.unsubscribe(clientId, topic);
@@ -99,50 +99,50 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    void SubscribtionTree::unsubscribe(const std::string& clientId) {
+    void SubscriptionTree::unsubscribe(const std::string& clientId) {
         head.unsubscribe(clientId);
     }
 
-    std::list<std::string> SubscribtionTree::getSubscriptions(const std::string& clientId) const {
+    std::list<std::string> SubscriptionTree::getSubscriptions(const std::string& clientId) const {
         std::list<std::string> subscriptions = head.getSubscriptions(clientId);
 
         return subscriptions;
     }
 
-    std::map<std::string, std::list<std::pair<std::string, uint8_t>>> SubscribtionTree::getSubscriptionTree() const {
+    std::map<std::string, std::list<std::pair<std::string, uint8_t>>> SubscriptionTree::getSubscriptionTree() const {
         return head.getSubscriptionTree();
     }
 
-    void SubscribtionTree::fromJson(const nlohmann::json& json) {
+    void SubscriptionTree::fromJson(const nlohmann::json& json) {
         if (!json.empty()) {
             head.fromJson(json);
         }
     }
 
-    nlohmann::json SubscribtionTree::toJson() const {
+    nlohmann::json SubscriptionTree::toJson() const {
         return head.toJson();
     }
 
-    void SubscribtionTree::clear() {
+    void SubscriptionTree::clear() {
         head.clear();
     }
 
-    SubscribtionTree::TopicLevel::TopicLevel(Broker* broker, const std::string& topicLevel)
+    SubscriptionTree::TopicLevel::TopicLevel(Broker* broker, const std::string& topicLevel)
         : broker(broker)
         , topicLevel(topicLevel) {
     }
 
-    void SubscribtionTree::TopicLevel::appear(const std::string& clientId, const std::string& topic) {
+    void SubscriptionTree::TopicLevel::appear(const std::string& clientId, const std::string& topic) {
         if (clientIds.contains(clientId)) {
             broker->appear(clientId, topic, clientIds[clientId]);
         }
 
-        for (auto& [topicLevel, subscribtion] : topicLevels) {
-            subscribtion.appear(clientId, std::string(topic).append(topic.empty() ? "" : "/").append(topicLevel));
+        for (auto& [topicLevel, subscription] : topicLevels) {
+            subscription.appear(clientId, std::string(topic).append(topic.empty() ? "" : "/").append(topicLevel));
         }
     }
 
-    bool SubscribtionTree::TopicLevel::subscribe(const std::string& clientId, uint8_t qoS, std::string topic) {
+    bool SubscriptionTree::TopicLevel::subscribe(const std::string& clientId, uint8_t qoS, std::string topic) {
         if (topic.empty()) {
             LOG(INFO) << "MQTT Broker: Subscribe";
             LOG(INFO) << "MQTT Broker:   ClientId: " << clientId;
@@ -153,7 +153,7 @@ namespace iot::mqtt::server::broker {
 
             topic.erase(0, topicLevel.size() + 1);
 
-            const auto& [it, inserted] = topicLevels.insert({topicLevel, SubscribtionTree::TopicLevel(broker, topicLevel)});
+            const auto& [it, inserted] = topicLevels.insert({topicLevel, SubscriptionTree::TopicLevel(broker, topicLevel)});
 
             if (!it->second.subscribe(clientId, qoS, topic)) {
                 LOG(DEBUG) << "MQTT Broker:   Erase topic: " << topicLevel << " /" << topic;
@@ -167,7 +167,7 @@ namespace iot::mqtt::server::broker {
         return !topicLevels.empty() || !clientIds.empty();
     }
 
-    void SubscribtionTree::TopicLevel::publish(Message& message, std::string topic) {
+    void SubscriptionTree::TopicLevel::publish(Message& message, std::string topic) {
         if (topic.empty()) {
             LOG(INFO) << "MQTT Broker: Found match:";
             LOG(INFO) << "MQTT Broker:   Topic: '" << message.getTopic() << "';";
@@ -221,7 +221,7 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    bool SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId, std::string topic) {
+    bool SubscriptionTree::TopicLevel::unsubscribe(const std::string& clientId, std::string topic) {
         if (topic.empty()) {
             if (clientIds.erase(clientId) != 0) {
                 LOG(INFO) << "MQTT Broker: Unsubscribe";
@@ -246,7 +246,7 @@ namespace iot::mqtt::server::broker {
         return clientIds.empty() && topicLevels.empty();
     }
 
-    bool SubscribtionTree::TopicLevel::unsubscribe(const std::string& clientId) {
+    bool SubscriptionTree::TopicLevel::unsubscribe(const std::string& clientId) {
         if (clientIds.erase(clientId) != 0) {
             LOG(INFO) << "MQTT Broker: Unsubscribe";
             LOG(INFO) << "MQTT Broker:   ClientId: " << clientId;
@@ -266,7 +266,7 @@ namespace iot::mqtt::server::broker {
         return clientIds.empty() && topicLevels.empty();
     }
 
-    nlohmann::json SubscribtionTree::TopicLevel::toJson() const {
+    nlohmann::json SubscriptionTree::TopicLevel::toJson() const {
         nlohmann::json json;
 
         for (const auto& [topicLevelName, topicLevel] : topicLevels) {
@@ -280,15 +280,15 @@ namespace iot::mqtt::server::broker {
         return json;
     }
 
-    std::list<std::string> SubscribtionTree::TopicLevel::getSubscriptions(const std::string& clientId) const {
+    std::list<std::string> SubscriptionTree::TopicLevel::getSubscriptions(const std::string& clientId) const {
         return getSubscriptions("", clientId);
     }
 
-    std::map<std::string, std::list<std::pair<std::string, uint8_t>>> SubscribtionTree::TopicLevel::getSubscriptionTree() const {
+    std::map<std::string, std::list<std::pair<std::string, uint8_t>>> SubscriptionTree::TopicLevel::getSubscriptionTree() const {
         return getSubscriptionTree("");
     }
 
-    std::list<std::string> SubscribtionTree::TopicLevel::getSubscriptions(const std::string& absoluteTopicLevel,
+    std::list<std::string> SubscriptionTree::TopicLevel::getSubscriptions(const std::string& absoluteTopicLevel,
                                                                           const std::string& clientId) const {
         std::list<std::string> topicLevelList;
 
@@ -306,7 +306,7 @@ namespace iot::mqtt::server::broker {
     }
 
     std::map<std::string, std::list<std::pair<std::string, uint8_t>>>
-    SubscribtionTree::TopicLevel::getSubscriptionTree(const std::string& absoluteTopicLevel) const {
+    SubscriptionTree::TopicLevel::getSubscriptionTree(const std::string& absoluteTopicLevel) const {
         std::map<std::string, std::list<std::pair<std::string, uint8_t>>> topicLevelTree;
 
         for (const auto& [topicLevelName, nextTopicLevel] : topicLevels) {
@@ -325,7 +325,7 @@ namespace iot::mqtt::server::broker {
         return topicLevelTree;
     }
 
-    SubscribtionTree::TopicLevel& SubscribtionTree::TopicLevel::fromJson(const nlohmann::json& json) {
+    SubscriptionTree::TopicLevel& SubscriptionTree::TopicLevel::fromJson(const nlohmann::json& json) {
         clientIds.clear();
         topicLevels.clear();
 
@@ -344,7 +344,7 @@ namespace iot::mqtt::server::broker {
         return *this;
     }
 
-    void SubscribtionTree::TopicLevel::clear() {
+    void SubscriptionTree::TopicLevel::clear() {
         *this = TopicLevel(broker, "");
     }
 

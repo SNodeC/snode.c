@@ -40,9 +40,9 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(IOT_MQTT_SERVER_BROKER_CPP Broker.cpp Message.cpp Session.cpp
-                               SubscribtionTree.cpp RetainTree.cpp
+                               SubscriptionTree.cpp RetainTree.cpp
 )
-set(IOT_MQTT_SERVER_BROKER_H Broker.h Message.h Session.h SubscribtionTree.h
+set(IOT_MQTT_SERVER_BROKER_H Broker.h Message.h Session.h SubscriptionTree.h
                              RetainTree.h
 )
 

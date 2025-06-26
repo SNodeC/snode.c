@@ -44,7 +44,7 @@
 
 #include "iot/mqtt/server/broker/RetainTree.h"
 #include "iot/mqtt/server/broker/Session.h" // IWYU pragma: export
-#include "iot/mqtt/server/broker/SubscribtionTree.h"
+#include "iot/mqtt/server/broker/SubscriptionTree.h"
 
 namespace iot::mqtt::server {
     class Mqtt;
@@ -63,10 +63,10 @@ namespace iot::mqtt::server {
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#define SUBSCRIBTION_MAX_QOS 0x02
+#define SUBSCRIPTION_MAX_QOS 0x02
 
-#define SUBSCRIBTION_SUCCESS 0x00
-#define SUBSCRIBTION_FAILURE 0x80
+#define SUBSCRIPTION_SUCCESS 0x00
+#define SUBSCRIPTION_FAILURE 0x80
 
 namespace iot::mqtt::server::broker {
 
@@ -109,7 +109,7 @@ namespace iot::mqtt::server::broker {
         std::string sessionStoreFileName;
         uint8_t maxQoS;
 
-        iot::mqtt::server::broker::SubscribtionTree subscribtionTree;
+        iot::mqtt::server::broker::SubscriptionTree subscriptionTree;
         iot::mqtt::server::broker::RetainTree retainTree;
 
         std::map<std::string, iot::mqtt::server::broker::Session> sessionStore;

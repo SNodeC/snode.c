@@ -54,7 +54,7 @@ namespace iot::mqtt::server {
     }
 
     core::socket::stream::SocketContext* SharedSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
-        return create(socketConnection, iot::mqtt::server::broker::Broker::instance(SUBSCRIBTION_MAX_QOS, sessionStoreFileName));
+        return create(socketConnection, iot::mqtt::server::broker::Broker::instance(SUBSCRIPTION_MAX_QOS, sessionStoreFileName));
     }
 
 } // namespace iot::mqtt::server

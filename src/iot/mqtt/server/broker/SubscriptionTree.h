@@ -39,8 +39,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef IOT_MQTT_SERVER_BROKER_SUBSCRIBERTREE_H
-#define IOT_MQTT_SERVER_BROKER_SUBSCRIBERTREE_H
+#ifndef IOT_MQTT_SERVER_BROKER_SUBSCRIPTIONTREE_H
+#define IOT_MQTT_SERVER_BROKER_SUBSCRIPTIONTREE_H
 
 namespace iot::mqtt::server::broker {
     class Broker;
@@ -62,9 +62,9 @@ namespace iot::mqtt::server::broker {
 
 namespace iot::mqtt::server::broker {
 
-    class SubscribtionTree {
+    class SubscriptionTree {
     public:
-        explicit SubscribtionTree(iot::mqtt::server::broker::Broker* broker);
+        explicit SubscriptionTree(iot::mqtt::server::broker::Broker* broker);
 
         void appear(const std::string& clientId);
 
@@ -124,4 +124,4 @@ namespace iot::mqtt::server::broker {
 
 } // namespace iot::mqtt::server::broker
 
-#endif // IOT_MQTT_SERVER_BROKER_SUBSCRIBERTREE_H
+#endif // IOT_MQTT_SERVER_BROKER_SUBSCRIPTIONTREE_H
