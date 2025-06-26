@@ -375,7 +375,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::printFixedHeader(const FixedHeader& fixedHeader) const {
-        LOG(INFO) << connectionName << " MQTT: ======================================================";
+        LOG(INFO) << connectionName << " MQTT: ====================================";
 
         LOG(TRACE) << connectionName << " MQTT: Received data (fixed header):\n" << toHexString(fixedHeader.serialize());
 
