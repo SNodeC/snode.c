@@ -72,9 +72,7 @@ namespace web::http::client {
             , configHttp(web::http::client::ConfigHTTP(getConfigInstance())) {
         }
 
-        void setPipelinedRequests(bool pipelinedRequests) {
-            configHttp.setPipelinedRequests(pipelinedRequests);
-        }
+        void setPipelinedRequests(bool pipelinedRequests);
 
     private:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;

@@ -83,6 +83,7 @@ namespace web::http::client {
                     onConnect,
                     onConnected,
                     onDisconnect,
+                    // SocketContextFactory Args...
                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestBegin),
                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestEnd),
                     [this]() -> net::config::ConfigInstance& {
@@ -107,6 +108,7 @@ namespace web::http::client {
                std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
                std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
             : Super(name,
+                    // SocketContextFactory Args...
                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestBegin),
                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestEnd),
                     [this]() -> net::config::ConfigInstance& {

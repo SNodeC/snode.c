@@ -47,6 +47,10 @@
 
 namespace web::http::client {
 
+    void SocketContextFactory::setPipelinedRequests(bool pipelinedRequests) {
+        configHttp.setPipelinedRequests(pipelinedRequests);
+    }
+
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
         return new web::http::client::SocketContext(socketConnection, onRequestBegin, onRequestEnd, configHttp.getPipelinedRequests());
     }
