@@ -53,14 +53,14 @@
 
 namespace core::multiplexer::epoll {
 
-    DescriptorEventPublisher::EPollEvents::EPollEvents(int& epfd, uint32_t events)
+    DescriptorEventPublisher::EPollEvents::EPollEvents(int& epfd, uint32_t events) noexcept
         : epfd(epfd)
         , events(events) {
         epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
         ePollEvents.resize(1);
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::muxAdd(core::DescriptorEventReceiver* eventReceiver) noexcept {
         const utils::PreserveErrno preserveErrno;
 
         epoll_event ePollEvent{};
@@ -79,7 +79,7 @@ namespace core::multiplexer::epoll {
         }
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxDel(int fd) {
+    void DescriptorEventPublisher::EPollEvents::muxDel(int fd) noexcept {
         const utils::PreserveErrno preserveErrno;
 
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, fd, nullptr) == 0 || errno == EBADF) {
@@ -92,7 +92,8 @@ namespace core::multiplexer::epoll {
         }
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const {
+    void
+    DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const noexcept {
         const utils::PreserveErrno preserveErrno;
 
         epoll_event ePollEvent{events, {eventReceiver}};
@@ -100,49 +101,49 @@ namespace core::multiplexer::epoll {
         core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &ePollEvent);
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxOn(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::muxOn(core::DescriptorEventReceiver* eventReceiver) noexcept {
         muxMod(eventReceiver->getRegisteredFd(), events, eventReceiver);
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxOff(DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::EPollEvents::muxOff(DescriptorEventReceiver* eventReceiver) noexcept {
         muxMod(eventReceiver->getRegisteredFd(), 0, eventReceiver);
     }
 
-    int DescriptorEventPublisher::EPollEvents::getEPFd() const {
+    int DescriptorEventPublisher::EPollEvents::getEPFd() const noexcept {
         return epfd;
     }
 
-    epoll_event* DescriptorEventPublisher::EPollEvents::getEvents() {
+    epoll_event* DescriptorEventPublisher::EPollEvents::getEvents() noexcept {
         return ePollEvents.data();
     }
 
-    int DescriptorEventPublisher::EPollEvents::getInterestCount() const {
+    int DescriptorEventPublisher::EPollEvents::getInterestCount() const noexcept {
         return static_cast<int>(interestCount);
     }
 
-    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events, uint32_t revents)
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events, uint32_t revents) noexcept
         : core::DescriptorEventPublisher(name)
         , ePollEvents(epfd, events)
         , revents(revents) {
     }
 
-    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) noexcept {
         ePollEvents.muxAdd(eventReceiver);
     }
 
-    void DescriptorEventPublisher::muxDel(int fd) {
+    void DescriptorEventPublisher::muxDel(int fd) noexcept {
         ePollEvents.muxDel(fd);
     }
 
-    void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) noexcept {
         ePollEvents.muxOn(eventReceiver);
     }
 
-    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) noexcept {
         ePollEvents.muxOff(eventReceiver);
     }
 
-    void DescriptorEventPublisher::spanActiveEvents() {
+    void DescriptorEventPublisher::spanActiveEvents() noexcept {
         const int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {

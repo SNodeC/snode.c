@@ -55,14 +55,14 @@
 
 namespace core {
 
-    DescriptorEventPublisher::DescriptorEventPublisher(std::string name)
+    DescriptorEventPublisher::DescriptorEventPublisher(std::string name) noexcept
         : name(std::move(name)) {
     }
 
-    DescriptorEventPublisher::~DescriptorEventPublisher() {
+    DescriptorEventPublisher::~DescriptorEventPublisher() noexcept {
     }
 
-    void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
+    void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) noexcept {
         const int fd = descriptorEventReceiver->getRegisteredFd();
 
         observedEventReceiverLists[fd].push_front(descriptorEventReceiver);
@@ -73,27 +73,27 @@ namespace core {
         descriptorEventReceiver->setEnabled(utils::Timeval::currentTime());
     }
 
-    void DescriptorEventPublisher::disable(DescriptorEventReceiver* descriptorEventReceiver) {
+    void DescriptorEventPublisher::disable(DescriptorEventReceiver* descriptorEventReceiver) noexcept {
         const int fd = descriptorEventReceiver->getRegisteredFd();
 
         dirtyEventReceiverLists[&observedEventReceiverLists[fd]].push_back(descriptorEventReceiver);
     }
 
-    void DescriptorEventPublisher::suspend(DescriptorEventReceiver* descriptorEventReceiver) {
+    void DescriptorEventPublisher::suspend(DescriptorEventReceiver* descriptorEventReceiver) noexcept {
         muxOff(descriptorEventReceiver);
     }
 
-    void DescriptorEventPublisher::resume(DescriptorEventReceiver* descriptorEventReceiver) {
+    void DescriptorEventPublisher::resume(DescriptorEventReceiver* descriptorEventReceiver) noexcept {
         muxOn(descriptorEventReceiver);
     }
 
-    void DescriptorEventPublisher::checkTimedOutEvents(const utils::Timeval& currentTime) {
+    void DescriptorEventPublisher::checkTimedOutEvents(const utils::Timeval& currentTime) noexcept {
         for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             eventReceivers.front()->checkTimeout(currentTime);
         }
     }
 
-    void DescriptorEventPublisher::releaseDisabledEvents(const utils::Timeval& currentTime) {
+    void DescriptorEventPublisher::releaseDisabledEvents(const utils::Timeval& currentTime) noexcept {
         for (auto& [dirtyDescriptEventReceiverList, disabledDescriptorEventReceivers] : dirtyEventReceiverLists) {
             for (DescriptorEventReceiver* disabledDescriptorEventReceiver : disabledDescriptorEventReceivers) {
                 dirtyDescriptEventReceiverList->remove(disabledDescriptorEventReceiver);
@@ -121,11 +121,11 @@ namespace core {
         dirtyEventReceiverLists.clear();
     }
 
-    int DescriptorEventPublisher::getObservedEventReceiverCount() const {
+    int DescriptorEventPublisher::getObservedEventReceiverCount() const noexcept {
         return static_cast<int>(observedEventReceiverLists.size());
     }
 
-    int DescriptorEventPublisher::maxFd() const {
+    int DescriptorEventPublisher::maxFd() const noexcept {
         int maxFd = -1;
 
         if (!observedEventReceiverLists.empty()) {
@@ -135,7 +135,7 @@ namespace core {
         return maxFd;
     }
 
-    utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) const {
+    utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) const noexcept {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
         if (dirtyEventReceiverLists.empty()) {
@@ -149,7 +149,7 @@ namespace core {
         return nextTimeout;
     }
 
-    void DescriptorEventPublisher::signal(int sigNum) {
+    void DescriptorEventPublisher::signal(int sigNum) noexcept {
         for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 eventReceiver->onSignal(sigNum);
@@ -157,7 +157,7 @@ namespace core {
         }
     }
 
-    void DescriptorEventPublisher::disable() {
+    void DescriptorEventPublisher::disable() noexcept {
         for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 eventReceiver->disable();
@@ -165,7 +165,7 @@ namespace core {
         }
     }
 
-    const std::string& DescriptorEventPublisher::getName() const {
+    const std::string& DescriptorEventPublisher::getName() const noexcept {
         return name;
     }
 

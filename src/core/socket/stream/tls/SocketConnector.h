@@ -73,14 +73,14 @@ namespace core::socket::stream::tls {
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
-                        const std::shared_ptr<Config>& config);
+                        const std::shared_ptr<Config>& config) noexcept;
 
-        SocketConnector(const SocketConnector& socketConnector);
+        SocketConnector(const SocketConnector& socketConnector) noexcept;
 
     private:
-        void useNextSocketAddress() override;
+        void useNextSocketAddress() noexcept override;
 
-        void init() final;
+        void init() noexcept final;
     };
 
 } // namespace core::socket::stream::tls

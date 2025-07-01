@@ -71,10 +71,10 @@ namespace iot::mqtt {
 
     class OnReceivedFromPeerEvent : public core::EventReceiver {
     public:
-        explicit OnReceivedFromPeerEvent(const std::function<void(const utils::Timeval&)>& onReceivedFromPeer);
+        explicit OnReceivedFromPeerEvent(const std::function<void(const utils::Timeval&)>& onReceivedFromPeer) noexcept;
 
     private:
-        void onEvent(const utils::Timeval& currentTime) override;
+        void onEvent(const utils::Timeval& currentTime) noexcept override;
 
         std::function<void(const utils::Timeval&)> onReceivedFromPeer;
     };
@@ -87,25 +87,25 @@ namespace iot::mqtt {
         using WSSubProtocolRole = WSSubProtocolRoleT;
 
     public:
-        SubProtocol(web::websocket::SubProtocolContext* subProtocolContext, const std::string& name, iot::mqtt::Mqtt* mqtt);
-        ~SubProtocol() override = default;
+        SubProtocol(web::websocket::SubProtocolContext* subProtocolContext, const std::string& name, iot::mqtt::Mqtt* mqtt) noexcept;
+        ~SubProtocol() noexcept override = default;
 
-        std::size_t recv(char* chunk, std::size_t chunklen) override;
-        void send(const char* chunk, std::size_t chunklen) override;
+        std::size_t recv(char* chunk, std::size_t chunklen) noexcept override;
+        void send(const char* chunk, std::size_t chunklen) noexcept override;
 
-        void end(bool fatal = false) override;
+        void end(bool fatal = false) noexcept override;
         void close() override;
 
     private:
-        void onConnected() override;
-        void onMessageStart(int opCode) override;
-        void onMessageData(const char* chunk, std::size_t chunkLen) override;
-        void onMessageEnd() override;
-        void onMessageError(uint16_t errnum) override;
-        void onDisconnected() override;
-        bool onSignal(int sig) override;
+        void onConnected() noexcept override;
+        void onMessageStart(int opCode) noexcept override;
+        void onMessageData(const char* chunk, std::size_t chunkLen) noexcept override;
+        void onMessageEnd() noexcept override;
+        void onMessageError(uint16_t errnum) noexcept override;
+        void onDisconnected() noexcept override;
+        bool onSignal(int sig) noexcept override;
 
-        core::socket::stream::SocketConnection* getSocketConnection() const override;
+        core::socket::stream::SocketConnection* getSocketConnection() const noexcept override;
 
         OnReceivedFromPeerEvent onReceivedFromPeerEvent;
 

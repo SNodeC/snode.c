@@ -66,7 +66,7 @@ namespace core::socket::stream {
                                                                                      const utils::Timeval& writeTimeout,
                                                                                      std::size_t readBlockSize,
                                                                                      std::size_t writeBlockSize,
-                                                                                     const utils::Timeval& terminateTimeout)
+                                                                                     const utils::Timeval& terminateTimeout) noexcept
         : SocketConnection(instanceName, physicalSocket.getFd(), configuredServer)
         , SocketReader(
               instanceName + " [" + std::to_string(physicalSocket.getFd()) + "]",
@@ -114,34 +114,34 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::~SocketConnectionT() {
+    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::~SocketConnectionT() noexcept {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::setTimeout(const utils::Timeval& timeout) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::setTimeout(const utils::Timeval& timeout) noexcept {
         SocketReader::setTimeout(timeout);
         SocketWriter::setTimeout(timeout);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    int SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getFd() const {
+    int SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getFd() const noexcept {
         return physicalSocket.getFd();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     const typename SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketAddress&
-    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getLocalAddress() const {
+    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getLocalAddress() const noexcept {
         return localAddress;
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
     const typename SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::SocketAddress&
-    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getRemoteAddress() const {
+    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getRemoteAddress() const noexcept {
         return remoteAddress;
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readFromPeer(char* chunk, std::size_t chunkLen) {
+    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readFromPeer(char* chunk, std::size_t chunkLen) noexcept {
         std::size_t ret = 0;
 
         if (newSocketContext == nullptr) {
@@ -154,22 +154,22 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::sendToPeer(const char* chunk, std::size_t chunkLen) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::sendToPeer(const char* chunk, std::size_t chunkLen) noexcept {
         SocketWriter::sendToPeer(chunk, chunkLen);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamToPeer(core::pipe::Source* source) {
+    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamToPeer(core::pipe::Source* source) noexcept {
         return SocketWriter::streamToPeer(source);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamEof() {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::streamEof() noexcept {
         SocketWriter::streamEof();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownRead() noexcept {
         LOG(TRACE) << connectionName << ": Shutdown (RD)";
 
         SocketReader::shutdownRead();
@@ -182,7 +182,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) noexcept {
         if (!SocketWriter::shutdownInProgress) {
             LOG(TRACE) << connectionName << ": Stop writing";
 
@@ -198,7 +198,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::close() {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::close() noexcept {
         if (SocketWriter::isEnabled()) {
             SocketWriter::disable();
         }
@@ -208,27 +208,27 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalSent() const {
+    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalSent() const noexcept {
         return SocketWriter::getTotalSent();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalQueued() const {
+    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalQueued() const noexcept {
         return SocketWriter::getTotalQueued();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalRead() const {
+    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalRead() const noexcept {
         return SocketReader::getTotalRead();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalProcessed() const {
+    std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::getTotalProcessed() const noexcept {
         return SocketReader::getTotalProcessed();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void()>& onShutdown) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::doWriteShutdown(const std::function<void()>& onShutdown) noexcept {
         errno = 0;
 
         setTimeout(SocketWriter::terminateTimeout);
@@ -245,7 +245,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReceivedFromPeer(std::size_t available) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReceivedFromPeer(std::size_t available) noexcept {
         std::size_t consumed = socketContext->onReceivedFromPeer();
 
         if (available != 0 && consumed == 0) {
@@ -263,17 +263,17 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onWriteError(int errnum) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onWriteError(int errnum) noexcept {
         socketContext->onWriteError(errnum);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReadError(int errnum) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onReadError(int errnum) noexcept {
         socketContext->onReadError(errnum);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onSignal(int signum) {
+    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::onSignal(int signum) noexcept {
         switch (signum) {
             case SIGINT:
                 [[fallthrough]];
@@ -293,19 +293,19 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readTimeout() {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::readTimeout() noexcept {
         LOG(WARNING) << connectionName << ": Read timeout";
         close();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::writeTimeout() {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::writeTimeout() noexcept {
         LOG(WARNING) << connectionName << ": Write timeout";
         close();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::unobservedEvent() {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::unobservedEvent() noexcept {
         disconnectCurrentSocketContext();
 
         onDisconnect();

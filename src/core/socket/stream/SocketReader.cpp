@@ -56,22 +56,22 @@ namespace core::socket::stream {
                                const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout,
                                std::size_t blockSize,
-                               const utils::Timeval& terminateTimeout)
+                               const utils::Timeval& terminateTimeout) noexcept
         : core::eventreceiver::ReadEventReceiver(instanceName, timeout)
         , onStatus(onStatus)
         , terminateTimeout(terminateTimeout) {
         setBlockSize(blockSize);
     }
 
-    std::size_t SocketReader::getTotalRead() const {
+    std::size_t SocketReader::getTotalRead() const noexcept {
         return totalRead;
     }
 
-    std::size_t SocketReader::getTotalProcessed() const {
+    std::size_t SocketReader::getTotalProcessed() const noexcept {
         return totalProcessed;
     }
 
-    void SocketReader::readEvent() {
+    void SocketReader::readEvent() noexcept {
         const std::size_t available = doRead();
 
         if (available > 0) {
@@ -79,10 +79,10 @@ namespace core::socket::stream {
         }
     }
 
-    void SocketReader::signalEvent([[maybe_unused]] int sigNum) { // Do nothing in case a signal was received
+    void SocketReader::signalEvent([[maybe_unused]] int sigNum) noexcept { // Do nothing in case a signal was received
     }
 
-    ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
+    ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) noexcept {
         return core::system::recv(this->getRegisteredFd(), chunk, chunkLen, 0);
     }
 
@@ -120,12 +120,12 @@ namespace core::socket::stream {
         return size;
     }
 
-    void SocketReader::setBlockSize(std::size_t readBlockSize) {
+    void SocketReader::setBlockSize(std::size_t readBlockSize) noexcept {
         readBuffer.resize(readBlockSize);
         blockSize = readBlockSize;
     }
 
-    std::size_t SocketReader::readFromPeer(char* chunk, std::size_t chunkLen) {
+    std::size_t SocketReader::readFromPeer(char* chunk, std::size_t chunkLen) noexcept {
         const std::size_t maxReturn = std::min(chunkLen, size);
 
         std::copy(readBuffer.data() + cursor, readBuffer.data() + cursor + maxReturn, chunk);

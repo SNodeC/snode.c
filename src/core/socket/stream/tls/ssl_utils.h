@@ -85,26 +85,26 @@ namespace core::socket::stream::tls {
         bool server = false;
     };
 
-    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig);
-    std::map<std::string, SSL_CTX*> ssl_get_sans(SSL_CTX* sslCtx);
+    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig) noexcept;
+    std::map<std::string, SSL_CTX*> ssl_get_sans(SSL_CTX* sslCtx) noexcept;
 
-    void ssl_set_sni(SSL* ssl, const std::string& sni);
-    SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx);
+    void ssl_set_sni(SSL* ssl, const std::string& sni) noexcept;
+    SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx) noexcept;
 
-    void ssl_ctx_free(SSL_CTX* ctx);
+    void ssl_ctx_free(SSL_CTX* ctx) noexcept;
 
-    std::string ssl_get_servername_from_client_hello(SSL* ssl);
+    std::string ssl_get_servername_from_client_hello(SSL* ssl) noexcept;
 
-    void ssl_log_error(const std::string& message);
-    void ssl_log_warning(const std::string& message);
-    void ssl_log_info(const std::string& message);
-    void ssl_log(const std::string& message, int sslErr);
+    void ssl_log_error(const std::string& message) noexcept;
+    void ssl_log_warning(const std::string& message) noexcept;
+    void ssl_log_info(const std::string& message) noexcept;
+    void ssl_log(const std::string& message, int sslErr) noexcept;
 
     // From https://www.geeksforgeeks.org/wildcard-character-matching/
     //
     // The main function that checks if two given strings
     // match. The first string may contain wildcard characters
-    bool match(const char* first, const char* second);
+    bool match(const char* first, const char* second) noexcept;
 
 } // namespace core::socket::stream::tls
 

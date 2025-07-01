@@ -54,11 +54,11 @@ namespace apps::towercalculator {
 
     class KeyboardReader : core::eventreceiver::ReadEventReceiver {
     public:
-        explicit KeyboardReader(const std::function<void(long)>& cb);
+        explicit KeyboardReader(const std::function<void(long)>& cb) noexcept;
 
     protected:
-        void readEvent() override;
-        void unobservedEvent() override;
+        void readEvent() noexcept override;
+        void unobservedEvent() noexcept override;
 
         std::function<void(long)> callBack;
 

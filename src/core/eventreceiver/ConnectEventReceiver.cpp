@@ -50,26 +50,26 @@
 
 namespace core::eventreceiver {
 
-    ConnectEventReceiver::ConnectEventReceiver(const std::string& name, const utils::Timeval& timeout)
+    ConnectEventReceiver::ConnectEventReceiver(const std::string& name, const utils::Timeval& timeout) noexcept
         : core::DescriptorEventReceiver(
               name + " Connect",
               core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR),
               timeout) {
     }
 
-    void ConnectEventReceiver::connectTimeout() {
+    void ConnectEventReceiver::connectTimeout() noexcept {
         disable();
     }
 
-    void ConnectEventReceiver::dispatchEvent() {
+    void ConnectEventReceiver::dispatchEvent() noexcept {
         connectEvent();
     }
 
-    void ConnectEventReceiver::timeoutEvent() {
+    void ConnectEventReceiver::timeoutEvent() noexcept {
         connectTimeout();
     }
 
-    void ConnectEventReceiver::signalEvent([[maybe_unused]] int signum) {
+    void ConnectEventReceiver::signalEvent([[maybe_unused]] int signum) noexcept {
         disable();
     }
 

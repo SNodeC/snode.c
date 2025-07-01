@@ -49,12 +49,12 @@ namespace core::timer {
 
     IntervalTimerStopable::IntervalTimerStopable(const std::function<void(const std::function<void()>& stop)>& dispatcher,
                                                  const utils::Timeval& timeout,
-                                                 const std::string& name)
+                                                 const std::string& name) noexcept
         : core::TimerEventReceiver(name, timeout)
         , dispatcher(dispatcher) {
     }
 
-    void IntervalTimerStopable::dispatchEvent() {
+    void IntervalTimerStopable::dispatchEvent() noexcept {
         update();
 
         dispatcher([this]() {
@@ -62,7 +62,7 @@ namespace core::timer {
         });
     }
 
-    void IntervalTimerStopable::unobservedEvent() {
+    void IntervalTimerStopable::unobservedEvent() noexcept {
         delete this;
     }
 

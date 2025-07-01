@@ -79,7 +79,7 @@ namespace core::socket::stream::legacy {
                          const utils::Timeval& writeTimeout,
                          std::size_t readBlockSize,
                          std::size_t writeBlockSize,
-                         const utils::Timeval& terminateTimeout);
+                         const utils::Timeval& terminateTimeout) noexcept;
 
         template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;

@@ -51,29 +51,29 @@
 
 namespace core {
 
-    void SNodeC::init(int argc, char* argv[]) {
+    void SNodeC::init(int argc, char* argv[]) noexcept {
         if (!EventLoop::init(argc, argv)) {
             exit(1);
         }
     }
 
-    int SNodeC::start(const utils::Timeval& timeOut) {
+    int SNodeC::start(const utils::Timeval& timeOut) noexcept {
         return EventLoop::start(timeOut);
     }
 
-    void SNodeC::stop() {
+    void SNodeC::stop() noexcept {
         EventLoop::stop();
     }
 
-    TickStatus SNodeC::tick(const utils::Timeval& timeOut) {
+    TickStatus SNodeC::tick(const utils::Timeval& timeOut) noexcept {
         return EventLoop::tick(timeOut);
     }
 
-    void SNodeC::free() {
+    void SNodeC::free() noexcept {
         EventLoop::free();
     }
 
-    State SNodeC::state() {
+    State SNodeC::state() noexcept {
         return EventLoop::getEventLoopState();
     }
 

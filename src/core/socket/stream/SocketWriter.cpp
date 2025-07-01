@@ -57,26 +57,26 @@ namespace core::socket::stream {
                                const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout,
                                std::size_t blockSize,
-                               const utils::Timeval& terminateTimeout)
+                               const utils::Timeval& terminateTimeout) noexcept
         : core::eventreceiver::WriteEventReceiver(instanceName, timeout)
         , onStatus(onStatus)
         , blockSize(blockSize)
         , terminateTimeout(terminateTimeout) {
     }
 
-    std::size_t SocketWriter::getTotalSent() const {
+    std::size_t SocketWriter::getTotalSent() const noexcept {
         return totalSent;
     }
 
-    std::size_t SocketWriter::getTotalQueued() const {
+    std::size_t SocketWriter::getTotalQueued() const noexcept {
         return totalQueued;
     }
 
-    void SocketWriter::writeEvent() {
+    void SocketWriter::writeEvent() noexcept {
         doWrite();
     }
 
-    void SocketWriter::signalEvent(int sigNum) {
+    void SocketWriter::signalEvent(int sigNum) noexcept {
         if (onSignal(sigNum)) {
             shutdownWrite([this]() {
                 SocketWriter::disable();
@@ -84,11 +84,11 @@ namespace core::socket::stream {
         }
     }
 
-    ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
+    ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) noexcept {
         return core::system::send(this->getRegisteredFd(), chunk, chunkLen, MSG_NOSIGNAL);
     }
 
-    void SocketWriter::doWrite() {
+    void SocketWriter::doWrite() noexcept {
         if (!writePuffer.empty()) {
             const std::size_t writeLen = (writePuffer.size() < blockSize) ? writePuffer.size() : blockSize;
             const ssize_t retWrite = write(writePuffer.data(), writeLen);
@@ -124,11 +124,11 @@ namespace core::socket::stream {
         }
     }
 
-    void SocketWriter::setBlockSize(std::size_t writeBlockSize) {
+    void SocketWriter::setBlockSize(std::size_t writeBlockSize) noexcept {
         blockSize = writeBlockSize;
     }
 
-    void SocketWriter::sendToPeer(const char* chunk, std::size_t chunkLen) {
+    void SocketWriter::sendToPeer(const char* chunk, std::size_t chunkLen) noexcept {
         if (!shutdownInProgress && !markShutdown) {
             if (isEnabled()) {
                 if (writePuffer.empty()) {
@@ -149,7 +149,7 @@ namespace core::socket::stream {
         }
     }
 
-    bool SocketWriter::streamToPeer(core::pipe::Source* source) {
+    bool SocketWriter::streamToPeer(core::pipe::Source* source) noexcept {
         bool success = false;
 
         if (!shutdownInProgress && !markShutdown) {
@@ -173,12 +173,12 @@ namespace core::socket::stream {
         return success;
     }
 
-    void SocketWriter::streamEof() {
+    void SocketWriter::streamEof() noexcept {
         LOG(TRACE) << getName() << ": Stream EOF";
         this->source = nullptr;
     }
 
-    void SocketWriter::shutdownWrite(const std::function<void()>& onShutdown) {
+    void SocketWriter::shutdownWrite(const std::function<void()>& onShutdown) noexcept {
         if (!shutdownInProgress) {
             shutdownInProgress = true;
 

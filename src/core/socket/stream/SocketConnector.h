@@ -74,25 +74,25 @@ namespace core::socket::stream {
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
-                        const std::shared_ptr<Config>& config);
+                        const std::shared_ptr<Config>& config) noexcept;
 
-        SocketConnector(const SocketConnector& socketConnector);
+        SocketConnector(const SocketConnector& socketConnector) noexcept;
 
-        ~SocketConnector() override;
+        ~SocketConnector() noexcept override;
 
     protected:
-        virtual void useNextSocketAddress() = 0;
+        virtual void useNextSocketAddress() noexcept = 0;
 
-        virtual void init();
+        virtual void init() noexcept;
 
     private:
-        void connectEvent() final;
+        void connectEvent() noexcept final;
 
-        void unobservedEvent() final;
-        void connectTimeout() final;
+        void unobservedEvent() noexcept final;
+        void connectTimeout() noexcept final;
 
     protected:
-        void destruct() final;
+        void destruct() noexcept final;
 
     private:
         PhysicalClientSocket physicalClientSocket;

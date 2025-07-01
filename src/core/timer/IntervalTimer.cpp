@@ -47,18 +47,18 @@
 
 namespace core::timer {
 
-    IntervalTimer::IntervalTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout, const std::string& name)
+    IntervalTimer::IntervalTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout, const std::string& name) noexcept
         : core::TimerEventReceiver(name, timeout)
         , dispatcher(dispatcher) {
     }
 
-    void IntervalTimer::dispatchEvent() {
+    void IntervalTimer::dispatchEvent() noexcept {
         update();
 
         dispatcher();
     }
 
-    void IntervalTimer::unobservedEvent() {
+    void IntervalTimer::unobservedEvent() noexcept {
         delete this;
     }
 

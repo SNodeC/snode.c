@@ -62,7 +62,7 @@ namespace core::socket::stream::tls {
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
-        const std::shared_ptr<Config>& config)
+        const std::shared_ptr<Config>& config) noexcept
         : Super(
               socketContextFactory,
               [onConnect, this](SocketConnection* socketConnection) { // onConnect
@@ -114,17 +114,17 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocketServer, typename Config>
-    SocketAcceptor<PhysicalSocketServer, Config>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
+    SocketAcceptor<PhysicalSocketServer, Config>::SocketAcceptor(const SocketAcceptor& socketAcceptor) noexcept
         : Super(socketAcceptor) {
     }
 
     template <typename PhysicalClientSocket, typename Config>
-    void SocketAcceptor<PhysicalClientSocket, Config>::useNextSocketAddress() {
+    void SocketAcceptor<PhysicalClientSocket, Config>::useNextSocketAddress() noexcept {
         new SocketAcceptor(*this);
     }
 
     template <typename PhysicalSocketServer, typename Config>
-    void SocketAcceptor<PhysicalSocketServer, Config>::init() {
+    void SocketAcceptor<PhysicalSocketServer, Config>::init() noexcept {
         if (core::eventLoopState() == core::State::RUNNING && !config->getDisabled()) {
             LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
             SSL_CTX* sslCtx = config->getSslCtx();
@@ -147,7 +147,7 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocketServer, typename Config>
-    int SocketAcceptor<PhysicalSocketServer, Config>::clientHelloCallback(SSL* ssl, int* al, [[maybe_unused]] void* arg) {
+    int SocketAcceptor<PhysicalSocketServer, Config>::clientHelloCallback(SSL* ssl, int* al, [[maybe_unused]] void* arg) noexcept {
         int ret = SSL_CLIENT_HELLO_SUCCESS;
 
         const std::string connectionName = *static_cast<std::string*>(SSL_get_ex_data(ssl, 0));

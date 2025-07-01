@@ -47,12 +47,12 @@
 
 namespace iot::mqtt {
 
-    OnReceivedFromPeerEvent::OnReceivedFromPeerEvent(const std::function<void(const utils::Timeval&)>& onReceivedFromPeer)
+    OnReceivedFromPeerEvent::OnReceivedFromPeerEvent(const std::function<void(const utils::Timeval&)>& onReceivedFromPeer) noexcept
         : core::EventReceiver("WS-OnData")
         , onReceivedFromPeer(onReceivedFromPeer) {
     }
 
-    void OnReceivedFromPeerEvent::onEvent(const utils::Timeval& currentTime) {
+    void OnReceivedFromPeerEvent::onEvent(const utils::Timeval& currentTime) noexcept {
         onReceivedFromPeer(currentTime);
     }
 

@@ -50,26 +50,26 @@
 
 namespace core::eventreceiver {
 
-    WriteEventReceiver::WriteEventReceiver(const std::string& name, const utils::Timeval& timeout)
+    WriteEventReceiver::WriteEventReceiver(const std::string& name, const utils::Timeval& timeout) noexcept
         : core::DescriptorEventReceiver(
               name + " Write",
               core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR),
               timeout) {
     }
 
-    void WriteEventReceiver::writeTimeout() {
+    void WriteEventReceiver::writeTimeout() noexcept {
         disable();
     }
 
-    void WriteEventReceiver::dispatchEvent() {
+    void WriteEventReceiver::dispatchEvent() noexcept {
         writeEvent();
     }
 
-    void WriteEventReceiver::timeoutEvent() {
+    void WriteEventReceiver::timeoutEvent() noexcept {
         writeTimeout();
     }
 
-    void WriteEventReceiver::signalEvent([[maybe_unused]] int signum) {
+    void WriteEventReceiver::signalEvent([[maybe_unused]] int signum) noexcept {
         disable();
     }
 

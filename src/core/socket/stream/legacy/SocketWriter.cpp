@@ -47,7 +47,7 @@
 
 namespace core::socket::stream::legacy {
 
-    SocketWriter::~SocketWriter() {
+    SocketWriter::~SocketWriter() noexcept {
     }
 
 } // namespace core::socket::stream::legacy

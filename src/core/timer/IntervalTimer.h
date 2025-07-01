@@ -60,12 +60,14 @@ namespace core::timer {
         IntervalTimer& operator=(const IntervalTimer& timer) = delete;
 
     private:
-        IntervalTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout, const std::string& name = "IntervalTimer");
+        IntervalTimer(const std::function<void()>& dispatcher,
+                      const utils::Timeval& timeout,
+                      const std::string& name = "IntervalTimer") noexcept;
 
-        ~IntervalTimer() override = default;
+        ~IntervalTimer() noexcept override = default;
 
-        void dispatchEvent() final;
-        void unobservedEvent() override;
+        void dispatchEvent() noexcept final;
+        void unobservedEvent() noexcept override;
 
         std::function<void()> dispatcher = nullptr;
 

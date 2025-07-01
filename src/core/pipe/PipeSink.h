@@ -59,16 +59,16 @@ namespace core::pipe {
 
         PipeSink& operator=(const PipeSink&) = delete;
 
-        explicit PipeSink(int fd);
-        ~PipeSink() override;
+        explicit PipeSink(int fd) noexcept;
+        ~PipeSink() noexcept override;
 
-        void setOnData(const std::function<void(const char*, std::size_t)>& onData);
-        void setOnEof(const std::function<void()>& onEof);
-        void setOnError(const std::function<void(int)>& onError);
+        void setOnData(const std::function<void(const char*, std::size_t)>& onData) noexcept;
+        void setOnEof(const std::function<void()>& onEof) noexcept;
+        void setOnError(const std::function<void(int)>& onError) noexcept;
 
     private:
-        void readEvent() override;
-        void unobservedEvent() override;
+        void readEvent() noexcept override;
+        void unobservedEvent() noexcept override;
 
         std::function<void(const char*, std::size_t)> onData;
         std::function<void()> onEof;

@@ -47,15 +47,15 @@
 
 namespace core {
 
-    void EventReceiver::atNextTick(const std::function<void()>& callBack) {
+    void EventReceiver::atNextTick(const std::function<void()>& callBack) noexcept {
         class NextTickEvent : public core::EventReceiver {
         public:
-            explicit NextTickEvent(const std::function<void(void)>& callBack)
+            explicit NextTickEvent(const std::function<void(void)>& callBack) noexcept
                 : core::EventReceiver("RequestEvent")
                 , callBack(callBack) {
             }
 
-            void onEvent([[maybe_unused]] const utils::Timeval& currentTime) override {
+            void onEvent([[maybe_unused]] const utils::Timeval& currentTime) noexcept override {
                 callBack();
 
                 delete this;
@@ -68,23 +68,23 @@ namespace core {
         (new NextTickEvent(callBack))->span();
     }
 
-    EventReceiver::EventReceiver(const std::string& name)
+    EventReceiver::EventReceiver(const std::string& name) noexcept
         : event(this, name) {
     }
 
-    void EventReceiver::destruct() {
+    void EventReceiver::destruct() noexcept {
         delete this;
     }
 
-    void EventReceiver::span() {
+    void EventReceiver::span() noexcept {
         event.span();
     }
 
-    void EventReceiver::relax() {
+    void EventReceiver::relax() noexcept {
         event.relax();
     }
 
-    const std::string& EventReceiver::getName() const {
+    const std::string& EventReceiver::getName() const noexcept {
         return event.getName();
     }
 

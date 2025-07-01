@@ -50,19 +50,19 @@
 
 namespace apps::towercalculator {
 
-    TowerCalculator::TowerCalculator()
+    TowerCalculator::TowerCalculator() noexcept
         : core::EventReceiver("TowerCalculator")
         , currentValue(0)
         , state(State::NEXT) {
     }
 
-    void TowerCalculator::calculate(long startValue) {
+    void TowerCalculator::calculate(long startValue) noexcept {
         values.push_back(startValue);
 
         calculate();
     }
 
-    void TowerCalculator::calculate() {
+    void TowerCalculator::calculate() noexcept {
         if (!values.empty() && state == State::NEXT) {
             currentValue = values.front();
             values.pop_front();
@@ -77,7 +77,7 @@ namespace apps::towercalculator {
         }
     }
 
-    void TowerCalculator::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
+    void TowerCalculator::onEvent([[maybe_unused]] const utils::Timeval& currentTime) noexcept {
         switch (state) {
             case State::MULTIPLY:
                 if (multiplicator < 10) {

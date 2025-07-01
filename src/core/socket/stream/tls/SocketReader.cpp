@@ -56,7 +56,7 @@
 
 namespace core::socket::stream::tls {
 
-    ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
+    ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) noexcept {
         ssize_t ret = 0;
 
         if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {

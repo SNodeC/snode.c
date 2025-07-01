@@ -59,7 +59,7 @@
 
 namespace database::mariadb {
 
-    MariaDBConnection::MariaDBConnection(MariaDBClient* mariaDBClient, const MariaDBConnectionDetails& connectionDetails)
+    MariaDBConnection::MariaDBConnection(MariaDBClient* mariaDBClient, const MariaDBConnectionDetails& connectionDetails) noexcept
         : ReadEventReceiver("MariaDBConnectionRead", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , WriteEventReceiver("MariaDBConnectionWrite", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , ExceptionalConditionEventReceiver("MariaDBConnectionExceptional", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
@@ -105,7 +105,7 @@ namespace database::mariadb {
             }))));
     }
 
-    MariaDBConnection::~MariaDBConnection() {
+    MariaDBConnection::~MariaDBConnection() noexcept {
         for (MariaDBCommandSequence& mariaDBCommandSequence : commandSequenceQueue) {
             for (MariaDBCommand* mariaDBCommand : mariaDBCommandSequence.sequence()) {
                 if (core::SNodeC::state() == core::State::RUNNING && connected) {
@@ -124,7 +124,7 @@ namespace database::mariadb {
         mysql_library_end();
     }
 
-    MariaDBCommandSequence& MariaDBConnection::execute_async(MariaDBCommandSequence&& commandSequence) {
+    MariaDBCommandSequence& MariaDBConnection::execute_async(MariaDBCommandSequence&& commandSequence) noexcept {
         if (currentCommand == nullptr && commandSequenceQueue.empty()) {
             commandStartEvent.span();
         }
@@ -134,7 +134,7 @@ namespace database::mariadb {
         return commandSequenceQueue.back();
     }
 
-    void MariaDBConnection::execute_sync(MariaDBCommand* mariaDBCommand) {
+    void MariaDBConnection::execute_sync(MariaDBCommand* mariaDBCommand) noexcept {
         mariaDBCommand->commandStart(mysql, utils::Timeval::currentTime());
 
         if (mysql_errno(mysql) == 0) {
@@ -147,7 +147,7 @@ namespace database::mariadb {
         delete mariaDBCommand;
     }
 
-    void MariaDBConnection::commandStart(const utils::Timeval& currentTime) {
+    void MariaDBConnection::commandStart(const utils::Timeval& currentTime) noexcept {
         if (!commandSequenceQueue.empty()) {
             currentCommand = commandSequenceQueue.front().nextCommand();
 
@@ -166,7 +166,7 @@ namespace database::mariadb {
         }
     }
 
-    void MariaDBConnection::commandContinue(int status) {
+    void MariaDBConnection::commandContinue(int status) noexcept {
         if (currentCommand != nullptr) {
             checkStatus(currentCommand->commandContinue(status));
         } else if ((status & MYSQL_WAIT_READ) != 0 && commandSequenceQueue.empty()) {
@@ -176,7 +176,7 @@ namespace database::mariadb {
         }
     }
 
-    void MariaDBConnection::commandCompleted() {
+    void MariaDBConnection::commandCompleted() noexcept {
         LOG(DEBUG) << "MariaDB: Completed: " << currentCommand->commandInfo();
         commandSequenceQueue.front().commandCompleted();
 
@@ -188,7 +188,7 @@ namespace database::mariadb {
         currentCommand = nullptr;
     }
 
-    void MariaDBConnection::unmanaged() {
+    void MariaDBConnection::unmanaged() noexcept {
         mariaDBClient = nullptr;
     }
 
@@ -246,44 +246,44 @@ namespace database::mariadb {
         }
     }
 
-    void MariaDBConnection::readEvent() {
+    void MariaDBConnection::readEvent() noexcept {
         commandContinue(MYSQL_WAIT_READ);
     }
 
-    void MariaDBConnection::writeEvent() {
+    void MariaDBConnection::writeEvent() noexcept {
         commandContinue(MYSQL_WAIT_WRITE);
     }
 
-    void MariaDBConnection::outOfBandEvent() {
+    void MariaDBConnection::outOfBandEvent() noexcept {
         commandContinue(MYSQL_WAIT_EXCEPT);
     }
 
-    void MariaDBConnection::readTimeout() {
+    void MariaDBConnection::readTimeout() noexcept {
         commandContinue(MYSQL_WAIT_TIMEOUT);
     }
 
-    void MariaDBConnection::writeTimeout() {
+    void MariaDBConnection::writeTimeout() noexcept {
         commandContinue(MYSQL_WAIT_TIMEOUT);
     }
 
-    void MariaDBConnection::outOfBandTimeout() {
+    void MariaDBConnection::outOfBandTimeout() noexcept {
         commandContinue(MYSQL_WAIT_TIMEOUT);
     }
 
-    void MariaDBConnection::unobservedEvent() {
+    void MariaDBConnection::unobservedEvent() noexcept {
         delete this;
     }
 
-    MariaDBCommandStartEvent::MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection)
+    MariaDBCommandStartEvent::MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection) noexcept
         : core::EventReceiver(name)
         , mariaDBConnection(mariaDBConnection) {
     }
 
-    void MariaDBCommandStartEvent::onEvent(const utils::Timeval& currentTime) {
+    void MariaDBCommandStartEvent::onEvent(const utils::Timeval& currentTime) noexcept {
         mariaDBConnection->commandStart(currentTime);
     }
 
-    void MariaDBCommandStartEvent::destruct() {
+    void MariaDBCommandStartEvent::destruct() noexcept {
         delete mariaDBConnection;
     }
 

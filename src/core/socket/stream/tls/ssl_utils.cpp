@@ -110,7 +110,7 @@ namespace core::socket::stream::tls {
         : server(server) {
     }
 
-    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig) {
+    SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig) noexcept {
         static int sslSessionCtxId = 1;
 
         SSL_CTX* ctx = SSL_CTX_new(sslConfig.server ? TLS_server_method() : TLS_client_method());
@@ -217,7 +217,7 @@ namespace core::socket::stream::tls {
         return ctx;
     }
 
-    std::map<std::string, SSL_CTX*> ssl_get_sans(SSL_CTX* sslCtx) {
+    std::map<std::string, SSL_CTX*> ssl_get_sans(SSL_CTX* sslCtx) noexcept {
         std::map<std::string, SSL_CTX*> sans;
 
         if (sslCtx != nullptr) {
@@ -275,13 +275,13 @@ namespace core::socket::stream::tls {
         return sans;
     }
 
-    void ssl_set_sni(SSL* ssl, const std::string& sni) {
+    void ssl_set_sni(SSL* ssl, const std::string& sni) noexcept {
         if (!sni.empty()) {
             SSL_set_tlsext_host_name(ssl, sni.data());
         }
     }
 
-    SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx) {
+    SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx) noexcept {
         SSL_CTX* newSslCtx = SSL_set_SSL_CTX(ssl, sslCtx);
         SSL_clear_options(ssl, 0xFFFFFFFFL);
         SSL_set_options(ssl, SSL_CTX_get_options(sslCtx));
@@ -292,14 +292,14 @@ namespace core::socket::stream::tls {
         return newSslCtx;
     }
 
-    void ssl_ctx_free(SSL_CTX* ctx) {
+    void ssl_ctx_free(SSL_CTX* ctx) noexcept {
         if (ctx != nullptr) {
             SSL_CTX_free(ctx);
         }
     }
 
     // From: https://www.bit-hive.com/documents/openssl-tutorial/
-    std::string ssl_get_servername_from_client_hello(SSL* ssl) {
+    std::string ssl_get_servername_from_client_hello(SSL* ssl) noexcept {
         const unsigned char* ext = nullptr;
         size_t ext_len = 0;
         size_t p = 0;
@@ -342,7 +342,7 @@ namespace core::socket::stream::tls {
         return std::string(reinterpret_cast<const char*>(ext + p), ext_len - p);
     }
 
-    void ssl_log(const std::string& message, int sslErr) {
+    void ssl_log(const std::string& message, int sslErr) noexcept {
         const utils::PreserveErrno preserveErrno;
 
         switch (sslErr) {
@@ -367,7 +367,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void ssl_log_error(const std::string& message) {
+    void ssl_log_error(const std::string& message) noexcept {
         LOG(ERROR) << message;
         LOG(ERROR) << "  " << ERR_error_string(ERR_get_error(), nullptr);
 
@@ -377,7 +377,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void ssl_log_warning(const std::string& message) {
+    void ssl_log_warning(const std::string& message) noexcept {
         LOG(WARNING) << message;
         LOG(WARNING) << "  " << ERR_error_string(ERR_get_error(), nullptr);
 
@@ -387,7 +387,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void ssl_log_info(const std::string& message) {
+    void ssl_log_info(const std::string& message) noexcept {
         LOG(INFO) << message;
         LOG(INFO) << "  " << ERR_error_string(ERR_get_error(), nullptr);
 
@@ -397,7 +397,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    bool match(const char* first, const char* second) {
+    bool match(const char* first, const char* second) noexcept {
         // If we reach at the end of both strings, we are done
         if (*first == '\0' && *second == '\0') {
             return true;

@@ -55,7 +55,7 @@
 
 namespace apps::towercalculator {
 
-    KeyboardReader::KeyboardReader(const std::function<void(long)>& cb)
+    KeyboardReader::KeyboardReader(const std::function<void(long)>& cb) noexcept
         : core::eventreceiver::ReadEventReceiver("KeyboardReader", 0)
         , callBack(cb) {
         if (!enable(STDIN_FILENO)) {
@@ -63,7 +63,7 @@ namespace apps::towercalculator {
         }
     }
 
-    void KeyboardReader::readEvent() {
+    void KeyboardReader::readEvent() noexcept {
         std::cout << "ReadEvent" << std::endl;
         /*
             long value;
@@ -90,7 +90,7 @@ namespace apps::towercalculator {
         }
     }
 
-    void KeyboardReader::unobservedEvent() {
+    void KeyboardReader::unobservedEvent() noexcept {
         //    delete this; // do not delete
     }
 

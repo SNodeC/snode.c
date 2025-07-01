@@ -56,16 +56,16 @@ namespace core::eventreceiver {
 
     class AcceptEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        AcceptEventReceiver(const std::string& name, const utils::Timeval& timeout);
+        AcceptEventReceiver(const std::string& name, const utils::Timeval& timeout) noexcept;
 
-        virtual void acceptTimeout();
+        virtual void acceptTimeout() noexcept;
 
     private:
-        virtual void acceptEvent() = 0;
+        virtual void acceptEvent() noexcept = 0;
 
-        void dispatchEvent() final;
-        void timeoutEvent() final;
-        void signalEvent(int signum) override;
+        void dispatchEvent() noexcept final;
+        void timeoutEvent() noexcept final;
+        void signalEvent(int signum) noexcept override;
     };
 
 } // namespace core::eventreceiver

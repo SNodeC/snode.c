@@ -52,15 +52,15 @@
 
 namespace core::multiplexer::select {
 
-    FdSet::FdSet() {
+    FdSet::FdSet() noexcept {
         zero();
     }
 
-    void FdSet::set(int fd) {
+    void FdSet::set(int fd) noexcept {
         FD_SET(fd, &registered);
     }
 
-    void FdSet::clr(int fd) {
+    void FdSet::clr(int fd) noexcept {
         FD_CLR(fd, &registered);
         FD_CLR(fd, &active);
     }
@@ -69,38 +69,38 @@ namespace core::multiplexer::select {
         return FD_ISSET(fd, &active);
     }
 
-    void FdSet::zero() {
+    void FdSet::zero() noexcept {
         FD_ZERO(&registered);
         FD_ZERO(&active);
     }
 
-    fd_set& FdSet::get() {
+    fd_set& FdSet::get() noexcept {
         active = registered;
         return active;
     }
 
-    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, FdSet& fdSet)
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, FdSet& fdSet) noexcept
         : core::DescriptorEventPublisher(name)
         , fdSet(fdSet) {
     }
 
-    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) noexcept {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::muxDel(int fd) {
+    void DescriptorEventPublisher::muxDel(int fd) noexcept {
         fdSet.clr(fd);
     }
 
-    void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) noexcept {
         fdSet.set(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) noexcept {
         fdSet.clr(eventReceiver->getRegisteredFd());
     }
 
-    void DescriptorEventPublisher::spanActiveEvents() {
+    void DescriptorEventPublisher::spanActiveEvents() noexcept {
         for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             if (fdSet.isSet(fd) != 0) {
                 core::DescriptorEventReceiver* eventReceiver = eventReceivers.front();

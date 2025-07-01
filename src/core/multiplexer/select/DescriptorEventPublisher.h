@@ -56,13 +56,13 @@ namespace core::multiplexer::select {
 
     class FdSet {
     public:
-        FdSet();
+        FdSet() noexcept;
 
-        void set(int fd);
-        void clr(int fd);
+        void set(int fd) noexcept;
+        void clr(int fd) noexcept;
         int isSet(int fd) const;
-        void zero();
-        fd_set& get();
+        void zero() noexcept;
+        fd_set& get() noexcept;
 
     private:
         fd_set registered{};
@@ -71,15 +71,15 @@ namespace core::multiplexer::select {
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
     public:
-        DescriptorEventPublisher(const std::string& name, FdSet& fdSet);
+        DescriptorEventPublisher(const std::string& name, FdSet& fdSet) noexcept;
 
     private:
-        void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
-        void muxDel(int fd) override;
-        void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
-        void muxOff(core::DescriptorEventReceiver* eventReceiver) override;
+        void muxAdd(core::DescriptorEventReceiver* eventReceiver) noexcept override;
+        void muxDel(int fd) noexcept override;
+        void muxOn(core::DescriptorEventReceiver* eventReceiver) noexcept override;
+        void muxOff(core::DescriptorEventReceiver* eventReceiver) noexcept override;
 
-        void spanActiveEvents() override;
+        void spanActiveEvents() noexcept override;
 
         FdSet& fdSet;
     };

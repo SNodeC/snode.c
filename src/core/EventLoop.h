@@ -66,27 +66,27 @@ namespace core {
         EventLoop& operator=(const EventLoop& eventLoop) = delete;
 
     private:
-        EventLoop();
+        EventLoop() noexcept;
         ~EventLoop() = default;
 
     public:
-        static EventLoop& instance();
+        static EventLoop& instance() noexcept;
 
-        static unsigned long getTickCounter();
-        EventMultiplexer& getEventMultiplexer();
+        static unsigned long getTickCounter() noexcept;
+        EventMultiplexer& getEventMultiplexer() noexcept;
 
-        static core::State getEventLoopState();
+        static core::State getEventLoopState() noexcept;
 
     private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static bool init(int argc, char* argv[]);
-        TickStatus _tick(const utils::Timeval& timeOut);
-        static TickStatus tick(const utils::Timeval& timeOut);
-        static int start(const utils::Timeval& timeOut);
-        static void stop();
-        static void free();
+        static bool init(int argc, char* argv[]) noexcept;
+        TickStatus _tick(const utils::Timeval& timeOut) noexcept;
+        static TickStatus tick(const utils::Timeval& timeOut) noexcept;
+        static int start(const utils::Timeval& timeOut) noexcept;
+        static void stop() noexcept;
+        static void free() noexcept;
 
-        static void stoponsig(int sig);
+        static void stoponsig(int sig) noexcept;
 
         core::EventMultiplexer& eventMultiplexer;
 

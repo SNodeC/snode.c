@@ -84,25 +84,28 @@ namespace core::socket::stream::tls {
                          const utils::Timeval& writeTimeout,
                          std::size_t readBlockSize,
                          std::size_t writeBlockSize,
-                         const utils::Timeval& terminateTimeout);
+                         const utils::Timeval& terminateTimeout) noexcept;
 
-        SSL* getSSL() const;
+        SSL* getSSL() const noexcept;
 
     private:
-        SSL* startSSL(
-            int fd, SSL_CTX* ctx, const utils::Timeval& sslInitTimeout, const utils::Timeval& sslShutdownTimeout, bool closeNotifyIsEOF);
+        SSL* startSSL(int fd,
+                      SSL_CTX* ctx,
+                      const utils::Timeval& sslInitTimeout,
+                      const utils::Timeval& sslShutdownTimeout,
+                      bool closeNotifyIsEOF) noexcept;
 
-        void stopSSL();
+        void stopSSL() noexcept;
 
         bool doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
-                            const std::function<void(int)>& onStatus) final;
+                            const std::function<void(int)>& onStatus) noexcept final;
 
-        void doSSLShutdown();
+        void doSSLShutdown() noexcept;
 
-        void onReadShutdown() final;
+        void onReadShutdown() noexcept final;
 
-        void doWriteShutdown(const std::function<void()>& onShutdown) final;
+        void doWriteShutdown(const std::function<void()>& onShutdown) noexcept final;
 
         SSL* ssl = nullptr;
 

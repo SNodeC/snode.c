@@ -64,13 +64,13 @@ namespace core {
         Observer(Observer&) = delete;
         Observer(Observer&&) = delete;
 
-        virtual ~Observer();
+        virtual ~Observer() noexcept;
 
     protected:
-        void observed();
-        void unObserved();
+        void observed() noexcept;
+        void unObserved() noexcept;
 
-        virtual void unobservedEvent() = 0;
+        virtual void unobservedEvent() noexcept = 0;
 
     private:
         int observationCounter = 0;
@@ -88,37 +88,37 @@ namespace core {
 
         DescriptorEventReceiver(const std::string& name,
                                 DescriptorEventPublisher& descriptorEventPublisher,
-                                const utils::Timeval& timeout = TIMEOUT::DISABLE);
+                                const utils::Timeval& timeout = TIMEOUT::DISABLE) noexcept;
 
-        int getRegisteredFd() const;
+        int getRegisteredFd() const noexcept;
 
     protected:
-        bool enable(int fd);
-        void disable();
+        bool enable(int fd) noexcept;
+        void disable() noexcept;
 
-        void suspend();
-        void resume();
+        void suspend() noexcept;
+        void resume() noexcept;
 
     public:
-        bool isEnabled() const;
-        bool isSuspended() const;
+        bool isEnabled() const noexcept;
+        bool isSuspended() const noexcept;
 
-        void setTimeout(const utils::Timeval& timeout);
-        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
+        void setTimeout(const utils::Timeval& timeout) noexcept;
+        utils::Timeval getTimeout(const utils::Timeval& currentTime) const noexcept;
 
-        void checkTimeout(const utils::Timeval& currentTime);
+        void checkTimeout(const utils::Timeval& currentTime) noexcept;
 
     private:
-        void onEvent(const utils::Timeval& currentTime) final;
-        void onSignal(int signum);
+        void onEvent(const utils::Timeval& currentTime) noexcept final;
+        void onSignal(int signum) noexcept;
 
-        void triggered(const utils::Timeval& currentTime);
-        void setEnabled(const utils::Timeval& currentTime);
-        void setDisabled();
+        void triggered(const utils::Timeval& currentTime) noexcept;
+        void setEnabled(const utils::Timeval& currentTime) noexcept;
+        void setDisabled() noexcept;
 
-        virtual void dispatchEvent() = 0;
-        virtual void timeoutEvent() = 0;
-        virtual void signalEvent(int signum) = 0;
+        virtual void dispatchEvent() noexcept = 0;
+        virtual void timeoutEvent() noexcept = 0;
+        virtual void signalEvent(int signum) noexcept = 0;
 
         DescriptorEventPublisher& descriptorEventPublisher;
 

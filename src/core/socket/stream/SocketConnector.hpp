@@ -56,7 +56,7 @@
 namespace core::socket::stream {
 
     template <typename SocketAddress, typename PhysicalSocket, typename Config>
-    SocketAddress getLocalSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
+    SocketAddress getLocalSocketAddress(PhysicalSocket& physicalSocket, Config& config) noexcept {
         typename SocketAddress::SockAddr localSockAddr;
         typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
@@ -79,7 +79,7 @@ namespace core::socket::stream {
     }
 
     template <typename SocketAddress, typename PhysicalSocket, typename Config>
-    SocketAddress getRemoteSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
+    SocketAddress getRemoteSocketAddress(PhysicalSocket& physicalSocket, Config& config) noexcept {
         typename SocketAddress::SockAddr remoteSockAddr;
         typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
@@ -108,7 +108,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
-        const std::shared_ptr<Config>& config)
+        const std::shared_ptr<Config>& config) noexcept
         : core::eventreceiver::ConnectEventReceiver(config->getInstanceName() + " SocketConnector", 0)
         , socketContextFactory(socketContextFactory)
         , onConnect(onConnect)
@@ -126,7 +126,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
-    SocketConnector<PhysicalSocketServer, Config, SocketConnection>::SocketConnector(const SocketConnector& socketConnector)
+    SocketConnector<PhysicalSocketServer, Config, SocketConnection>::SocketConnector(const SocketConnector& socketConnector) noexcept
         : core::eventreceiver::ConnectEventReceiver(socketConnector.config->getInstanceName() + " SocketConnector", 0)
         , socketContextFactory(socketConnector.socketContextFactory)
         , onConnect(socketConnector.onConnect)
@@ -144,11 +144,11 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
-    SocketConnector<PhysicalSocketClient, Config, SocketConnection>::~SocketConnector() {
+    SocketConnector<PhysicalSocketClient, Config, SocketConnection>::~SocketConnector() noexcept {
     }
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
-    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::init() {
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::init() noexcept {
         if (!config->getDisabled()) {
             try {
                 LOG(TRACE) << config->getInstanceName() << " Starting";
@@ -278,7 +278,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
-    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectEvent() {
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectEvent() noexcept {
         int cErrno = 0;
 
         if (physicalClientSocket.getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed
@@ -375,12 +375,12 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
-    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::unobservedEvent() {
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::unobservedEvent() noexcept {
         destruct();
     }
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
-    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectTimeout() {
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectTimeout() noexcept {
         LOG(TRACE) << config->getInstanceName() << " connect timeout " << remoteAddress.toString();
 
         SocketAddress currentRemoteAddress = remoteAddress;
@@ -400,7 +400,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
-    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::destruct() {
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::destruct() noexcept {
         delete this;
     }
 

@@ -65,26 +65,26 @@ namespace core {
 
         TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;
 
-        void restart();
+        void restart() noexcept;
 
     protected:
-        TimerEventReceiver(const std::string& name, const utils::Timeval& delay);
-        ~TimerEventReceiver() override;
+        TimerEventReceiver(const std::string& name, const utils::Timeval& delay) noexcept;
+        ~TimerEventReceiver() noexcept override;
 
-        utils::Timeval getTimeoutAbsolut() const;
-        utils::Timeval getTimeoutRelative(const utils::Timeval& currentTime) const;
+        utils::Timeval getTimeoutAbsolut() const noexcept;
+        utils::Timeval getTimeoutRelative(const utils::Timeval& currentTime) const noexcept;
 
-        void enable();
-        void update();
-        void cancel();
+        void enable() noexcept;
+        void update() noexcept;
+        void cancel() noexcept;
 
     private:
-        void onEvent(const utils::Timeval& currentTime) final;
+        void onEvent(const utils::Timeval& currentTime) noexcept final;
 
-        virtual void dispatchEvent() = 0;
-        virtual void unobservedEvent() = 0;
+        virtual void dispatchEvent() noexcept = 0;
+        virtual void unobservedEvent() noexcept = 0;
 
-        void setTimer(Timer* timer);
+        void setTimer(Timer* timer) noexcept;
 
         TimerEventPublisher& timerEventPublisher;
 

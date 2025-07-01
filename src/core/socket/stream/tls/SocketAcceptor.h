@@ -76,16 +76,16 @@ namespace core::socket::stream::tls {
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
-                       const std::shared_ptr<Config>& config);
+                       const std::shared_ptr<Config>& config) noexcept;
 
-        SocketAcceptor(const SocketAcceptor& socketAcceptor);
+        SocketAcceptor(const SocketAcceptor& socketAcceptor) noexcept;
 
     private:
-        static int clientHelloCallback(SSL* ssl, int* al, void* arg);
+        static int clientHelloCallback(SSL* ssl, int* al, void* arg) noexcept;
 
-        void useNextSocketAddress() override;
+        void useNextSocketAddress() noexcept override;
 
-        void init() final;
+        void init() noexcept final;
     };
 
 } // namespace core::socket::stream::tls

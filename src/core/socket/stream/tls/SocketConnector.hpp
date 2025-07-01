@@ -63,7 +63,7 @@ namespace core::socket::stream::tls {
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
-        const std::shared_ptr<Config>& config)
+        const std::shared_ptr<Config>& config) noexcept
         : Super(
               socketContextFactory,
               [onConnect, this](SocketConnection* socketConnection) { // onConnect
@@ -118,17 +118,17 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocketServer, typename Config>
-    SocketConnector<PhysicalSocketServer, Config>::SocketConnector(const SocketConnector& socketConnector)
+    SocketConnector<PhysicalSocketServer, Config>::SocketConnector(const SocketConnector& socketConnector) noexcept
         : Super(socketConnector) {
     }
 
     template <typename PhysicalClientSocket, typename Config>
-    void SocketConnector<PhysicalClientSocket, Config>::useNextSocketAddress() {
+    void SocketConnector<PhysicalClientSocket, Config>::useNextSocketAddress() noexcept {
         new SocketConnector(*this);
     }
 
     template <typename PhysicalSocketClient, typename Config>
-    void SocketConnector<PhysicalSocketClient, Config>::init() {
+    void SocketConnector<PhysicalSocketClient, Config>::init() noexcept {
         if (core::eventLoopState() == core::State::RUNNING && !config->getDisabled()) {
             LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
 

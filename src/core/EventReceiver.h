@@ -60,7 +60,7 @@ namespace core {
 
     class EventReceiver {
     public:
-        EventReceiver(const std::string& name);
+        EventReceiver(const std::string& name) noexcept;
 
         EventReceiver(EventReceiver&) = delete;
         EventReceiver(EventReceiver&&) = delete;
@@ -68,20 +68,20 @@ namespace core {
         EventReceiver& operator=(EventReceiver&) = delete;
         EventReceiver& operator=(EventReceiver&&) = delete;
 
-        virtual void destruct();
+        virtual void destruct() noexcept;
 
     protected:
-        virtual ~EventReceiver() = default;
+        virtual ~EventReceiver() noexcept = default;
 
     public:
-        static void atNextTick(const std::function<void(void)>& callBack);
+        static void atNextTick(const std::function<void(void)>& callBack) noexcept;
 
-        void span();
-        void relax();
+        void span() noexcept;
+        void relax() noexcept;
 
-        virtual void onEvent(const utils::Timeval& currentTime) = 0;
+        virtual void onEvent(const utils::Timeval& currentTime) noexcept = 0;
 
-        const std::string& getName() const;
+        const std::string& getName() const noexcept;
 
     private:
         Event event;

@@ -47,17 +47,17 @@
 
 namespace core::timer {
 
-    SingleshotTimer::SingleshotTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout, const std::string& name)
+    SingleshotTimer::SingleshotTimer(const std::function<void()>& dispatcher, const utils::Timeval& timeout, const std::string& name) noexcept
         : TimerEventReceiver(name, timeout)
         , dispatcher(dispatcher) {
     }
 
-    void SingleshotTimer::dispatchEvent() {
+    void SingleshotTimer::dispatchEvent() noexcept {
         dispatcher();
         cancel();
     }
 
-    void SingleshotTimer::unobservedEvent() {
+    void SingleshotTimer::unobservedEvent() noexcept {
         delete this;
     }
 

@@ -64,10 +64,10 @@ namespace utils {
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <vector> // IWYU pragma: keep
 #include <functional>
 #include <memory>
 #include <string>
+#include <vector> // IWYU pragma: keep
 
 // IWYU pragma: no_include <format>
 
@@ -80,62 +80,62 @@ namespace core::socket::stream {
         SocketConnection(const std::string& instanceName, int fd, const std::string& configuredServer);
         SocketConnection(const SocketConnection&) = delete;
 
-        virtual int getFd() const = 0;
+        virtual int getFd() const noexcept = 0;
 
     protected:
-        virtual ~SocketConnection();
+        virtual ~SocketConnection() noexcept;
 
-        void setSocketContext(SocketContext* socketContext);
+        void setSocketContext(SocketContext* socketContext) noexcept;
 
     public:
-        void switchSocketContext(SocketContext* newSocketContext);
+        void switchSocketContext(SocketContext* newSocketContext) noexcept;
 
-        virtual void sendToPeer(const char* chunk, std::size_t chunkLen) = 0;
-        void sendToPeer(const std::string& data);
-        void sentToPeer(const std::vector<uint8_t>& data);
-        void sentToPeer(const std::vector<char>& data);
+        virtual void sendToPeer(const char* chunk, std::size_t chunkLen) noexcept = 0;
+        void sendToPeer(const std::string& data) noexcept;
+        void sentToPeer(const std::vector<uint8_t>& data) noexcept;
+        void sentToPeer(const std::vector<char>& data) noexcept;
 
-        virtual bool streamToPeer(core::pipe::Source* source) = 0;
-        virtual void streamEof() = 0;
+        virtual bool streamToPeer(core::pipe::Source* source) noexcept = 0;
+        virtual void streamEof() noexcept = 0;
 
-        virtual std::size_t readFromPeer(char* chunk, std::size_t chunkLen) = 0;
+        virtual std::size_t readFromPeer(char* chunk, std::size_t chunkLen) noexcept = 0;
 
-        virtual void shutdownRead() = 0;
-        virtual void shutdownWrite(bool forceClose) = 0;
+        virtual void shutdownRead() noexcept = 0;
+        virtual void shutdownWrite(bool forceClose) noexcept = 0;
 
-        const std::string& getInstanceName() const;
-        const std::string& getConnectionName() const;
+        const std::string& getInstanceName() const noexcept;
+        const std::string& getConnectionName() const noexcept;
 
-        const std::string& getConfiguredServer() const;
+        const std::string& getConfiguredServer() const noexcept;
 
-        SocketContext* getSocketContext() const;
+        SocketContext* getSocketContext() const noexcept;
 
-        virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
-        virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
+        virtual const core::socket::SocketAddress& getLocalAddress() const noexcept = 0;
+        virtual const core::socket::SocketAddress& getRemoteAddress() const noexcept = 0;
 
-        virtual void close() = 0;
+        virtual void close() noexcept = 0;
 
-        virtual void setTimeout(const utils::Timeval& timeout) = 0;
+        virtual void setTimeout(const utils::Timeval& timeout) noexcept = 0;
 
-        virtual std::size_t getTotalSent() const = 0;
-        virtual std::size_t getTotalQueued() const = 0;
+        virtual std::size_t getTotalSent() const noexcept = 0;
+        virtual std::size_t getTotalQueued() const noexcept = 0;
 
-        virtual std::size_t getTotalRead() const = 0;
-        virtual std::size_t getTotalProcessed() const = 0;
+        virtual std::size_t getTotalRead() const noexcept = 0;
+        virtual std::size_t getTotalProcessed() const noexcept = 0;
 
-        std::string getOnlineSince() const;
-        std::string getOnlineDuration() const;
+        std::string getOnlineSince() const noexcept;
+        std::string getOnlineDuration() const noexcept;
 
     private:
-        static std::string timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint);
+        static std::string timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint) noexcept;
         static std::string
         durationToString(const std::chrono::time_point<std::chrono::system_clock>& bevore,
-                         const std::chrono::time_point<std::chrono::system_clock>& later = std::chrono::system_clock::now());
+                         const std::chrono::time_point<std::chrono::system_clock>& later = std::chrono::system_clock::now()) noexcept;
 
     protected:
-        void connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
+        void connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory) noexcept;
 
-        void disconnectCurrentSocketContext();
+        void disconnectCurrentSocketContext() noexcept;
 
         core::socket::stream::SocketContext* socketContext = nullptr;
         core::socket::stream::SocketContext* newSocketContext = nullptr;
@@ -175,51 +175,51 @@ namespace core::socket::stream {
                           const utils::Timeval& writeTimeout,
                           std::size_t readBlockSize,
                           std::size_t writeBlockSize,
-                          const utils::Timeval& terminateTimeout);
+                          const utils::Timeval& terminateTimeout) noexcept;
 
-        ~SocketConnectionT() override;
+        ~SocketConnectionT() noexcept override;
 
     public:
-        int getFd() const final;
+        int getFd() const noexcept final;
 
-        void setTimeout(const utils::Timeval& timeout) final;
+        void setTimeout(const utils::Timeval& timeout) noexcept final;
 
-        const SocketAddress& getLocalAddress() const final;
-        const SocketAddress& getRemoteAddress() const final;
+        const SocketAddress& getLocalAddress() const noexcept final;
+        const SocketAddress& getRemoteAddress() const noexcept final;
 
-        std::size_t readFromPeer(char* chunk, std::size_t chunkLen) final;
+        std::size_t readFromPeer(char* chunk, std::size_t chunkLen) noexcept final;
 
         using Super::sendToPeer;
-        void sendToPeer(const char* chunk, std::size_t chunkLen) final;
+        void sendToPeer(const char* chunk, std::size_t chunkLen) noexcept final;
 
-        bool streamToPeer(core::pipe::Source* source) final;
-        void streamEof() final;
+        bool streamToPeer(core::pipe::Source* source) noexcept final;
+        void streamEof() noexcept final;
 
-        void shutdownRead() final;
-        void shutdownWrite(bool forceClose) final;
+        void shutdownRead() noexcept final;
+        void shutdownWrite(bool forceClose) noexcept final;
 
-        void close() final;
+        void close() noexcept final;
 
-        std::size_t getTotalSent() const override;
-        std::size_t getTotalQueued() const override;
+        std::size_t getTotalSent() const noexcept override;
+        std::size_t getTotalQueued() const noexcept override;
 
-        std::size_t getTotalRead() const override;
-        std::size_t getTotalProcessed() const override;
+        std::size_t getTotalRead() const noexcept override;
+        std::size_t getTotalProcessed() const noexcept override;
 
     protected:
-        void doWriteShutdown(const std::function<void()>& onShutdown) override;
+        void doWriteShutdown(const std::function<void()>& onShutdown) noexcept override;
 
-        void onWriteError(int errnum);
-        void onReadError(int errnum);
+        void onWriteError(int errnum) noexcept;
+        void onReadError(int errnum) noexcept;
 
     private:
-        void onReceivedFromPeer(std::size_t available) final;
+        void onReceivedFromPeer(std::size_t available) noexcept final;
 
-        bool onSignal(int signum) final;
+        bool onSignal(int signum) noexcept final;
 
-        void readTimeout() final;
-        void writeTimeout() final;
-        void unobservedEvent() final;
+        void readTimeout() noexcept final;
+        void writeTimeout() noexcept final;
+        void unobservedEvent() noexcept final;
 
         PhysicalSocket physicalSocket;
 

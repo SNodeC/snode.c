@@ -54,7 +54,7 @@ namespace core::socket::stream::tls {
                                    const std::function<void(void)>& onSuccess,
                                    const std::function<void(void)>& onTimeout,
                                    const std::function<void(int)>& onStatus,
-                                   const utils::Timeval& timeout) {
+                                   const utils::Timeval& timeout) noexcept {
         new TLSHandshake(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout);
     }
 
@@ -63,7 +63,7 @@ namespace core::socket::stream::tls {
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
                                const std::function<void(int)>& onStatus,
-                               const utils::Timeval& timeout)
+                               const utils::Timeval& timeout) noexcept
         : ReadEventReceiver(instanceName + " SSL/TLS: Handshake", timeout)
         , WriteEventReceiver(instanceName + " SSL/TLS: Handshake", timeout)
         , ssl(ssl)
@@ -109,7 +109,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void TLSHandshake::readEvent() {
+    void TLSHandshake::readEvent() noexcept {
         const int ret = SSL_do_handshake(ssl);
 
         int sslErr = SSL_ERROR_NONE;
@@ -138,7 +138,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void TLSHandshake::writeEvent() {
+    void TLSHandshake::writeEvent() noexcept {
         const int ret = SSL_do_handshake(ssl);
 
         int sslErr = SSL_ERROR_NONE;
@@ -167,7 +167,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void TLSHandshake::readTimeout() {
+    void TLSHandshake::readTimeout() noexcept {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
             ReadEventReceiver::disable();
@@ -176,7 +176,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void TLSHandshake::writeTimeout() {
+    void TLSHandshake::writeTimeout() noexcept {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
             ReadEventReceiver::disable();
@@ -185,10 +185,10 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void TLSHandshake::signalEvent([[maybe_unused]] int signum) { // Do nothing on signal event
+    void TLSHandshake::signalEvent([[maybe_unused]] int signum) noexcept { // Do nothing on signal event
     }
 
-    void TLSHandshake::unobservedEvent() {
+    void TLSHandshake::unobservedEvent() noexcept {
         delete this;
     }
 

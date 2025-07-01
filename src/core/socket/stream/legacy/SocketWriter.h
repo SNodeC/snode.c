@@ -56,7 +56,7 @@ namespace core::socket::stream::legacy {
         using Super::Super;
 
     public:
-        ~SocketWriter() override;
+        ~SocketWriter() noexcept override;
     };
 
 } // namespace core::socket::stream::legacy

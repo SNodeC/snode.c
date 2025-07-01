@@ -67,25 +67,25 @@ namespace core::socket::stream {
                               const std::function<void(int)>& onStatus,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
-                              const utils::Timeval& terminateTimeout);
+                              const utils::Timeval& terminateTimeout) noexcept;
 
-        std::size_t getTotalRead() const;
-        std::size_t getTotalProcessed() const;
+        std::size_t getTotalRead() const noexcept;
+        std::size_t getTotalProcessed() const noexcept;
 
     private:
-        virtual void onReceivedFromPeer(std::size_t available) = 0;
+        virtual void onReceivedFromPeer(std::size_t available) noexcept = 0;
 
-        void readEvent() final;
+        void readEvent() noexcept final;
 
         std::size_t doRead();
-        void signalEvent(int sigNum) final;
+        void signalEvent(int sigNum) noexcept final;
 
     protected:
-        virtual ssize_t read(char* chunk, std::size_t chunkLen);
+        virtual ssize_t read(char* chunk, std::size_t chunkLen) noexcept;
 
-        void setBlockSize(std::size_t readBlockSize);
+        void setBlockSize(std::size_t readBlockSize) noexcept;
 
-        std::size_t readFromPeer(char* chunk, std::size_t chunkLen);
+        std::size_t readFromPeer(char* chunk, std::size_t chunkLen) noexcept;
 
         void shutdownRead();
 

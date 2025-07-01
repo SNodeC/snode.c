@@ -53,14 +53,14 @@
 
 namespace core {
 
-    Observer::~Observer() {
+    Observer::~Observer() noexcept {
     }
 
-    void Observer::observed() {
+    void Observer::observed() noexcept {
         observationCounter++;
     }
 
-    void Observer::unObserved() {
+    void Observer::unObserved() noexcept {
         observationCounter--;
 
         if (observationCounter == 0) {
@@ -74,18 +74,18 @@ namespace core {
 
     DescriptorEventReceiver::DescriptorEventReceiver(const std::string& name,
                                                      DescriptorEventPublisher& descriptorEventPublisher,
-                                                     const utils::Timeval& timeout)
+                                                     const utils::Timeval& timeout) noexcept
         : EventReceiver(name)
         , descriptorEventPublisher(descriptorEventPublisher)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }
 
-    int DescriptorEventReceiver::getRegisteredFd() const {
+    int DescriptorEventReceiver::getRegisteredFd() const noexcept {
         return observedFd;
     }
 
-    bool DescriptorEventReceiver::enable(int fd) {
+    bool DescriptorEventReceiver::enable(int fd) noexcept {
         if (!enabled) {
             observedFd = fd;
 
@@ -99,13 +99,13 @@ namespace core {
         return enabled;
     }
 
-    void DescriptorEventReceiver::setEnabled(const utils::Timeval& currentTime) {
+    void DescriptorEventReceiver::setEnabled(const utils::Timeval& currentTime) noexcept {
         lastTriggered = currentTime;
 
         observed();
     }
 
-    void DescriptorEventReceiver::disable() {
+    void DescriptorEventReceiver::disable() noexcept {
         if (enabled) {
             enabled = false;
             descriptorEventPublisher.disable(this);
@@ -115,15 +115,15 @@ namespace core {
         }
     }
 
-    void DescriptorEventReceiver::setDisabled() {
+    void DescriptorEventReceiver::setDisabled() noexcept {
         unObserved();
     }
 
-    bool DescriptorEventReceiver::isEnabled() const {
+    bool DescriptorEventReceiver::isEnabled() const noexcept {
         return enabled;
     }
 
-    void DescriptorEventReceiver::suspend() {
+    void DescriptorEventReceiver::suspend() noexcept {
         if (enabled) {
             if (!suspended) {
                 suspended = true;
@@ -136,7 +136,7 @@ namespace core {
         }
     }
 
-    void DescriptorEventReceiver::resume() {
+    void DescriptorEventReceiver::resume() noexcept {
         if (enabled) {
             if (suspended) {
                 suspended = false;
@@ -150,11 +150,11 @@ namespace core {
         }
     }
 
-    bool DescriptorEventReceiver::isSuspended() const {
+    bool DescriptorEventReceiver::isSuspended() const noexcept {
         return suspended;
     }
 
-    void DescriptorEventReceiver::setTimeout(const utils::Timeval& timeout) {
+    void DescriptorEventReceiver::setTimeout(const utils::Timeval& timeout) noexcept {
         if (timeout == TIMEOUT::DEFAULT) {
             this->maxInactivity = initialTimeout;
         } else {
@@ -164,26 +164,26 @@ namespace core {
         triggered(utils::Timeval::currentTime());
     }
 
-    utils::Timeval DescriptorEventReceiver::getTimeout(const utils::Timeval& currentTime) const {
+    utils::Timeval DescriptorEventReceiver::getTimeout(const utils::Timeval& currentTime) const noexcept {
         return maxInactivity > 0 ? currentTime > lastTriggered ? maxInactivity - (currentTime - lastTriggered) : 0 : TIMEOUT::MAX;
     }
 
-    void DescriptorEventReceiver::onEvent(const utils::Timeval& currentTime) {
+    void DescriptorEventReceiver::onEvent(const utils::Timeval& currentTime) noexcept {
         eventCounter++;
         triggered(currentTime);
 
         dispatchEvent();
     }
 
-    void DescriptorEventReceiver::onSignal(int signum) {
+    void DescriptorEventReceiver::onSignal(int signum) noexcept {
         signalEvent(signum);
     }
 
-    void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) {
+    void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) noexcept {
         lastTriggered = currentTime;
     }
 
-    void DescriptorEventReceiver::checkTimeout(const utils::Timeval& currentTime) {
+    void DescriptorEventReceiver::checkTimeout(const utils::Timeval& currentTime) noexcept {
         if (maxInactivity > 0 && currentTime - lastTriggered >= maxInactivity) {
             timeoutEvent();
         }

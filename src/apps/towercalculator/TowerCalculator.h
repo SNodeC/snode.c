@@ -57,16 +57,16 @@ namespace apps::towercalculator {
     public:
         void* operator new(std::size_t size) = delete;
 
-        TowerCalculator();
+        TowerCalculator() noexcept;
 
-        void calculate(long startValue);
+        void calculate(long startValue) noexcept;
 
     protected:
         enum class State { NEXT, MULTIPLY, DIVIDE };
 
-        void calculate();
+        void calculate() noexcept;
 
-        void onEvent(const utils::Timeval& currentTime) override;
+        void onEvent(const utils::Timeval& currentTime) noexcept override;
 
         long currentValue;
 

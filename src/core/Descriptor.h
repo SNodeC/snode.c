@@ -54,17 +54,17 @@ namespace core {
         Descriptor(const Descriptor& d) = delete;
 
     protected:
-        explicit Descriptor(int fd);
+        explicit Descriptor(int fd) noexcept;
         Descriptor(Descriptor&& descriptor) noexcept;
 
-        virtual ~Descriptor();
+        virtual ~Descriptor() noexcept;
 
     public:
-        Descriptor& operator=(int fd);
+        Descriptor& operator=(int fd) noexcept;
         Descriptor& operator=(const Descriptor& descriptor) = delete;
         Descriptor& operator=(Descriptor&& descriptor) noexcept;
 
-        int getFd() const;
+        int getFd() const noexcept;
 
     private:
         int fd = -1;

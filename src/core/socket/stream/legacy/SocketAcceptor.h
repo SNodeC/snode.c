@@ -71,7 +71,7 @@ namespace core::socket::stream::legacy {
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
-                       const std::shared_ptr<Config>& config);
+                       const std::shared_ptr<Config>& config) noexcept;
 
         SocketAcceptor(const SocketAcceptor& socketAcceptor);
 

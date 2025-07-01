@@ -71,14 +71,14 @@ namespace database::mariadb {
 
     class MariaDBCommandStartEvent : private core::EventReceiver {
     public:
-        MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection);
+        MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection) noexcept;
 
         using core::EventReceiver::span;
 
     private:
-        void onEvent(const utils::Timeval& currentTime) override;
+        void onEvent(const utils::Timeval& currentTime) noexcept override;
 
-        void destruct() override;
+        void destruct() noexcept override;
 
         MariaDBConnection* mariaDBConnection = nullptr;
     };
@@ -88,34 +88,34 @@ namespace database::mariadb {
         , private core::eventreceiver::WriteEventReceiver
         , private core::eventreceiver::ExceptionalConditionEventReceiver {
     public:
-        explicit MariaDBConnection(MariaDBClient* mariaDBClient, const MariaDBConnectionDetails& connectionDetails);
+        MariaDBConnection(MariaDBClient* mariaDBClient, const MariaDBConnectionDetails& connectionDetails) noexcept;
         MariaDBConnection(const MariaDBConnection&) = delete;
 
-        ~MariaDBConnection() override;
+        ~MariaDBConnection() noexcept override;
 
         MariaDBConnection& operator=(const MariaDBConnection&) = delete;
 
-        MariaDBCommandSequence& execute_async(MariaDBCommandSequence&& commandSequence);
-        void execute_sync(MariaDBCommand* mariaDBCommand);
+        MariaDBCommandSequence& execute_async(MariaDBCommandSequence&& commandSequence) noexcept;
+        void execute_sync(MariaDBCommand* mariaDBCommand) noexcept;
 
-        void commandStart(const utils::Timeval& currentTime);
-        void commandContinue(int status);
-        void commandCompleted();
+        void commandStart(const utils::Timeval& currentTime) noexcept;
+        void commandContinue(int status) noexcept;
+        void commandCompleted() noexcept;
 
-        void unmanaged();
+        void unmanaged() noexcept;
 
     protected:
         void checkStatus(int status);
 
-        void readEvent() override;
-        void writeEvent() override;
-        void outOfBandEvent() override;
+        void readEvent() noexcept override;
+        void writeEvent() noexcept override;
+        void outOfBandEvent() noexcept override;
 
-        void readTimeout() override;
-        void writeTimeout() override;
-        void outOfBandTimeout() override;
+        void readTimeout() noexcept override;
+        void writeTimeout() noexcept override;
+        void outOfBandTimeout() noexcept override;
 
-        void unobservedEvent() override;
+        void unobservedEvent() noexcept override;
 
     private:
         MariaDBClient* mariaDBClient;

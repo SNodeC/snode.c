@@ -50,26 +50,26 @@
 
 namespace core::eventreceiver {
 
-    ReadEventReceiver::ReadEventReceiver(const std::string& name, const utils::Timeval& timeout)
+    ReadEventReceiver::ReadEventReceiver(const std::string& name, const utils::Timeval& timeout) noexcept
         : core::DescriptorEventReceiver(
               name + " Read",
               core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD),
               timeout) {
     }
 
-    void ReadEventReceiver::readTimeout() {
+    void ReadEventReceiver::readTimeout() noexcept {
         disable();
     }
 
-    void ReadEventReceiver::dispatchEvent() {
+    void ReadEventReceiver::dispatchEvent() noexcept {
         readEvent();
     }
 
-    void ReadEventReceiver::timeoutEvent() {
+    void ReadEventReceiver::timeoutEvent() noexcept {
         readTimeout();
     }
 
-    void ReadEventReceiver::signalEvent([[maybe_unused]] int signum) {
+    void ReadEventReceiver::signalEvent([[maybe_unused]] int signum) noexcept {
         disable();
     }
 

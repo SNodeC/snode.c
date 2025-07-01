@@ -62,12 +62,12 @@ namespace core::timer {
     private:
         SingleshotTimer(const std::function<void()>& dispatcher,
                         const utils::Timeval& timeout,
-                        const std::string& name = "SingleshotTimer");
+                        const std::string& name = "SingleshotTimer") noexcept;
 
-        ~SingleshotTimer() override = default;
+        ~SingleshotTimer() noexcept override = default;
 
-        void dispatchEvent() final;
-        void unobservedEvent() override;
+        void dispatchEvent() noexcept final;
+        void unobservedEvent() noexcept override;
 
         std::function<void()> dispatcher;
 

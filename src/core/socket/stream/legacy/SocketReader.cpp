@@ -47,7 +47,7 @@
 
 namespace core::socket::stream::legacy {
 
-    SocketReader::~SocketReader() {
+    SocketReader::~SocketReader() noexcept {
     }
 
 } // namespace core::socket::stream::legacy

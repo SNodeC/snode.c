@@ -54,34 +54,34 @@
 
 namespace core {
 
-    TimerEventReceiver::TimerEventReceiver(const std::string& name, const utils::Timeval& delay)
+    TimerEventReceiver::TimerEventReceiver(const std::string& name, const utils::Timeval& delay) noexcept
         : EventReceiver(name)
         , timerEventPublisher(EventLoop::instance().getEventMultiplexer().getTimerEventPublisher())
         , absoluteTimeout(utils::Timeval::currentTime() + delay)
         , delay(delay) {
     }
 
-    void TimerEventReceiver::restart() {
+    void TimerEventReceiver::restart() noexcept {
         timerEventPublisher.erase(this);
         absoluteTimeout = utils::Timeval::currentTime() + delay;
         timerEventPublisher.insert(this);
     }
 
-    TimerEventReceiver::~TimerEventReceiver() {
+    TimerEventReceiver::~TimerEventReceiver() noexcept {
         if (timer != nullptr) {
             timer->removeTimerEventReceiver();
         }
     }
 
-    utils::Timeval TimerEventReceiver::getTimeoutAbsolut() const {
+    utils::Timeval TimerEventReceiver::getTimeoutAbsolut() const noexcept {
         return absoluteTimeout;
     }
 
-    utils::Timeval TimerEventReceiver::getTimeoutRelative(const utils::Timeval& currentTime) const {
+    utils::Timeval TimerEventReceiver::getTimeoutRelative(const utils::Timeval& currentTime) const noexcept {
         return absoluteTimeout > currentTime ? absoluteTimeout - currentTime : 0;
     }
 
-    void TimerEventReceiver::enable() {
+    void TimerEventReceiver::enable() noexcept {
         if (core::eventLoopState() != core::State::STOPPING) {
             timerEventPublisher.insert(this);
         } else {
@@ -90,23 +90,23 @@ namespace core {
         }
     }
 
-    void TimerEventReceiver::update() {
+    void TimerEventReceiver::update() noexcept {
         timerEventPublisher.erase(this);
         absoluteTimeout += delay;
         timerEventPublisher.insert(this);
     }
 
-    void TimerEventReceiver::cancel() {
+    void TimerEventReceiver::cancel() noexcept {
         timerEventPublisher.remove(this);
     }
 
-    void TimerEventReceiver::onEvent(const utils::Timeval& currentTime) {
+    void TimerEventReceiver::onEvent(const utils::Timeval& currentTime) noexcept {
         LOG(TRACE) << "TimerEventReceiver: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).getMsd() << " ms";
 
         dispatchEvent();
     }
 
-    void TimerEventReceiver::setTimer(Timer* timer) {
+    void TimerEventReceiver::setTimer(Timer* timer) noexcept {
         this->timer = timer;
     }
 

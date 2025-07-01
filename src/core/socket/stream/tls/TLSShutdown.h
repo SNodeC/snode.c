@@ -74,7 +74,7 @@ namespace core::socket::stream::tls {
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
                                const std::function<void(int)>& onStatus,
-                               const utils::Timeval& timeout);
+                               const utils::Timeval& timeout) noexcept;
 
     private:
         TLSShutdown(const std::string& instanceName,
@@ -82,16 +82,16 @@ namespace core::socket::stream::tls {
                     const std::function<void(void)>& onSuccess,
                     const std::function<void(void)>& onTimeout,
                     const std::function<void(int)>& onStatus,
-                    const utils::Timeval& timeout);
+                    const utils::Timeval& timeout) noexcept;
 
-        void readEvent() final;
-        void writeEvent() final;
-        void signalEvent(int signum) final;
+        void readEvent() noexcept final;
+        void writeEvent() noexcept final;
+        void signalEvent(int signum) noexcept final;
 
-        void readTimeout() final;
-        void writeTimeout() final;
+        void readTimeout() noexcept final;
+        void writeTimeout() noexcept final;
 
-        void unobservedEvent() final;
+        void unobservedEvent() noexcept final;
 
         SSL* ssl = nullptr;
         std::function<void(void)> onSuccess;

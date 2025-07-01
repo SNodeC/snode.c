@@ -54,7 +54,7 @@ namespace core::socket::stream::tls {
                                  const std::function<void(void)>& onSuccess,
                                  const std::function<void(void)>& onTimeout,
                                  const std::function<void(int)>& onStatus,
-                                 const utils::Timeval& timeout) {
+                                 const utils::Timeval& timeout) noexcept {
         new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout);
     }
 
@@ -63,7 +63,7 @@ namespace core::socket::stream::tls {
                              const std::function<void(void)>& onSuccess,
                              const std::function<void(void)>& onTimeout,
                              const std::function<void(int)>& onStatus,
-                             const utils::Timeval& timeout)
+                             const utils::Timeval& timeout) noexcept
         : ReadEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , WriteEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , ssl(ssl)
@@ -109,7 +109,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void TLSShutdown::readEvent() {
+    void TLSShutdown::readEvent() noexcept {
         const int ret = SSL_shutdown(ssl);
 
         int sslErr = SSL_ERROR_NONE;
@@ -138,7 +138,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void TLSShutdown::writeEvent() {
+    void TLSShutdown::writeEvent() noexcept {
         const int ret = SSL_shutdown(ssl);
 
         int sslErr = SSL_ERROR_NONE;
@@ -167,7 +167,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void TLSShutdown::readTimeout() {
+    void TLSShutdown::readTimeout() noexcept {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
             ReadEventReceiver::disable();
@@ -176,7 +176,7 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void TLSShutdown::writeTimeout() {
+    void TLSShutdown::writeTimeout() noexcept {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
             ReadEventReceiver::disable();
@@ -185,10 +185,10 @@ namespace core::socket::stream::tls {
         }
     }
 
-    void TLSShutdown::signalEvent([[maybe_unused]] int signum) { // Do nothing on signal event
+    void TLSShutdown::signalEvent([[maybe_unused]] int signum) noexcept { // Do nothing on signal event
     }
 
-    void TLSShutdown::unobservedEvent() {
+    void TLSShutdown::unobservedEvent() noexcept {
         delete this;
     }
 

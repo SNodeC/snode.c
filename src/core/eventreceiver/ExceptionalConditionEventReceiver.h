@@ -58,16 +58,16 @@ namespace core::eventreceiver {
 
     class ExceptionalConditionEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        ExceptionalConditionEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_OUTOFBAND_INACTIVITY);
+        ExceptionalConditionEventReceiver(const std::string& name, const utils::Timeval& timeout = MAX_OUTOFBAND_INACTIVITY) noexcept;
 
-        virtual void outOfBandTimeout();
+        virtual void outOfBandTimeout() noexcept;
 
     private:
-        virtual void outOfBandEvent() = 0;
+        virtual void outOfBandEvent() noexcept = 0;
 
-        void dispatchEvent() final;
-        void timeoutEvent() final;
-        void signalEvent(int signum) override;
+        void dispatchEvent() noexcept final;
+        void timeoutEvent() noexcept final;
+        void signalEvent(int signum) noexcept override;
     };
 
 } // namespace core::eventreceiver

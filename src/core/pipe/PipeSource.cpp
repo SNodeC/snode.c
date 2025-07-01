@@ -57,7 +57,7 @@
 
 namespace core::pipe {
 
-    PipeSource::PipeSource(int fd)
+    PipeSource::PipeSource(int fd) noexcept
         : core::eventreceiver::WriteEventReceiver("PipeSource fd = " + std::to_string(fd), 60) {
         if (!WriteEventReceiver::enable(fd)) {
             delete this;
@@ -66,15 +66,15 @@ namespace core::pipe {
         }
     }
 
-    PipeSource::~PipeSource() {
+    PipeSource::~PipeSource() noexcept {
         close(getRegisteredFd());
     }
 
-    void PipeSource::setOnError(const std::function<void(int)>& onError) {
+    void PipeSource::setOnError(const std::function<void(int)>& onError) noexcept {
         this->onError = onError;
     }
 
-    void PipeSource::send(const char* chunk, std::size_t chunkLen) {
+    void PipeSource::send(const char* chunk, std::size_t chunkLen) noexcept {
         writeBuffer.insert(writeBuffer.end(), chunk, chunk + chunkLen);
 
         if (WriteEventReceiver::isSuspended()) {
@@ -82,15 +82,15 @@ namespace core::pipe {
         }
     }
 
-    void PipeSource::send(const std::string& data) {
+    void PipeSource::send(const std::string& data) noexcept {
         send(data.data(), data.size());
     }
 
-    void PipeSource::eof() {
+    void PipeSource::eof() noexcept {
         WriteEventReceiver::disable();
     }
 
-    void PipeSource::writeEvent() {
+    void PipeSource::writeEvent() noexcept {
         const ssize_t ret = core::system::write(
             getRegisteredFd(), writeBuffer.data(), (writeBuffer.size() < MAX_SEND_CHUNKSIZE) ? writeBuffer.size() : MAX_SEND_CHUNKSIZE);
 
@@ -109,7 +109,7 @@ namespace core::pipe {
         }
     }
 
-    void PipeSource::unobservedEvent() {
+    void PipeSource::unobservedEvent() noexcept {
         delete this;
     }
 

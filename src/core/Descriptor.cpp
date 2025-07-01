@@ -51,7 +51,7 @@
 
 namespace core {
 
-    Descriptor::Descriptor(int fd)
+    Descriptor::Descriptor(int fd) noexcept
         : fd(fd) {
     }
 
@@ -65,20 +65,20 @@ namespace core {
         return *this;
     }
 
-    Descriptor& Descriptor::operator=(int fd) {
+    Descriptor& Descriptor::operator=(int fd) noexcept {
         this->fd = fd;
 
         return *this;
     }
 
-    Descriptor::~Descriptor() {
+    Descriptor::~Descriptor() noexcept {
         if (fd >= 0) {
             core::system::close(fd);
             fd = -1;
         }
     }
 
-    int Descriptor::getFd() const {
+    int Descriptor::getFd() const noexcept {
         return fd;
     }
 

@@ -63,44 +63,44 @@ namespace core {
     class DescriptorEventPublisher {
     public:
     protected:
-        DescriptorEventPublisher(std::string name);
+        DescriptorEventPublisher(std::string name) noexcept;
 
     public:
         DescriptorEventPublisher() = delete;
 
-        virtual ~DescriptorEventPublisher();
+        virtual ~DescriptorEventPublisher() noexcept;
 
         DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
-        void enable(DescriptorEventReceiver* descriptorEventReceiver);
-        void disable(DescriptorEventReceiver* descriptorEventReceiver);
-        void suspend(DescriptorEventReceiver* descriptorEventReceiver);
-        void resume(DescriptorEventReceiver* descriptorEventReceiver);
+        void enable(DescriptorEventReceiver* descriptorEventReceiver) noexcept;
+        void disable(DescriptorEventReceiver* descriptorEventReceiver) noexcept;
+        void suspend(DescriptorEventReceiver* descriptorEventReceiver) noexcept;
+        void resume(DescriptorEventReceiver* descriptorEventReceiver) noexcept;
 
         virtual void spanActiveEvents() = 0;
-        void checkTimedOutEvents(const utils::Timeval& currentTime);
-        void releaseDisabledEvents(const utils::Timeval& currentTime);
+        void checkTimedOutEvents(const utils::Timeval& currentTime) noexcept;
+        void releaseDisabledEvents(const utils::Timeval& currentTime) noexcept;
 
-        int getObservedEventReceiverCount() const;
-        int maxFd() const;
+        int getObservedEventReceiverCount() const noexcept;
+        int maxFd() const noexcept;
 
-        utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
+        utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const noexcept;
 
-        void signal(int sigNum);
-        void disable();
+        void signal(int sigNum) noexcept;
+        void disable() noexcept;
 
-        const std::string& getName() const;
+        const std::string& getName() const noexcept;
 
     protected:
         std::map<int, std::list<DescriptorEventReceiver*>> observedEventReceiverLists;
         unsigned long eventCounter = 0;
 
     private:
-        virtual void muxAdd(DescriptorEventReceiver* descriptorEventReceiver) = 0;
-        virtual void muxDel(int fd) = 0;
-        virtual void muxOn(DescriptorEventReceiver* descriptorEventReceiver) = 0;
-        virtual void muxOff(DescriptorEventReceiver* descriptorEventReceiver) = 0;
+        virtual void muxAdd(DescriptorEventReceiver* descriptorEventReceiver) noexcept = 0;
+        virtual void muxDel(int fd) noexcept = 0;
+        virtual void muxOn(DescriptorEventReceiver* descriptorEventReceiver) noexcept = 0;
+        virtual void muxOff(DescriptorEventReceiver* descriptorEventReceiver) noexcept = 0;
 
         std::string name;
         std::map<std::list<DescriptorEventReceiver*>*, std::list<DescriptorEventReceiver*>> dirtyEventReceiverLists;

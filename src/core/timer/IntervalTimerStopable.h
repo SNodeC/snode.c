@@ -62,12 +62,12 @@ namespace core::timer {
     private:
         IntervalTimerStopable(const std::function<void(const std::function<void()>& stop)>& dispatcher,
                               const utils::Timeval& timeout,
-                              const std::string& name = "IntervalTimerStopable");
+                              const std::string& name = "IntervalTimerStopable") noexcept;
 
         ~IntervalTimerStopable() override = default;
 
-        void dispatchEvent() final;
-        void unobservedEvent() override;
+        void dispatchEvent() noexcept final;
+        void unobservedEvent() noexcept override;
 
         std::function<void(const std::function<void()>&)> dispatcher = nullptr;
 

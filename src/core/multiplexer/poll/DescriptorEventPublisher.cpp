@@ -63,31 +63,34 @@
 
 namespace core::multiplexer::poll {
 
-    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name, PollFdsManager& pollFds, short events, short revents)
+    DescriptorEventPublisher::DescriptorEventPublisher(const std::string& name,
+                                                       PollFdsManager& pollFds,
+                                                       short events,
+                                                       short revents) noexcept
         : core::DescriptorEventPublisher(name)
         , pollFds(pollFds)
         , events(events)
         , revents(revents) {
     }
 
-    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) noexcept {
         pollFds.muxAdd(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::muxDel(int fd) {
+    void DescriptorEventPublisher::muxDel(int fd) noexcept {
         pollFds.muxDel(fd, events);
     }
 
-    void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxOn(core::DescriptorEventReceiver* eventReceiver) noexcept {
         pollFds.muxOn(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) {
+    void DescriptorEventPublisher::muxOff(core::DescriptorEventReceiver* eventReceiver) noexcept {
         pollFds.muxOff(eventReceiver, events);
     }
 
-    void DescriptorEventPublisher::spanActiveEvents() {
-        pollfd* pollfds = pollFds.getEvents();
+    void DescriptorEventPublisher::spanActiveEvents() noexcept {
+        const pollfd* pollfds = pollFds.getEvents();
 
         const PollFdsManager::pollfdindex_map& pollFdsIndices = pollFds.getPollFdIndices();
 

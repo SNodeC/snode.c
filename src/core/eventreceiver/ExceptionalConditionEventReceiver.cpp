@@ -50,26 +50,26 @@
 
 namespace core::eventreceiver {
 
-    ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(const std::string& name, const utils::Timeval& timeout)
+    ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(const std::string& name, const utils::Timeval& timeout) noexcept
         : core::DescriptorEventReceiver(
               name + " Out of band",
               core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::EX),
               timeout) {
     }
 
-    void ExceptionalConditionEventReceiver::outOfBandTimeout() {
+    void ExceptionalConditionEventReceiver::outOfBandTimeout() noexcept {
         disable();
     }
 
-    void ExceptionalConditionEventReceiver::dispatchEvent() {
+    void ExceptionalConditionEventReceiver::dispatchEvent() noexcept {
         outOfBandEvent();
     }
 
-    void ExceptionalConditionEventReceiver::timeoutEvent() {
+    void ExceptionalConditionEventReceiver::timeoutEvent() noexcept {
         outOfBandTimeout();
     }
 
-    void ExceptionalConditionEventReceiver::signalEvent([[maybe_unused]] int signum) {
+    void ExceptionalConditionEventReceiver::signalEvent([[maybe_unused]] int signum) noexcept {
         disable();
     }
 

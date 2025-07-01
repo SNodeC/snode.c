@@ -60,14 +60,14 @@ namespace core::socket::stream::tls {
         using Super = core::socket::stream::SocketReader;
         using Super::Super;
 
-        ssize_t read(char* chunk, std::size_t chunkLen) override;
+        ssize_t read(char* chunk, std::size_t chunkLen) noexcept override;
 
-        virtual void onReadShutdown() = 0;
+        virtual void onReadShutdown() noexcept = 0;
 
     protected:
         virtual bool doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
-                                    const std::function<void(int)>& onStatus) = 0;
+                                    const std::function<void(int)>& onStatus) noexcept = 0;
 
         SSL* ssl = nullptr;
 

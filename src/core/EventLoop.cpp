@@ -72,30 +72,30 @@ namespace core {
         return tick;
     }
 
-    EventLoop::EventLoop()
+    EventLoop::EventLoop() noexcept
         : eventMultiplexer(::EventMultiplexer()) {
     }
 
-    EventLoop& EventLoop::instance() {
+    EventLoop& EventLoop::instance() noexcept {
         static EventLoop eventLoop;
 
         return eventLoop;
     }
 
-    unsigned long EventLoop::getTickCounter() {
+    unsigned long EventLoop::getTickCounter() noexcept {
         return tickCounter;
     }
 
-    EventMultiplexer& EventLoop::getEventMultiplexer() {
+    EventMultiplexer& EventLoop::getEventMultiplexer() noexcept {
         return eventMultiplexer;
     }
 
-    State EventLoop::getEventLoopState() {
+    State EventLoop::getEventLoopState() noexcept {
         return eventLoopState;
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-    bool EventLoop::init(int argc, char* argv[]) {
+    bool EventLoop::init(int argc, char* argv[]) noexcept {
         struct sigaction sact{};
         sigemptyset(&sact.sa_mask);
         sact.sa_flags = 0;
@@ -133,7 +133,7 @@ namespace core {
         return eventLoopState == State::INITIALIZED;
     }
 
-    TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
+    TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) noexcept {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
         tickCounter++;
@@ -156,7 +156,7 @@ namespace core {
         return tickStatus;
     }
 
-    TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
+    TickStatus EventLoop::tick(const utils::Timeval& timeOut) noexcept {
         TickStatus tickStatus = TickStatus::TRACE;
 
         if (eventLoopState == State::INITIALIZED) {
@@ -181,7 +181,7 @@ namespace core {
         return tickStatus;
     }
 
-    int EventLoop::start(const utils::Timeval& timeOut) {
+    int EventLoop::start(const utils::Timeval& timeOut) noexcept {
         struct sigaction sact{};
         sigemptyset(&sact.sa_mask);
         sact.sa_flags = 0;
@@ -248,11 +248,11 @@ namespace core {
         return -stopsig;
     }
 
-    void EventLoop::stop() {
+    void EventLoop::stop() noexcept {
         eventLoopState = State::STOPPING;
     }
 
-    void EventLoop::free() {
+    void EventLoop::free() noexcept {
         std::string signal = "SIG" + utils::system::sigabbrev_np(stopsig);
 
         if (signal == "SIGUNKNOWN") {
@@ -299,7 +299,7 @@ namespace core {
         LOG(TRACE) << "SNode.C: Ended ... BYE";
     }
 
-    void EventLoop::stoponsig(int sig) {
+    void EventLoop::stoponsig(int sig) noexcept {
         LOG(TRACE) << "Core: Received signal '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
         stopsig = sig;
         stop();

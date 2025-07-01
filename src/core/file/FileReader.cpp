@@ -56,14 +56,14 @@ constexpr int MF_READSIZE = 16384;
 
 namespace core::file {
 
-    FileReader::FileReader(int fd, const std::string& name, std::size_t pufferSize, int openErrno)
+    FileReader::FileReader(int fd, const std::string& name, std::size_t pufferSize, int openErrno) noexcept
         : core::Descriptor(fd)
         , EventReceiver(name)
         , pufferSize(pufferSize)
         , openErrno(openErrno) {
     }
 
-    FileReader* FileReader::open(const std::string& path) {
+    FileReader* FileReader::open(const std::string& path) noexcept {
         errno = 0;
 
         const int fd = core::system::open(path.c_str(), O_RDONLY);
@@ -71,11 +71,11 @@ namespace core::file {
         return new FileReader(fd, "FileReader: " + path, MF_READSIZE, fd < 0 ? errno : 0);
     }
 
-    bool FileReader::isOpen() {
+    bool FileReader::isOpen() noexcept {
         return getFd() >= 0;
     }
 
-    void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
+    void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) noexcept {
         if (running && core::eventLoopState() != core::State::STOPPING) {
             if (!suspended) {
                 std::vector<char> puffer(pufferSize);
@@ -104,27 +104,27 @@ namespace core::file {
         }
     }
 
-    void FileReader::start() {
+    void FileReader::start() noexcept {
         if (!running) {
             running = true;
             span();
         }
     }
 
-    void FileReader::suspend() {
+    void FileReader::suspend() noexcept {
         if (running) {
             suspended = true;
         }
     }
 
-    void FileReader::resume() {
+    void FileReader::resume() noexcept {
         if (running) {
             suspended = false;
             span();
         }
     }
 
-    void FileReader::stop() {
+    void FileReader::stop() noexcept {
         if (running) {
             this->eof();
 

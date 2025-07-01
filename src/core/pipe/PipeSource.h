@@ -61,18 +61,18 @@ namespace core::pipe {
 
         PipeSource& operator=(const PipeSource&) = delete;
 
-        explicit PipeSource(int fd);
-        ~PipeSource() override;
+        explicit PipeSource(int fd) noexcept;
+        ~PipeSource() noexcept override;
 
-        void send(const char* chunk, std::size_t chunkLen);
-        void send(const std::string& data);
-        void eof();
+        void send(const char* chunk, std::size_t chunkLen) noexcept;
+        void send(const std::string& data) noexcept;
+        void eof() noexcept;
 
-        void setOnError(const std::function<void(int)>& onError);
+        void setOnError(const std::function<void(int)>& onError) noexcept;
 
     protected:
-        void writeEvent() override;
-        void unobservedEvent() override;
+        void writeEvent() noexcept override;
+        void unobservedEvent() noexcept override;
 
     private:
         std::function<void(int errnum)> onError;

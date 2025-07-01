@@ -65,14 +65,14 @@ namespace core::socket::stream {
         , onlineSinceTimePoint(std::chrono::system_clock::now()) {
     }
 
-    SocketConnection::~SocketConnection() {
+    SocketConnection::~SocketConnection() noexcept {
     }
 
-    void SocketConnection::switchSocketContext(SocketContext* newSocketContext) {
+    void SocketConnection::switchSocketContext(SocketContext* newSocketContext) noexcept {
         this->newSocketContext = newSocketContext;
     }
 
-    void SocketConnection::setSocketContext(SocketContext* socketContext) {
+    void SocketConnection::setSocketContext(SocketContext* socketContext) noexcept {
         if (socketContext != nullptr) { // Perform a pending SocketContextSwitch
             this->socketContext = socketContext;
 
@@ -84,43 +84,43 @@ namespace core::socket::stream {
         }
     }
 
-    void SocketConnection::sendToPeer(const std::string& data) {
+    void SocketConnection::sendToPeer(const std::string& data) noexcept {
         sendToPeer(data.data(), data.size());
     }
 
-    void SocketConnection::sentToPeer(const std::vector<uint8_t>& data) {
+    void SocketConnection::sentToPeer(const std::vector<uint8_t>& data) noexcept {
         sendToPeer(reinterpret_cast<const char*>(data.data()), data.size());
     }
 
-    void SocketConnection::sentToPeer(const std::vector<char>& data) {
+    void SocketConnection::sentToPeer(const std::vector<char>& data) noexcept {
         sendToPeer(data.data(), data.size());
     }
 
-    const std::string& SocketConnection::getInstanceName() const {
+    const std::string& SocketConnection::getInstanceName() const noexcept {
         return instanceName;
     }
 
-    const std::string& SocketConnection::getConnectionName() const {
+    const std::string& SocketConnection::getConnectionName() const noexcept {
         return connectionName;
     }
 
-    const std::string& SocketConnection::getConfiguredServer() const {
+    const std::string& SocketConnection::getConfiguredServer() const noexcept {
         return configuredServer;
     }
 
-    SocketContext* SocketConnection::getSocketContext() const {
+    SocketContext* SocketConnection::getSocketContext() const noexcept {
         return socketContext;
     }
 
-    std::string SocketConnection::getOnlineSince() const {
+    std::string SocketConnection::getOnlineSince() const noexcept {
         return timePointToString(onlineSinceTimePoint);
     }
 
-    std::string SocketConnection::getOnlineDuration() const {
+    std::string SocketConnection::getOnlineDuration() const noexcept {
         return durationToString(onlineSinceTimePoint);
     }
 
-    void SocketConnection::connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory) {
+    void SocketConnection::connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory) noexcept {
         SocketContext* socketContext = socketContextFactory->create(this);
 
         if (socketContext != nullptr) {
@@ -132,7 +132,7 @@ namespace core::socket::stream {
         }
     }
 
-    void SocketConnection::disconnectCurrentSocketContext() {
+    void SocketConnection::disconnectCurrentSocketContext() noexcept {
         if (socketContext != nullptr) {
             socketContext->detach();
             delete socketContext;
@@ -141,7 +141,7 @@ namespace core::socket::stream {
         }
     }
 
-    std::string SocketConnection::timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint) {
+    std::string SocketConnection::timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint) noexcept {
         const std::time_t time = std::chrono::system_clock::to_time_t(timePoint);
         std::tm* tm_ptr = std::gmtime(&time);
 
@@ -157,7 +157,7 @@ namespace core::socket::stream {
     }
 
     std::string SocketConnection::durationToString(const std::chrono::time_point<std::chrono::system_clock>& bevore,
-                                                   const std::chrono::time_point<std::chrono::system_clock>& later) {
+                                                   const std::chrono::time_point<std::chrono::system_clock>& later) noexcept {
         using seconds_duration_type = std::chrono::duration<std::chrono::seconds::rep>::rep;
 
         const seconds_duration_type totalSeconds = std::chrono::duration_cast<std::chrono::seconds>(later - bevore).count();

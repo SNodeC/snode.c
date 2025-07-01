@@ -56,7 +56,7 @@
 namespace core::socket::stream {
 
     template <typename SocketAddress, typename PhysicalSocket, typename Config>
-    SocketAddress getLocalSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
+    SocketAddress getLocalSocketAddress(PhysicalSocket& physicalSocket, Config& config) noexcept {
         typename SocketAddress::SockAddr localSockAddr;
         typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
@@ -79,7 +79,7 @@ namespace core::socket::stream {
     }
 
     template <typename SocketAddress, typename PhysicalSocket, typename Config>
-    SocketAddress getRemoteSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
+    SocketAddress getRemoteSocketAddress(PhysicalSocket& physicalSocket, Config& config) noexcept {
         typename SocketAddress::SockAddr remoteSockAddr;
         typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
@@ -108,7 +108,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
-        const std::shared_ptr<Config>& config)
+        const std::shared_ptr<Config>& config) noexcept
         : core::eventreceiver::AcceptEventReceiver(config->getInstanceName() + " SocketAcceptor", 0)
         , socketContextFactory(socketContextFactory)
         , onConnect(onConnect)
@@ -126,7 +126,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
-    SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
+    SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::SocketAcceptor(const SocketAcceptor& socketAcceptor) noexcept
         : core::eventreceiver::AcceptEventReceiver(socketAcceptor.config->getInstanceName() + " SocketAcceptor", 0)
         , socketContextFactory(socketAcceptor.socketContextFactory)
         , onConnect(socketAcceptor.onConnect)
@@ -144,11 +144,11 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
-    SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::~SocketAcceptor() {
+    SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::~SocketAcceptor() noexcept {
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
-    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::init() {
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::init() noexcept {
         if (!config->getDisabled()) {
             try {
                 LOG(TRACE) << config->getInstanceName() << " Starting";
@@ -239,7 +239,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
-    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::acceptEvent() {
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::acceptEvent() noexcept {
         int acceptsPerTick = config->getAcceptsPerTick();
 
         do {
@@ -272,12 +272,12 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
-    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::unobservedEvent() {
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::unobservedEvent() noexcept {
         destruct();
     }
 
     template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
-    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::destruct() {
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::destruct() noexcept {
         delete this;
     }
 

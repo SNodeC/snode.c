@@ -71,30 +71,30 @@ namespace core::socket::stream {
                               const std::function<void(int)>& onStatus,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
-                              const utils::Timeval& terminateTimeout);
+                              const utils::Timeval& terminateTimeout) noexcept;
 
-        std::size_t getTotalSent() const;
-        std::size_t getTotalQueued() const;
+        std::size_t getTotalSent() const noexcept;
+        std::size_t getTotalQueued() const noexcept;
 
     private:
-        void writeEvent() final;
-        void signalEvent(int sigNum) final;
+        void writeEvent() noexcept final;
+        void signalEvent(int sigNum) noexcept final;
 
-        void doWrite();
+        void doWrite() noexcept;
 
-        virtual bool onSignal(int sigNum) = 0;
-        virtual void doWriteShutdown(const std::function<void()>& onShutdown) = 0;
+        virtual bool onSignal(int sigNum) noexcept = 0;
+        virtual void doWriteShutdown(const std::function<void()>& onShutdown) noexcept = 0;
 
     protected:
-        virtual ssize_t write(const char* chunk, std::size_t chunkLen);
+        virtual ssize_t write(const char* chunk, std::size_t chunkLen) noexcept;
 
-        void setBlockSize(std::size_t writeBlockSize);
+        void setBlockSize(std::size_t writeBlockSize) noexcept;
 
-        void sendToPeer(const char* chunk, std::size_t chunkLen);
-        bool streamToPeer(core::pipe::Source* source);
-        void streamEof();
+        void sendToPeer(const char* chunk, std::size_t chunkLen) noexcept;
+        bool streamToPeer(core::pipe::Source* source) noexcept;
+        void streamEof() noexcept;
 
-        void shutdownWrite(const std::function<void()>& onShutdown);
+        void shutdownWrite(const std::function<void()>& onShutdown) noexcept;
 
         bool markShutdown = false;
 

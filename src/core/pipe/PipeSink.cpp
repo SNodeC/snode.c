@@ -57,18 +57,18 @@
 
 namespace core::pipe {
 
-    PipeSink::PipeSink(int fd)
+    PipeSink::PipeSink(int fd) noexcept
         : core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd), 60) {
         if (!ReadEventReceiver::enable(fd)) {
             delete this;
         }
     }
 
-    PipeSink::~PipeSink() {
+    PipeSink::~PipeSink() noexcept {
         close(getRegisteredFd());
     }
 
-    void PipeSink::readEvent() {
+    void PipeSink::readEvent() noexcept {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static char chunk[MAX_READ_CHUNKSIZE];
 
@@ -93,19 +93,19 @@ namespace core::pipe {
         }
     }
 
-    void PipeSink::setOnData(const std::function<void(const char*, std::size_t)>& onData) {
+    void PipeSink::setOnData(const std::function<void(const char*, std::size_t)>& onData) noexcept {
         this->onData = onData;
     }
 
-    void PipeSink::setOnEof(const std::function<void()>& onEof) {
+    void PipeSink::setOnEof(const std::function<void()>& onEof) noexcept {
         this->onEof = onEof;
     }
 
-    void PipeSink::setOnError(const std::function<void(int)>& onError) {
+    void PipeSink::setOnError(const std::function<void(int)>& onError) noexcept {
         this->onError = onError;
     }
 
-    void PipeSink::unobservedEvent() {
+    void PipeSink::unobservedEvent() noexcept {
         delete this;
     }
 

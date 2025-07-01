@@ -50,26 +50,26 @@
 
 namespace core::eventreceiver {
 
-    AcceptEventReceiver::AcceptEventReceiver(const std::string& name, const utils::Timeval& timeout)
+    AcceptEventReceiver::AcceptEventReceiver(const std::string& name, const utils::Timeval& timeout) noexcept
         : core::DescriptorEventReceiver(
               name + " Accept",
               core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD),
               timeout) {
     }
 
-    void AcceptEventReceiver::acceptTimeout() {
+    void AcceptEventReceiver::acceptTimeout() noexcept {
         disable();
     }
 
-    void AcceptEventReceiver::dispatchEvent() {
+    void AcceptEventReceiver::dispatchEvent() noexcept {
         acceptEvent();
     }
 
-    void AcceptEventReceiver::timeoutEvent() {
+    void AcceptEventReceiver::timeoutEvent() noexcept {
         acceptTimeout();
     }
 
-    void AcceptEventReceiver::signalEvent([[maybe_unused]] int signum) {
+    void AcceptEventReceiver::signalEvent([[maybe_unused]] int signum) noexcept {
         disable();
     }
 

@@ -56,16 +56,16 @@ namespace core::eventreceiver {
 
     class ConnectEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        ConnectEventReceiver(const std::string& name, const utils::Timeval& timeout);
+        ConnectEventReceiver(const std::string& name, const utils::Timeval& timeout) noexcept;
 
-        virtual void connectTimeout();
+        virtual void connectTimeout() noexcept;
 
     private:
-        virtual void connectEvent() = 0;
+        virtual void connectEvent() noexcept = 0;
 
-        void dispatchEvent() final;
-        void timeoutEvent() final;
-        void signalEvent(int signum) override;
+        void dispatchEvent() noexcept final;
+        void timeoutEvent() noexcept final;
+        void signalEvent(int signum) noexcept override;
     };
 
 } // namespace core::eventreceiver

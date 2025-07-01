@@ -64,21 +64,21 @@ namespace core::multiplexer::epoll {
     private:
         class EPollEvents {
         public:
-            explicit EPollEvents(int& epfd, uint32_t event);
+            explicit EPollEvents(int& epfd, uint32_t event) noexcept;
 
         private:
-            void muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const;
+            void muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const noexcept;
 
         public:
-            void muxAdd(core::DescriptorEventReceiver* eventReceiver);
-            void muxDel(int fd);
+            void muxAdd(core::DescriptorEventReceiver* eventReceiver) noexcept;
+            void muxDel(int fd) noexcept;
 
-            void muxOn(core::DescriptorEventReceiver* eventReceiver);
-            void muxOff(core::DescriptorEventReceiver* eventReceiver);
+            void muxOn(core::DescriptorEventReceiver* eventReceiver) noexcept;
+            void muxOff(core::DescriptorEventReceiver* eventReceiver) noexcept;
 
-            int getEPFd() const;
-            epoll_event* getEvents();
-            int getInterestCount() const;
+            int getEPFd() const noexcept;
+            epoll_event* getEvents() noexcept;
+            int getInterestCount() const noexcept;
 
         private:
             int& epfd;
@@ -89,15 +89,15 @@ namespace core::multiplexer::epoll {
         };
 
     public:
-        DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events, uint32_t revents);
+        DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events, uint32_t revents) noexcept;
 
     private:
-        void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
-        void muxDel(int fd) override;
-        void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
-        void muxOff(core::DescriptorEventReceiver* eventReceiver) override;
+        void muxAdd(core::DescriptorEventReceiver* eventReceiver) noexcept override;
+        void muxDel(int fd) noexcept override;
+        void muxOn(core::DescriptorEventReceiver* eventReceiver) noexcept override;
+        void muxOff(core::DescriptorEventReceiver* eventReceiver) noexcept override;
 
-        void spanActiveEvents() override;
+        void spanActiveEvents() noexcept override;
 
         EPollEvents ePollEvents;
         uint32_t revents;

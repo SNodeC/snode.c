@@ -58,15 +58,18 @@ namespace core::multiplexer::poll {
 
     class DescriptorEventPublisher : public core::DescriptorEventPublisher {
     public:
-        DescriptorEventPublisher(const std::string& name, core::multiplexer::poll::PollFdsManager& pollFds, short events, short revents);
+        DescriptorEventPublisher(const std::string& name,
+                                 core::multiplexer::poll::PollFdsManager& pollFds,
+                                 short events,
+                                 short revents) noexcept;
 
     private:
-        void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
-        void muxDel(int fd) override;
-        void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
-        void muxOff(core::DescriptorEventReceiver* eventReceiver) override;
+        void muxAdd(core::DescriptorEventReceiver* eventReceiver) noexcept override;
+        void muxDel(int fd) noexcept override;
+        void muxOn(core::DescriptorEventReceiver* eventReceiver) noexcept override;
+        void muxOff(core::DescriptorEventReceiver* eventReceiver) noexcept override;
 
-        void spanActiveEvents() override;
+        void spanActiveEvents() noexcept override;
 
         core::multiplexer::poll::PollFdsManager& pollFds;
         short events;

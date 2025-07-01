@@ -60,20 +60,20 @@ namespace core::file {
         , public core::pipe::Source
         , virtual public File {
     private:
-        FileReader(int fd, const std::string& name, std::size_t pufferSize, int openErrno);
+        FileReader(int fd, const std::string& name, std::size_t pufferSize, int openErrno) noexcept;
 
     public:
-        static FileReader* open(const std::string& path);
+        static FileReader* open(const std::string& path) noexcept;
 
-        bool isOpen() override;
+        bool isOpen() noexcept override;
 
-        void start() final;
-        void suspend() final;
-        void resume() final;
-        void stop() final;
+        void start() noexcept final;
+        void suspend() noexcept final;
+        void resume() noexcept final;
+        void stop() noexcept final;
 
     private:
-        void onEvent(const utils::Timeval& currentTime) override;
+        void onEvent(const utils::Timeval& currentTime) noexcept override;
 
         std::size_t pufferSize = 0;
 

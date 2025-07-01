@@ -58,7 +58,7 @@ namespace iot::mqtt {
     template <typename WSSubProtocolRole>
     SubProtocol<WSSubProtocolRole>::SubProtocol(web::websocket::SubProtocolContext* subProtocolContext,
                                                 const std::string& name,
-                                                iot::mqtt::Mqtt* mqtt)
+                                                iot::mqtt::Mqtt* mqtt) noexcept
         : WSSubProtocolRole(subProtocolContext, name, 0)
         , iot::mqtt::MqttContext(mqtt)
         , onReceivedFromPeerEvent([this]([[maybe_unused]] const utils::Timeval& currentTime) {
@@ -74,7 +74,7 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    std::size_t SubProtocol<WSSubProtocolRole>::recv(char* chunk, std::size_t chunklen) {
+    std::size_t SubProtocol<WSSubProtocolRole>::recv(char* chunk, std::size_t chunklen) noexcept {
         std::size_t maxReturn = std::min(chunklen, size);
 
         std::copy(buffer.data() + cursor, buffer.data() + cursor + maxReturn, chunk);
@@ -86,12 +86,12 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::send(const char* chunk, std::size_t chunklen) {
+    void SubProtocol<WSSubProtocolRole>::send(const char* chunk, std::size_t chunklen) noexcept {
         WSSubProtocolRole::sendMessage(chunk, chunklen);
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::end([[maybe_unused]] bool fatal) {
+    void SubProtocol<WSSubProtocolRole>::end([[maybe_unused]] bool fatal) noexcept {
         WSSubProtocolRole::sendClose();
     }
 
@@ -101,13 +101,13 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::onConnected() {
+    void SubProtocol<WSSubProtocolRole>::onConnected() noexcept {
         LOG(INFO) << getSocketConnection()->getConnectionName() << " WsMqtt: connected:";
         iot::mqtt::MqttContext::onConnected();
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
+    void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) noexcept {
         if (opCode == web::websocket::SubProtocolContext::OpCode::TEXT) {
             LOG(ERROR) << getSocketConnection()->getConnectionName() << " WsMqtt: Wrong Opcode: " << opCode << " (TEXT)";
             this->end(true);
@@ -117,7 +117,7 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::onMessageData(const char* chunk, std::size_t chunkLen) {
+    void SubProtocol<WSSubProtocolRole>::onMessageData(const char* chunk, std::size_t chunkLen) noexcept {
         data.append(std::string(chunk, chunkLen));
 
         LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WsMqtt: Frame Data:\n"
@@ -125,7 +125,7 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::onMessageEnd() {
+    void SubProtocol<WSSubProtocolRole>::onMessageEnd() noexcept {
         LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WsMqtt: Message END";
 
         buffer.insert(buffer.end(), data.begin(), data.end());
@@ -143,18 +143,18 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) {
+    void SubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) noexcept {
         LOG(ERROR) << getSocketConnection()->getConnectionName() << " WsMqtt: Message error: " << errnum;
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::onDisconnected() {
+    void SubProtocol<WSSubProtocolRole>::onDisconnected() noexcept {
         iot::mqtt::MqttContext::onDisconnected();
         LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WsMqtt: disconnected";
     }
 
     template <typename WSSubProtocolRole>
-    bool SubProtocol<WSSubProtocolRole>::onSignal(int sig) {
+    bool SubProtocol<WSSubProtocolRole>::onSignal(int sig) noexcept {
         bool ret = iot::mqtt::MqttContext::onSignal(sig);
         LOG(INFO) << getSocketConnection()->getConnectionName() << " WsMqtt: exit due to '" << strsignal(sig) << "' (SIG"
                   << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
@@ -165,7 +165,7 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    core::socket::stream::SocketConnection* SubProtocol<WSSubProtocolRole>::getSocketConnection() const {
+    core::socket::stream::SocketConnection* SubProtocol<WSSubProtocolRole>::getSocketConnection() const noexcept {
         return WSSubProtocolRole::subProtocolContext->getSocketConnection();
     }
 

@@ -57,7 +57,7 @@ namespace core::socket::stream::legacy {
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
-        const std::shared_ptr<Config>& config)
+        const std::shared_ptr<Config>& config) noexcept
         : Super(
               socketContextFactory,
               onConnect,
@@ -72,12 +72,12 @@ namespace core::socket::stream::legacy {
     }
 
     template <typename PhysicalSocketServer, typename Config>
-    SocketConnector<PhysicalSocketServer, Config>::SocketConnector(const SocketConnector& socketConnector)
+    SocketConnector<PhysicalSocketServer, Config>::SocketConnector(const SocketConnector& socketConnector) noexcept
         : Super::SocketConnector(socketConnector) {
     }
 
     template <typename PhysicalClientSocket, typename Config>
-    void SocketConnector<PhysicalClientSocket, Config>::useNextSocketAddress() {
+    void SocketConnector<PhysicalClientSocket, Config>::useNextSocketAddress() noexcept {
         new SocketConnector(*this);
     }
 

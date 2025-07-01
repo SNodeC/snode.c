@@ -79,24 +79,24 @@ namespace core::socket::stream {
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
-                       const std::shared_ptr<Config>& config);
+                       const std::shared_ptr<Config>& config) noexcept;
 
-        SocketAcceptor(const SocketAcceptor& socketAcceptor);
+        SocketAcceptor(const SocketAcceptor& socketAcceptor) noexcept;
 
-        ~SocketAcceptor() override;
+        ~SocketAcceptor() noexcept override;
 
     protected:
         virtual void useNextSocketAddress() = 0;
 
-        virtual void init();
+        virtual void init() noexcept;
 
     private:
-        void acceptEvent() final;
+        void acceptEvent() noexcept final;
 
-        void unobservedEvent() final;
+        void unobservedEvent() noexcept final;
 
     protected:
-        void destruct() final;
+        void destruct() noexcept final;
 
     private:
         PhysicalServerSocket physicalServerSocket;
