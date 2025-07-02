@@ -64,10 +64,10 @@ namespace utils {
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <vector> // IWYU pragma: keep
 #include <functional>
 #include <memory>
 #include <string>
+#include <vector> // IWYU pragma: keep
 
 // IWYU pragma: no_include <format>
 
