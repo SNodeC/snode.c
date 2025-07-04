@@ -138,8 +138,12 @@ namespace core {
     utils::Timeval DescriptorEventPublisher::getNextTimeout(const utils::Timeval& currentTime) const {
         utils::Timeval nextTimeout = DescriptorEventReceiver::TIMEOUT::MAX;
 
-        for (const auto& [fd, eventReceivers] : observedEventReceiverLists) {
-            nextTimeout = std::min(eventReceivers.front()->getTimeout(currentTime), nextTimeout);
+        if (dirtyEventReceiverLists.empty()) {
+            for (const auto& [fd, eventReceivers] : observedEventReceiverLists) {
+                nextTimeout = std::min(eventReceivers.front()->getTimeout(currentTime), nextTimeout);
+            }
+        } else {
+            nextTimeout = 0;
         }
 
         return nextTimeout;
