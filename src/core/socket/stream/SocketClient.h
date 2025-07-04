@@ -43,6 +43,7 @@
 #define CORE_SOCKET_STREAM_SOCKETCLIENT_H
 
 #include "core/SNodeC.h"
+#include "core/eventreceiver/ConnectEventReceiver.h"
 #include "core/socket/Socket.h" // IWYU pragma: export
 #include "core/socket/State.h"  // IWYU pragma: export
 #include "core/socket/stream/SocketContextFactory.h"
@@ -54,7 +55,8 @@
 #include "utils/Random.h"
 
 #include <algorithm>
-#include <functional> // IWYU pragma: export
+#include <functional>  // IWYU pragma: export
+#include <type_traits> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -66,7 +68,8 @@ namespace core::socket::stream {
     @enduml
     */
     template <typename SocketConnectorT, typename SocketContextFactoryT, typename... Args>
-        requires std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
+        requires std::is_base_of_v<core::eventreceiver::ConnectEventReceiver, SocketConnectorT> &&
+                 std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
     class SocketClient : public core::socket::Socket<typename SocketConnectorT::Config> {
     private:
         using SocketConnector = SocketConnectorT;

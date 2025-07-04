@@ -43,6 +43,7 @@
 #define CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 
 #include "core/SNodeC.h"
+#include "core/eventreceiver/AcceptEventReceiver.h"
 #include "core/socket/Socket.h" // IWYU pragma: export
 #include "core/socket/State.h"  // IWYU pragma: export
 #include "core/socket/stream/SocketContextFactory.h"
@@ -62,7 +63,8 @@
 namespace core::socket::stream {
 
     template <typename SocketAcceptorT, typename SocketContextFactoryT, typename... Args>
-        requires std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
+        requires std::is_base_of_v<core::eventreceiver::AcceptEventReceiver, SocketAcceptorT> &&
+                 std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
     class SocketServer : public core::socket::Socket<typename SocketAcceptorT::Config> {
     private:
         using SocketAcceptor = SocketAcceptorT;
