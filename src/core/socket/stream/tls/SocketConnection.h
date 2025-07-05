@@ -52,9 +52,6 @@
 
 #include <cstddef>
 
-using SSL_CTX = struct ssl_ctx_st;
-using SSL = struct ssl_st;
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {

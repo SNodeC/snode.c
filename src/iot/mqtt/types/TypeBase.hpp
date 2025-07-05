@@ -57,9 +57,8 @@ namespace iot::mqtt::types {
 
     template <typename ValueType>
     std::size_t TypeBase<ValueType>::deserialize(iot::mqtt::MqttContext* mqttContext) {
-        std::size_t consumed = 0;
+        std::size_t consumed = mqttContext->recv(value.data() + length - needed, needed);
 
-        consumed = mqttContext->recv(value.data() + length - needed, needed);
         needed -= consumed;
         complete = needed == 0;
 
