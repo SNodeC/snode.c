@@ -146,56 +146,33 @@ namespace core::socket::stream {
                     onDisconnect,
                     [server = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
                                                                          core::socket::State state) mutable {
-                        const bool retry = (state & core::socket::State::NO_RETRY) == 0 &&
-                                           (server.getConfig().getRetryTries() == 0 || tries < server.getConfig().getRetryTries());
-
+                        const bool retryFlag = (state & core::socket::State::NO_RETRY) == 0;
                         state &= ~core::socket::State::NO_RETRY;
                         onStatus(socketAddress, state);
 
-                        if (retry) {
-                            switch (state) {
-                                case core::socket::State::OK:
-                                    server.currentOk++;
-                                    [[fallthrough]];
-                                case core::socket::State::DISABLED:
-                                    break;
-                                case core::socket::State::ERROR:
-                                    server.currentError++;
-                                    break;
-                                case core::socket::State::FATAL:
-                                    server.currentFatal++;
-                                    break;
-                            }
+                        if (retryFlag && server.getConfig().getRetry() // Shall we potentially retry? In case are the ...
+                            && (server.getConfig().getRetryTries() == 0 ||
+                                tries < server.getConfig().getRetryTries()) // ... limits not reached and has an ...
+                            && (state == core::socket::State::ERROR ||
+                                (state == core::socket::State::FATAL && server.getConfig().getRetryOnFatal()))) { // error occurred?
+                            double relativeRetryTimeout = server.getConfig().getRetryLimit() > 0
+                                                              ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
+                                                                                 server.getConfig().getRetryLimit())
+                                                              : server.getConfig().getRetryTimeout() * retryTimeoutScale;
+                            relativeRetryTimeout -=
+                                utils::Random::getInRange(-server.getConfig().getRetryJitter(), server.getConfig().getRetryJitter()) *
+                                relativeRetryTimeout / 100.;
 
-                            if ((server.currentError > 0 && server.getConfig().getRetry()) ||
-                                (server.currentFatal > 0 && server.getConfig().getRetry() && server.getConfig().getRetryOnFatal())) {
-                                if (server.totalOk < server.currentError + server.currentFatal) {
-                                    server.totalOk += server.currentOk;
+                            LOG(INFO) << server.getConfig().getInstanceName() << ": OnStatus";
+                            LOG(INFO) << "  retrying in " << relativeRetryTimeout << " seconds";
 
-                                    double relativeRetryTimeout =
-                                        server.getConfig().getRetryLimit() > 0
-                                            ? std::min<double>(server.getConfig().getRetryTimeout() * retryTimeoutScale,
-                                                               server.getConfig().getRetryLimit())
-                                            : server.getConfig().getRetryTimeout() * retryTimeoutScale;
-                                    relativeRetryTimeout -= utils::Random::getInRange(-server.getConfig().getRetryJitter(),
-                                                                                      server.getConfig().getRetryJitter()) *
-                                                            relativeRetryTimeout / 100.;
+                            core::timer::Timer::singleshotTimer(
+                                [server, onStatus, tries, retryTimeoutScale]() mutable {
+                                    server.getConfig().Local::renew();
 
-                                    LOG(INFO) << server.getConfig().getInstanceName() << ": OnStatus";
-                                    LOG(INFO) << " retrying in " << relativeRetryTimeout << " seconds";
-
-                                    core::timer::Timer::singleshotTimer(
-                                        [server, onStatus, tries, retryTimeoutScale]() mutable {
-                                            server.getConfig().Local::renew();
-                                            server.currentOk = 0;
-                                            server.currentError = 0;
-                                            server.currentFatal = 0;
-
-                                            server.realListen(onStatus, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
-                                        },
-                                        relativeRetryTimeout);
-                                }
-                            }
+                                    server.realListen(onStatus, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
+                                },
+                                relativeRetryTimeout);
                         }
                     },
                     Super::config);
@@ -256,11 +233,6 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
-
-        std::size_t totalOk = 0;
-        std::size_t currentOk = 0;
-        std::size_t currentError = 0;
-        std::size_t currentFatal = 0;
     };
 
     template <typename SocketServer, typename... Args>

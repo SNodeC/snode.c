@@ -168,28 +168,17 @@ namespace core::socket::stream {
                                 relativeReconnectTimeout);
                         }
                     },
-                    [client = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress, core::socket::State state) {
-                        bool retry = (state & core::socket::State::NO_RETRY) == 0 &&
-                                     (client.getConfig().getRetryTries() == 0 || tries < client.getConfig().getRetryTries());
+                    [client = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
+                                                                         core::socket::State state) mutable {
+                        const bool retryFlag = (state & core::socket::State::NO_RETRY) == 0;
                         state &= ~core::socket::State::NO_RETRY;
-
                         onStatus(socketAddress, state);
 
-                        switch (state) {
-                            case core::socket::State::OK:
-                                [[fallthrough]];
-                            case core::socket::State::DISABLED:
-                                retry = false;
-                                break;
-                            case core::socket::State::ERROR:
-                                retry = retry && client.getConfig().getRetry();
-                                break;
-                            case core::socket::State::FATAL:
-                                retry = retry && client.getConfig().getRetry() && client.getConfig().getRetryOnFatal();
-                                break;
-                        }
-
-                        if (retry) {
+                        if (retryFlag && client.getConfig().getRetry() // Shall we potentially retry? In case are the ...
+                            && (client.getConfig().getRetryTries() == 0 ||
+                                tries < client.getConfig().getRetryTries()) // ... limits not reached and has an ...
+                            && (state == core::socket::State::ERROR ||
+                                (state == core::socket::State::FATAL && client.getConfig().getRetryOnFatal()))) { // error occurred?
                             double relativeRetryTimeout = client.getConfig().getRetryLimit() > 0
                                                               ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
                                                                                  client.getConfig().getRetryLimit())
