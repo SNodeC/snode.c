@@ -77,7 +77,7 @@ namespace apps::http::legacy {
     using SocketConnection = WebApp::SocketConnection;
 
     static WebApp getWebApp(const std::string& name) {
-        WebApp webApp = WebApp(name, getRouter());
+        WebApp webApp(name, getRouter());
 
         return webApp;
     }
