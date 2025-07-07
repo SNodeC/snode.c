@@ -39,27 +39,60 @@
  * THE SOFTWARE.
  */
 
-#ifndef EXPRESS_LEGACY_IN_WEBAPP_H
-#define EXPRESS_LEGACY_IN_WEBAPP_H
+#include "express/legacy/in/WebApp.h"
 
-#include "express/WebAppT.h"           // IWYU pragma: export
-#include "web/http/legacy/in/Server.h" // IWYU pragma: export
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#include <algorithm>
+#include <list>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::legacy::in {
 
-    using WebApp = WebAppT<web::http::legacy::in::Server>;
-
     WebApp Server(const std::string& instanceName,
                   const express::Router& router,
-                  const std::function<void(const std::string&, WebApp::SocketAddress, const core::socket::State&)>& reportState = nullptr,
-                  const std::function<void(typename WebApp::Config&)>& configurator = nullptr);
+                  const std::function<void(const std::string&, WebApp::SocketAddress, const core::socket::State&)>& reportState,
+                  const std::function<void(typename WebApp::Config&)>& configurator) {
+        using SocketAddress = typename WebApp::SocketAddress;
+
+        const WebApp webApp(instanceName, router);
+
+        if (configurator != nullptr) {
+            configurator(webApp.getConfig());
+        }
+
+        webApp.listen([instanceName, reportState](const SocketAddress& socketAddress, const core::socket::State& state) {
+            if (reportState != nullptr) {
+                reportState(instanceName, socketAddress, state);
+            } else {
+                switch (state) {
+                    case core::socket::State::OK:
+                        VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                        break;
+                    case core::socket::State::DISABLED:
+                        VLOG(1) << instanceName << ": disabled";
+                        break;
+                    case core::socket::State::ERROR:
+                        VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        break;
+                    case core::socket::State::FATAL:
+                        VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        break;
+                }
+            }
+        });
+
+        VLOG(1) << "Instance: " << instanceName;
+        for (std::string& route : webApp.getRoutes()) {
+            route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
+
+            VLOG(1) << "  " << route;
+        }
+
+        return webApp;
+    }
 
 } // namespace express::legacy::in
-
-#endif // EXPRESS_LEGACY_IN_WEBAPP_H

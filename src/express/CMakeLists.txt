@@ -113,6 +113,7 @@ set(HTTP_SERVER_EXPRESS_H
 add_library(
     http-server-express SHARED ${HTTP_SERVER_EXPRESS_CPP}
                                ${HTTP_SERVER_EXPRESS_H}
+                               legacy/in/WebApp.cpp
 )
 add_library(snodec::http-server-express ALIAS http-server-express)
 
@@ -122,7 +123,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-    http-server-express PUBLIC http-server ${NLOHMANN_JSON_LIBRARIES}
+    http-server-express PUBLIC http-server net-in-stream-legacy ${NLOHMANN_JSON_LIBRARIES}
 )
 
 get_target_property(HTTP_COMPILE_LIBDIR http-server HTTP_COMPILE_LIBDIR)
