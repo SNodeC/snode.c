@@ -39,11 +39,10 @@
  * THE SOFTWARE.
  */
 
-#ifndef EXPRESS_LEGACY_IN_WEBAPP_H
-#define EXPRESS_LEGACY_IN_WEBAPP_H
+#ifndef EXPRESS_LEGACY_IN_SERVER_H
+#define EXPRESS_LEGACY_IN_SERVER_H
 
-#include "express/WebAppT.h"           // IWYU pragma: export
-#include "web/http/legacy/in/Server.h" // IWYU pragma: export
+#include "express/legacy/in/WebApp.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -53,8 +52,15 @@
 
 namespace express::legacy::in {
 
-    using WebApp = WebAppT<web::http::legacy::in::Server>;
+    WebApp Server(const std::string& instanceName,
+                  const express::Router& router,
+                  const std::function<void(const std::string&, WebApp::SocketAddress, const core::socket::State&)>& reportState = nullptr,
+                  const std::function<void(typename WebApp::Config&)>& configurator = nullptr);
+
+    WebApp Server(const std::string& instanceName,
+                  const express::Router& router,
+                  const std::function<void(typename WebApp::Config&)>& configurator);
 
 } // namespace express::legacy::in
 
-#endif // EXPRESS_LEGACY_IN_WEBAPP_H
+#endif // EXPRESS_LEGACY_IN_SERVER_H

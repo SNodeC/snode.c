@@ -39,90 +39,27 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-find_package(PkgConfig REQUIRED)
-
-pkg_check_modules(NLOHMANN_JSON nlohmann_json>=3.11)
-
-if(NLOHMANN_JSON_FOUND)
-    set(JSONMIDDLEWARE_CPP middleware/JsonMiddleware.cpp)
-    set(JSONMIDDLEWARE_H middleware/JsonMiddleware.h)
-else(NLOHMANN_JSON_FOUND)
-    message(
-        FATAL_ERROR
-            " nlohmann-json3-dev not found:\n"
-            "   nlohmann_json is used for http. Plaase install it by executing\n"
-            "       sudo apt install nlohmann-json3-dev"
-    )
-endif(NLOHMANN_JSON_FOUND)
-
-set(HTTP_SERVER_EXPRESS_CPP
-    Controller.cpp
-    Dispatcher.cpp
-    MountPoint.cpp
-    Next.cpp
-    Request.cpp
-    Response.cpp
-    Route.cpp
-    RootRoute.cpp
-    Router.cpp
-    WebApp.cpp
-    dispatcher/ApplicationDispatcher.cpp
-    dispatcher/MiddlewareDispatcher.cpp
-    dispatcher/RouterDispatcher.cpp
-    dispatcher/regex_utils.cpp
-    middleware/BasicAuthentication.cpp
-    middleware/StaticMiddleware.cpp
-    middleware/VHost.cpp
-    middleware/VerboseRequest.cpp
-    ${JSONMIDDLEWARE_CPP}
+set(HTTP_SERVER_EXPRESS_LEGACY_IN_CPP
+    Server.cpp
 )
 
-set(HTTP_SERVER_EXPRESS_H
-    Controller.h
-    Dispatcher.h
-    MountPoint.h
-    Next.h
-    Request.h
-    Response.h
-    Route.h
-    Route.hpp
-    Router.h
-    Router.hpp
-    RootRoute.h
-    WebApp.h
-    WebAppT.h
-    dispatcher/ApplicationDispatcher.h
-    dispatcher/MiddlewareDispatcher.h
-    dispatcher/RouterDispatcher.h
-    dispatcher/regex_utils.h
-    middleware/BasicAuthentication.h
-    middleware/StaticMiddleware.h
-    middleware/VHost.h
-    middleware/VerboseRequest.h
-    legacy/in/WebApp.h
-    legacy/in6/WebApp.h
-    legacy/rc/WebApp.h
-    legacy/un/WebApp.h
-    tls/in/WebApp.h
-    tls/in6/WebApp.h
-    tls/rc/WebApp.h
-    tls/un/WebApp.h
-    ${JSONMIDDLEWARE_H}
+set(HTTP_SERVER_EXPRESS_LEGACY_IN_H
+    Server.h
 )
 
 add_library(
-    http-server-express SHARED ${HTTP_SERVER_EXPRESS_CPP}
-                               ${HTTP_SERVER_EXPRESS_H}
+    http-server-express-legacy-in SHARED ${HTTP_SERVER_EXPRESS_LEGACY_IN_CPP}
+                               ${HTTP_SERVER_EXPRESS_LEGACY_IN_H}
 )
-add_library(snodec::http-server-express ALIAS http-server-express)
+add_library(snodec::http-server-express-legacy-in ALIAS http-server-express-legacy-in)
 
 target_include_directories(
-    http-server-express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+    http-server-express-legacy-in PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                                "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(
-    http-server-express PUBLIC http-server net-in-stream-legacy ${NLOHMANN_JSON_LIBRARIES}
+    http-server-express-legacy-in PUBLIC http-server net-in-stream-legacy http-server-express
 )
 
 get_target_property(HTTP_COMPILE_LIBDIR http-server HTTP_COMPILE_LIBDIR)
@@ -130,8 +67,8 @@ get_target_property(HTTP_INSTALL_LIBDIR http-server HTTP_INSTALL_LIBDIR)
 get_target_property(HTTP_INSTALL_RPATH http-server HTTP_INSTALL_RPATH)
 
 set_target_properties(
-    http-server-express
-    PROPERTIES OUTPUT_NAME snodec-http-server-express
+    http-server-express-legacy-in
+    PROPERTIES OUTPUT_NAME snodec-http-server-express-legacy-in
                LIBRARY_OUTPUT_DIRECTORY ${HTTP_COMPILE_LIBDIR}
                VERSION ${SNode.C_VERSION}
                SOVERSION ${SNODEC_SOVERSION}
@@ -139,15 +76,15 @@ set_target_properties(
 )
 
 install(
-    TARGETS http-server-express
-    EXPORT snodec_http-server-express_Targets
-    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR} COMPONENT http-server-express
+    TARGETS http-server-express-legacy-in
+    EXPORT snodec_http-server-express-legacy-in_Targets
+    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR} COMPONENT http-server-express-legacy-in
 )
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express
-    COMPONENT http-server-express
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express/legacy/in
+    COMPONENT http-server-express-legacy-in
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -155,12 +92,9 @@ install(
 )
 
 install(
-    EXPORT snodec_http-server-express_Targets
-    FILE snodec_http-server-express_Targets.cmake
+    EXPORT snodec_http-server-express-legacy-in_Targets
+    FILE snodec_http-server-express-legacy-in_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT http-server-express
+    COMPONENT http-server-express-legacy-in
 )
-
-add_subdirectory(legacy)
-add_subdirectory(tls)
