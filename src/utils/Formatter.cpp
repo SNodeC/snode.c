@@ -356,10 +356,12 @@ namespace CLI {
         if (sub->get_name().empty() && !sub->get_aliases().empty()) {
             detail::format_aliases(out, sub->get_aliases(), column_width_ + 2);
         }
-        out << make_positionals(sub);
-        out << make_groups(sub, AppFormatMode::Sub);
-        out << make_subcommands(sub, AppFormatMode::Sub);
 
+        if ((disabledOpt != nullptr && !disabledOpt->as<bool>()) || disabledOpt == nullptr) {
+            out << make_positionals(sub);
+            out << make_groups(sub, AppFormatMode::Sub);
+            out << make_subcommands(sub, AppFormatMode::Sub);
+        }
         // Drop blank spaces
         std::string tmp = out.str();
         tmp.pop_back();

@@ -86,13 +86,14 @@ namespace net::config {
         utils::Config::addHelp(instanceSc);
 
         disableOpt = instanceSc
-                         ->add_flag_callback(
+                         ->add_flag_function(
                              "--disabled{true}",
-                             [this]() {
+                             [this](uint64_t) {
                                  utils::Config::disabled(instanceSc, disableOpt->as<bool>());
                              },
                              "Disable this instance")
                          ->trigger_on_parse()
+                         ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
                          ->default_val("false")
                          ->type_name("bool")
                          ->check(CLI::IsMember({"true", "false"}))
