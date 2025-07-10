@@ -166,6 +166,14 @@ set(SUPPORTED_COMPONENTS
     http-server
     http-client
     http-server-express
+    http-server-express-legacy-in
+    http-server-express-legacy-in6
+    http-server-express-legacy-rc
+    http-server-express-legacy-un
+    http-server-express-tls-in
+    http-server-express-tls-in6
+    http-server-express-tls-rc
+    http-server-express-tls-un
     websocket-server
     websocket-client
     mqtt
