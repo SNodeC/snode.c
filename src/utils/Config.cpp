@@ -770,10 +770,6 @@ namespace utils {
             ->add_flag(
                 "-h{standard},--help{standard}",
                 [app]([[maybe_unused]] std::int64_t count) {
-                    if (app->get_group() == "Instance") {
-                        utils::Config::disabled(app, app->get_option("--disabled")->as<bool>());
-                    }
-
                     const std::size_t disabledCount =
                         app->get_subcommands([](CLI::App* app) -> bool {
                                return app->get_group() == "Instance" && app->get_option("--disabled")->as<bool>();
@@ -792,8 +788,6 @@ namespace utils {
                             } else {
                                 instance->group(std::string("Instance").append((enabledCount > 1) ? "s" : ""));
                             }
-                            
-                            utils::Config::disabled(instance, instance->get_option("--disabled")->as<bool>());
                         }
                     }
 
@@ -820,9 +814,7 @@ namespace utils {
         app //
             ->add_flag(
                 "-h,--help",
-                [app]([[maybe_unused]] std::int64_t count) {
-                    utils::Config::disabled(app->get_parent(), app->get_parent()->get_option("--disabled")->as<bool>());
-
+                []([[maybe_unused]] std::int64_t count) {
                     throw CLI::CallForHelp();
                 },
                 "Print help message")
