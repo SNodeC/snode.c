@@ -45,6 +45,7 @@
 
 #include "utils/Config.h"
 
+#include <cstddef>
 #include <functional>
 #include <memory>
 
@@ -86,14 +87,15 @@ namespace net::config {
         utils::Config::addHelp(instanceSc);
 
         disableOpt = instanceSc
-                         ->add_flag_callback(
+                         ->add_flag_function(
                              "--disabled{true}",
-                             [this]() {
+                             [this](std::size_t) {
                                  utils::Config::disabled(instanceSc, disableOpt->as<bool>());
                              },
                              "Disable this instance")
+                         ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
                          ->trigger_on_parse()
-                         ->default_val("false")
+                         ->default_str("false")
                          ->type_name("bool")
                          ->check(CLI::IsMember({"true", "false"}))
                          ->group(instanceSc->get_formatter()->get_label("Persistent Options"));
@@ -140,15 +142,20 @@ namespace net::config {
         if (req != section->get_required()) {
             if (req) {
                 ++requiredCount;
-                instanceSc->needs(section);
+                instanceSc //
+                    ->needs(section);
             } else {
                 --requiredCount;
-                instanceSc->remove_needs(section);
+                instanceSc //
+                    ->remove_needs(section);
             }
 
-            section->required(req);
+            section //
+                ->required(req);
+            section //
+                ->ignore_case(req);
 
-            if (!disableOpt->as<bool>()) {
+            if (!getDisabled()) {
                 utils::Config::required(instanceSc, requiredCount > 0);
             }
         }
@@ -159,7 +166,8 @@ namespace net::config {
     }
 
     CLI::App* ConfigInstance::getSection(const std::string& name) const {
-        return instanceSc->get_subcommand_no_throw(name);
+        return instanceSc //
+            ->get_subcommand_no_throw(name);
     }
 
     bool ConfigInstance::getDisabled() const {
@@ -169,7 +177,7 @@ namespace net::config {
 
     void ConfigInstance::setDisabled(bool disabled) {
         disableOpt //
-            ->default_val(disabled ? "true" : "false")
+            ->default_str(disabled ? "true" : "false")
             ->clear();
 
         utils::Config::disabled(instanceSc, disabled);

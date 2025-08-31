@@ -44,6 +44,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
+#include <cstddef>
 #include <functional>
 #include <set>
 #include <sstream>
@@ -101,15 +102,15 @@ namespace CLI {
                         }
                         if (!opt->get_default_str().empty()) {
                             defaultValue = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, characterQuote);
-                            if (defaultValue == "\"default\"") {
-                                defaultValue = "default";
+                            if (defaultValue == "'\"\"'") {
+                                defaultValue = "";
                             }
-                        } else if (opt->get_expected_min() == 0) {
-                            defaultValue = "false";
                         } else if (opt->get_run_callback_for_default()) {
                             defaultValue = "\"\""; // empty string default value
                         } else if (opt->get_required()) {
                             defaultValue = "\"<REQUIRED>\"";
+                        } else if (opt->get_expected_min() == 0) {
+                            defaultValue = "false";
                         } else {
                             defaultValue = "\"\"";
                         }
@@ -117,7 +118,7 @@ namespace CLI {
                     if (write_description && opt->has_description() && (default_also || !value.empty())) {
                         out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';
                     }
-                    if (default_also) {
+                    if (default_also && !defaultValue.empty()) {
                         out << commentChar << name << valueDelimiter << defaultValue << "\n";
                     }
                     if (!value.empty()) {
@@ -276,6 +277,42 @@ namespace CLI {
     }
 
     CLI11_INLINE std::string HelpFormatter::make_subcommands(const App* app, AppFormatMode mode) const {
+        const std::size_t disabledCount = app->get_subcommands([](const CLI::App* app) mutable -> bool {
+                                                 bool ret = false;
+
+                                                 const CLI::Option* disableOpt = app->get_option_no_throw("--disabled");
+
+                                                 if (disableOpt != nullptr) {
+                                                     ret = disableOpt->as<bool>();
+                                                 }
+
+                                                 return ret;
+                                             })
+                                              .size();
+        const std::size_t enabledCount = app->get_subcommands([](const CLI::App* app) -> bool {
+                                                bool ret = false;
+
+                                                const CLI::Option* disableOpt = app->get_option_no_throw("--disabled");
+
+                                                if (disableOpt != nullptr) {
+                                                    ret = !disableOpt->as<bool>();
+                                                }
+
+                                                return ret;
+                                            })
+                                             .size();
+
+        for (const CLI::App* instance : app->get_subcommands({})) {
+            if (instance->get_group() == "Instance") {
+                if (instance->get_option("--disabled")->as<bool>()) {
+                    const_cast<CLI::App*>(instance)->group(
+                        std::string("Instance").append((disabledCount > 1) ? "s" : "").append(" (disabled)"));
+                } else {
+                    const_cast<CLI::App*>(instance)->group(std::string("Instance").append((enabledCount > 1) ? "s" : ""));
+                }
+            }
+        }
+
         std::stringstream out;
 
         const std::vector<const App*> subcommands = app->get_subcommands([](const App* subc) {
@@ -301,21 +338,29 @@ namespace CLI {
         }
 
         // For each group, filter out and print subcommands
-        for (const std::string& group : subcmd_groups_seen) {
-            out << "\n" << group << ":\n";
-            const std::vector<const App*> subcommands_group = app->get_subcommands([&group](const App* sub_app) {
-                return detail::to_lower(sub_app->get_group()) == detail::to_lower(group) && !sub_app->get_disabled() &&
-                       !sub_app->get_name().empty();
-            });
-            for (const App* new_com : subcommands_group) {
-                if (new_com->get_name().empty()) {
-                    continue;
-                }
-                if (mode != AppFormatMode::All) {
-                    out << make_subcommand(new_com);
-                } else {
-                    out << new_com->help(new_com->get_name(), AppFormatMode::Sub);
-                    out << "\n";
+        const Option* disabledOpt = app->get_option_no_throw("--disabled");
+        bool disabled = false;
+        if (disabledOpt != nullptr) {
+            disabled = disabledOpt->as<bool>();
+        }
+
+        if (!disabled) {
+            for (const std::string& group : subcmd_groups_seen) {
+                out << "\n" << group << ":\n";
+                const std::vector<const App*> subcommands_group = app->get_subcommands([&group](const App* sub_app) {
+                    return detail::to_lower(sub_app->get_group()) == detail::to_lower(group) && !sub_app->get_disabled() &&
+                           !sub_app->get_name().empty();
+                });
+                for (const App* new_com : subcommands_group) {
+                    if (new_com->get_name().empty()) {
+                        continue;
+                    }
+                    if (mode != AppFormatMode::All) {
+                        out << make_subcommand(new_com);
+                    } else {
+                        out << new_com->help(new_com->get_name(), AppFormatMode::Sub);
+                        out << "\n";
+                    }
                 }
             }
         }
