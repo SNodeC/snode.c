@@ -75,7 +75,7 @@ namespace utils {
 
         static bool removeInstance(CLI::App* instance);
 
-        static void required(CLI::App* instance, bool reqired = true);
+        static void required(CLI::App* instance, bool required = true);
         static void disabled(CLI::App* instance, bool disabled = true);
 
         static CLI::App* addStandardFlags(CLI::App* app);
@@ -128,9 +128,12 @@ namespace utils {
 
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
+    public:
         static int argc;
         static char** argv;
 
+    private:
+        static bool subParse;
         static std::string applicationName;
 
         static std::string configDirectory;

@@ -90,7 +90,7 @@
 
 namespace utils {
 
-    static const std::shared_ptr<CLI::App> makeApp() { // NO_LINT
+    static std::shared_ptr<CLI::App> makeApp() { // NO_LINT
         const std::shared_ptr<CLI::App> app = std::make_shared<CLI::App>();
 
         app->configurable(false);
@@ -763,69 +763,23 @@ namespace utils {
     }
 
     CLI::App* Config::addHelp(CLI::App* app) {
-        app //
-            ->set_help_flag();
-
-        app //
-            ->add_flag(
-                "-h{standard},--help{standard}",
-                [app]([[maybe_unused]] std::int64_t count) {
-                    const std::size_t disabledCount =
-                        app->get_subcommands([](CLI::App* app) -> bool {
-                               return app->get_group() == "Instance" && app->get_option("--disabled")->as<bool>();
-                           })
-                            .size();
-                    const std::size_t enabledCount =
-                        app->get_subcommands([](CLI::App* app) -> bool {
-                               return app->get_group() == "Instance" && !app->get_option("--disabled")->as<bool>();
-                           })
-                            .size();
-
-                    for (auto* instance : app->get_subcommands({})) {
-                        if (instance->get_group() == "Instance") {
-                            if (instance->get_option("--disabled")->as<bool>()) {
-                                instance->group(std::string("Instance").append((disabledCount > 1) ? "s" : "").append(" (disabled)"));
-                            } else {
-                                instance->group(std::string("Instance").append((enabledCount > 1) ? "s" : ""));
-                            }
-                        }
-                    }
-
-                    const std::string& result = app->get_option("--help")->as<std::string>();
-
-                    if (result == "standard") {
-                        throw CLI::CallForHelp();
-                    }
-                    if (result == "expanded") {
-                        throw CLI::CallForAllHelp();
-                    }
-                },
-                "Print help message")
-            ->configurable(false)
-            ->check(CLI::IsMember({"standard", "expanded"}));
+        app->set_help_all_flag("--help-expanded", "Print recursive help and exit")
+            ->group(app->get_formatter()->get_label("Nonpersistent Options"));
+        app->set_help_flag("--help,-h", "Print help message and exit")->group(app->get_formatter()->get_label("Nonpersistent Options"));
 
         return app;
     }
 
     CLI::App* Config::addSimpleHelp(CLI::App* app) {
-        app //
-            ->set_help_flag();
-
-        app //
-            ->add_flag(
-                "-h,--help",
-                []([[maybe_unused]] std::int64_t count) {
-                    throw CLI::CallForHelp();
-                },
-                "Print help message")
-            ->configurable(false)
-            ->disable_flag_override();
+        app->set_help_all_flag("--help-expanded", "Print recursive help and exit")
+            ->group(app->get_formatter()->get_label("Nonpersistent Options"));
+        app->set_help_flag("--help,-h", "Print help message and exit")->group(app->get_formatter()->get_label("Nonpersistent Options"));
 
         return app;
     }
 
-    void Config::required(CLI::App* instance, bool reqired) {
-        if (reqired) {
+    void Config::required(CLI::App* instance, bool required) {
+        if (required) {
             app->needs(instance);
 
             for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
@@ -843,37 +797,36 @@ namespace utils {
             }
         }
 
-        instance->required(reqired);
+        instance->required(required);
+        instance->ignore_case(required);
     }
 
     void Config::disabled(CLI::App* instance, bool disabled) {
         if (disabled) {
             app->remove_needs(instance);
 
-            for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
-                     return !sc->get_disabled();
-                 })) {
-                sub->disabled();
+            for (const auto& sub : instance->get_subcommands({})) {
+                //                sub->disabled();
 
-                if (sub->get_required()) {
+                if (sub->get_ignore_case()) {
                     instance->remove_needs(sub);
+                    sub->required(false); // ### must be stored in ConfigInstance
                 }
             }
         } else {
             app->needs(instance);
 
-            for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
-                     return sc->get_disabled();
-                 })) {
-                sub->disabled(false);
+            for (const auto& sub : instance->get_subcommands({})) {
+                //                sub->disabled(false);
 
-                if (sub->get_required()) {
+                if (sub->get_ignore_case()) { // ### must be recalled from ConfigInstance
                     instance->needs(sub);
+                    sub->required();
                 }
             }
         }
 
-        instance->required(!disabled);
+        instance->required(instance->get_ignore_case());
     }
 
     bool Config::removeInstance(CLI::App* instance) {
