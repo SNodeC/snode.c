@@ -124,6 +124,7 @@ namespace net::config {
                                   ->configurable(false)
                                   ->allow_extras(false)
                                   ->group("Sections")
+                                  ->ignore_case(false)
                                   ->disabled(this->instanceName.empty() || name.empty());
 
         sectionSc //
