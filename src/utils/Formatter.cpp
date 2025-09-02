@@ -91,17 +91,17 @@ namespace CLI {
                     }
                     const std::string name = prefix + opt->get_single_name();
                     std::string value =
-                        detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, characterQuote);
+                        detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
 
                     std::string defaultValue{};
                     if (default_also) {
                         static_assert(std::string::npos + static_cast<std::string::size_type>(1) == 0,
                                       "std::string::npos + static_cast<std::string::size_type>(1) != 0");
-                        if (!value.empty() && detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, characterQuote) == value) {
+                        if (!value.empty() && detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote) == value) {
                             value.clear();
                         }
                         if (!opt->get_default_str().empty()) {
-                            defaultValue = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, characterQuote);
+                            defaultValue = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote);
                             if (defaultValue == "'\"\"'") {
                                 defaultValue = "";
                             }
@@ -324,7 +324,7 @@ namespace CLI {
         for (const App* com : subcommands) {
             if (com->get_name().empty()) {
                 if (!com->get_group().empty()) {
-                    out << make_expanded(com);
+                    out << make_expanded(com, mode);
                 }
                 continue;
             }
@@ -376,19 +376,39 @@ namespace CLI {
     }
 
     CLI11_INLINE std::string HelpFormatter::make_subcommand(const App* sub) const {
+        /*
+                std::stringstream out;
+                // ########## Next lines changed
+                const Option* disabledOpt = sub->get_option_no_throw("--disabled");
+                detail::format_help(out,
+                                    sub->get_display_name(true) + ((disabledOpt != nullptr ? disabledOpt->as<bool>() : false)
+                                                                       ? ""
+                                                                       : (sub->get_required() ? " " + get_label("REQUIRED") : "")),
+                                    sub->get_description(),
+                                    column_width_);
+                return out.str();
+                */
         std::stringstream out;
-        // ########## Next lines changed
-        const Option* disabledOpt = sub->get_option_no_throw("--disabled");
-        detail::format_help(out,
-                            sub->get_display_name(true) + ((disabledOpt != nullptr ? disabledOpt->as<bool>() : false)
-                                                               ? ""
-                                                               : (sub->get_required() ? " " + get_label("REQUIRED") : "")),
-                            sub->get_description(),
-                            column_width_);
+        std::string name = "  " + sub->get_display_name(true) + (sub->get_required() ? " " + get_label("REQUIRED") : "");
+
+        out << std::setw(static_cast<int>(column_width_)) << std::left << name;
+        std::string desc = sub->get_description();
+        if (!desc.empty()) {
+            bool skipFirstLinePrefix = true;
+            if (out.str().length() > column_width_) {
+                out << '\n';
+                skipFirstLinePrefix = false;
+            }
+            detail::streamOutAsParagraph(out, desc, right_column_width_, std::string(column_width_, ' '), skipFirstLinePrefix);
+        }
+
+        //        detail::streamOutAsParagraph(out, sub->get_description(), right_column_width_, std::string(column_width_, ' '), true);
+        out << '\n';
+
         return out.str();
     }
 
-    CLI11_INLINE std::string HelpFormatter::make_expanded(const App* sub) const {
+    CLI11_INLINE std::string HelpFormatter::make_expanded(const App* sub, AppFormatMode mode) const {
         std::stringstream out;
         // ########## Next lines changed
         const Option* disabledOpt = sub->get_option_no_throw("--disabled");
@@ -397,13 +417,15 @@ namespace CLI {
                                                                                : (sub->get_required() ? " " + get_label("REQUIRED") : ""))
             << "\n";
 
-        out << make_description(sub);
+        detail::streamOutAsParagraph(out, make_description(sub), description_paragraph_width_, "  "); // Format description as paragraph
+
         if (sub->get_name().empty() && !sub->get_aliases().empty()) {
             detail::format_aliases(out, sub->get_aliases(), column_width_ + 2);
         }
         out << make_positionals(sub);
-        out << make_groups(sub, AppFormatMode::Sub);
-        out << make_subcommands(sub, AppFormatMode::Sub);
+        out << make_groups(sub, mode);
+        out << make_subcommands(sub, mode);
+        detail::streamOutAsParagraph(out, make_footer(sub), footer_paragraph_width_); // Format footer as paragraph
 
         // Drop blank spaces
         std::string tmp = out.str();
