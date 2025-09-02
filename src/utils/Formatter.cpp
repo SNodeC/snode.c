@@ -44,7 +44,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <cstddef>
 #include <functional>
 #include <set>
 #include <sstream>
@@ -277,45 +276,14 @@ namespace CLI {
     }
 
     CLI11_INLINE std::string HelpFormatter::make_subcommands(const App* app, AppFormatMode mode) const {
-        const std::size_t disabledCount = app->get_subcommands([](const CLI::App* app) mutable -> bool {
-                                                 bool ret = false;
-
-                                                 const CLI::Option* disableOpt = app->get_option_no_throw("--disabled");
-
-                                                 if (disableOpt != nullptr) {
-                                                     ret = disableOpt->as<bool>();
-                                                 }
-
-                                                 return ret;
-                                             })
-                                              .size();
-        const std::size_t enabledCount = app->get_subcommands([](const CLI::App* app) -> bool {
-                                                bool ret = false;
-
-                                                const CLI::Option* disableOpt = app->get_option_no_throw("--disabled");
-
-                                                if (disableOpt != nullptr) {
-                                                    ret = !disableOpt->as<bool>();
-                                                }
-
-                                                return ret;
-                                            })
-                                             .size();
-
-        for (const CLI::App* instance : app->get_subcommands({})) {
-            if (instance->get_group() == "Instance") {
-                if (instance->get_option("--disabled")->as<bool>()) {
-                    const_cast<CLI::App*>(instance)->group(
-                        std::string("Instance").append((disabledCount > 1) ? "s" : "").append(" (disabled)"));
-                } else {
-                    const_cast<CLI::App*>(instance)->group(std::string("Instance").append((enabledCount > 1) ? "s" : ""));
-                }
-            }
-        }
-
         std::stringstream out;
 
         const std::vector<const App*> subcommands = app->get_subcommands([](const App* subc) {
+            if (subc->get_group() == "Instances") {
+                if (subc->get_option("--disabled")->as<bool>()) {
+                    const_cast<CLI::App*>(subc)->group(subc->get_group() + " (disabled)");
+                }
+            }
             return !subc->get_disabled() && !subc->get_name().empty();
         });
 
@@ -372,7 +340,14 @@ namespace CLI {
             tmp.pop_back();
         }
 
-        return tmp;
+        out.str(tmp);
+        out.clear();
+
+        if (disabledOpt != nullptr) {
+            out << "\nInstance " << app->get_name() << " " << (disabled ? "disabled" : "enabled") << "\n";
+        }
+
+        return out.str();
     }
 
     CLI11_INLINE std::string HelpFormatter::make_subcommand(const App* sub) const {
