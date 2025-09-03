@@ -62,8 +62,10 @@
 #include <memory>
 #include <pwd.h>
 #include <sstream>
+#include <string_view>
 #include <sys/types.h>
 #include <unistd.h>
+#include <unordered_set>
 #include <vector>
 
 #ifdef __GNUC__
@@ -428,6 +430,27 @@ namespace utils {
         return proceed;
     }
 
+    // Escape characters with special meaning in Bash (except whitespace).
+    static std::string bash_backslash_escape_no_whitespace(std::string_view s) {
+        static const std::unordered_set<char> special{
+            '\\', '\'',                                    // quoting/escape
+            '`',  '$',                                     // substitution
+            '|',  '&',  ';', '<', '>', '(', ')', '{', '}', // operators
+            '*',  '?',  '[', ']', '~', '!', '#', '='       // globbing/history/others
+        };
+
+        std::string out;
+        out.reserve(s.size() * 2);
+
+        for (char c : s) {
+            if (special.contains(c)) {
+                out.push_back('\\');
+            }
+            out.push_back(c);
+        }
+        return out;
+    }
+
     static void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
         CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
         const bool disabled = disabledOpt != nullptr ? disabledOpt->as<bool>() : false;
@@ -481,6 +504,9 @@ namespace utils {
                             value = value.substr(1, value.size() - 2);
                         }
 
+                        if (value != "<REQUIRED>" && value != "\"\"") {
+                            value = bash_backslash_escape_no_whitespace(value);
+                        }
                         out << "--" << option->get_single_name() << ((option->get_items_expected_max() == 0) ? "=" : " ") << value << " ";
                     }
                 }
