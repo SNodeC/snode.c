@@ -83,7 +83,7 @@ namespace net::phy {
 
         PhysicalSocket(int fd, const SocketAddress& bindAddress);
 
-        int open(const std::map<int, std::map<int, const PhysicalSocketOption>>& socketOptionsMapMap, Flags flags);
+        int open(const std::map<int, std::map<int, PhysicalSocketOption>>& socketOptionsMapMap, Flags flags);
 
         int bind(SocketAddress& bindAddress);
 

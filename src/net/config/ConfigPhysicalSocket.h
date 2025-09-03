@@ -68,7 +68,7 @@ namespace net::config {
         explicit ConfigPhysicalSocket(ConfigInstance* instance);
 
     public:
-        const std::map<int, std::map<int, const net::phy::PhysicalSocketOption>>& getSocketOptions();
+        const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& getSocketOptions();
 
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, int optValue);
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, const std::string& optValue);
@@ -115,7 +115,7 @@ namespace net::config {
         CLI::Option* retryLimitOpt = nullptr;
         CLI::Option* retryJitterOpt = nullptr;
 
-        std::map<int, std::map<int, const net::phy::PhysicalSocketOption>> socketOptionsMapMap;
+        std::map<int, std::map<int, net::phy::PhysicalSocketOption>> socketOptionsMapMap;
 
         //        std::map<int, const net::phy::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
     };
