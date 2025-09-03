@@ -852,7 +852,7 @@ namespace utils {
             }
         }
 
-        instance->required(instance->get_ignore_case());
+        instance->required(disabled ? false : instance->get_ignore_case());
     }
 
     bool Config::removeInstance(CLI::App* instance) {

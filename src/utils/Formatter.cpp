@@ -45,6 +45,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <iomanip>
 #include <set>
 #include <sstream>
 #include <vector>
@@ -181,7 +182,7 @@ namespace CLI {
         std::stringstream out;
 
         // ############## Next line changed
-        out << group << ":\n";
+        out << "\n" << group << ":\n";
         for (const Option* opt : opts) {
             out << make_option(opt, is_positional);
         }
@@ -343,26 +344,10 @@ namespace CLI {
         out.str(tmp);
         out.clear();
 
-        if (disabledOpt != nullptr) {
-            out << "\nInstance " << app->get_name() << " " << (disabled ? "disabled" : "enabled") << "\n";
-        }
-
         return out.str();
     }
 
     CLI11_INLINE std::string HelpFormatter::make_subcommand(const App* sub) const {
-        /*
-                std::stringstream out;
-                // ########## Next lines changed
-                const Option* disabledOpt = sub->get_option_no_throw("--disabled");
-                detail::format_help(out,
-                                    sub->get_display_name(true) + ((disabledOpt != nullptr ? disabledOpt->as<bool>() : false)
-                                                                       ? ""
-                                                                       : (sub->get_required() ? " " + get_label("REQUIRED") : "")),
-                                    sub->get_description(),
-                                    column_width_);
-                return out.str();
-                */
         std::stringstream out;
         std::string name = "  " + sub->get_display_name(true) + (sub->get_required() ? " " + get_label("REQUIRED") : "");
 
@@ -370,14 +355,13 @@ namespace CLI {
         std::string desc = sub->get_description();
         if (!desc.empty()) {
             bool skipFirstLinePrefix = true;
-            if (out.str().length() > column_width_) {
+            if (out.str().length() >= column_width_) {
                 out << '\n';
                 skipFirstLinePrefix = false;
             }
             detail::streamOutAsParagraph(out, desc, right_column_width_, std::string(column_width_, ' '), skipFirstLinePrefix);
         }
 
-        //        detail::streamOutAsParagraph(out, sub->get_description(), right_column_width_, std::string(column_width_, ' '), true);
         out << '\n';
 
         return out.str();
@@ -388,11 +372,11 @@ namespace CLI {
         // ########## Next lines changed
         const Option* disabledOpt = sub->get_option_no_throw("--disabled");
         out << sub->get_display_name(true) + " [OPTIONS]" + (!sub->get_subcommands({}).empty() ? " [SECTIONS]" : "") +
-                   ((disabledOpt != nullptr ? disabledOpt->as<bool>() : false) ? ""
+                   ((disabledOpt != nullptr ? disabledOpt->as<bool>() : false) ? " " + get_label("DISABLED")
                                                                                : (sub->get_required() ? " " + get_label("REQUIRED") : ""))
             << "\n";
 
-        detail::streamOutAsParagraph(out, make_description(sub), description_paragraph_width_, "  "); // Format description as paragraph
+        detail::streamOutAsParagraph(out, make_description(sub), description_paragraph_width_, ""); // Format description as paragraph
 
         if (sub->get_name().empty() && !sub->get_aliases().empty()) {
             detail::format_aliases(out, sub->get_aliases(), column_width_ + 2);
@@ -400,7 +384,6 @@ namespace CLI {
         out << make_positionals(sub);
         out << make_groups(sub, mode);
         out << make_subcommands(sub, mode);
-        detail::streamOutAsParagraph(out, make_footer(sub), footer_paragraph_width_); // Format footer as paragraph
 
         // Drop blank spaces
         std::string tmp = out.str();
@@ -424,15 +407,18 @@ namespace CLI {
                 if (!opt->get_default_str().empty()) {
                     out << " [" << opt->get_default_str() << "]";
                 }
+                if (opt->count() > 0 && opt->get_default_str() != opt->as<std::string>()) {
+                    out << " {" << opt->as<std::string>() << "}";
+                }
                 if (opt->get_expected_max() == detail::expected_max_vector_size) {
                     out << " ... ";
                 } else if (opt->get_expected_min() > 1) {
                     out << " x " << opt->get_expected();
                 }
-                if (opt->get_required()) {
+                if (opt->get_required() && !get_label("REQUIRED").empty()) {
                     out << " " << get_label("REQUIRED");
                 }
-                if (opt->get_configurable()) {
+                if (opt->get_configurable() && !get_label("PERSISTENT").empty()) {
                     out << " " << get_label("PERSISTENT");
                 }
             }
@@ -444,14 +430,12 @@ namespace CLI {
                 for (const Option* op : opt->get_needs()) {
                     out << " " << op->get_name();
                 }
-                out << " ";
             }
             if (!opt->get_excludes().empty()) {
                 out << " " << get_label("Excludes") << ":";
                 for (const Option* op : opt->get_excludes()) {
                     out << " " << op->get_name();
                 }
-                out << " ";
             }
         }
         return out.str();

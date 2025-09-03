@@ -9462,7 +9462,9 @@ CLI11_INLINE void App::_process_requirements() {
 CLI11_INLINE void App::_process() {
     // help takes precedence over other potential errors and config and environment shouldn't be processed if help
     // throws
-    _process_help_flags();
+//    std::cout << "--- Process before help_flags()" << std::endl;
+//    _process_help_flags();
+//    std::cout << "--- Process after help_flags()" << std::endl;
     try {
         // the config file might generate a FileError but that should not be processed until later in the process
         // to allow for help, version and other errors to generate first.
@@ -9474,10 +9476,12 @@ CLI11_INLINE void App::_process() {
         // callbacks can generate exceptions which should take priority
         // over the config file error if one exists.
         _process_callbacks();
+        _process_help_flags();
         throw;
     }
 
     _process_callbacks();
+    _process_help_flags();
 
     _process_requirements();
 }
