@@ -81,7 +81,7 @@ namespace net::config {
                                                     .append(" instance '")
                                                     .append(instanceName)
                                                     .append("'"),
-                                                "Instance");
+                                                "Instances");
 
         utils::Config::addStandardFlags(instanceSc);
         utils::Config::addHelp(instanceSc);
