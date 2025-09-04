@@ -85,7 +85,7 @@ namespace CLI {
         std::string make_usage(const App* app, std::string name) const override;
         std::string make_subcommands(const App* app, AppFormatMode mode) const override;
         std::string make_subcommand(const App* sub) const override;
-        std::string make_expanded(const App* sub) const override;
+        std::string make_expanded(const App* sub, AppFormatMode mode) const override;
         std::string make_option_opts(const Option* opt) const override;
     };
 
