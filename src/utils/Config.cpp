@@ -803,6 +803,7 @@ namespace utils {
                },
                "Print help message and exit")
             ->group(app->get_formatter()->get_label("Nonpersistent Options"))
+            ->type_name("TOKEN")
             ->check(CLI::IsMember({"standard", "exact", "expanded"}));
 
         return app;
