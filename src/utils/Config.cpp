@@ -109,7 +109,7 @@ namespace utils {
         helpFormatter->label("Usage", "\nUsage");
         helpFormatter->label("bool:{true,false}", "{true,false}");
         helpFormatter->label(":{standard,required,full,default}", "{standard,required,full,default}");
-        helpFormatter->label(":{standard,expanded}", "{standard,expanded}");
+        helpFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
         helpFormatter->column_width(7);
 
         app->formatter(helpFormatter);
@@ -696,7 +696,7 @@ namespace utils {
         sectionFormatter->label("Usage", "\nUsage");
         sectionFormatter->label("bool:{true,false}", "{true,false}");
         sectionFormatter->label(":{standard,required,full,default}", "{standard,required,full,default}");
-        sectionFormatter->label(":{standard,expanded}", "{standard,expanded}");
+        sectionFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
         sectionFormatter->column_width(7);
 
         return sectionFormatter;
@@ -803,7 +803,6 @@ namespace utils {
                },
                "Print help message and exit")
             ->group(app->get_formatter()->get_label("Nonpersistent Options"))
-            ->type_name("TOKEN")
             ->check(CLI::IsMember({"standard", "exact", "expanded"}));
 
         return app;
