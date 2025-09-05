@@ -595,7 +595,6 @@ namespace utils {
             } catch (const DaemonSignaled& e) {
                 std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
             } catch (const CLI::CallForHelp&) {
-                std::cout << helpApp->get_option("--help")->as<std::string>() << std::endl;
                 const std::string helpMode = helpApp->get_option("--help")->as<std::string>();
                 const CLI::App* helpApp = nullptr;
                 CLI::AppFormatMode mode = CLI::AppFormatMode::Normal;
@@ -800,7 +799,6 @@ namespace utils {
         app->set_help_flag(
                "-h{standard},--help{standard}",
                [app](std::size_t) {
-                   VLOG(0) << "Help Callback: " << app->get_name() << " - " << app->get_help_ptr()->as<std::string>();
                    helpApp = app;
                },
                "Print help message and exit")
@@ -814,7 +812,6 @@ namespace utils {
         app->set_help_flag(
                "--help,-h",
                [app](std::size_t) {
-                   VLOG(0) << "Help Callback: " << app->get_name() << " - " << app->get_help_ptr()->as<std::string>();
                    helpApp = app;
                },
                "Print help message and exit")
