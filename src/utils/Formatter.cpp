@@ -327,7 +327,12 @@ namespace CLI {
                     if (mode != AppFormatMode::All) {
                         out << make_subcommand(new_com);
                     } else {
-                        out << new_com->help(new_com->get_name(), AppFormatMode::Sub);
+                        out << new_com->help(disabledOpt != nullptr && (app->get_help_ptr()->as<std::string>() == "exact" ||
+                                                                        app->get_help_ptr()->as<std::string>() == "expanded")
+                                                 ? new_com
+                                                 : nullptr,
+                                             new_com->get_name(),
+                                             AppFormatMode::Sub);
                         out << "\n";
                     }
                 }

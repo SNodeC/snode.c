@@ -149,6 +149,8 @@ namespace utils {
         static CLI::Option* verboseLevelOpt;
         static CLI::Option* quietOpt;
 
+        static CLI::App* helpApp;
+
         static std::map<std::string, std::string> aliases;             // from -> to
         static std::map<std::string, CLI::Option*> applicationOptions; // keep all user options in memory
     };

@@ -7261,9 +7261,11 @@ class App {
 
     /// Set a help flag, replace the existing one if present
     Option *set_help_flag(std::string flag_name = "", const std::string &help_description = "");
+    Option *set_help_flag(std::string flag_name, std::function<void(std::size_t)> help_callback, const std::string &help_description);
 
     /// Set a help all flag, replaced the existing one if present
     Option *set_help_all_flag(std::string help_name = "", const std::string &help_description = "");
+    Option *set_help_all_flag(std::string flag_name, std::function<void(std::size_t)> help_callback, const std::string &help_description);
 
     /// Set a version flag and version display string, replace the existing one if present
     Option *set_version_flag(std::string flag_name = "",
@@ -7670,6 +7672,7 @@ class App {
 
     /// Makes a help message, using the currently configured formatter
     /// Will only do one subcommand at a time
+    CLI11_NODISCARD std::string help(const App* help_app, std::string prev = "", AppFormatMode mode = AppFormatMode::Normal) const;
     CLI11_NODISCARD std::string help(std::string prev = "", AppFormatMode mode = AppFormatMode::Normal) const;
 
     /// Displays a version string
@@ -8357,6 +8360,22 @@ CLI11_INLINE Option *App::set_help_flag(std::string flag_name, const std::string
     return help_ptr_;
 }
 
+CLI11_INLINE Option *App::set_help_flag(std::string flag_name, std::function<void(std::size_t)> help_callback, const std::string &help_description) {
+    // take flag_description by const reference otherwise add_flag tries to assign to help_description
+    if(help_ptr_ != nullptr) {
+        remove_option(help_ptr_);
+        help_ptr_ = nullptr;
+    }
+
+    // Empty name will simply remove the help flag
+    if(!flag_name.empty()) {
+        help_ptr_ = add_flag(flag_name, help_callback, help_description);
+        help_ptr_->configurable(false);
+    }
+
+    return help_ptr_;
+}
+
 CLI11_INLINE Option *App::set_help_all_flag(std::string help_name, const std::string &help_description) {
     // take flag_description by const reference otherwise add_flag tries to assign to flag_description
     if(help_all_ptr_ != nullptr) {
@@ -8371,6 +8390,22 @@ CLI11_INLINE Option *App::set_help_all_flag(std::string help_name, const std::st
     }
 
     return help_all_ptr_;
+}
+
+CLI11_INLINE Option *App::set_help_all_flag(std::string flag_name, std::function<void(std::size_t)> help_callback, const std::string &help_description) {
+    // take flag_description by const reference otherwise add_flag tries to assign to help_description
+    if(help_ptr_ != nullptr) {
+        remove_option(help_ptr_);
+        help_ptr_ = nullptr;
+    }
+
+    // Empty name will simply remove the help flag
+    if(!flag_name.empty()) {
+        help_ptr_ = add_flag(flag_name, help_callback, help_description);
+        help_ptr_->configurable(false);
+    }
+
+    return help_ptr_;
 }
 
 CLI11_INLINE Option *
@@ -8776,7 +8811,7 @@ CLI11_INLINE int App::exit(const Error &e, std::ostream &out, std::ostream &err)
     }
 
     if(e.get_name() == "CallForAllHelp") {
-        out << help("", AppFormatMode::All);
+        out << help(nullptr, "", AppFormatMode::All);
         return e.get_exit_code();
     }
 
@@ -8860,18 +8895,33 @@ CLI11_INLINE bool App::remove_needs(App *app) {
     return true;
 }
 
-CLI11_NODISCARD CLI11_INLINE std::string App::help(std::string prev, AppFormatMode mode) const {
-    if(prev.empty())
-        prev = get_name();
-    else
-        prev += " " + get_name();
+CLI11_NODISCARD CLI11_INLINE std::string App::help(const App* help_app, std::string prev, AppFormatMode mode) const {
+    if (help_app != nullptr) {
+        for (const App* current = help_app; current != nullptr; current=current->get_parent()) {
+            if(prev.empty())
+                prev = current->get_name();
+            else
+                prev = current->get_name() + " " + prev;
+        }
+    } else {
+        if(prev.empty())
+            prev = get_name();
+        else
+            prev += " " + get_name();
 
-    // Delegate to subcommand if needed
-    auto selected_subcommands = get_subcommands();
-    if(!selected_subcommands.empty()) {
-        return selected_subcommands.back()->help(prev, mode);
+        // Delegate to subcommand if needed
+
+        auto selected_subcommands = get_subcommands();
+        if(!selected_subcommands.empty()) {
+            return selected_subcommands.back()->help(nullptr, prev, mode);
+        }
     }
-    return formatter_->make_help(this, prev, mode);
+
+    return (help_app != nullptr? help_app : this)->formatter_->make_help(help_app == nullptr ? this : help_app, prev, mode);
+}
+
+CLI11_NODISCARD CLI11_INLINE std::string App::help(std::string prev, AppFormatMode mode) const {
+    return help(nullptr, prev, mode);
 }
 
 CLI11_NODISCARD CLI11_INLINE std::string App::version() const {

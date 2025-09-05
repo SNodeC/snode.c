@@ -595,9 +595,17 @@ namespace utils {
             } catch (const DaemonSignaled& e) {
                 std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
             } catch (const CLI::CallForHelp&) {
-                std::cout << app->help() << std::endl;
-            } catch (const CLI::CallForAllHelp&) {
-                std::cout << app->help("", CLI::AppFormatMode::All) << std::endl;
+                std::cout << helpApp->get_option("--help")->as<std::string>() << std::endl;
+                const std::string helpMode = helpApp->get_option("--help")->as<std::string>();
+                const CLI::App* helpApp = nullptr;
+                CLI::AppFormatMode mode = CLI::AppFormatMode::Normal;
+                if (helpMode == "exact") {
+                    helpApp = utils::Config::helpApp;
+                } else if (helpMode == "expanded") {
+                    helpApp = utils::Config::helpApp;
+                    mode = CLI::AppFormatMode::All;
+                }
+                std::cout << app->help(helpApp, "", mode) << std::endl;
             } catch (const CLI::CallForVersion&) {
                 std::cout << app->version() << std::endl << std::endl;
             } catch (const CLI::CallForCommandline& e) {
@@ -789,17 +797,29 @@ namespace utils {
     }
 
     CLI::App* Config::addHelp(CLI::App* app) {
-        app->set_help_all_flag("--help-expanded", "Print recursive help and exit")
-            ->group(app->get_formatter()->get_label("Nonpersistent Options"));
-        app->set_help_flag("--help,-h", "Print help message and exit")->group(app->get_formatter()->get_label("Nonpersistent Options"));
+        app->set_help_flag(
+               "-h{standard},--help{standard}",
+               [app](std::size_t) {
+                   VLOG(0) << "Help Callback: " << app->get_name() << " - " << app->get_help_ptr()->as<std::string>();
+                   helpApp = app;
+               },
+               "Print help message and exit")
+            ->group(app->get_formatter()->get_label("Nonpersistent Options"))
+            ->check(CLI::IsMember({"standard", "exact", "expanded"}));
 
         return app;
     }
 
     CLI::App* Config::addSimpleHelp(CLI::App* app) {
-        app->set_help_all_flag("--help-expanded", "Print recursive help and exit")
-            ->group(app->get_formatter()->get_label("Nonpersistent Options"));
-        app->set_help_flag("--help,-h", "Print help message and exit")->group(app->get_formatter()->get_label("Nonpersistent Options"));
+        app->set_help_flag(
+               "--help,-h",
+               [app](std::size_t) {
+                   VLOG(0) << "Help Callback: " << app->get_name() << " - " << app->get_help_ptr()->as<std::string>();
+                   helpApp = app;
+               },
+               "Print help message and exit")
+            ->group(app->get_formatter()->get_label("Nonpersistent Options"))
+            ->disable_flag_override();
 
         return app;
     }
@@ -967,6 +987,8 @@ namespace utils {
     CLI::Option* Config::logLevelOpt = nullptr;
     CLI::Option* Config::verboseLevelOpt = nullptr;
     CLI::Option* Config::quietOpt = nullptr;
+
+    CLI::App* Config::helpApp = nullptr;
 
     std::map<std::string, std::string> Config::aliases;
     std::map<std::string, CLI::Option*> Config::applicationOptions;
