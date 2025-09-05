@@ -9415,6 +9415,7 @@ CLI11_INLINE void App::_process_requirements() {
         }
     }
     for(const auto &subc : need_subcommands_) {
+        subc->_process_requirements();
         if(subc->count_all() == 0) {
             missing_needed = true;
             missing_need = subc->get_display_name();
@@ -9422,7 +9423,13 @@ CLI11_INLINE void App::_process_requirements() {
     }
     if(missing_needed) {
         if(count_all() > 0) {
-            throw RequiresError(get_display_name(), missing_need);
+            std::string out;
+
+            for(const App* parent = get_parent(); parent != nullptr; parent = parent->get_parent()) {
+                out = parent->get_display_name() + ":" + out;
+            }
+
+            throw RequiresError(out + get_display_name(), missing_need);
         }
         // if we missing something but didn't have any options, just return
         return;
