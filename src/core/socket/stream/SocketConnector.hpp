@@ -55,53 +55,9 @@
 
 namespace core::socket::stream {
 
-    template <typename SocketAddress, typename PhysicalSocket, typename Config>
-    SocketAddress getLocalSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
-        typename SocketAddress::SockAddr localSockAddr;
-        typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
-
-        SocketAddress localPeerAddress;
-        if (physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
-            try {
-                localPeerAddress = config->Local::getSocketAddress(localSockAddr, localSockAddrLen);
-                LOG(TRACE) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                           << "  PeerAddress (local): " << localPeerAddress.toString();
-            } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                             << "  PeerAddress (local): " << badSocketAddress.what();
-            }
-        } else {
-            PLOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                          << " PeerAddress (local) not retrievable";
-        }
-
-        return localPeerAddress;
-    }
-
-    template <typename SocketAddress, typename PhysicalSocket, typename Config>
-    SocketAddress getRemoteSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
-        typename SocketAddress::SockAddr remoteSockAddr;
-        typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
-
-        SocketAddress remotePeerAddress;
-        if (physicalSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
-            try {
-                remotePeerAddress = config->Remote::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                LOG(TRACE) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                           << "  PeerAddress (remote): " << remotePeerAddress.toString();
-            } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                             << "  PeerAddress (remote): " << badSocketAddress.what();
-            }
-        } else {
-            PLOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                          << " PeerAddress (remote) not retrievable";
-        }
-
-        return remotePeerAddress;
-    }
-
-    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    template <typename PhysicalSocketClient,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     SocketConnector<PhysicalSocketClient, Config, SocketConnection>::SocketConnector(
         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
@@ -125,7 +81,9 @@ namespace core::socket::stream {
         });
     }
 
-    template <typename PhysicalSocketServer, typename Config, template <typename PhysicalSocketServerT> typename SocketConnection>
+    template <typename PhysicalSocketServer,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketServerT> typename SocketConnection>
     SocketConnector<PhysicalSocketServer, Config, SocketConnection>::SocketConnector(const SocketConnector& socketConnector)
         : core::eventreceiver::ConnectEventReceiver(socketConnector.config->getInstanceName() + " SocketConnector", 0)
         , socketContextFactory(socketConnector.socketContextFactory)
@@ -143,11 +101,15 @@ namespace core::socket::stream {
         });
     }
 
-    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    template <typename PhysicalSocketClient,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     SocketConnector<PhysicalSocketClient, Config, SocketConnection>::~SocketConnector() {
     }
 
-    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    template <typename PhysicalSocketClient,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::init() {
         if (!config->getDisabled()) {
             try {
@@ -238,18 +200,7 @@ namespace core::socket::stream {
 
                         onStatus(remoteAddress, core::socket::STATE_OK);
 
-                        SocketConnection* socketConnection =
-                            new SocketConnection(config->getInstanceName(),
-                                                 std::move(physicalClientSocket),
-                                                 onDisconnect,
-                                                 remoteAddress.toString(false),
-                                                 getLocalSocketAddress<SocketAddress>(physicalClientSocket, config),
-                                                 getRemoteSocketAddress<SocketAddress>(physicalClientSocket, config),
-                                                 config->getReadTimeout(),
-                                                 config->getWriteTimeout(),
-                                                 config->getReadBlockSize(),
-                                                 config->getWriteBlockSize(),
-                                                 config->getTerminateTimeout());
+                        SocketConnection* socketConnection = new SocketConnection(config, std::move(physicalClientSocket), onDisconnect);
 
                         onConnect(socketConnection);
                         onConnected(socketConnection);
@@ -277,7 +228,9 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    template <typename PhysicalSocketClient,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectEvent() {
         int cErrno = 0;
 
@@ -290,18 +243,7 @@ namespace core::socket::stream {
 
                 onStatus(remoteAddress, core::socket::STATE_OK);
 
-                SocketConnection* socketConnection =
-                    new SocketConnection(config->getInstanceName(),
-                                         std::move(physicalClientSocket),
-                                         onDisconnect,
-                                         remoteAddress.toString(false),
-                                         getLocalSocketAddress<SocketAddress>(physicalClientSocket, config),
-                                         getRemoteSocketAddress<SocketAddress>(physicalClientSocket, config),
-                                         config->getReadTimeout(),
-                                         config->getWriteTimeout(),
-                                         config->getReadBlockSize(),
-                                         config->getWriteBlockSize(),
-                                         config->getTerminateTimeout());
+                SocketConnection* socketConnection = new SocketConnection(config, std::move(physicalClientSocket), onDisconnect);
 
                 onConnect(socketConnection);
                 onConnected(socketConnection);
@@ -374,12 +316,16 @@ namespace core::socket::stream {
         }
     }
 
-    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    template <typename PhysicalSocketClient,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::unobservedEvent() {
         destruct();
     }
 
-    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    template <typename PhysicalSocketClient,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectTimeout() {
         LOG(TRACE) << config->getInstanceName() << " connect timeout " << remoteAddress.toString();
 
@@ -399,7 +345,9 @@ namespace core::socket::stream {
         core::eventreceiver::ConnectEventReceiver::connectTimeout();
     }
 
-    template <typename PhysicalSocketClient, typename Config, template <typename PhysicalSocketClientT> typename SocketConnection>
+    template <typename PhysicalSocketClient,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::destruct() {
         delete this;
     }

@@ -56,14 +56,17 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename PhysicalSocketT>
+    template <typename ConfigT, typename PhysicalSocketT>
     class SocketConnection final
-        : public core::socket::stream::
-              SocketConnectionT<PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter> {
+        : public core::socket::stream::SocketConnectionT<ConfigT,
+                                                         PhysicalSocketT,
+                                                         core::socket::stream::tls::SocketReader,
+                                                         core::socket::stream::tls::SocketWriter> {
     private:
         using Super = core::socket::stream::
-            SocketConnectionT<PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter>;
+            SocketConnectionT<ConfigT, PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter>;
 
+        using Config = ConfigT;
         using PhysicalSocket = PhysicalSocketT;
         using SocketReader = typename Super::SocketReader;
         using SocketWriter = typename Super::SocketWriter;
@@ -71,17 +74,9 @@ namespace core::socket::stream::tls {
     public:
         using SocketAddress = typename Super::SocketAddress;
 
-        SocketConnection(const std::string& instanceName,
+        SocketConnection(const std::shared_ptr<Config>& config,
                          PhysicalSocket&& physicalSocket,
-                         const std::function<void(SocketConnection*)>& onDisconnect,
-                         const std::string& configuredServer,
-                         const SocketAddress& localAddress,
-                         const SocketAddress& remoteAddress,
-                         const utils::Timeval& readTimeout,
-                         const utils::Timeval& writeTimeout,
-                         std::size_t readBlockSize,
-                         std::size_t writeBlockSize,
-                         const utils::Timeval& terminateTimeout);
+                         const std::function<void(SocketConnection*)>& onDisconnect);
 
         SSL* getSSL() const;
 

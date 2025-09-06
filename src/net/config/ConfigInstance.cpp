@@ -83,9 +83,6 @@ namespace net::config {
                                                     .append("'"),
                                                 "Instances");
 
-        utils::Config::addStandardFlags(instanceSc);
-        utils::Config::addHelp(instanceSc);
-
         disableOpt = instanceSc
                          ->add_flag_function(
                              "--disabled{true}",
@@ -117,13 +114,13 @@ namespace net::config {
         this->instanceName = instanceName;
     }
 
-    CLI::App* ConfigInstance::addSection(const std::string& name, const std::string& description) {
+    CLI::App* ConfigInstance::addSection(const std::string& name, const std::string& description, const std::string& group) {
         CLI::App* sectionSc = instanceSc //
                                   ->add_subcommand(name, description)
                                   ->fallthrough()
                                   ->configurable(false)
                                   ->allow_extras(false)
-                                  ->group("Sections")
+                                  ->group(group)
                                   ->ignore_case(false)
                                   ->disabled(this->instanceName.empty() || name.empty());
 
@@ -169,6 +166,11 @@ namespace net::config {
     CLI::App* ConfigInstance::getSection(const std::string& name) const {
         return instanceSc //
             ->get_subcommand_no_throw(name);
+    }
+
+    bool ConfigInstance::gotSection(const std::string& name) const {
+        return instanceSc //
+            ->got_subcommand(name);
     }
 
     bool ConfigInstance::getDisabled() const {

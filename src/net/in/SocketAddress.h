@@ -91,6 +91,7 @@ namespace net::in {
         std::string getCanonName() const;
 
         std::string toString(bool expanded = true) const override;
+        std::string getEndpoint(const std::string_view& format = {}) const override;
 
     private:
         std::string host = "0.0.0.0";

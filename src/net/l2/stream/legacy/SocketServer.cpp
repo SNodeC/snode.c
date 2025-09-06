@@ -52,7 +52,9 @@
 template class core::socket::Socket<net::l2::stream::legacy::config::ConfigSocketServer>;
 template class core::socket::stream::legacy::SocketAcceptor<net::l2::phy::stream::PhysicalSocketServer,
                                                             net::l2::stream::legacy::config::ConfigSocketServer>;
-template class core::socket::stream::legacy::SocketConnection<net::l2::phy::stream::PhysicalSocketServer>;
-template class core::socket::stream::SocketConnectionT<net::l2::phy::stream::PhysicalSocketServer,
+template class core::socket::stream::legacy::SocketConnection<net::l2::stream::legacy::config::ConfigSocketServer,
+                                                              net::l2::phy::stream::PhysicalSocketServer>;
+template class core::socket::stream::SocketConnectionT<net::l2::stream::legacy::config::ConfigSocketServer,
+                                                       net::l2::phy::stream::PhysicalSocketServer,
                                                        core::socket::stream::legacy::SocketReader,
                                                        core::socket::stream::legacy::SocketWriter>;

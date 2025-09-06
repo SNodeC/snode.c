@@ -54,6 +54,10 @@ namespace core::socket {
         return false;
     }
 
+    std::string SocketAddress::getEndpoint([[maybe_unused]] const std::string_view& format) const {
+        return {};
+    }
+
     SocketAddress::BadSocketAddress::BadSocketAddress(const State& state, const std::string& errorMessage, int errnum)
         : runtime_error(errorMessage)
         , state(state)

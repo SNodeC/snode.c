@@ -86,13 +86,14 @@ namespace net::config {
         bool getDisabled() const;
         void setDisabled(bool disabled = true);
 
-    private:
-        CLI::App* addSection(const std::string& name, const std::string& description);
+        CLI::App* addSection(const std::string& name, const std::string& description, const std::string& group = "Sections");
         CLI::App* getSection(const std::string& name) const;
+        bool gotSection(const std::string& name) const;
 
         void required(CLI::App* section, bool req = true);
         bool getRequired() const;
 
+    private:
         uint8_t requiredCount = 0;
 
         std::string instanceName;

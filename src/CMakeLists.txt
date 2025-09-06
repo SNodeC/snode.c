@@ -150,6 +150,7 @@ set(SUPPORTED_COMPONENTS
     core
     core-socket-stream-legacy
     core-socket-stream-tls
+    net
     net-in-stream-legacy
     net-in6-stream-legacy
     net-un-stream-legacy

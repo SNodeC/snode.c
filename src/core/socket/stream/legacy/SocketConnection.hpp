@@ -50,32 +50,13 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename PhysicalSocket>
-    SocketConnection<PhysicalSocket>::SocketConnection(const std::string& instanceName,
-                                                       PhysicalSocket&& physicalSocket,
-                                                       const std::function<void(SocketConnection*)>& onDisconnect,
-                                                       const std::string& configuredServer,
-                                                       const SocketAddress& localAddress,
-                                                       const SocketAddress& remoteAddress,
-                                                       const utils::Timeval& readTimeout,
-                                                       const utils::Timeval& writeTimeout,
-                                                       std::size_t readBlockSize,
-                                                       std::size_t writeBlockSize,
-                                                       const utils::Timeval& terminateTimeout)
-        : Super(
-              instanceName,
-              std::move(physicalSocket),
-              [onDisconnect, this]() {
-                  onDisconnect(this);
-              },
-              configuredServer,
-              localAddress,
-              remoteAddress,
-              readTimeout,
-              writeTimeout,
-              readBlockSize,
-              writeBlockSize,
-              terminateTimeout) {
+    template <typename Config, typename PhysicalSocket>
+    SocketConnection<Config, PhysicalSocket>::SocketConnection(const std::shared_ptr<Config>& config,
+                                                               PhysicalSocket&& physicalSocket,
+                                                               const std::function<void(SocketConnection*)>& onDisconnect)
+        : Super(config, std::move(physicalSocket), [onDisconnect, this]() {
+            onDisconnect(this);
+        }) {
     }
 
 } // namespace core::socket::stream::legacy

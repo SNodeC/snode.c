@@ -705,26 +705,29 @@ namespace utils {
     std::shared_ptr<CLI::Formatter> Config::sectionFormatter = makeSectionFormatter();
 
     CLI::App* Config::addInstance(const std::string& name, const std::string& description, const std::string& group) {
-        CLI::App* instance = app->add_subcommand(name, description) //
-                                 ->group(group)
-                                 ->fallthrough()
-                                 ->formatter(sectionFormatter)
-                                 ->configurable(false)
-                                 ->allow_extras(false)
-                                 ->disabled(name.empty());
+        CLI::App* instanceSc = app->add_subcommand(name, description) //
+                                   ->group(group)
+                                   ->fallthrough()
+                                   ->formatter(sectionFormatter)
+                                   ->configurable(false)
+                                   ->allow_extras(false)
+                                   ->disabled(name.empty());
 
-        instance //
+        instanceSc //
             ->option_defaults()
-            ->configurable(!instance->get_disabled());
+            ->configurable(!instanceSc->get_disabled());
 
-        if (!instance->get_disabled()) {
+        if (!instanceSc->get_disabled()) {
             if (aliases.contains(name)) {
-                instance //
+                instanceSc //
                     ->alias(aliases[name]);
             }
         }
 
-        return instance;
+        utils::Config::addStandardFlags(instanceSc);
+        utils::Config::addHelp(instanceSc);
+
+        return instanceSc;
     }
 
     CLI::App* Config::getInstance(const std::string& name) {

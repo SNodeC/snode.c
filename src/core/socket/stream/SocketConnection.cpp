@@ -58,11 +58,11 @@ struct tm;
 
 namespace core::socket::stream {
 
-    SocketConnection::SocketConnection(const std::string& instanceName, int fd, const std::string& configuredServer)
+    SocketConnection::SocketConnection(const net::config::ConfigInstance* config, const std::string& instanceName, int fd)
         : instanceName(instanceName)
         , connectionName("[" + std::to_string(fd) + "]" + (!instanceName.empty() ? " " : "") + instanceName)
-        , configuredServer(configuredServer)
-        , onlineSinceTimePoint(std::chrono::system_clock::now()) {
+        , onlineSinceTimePoint(std::chrono::system_clock::now())
+        , config(config) {
     }
 
     SocketConnection::~SocketConnection() {
@@ -104,9 +104,9 @@ namespace core::socket::stream {
         return connectionName;
     }
 
-    const std::string& SocketConnection::getConfiguredServer() const {
-        return configuredServer;
-    }
+    //    const std::string& SocketConnection::getConfiguredServer() const {
+    //        return configuredServer;
+    //    }
 
     SocketContext* SocketConnection::getSocketContext() const {
         return socketContext;
@@ -118,6 +118,10 @@ namespace core::socket::stream {
 
     std::string SocketConnection::getOnlineDuration() const {
         return durationToString(onlineSinceTimePoint);
+    }
+
+    const net::config::ConfigInstance* SocketConnection::getConfig() const {
+        return config;
     }
 
     void SocketConnection::connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory) {

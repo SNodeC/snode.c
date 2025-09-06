@@ -49,6 +49,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <format>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -174,6 +175,10 @@ namespace net::in6 {
     std::string SocketAddress::toString(bool expanded) const {
         return std::string(host).append(expanded ? std::string(":").append(std::to_string(port)).append(" (").append(canonName).append(")")
                                                  : "");
+    }
+
+    std::string SocketAddress::getEndpoint(const std::string_view& format) const {
+        return std::vformat(format, std::make_format_args((port)));
     }
 
     bool SocketAddress::useNext() {

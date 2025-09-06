@@ -121,7 +121,7 @@ namespace core::socket::stream {
 
         std::chrono::time_point<std::chrono::system_clock> onlineSinceTimePoint;
 
-        template <typename PhysicalSocketT, class SocketReaderT, class SocketWriterT>
+        template <typename ConfigT, typename PhysicalSocketT, class SocketReaderT, class SocketWriterT>
         friend class SocketConnectionT;
         friend class SocketConnection;
     };

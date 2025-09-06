@@ -57,6 +57,10 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace net::config {
+    class ConfigInstance;
+}
+
 namespace utils {
     class Timeval;
 }
@@ -77,7 +81,7 @@ namespace core::socket::stream {
 
     class SocketConnection {
     public:
-        SocketConnection(const std::string& instanceName, int fd, const std::string& configuredServer);
+        SocketConnection(const net::config::ConfigInstance* config, const std::string& instanceName, int fd);
         SocketConnection(const SocketConnection&) = delete;
 
         virtual int getFd() const = 0;
@@ -106,7 +110,7 @@ namespace core::socket::stream {
         const std::string& getInstanceName() const;
         const std::string& getConnectionName() const;
 
-        const std::string& getConfiguredServer() const;
+        //        const std::string& getConfiguredServer() const;
 
         SocketContext* getSocketContext() const;
 
@@ -126,6 +130,8 @@ namespace core::socket::stream {
         std::string getOnlineSince() const;
         std::string getOnlineDuration() const;
 
+        const net::config::ConfigInstance* getConfig() const;
+
     private:
         static std::string timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint);
         static std::string
@@ -143,12 +149,13 @@ namespace core::socket::stream {
         std::string instanceName;
         std::string connectionName;
 
-        std::string configuredServer;
-
         std::chrono::time_point<std::chrono::system_clock> onlineSinceTimePoint;
+
+    private:
+        const net::config::ConfigInstance* config;
     };
 
-    template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT>
+    template <typename ConfigT, typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT>
     class SocketConnectionT
         : public SocketConnection
         , protected SocketReaderT
@@ -156,6 +163,7 @@ namespace core::socket::stream {
     protected:
         using Super = core::socket::stream::SocketConnection;
 
+        using Config = ConfigT;
         using PhysicalSocket = PhysicalSocketT;
         using SocketReader = SocketReaderT;
         using SocketWriter = SocketWriterT;
@@ -165,17 +173,9 @@ namespace core::socket::stream {
         SocketConnectionT() = delete;
 
     protected:
-        SocketConnectionT(const std::string& instanceName,
+        SocketConnectionT(const std::shared_ptr<Config>& config,
                           PhysicalSocket&& physicalSocket,
-                          const std::function<void()>& onDisconnect,
-                          const std::string& configuredServer,
-                          const SocketAddress& localAddress,
-                          const SocketAddress& remoteAddress,
-                          const utils::Timeval& readTimeout,
-                          const utils::Timeval& writeTimeout,
-                          std::size_t readBlockSize,
-                          std::size_t writeBlockSize,
-                          const utils::Timeval& terminateTimeout);
+                          const std::function<void()>& onDisconnect);
 
         ~SocketConnectionT() override;
 
@@ -199,6 +199,8 @@ namespace core::socket::stream {
         void shutdownWrite(bool forceClose) final;
 
         void close() final;
+
+        Config& getConfig() const;
 
         std::size_t getTotalSent() const override;
         std::size_t getTotalQueued() const override;
@@ -227,6 +229,8 @@ namespace core::socket::stream {
 
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};
+
+        std::shared_ptr<Config> config;
     };
 
 } // namespace core::socket::stream

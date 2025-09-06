@@ -48,6 +48,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -75,6 +76,7 @@ namespace core::socket {
         virtual bool useNext();
 
         virtual std::string toString(bool expanded = true) const = 0;
+        virtual std::string getEndpoint(const std::string_view& format = {}) const;
     };
 
 } // namespace core::socket

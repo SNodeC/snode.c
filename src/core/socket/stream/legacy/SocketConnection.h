@@ -54,14 +54,19 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename PhysicalSocketT>
+    template <typename ConfigT, typename PhysicalSocketT>
     class SocketConnection final
-        : public core::socket::stream::
-              SocketConnectionT<PhysicalSocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter> {
+        : public core::socket::stream::SocketConnectionT<ConfigT,
+                                                         PhysicalSocketT,
+                                                         core::socket::stream::legacy::SocketReader,
+                                                         core::socket::stream::legacy::SocketWriter> {
     private:
-        using Super = core::socket::stream::
-            SocketConnectionT<PhysicalSocketT, core::socket::stream::legacy::SocketReader, core::socket::stream::legacy::SocketWriter>;
+        using Super = core::socket::stream::SocketConnectionT<ConfigT,
+                                                              PhysicalSocketT,
+                                                              core::socket::stream::legacy::SocketReader,
+                                                              core::socket::stream::legacy::SocketWriter>;
 
+        using Config = ConfigT;
         using PhysicalSocket = PhysicalSocketT;
         using SocketReader = typename Super::SocketReader;
         using SocketWriter = typename Super::SocketWriter;
@@ -69,17 +74,9 @@ namespace core::socket::stream::legacy {
     public:
         using SocketAddress = typename Super::SocketAddress;
 
-        SocketConnection(const std::string& instanceName,
+        SocketConnection(const std::shared_ptr<Config>& config,
                          PhysicalSocket&& physicalSocket,
-                         const std::function<void(SocketConnection*)>& onDisconnect,
-                         const std::string& configuredServer,
-                         const SocketAddress& localAddress,
-                         const SocketAddress& remoteAddress,
-                         const utils::Timeval& readTimeout,
-                         const utils::Timeval& writeTimeout,
-                         std::size_t readBlockSize,
-                         std::size_t writeBlockSize,
-                         const utils::Timeval& terminateTimeout);
+                         const std::function<void(SocketConnection*)>& onDisconnect);
 
         template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;
