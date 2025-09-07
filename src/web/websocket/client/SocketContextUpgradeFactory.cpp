@@ -117,7 +117,8 @@ namespace web::websocket::client {
     http::SocketContextUpgrade<web::http::client::Request, web::http::client::Response>*
     SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
                                         web::http::client::Request* request,
-                                        web::http::client::Response* response) {
+                                        web::http::client::Response* response,
+                                        int val) {
         SocketContextUpgrade* socketContext = nullptr;
 
         if (response->get("sec-websocket-accept") == base64::serverWebSocketKey(request->header("Sec-WebSocket-Key"))) {

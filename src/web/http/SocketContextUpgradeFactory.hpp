@@ -48,15 +48,16 @@
 namespace web::http {
 
     template <typename Request, typename Response>
-    void SocketContextUpgradeFactory<Request, Response>::prepare(Request& request, Response& response) {
+    void SocketContextUpgradeFactory<Request, Response>::prepare(Request& request, Response& response, int val) {
         this->request = &request;
         this->response = &response;
+        this->val = val;
     }
 
     template <typename Request, typename Response>
     core::socket::stream::SocketContext*
     SocketContextUpgradeFactory<Request, Response>::create(core::socket::stream::SocketConnection* socketConnection) {
-        return create(socketConnection, request, response);
+        return create(socketConnection, request, response, val);
     }
 
     template <typename Request, typename Response>

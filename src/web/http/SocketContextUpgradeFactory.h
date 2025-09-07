@@ -80,11 +80,11 @@ namespace web::http {
     protected:
         std::size_t refCount = 0;
 
-        void prepare(Request& request, Response& response);
+        void prepare(Request& request, Response& response, int val);
 
     private:
         virtual SocketContextUpgrade<Request, Response>*
-        create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
+        create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response, int val) = 0;
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
 
         void incRefCount();
@@ -94,6 +94,8 @@ namespace web::http {
 
         Request* request = nullptr;
         Response* response = nullptr;
+
+        int val = 0;
 
         friend Response;
         friend Request;

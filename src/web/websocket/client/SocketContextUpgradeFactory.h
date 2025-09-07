@@ -69,7 +69,8 @@ namespace web::websocket::client {
         http::SocketContextUpgrade<web::http::client::Request, web::http::client::Response>*
         create(core::socket::stream::SocketConnection* socketConnection,
                web::http::client::Request* request,
-               web::http::client::Response* response) override;
+               web::http::client::Response* response,
+               int val) override;
 
         int val;
     };

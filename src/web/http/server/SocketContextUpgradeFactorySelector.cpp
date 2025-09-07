@@ -102,7 +102,7 @@ namespace web::http::server {
         }
 
         if (socketContextUpgradeFactory != nullptr) {
-            socketContextUpgradeFactory->prepare(req, res);
+            socketContextUpgradeFactory->prepare(req, res, val);
         }
 
         return socketContextUpgradeFactory;

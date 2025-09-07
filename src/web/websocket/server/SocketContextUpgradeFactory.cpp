@@ -59,11 +59,10 @@
 
 namespace web::websocket::server {
 
-
     SocketContextUpgradeFactory::SocketContextUpgradeFactory(int val)
         : val(val) {
     }
-    
+
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
     }
@@ -92,7 +91,8 @@ namespace web::websocket::server {
     http::SocketContextUpgrade<web::http::server::Request, web::http::server::Response>*
     SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
                                         web::http::server::Request* request,
-                                        web::http::server::Response* response) {
+                                        web::http::server::Response* response,
+                                        int val) {
         SocketContextUpgrade* socketContext = nullptr;
 
         if (request->get("Sec-WebSocket-Version") == "13") {

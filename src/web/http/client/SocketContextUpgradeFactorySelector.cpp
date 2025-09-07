@@ -119,7 +119,7 @@ namespace web::http::client {
             socketContextUpgradeFactory = select(upgradeContextName, val);
 
             if (socketContextUpgradeFactory != nullptr) {
-                socketContextUpgradeFactory->prepare(req, res); // Fill in the missing header fields into the request object
+                socketContextUpgradeFactory->prepare(req, res, val); // Fill in the missing header fields into the request object
             }
         }
 
