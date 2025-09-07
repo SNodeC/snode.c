@@ -94,11 +94,11 @@ namespace net::in::stream::legacy {
 extern template class core::socket::Socket<net::in::stream::legacy::config::ConfigSocketClient>;
 extern template class core::socket::stream::legacy::SocketConnector<net::in::phy::stream::PhysicalSocketClient,
                                                                     net::in::stream::legacy::config::ConfigSocketClient>;
-extern template class core::socket::stream::legacy::SocketConnection<net::in::stream::legacy::config::ConfigSocketClient,
-                                                                     net::in::phy::stream::PhysicalSocketClient>;
-extern template class core::socket::stream::SocketConnectionT<net::in::stream::legacy::config::ConfigSocketClient,
-                                                              net::in::phy::stream::PhysicalSocketClient,
+extern template class core::socket::stream::legacy::SocketConnection<net::in::phy::stream::PhysicalSocketClient,
+                                                                     net::in::stream::legacy::config::ConfigSocketClient>;
+extern template class core::socket::stream::SocketConnectionT<net::in::phy::stream::PhysicalSocketClient,
                                                               core::socket::stream::legacy::SocketReader,
-                                                              core::socket::stream::legacy::SocketWriter>;
+                                                              core::socket::stream::legacy::SocketWriter,
+                                                              net::in::stream::legacy::config::ConfigSocketClient>;
 
 #endif // NET_IN_STREAM_LEGACY_SOCKETCLIENT_H

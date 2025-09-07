@@ -153,7 +153,7 @@ namespace core::socket::stream {
         const net::config::ConfigInstance* config;
     };
 
-    template <typename ConfigT, typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT>
+    template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT, typename ConfigT>
     class SocketConnectionT
         : public SocketConnection
         , protected SocketReaderT

@@ -94,11 +94,11 @@ namespace net::in::stream::tls {
 extern template class core::socket::Socket<net::in::stream::tls::config::ConfigSocketServer>;
 extern template class core::socket::stream::tls::SocketAcceptor<net::in::phy::stream::PhysicalSocketServer,
                                                                 net::in::stream::tls::config::ConfigSocketServer>;
-extern template class core::socket::stream::tls::SocketConnection<net::in::stream::tls::config::ConfigSocketServer,
-                                                                  net::in::phy::stream::PhysicalSocketServer>;
-extern template class core::socket::stream::SocketConnectionT<net::in::stream::tls::config::ConfigSocketServer,
-                                                              net::in::phy::stream::PhysicalSocketServer,
+extern template class core::socket::stream::tls::SocketConnection<net::in::phy::stream::PhysicalSocketServer,
+                                                                  net::in::stream::tls::config::ConfigSocketServer>;
+extern template class core::socket::stream::SocketConnectionT<net::in::phy::stream::PhysicalSocketServer,
                                                               core::socket::stream::tls::SocketReader,
-                                                              core::socket::stream::tls::SocketWriter>;
+                                                              core::socket::stream::tls::SocketWriter,
+                                                              net::in::stream::tls::config::ConfigSocketServer>;
 
 #endif // NET_IN_STREAM_TLS_SOCKETSERVER_H

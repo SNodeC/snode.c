@@ -50,8 +50,8 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename Config, typename PhysicalSocket>
-    SocketConnection<Config, PhysicalSocket>::SocketConnection(PhysicalSocket&& physicalSocket,
+    template <typename PhysicalSocket, typename Config>
+    SocketConnection<PhysicalSocket, Config>::SocketConnection(PhysicalSocket&& physicalSocket,
                                                                const std::function<void(SocketConnection*)>& onDisconnect,
                                                                const std::shared_ptr<Config>& config)
         : Super(

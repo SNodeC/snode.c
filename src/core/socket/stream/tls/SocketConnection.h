@@ -56,15 +56,15 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename ConfigT, typename PhysicalSocketT>
+    template <typename PhysicalSocketT, typename ConfigT>
     class SocketConnection final
-        : public core::socket::stream::SocketConnectionT<ConfigT,
-                                                         PhysicalSocketT,
+        : public core::socket::stream::SocketConnectionT<PhysicalSocketT,
                                                          core::socket::stream::tls::SocketReader,
-                                                         core::socket::stream::tls::SocketWriter> {
+                                                         core::socket::stream::tls::SocketWriter,
+                                                         ConfigT> {
     private:
         using Super = core::socket::stream::
-            SocketConnectionT<ConfigT, PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter>;
+            SocketConnectionT<PhysicalSocketT, core::socket::stream::tls::SocketReader, core::socket::stream::tls::SocketWriter, ConfigT>;
 
         using Config = ConfigT;
         using PhysicalSocket = PhysicalSocketT;

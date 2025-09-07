@@ -45,7 +45,7 @@
 #include "core/socket/stream/SocketConnector.h"
 
 namespace core::socket::stream::legacy {
-    template <typename ConfigT, typename PhysicalSocketT>
+    template <typename PhysicalSocketT, typename ConfigT>
     class SocketConnection;
 }
 

@@ -65,7 +65,7 @@ namespace core::socket::stream {
     */
     template <typename PhysicalSocketServerT,
               typename ConfigT,
-              template <typename Config, typename PhysicalSocketServer> typename SocketConnectionT>
+              template <typename PhysicalSocketServer, typename Config> typename SocketConnectionT>
     class SocketAcceptor : protected core::eventreceiver::AcceptEventReceiver {
     private:
         using PhysicalServerSocket = PhysicalSocketServerT;
@@ -73,7 +73,7 @@ namespace core::socket::stream {
     protected:
         using Config = ConfigT;
         using SocketAddress = typename PhysicalServerSocket::SocketAddress;
-        using SocketConnection = SocketConnectionT<Config, PhysicalServerSocket>;
+        using SocketConnection = SocketConnectionT<PhysicalServerSocket, Config>;
 
     public:
         SocketAcceptor(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,

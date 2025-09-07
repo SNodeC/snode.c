@@ -57,8 +57,8 @@
 
 namespace core::socket::stream::tls {
 
-    template <typename Config, typename PhysicalSocket>
-    SocketConnection<Config, PhysicalSocket>::SocketConnection(PhysicalSocket&& physicalSocket,
+    template <typename PhysicalSocket, typename Config>
+    SocketConnection<PhysicalSocket, Config>::SocketConnection(PhysicalSocket&& physicalSocket,
                                                                const std::function<void(SocketConnection*)>& onDisconnect,
                                                                const std::shared_ptr<Config>& config)
         : Super(
@@ -69,13 +69,13 @@ namespace core::socket::stream::tls {
               config) {
     }
 
-    template <typename Config, typename PhysicalSocket>
-    SSL* SocketConnection<Config, PhysicalSocket>::getSSL() const {
+    template <typename PhysicalSocket, typename Config>
+    SSL* SocketConnection<PhysicalSocket, Config>::getSSL() const {
         return ssl;
     }
 
-    template <typename Config, typename PhysicalSocket>
-    SSL* SocketConnection<Config, PhysicalSocket>::startSSL(
+    template <typename PhysicalSocket, typename Config>
+    SSL* SocketConnection<PhysicalSocket, Config>::startSSL(
         int fd, SSL_CTX* ctx, const utils::Timeval& sslInitTimeout, const utils::Timeval& sslShutdownTimeout, bool closeNotifyIsEOF) {
         this->sslInitTimeout = sslInitTimeout;
         this->sslShutdownTimeout = sslShutdownTimeout;
@@ -100,8 +100,8 @@ namespace core::socket::stream::tls {
         return ssl;
     }
 
-    template <typename Config, typename PhysicalSocket>
-    void SocketConnection<Config, PhysicalSocket>::stopSSL() {
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::stopSSL() {
         if (ssl != nullptr) {
             SSL_free(ssl);
 
@@ -111,8 +111,8 @@ namespace core::socket::stream::tls {
         }
     }
 
-    template <typename Config, typename PhysicalSocket>
-    bool SocketConnection<Config, PhysicalSocket>::doSSLHandshake(const std::function<void()>& onSuccess,
+    template <typename PhysicalSocket, typename Config>
+    bool SocketConnection<PhysicalSocket, Config>::doSSLHandshake(const std::function<void()>& onSuccess,
                                                                   const std::function<void()>& onTimeout,
                                                                   const std::function<void(int)>& onStatus) {
         if (ssl != nullptr) {
@@ -142,8 +142,8 @@ namespace core::socket::stream::tls {
         return ssl != nullptr;
     }
 
-    template <typename Config, typename PhysicalSocket>
-    void SocketConnection<Config, PhysicalSocket>::doSSLShutdown() {
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::doSSLShutdown() {
         bool resumeSocketReader = false;
         bool resumeSocketWriter = false;
 
@@ -206,8 +206,8 @@ namespace core::socket::stream::tls {
             sslShutdownTimeout);
     }
 
-    template <typename Config, typename PhysicalSocket>
-    void SocketConnection<Config, PhysicalSocket>::onReadShutdown() {
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::onReadShutdown() {
         if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
             if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
                 LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Close_notify sent and received";
@@ -226,8 +226,8 @@ namespace core::socket::stream::tls {
         }
     }
 
-    template <typename Config, typename PhysicalSocket>
-    void SocketConnection<Config, PhysicalSocket>::doWriteShutdown(const std::function<void()>& onShutdown) {
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::doWriteShutdown(const std::function<void()>& onShutdown) {
         if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
             LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Send close_notify";
 

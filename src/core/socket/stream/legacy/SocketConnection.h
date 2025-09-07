@@ -54,17 +54,17 @@
 
 namespace core::socket::stream::legacy {
 
-    template <typename ConfigT, typename PhysicalSocketT>
+    template <typename PhysicalSocketT, typename ConfigT>
     class SocketConnection final
-        : public core::socket::stream::SocketConnectionT<ConfigT,
-                                                         PhysicalSocketT,
+        : public core::socket::stream::SocketConnectionT<PhysicalSocketT,
                                                          core::socket::stream::legacy::SocketReader,
-                                                         core::socket::stream::legacy::SocketWriter> {
+                                                         core::socket::stream::legacy::SocketWriter,
+                                                         ConfigT> {
     private:
-        using Super = core::socket::stream::SocketConnectionT<ConfigT,
-                                                              PhysicalSocketT,
+        using Super = core::socket::stream::SocketConnectionT<PhysicalSocketT,
                                                               core::socket::stream::legacy::SocketReader,
-                                                              core::socket::stream::legacy::SocketWriter>;
+                                                              core::socket::stream::legacy::SocketWriter,
+                                                              ConfigT>;
 
         using Config = ConfigT;
         using PhysicalSocket = PhysicalSocketT;
