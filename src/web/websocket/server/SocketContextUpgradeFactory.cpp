@@ -57,6 +57,11 @@
 
 namespace web::websocket::server {
 
+
+    SocketContextUpgradeFactory::SocketContextUpgradeFactory(int val)
+        : val(val) {
+    }
+    
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
     }
@@ -82,7 +87,7 @@ namespace web::websocket::server {
                 std::string selectedSubProtocolName;
 
                 socketContext = new SocketContextUpgrade(socketConnection, this);
-                selectedSubProtocolName = socketContext->loadSubProtocol(subProtocolNamesList);
+                selectedSubProtocolName = socketContext->loadSubProtocol(subProtocolNamesList, val);
 
                 if (!selectedSubProtocolName.empty()) {
                     response->set("Upgrade", "websocket");
@@ -124,8 +129,8 @@ namespace web::websocket::server {
         }
     }
 
-    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory() {
-        return new SocketContextUpgradeFactory();
+    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory(int val) {
+        return new SocketContextUpgradeFactory(val);
     }
 
 } // namespace web::websocket::server

@@ -108,7 +108,7 @@ namespace express {
 
         void send(const char* chunk, std::size_t chunkLen);
         void send(const std::string& chunk);
-        void upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string)>& status);
+        void upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string)>& status, int val);
         void end();
         void sendFile(const std::string& file, const std::function<void(int)>& callback);
 

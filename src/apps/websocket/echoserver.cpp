@@ -85,14 +85,17 @@ int main(int argc, char* argv[]) {
         VLOG(2) << "user-agent: " << req->get("user-agent");
 
         if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
-            res->upgrade(req, [req, res](const std::string& name) {
-                if (!name.empty()) {
-                    VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->get("upgrade");
-                } else {
-                    VLOG(1) << "Can not upgrade to any of '" << req->get("upgrade") << "'";
-                }
-                res->end();
-            });
+            res->upgrade(
+                req,
+                [req, res](const std::string& name) {
+                    if (!name.empty()) {
+                        VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->get("upgrade");
+                    } else {
+                        VLOG(1) << "Can not upgrade to any of '" << req->get("upgrade") << "'";
+                    }
+                    res->end();
+                },
+                111);
         } else {
             res->sendStatus(404);
         }
@@ -162,14 +165,17 @@ int main(int argc, char* argv[]) {
             VLOG(2) << "user-agent: " << req->get("user-agent");
 
             if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
-                res->upgrade(req, [req, res](const std::string& name) {
-                    if (!name.empty()) {
-                        VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->get("upgrade");
-                    } else {
-                        VLOG(1) << "Can not upgrade to any of '" << req->get("upgrade") << "'";
-                    }
-                    res->end();
-                });
+                res->upgrade(
+                    req,
+                    [req, res](const std::string& name) {
+                        if (!name.empty()) {
+                            VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->get("upgrade");
+                        } else {
+                            VLOG(1) << "Can not upgrade to any of '" << req->get("upgrade") << "'";
+                        }
+                        res->end();
+                    },
+                    111);
             } else {
                 res->sendStatus(404);
             }

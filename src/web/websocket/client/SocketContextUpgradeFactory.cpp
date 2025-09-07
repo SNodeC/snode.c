@@ -83,6 +83,10 @@ namespace web::websocket::client {
     }
 #endif
 
+    SocketContextUpgradeFactory::SocketContextUpgradeFactory(int val)
+        : val(val) {
+    }
+
     void SocketContextUpgradeFactory::prepare(http::client::Request& request) {
         unsigned char ebytes[16];
         getentropy(ebytes, 16);
@@ -105,7 +109,7 @@ namespace web::websocket::client {
             const std::string subProtocolName = response->get("sec-websocket-protocol");
 
             socketContext = new SocketContextUpgrade(socketConnection, this);
-            const std::string selectedSubProtocolName = socketContext->loadSubProtocol(subProtocolName);
+            const std::string selectedSubProtocolName = socketContext->loadSubProtocol(subProtocolName, val);
 
             if (selectedSubProtocolName.empty()) {
                 delete socketContext;
@@ -127,8 +131,8 @@ namespace web::websocket::client {
         }
     }
 
-    extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientSocketContextUpgradeFactory() {
-        return new SocketContextUpgradeFactory();
+    extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientSocketContextUpgradeFactory(int val) {
+        return new SocketContextUpgradeFactory(val);
     }
 
 } // namespace web::websocket::client

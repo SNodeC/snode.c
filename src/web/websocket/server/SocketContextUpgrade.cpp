@@ -66,14 +66,14 @@ namespace web::websocket::server {
         subProtocol = nullptr;
     }
 
-    std::string SocketContextUpgrade::loadSubProtocol(const std::list<std::string>& subProtocolNames) {
+    std::string SocketContextUpgrade::loadSubProtocol(const std::list<std::string>& subProtocolNames, int val) {
         std::string selectedSubProtocolName;
 
         for (const std::string& subProtocolName : subProtocolNames) {
             subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::SERVER);
 
             if (subProtocolFactory != nullptr) {
-                subProtocol = subProtocolFactory->createSubProtocol(this);
+                subProtocol = subProtocolFactory->createSubProtocol(this, val);
                 selectedSubProtocolName = subProtocol != nullptr ? subProtocolName : "";
             }
 

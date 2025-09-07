@@ -71,30 +71,31 @@ namespace web::http {
         };
 
     public:
-        virtual SocketContextUpgradeFactory* select(Request& req, Response& res) = 0;
+        virtual SocketContextUpgradeFactory* select(Request& req, Response& res, int val) = 0;
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
-        void link(const std::string& socketContextUpgradeName, SocketContextUpgradeFactory* (*linkedPlugin)());
+        void link(const std::string& socketContextUpgradeName, SocketContextUpgradeFactory* (*linkedPlugin)(int) );
 
         void allowDlOpen();
 
         void unload(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
-        SocketContextUpgradeFactory* select(const std::string& socketContextUpgradeName);
+        SocketContextUpgradeFactory* select(const std::string& socketContextUpgradeName, int val);
 
-        virtual SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName) = 0;
+        virtual SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName, int val) = 0;
 
         SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName,
                                           const std::string& socketContextUpgradeFactoryLibraryFile,
-                                          const std::string& socketContextUpgradeFactoryFunctionName);
+                                          const std::string& socketContextUpgradeFactoryFunctionName,
+                                          int val);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
     private:
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
-        std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
+        std::map<std::string, SocketContextUpgradeFactory* (*) (int)> linkedSocketContextUpgradePlugins;
 
         bool onlyLinked = false;
     };

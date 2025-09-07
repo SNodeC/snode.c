@@ -166,8 +166,8 @@ namespace express {
         responseBase->send(chunk);
     }
 
-    void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string)>& status) {
-        responseBase->upgrade(request->requestBase, status);
+    void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string)>& status, int val) {
+        responseBase->upgrade(request->requestBase, status, val);
     }
 
     void Response::end() {

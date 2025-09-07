@@ -79,7 +79,7 @@ namespace web::websocket::server {
 
         ~SocketContextUpgrade() override;
 
-        std::string loadSubProtocol(const std::list<std::string>& subProtocolNames);
+        std::string loadSubProtocol(const std::list<std::string>& subProtocolNames, int val);
 
     private:
         web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;

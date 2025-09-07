@@ -75,8 +75,8 @@ namespace web::websocket {
 
         virtual ~SubProtocolFactory() = default;
 
-        SubProtocol* createSubProtocol(SubProtocolContext* subProtocolContext) {
-            SubProtocol* subProtocol = create(subProtocolContext);
+        SubProtocol* createSubProtocol(SubProtocolContext* subProtocolContext, int val) {
+            SubProtocol* subProtocol = create(subProtocolContext, val);
 
             if (subProtocol != nullptr) {
                 refCount++;
@@ -86,7 +86,7 @@ namespace web::websocket {
         }
 
     private:
-        virtual SubProtocol* create(SubProtocolContext* subProtocolContext) = 0;
+        virtual SubProtocol* create(SubProtocolContext* subProtocolContext, int val) = 0;
 
     public:
         virtual std::size_t deleteSubProtocol(SubProtocol* subProtocol) {

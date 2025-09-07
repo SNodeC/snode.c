@@ -300,6 +300,7 @@ namespace web::http::client {
 
     bool Request::upgrade(const std::string& url,
                           const std::string& protocols,
+                          int val,
                           const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         bool success = true;
@@ -308,7 +309,7 @@ namespace web::http::client {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
-            requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
+            requestCommands.push_back(new commands::UpgradeCommand(url, protocols, val));
 
             requestPrepared();
         } else {
@@ -318,14 +319,14 @@ namespace web::http::client {
         return success;
     }
 
-    void Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status) {
+    void Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status, int val) {
         std::string name;
 
         if (!masterRequest.expired()) {
             if (response != nullptr) {
                 if (web::http::ciContains(response->get("connection"), "Upgrade")) {
                     web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                        web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
+                        web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response, val);
 
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();
@@ -500,14 +501,14 @@ namespace web::http::client {
         return atomar;
     }
 
-    bool Request::executeUpgrade(const std::string& url, const std::string& protocols) {
+    bool Request::executeUpgrade(const std::string& url, const std::string& protocols, int val) {
         this->url = url;
 
         set("Connection", "Upgrade", true);
         set("Upgrade", protocols, true);
 
         web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this, val);
 
         if (socketContextUpgradeFactory != nullptr) {
             socketContextUpgradeFactory->checkRefCount();

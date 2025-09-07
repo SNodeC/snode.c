@@ -45,13 +45,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define NAME "echo"
 
 namespace apps::websocket::subprotocol::echo::client {
 
-    Echo* EchoFactory::create(web::websocket::SubProtocolContext* subProtocolContext) {
+    Echo* EchoFactory::create(web::websocket::SubProtocolContext* subProtocolContext, int val) {
+        VLOG(0) << " -------------- " << val;
         return new Echo(subProtocolContext, getName());
     }
 

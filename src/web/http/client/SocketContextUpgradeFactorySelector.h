@@ -61,13 +61,13 @@ namespace web::http::client {
         using Super::load;
         using Super::select;
 
-        SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName) override;
+        SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName, int val) override;
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
-        SocketContextUpgradeFactory* select(const std::string& protocols, Request& req);
-        SocketContextUpgradeFactory* select(Request& req, Response& res) override;
+        SocketContextUpgradeFactory* select(const std::string& protocols, Request& req, int val);
+        SocketContextUpgradeFactory* select(Request& req, Response& res, int val) override;
     };
 
 } // namespace web::http::client

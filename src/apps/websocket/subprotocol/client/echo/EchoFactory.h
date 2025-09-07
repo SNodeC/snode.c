@@ -61,7 +61,7 @@ namespace apps::websocket::subprotocol::echo::client {
         using web::websocket::SubProtocolFactory<Echo>::SubProtocolFactory;
 
     private:
-        Echo* create(web::websocket::SubProtocolContext* subProtocolContext) override;
+        Echo* create(web::websocket::SubProtocolContext* subProtocolContext, int val) override;
     };
 
 } // namespace apps::websocket::subprotocol::echo::client

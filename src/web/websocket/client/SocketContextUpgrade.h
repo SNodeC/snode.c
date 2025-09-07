@@ -77,7 +77,7 @@ namespace web::websocket::client {
 
         ~SocketContextUpgrade() override;
 
-        std::string loadSubProtocol(const std::string& subProtocolName);
+        std::string loadSubProtocol(const std::string& subProtocolName, int val);
 
     private:
         web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;

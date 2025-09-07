@@ -65,12 +65,13 @@ int main(int argc, char* argv[]) {
             [](const std::shared_ptr<Request>& req) {
                 VLOG(1) << "OnRequestBegin";
 
-                VLOG(1) << "Requesting upgrade to 'websocket' and any of the subprotocols 'subprotocol' and 'echo'";
+                VLOG(1) << "Requesting upgrade to 'websocket' and any of the subprotocols 'upgradeprotocol' and 'websocket'";
 
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
                 if (!req->upgrade("/ws/",
                                   "upgradeprotocol, websocket",
+                                  111,
                                   [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                                       VLOG(1) << "OnResponse";
                                       VLOG(2) << "  Status:";
@@ -88,13 +89,17 @@ int main(int argc, char* argv[]) {
                                           }
                                       }
 
-                                      req->upgrade(res, [req](const std::string& name) {
-                                          if (!name.empty()) {
-                                              VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->header("Upgrade");
-                                          } else {
-                                              VLOG(1) << "Can not upgrade to any of '" << req->header("Upgrade") << "'";
-                                          }
-                                      });
+                                      req->upgrade(
+                                          res,
+                                          [req](const std::string& name) {
+                                              if (!name.empty()) {
+                                                  VLOG(1)
+                                                      << "Successful upgrade to '" << name << "' from options: " << req->header("Upgrade");
+                                              } else {
+                                                  VLOG(1) << "Can not upgrade to any of '" << req->header("Upgrade") << "'";
+                                              }
+                                          },
+                                          111);
                                   })) {
                     VLOG(1) << "Initiating upgrade to any of 'upgradeprotocol, websocket' failed";
                 }
@@ -131,12 +136,13 @@ int main(int argc, char* argv[]) {
             [](const std::shared_ptr<Request>& req) {
                 VLOG(1) << "OnRequestBegin";
 
-                VLOG(1) << "Requesting upgrade to 'websocket' and any of the subprotocols 'subprotocol' and 'echo'";
+                VLOG(1) << "Requesting upgrade to 'websocket' and any of the subprotocols 'upgradeprotocol' and 'websocket'";
 
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
                 if (!req->upgrade("/ws/",
                                   "upgradeprotocol, websocket",
+                                  222,
                                   [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                                       VLOG(1) << "OnResponse";
                                       VLOG(2) << "  Status:";
@@ -154,13 +160,17 @@ int main(int argc, char* argv[]) {
                                           }
                                       }
 
-                                      req->upgrade(res, [req](const std::string& name) {
-                                          if (!name.empty()) {
-                                              VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->header("Upgrade");
-                                          } else {
-                                              VLOG(1) << "Can not upgrade to any of '" << req->header("Upgrade") << "'";
-                                          }
-                                      });
+                                      req->upgrade(
+                                          res,
+                                          [req](const std::string& name) {
+                                              if (!name.empty()) {
+                                                  VLOG(1)
+                                                      << "Successful upgrade to '" << name << "' from options: " << req->header("Upgrade");
+                                              } else {
+                                                  VLOG(1) << "Can not upgrade to any of '" << req->header("Upgrade") << "'";
+                                              }
+                                          },
+                                          222);
                                   })) {
                     VLOG(1) << "Initiating upgrade to any of 'upgradeprotocol, websocket' failed";
                 }

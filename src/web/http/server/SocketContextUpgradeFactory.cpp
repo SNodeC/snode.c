@@ -59,7 +59,7 @@ namespace web::http::server {
         }
     }
 
-    void SocketContextUpgradeFactory::link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)()) {
+    void SocketContextUpgradeFactory::link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)(int) ) {
         web::http::server::SocketContextUpgradeFactorySelector::instance()->link(upgradeContextName, linkedPlugin);
     }
 

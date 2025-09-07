@@ -241,14 +241,14 @@ namespace web::http::server {
 !include web/http/server/pu/response_upgrade.pu
 @enduml
      */
-    void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string&)>& status) {
+    void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string&)>& status, int val) {
         std::string name;
 
         if (socketContext != nullptr) {
             if (request != nullptr) {
                 if (web::http::ciContains(request->get("connection"), "Upgrade")) {
                     web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                        web::http::server::SocketContextUpgradeFactorySelector::instance()->select(*request, *this);
+                        web::http::server::SocketContextUpgradeFactorySelector::instance()->select(*request, *this, val);
 
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();

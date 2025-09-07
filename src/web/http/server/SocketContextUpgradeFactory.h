@@ -69,7 +69,7 @@ namespace web::http::server {
     public:
         void checkRefCount() final;
 
-        static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
+        static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)(int) );
 
         friend class SocketContextUpgradeFactorySelector;
     };

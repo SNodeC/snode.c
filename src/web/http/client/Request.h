@@ -112,9 +112,10 @@ namespace web::http::client {
         bool
         upgrade(const std::string& url,
                 const std::string& protocols,
+                int val,
                 const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                 const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
-        void upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status);
+        void upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status, int val);
         bool
         sendFile(const std::string& file,
                  const std::function<void(int errnum)>& onStatus,
@@ -136,7 +137,7 @@ namespace web::http::client {
         friend class commands::EndCommand;
 
         bool executeSendFile(const std::string& file, const std::function<void(int)>& onStatus);
-        bool executeUpgrade(const std::string& url, const std::string& protocols);
+        bool executeUpgrade(const std::string& url, const std::string& protocols, int val);
         bool executeEnd();
         bool executeSendHeader();
         bool executeSendFragment(const char* chunk, std::size_t chunkLen);
