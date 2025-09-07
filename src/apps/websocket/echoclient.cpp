@@ -71,7 +71,6 @@ int main(int argc, char* argv[]) {
 
                 if (!req->upgrade("/ws/",
                                   "upgradeprotocol, websocket",
-                                  111,
                                   [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                                       VLOG(1) << "OnResponse";
                                       VLOG(2) << "  Status:";
@@ -142,7 +141,6 @@ int main(int argc, char* argv[]) {
 
                 if (!req->upgrade("/ws/",
                                   "upgradeprotocol, websocket",
-                                  222,
                                   [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                                       VLOG(1) << "OnResponse";
                                       VLOG(2) << "  Status:";

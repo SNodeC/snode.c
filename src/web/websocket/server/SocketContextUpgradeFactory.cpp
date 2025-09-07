@@ -59,10 +59,6 @@
 
 namespace web::websocket::server {
 
-    SocketContextUpgradeFactory::SocketContextUpgradeFactory(int val)
-        : val(val) {
-    }
-
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
     }
@@ -148,8 +144,8 @@ namespace web::websocket::server {
         }
     }
 
-    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory(int val) {
-        return new SocketContextUpgradeFactory(val);
+    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory() {
+        return new SocketContextUpgradeFactory();
     }
 
 } // namespace web::websocket::server

@@ -61,7 +61,7 @@
 namespace web::http::server {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::load(const std::string& socketContextUpgradeName, int val) {
+    SocketContextUpgradeFactorySelector::load(const std::string& socketContextUpgradeName) {
         std::string httpUpgradeInstallLibdir = HTTP_UPGRADE_INSTALL_LIBDIR;
 
 #if !defined(NDEBUG)
@@ -73,8 +73,7 @@ namespace web::http::server {
 
         return load(socketContextUpgradeName,
                     httpUpgradeInstallLibdir + "/libsnodec-" + socketContextUpgradeName + "-server.so." SOVERSION,
-                    socketContextUpgradeName + "ServerSocketContextUpgradeFactory",
-                    val);
+                    socketContextUpgradeName + "ServerSocketContextUpgradeFactory");
     }
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
@@ -98,7 +97,7 @@ namespace web::http::server {
             httputils::str_trimm(upgradeContextName);
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = select(upgradeContextName, val);
+            socketContextUpgradeFactory = select(upgradeContextName);
         }
 
         if (socketContextUpgradeFactory != nullptr) {

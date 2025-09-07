@@ -73,7 +73,7 @@ namespace web::http::client {
     public:
         void checkRefCount() final;
 
-        static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)(int) );
+        static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
 
         friend class SocketContextUpgradeFactorySelector;
     };

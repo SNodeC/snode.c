@@ -54,7 +54,7 @@ namespace web::http::client::commands {
 
     class UpgradeCommand : public web::http::client::RequestCommand {
     public:
-        UpgradeCommand(const std::string& url, const std::string& protocols, int val);
+        UpgradeCommand(const std::string& url, const std::string& protocols);
         ~UpgradeCommand() override = default;
 
         // RequestCommand interface
@@ -63,7 +63,6 @@ namespace web::http::client::commands {
     private:
         std::string url;
         std::string protocols;
-        int val;
     };
 
 } // namespace web::http::client::commands

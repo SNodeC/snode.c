@@ -56,7 +56,7 @@ namespace web::websocket::server {
 
     class SocketContextUpgradeFactory : public web::http::server::SocketContextUpgradeFactory {
     public:
-        SocketContextUpgradeFactory(int val);
+        SocketContextUpgradeFactory() = default;
 
         static void link();
 
@@ -74,7 +74,7 @@ namespace web::websocket::server {
         int val;
     };
 
-    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory(int val);
+    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory();
 
 } // namespace web::websocket::server
 

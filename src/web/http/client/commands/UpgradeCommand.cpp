@@ -49,14 +49,13 @@
 
 namespace web::http::client::commands {
 
-    UpgradeCommand::UpgradeCommand(const std::string& url, const std::string& protocols, int val)
+    UpgradeCommand::UpgradeCommand(const std::string& url, const std::string& protocols)
         : url(url)
-        , protocols(protocols)
-        , val(val) {
+        , protocols(protocols) {
     }
 
     bool UpgradeCommand::execute(Request* request) {
-        return request->executeUpgrade(url, protocols, val);
+        return request->executeUpgrade(url, protocols);
     }
 
 } // namespace web::http::client::commands

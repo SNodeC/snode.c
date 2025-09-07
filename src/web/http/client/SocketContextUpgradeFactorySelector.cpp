@@ -61,7 +61,7 @@
 namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::load(const std::string& socketContextUpgradeName, int val) {
+    SocketContextUpgradeFactorySelector::load(const std::string& socketContextUpgradeName) {
         std::string httpUpgradeInstallLibdir = HTTP_UPGRADE_INSTALL_LIBDIR;
 
 #if !defined(NDEBUG)
@@ -73,8 +73,7 @@ namespace web::http::client {
 
         return load(socketContextUpgradeName,
                     httpUpgradeInstallLibdir + "/libsnodec-" + socketContextUpgradeName + "-client.so." SOVERSION,
-                    socketContextUpgradeName + "ClientSocketContextUpgradeFactory",
-                    val);
+                    socketContextUpgradeName + "ClientSocketContextUpgradeFactory");
     }
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
@@ -83,7 +82,7 @@ namespace web::http::client {
         return &socketContextUpgradeFactorySelector;
     }
 
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& protocols, Request& req, int val) {
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& protocols, Request& req) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         std::string upgradeContextNames = protocols;
@@ -98,7 +97,7 @@ namespace web::http::client {
             httputils::str_trimm(upgradeContextName);
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = select(upgradeContextName, val);
+            socketContextUpgradeFactory = select(upgradeContextName);
         }
 
         if (socketContextUpgradeFactory != nullptr) {
@@ -116,7 +115,7 @@ namespace web::http::client {
         if (!upgradeContextName.empty()) {
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = select(upgradeContextName, val);
+            socketContextUpgradeFactory = select(upgradeContextName);
 
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->prepare(req, res, val); // Fill in the missing header fields into the request object

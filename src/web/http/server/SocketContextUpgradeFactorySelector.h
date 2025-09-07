@@ -59,7 +59,7 @@ namespace web::http::server {
         using Super = web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory>;
 
         using Super::load;
-        SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName, int val) override;
+        SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName) override;
 
     public:
         static SocketContextUpgradeFactorySelector* instance();

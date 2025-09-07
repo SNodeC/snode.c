@@ -75,27 +75,26 @@ namespace web::http {
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
-        void link(const std::string& socketContextUpgradeName, SocketContextUpgradeFactory* (*linkedPlugin)(int) );
+        void link(const std::string& socketContextUpgradeName, SocketContextUpgradeFactory* (*linkedPlugin)());
 
         void allowDlOpen();
 
         void unload(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
-        SocketContextUpgradeFactory* select(const std::string& socketContextUpgradeName, int val);
+        SocketContextUpgradeFactory* select(const std::string& socketContextUpgradeName);
 
-        virtual SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName, int val) = 0;
+        virtual SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName) = 0;
 
         SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName,
                                           const std::string& socketContextUpgradeFactoryLibraryFile,
-                                          const std::string& socketContextUpgradeFactoryFunctionName,
-                                          int val);
+                                          const std::string& socketContextUpgradeFactoryFunctionName);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
     private:
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
-        std::map<std::string, SocketContextUpgradeFactory* (*) (int)> linkedSocketContextUpgradePlugins;
+        std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
 
         bool onlyLinked = false;
     };

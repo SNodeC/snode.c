@@ -85,10 +85,6 @@ namespace web::websocket::client {
     }
 #endif
 
-    SocketContextUpgradeFactory::SocketContextUpgradeFactory(int val)
-        : val(val) {
-    }
-
     void SocketContextUpgradeFactory::prepare(http::client::Request& request) {
         unsigned char ebytes[16];
         getentropy(ebytes, 16);
@@ -145,8 +141,8 @@ namespace web::websocket::client {
         }
     }
 
-    extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientSocketContextUpgradeFactory(int val) {
-        return new SocketContextUpgradeFactory(val);
+    extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientSocketContextUpgradeFactory() {
+        return new SocketContextUpgradeFactory();
     }
 
 } // namespace web::websocket::client

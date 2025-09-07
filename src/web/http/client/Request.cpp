@@ -300,7 +300,6 @@ namespace web::http::client {
 
     bool Request::upgrade(const std::string& url,
                           const std::string& protocols,
-                          int val,
                           const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         bool success = true;
@@ -309,7 +308,7 @@ namespace web::http::client {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
-            requestCommands.push_back(new commands::UpgradeCommand(url, protocols, val));
+            requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
 
             requestPrepared();
         } else {
@@ -501,14 +500,14 @@ namespace web::http::client {
         return atomar;
     }
 
-    bool Request::executeUpgrade(const std::string& url, const std::string& protocols, int val) {
+    bool Request::executeUpgrade(const std::string& url, const std::string& protocols) {
         this->url = url;
 
         set("Connection", "Upgrade", true);
         set("Upgrade", protocols, true);
 
         web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this, val);
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
 
         if (socketContextUpgradeFactory != nullptr) {
             socketContextUpgradeFactory->checkRefCount();
