@@ -213,7 +213,7 @@ namespace core::socket::stream {
                 LOG(DEBUG) << "[" << connectedPhysicalSocket.getFd() << " ]" << config->getInstanceName() << ": accept success: '"
                            << connectedPhysicalSocket.getBindAddress().toString() << "'";
 
-                SocketConnection* socketConnection = new SocketConnection(config, std::move(connectedPhysicalSocket), onDisconnect);
+                SocketConnection* socketConnection = new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, config);
 
                 onConnect(socketConnection);
                 onConnected(socketConnection);

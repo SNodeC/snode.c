@@ -74,9 +74,9 @@ namespace core::socket::stream::tls {
     public:
         using SocketAddress = typename Super::SocketAddress;
 
-        SocketConnection(const std::shared_ptr<Config>& config,
-                         PhysicalSocket&& physicalSocket,
-                         const std::function<void(SocketConnection*)>& onDisconnect);
+        SocketConnection(PhysicalSocket&& physicalSocket,
+                         const std::function<void(SocketConnection*)>& onDisconnect,
+                         const std::shared_ptr<Config>& config);
 
         SSL* getSSL() const;
 

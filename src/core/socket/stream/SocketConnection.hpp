@@ -103,10 +103,10 @@ namespace core::socket::stream {
     }
 
     template <typename Config, typename PhysicalSocket, typename SocketReader, typename SocketWriter>
-    SocketConnectionT<Config, PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(const std::shared_ptr<Config>& config,
-                                                                                             PhysicalSocket&& physicalSocket,
-                                                                                             const std::function<void()>& onDisconnect)
-        : SocketConnection(config.get(), config->getInstanceName(), physicalSocket.getFd())
+    SocketConnectionT<Config, PhysicalSocket, SocketReader, SocketWriter>::SocketConnectionT(PhysicalSocket&& physicalSocket,
+                                                                                             const std::function<void()>& onDisconnectm,
+                                                                                             const std::shared_ptr<Config>& config)
+        : SocketConnection(config.get(), physicalSocket.getFd())
         , SocketReader(
               instanceName + " [" + std::to_string(physicalSocket.getFd()) + "]",
               [this](int errnum) {
@@ -140,7 +140,7 @@ namespace core::socket::stream {
               config->getWriteBlockSize(),
               config->getTerminateTimeout())
         , physicalSocket(std::move(physicalSocket))
-        , onDisconnect(onDisconnect)
+        , onDisconnect(onDisconnectm)
         , localAddress(getLocalSocketAddress<SocketAddress>(this->physicalSocket, config))
         , remoteAddress(getRemoteSocketAddress<SocketAddress>(this->physicalSocket, config))
         , config(config) {

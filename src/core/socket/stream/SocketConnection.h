@@ -81,7 +81,7 @@ namespace core::socket::stream {
 
     class SocketConnection {
     public:
-        SocketConnection(const net::config::ConfigInstance* config, const std::string& instanceName, int fd);
+        SocketConnection(const net::config::ConfigInstance* config, int fd);
         SocketConnection(const SocketConnection&) = delete;
 
         virtual int getFd() const = 0;
@@ -109,8 +109,6 @@ namespace core::socket::stream {
 
         const std::string& getInstanceName() const;
         const std::string& getConnectionName() const;
-
-        //        const std::string& getConfiguredServer() const;
 
         SocketContext* getSocketContext() const;
 
@@ -173,9 +171,9 @@ namespace core::socket::stream {
         SocketConnectionT() = delete;
 
     protected:
-        SocketConnectionT(const std::shared_ptr<Config>& config,
-                          PhysicalSocket&& physicalSocket,
-                          const std::function<void()>& onDisconnect);
+        SocketConnectionT(PhysicalSocket&& physicalSocket,
+                          const std::function<void()>& onDisconnectm,
+                          const std::shared_ptr<Config>& config);
 
         ~SocketConnectionT() override;
 

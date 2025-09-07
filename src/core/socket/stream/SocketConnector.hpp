@@ -200,7 +200,7 @@ namespace core::socket::stream {
 
                         onStatus(remoteAddress, core::socket::STATE_OK);
 
-                        SocketConnection* socketConnection = new SocketConnection(config, std::move(physicalClientSocket), onDisconnect);
+                        SocketConnection* socketConnection = new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);
 
                         onConnect(socketConnection);
                         onConnected(socketConnection);
@@ -243,7 +243,7 @@ namespace core::socket::stream {
 
                 onStatus(remoteAddress, core::socket::STATE_OK);
 
-                SocketConnection* socketConnection = new SocketConnection(config, std::move(physicalClientSocket), onDisconnect);
+                SocketConnection* socketConnection = new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);
 
                 onConnect(socketConnection);
                 onConnected(socketConnection);
