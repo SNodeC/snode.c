@@ -81,7 +81,7 @@ namespace core::socket::stream {
 
     class SocketConnection {
     public:
-        SocketConnection(const net::config::ConfigInstance* config, int fd);
+        SocketConnection(int fd, const net::config::ConfigInstance* config);
         SocketConnection(const SocketConnection&) = delete;
 
         virtual int getFd() const = 0;

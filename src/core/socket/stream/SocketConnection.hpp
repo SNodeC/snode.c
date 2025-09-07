@@ -106,7 +106,7 @@ namespace core::socket::stream {
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::SocketConnectionT(PhysicalSocket&& physicalSocket,
                                                                                              const std::function<void()>& onDisconnectm,
                                                                                              const std::shared_ptr<Config>& config)
-        : SocketConnection(config.get(), physicalSocket.getFd())
+        : SocketConnection(physicalSocket.getFd(), config.get())
         , SocketReader(
               instanceName + " [" + std::to_string(physicalSocket.getFd()) + "]",
               [this](int errnum) {

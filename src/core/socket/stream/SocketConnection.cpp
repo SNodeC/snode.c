@@ -59,7 +59,7 @@ struct tm;
 
 namespace core::socket::stream {
 
-    SocketConnection::SocketConnection(const net::config::ConfigInstance* config, int fd)
+    SocketConnection::SocketConnection(int fd, const net::config::ConfigInstance* config)
         : instanceName(config->getInstanceName())
         , connectionName("[" + std::to_string(fd) + "]" + (!instanceName.empty() ? " " : "") + instanceName)
         , onlineSinceTimePoint(std::chrono::system_clock::now())
