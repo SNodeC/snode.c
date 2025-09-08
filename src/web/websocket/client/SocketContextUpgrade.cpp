@@ -53,9 +53,9 @@ namespace web::websocket::client {
 
     SocketContextUpgrade::SocketContextUpgrade(
         core::socket::stream::SocketConnection* socketConnection,
-        web::http::SocketContextUpgradeFactory<http::client::Request, http::client::Response>* socketContextUpgradeFactory)
-        : web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response>(
-              socketConnection, socketContextUpgradeFactory, Role::CLIENT) {
+        SubProtocol* subProtocol,
+        web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory)
+        : Super(socketConnection, subProtocol, socketContextUpgradeFactory, Role::CLIENT, this) {
     }
 
     SocketContextUpgrade::~SocketContextUpgrade() {
@@ -64,19 +64,6 @@ namespace web::websocket::client {
         }
 
         subProtocol = nullptr;
-    }
-
-    std::string SocketContextUpgrade::loadSubProtocol(const std::string& subProtocolName, int val) {
-        std::string selectedSubProtocolName;
-
-        subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
-
-        if (subProtocolFactory != nullptr) {
-            subProtocol = subProtocolFactory->createSubProtocol(this, val);
-            selectedSubProtocolName = subProtocol != nullptr ? subProtocolName : "";
-        }
-
-        return selectedSubProtocolName;
     }
 
 } // namespace web::websocket::client

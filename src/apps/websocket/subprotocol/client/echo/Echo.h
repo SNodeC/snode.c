@@ -60,7 +60,7 @@ namespace apps::websocket::subprotocol::echo::client {
 
     class Echo : public web::websocket::client::SubProtocol {
     public:
-        Echo(web::websocket::SubProtocolContext* socketContextUpgradeBase, const std::string& name);
+        Echo(const std::string& name);
 
     private:
         void onConnected() override;

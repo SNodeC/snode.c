@@ -43,7 +43,9 @@
 
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
+#include "web/websocket/SubProtocolFactory.h"
 #include "web/websocket/server/SocketContextUpgrade.h"
+#include "web/websocket/server/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,6 +68,27 @@ namespace web::websocket::server {
         return "websocket";
     }
 
+    SubProtocol* SocketContextUpgradeFactory::loadSubProtocol(const std::list<std::string>& subProtocolNames, int val) {
+        SubProtocol* subProtocol = nullptr;
+
+        for (const std::string& subProtocolName : subProtocolNames) {
+            web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
+                SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
+
+            if (subProtocolFactory != nullptr) {
+                VLOG(0) << "--------------- Loaded subprotocol 1 " << subProtocolName;
+                subProtocol = subProtocolFactory->createSubProtocol(val);
+                VLOG(0) << "--------------- Loaded subprotocol 2 " << subProtocolName;
+
+                if (subProtocol != nullptr) {
+                    break;
+                }
+            }
+        }
+
+        return subProtocol;
+    }
+
     http::SocketContextUpgrade<web::http::server::Request, web::http::server::Response>*
     SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
                                         web::http::server::Request* request,
@@ -84,22 +107,18 @@ namespace web::websocket::server {
             } while (!requestedSubProtocolNames.empty());
 
             if (!subProtocolNamesList.empty()) {
-                std::string selectedSubProtocolName;
+                SubProtocol* subProtocol = loadSubProtocol(subProtocolNamesList, val);
 
-                socketContext = new SocketContextUpgrade(socketConnection, this);
-                selectedSubProtocolName = socketContext->loadSubProtocol(subProtocolNamesList, val);
+                if (subProtocol != nullptr) {
+                    socketContext = new SocketContextUpgrade(socketConnection, subProtocol, this);
 
-                if (!selectedSubProtocolName.empty()) {
                     response->set("Upgrade", "websocket");
                     response->set("Connection", "Upgrade");
-                    response->set("Sec-WebSocket-Protocol", selectedSubProtocolName);
+                    response->set("Sec-WebSocket-Protocol", subProtocol->getName());
                     response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->get("sec-websocket-key")));
 
                     response->status(101); // Switch Protocol
                 } else {
-                    delete socketContext;
-                    socketContext = nullptr;
-
                     response->set("Connection", "close");
                     response->status(400);
                 }

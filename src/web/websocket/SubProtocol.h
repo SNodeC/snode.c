@@ -77,7 +77,10 @@ namespace web::websocket {
         using SocketContextUpgrade = SocketContextUpgradeT;
 
     protected:
-        SubProtocol(SubProtocolContext* subProtocolContext, const std::string& name, int pingInterval = 60, int maxFlyingPings = 3);
+        SubProtocol(const std::string& name, int pingInterval = 60, int maxFlyingPings = 3);
+
+        void setSubProtocolContext(SubProtocolContext* subProtocolContext);
+
         virtual ~SubProtocol();
 
     public:
@@ -123,7 +126,7 @@ namespace web::websocket {
         const std::string name;
 
     protected:
-        SubProtocolContext* subProtocolContext;
+        SubProtocolContext* subProtocolContext = nullptr;
 
     private:
         core::timer::Timer pingTimer;

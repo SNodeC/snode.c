@@ -43,6 +43,7 @@
 #define WEB_WEBSOCKET_SERVER_SOCKETCONTEXTFACTORY_H
 
 #include "web/http/client/SocketContextUpgradeFactory.h"
+#include "web/websocket/client/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -60,6 +61,8 @@ namespace web::websocket::client {
 
     private:
         void prepare(web::http::client::Request& request) override;
+
+        SubProtocol* loadSubProtocol(const std::string& subProtocolName, int val);
 
         std::string name() override;
 

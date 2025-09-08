@@ -56,6 +56,7 @@ namespace net::in6 {
 #include <memory>
 #include <netinet/in.h>
 #include <string>
+#include <string_view>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

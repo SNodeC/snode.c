@@ -43,9 +43,11 @@
 #define WEB_WEBSOCKET_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
+#include "web/websocket/server/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -59,6 +61,8 @@ namespace web::websocket::server {
         static void link();
 
     private:
+        SubProtocol* loadSubProtocol(const std::list<std::string>& subProtocolNames, int val);
+
         std::string name() override;
 
         http::SocketContextUpgrade<web::http::server::Request, web::http::server::Response>*

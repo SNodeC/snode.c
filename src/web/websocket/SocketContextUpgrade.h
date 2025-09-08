@@ -101,8 +101,10 @@ namespace web::websocket {
         enum class Role { SERVER, CLIENT };
 
         SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
+                             SubProtocol* subProtocol,
                              web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
-                             Role role);
+                             Role role,
+                             SocketContextUpgrade* socketContextUpgrade);
 
     public:
         ~SocketContextUpgrade() override = default;

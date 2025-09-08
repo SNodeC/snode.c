@@ -65,7 +65,7 @@ namespace web::websocket::server {
         using Super = web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>;
 
     protected:
-        SubProtocol(SubProtocolContext* subProtocolContext, const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
+        SubProtocol(const std::string& name, int pingInterval = 0, int maxFlyingPings = 3);
 
     public:
         ~SubProtocol() override;

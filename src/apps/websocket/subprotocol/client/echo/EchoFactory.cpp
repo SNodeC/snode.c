@@ -53,9 +53,9 @@
 
 namespace apps::websocket::subprotocol::echo::client {
 
-    Echo* EchoFactory::create(web::websocket::SubProtocolContext* subProtocolContext, int val) {
+    Echo* EchoFactory::create(int val) {
         VLOG(0) << " -------------- " << val;
-        return new Echo(subProtocolContext, getName());
+        return new Echo(getName());
     }
 
 } // namespace apps::websocket::subprotocol::echo::client

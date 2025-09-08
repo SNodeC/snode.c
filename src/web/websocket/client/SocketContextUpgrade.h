@@ -71,13 +71,14 @@ namespace web::websocket::client {
     class SocketContextUpgrade
         : public web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response> {
     public:
+        using Super = web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response>;
+
         SocketContextUpgrade(
             core::socket::stream::SocketConnection* socketConnection,
+            SubProtocol* subProtocol,
             web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory);
 
         ~SocketContextUpgrade() override;
-
-        std::string loadSubProtocol(const std::string& subProtocolName, int val);
 
     private:
         web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;

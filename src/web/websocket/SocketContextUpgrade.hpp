@@ -53,10 +53,15 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     SocketContextUpgrade<SubProtocol, Request, Response>::SocketContextUpgrade(
         core::socket::stream::SocketConnection* socketConnection,
+        SubProtocol* subProtocol,
         web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
-        Role role)
+        Role role,
+        SocketContextUpgrade* socketContextUpgrade)
         : Super(socketConnection, socketContextUpgradeFactory)
-        , SubProtocolContext(role == Role::CLIENT) {
+        , SubProtocolContext(role == Role::CLIENT)
+        , subProtocol(subProtocol) {
+        VLOG(0) << "----------------- " << socketContextUpgrade;
+        subProtocol->setSubProtocolContext(socketContextUpgrade);
     }
 
     template <typename SubProtocol, typename Request, typename Response>

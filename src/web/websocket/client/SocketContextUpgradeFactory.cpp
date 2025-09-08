@@ -43,7 +43,9 @@
 
 #include "web/http/client/Request.h"
 #include "web/http/client/Response.h"
+#include "web/websocket/SubProtocolFactory.h"
 #include "web/websocket/client/SocketContextUpgrade.h"
+#include "web/websocket/client/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -99,6 +101,19 @@ namespace web::websocket::client {
         return "websocket";
     }
 
+    SubProtocol* SocketContextUpgradeFactory::loadSubProtocol(const std::string& subProtocolName, int val) {
+        SubProtocol* subProtocol = nullptr;
+
+        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
+            SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
+
+        if (subProtocolFactory != nullptr) {
+            subProtocol = subProtocolFactory->createSubProtocol(val);
+        }
+
+        return subProtocol;
+    }
+
     http::SocketContextUpgrade<web::http::client::Request, web::http::client::Response>*
     SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
                                         web::http::client::Request* request,
@@ -108,12 +123,10 @@ namespace web::websocket::client {
         if (response->get("sec-websocket-accept") == base64::serverWebSocketKey(request->header("Sec-WebSocket-Key"))) {
             const std::string subProtocolName = response->get("sec-websocket-protocol");
 
-            socketContext = new SocketContextUpgrade(socketConnection, this);
-            const std::string selectedSubProtocolName = socketContext->loadSubProtocol(subProtocolName, val);
+            SubProtocol* subProtocol = loadSubProtocol(subProtocolName, val);
 
-            if (selectedSubProtocolName.empty()) {
-                delete socketContext;
-                socketContext = nullptr;
+            if (subProtocol != nullptr) {
+                socketContext = new SocketContextUpgrade(socketConnection, subProtocol, this);
             }
         } else {
             checkRefCount();

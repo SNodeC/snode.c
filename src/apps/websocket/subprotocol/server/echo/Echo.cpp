@@ -55,8 +55,8 @@
 
 namespace apps::websocket::subprotocol::echo::server {
 
-    Echo::Echo(web::websocket::SubProtocolContext* socketContextUpgradeBase, const std::string& name)
-        : web::websocket::server::SubProtocol(socketContextUpgradeBase, name, PING_INTERVAL, MAX_FLYING_PINGS) {
+    Echo::Echo(const std::string& name)
+        : web::websocket::server::SubProtocol(name, PING_INTERVAL, MAX_FLYING_PINGS) {
     }
 
     void Echo::onConnected() {

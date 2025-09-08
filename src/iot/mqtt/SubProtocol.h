@@ -42,10 +42,6 @@
 #ifndef IOT_MQTT_MQTTSUBPROTOCOL_H
 #define IOT_MQTT_MQTTSUBPROTOCOL_H
 
-namespace web::websocket {
-    class SubProtocolContext;
-}
-
 namespace utils {
     class Timeval;
 }
@@ -87,7 +83,7 @@ namespace iot::mqtt {
         using WSSubProtocolRole = WSSubProtocolRoleT;
 
     public:
-        SubProtocol(web::websocket::SubProtocolContext* subProtocolContext, const std::string& name, iot::mqtt::Mqtt* mqtt);
+        SubProtocol(const std::string& name, iot::mqtt::Mqtt* mqtt);
         ~SubProtocol() override = default;
 
         std::size_t recv(char* chunk, std::size_t chunklen) override;

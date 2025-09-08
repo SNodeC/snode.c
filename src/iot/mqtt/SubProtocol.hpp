@@ -56,10 +56,8 @@
 namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
-    SubProtocol<WSSubProtocolRole>::SubProtocol(web::websocket::SubProtocolContext* subProtocolContext,
-                                                const std::string& name,
-                                                iot::mqtt::Mqtt* mqtt)
-        : WSSubProtocolRole(subProtocolContext, name, 0)
+    SubProtocol<WSSubProtocolRole>::SubProtocol(const std::string& name, iot::mqtt::Mqtt* mqtt)
+        : WSSubProtocolRole(name, 0)
         , iot::mqtt::MqttContext(mqtt)
         , onReceivedFromPeerEvent([this]([[maybe_unused]] const utils::Timeval& currentTime) {
             iot::mqtt::MqttContext::onReceivedFromPeer();

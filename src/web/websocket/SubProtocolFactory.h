@@ -50,6 +50,8 @@ namespace web::websocket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <string> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -75,8 +77,11 @@ namespace web::websocket {
 
         virtual ~SubProtocolFactory() = default;
 
-        SubProtocol* createSubProtocol(SubProtocolContext* subProtocolContext, int val) {
-            SubProtocol* subProtocol = create(subProtocolContext, val);
+        SubProtocol* createSubProtocol(int val) {
+            VLOG(0) << "--------------- Create SubProtocol: 1 " << val;
+            SubProtocol* subProtocol = create(val);
+
+            VLOG(0) << "--------------- Create SubProtocol: 2 " << val << " " << subProtocol;
 
             if (subProtocol != nullptr) {
                 refCount++;
@@ -86,7 +91,7 @@ namespace web::websocket {
         }
 
     private:
-        virtual SubProtocol* create(SubProtocolContext* subProtocolContext, int val) = 0;
+        virtual SubProtocol* create(int val) = 0;
 
     public:
         virtual std::size_t deleteSubProtocol(SubProtocol* subProtocol) {

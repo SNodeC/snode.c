@@ -56,19 +56,18 @@
 namespace web::websocket {
 
     template <typename SocketContextUpgrade>
-    SubProtocol<SocketContextUpgrade>::SubProtocol(SubProtocolContext* subProtocolContext,
-                                                   const std::string& name,
-                                                   int pingInterval,
-                                                   int maxFlyingPings)
-        : name(name)
-        , subProtocolContext(subProtocolContext) {
+    SubProtocol<SocketContextUpgrade>::SubProtocol(const std::string& name, int pingInterval, int maxFlyingPings)
+        : name(name) {
+        VLOG(0) << "------------- Name: " << name;
         if (pingInterval > 0) {
             pingTimer = core::timer::Timer::intervalTimer(
                 [this, maxFlyingPings](const std::function<void()>& stop) {
                     if (flyingPings < maxFlyingPings) {
+                        VLOG(0) << "------------- Name: 3333";
                         sendPing();
                         flyingPings++;
                     } else {
+                        VLOG(0) << "------------- Name: 3333";
                         LOG(WARNING) << this->subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '"
                                      << this->name << "': MaxFlyingPings exceeded - closing";
 
@@ -79,7 +78,13 @@ namespace web::websocket {
                 pingInterval);
         }
 
-        getSocketConnection()->setTimeout(0);
+        VLOG(0) << "------------- Name: " << name;
+    }
+
+    template <typename SocketContextUpgrade>
+    void SubProtocol<SocketContextUpgrade>::setSubProtocolContext(SubProtocolContext* subProtocolContext) {
+        this->subProtocolContext = subProtocolContext;
+        subProtocolContext->getSocketConnection()->setTimeout(0);
     }
 
     template <typename SocketContextUpgrade>
