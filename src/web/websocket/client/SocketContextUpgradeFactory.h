@@ -62,7 +62,7 @@ namespace web::websocket::client {
     private:
         void prepare(web::http::client::Request& request) override;
 
-        SubProtocol* loadSubProtocol(const std::string& subProtocolName, int val);
+        SubProtocol* loadSubProtocol(const std::string& subProtocolName, int&& val);
 
         std::string name() override;
 
@@ -71,8 +71,6 @@ namespace web::websocket::client {
                web::http::client::Request* request,
                web::http::client::Response* response,
                int&& val) override;
-
-        int val;
     };
 
     extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientSocketContextUpgradeFactory();

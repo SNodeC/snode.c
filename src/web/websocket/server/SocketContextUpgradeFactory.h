@@ -61,7 +61,7 @@ namespace web::websocket::server {
         static void link();
 
     private:
-        SubProtocol* loadSubProtocol(const std::list<std::string>& subProtocolNames, int val);
+        SubProtocol* loadSubProtocol(const std::list<std::string>& subProtocolNames, int&& val);
 
         std::string name() override;
 
@@ -70,8 +70,6 @@ namespace web::websocket::server {
                web::http::server::Request* request,
                web::http::server::Response* response,
                int&& val) override;
-
-        int val;
     };
 
     extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory();

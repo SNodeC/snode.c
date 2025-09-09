@@ -53,7 +53,7 @@
 
 namespace apps::websocket::subprotocol::echo::client {
 
-    Echo* EchoFactory::create(int val) {
+    Echo* EchoFactory::create(int&& val) {
         VLOG(0) << " -------------- " << val;
         return new Echo(getName());
     }

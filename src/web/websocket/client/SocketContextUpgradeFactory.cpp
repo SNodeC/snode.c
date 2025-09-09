@@ -97,14 +97,14 @@ namespace web::websocket::client {
         return "websocket";
     }
 
-    SubProtocol* SocketContextUpgradeFactory::loadSubProtocol(const std::string& subProtocolName, int val) {
+    SubProtocol* SocketContextUpgradeFactory::loadSubProtocol(const std::string& subProtocolName, int&& val) {
         SubProtocol* subProtocol = nullptr;
 
         web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
             SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
 
         if (subProtocolFactory != nullptr) {
-            subProtocol = subProtocolFactory->createSubProtocol(val);
+            subProtocol = subProtocolFactory->createSubProtocol(std::move(val));
         }
 
         return subProtocol;
@@ -120,7 +120,7 @@ namespace web::websocket::client {
         if (response->get("sec-websocket-accept") == base64::serverWebSocketKey(request->header("Sec-WebSocket-Key"))) {
             const std::string subProtocolName = response->get("sec-websocket-protocol");
 
-            SubProtocol* subProtocol = loadSubProtocol(subProtocolName, val);
+            SubProtocol* subProtocol = loadSubProtocol(subProtocolName, std::move(val));
 
             if (subProtocol != nullptr) {
                 socketContext = new SocketContextUpgrade(socketConnection, subProtocol, this);

@@ -77,9 +77,9 @@ namespace web::websocket {
 
         virtual ~SubProtocolFactory() = default;
 
-        SubProtocol* createSubProtocol(int val) {
+        SubProtocol* createSubProtocol(int&& val) {
             VLOG(0) << "--------------- Create SubProtocol: 1 " << val;
-            SubProtocol* subProtocol = create(val);
+            SubProtocol* subProtocol = create(std::move(val));
 
             VLOG(0) << "--------------- Create SubProtocol: 2 " << val << " " << subProtocol;
 
@@ -91,7 +91,7 @@ namespace web::websocket {
         }
 
     private:
-        virtual SubProtocol* create(int val) = 0;
+        virtual SubProtocol* create(int&& val) = 0;
 
     public:
         virtual std::size_t deleteSubProtocol(SubProtocol* subProtocol) {

@@ -63,7 +63,7 @@ namespace web::websocket::server {
         return "websocket";
     }
 
-    SubProtocol* SocketContextUpgradeFactory::loadSubProtocol(const std::list<std::string>& subProtocolNames, int val) {
+    SubProtocol* SocketContextUpgradeFactory::loadSubProtocol(const std::list<std::string>& subProtocolNames, int&& val) {
         SubProtocol* subProtocol = nullptr;
 
         for (const std::string& subProtocolName : subProtocolNames) {
@@ -72,7 +72,7 @@ namespace web::websocket::server {
 
             if (subProtocolFactory != nullptr) {
                 VLOG(0) << "--------------- Loaded subprotocol 1 " << subProtocolName;
-                subProtocol = subProtocolFactory->createSubProtocol(val);
+                subProtocol = subProtocolFactory->createSubProtocol(std::move(val));
                 VLOG(0) << "--------------- Loaded subprotocol 2 " << subProtocolName;
 
                 if (subProtocol != nullptr) {
@@ -103,7 +103,7 @@ namespace web::websocket::server {
             } while (!requestedSubProtocolNames.empty());
 
             if (!subProtocolNamesList.empty()) {
-                SubProtocol* subProtocol = loadSubProtocol(subProtocolNamesList, val);
+                SubProtocol* subProtocol = loadSubProtocol(subProtocolNamesList, std::move(val));
 
                 if (subProtocol != nullptr) {
                     socketContext = new SocketContextUpgrade(socketConnection, subProtocol, this);
