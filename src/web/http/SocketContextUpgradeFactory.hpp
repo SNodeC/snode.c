@@ -47,26 +47,27 @@
 
 namespace web::http {
 
-    template <typename Request, typename Response>
-    void SocketContextUpgradeFactory<Request, Response>::prepare(Request& request, Response& response, int val) {
-        this->request = &request;
-        this->response = &response;
-        this->val = val;
+    template <typename Request, typename Response, typename... Args>
+    void SocketContextUpgradeFactory<Request, Response, Args...>::prepare(Request& request, Response& response, Args&&... args) {
+        callCreate = [this, request = &request, response = &response, ... args = std::forward<Args>(args)](
+                         core::socket::stream::SocketConnection* socketConnection) mutable -> core::socket::stream::SocketContext* {
+            return this->create(socketConnection, request, response, std::forward(args)...);
+        };
     }
 
-    template <typename Request, typename Response>
+    template <typename Request, typename Response, typename... Args>
     core::socket::stream::SocketContext*
-    SocketContextUpgradeFactory<Request, Response>::create(core::socket::stream::SocketConnection* socketConnection) {
-        return create(socketConnection, request, response, val);
+    SocketContextUpgradeFactory<Request, Response, Args...>::create(core::socket::stream::SocketConnection* socketConnection) {
+        return callCreate(socketConnection);
     }
 
-    template <typename Request, typename Response>
-    void SocketContextUpgradeFactory<Request, Response>::incRefCount() {
+    template <typename Request, typename Response, typename... Args>
+    void SocketContextUpgradeFactory<Request, Response, Args...>::incRefCount() {
         ++refCount;
     }
 
-    template <typename Request, typename Response>
-    void SocketContextUpgradeFactory<Request, Response>::decRefCount() {
+    template <typename Request, typename Response, typename... Args>
+    void SocketContextUpgradeFactory<Request, Response, Args...>::decRefCount() {
         --refCount;
 
         checkRefCount();

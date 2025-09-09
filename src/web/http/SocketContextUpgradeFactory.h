@@ -58,13 +58,15 @@ namespace web::http {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
 #include <string>
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http {
 
-    template <typename RequestT, typename ResponseT>
+    template <typename RequestT, typename ResponseT, typename... Args>
     class SocketContextUpgradeFactory : public core::socket::stream::SocketContextFactory {
     public:
         using Request = RequestT;
@@ -80,11 +82,11 @@ namespace web::http {
     protected:
         std::size_t refCount = 0;
 
-        void prepare(Request& request, Response& response, int val);
+        void prepare(Request& request, Response& response, Args&&... args);
 
     private:
         virtual SocketContextUpgrade<Request, Response>*
-        create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response, int val) = 0;
+        create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response, Args&&... args) = 0;
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
 
         void incRefCount();
@@ -92,10 +94,7 @@ namespace web::http {
 
         virtual void checkRefCount() = 0;
 
-        Request* request = nullptr;
-        Response* response = nullptr;
-
-        int val = 0;
+        std::function<core::socket::stream::SocketContext*(core::socket::stream::SocketConnection* socketConnection)> callCreate;
 
         friend Response;
         friend Request;
