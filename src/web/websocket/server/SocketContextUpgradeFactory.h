@@ -43,7 +43,10 @@
 #define WEB_WEBSOCKET_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/websocket/server/SubProtocol.h"
+
+namespace web::websocket::server {
+    class SubProtocol;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

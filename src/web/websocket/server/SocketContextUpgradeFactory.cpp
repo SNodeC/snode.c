@@ -45,6 +45,7 @@
 #include "web/http/server/Response.h"
 #include "web/websocket/SubProtocolFactory.h"
 #include "web/websocket/server/SocketContextUpgrade.h"
+#include "web/websocket/server/SubProtocol.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -54,6 +55,7 @@
 
 #include <list>
 #include <tuple>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

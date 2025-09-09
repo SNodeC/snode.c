@@ -44,10 +44,6 @@
 
 #include "web/websocket/client/SubProtocol.h"
 
-namespace web::websocket {
-    class SubProtocolContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>

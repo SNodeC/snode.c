@@ -45,6 +45,8 @@
 #include "web/http/SocketContextUpgrade.h" // IWYU pragma: export
 #include "web/websocket/SubProtocolContext.h"
 
+// IWYU pragma: no_include "web/http/SocketContextUpgradeFactory.hpp"
+
 namespace core::socket {
     class SocketConnection;
 } // namespace core::socket

@@ -45,6 +45,8 @@
 #include "web/websocket/SocketContextUpgrade.h"
 #include "web/websocket/server/SubProtocol.h"
 
+// IWYU pragma: no_include "web/http/SocketContextUpgradeFactory.hpp"
+
 namespace core::socket::stream {
     class SocketConnection;
 } // namespace core::socket::stream
@@ -62,9 +64,6 @@ namespace web {
 } // namespace web
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <list>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

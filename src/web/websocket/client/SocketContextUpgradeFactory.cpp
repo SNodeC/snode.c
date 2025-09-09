@@ -47,11 +47,16 @@
 #include "web/websocket/client/SocketContextUpgrade.h"
 #include "web/websocket/client/SubProtocolFactorySelector.h"
 
+namespace web::websocket::client {
+    class SubProtocol;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/base64.h"
 
 #include <unistd.h>
+#include <utility>
 
 #if !defined(HAVE_GETENTROPY)
 #include <cstddef>
