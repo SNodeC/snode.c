@@ -55,8 +55,10 @@ namespace web::websocket::client {
     SocketContextUpgrade::SocketContextUpgrade(
         core::socket::stream::SocketConnection* socketConnection,
         SubProtocol* subProtocol,
-        web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response, int>* socketContextUpgradeFactory)
-        : Super(socketConnection, subProtocol, socketContextUpgradeFactory, Role::CLIENT, this) {
+        web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response, int>* socketContextUpgradeFactory,
+        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory)
+        : Super(socketConnection, subProtocol, socketContextUpgradeFactory, Role::CLIENT, this)
+        , subProtocolFactory(subProtocolFactory) {
     }
 
     SocketContextUpgrade::~SocketContextUpgrade() {

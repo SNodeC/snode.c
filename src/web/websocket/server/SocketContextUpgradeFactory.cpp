@@ -71,9 +71,7 @@ namespace web::websocket::server {
                 SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
 
             if (subProtocolFactory != nullptr) {
-                VLOG(0) << "--------------- Loaded subprotocol 1 " << subProtocolName;
                 subProtocol = subProtocolFactory->createSubProtocol(std::move(val));
-                VLOG(0) << "--------------- Loaded subprotocol 2 " << subProtocolName;
 
                 if (subProtocol != nullptr) {
                     break;
@@ -103,18 +101,31 @@ namespace web::websocket::server {
             } while (!requestedSubProtocolNames.empty());
 
             if (!subProtocolNamesList.empty()) {
-                SubProtocol* subProtocol = loadSubProtocol(subProtocolNamesList, std::move(val));
+                SubProtocol* subProtocol = nullptr;
 
-                if (subProtocol != nullptr) {
-                    socketContext = new SocketContextUpgrade(socketConnection, subProtocol, this);
+                for (const std::string& subProtocolName : subProtocolNamesList) {
+                    web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
+                        SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
 
-                    response->set("Upgrade", "websocket");
-                    response->set("Connection", "Upgrade");
-                    response->set("Sec-WebSocket-Protocol", subProtocol->getName());
-                    response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->get("sec-websocket-key")));
+                    if (subProtocolFactory != nullptr) {
+                        subProtocol = subProtocolFactory->createSubProtocol(std::move(val));
 
-                    response->status(101); // Switch Protocol
-                } else {
+                        if (subProtocol != nullptr) {
+                            socketContext = new SocketContextUpgrade(socketConnection, subProtocol, this, subProtocolFactory);
+
+                            response->set("Upgrade", "websocket");
+                            response->set("Connection", "Upgrade");
+                            response->set("Sec-WebSocket-Protocol", subProtocol->getName());
+                            response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->get("sec-websocket-key")));
+
+                            response->status(101); // Switch Protocol
+
+                            break;
+                        }
+                    }
+                }
+
+                if (subProtocol == nullptr) {
                     response->set("Connection", "close");
                     response->status(400);
                 }

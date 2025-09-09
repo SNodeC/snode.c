@@ -42,8 +42,11 @@
 #include "core/socket/stream/SocketConnection.h"
 #include "web/websocket/SocketContextUpgrade.h"
 
+#include <cstring>
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/hexdump.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -60,7 +63,6 @@ namespace web::websocket {
         : Super(socketConnection, socketContextUpgradeFactory)
         , SubProtocolContext(role == Role::CLIENT)
         , subProtocol(subProtocol) {
-        VLOG(0) << "----------------- " << socketContextUpgrade;
         subProtocol->setSubProtocolContext(socketContextUpgrade);
     }
 

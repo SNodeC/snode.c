@@ -78,7 +78,8 @@ namespace web::websocket::server {
         SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              SubProtocol* subProtocol,
                              web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response, int>*
-                                 socketContextUpgradeFactory);
+                                 socketContextUpgradeFactory,
+                             web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory);
 
         ~SocketContextUpgrade() override;
 
