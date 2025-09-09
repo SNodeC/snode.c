@@ -69,7 +69,7 @@ namespace web::websocket::server {
         create(core::socket::stream::SocketConnection* socketConnection,
                web::http::server::Request* request,
                web::http::server::Response* response,
-               int val) override;
+               int&& val) override;
 
         int val;
     };

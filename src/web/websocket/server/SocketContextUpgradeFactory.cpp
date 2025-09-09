@@ -88,7 +88,7 @@ namespace web::websocket::server {
     SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
                                         web::http::server::Request* request,
                                         web::http::server::Response* response,
-                                        int val) {
+                                        int&& val) {
         SocketContextUpgrade* socketContext = nullptr;
 
         if (request->get("Sec-WebSocket-Version") == "13") {

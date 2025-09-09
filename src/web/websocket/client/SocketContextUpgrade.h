@@ -73,10 +73,10 @@ namespace web::websocket::client {
     public:
         using Super = web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response>;
 
-        SocketContextUpgrade(
-            core::socket::stream::SocketConnection* socketConnection,
-            SubProtocol* subProtocol,
-            web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory);
+        SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
+                             SubProtocol* subProtocol,
+                             web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response, int>*
+                                 socketContextUpgradeFactory);
 
         ~SocketContextUpgrade() override;
 

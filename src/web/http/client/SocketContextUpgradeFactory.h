@@ -59,7 +59,7 @@ namespace web::http::client {
 namespace web::http::client {
 
     class SocketContextUpgradeFactory
-        : public web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response> {
+        : public web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response, int> {
     public:
         using Resquest = web::http::client::Request;
         using Reponse = web::http::client::Response;
@@ -67,7 +67,7 @@ namespace web::http::client {
     protected:
         SocketContextUpgradeFactory();
 
-        using web::http::SocketContextUpgradeFactory<Request, Response>::prepare;
+        using web::http::SocketContextUpgradeFactory<Request, Response, int>::prepare;
         virtual void prepare(Request& request) = 0;
 
     public:
@@ -80,6 +80,6 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
-extern template class web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>;
+extern template class web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response, int>;
 
 #endif // WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORY_H

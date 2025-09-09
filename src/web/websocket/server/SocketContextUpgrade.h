@@ -75,10 +75,10 @@ namespace web::websocket::server {
     public:
         using Super = web::websocket::SocketContextUpgrade<SubProtocol, web::http::server::Request, web::http::server::Response>;
 
-        SocketContextUpgrade(
-            core::socket::stream::SocketConnection* socketConnection,
-            SubProtocol* subProtocol,
-            web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory);
+        SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
+                             SubProtocol* subProtocol,
+                             web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response, int>*
+                                 socketContextUpgradeFactory);
 
         ~SocketContextUpgrade() override;
 

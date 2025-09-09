@@ -41,6 +41,7 @@
 
 #include "web/websocket/server/SocketContextUpgrade.h"
 
+#include "web/http/SocketContextUpgradeFactory.hpp"
 #include "web/websocket/SocketContextUpgrade.hpp"
 #include "web/websocket/SubProtocolFactory.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
@@ -54,7 +55,7 @@ namespace web::websocket::server {
     SocketContextUpgrade::SocketContextUpgrade(
         core::socket::stream::SocketConnection* socketConnection,
         SubProtocol* subProtocol,
-        web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory)
+        web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response, int>* socketContextUpgradeFactory)
         : Super(socketConnection, subProtocol, socketContextUpgradeFactory, Role::SERVER, this) {
     }
 

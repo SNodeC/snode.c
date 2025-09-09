@@ -61,7 +61,7 @@ namespace web::http {
         using Request = RequestT;
         using Response = ResponseT;
 
-        using SocketContextUpgradeFactory = web::http::SocketContextUpgradeFactory<Request, Response>;
+        using SocketContextUpgradeFactory = web::http::SocketContextUpgradeFactory<Request, Response, int>;
 
         SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              SocketContextUpgradeFactory* socketContextUpgradeFactory)

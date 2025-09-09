@@ -44,6 +44,7 @@
 #include "core/file/FileReader.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/MimeTypes.h"
+#include "web/http/SocketContextUpgradeFactory.hpp"
 #include "web/http/client/SocketContext.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
@@ -325,7 +326,7 @@ namespace web::http::client {
             if (response != nullptr) {
                 if (web::http::ciContains(response->get("connection"), "Upgrade")) {
                     web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                        web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response, val);
+                        web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response, std::move(val));
 
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();

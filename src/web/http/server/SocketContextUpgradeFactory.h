@@ -58,7 +58,7 @@ namespace web::http::server {
 namespace web::http::server {
 
     class SocketContextUpgradeFactory
-        : public web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response> {
+        : public web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response, int> {
     public:
         using Resquest = web::http::server::Request;
         using Reponse = web::http::server::Response;
@@ -76,6 +76,6 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
-extern template class web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>;
+extern template class web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response, int>;
 
 #endif // WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H

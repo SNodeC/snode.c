@@ -41,6 +41,7 @@
 
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
+#include "web/http/SocketContextUpgradeFactory.hpp"
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/client/Response.h"
 
@@ -107,7 +108,7 @@ namespace web::http::client {
         return socketContextUpgradeFactory;
     }
 
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res, int val) {
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res, int&& val) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         std::string upgradeContextName = res.get("upgrade");
@@ -118,7 +119,7 @@ namespace web::http::client {
             socketContextUpgradeFactory = select(upgradeContextName);
 
             if (socketContextUpgradeFactory != nullptr) {
-                socketContextUpgradeFactory->prepare(req, res, val); // Fill in the missing header fields into the request object
+                socketContextUpgradeFactory->prepare(req, res, std::move(val)); // Fill in the missing header fields into the request object
             }
         }
 

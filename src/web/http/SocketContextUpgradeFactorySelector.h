@@ -53,7 +53,7 @@
 
 namespace web::http {
 
-    template <typename SocketContextUpgradeFactoryT>
+    template <typename SocketContextUpgradeFactoryT, typename... Args>
     class SocketContextUpgradeFactorySelector {
     public:
         using SocketContextUpgradeFactory = SocketContextUpgradeFactoryT;
@@ -71,7 +71,7 @@ namespace web::http {
         };
 
     public:
-        virtual SocketContextUpgradeFactory* select(Request& req, Response& res, int val) = 0;
+        virtual SocketContextUpgradeFactory* select(Request& req, Response& res, Args&&... args) = 0;
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 

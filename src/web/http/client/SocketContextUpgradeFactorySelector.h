@@ -54,9 +54,9 @@
 namespace web::http::client {
 
     class SocketContextUpgradeFactorySelector
-        : public web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory> {
+        : public web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory, int> {
     private:
-        using Super = web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory>;
+        using Super = web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory, int>;
 
         using Super::load;
         using Super::select;
@@ -67,7 +67,7 @@ namespace web::http::client {
         static SocketContextUpgradeFactorySelector* instance();
 
         SocketContextUpgradeFactory* select(const std::string& protocols, Request& req);
-        SocketContextUpgradeFactory* select(Request& req, Response& res, int val) override;
+        SocketContextUpgradeFactory* select(Request& req, Response& res, int&& val) override;
     };
 
 } // namespace web::http::client

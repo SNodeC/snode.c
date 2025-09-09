@@ -70,7 +70,7 @@ namespace web::websocket::client {
         create(core::socket::stream::SocketConnection* socketConnection,
                web::http::client::Request* request,
                web::http::client::Response* response,
-               int val) override;
+               int&& val) override;
 
         int val;
     };

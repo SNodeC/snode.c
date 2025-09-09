@@ -51,7 +51,7 @@ namespace web::http {
     void SocketContextUpgradeFactory<Request, Response, Args...>::prepare(Request& request, Response& response, Args&&... args) {
         callCreate = [this, request = &request, response = &response, ... args = std::forward<Args>(args)](
                          core::socket::stream::SocketConnection* socketConnection) mutable -> core::socket::stream::SocketContext* {
-            return this->create(socketConnection, request, response, std::forward(args)...);
+            return this->create(socketConnection, request, response, std::move(args)...);
         };
     }
 

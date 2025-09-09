@@ -50,7 +50,7 @@ namespace core::socket {
 } // namespace core::socket
 
 namespace web::http {
-    template <typename RequestT, typename ResponseT>
+    template <typename RequestT, typename ResponseT, typename... Args>
     class SocketContextUpgradeFactory;
 } // namespace web::http
 
@@ -102,7 +102,7 @@ namespace web::websocket {
 
         SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              SubProtocol* subProtocol,
-                             web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
+                             web::http::SocketContextUpgradeFactory<Request, Response, int>* socketContextUpgradeFactory,
                              Role role,
                              SocketContextUpgrade* socketContextUpgrade);
 
