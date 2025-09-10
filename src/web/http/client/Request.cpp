@@ -325,8 +325,8 @@ namespace web::http::client {
         if (!masterRequest.expired()) {
             if (response != nullptr) {
                 if (web::http::ciContains(response->get("connection"), "Upgrade")) {
-                    web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                        web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response, std::move(val));
+                    web::http::client::SocketContextUpgradeFactory<int>* socketContextUpgradeFactory =
+                        web::http::client::SocketContextUpgradeFactorySelector<int>::instance()->select(*this, *response, std::move(val));
 
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();
@@ -507,8 +507,8 @@ namespace web::http::client {
         set("Connection", "Upgrade", true);
         set("Upgrade", protocols, true);
 
-        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
+        web::http::client::SocketContextUpgradeFactory<int>* socketContextUpgradeFactory =
+            web::http::client::SocketContextUpgradeFactorySelector<int>::instance()->select(protocols, *this);
 
         if (socketContextUpgradeFactory != nullptr) {
             socketContextUpgradeFactory->checkRefCount();

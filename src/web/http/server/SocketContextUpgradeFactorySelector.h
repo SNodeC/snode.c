@@ -53,23 +53,24 @@
 
 namespace web::http::server {
 
+    template <typename... Args>
     class SocketContextUpgradeFactorySelector
-        : public web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory, int> {
+        : public web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory<Args...>, Args...> {
     private:
-        using Super = web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory, int>;
+        using Super = web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory<Args...>, Args...>;
 
         using Super::load;
-        SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName) override;
+        SocketContextUpgradeFactory<Args...>* load(const std::string& socketContextUpgradeName) override;
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
         using Super::select;
-        SocketContextUpgradeFactory* select(Request& req, Response& res, int&& val) override;
+        SocketContextUpgradeFactory<Args...>* select(Request& req, Response& res, Args&&... args) override;
     };
 
 } // namespace web::http::server
 
-extern template class web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory>;
+extern template class web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory<>>;
 
 #endif // WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H

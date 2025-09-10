@@ -90,7 +90,8 @@ namespace web::websocket::client {
     }
 #endif
 
-    void SocketContextUpgradeFactory::prepare(http::client::Request& request) {
+    template <typename... Args>
+    void SocketContextUpgradeFactory<Args...>::prepare(http::client::Request& request) {
         unsigned char ebytes[16];
         getentropy(ebytes, 16);
 
@@ -98,28 +99,31 @@ namespace web::websocket::client {
         request.set("Sec-WebSocket-Version", "13");
     }
 
-    std::string SocketContextUpgradeFactory::name() {
+    template <typename... Args>
+    std::string SocketContextUpgradeFactory<Args...>::name() {
         return "websocket";
     }
 
-    SubProtocol* SocketContextUpgradeFactory::loadSubProtocol(const std::string& subProtocolName, int&& val) {
+    template <typename... Args>
+    SubProtocol* SocketContextUpgradeFactory<Args...>::loadSubProtocol(const std::string& subProtocolName, Args&&... args) {
         SubProtocol* subProtocol = nullptr;
 
         web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
             SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
 
         if (subProtocolFactory != nullptr) {
-            subProtocol = subProtocolFactory->createSubProtocol(std::move(val));
+            subProtocol = subProtocolFactory->createSubProtocol(std::forward(args)...);
         }
 
         return subProtocol;
     }
 
+    template <typename... Args>
     http::SocketContextUpgrade<web::http::client::Request, web::http::client::Response>*
-    SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
-                                        web::http::client::Request* request,
-                                        web::http::client::Response* response,
-                                        int&& val) {
+    SocketContextUpgradeFactory<Args...>::create(core::socket::stream::SocketConnection* socketConnection,
+                                                 web::http::client::Request* request,
+                                                 web::http::client::Response* response,
+                                                 Args&&... args) {
         SocketContextUpgrade* socketContext = nullptr;
 
         if (response->get("sec-websocket-accept") == base64::serverWebSocketKey(request->header("Sec-WebSocket-Key"))) {
@@ -131,30 +135,34 @@ namespace web::websocket::client {
                 SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
 
             if (subProtocolFactory != nullptr) {
-                subProtocol = subProtocolFactory->createSubProtocol(std::move(val));
+                subProtocol = subProtocolFactory->createSubProtocol(std::forward(args)...);
             }
 
             if (subProtocol != nullptr) {
                 socketContext = new SocketContextUpgrade(socketConnection, subProtocol, this, subProtocolFactory);
             }
         } else {
-            checkRefCount();
+            this->checkRefCount();
         }
 
         return socketContext;
     }
 
-    void SocketContextUpgradeFactory::link() {
+    template <typename... Args>
+    void SocketContextUpgradeFactory<Args...>::link() {
         static bool linked = false;
 
         if (!linked) {
-            web::http::client::SocketContextUpgradeFactory::link("websocket", websocketClientSocketContextUpgradeFactory);
+            //            web::http::client::SocketContextUpgradeFactory<Args...>::link("websocket",
+            //            websocketClientSocketContextUpgradeFactory);
             linked = true;
         }
     }
 
-    extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientSocketContextUpgradeFactory() {
-        return new SocketContextUpgradeFactory();
-    }
+    /*
+        extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientSocketContextUpgradeFactory() {
+            return new SocketContextUpgradeFactory();
+        }
+    */
 
 } // namespace web::websocket::client

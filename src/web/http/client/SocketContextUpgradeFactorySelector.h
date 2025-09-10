@@ -53,25 +53,26 @@
 
 namespace web::http::client {
 
+    template <typename... Args>
     class SocketContextUpgradeFactorySelector
-        : public web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory, int> {
+        : public web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory<Args...>, Args...> {
     private:
-        using Super = web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory, int>;
+        using Super = web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory<Args...>, Args...>;
 
         using Super::load;
         using Super::select;
 
-        SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName) override;
+        SocketContextUpgradeFactory<Args...>* load(const std::string& socketContextUpgradeName) override;
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
-        SocketContextUpgradeFactory* select(const std::string& protocols, Request& req);
-        SocketContextUpgradeFactory* select(Request& req, Response& res, int&& val) override;
+        SocketContextUpgradeFactory<Args...>* select(const std::string& protocols, Request& req);
+        SocketContextUpgradeFactory<Args...>* select(Request& req, Response& res, Args&&... args) override;
     };
 
 } // namespace web::http::client
 
-extern template class web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory>;
+extern template class web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory<>>;
 
 #endif // WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H

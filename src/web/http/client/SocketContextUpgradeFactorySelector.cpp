@@ -62,8 +62,8 @@
 
 namespace web::http::client {
 
-    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::load(const std::string& socketContextUpgradeName) {
+    template <typename... Args>
+    SocketContextUpgradeFactory<Args...>* SocketContextUpgradeFactorySelector<Args...>::load(const std::string& socketContextUpgradeName) {
         std::string httpUpgradeInstallLibdir = HTTP_UPGRADE_INSTALL_LIBDIR;
 
 #if !defined(NDEBUG)
@@ -78,14 +78,16 @@ namespace web::http::client {
                     socketContextUpgradeName + "ClientSocketContextUpgradeFactory");
     }
 
-    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
+    template <typename... Args>
+    SocketContextUpgradeFactorySelector<Args...>* SocketContextUpgradeFactorySelector<Args...>::instance() {
         static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 
         return &socketContextUpgradeFactorySelector;
     }
 
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& protocols, Request& req) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+    template <typename... Args>
+    SocketContextUpgradeFactory<Args...>* SocketContextUpgradeFactorySelector<Args...>::select(const std::string& protocols, Request& req) {
+        SocketContextUpgradeFactory<Args...>* socketContextUpgradeFactory = nullptr;
 
         std::string upgradeContextNames = protocols;
 
@@ -109,8 +111,10 @@ namespace web::http::client {
         return socketContextUpgradeFactory;
     }
 
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res, int&& val) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+    template <typename... Args>
+    SocketContextUpgradeFactory<Args...>*
+    SocketContextUpgradeFactorySelector<Args...>::select(Request& req, Response& res, Args&&... args) {
+        SocketContextUpgradeFactory<Args...>* socketContextUpgradeFactory = nullptr;
 
         std::string upgradeContextName = res.get("upgrade");
 
@@ -120,7 +124,8 @@ namespace web::http::client {
             socketContextUpgradeFactory = select(upgradeContextName);
 
             if (socketContextUpgradeFactory != nullptr) {
-                socketContextUpgradeFactory->prepare(req, res, std::move(val)); // Fill in the missing header fields into the request object
+                socketContextUpgradeFactory->prepare(
+                    req, res, std::forward(args)...); // Fill in the missing header fields into the request object
             }
         }
 
@@ -129,4 +134,4 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
-template class web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory>;
+template class web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory<>>;

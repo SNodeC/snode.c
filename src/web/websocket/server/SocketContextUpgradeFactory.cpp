@@ -41,6 +41,7 @@
 
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
 
+#include "web/http/SocketContextUpgradeFactory.h"
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
 #include "web/websocket/SubProtocolFactory.h"
@@ -61,11 +62,13 @@
 
 namespace web::websocket::server {
 
-    std::string SocketContextUpgradeFactory::name() {
+    template <typename... Args>
+    std::string SocketContextUpgradeFactory<Args...>::name() {
         return "websocket";
     }
 
-    SubProtocol* SocketContextUpgradeFactory::loadSubProtocol(const std::list<std::string>& subProtocolNames, int&& val) {
+    template <typename... Args>
+    SubProtocol* SocketContextUpgradeFactory<Args...>::loadSubProtocol(const std::list<std::string>& subProtocolNames, Args&&... args) {
         SubProtocol* subProtocol = nullptr;
 
         for (const std::string& subProtocolName : subProtocolNames) {
@@ -73,7 +76,7 @@ namespace web::websocket::server {
                 SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
 
             if (subProtocolFactory != nullptr) {
-                subProtocol = subProtocolFactory->createSubProtocol(std::move(val));
+                subProtocol = subProtocolFactory->createSubProtocol(std::forward(args)...);
 
                 if (subProtocol != nullptr) {
                     break;
@@ -84,11 +87,12 @@ namespace web::websocket::server {
         return subProtocol;
     }
 
+    template <typename... Args>
     http::SocketContextUpgrade<web::http::server::Request, web::http::server::Response>*
-    SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
-                                        web::http::server::Request* request,
-                                        web::http::server::Response* response,
-                                        int&& val) {
+    SocketContextUpgradeFactory<Args...>::create(core::socket::stream::SocketConnection* socketConnection,
+                                                 web::http::server::Request* request,
+                                                 web::http::server::Response* response,
+                                                 Args&&... args) {
         SocketContextUpgrade* socketContext = nullptr;
 
         if (request->get("Sec-WebSocket-Version") == "13") {
@@ -110,7 +114,7 @@ namespace web::websocket::server {
                         SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
 
                     if (subProtocolFactory != nullptr) {
-                        subProtocol = subProtocolFactory->createSubProtocol(std::move(val));
+                        subProtocol = subProtocolFactory->createSubProtocol(std::forward(args)...);
 
                         if (subProtocol != nullptr) {
                             socketContext = new SocketContextUpgrade(socketConnection, subProtocol, this, subProtocolFactory);
@@ -132,13 +136,13 @@ namespace web::websocket::server {
                     response->status(400);
                 }
             } else {
-                checkRefCount();
+                this->checkRefCount();
 
                 response->set("Connection", "close");
                 response->status(400);
             }
         } else {
-            checkRefCount();
+            this->checkRefCount();
 
             response->set("Sec-WebSocket-Version", "13");
             response->set("Connection", "close");
@@ -148,17 +152,21 @@ namespace web::websocket::server {
         return socketContext;
     }
 
-    void SocketContextUpgradeFactory::link() {
+    template <typename... Args>
+    void SocketContextUpgradeFactory<Args...>::link() {
         static bool linked = false;
 
         if (!linked) {
-            web::http::server::SocketContextUpgradeFactory::link("websocket", websocketServerSocketContextUpgradeFactory);
+            //            web::http::server::SocketContextUpgradeFactory<Args>::link("websocket",
+            //            websocketServerSocketContextUpgradeFactory);
             linked = true;
         }
     }
 
-    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory() {
-        return new SocketContextUpgradeFactory();
-    }
+    /*
+        extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory() {
+            return new SocketContextUpgradeFactory();
+        }
+    */
 
 } // namespace web::websocket::server

@@ -48,6 +48,8 @@
 namespace web::http::client {
     class Request;
     class Response;
+    template <typename... Args>
+    class SocketContextUpgradeFactorySelector;
 } // namespace web::http::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -58,8 +60,9 @@ namespace web::http::client {
 
 namespace web::http::client {
 
+    template <typename... Args>
     class SocketContextUpgradeFactory
-        : public web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response, int> {
+        : public web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response, Args...> {
     public:
         using Resquest = web::http::client::Request;
         using Reponse = web::http::client::Response;
@@ -67,7 +70,7 @@ namespace web::http::client {
     protected:
         SocketContextUpgradeFactory();
 
-        using web::http::SocketContextUpgradeFactory<Request, Response, int>::prepare;
+        using web::http::SocketContextUpgradeFactory<Request, Response, Args...>::prepare;
         virtual void prepare(Request& request) = 0;
 
     public:
@@ -75,7 +78,7 @@ namespace web::http::client {
 
         static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
 
-        friend class SocketContextUpgradeFactorySelector;
+        friend class SocketContextUpgradeFactorySelector<Args...>;
     };
 
 } // namespace web::http::client

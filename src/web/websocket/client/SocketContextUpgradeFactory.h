@@ -56,7 +56,8 @@ namespace web::websocket::client {
 
 namespace web::websocket::client {
 
-    class SocketContextUpgradeFactory : public web::http::client::SocketContextUpgradeFactory {
+    template <typename... Args>
+    class SocketContextUpgradeFactory : public web::http::client::SocketContextUpgradeFactory<Args...> {
     public:
         SocketContextUpgradeFactory() = default;
 
@@ -65,7 +66,7 @@ namespace web::websocket::client {
     private:
         void prepare(web::http::client::Request& request) override;
 
-        SubProtocol* loadSubProtocol(const std::string& subProtocolName, int&& val);
+        SubProtocol* loadSubProtocol(const std::string& subProtocolName, Args&&... args);
 
         std::string name() override;
 
@@ -73,10 +74,10 @@ namespace web::websocket::client {
         create(core::socket::stream::SocketConnection* socketConnection,
                web::http::client::Request* request,
                web::http::client::Response* response,
-               int&& val) override;
+               Args&&... args) override;
     };
 
-    extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientSocketContextUpgradeFactory();
+    //    extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientSocketContextUpgradeFactory();
 
 } // namespace web::websocket::client
 

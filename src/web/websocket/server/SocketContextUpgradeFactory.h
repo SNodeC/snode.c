@@ -57,14 +57,15 @@ namespace web::websocket::server {
 
 namespace web::websocket::server {
 
-    class SocketContextUpgradeFactory : public web::http::server::SocketContextUpgradeFactory {
+    template <typename... Args>
+    class SocketContextUpgradeFactory : public web::http::server::SocketContextUpgradeFactory<Args...> {
     public:
         SocketContextUpgradeFactory() = default;
 
         static void link();
 
     private:
-        SubProtocol* loadSubProtocol(const std::list<std::string>& subProtocolNames, int&& val);
+        SubProtocol* loadSubProtocol(const std::list<std::string>& subProtocolNames, Args&&... args);
 
         std::string name() override;
 
@@ -72,10 +73,10 @@ namespace web::websocket::server {
         create(core::socket::stream::SocketConnection* socketConnection,
                web::http::server::Request* request,
                web::http::server::Response* response,
-               int&& val) override;
+               Args&&... args) override;
     };
 
-    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory();
+    //    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerSocketContextUpgradeFactory();
 
 } // namespace web::websocket::server
 

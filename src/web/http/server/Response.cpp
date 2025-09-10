@@ -248,8 +248,8 @@ namespace web::http::server {
         if (socketContext != nullptr) {
             if (request != nullptr) {
                 if (web::http::ciContains(request->get("connection"), "Upgrade")) {
-                    web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                        web::http::server::SocketContextUpgradeFactorySelector::instance()->select(*request, *this, std::move(val));
+                    web::http::server::SocketContextUpgradeFactory<int>* socketContextUpgradeFactory =
+                        web::http::server::SocketContextUpgradeFactorySelector<int>::instance()->select(*request, *this, std::move(val));
 
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();

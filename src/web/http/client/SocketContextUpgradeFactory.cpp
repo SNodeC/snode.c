@@ -53,17 +53,20 @@
 
 namespace web::http::client {
 
-    SocketContextUpgradeFactory::SocketContextUpgradeFactory() {
+    template <typename... Args>
+    SocketContextUpgradeFactory<Args...>::SocketContextUpgradeFactory() {
     }
 
-    void SocketContextUpgradeFactory::checkRefCount() {
-        if (refCount == 0) {
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->unload(this);
+    template <typename... Args>
+    void SocketContextUpgradeFactory<Args...>::checkRefCount() {
+        if (this->refCount == 0) {
+            web::http::client::SocketContextUpgradeFactorySelector<Args...>::instance()->unload(this);
         }
     }
 
-    void SocketContextUpgradeFactory::link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)()) {
-        web::http::client::SocketContextUpgradeFactorySelector::instance()->link(upgradeContextName, linkedPlugin);
+    template <typename... Args>
+    void SocketContextUpgradeFactory<Args...>::link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)()) {
+        web::http::client::SocketContextUpgradeFactorySelector<Args...>::instance()->link(upgradeContextName, linkedPlugin);
     }
 
 } // namespace web::http::client

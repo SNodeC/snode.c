@@ -47,6 +47,8 @@
 namespace web::http::server {
     class Request;
     class Response;
+    // template <typename... Args>
+    // class SocketContextUpgradeFactorySelector;
 } // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -57,8 +59,9 @@ namespace web::http::server {
 
 namespace web::http::server {
 
+    template <typename... Args>
     class SocketContextUpgradeFactory
-        : public web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response, int> {
+        : public web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response, Args...> {
     public:
         using Resquest = web::http::server::Request;
         using Reponse = web::http::server::Response;
@@ -70,8 +73,6 @@ namespace web::http::server {
         void checkRefCount() final;
 
         static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
-
-        friend class SocketContextUpgradeFactorySelector;
     };
 
 } // namespace web::http::server

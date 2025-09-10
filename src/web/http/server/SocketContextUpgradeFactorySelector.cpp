@@ -62,8 +62,8 @@
 
 namespace web::http::server {
 
-    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::load(const std::string& socketContextUpgradeName) {
+    template <typename... Args>
+    SocketContextUpgradeFactory<Args...>* SocketContextUpgradeFactorySelector<Args...>::load(const std::string& socketContextUpgradeName) {
         std::string httpUpgradeInstallLibdir = HTTP_UPGRADE_INSTALL_LIBDIR;
 
 #if !defined(NDEBUG)
@@ -78,14 +78,17 @@ namespace web::http::server {
                     socketContextUpgradeName + "ServerSocketContextUpgradeFactory");
     }
 
-    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
+    template <typename... Args>
+    SocketContextUpgradeFactorySelector<Args...>* SocketContextUpgradeFactorySelector<Args...>::instance() {
         static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 
         return &socketContextUpgradeFactorySelector;
     }
 
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res, int&& val) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+    template <typename... Args>
+    SocketContextUpgradeFactory<Args...>*
+    SocketContextUpgradeFactorySelector<Args...>::select(Request& req, Response& res, Args&&... args) {
+        SocketContextUpgradeFactory<Args...>* socketContextUpgradeFactory = nullptr;
 
         std::string upgradeContextNames = req.get("upgrade");
 
@@ -103,7 +106,7 @@ namespace web::http::server {
         }
 
         if (socketContextUpgradeFactory != nullptr) {
-            socketContextUpgradeFactory->prepare(req, res, std::move(val));
+            socketContextUpgradeFactory->prepare(req, res, std::forward(args)...);
         }
 
         return socketContextUpgradeFactory;
@@ -111,4 +114,4 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
-template class web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory>;
+template class web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory<>>;
