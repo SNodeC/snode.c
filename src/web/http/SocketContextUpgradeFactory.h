@@ -69,6 +69,11 @@ namespace web::http {
     template <typename RequestT, typename ResponseT, typename... Args>
     class SocketContextUpgradeFactory : public core::socket::stream::SocketContextFactory {
     public:
+        class Bootstrap {
+        public:
+            virtual SocketContextUpgradeFactory* bootstrap(Args&&... args) = 0;
+        };
+
         using Request = RequestT;
         using Response = ResponseT;
 

@@ -64,6 +64,8 @@ namespace web::http::client {
     class SocketContextUpgradeFactory
         : public web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response, Args...> {
     public:
+        using Super = web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response, Args...>;
+
         using Resquest = web::http::client::Request;
         using Reponse = web::http::client::Response;
 

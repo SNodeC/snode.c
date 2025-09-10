@@ -85,12 +85,18 @@ namespace web::http {
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Args...>::load(
         const std::string& socketContextUpgradeName,
         const std::string& socketContextUpgradeFactoryLibraryFile,
-        const std::string& socketContextUpgradeFactoryFunctionName) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+        const std::string& socketContextUpgradeFactoryFunctionName,
+        Args&&... args) {
+        typename SocketContextUpgradeFactory::Super* socketContextUpgradeFactory = nullptr;
 
         void* handle = core::DynamicLoader::dlOpen(socketContextUpgradeFactoryLibraryFile);
 
         if (handle != nullptr) {
+            typename SocketContextUpgradeFactory::Bootstrap* bootstrap = reinterpret_cast<SocketContextUpgradeFactory::Bootstrap*>(
+                core::DynamicLoader::dlSym(handle, socketContextUpgradeFactoryFunctionName));
+
+            socketContextUpgradeFactory = bootstrap->bootstrap(std::forward(args)...);
+
             SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(
                 core::DynamicLoader::dlSym(handle, socketContextUpgradeFactoryFunctionName));
 

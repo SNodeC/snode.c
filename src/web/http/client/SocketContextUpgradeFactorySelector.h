@@ -45,6 +45,13 @@
 #include "web/http/SocketContextUpgradeFactorySelector.h"
 #include "web/http/client/SocketContextUpgradeFactory.h" // IWYU pragma: export
 
+namespace web::http::client {
+    class Request;
+}
+namespace web::http::client {
+    class Response;
+}
+
 // IWYU pragma: no_include "web/http/SocketContextUpgradeFactorySelector.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -62,7 +69,7 @@ namespace web::http::client {
         using Super::load;
         using Super::select;
 
-        SocketContextUpgradeFactory<Args...>* load(const std::string& socketContextUpgradeName) override;
+        SocketContextUpgradeFactory<Args...>* load(const std::string& socketContextUpgradeName, Args&&... args) override;
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
@@ -73,6 +80,6 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
-extern template class web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory<>>;
+// extern template class web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory<>>;
 
 #endif // WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H

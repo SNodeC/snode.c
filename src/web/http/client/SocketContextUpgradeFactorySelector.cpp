@@ -63,7 +63,8 @@
 namespace web::http::client {
 
     template <typename... Args>
-    SocketContextUpgradeFactory<Args...>* SocketContextUpgradeFactorySelector<Args...>::load(const std::string& socketContextUpgradeName) {
+    SocketContextUpgradeFactory<Args...>* SocketContextUpgradeFactorySelector<Args...>::load(const std::string& socketContextUpgradeName,
+                                                                                             Args&&... args) {
         std::string httpUpgradeInstallLibdir = HTTP_UPGRADE_INSTALL_LIBDIR;
 
 #if !defined(NDEBUG)
@@ -75,7 +76,8 @@ namespace web::http::client {
 
         return load(socketContextUpgradeName,
                     httpUpgradeInstallLibdir + "/libsnodec-" + socketContextUpgradeName + "-client.so." SOVERSION,
-                    socketContextUpgradeName + "ClientSocketContextUpgradeFactory");
+                    socketContextUpgradeName + "ClientSocketContextUpgradeFactory",
+                    std::forward(args)...);
     }
 
     template <typename... Args>
@@ -134,4 +136,4 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
-template class web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory<>>;
+// template class web::http::SocketContextUpgradeFactorySelector<web::http::client::SocketContextUpgradeFactory<>>;

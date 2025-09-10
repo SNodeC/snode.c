@@ -60,6 +60,11 @@ namespace web::websocket::server {
     template <typename... Args>
     class SocketContextUpgradeFactory : public web::http::server::SocketContextUpgradeFactory<Args...> {
     public:
+        class Bootstrap : public web::http::server::SocketContextUpgradeFactory<Args...>::Bootstrap {
+        public:
+            virtual SocketContextUpgradeFactory* bootstrap(Args&&... args);
+        };
+
         SocketContextUpgradeFactory() = default;
 
         static void link();

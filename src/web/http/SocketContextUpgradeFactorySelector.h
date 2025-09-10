@@ -84,11 +84,12 @@ namespace web::http {
     protected:
         SocketContextUpgradeFactory* select(const std::string& socketContextUpgradeName);
 
-        virtual SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName) = 0;
+        virtual SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName, Args&&... args) = 0;
 
         SocketContextUpgradeFactory* load(const std::string& socketContextUpgradeName,
                                           const std::string& socketContextUpgradeFactoryLibraryFile,
-                                          const std::string& socketContextUpgradeFactoryFunctionName);
+                                          const std::string& socketContextUpgradeFactoryFunctionName,
+                                          Args&&... args);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
