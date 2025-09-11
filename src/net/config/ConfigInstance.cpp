@@ -163,14 +163,22 @@ namespace net::config {
         return requiredCount > 0;
     }
 
-    CLI::App* ConfigInstance::getSection(const std::string& name) const {
-        return instanceSc //
-            ->get_subcommand_no_throw(name);
+    CLI::App* ConfigInstance::getSection(const std::string& name, bool onlyGot, bool recursive) const {
+        CLI::App* resultSc = (instanceSc->got_subcommand(name) || !onlyGot) ? instanceSc->get_subcommand_no_throw(name) : nullptr;
+
+        if (resultSc == nullptr && recursive) {
+            CLI::App* parentSc = instanceSc->get_parent();
+            resultSc =
+                (parentSc != nullptr && (parentSc->got_subcommand(name) || !onlyGot)) ? parentSc->get_subcommand_no_throw(name) : nullptr;
+        }
+
+        return resultSc;
     }
 
-    bool ConfigInstance::gotSection(const std::string& name) const {
+    bool ConfigInstance::gotSection(const std::string& name, bool recursive) const {
         return instanceSc //
-            ->got_subcommand(name);
+                   ->got_subcommand(name) ||
+               (recursive && instanceSc->get_parent()->got_subcommand(name));
     }
 
     bool ConfigInstance::getDisabled() const {

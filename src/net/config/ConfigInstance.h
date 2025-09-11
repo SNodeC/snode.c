@@ -87,8 +87,8 @@ namespace net::config {
         void setDisabled(bool disabled = true);
 
         CLI::App* addSection(const std::string& name, const std::string& description, const std::string& group = "Sections");
-        CLI::App* getSection(const std::string& name) const;
-        bool gotSection(const std::string& name) const;
+        CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
+        bool gotSection(const std::string& name, bool recursive = false) const;
 
         void required(CLI::App* section, bool req = true);
         bool getRequired() const;
