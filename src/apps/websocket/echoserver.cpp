@@ -67,33 +67,40 @@ int main(int argc, char* argv[]) {
     legacyApp.use(express::middleware::VerboseRequest());
 
     legacyApp.get("/ws", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-        VLOG(1) << "HTTP GET on legacy /ws";
+        const std::string connectionName = res->getSocketContext()->getSocketConnection()->getConnectionName();
 
-        const std::string uri = req->originalUrl;
-
-        VLOG(2) << "OriginalUri: " << uri;
-        VLOG(2) << "Uri: " << req->url;
-
-        VLOG(2) << "Host: " << req->get("host");
-        VLOG(2) << "Connection: " << req->get("connection");
-        VLOG(2) << "Origin: " << req->get("origin");
-        VLOG(2) << "Sec-WebSocket-Protocol: " << req->get("sec-websocket-protocol");
-        VLOG(2) << "sec-web-socket-extensions: " << req->get("sec-websocket-extensions");
-        VLOG(2) << "sec-websocket-key: " << req->get("sec-websocket-key");
-        VLOG(2) << "sec-websocket-version: " << req->get("sec-websocket-version");
-        VLOG(2) << "upgrade: " << req->get("upgrade");
-        VLOG(2) << "user-agent: " << req->get("user-agent");
+        VLOG(1) << connectionName << ": HTTP GET " << req->originalUrl << " HTTP/" << req->httpMajor << "." << req->httpMinor;
+        VLOG(2) << "                 OriginalUri: " << req->originalUrl;
+        VLOG(2) << "                         Uri: " << req->url;
+        VLOG(2) << "                  Connection: " << req->get("connection");
+        VLOG(2) << "                        Host: " << req->get("host");
+        VLOG(2) << "                      Origin: " << req->get("origin");
+        VLOG(2) << "      Sec-WebSocket-Protocol: " << req->get("sec-websocket-protocol");
+        VLOG(2) << "   sec-web-socket-extensions: " << req->get("sec-websocket-extensions");
+        VLOG(2) << "           sec-websocket-key: " << req->get("sec-websocket-key");
+        VLOG(2) << "       sec-websocket-version: " << req->get("sec-websocket-version");
+        VLOG(2) << "                     upgrade: " << req->get("upgrade");
+        VLOG(2) << "                  user-agent: " << req->get("user-agent");
 
         if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
-            res->upgrade(req, [req, res](const std::string& name) {
+            res->upgrade(req, [req, res, connectionName](const std::string& name) {
                 if (!name.empty()) {
-                    VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->get("upgrade");
+                    VLOG(1) << connectionName << ": Successful upgrade:";
+                    VLOG(1) << connectionName << ":   Requested: " << req->get("upgrade");
+                    VLOG(1) << connectionName << ":    Selected: " << name;
+
+                    res->end();
                 } else {
-                    VLOG(1) << "Can not upgrade to any of '" << req->get("upgrade") << "'";
+                    VLOG(1) << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
+
+                    res->sendStatus(404);
                 }
-                res->end();
             });
         } else {
+            VLOG(1) << connectionName << ": Unsupported subprotocol(s):";
+            VLOG(1) << "   Requested: " << req->get("upgrade");
+            VLOG(1) << "    Expected: echo";
+
             res->sendStatus(404);
         }
     });
@@ -144,33 +151,40 @@ int main(int argc, char* argv[]) {
         tlsApp.use(express::middleware::VerboseRequest());
 
         tlsApp.get("/ws", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-            VLOG(1) << "HTTP GET on tls /ws";
+            const std::string connectionName = res->getSocketContext()->getSocketConnection()->getConnectionName();
 
-            const std::string uri = req->originalUrl;
-
-            VLOG(2) << "OriginalUri: " << uri;
-            VLOG(2) << "Uri: " << req->url;
-
-            VLOG(2) << "Connection: " << req->get("connection");
-            VLOG(2) << "Host: " << req->get("host");
-            VLOG(2) << "Origin: " << req->get("origin");
-            VLOG(2) << "Sec-WebSocket-Protocol: " << req->get("sec-websocket-protocol");
-            VLOG(2) << "sec-web-socket-extensions: " << req->get("sec-websocket-extensions");
-            VLOG(2) << "sec-websocket-key: " << req->get("sec-websocket-key");
-            VLOG(2) << "sec-websocket-version: " << req->get("sec-websocket-version");
-            VLOG(2) << "upgrade: " << req->get("upgrade");
-            VLOG(2) << "user-agent: " << req->get("user-agent");
+            VLOG(1) << connectionName << ": HTTP GET " << req->originalUrl << " HTTP/" << req->httpMajor << "." << req->httpMinor;
+            VLOG(2) << "                 OriginalUri: " << req->originalUrl;
+            VLOG(2) << "                         Uri: " << req->url;
+            VLOG(2) << "                  Connection: " << req->get("connection");
+            VLOG(2) << "                        Host: " << req->get("host");
+            VLOG(2) << "                      Origin: " << req->get("origin");
+            VLOG(2) << "      Sec-WebSocket-Protocol: " << req->get("sec-websocket-protocol");
+            VLOG(2) << "   sec-web-socket-extensions: " << req->get("sec-websocket-extensions");
+            VLOG(2) << "           sec-websocket-key: " << req->get("sec-websocket-key");
+            VLOG(2) << "       sec-websocket-version: " << req->get("sec-websocket-version");
+            VLOG(2) << "                     upgrade: " << req->get("upgrade");
+            VLOG(2) << "                  user-agent: " << req->get("user-agent");
 
             if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
-                res->upgrade(req, [req, res](const std::string& name) {
+                res->upgrade(req, [req, res, connectionName](const std::string& name) {
                     if (!name.empty()) {
-                        VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->get("upgrade");
+                        VLOG(1) << connectionName << ": Successful upgrade:";
+                        VLOG(1) << "   Requested: " << req->get("upgrade");
+                        VLOG(1) << "    Selected: " << name;
+
+                        res->end();
                     } else {
-                        VLOG(1) << "Can not upgrade to any of '" << req->get("upgrade") << "'";
+                        VLOG(1) << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
+
+                        res->sendStatus(404);
                     }
-                    res->end();
                 });
             } else {
+                VLOG(1) << connectionName << ": Unsupported subprotocol(s):";
+                VLOG(1) << "   Requested: " << req->get("upgrade");
+                VLOG(1) << "    Expected: echo";
+
                 res->sendStatus(404);
             }
         });

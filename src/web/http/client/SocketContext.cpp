@@ -147,7 +147,7 @@ namespace web::http::client {
 
         LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request delivering: " << requestLine;
 
-        if (!currentRequest->initiate()) {
+        if (!currentRequest->initiate(currentRequest)) {
             LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request delivering failed: " << requestLine;
 
             core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {

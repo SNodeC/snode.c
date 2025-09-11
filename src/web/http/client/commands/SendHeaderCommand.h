@@ -55,7 +55,7 @@ namespace web::http::client::commands {
         ~SendHeaderCommand() override = default;
 
         // RequestCommand interface
-        bool execute(Request* request) override;
+        bool execute(const std::shared_ptr<Request>& request) override;
     };
 
 } // namespace web::http::client::commands

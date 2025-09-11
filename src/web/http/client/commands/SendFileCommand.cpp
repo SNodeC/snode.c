@@ -45,6 +45,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client::commands {
@@ -54,7 +56,7 @@ namespace web::http::client::commands {
         , onStatus(onStatus) {
     }
 
-    bool SendFileCommand::execute(Request* request) {
+    bool SendFileCommand::execute(const std::shared_ptr<Request>& request) {
         return error = request->executeSendFile(file, onStatus);
     }
 

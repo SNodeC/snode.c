@@ -45,11 +45,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client::commands {
 
-    bool SendHeaderCommand::execute(Request* request) {
+    bool SendHeaderCommand::execute(const std::shared_ptr<Request>& request) {
         return request->executeSendHeader();
     }
 

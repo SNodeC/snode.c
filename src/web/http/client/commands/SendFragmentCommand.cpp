@@ -46,6 +46,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
+#include <memory>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -61,7 +62,7 @@ namespace web::http::client::commands {
         delete[] chunk;
     }
 
-    bool SendFragmentCommand::execute(Request* request) {
+    bool SendFragmentCommand::execute(const std::shared_ptr<Request>& request) {
         return request->executeSendFragment(chunk, chunkLen);
     }
 

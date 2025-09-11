@@ -49,13 +49,20 @@
 
 namespace web::http::client::commands {
 
-    UpgradeCommand::UpgradeCommand(const std::string& url, const std::string& protocols)
+    UpgradeCommand::UpgradeCommand(const std::string& url,
+                                   const std::string& protocols,
+                                   const std::function<void(const std::shared_ptr<Request>&, bool)>& onUpgradeInitiate)
         : url(url)
-        , protocols(protocols) {
+        , protocols(protocols)
+        , onUpgradeInitiate(onUpgradeInitiate) {
     }
 
-    bool UpgradeCommand::execute(Request* request) {
-        return request->executeUpgrade(url, protocols);
+    bool UpgradeCommand::execute(const std::shared_ptr<Request>& request) {
+        const bool ret = request->executeUpgrade(url, protocols, [this, request](bool success) {
+            onUpgradeInitiate(request, success);
+        });
+
+        return ret;
     }
 
 } // namespace web::http::client::commands

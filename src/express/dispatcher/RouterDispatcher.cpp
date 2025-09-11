@@ -99,11 +99,14 @@ namespace express::dispatcher {
                 )
             );
         // clang-format on
-
-        LOG(TRACE) << "Express: R - RequestUrl: " << controller.getRequest()->url;
-        LOG(TRACE) << "Express: R - RequestPath: " << controller.getRequest()->path;
-        LOG(TRACE) << "Express: R - AbsoluteMountPath: " << absoluteMountPath;
-        LOG(TRACE) << "Express: R - StrictRouting: " << controller.getStrictRouting();
+        LOG(TRACE) << "Express: router";
+        LOG(TRACE) << "      RequestMethod: " << controller.getRequest()->method;
+        LOG(TRACE) << "         RequestUrl: " << controller.getRequest()->url;
+        LOG(TRACE) << "        RequestPath: " << controller.getRequest()->path;
+        LOG(TRACE) << "  AbsoluteMountPath: " << absoluteMountPath;
+        LOG(TRACE) << "      StrictRouting: " << controller.getStrictRouting();
+        LOG(TRACE) << "      StrictRouting: " << controller.getStrictRouting();
+        LOG(TRACE) << "              MATCH: " << (requestMatched ? "true" : "false");
 
         if (requestMatched) {
             LOG(TRACE) << "      MATCH";

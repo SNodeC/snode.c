@@ -63,44 +63,63 @@ int main(int argc, char* argv[]) {
         const LegacyClient legacyClient(
             "legacy",
             [](const std::shared_ptr<Request>& req) {
-                VLOG(1) << "OnRequestBegin";
+                const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                VLOG(1) << "Requesting upgrade to 'websocket' and any of the subprotocols 'subprotocol' and 'echo'";
+                VLOG(1) << connectionName << ": OnRequestBegin";
 
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
-                if (!req->upgrade("/ws/",
-                                  "upgradeprotocol, websocket",
-                                  [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                                      VLOG(1) << "OnResponse";
-                                      VLOG(2) << "  Status:";
-                                      VLOG(2) << "    " << res->httpVersion << " " << res->statusCode << " " << res->reason;
-                                      VLOG(2) << "  Headers:";
-                                      for (const auto& [field, value] : res->headers) {
-                                          VLOG(2) << "    " << field + " = " + value;
-                                      }
+                req->upgrade(
+                    "/ws",
+                    "upgradeprotocol, websocket",
+                    [connectionName](const std::shared_ptr<Request>& req, bool success) {
+                        VLOG(1) << connectionName << ": Initiating upgrade " << (success ? "success" : "failed");
 
-                                      VLOG(2) << "  Cookies:";
-                                      for (const auto& [name, cookie] : res->cookies) {
-                                          VLOG(2) << "    " + name + " = " + cookie.getValue();
-                                          for (const auto& [option, value] : cookie.getOptions()) {
-                                              VLOG(2) << "      " + option + " = " + value;
-                                          }
-                                      }
+                        VLOG(1) << connectionName << ": GET " << req->url << " HTTP/1.1";
+                        VLOG(1) << "  Headers:";
+                        for (const auto& [field, value] : req->getHeaders()) {
+                            VLOG(2) << "    " << field + " = " + value;
+                        }
+                    },
+                    [connectionName](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                        VLOG(1) << connectionName << ": Response to upgrade";
 
-                                      req->upgrade(res, [req](const std::string& name) {
-                                          if (!name.empty()) {
-                                              VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->header("Upgrade");
-                                          } else {
-                                              VLOG(1) << "Can not upgrade to any of '" << req->header("Upgrade") << "'";
-                                          }
-                                      });
-                                  })) {
-                    VLOG(1) << "Initiating upgrade to any of 'upgradeprotocol, websocket' failed";
-                }
+                        VLOG(1) << connectionName << ": " << res->httpVersion << " " << res->statusCode << " " << res->reason;
+
+                        VLOG(1) << "  Headers:";
+                        for (const auto& [field, value] : res->headers) {
+                            VLOG(1) << "    " << field + " = " + value;
+                        }
+
+                        VLOG(1) << "  Cookies:";
+                        for (const auto& [name, cookie] : res->cookies) {
+                            VLOG(1) << "    " + name + " = " + cookie.getValue();
+                            for (const auto& [option, value] : cookie.getOptions()) {
+                                VLOG(1) << "      " + option + " = " + value;
+                            }
+                        }
+
+                        req->upgrade(res, [req, res, connectionName](const std::string& name) {
+                            if (!name.empty()) {
+                                VLOG(1) << connectionName << ": Upgrade success";
+                                VLOG(1) << "      Protocol(s) requested: " << req->header("upgrade");
+                                VLOG(1) << "                   selected: " << name;
+                                VLOG(1) << "   Subprotocol(s) resuested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
+                                VLOG(1) << "                   selected: " << res->headers["Sec-WebSocket-Protocol"];
+                            } else {
+                                VLOG(1) << connectionName << ": Upgrade failed";
+                                VLOG(1) << "      Protocol(s) requested: " << req->header("upgrade");
+                                VLOG(1) << "                   selected: " << name;
+                                VLOG(1) << "   Subprotocol(s) resuested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
+                                VLOG(1) << "                   selected: " << res->headers["Sec-WebSocket-Protocol"];
+                            }
+                        });
+                    });
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
-                VLOG(1) << "OnRequestEnd";
+                const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
+
+                VLOG(1) << connectionName << ": OnRequestEnd";
             });
 
         legacyClient.connect([instanceName = legacyClient.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
@@ -129,44 +148,63 @@ int main(int argc, char* argv[]) {
         const TlsClient tlsClient(
             "tls",
             [](const std::shared_ptr<Request>& req) {
-                VLOG(1) << "OnRequestBegin";
+                const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                VLOG(1) << "Requesting upgrade to 'websocket' and any of the subprotocols 'subprotocol' and 'echo'";
+                VLOG(1) << connectionName << ": OnRequestBegin";
 
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
-                if (!req->upgrade("/ws/",
-                                  "upgradeprotocol, websocket",
-                                  [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                                      VLOG(1) << "OnResponse";
-                                      VLOG(2) << "  Status:";
-                                      VLOG(2) << "    " << res->httpVersion << " " << res->statusCode << " " << res->reason;
-                                      VLOG(2) << "  Headers:";
-                                      for (const auto& [field, value] : res->headers) {
-                                          VLOG(2) << "    " << field + " = " + value;
-                                      }
+                req->upgrade(
+                    "/ws",
+                    "upgradeprotocol, websocket",
+                    [connectionName](const std::shared_ptr<Request>& req, bool success) {
+                        VLOG(1) << connectionName << ": Initiating upgrade " << (success ? "success" : "failed");
 
-                                      VLOG(2) << "  Cookies:";
-                                      for (const auto& [name, cookie] : res->cookies) {
-                                          VLOG(2) << "    " + name + " = " + cookie.getValue();
-                                          for (const auto& [option, value] : cookie.getOptions()) {
-                                              VLOG(2) << "      " + option + " = " + value;
-                                          }
-                                      }
+                        VLOG(1) << connectionName << ": GET " << req->url << " HTTP/1.1";
+                        VLOG(1) << "  Headers:";
+                        for (const auto& [field, value] : req->getHeaders()) {
+                            VLOG(2) << "    " << field + " = " + value;
+                        }
+                    },
+                    [connectionName](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                        VLOG(1) << connectionName << ": Response to upgrade";
 
-                                      req->upgrade(res, [req](const std::string& name) {
-                                          if (!name.empty()) {
-                                              VLOG(1) << "Successful upgrade to '" << name << "' from options: " << req->header("Upgrade");
-                                          } else {
-                                              VLOG(1) << "Can not upgrade to any of '" << req->header("Upgrade") << "'";
-                                          }
-                                      });
-                                  })) {
-                    VLOG(1) << "Initiating upgrade to any of 'upgradeprotocol, websocket' failed";
-                }
+                        VLOG(1) << connectionName << ": " << res->httpVersion << " " << res->statusCode << " " << res->reason;
+
+                        VLOG(1) << "  Headers:";
+                        for (const auto& [field, value] : res->headers) {
+                            VLOG(1) << "    " << field + " = " + value;
+                        }
+
+                        VLOG(1) << "  Cookies:";
+                        for (const auto& [name, cookie] : res->cookies) {
+                            VLOG(1) << "    " + name + " = " + cookie.getValue();
+                            for (const auto& [option, value] : cookie.getOptions()) {
+                                VLOG(1) << "      " + option + " = " + value;
+                            }
+                        }
+
+                        req->upgrade(res, [req, res, connectionName](const std::string& name) {
+                            if (!name.empty()) {
+                                VLOG(1) << connectionName << ": Upgrade success";
+                                VLOG(1) << "      Protocol(s) requested: " << req->header("upgrade");
+                                VLOG(1) << "                   selected: " << name;
+                                VLOG(1) << "   Subprotocol(s) resuested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
+                                VLOG(1) << "                   selected: " << res->headers["Sec-WebSocket-Protocol"];
+                            } else {
+                                VLOG(1) << connectionName << ": Upgrade failed";
+                                VLOG(1) << "      Protocol(s) requested: " << req->header("upgrade");
+                                VLOG(1) << "                   selected: " << name;
+                                VLOG(1) << "   Subprotocol(s) resuested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
+                                VLOG(1) << "                   selected: " << res->headers["Sec-WebSocket-Protocol"];
+                            }
+                        });
+                    });
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
-                VLOG(1) << "OnRequestEnd";
+                const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
+
+                VLOG(1) << connectionName << ": OnRequestEnd";
             });
 
         tlsClient.connect([instanceName = tlsClient.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress,

@@ -300,22 +300,19 @@ namespace web::http::client {
 
     bool Request::upgrade(const std::string& url,
                           const std::string& protocols,
+                          const std::function<void(const std::shared_ptr<Request>&, bool)>& onUpgradeInitiate,
                           const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        bool success = true;
-
         if (!masterRequest.expired()) {
             this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
 
-            requestCommands.push_back(new commands::UpgradeCommand(url, protocols));
+            requestCommands.push_back(new commands::UpgradeCommand(url, protocols, onUpgradeInitiate));
 
             requestPrepared();
-        } else {
-            success = false;
         }
 
-        return success;
+        return !masterRequest.expired();
     }
 
     void Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status) {
@@ -375,7 +372,7 @@ namespace web::http::client {
                            const std::function<void(int)>& onStatus,
                            const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                            const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        bool queued = true;
+        bool queued = false;
 
         if (!masterRequest.expired()) {
             this->onResponseReceived = onResponseReceived;
@@ -384,8 +381,8 @@ namespace web::http::client {
             requestCommands.push_back(new commands::SendFileCommand(file, onStatus));
 
             requestPrepared();
-        } else {
-            queued = false;
+
+            queued = true;
         }
 
         return queued;
@@ -433,13 +430,13 @@ namespace web::http::client {
         return queued;
     }
 
-    bool Request::initiate() {
+    bool Request::initiate(const std::shared_ptr<Request>& request) {
         bool error = false;
         bool atomar = true;
 
         for (RequestCommand* requestCommand : requestCommands) {
             if (!error) {
-                const bool atomarCommand = requestCommand->execute(this);
+                const bool atomarCommand = requestCommand->execute(request);
                 if (atomar) {
                     atomar = atomarCommand;
                 }
@@ -500,7 +497,7 @@ namespace web::http::client {
         return atomar;
     }
 
-    bool Request::executeUpgrade(const std::string& url, const std::string& protocols) {
+    bool Request::executeUpgrade(const std::string& url, const std::string& protocols, const std::function<void(bool)>& onStatus) {
         this->url = url;
 
         set("Connection", "Upgrade", true);
@@ -510,10 +507,20 @@ namespace web::http::client {
             web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
 
         if (socketContextUpgradeFactory != nullptr) {
+            LOG(DEBUG) << getSocketContext()->getSocketConnection()->getConnectionName() << ": "
+                       << "SocketContextUpgradeFactory create success: " << socketContextUpgradeFactory->name();
+
             socketContextUpgradeFactory->checkRefCount();
+
+            onStatus(true);
 
             executeSendHeader();
         } else {
+            LOG(DEBUG) << getSocketContext()->getSocketConnection()->getConnectionName() << ": "
+                       << "SocketContextUpgradeFactory create failed: " << protocols;
+
+            onStatus(false);
+
             socketContext->close();
         }
 

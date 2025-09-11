@@ -106,20 +106,21 @@ namespace express::dispatcher {
                 );
             // clang-format on
 
-            LOG(TRACE) << "Express: A - RequestUrl: " << controller.getRequest()->url;
-            LOG(TRACE) << "Express: A - RequestPath: " << controller.getRequest()->path;
-            LOG(TRACE) << "Express: A - AbsoluteMountPath: " << absoluteMountPath;
-            LOG(TRACE) << "Express: A - StrictRouting: " << controller.getStrictRouting();
+            LOG(TRACE) << "Express: application";
+            LOG(TRACE) << "      RequestMethod: " << controller.getRequest()->method;
+            LOG(TRACE) << "         RequestUrl: " << controller.getRequest()->url;
+            LOG(TRACE) << "        RequestPath: " << controller.getRequest()->path;
+            LOG(TRACE) << "  AbsoluteMountPath: " << absoluteMountPath;
+            LOG(TRACE) << "      StrictRouting: " << controller.getStrictRouting();
+            LOG(TRACE) << "      StrictRouting: " << controller.getStrictRouting();
+            LOG(TRACE) << "              MATCH: " << (requestMatched ? "true" : "false");
 
             if (requestMatched) {
-                LOG(TRACE) << "      MATCH";
                 if (hasResult(absoluteMountPath)) {
                     setParams(absoluteMountPath, *controller.getRequest());
                 }
 
                 lambda(controller.getRequest(), controller.getResponse());
-            } else {
-                LOG(TRACE) << "      NO MQTCH";
             }
         }
 

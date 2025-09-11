@@ -47,6 +47,8 @@ namespace web::http::client {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client {
@@ -54,6 +56,7 @@ namespace web::http::client {
     class RequestCommand {
     public:
         RequestCommand() = default;
+
         RequestCommand(const RequestCommand&) = delete;
         RequestCommand(RequestCommand&&) noexcept = delete;
 
@@ -62,11 +65,13 @@ namespace web::http::client {
 
         virtual ~RequestCommand();
 
-        virtual bool execute(Request* request) = 0;
+        virtual bool execute(const std::shared_ptr<Request>& request) = 0;
 
         bool getError() const;
 
     protected:
+        const std::shared_ptr<Request> request;
+
         bool error = false;
     };
 

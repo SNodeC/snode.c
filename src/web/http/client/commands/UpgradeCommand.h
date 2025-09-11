@@ -46,6 +46,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+#include <memory>
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -54,15 +56,20 @@ namespace web::http::client::commands {
 
     class UpgradeCommand : public web::http::client::RequestCommand {
     public:
-        UpgradeCommand(const std::string& url, const std::string& protocols);
+        UpgradeCommand(const std::string& url,
+                       const std::string& protocols,
+                       const std::function<void(const std::shared_ptr<Request>&, bool)>& onUpgradeInitiate
+
+        );
         ~UpgradeCommand() override = default;
 
         // RequestCommand interface
-        bool execute(Request* request) override;
+        bool execute(const std::shared_ptr<Request>& request) override;
 
     private:
         std::string url;
         std::string protocols;
+        const std::function<void(const std::shared_ptr<Request>&, bool)> onUpgradeInitiate;
     };
 
 } // namespace web::http::client::commands
