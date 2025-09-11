@@ -685,7 +685,7 @@ namespace utils {
         }
     }
 
-    static const std::shared_ptr<CLI::HelpFormatter> makeSectionFormatter() {
+    static std::shared_ptr<CLI::HelpFormatter> makeSectionFormatter() {
         const std::shared_ptr<CLI::HelpFormatter> sectionFormatter = std::make_shared<CLI::HelpFormatter>();
 
         sectionFormatter->label("SUBCOMMAND", "SECTION");
