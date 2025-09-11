@@ -104,13 +104,13 @@ int main(int argc, char* argv[]) {
                                 VLOG(1) << connectionName << ": Upgrade success";
                                 VLOG(1) << "      Protocol(s) requested: " << req->header("upgrade");
                                 VLOG(1) << "                   selected: " << name;
-                                VLOG(1) << "   Subprotocol(s) resuested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
+                                VLOG(1) << "   Subprotocol(s) requested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
                                 VLOG(1) << "                   selected: " << res->headers["Sec-WebSocket-Protocol"];
                             } else {
                                 VLOG(1) << connectionName << ": Upgrade failed";
                                 VLOG(1) << "      Protocol(s) requested: " << req->header("upgrade");
                                 VLOG(1) << "                   selected: " << name;
-                                VLOG(1) << "   Subprotocol(s) resuested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
+                                VLOG(1) << "   Subprotocol(s) requested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
                                 VLOG(1) << "                   selected: " << res->headers["Sec-WebSocket-Protocol"];
                             }
                         });
@@ -189,13 +189,13 @@ int main(int argc, char* argv[]) {
                                 VLOG(1) << connectionName << ": Upgrade success";
                                 VLOG(1) << "      Protocol(s) requested: " << req->header("upgrade");
                                 VLOG(1) << "                   selected: " << name;
-                                VLOG(1) << "   Subprotocol(s) resuested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
+                                VLOG(1) << "   Subprotocol(s) requested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
                                 VLOG(1) << "                   selected: " << res->headers["Sec-WebSocket-Protocol"];
                             } else {
                                 VLOG(1) << connectionName << ": Upgrade failed";
                                 VLOG(1) << "      Protocol(s) requested: " << req->header("upgrade");
                                 VLOG(1) << "                   selected: " << name;
-                                VLOG(1) << "   Subprotocol(s) resuested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
+                                VLOG(1) << "   Subprotocol(s) requested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
                                 VLOG(1) << "                   selected: " << res->headers["Sec-WebSocket-Protocol"];
                             }
                         });
