@@ -75,7 +75,7 @@ namespace core::socket::stream::tls {
     static int verify_callback(int preverify_ok, X509_STORE_CTX* ctx) {
         SSL* ssl = static_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
 
-        std::string connectionName = *static_cast<std::string*>(SSL_get_ex_data(ssl, 0));
+        const std::string connectionName = *static_cast<std::string*>(SSL_get_ex_data(ssl, 0));
 
         X509* curr_cert = X509_STORE_CTX_get_current_cert(ctx);
         const int depth = X509_STORE_CTX_get_error_depth(ctx);
@@ -93,14 +93,15 @@ namespace core::socket::stream::tls {
         } else {
             const int err = X509_STORE_CTX_get_error(ctx);
 
-            /*
-             * At this point, err contains the last verification error. We can use
-             * it for something special
-             */
-
             LOG(DEBUG) << connectionName << ": SSL/TLS verify error at depth=" << depth << ": " << X509_verify_cert_error_string(err);
             LOG(DEBUG) << "   Issuer: " << issuerName;
             LOG(DEBUG) << "  Subject: " << subjectName;
+
+            /*
+             * At this point, err contains the last verification error. We can use
+             * it for something special and set preverify_ok to 1 in case an unsafe connection
+             * shall be used.
+             */
         }
 
         return preverify_ok;
