@@ -47,10 +47,6 @@
 #include "web/http/CookieOptions.h"
 #include "web/http/TransferEncoding.h"
 
-namespace core::socket::stream {
-    class SocketContext;
-} // namespace core::socket::stream
-
 namespace web::http::server {
     class Request;
     class SocketContext;
@@ -135,7 +131,6 @@ namespace web::http::server {
         std::size_t contentLength = 0;
 
         web::http::server::SocketContext* socketContext = nullptr;
-        core::socket::stream::SocketContext* socketContextUpgrade = nullptr;
 
         ConnectionState connectionState = ConnectionState::Default;
         TransferEncoding transferEncoding = TransferEncoding::HTTP10;

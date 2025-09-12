@@ -77,8 +77,6 @@ namespace web::http::server {
         if (socketContext != nullptr && Sink::isStreaming()) {
             socketContext->streamEof();
         }
-
-        delete socketContextUpgrade; // delete of nullptr is valid since C++14!
     }
 
     void Response::stopResponse() {
@@ -94,7 +92,6 @@ namespace web::http::server {
         trailer.clear();
         contentLength = 0;
         contentSent = 0;
-        socketContextUpgrade = nullptr;
         connectionState = ConnectionState::Default;
         transferEncoding = TransferEncoding::HTTP10;
     }
@@ -267,10 +264,13 @@ namespace web::http::server {
 
                         LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << name;
 
-                        socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
+                        core::socket::stream::SocketContext* socketContextUpgrade =
+                            socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                         if (socketContextUpgrade != nullptr) {
                             LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create success for: " << name;
+
+                            socketContext->switchSocketContext(socketContextUpgrade);
                         } else {
                             LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create failed for: " << name;
 
@@ -415,11 +415,6 @@ namespace web::http::server {
 
         if (socketContext != nullptr) {
             socketContext->responseCompleted(contentSent == contentLength || (httpMajor == 1 && httpMinor == 0));
-
-            if (socketContextUpgrade != nullptr) {
-                socketContext->switchSocketContext(socketContextUpgrade);
-                socketContextUpgrade = nullptr;
-            }
         }
     }
 

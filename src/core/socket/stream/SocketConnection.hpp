@@ -183,15 +183,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::readFromPeer(char* chunk, std::size_t chunkLen) {
-        std::size_t ret = 0;
-
-        if (newSocketContext == nullptr) {
-            ret = SocketReader::readFromPeer(chunk, chunkLen);
-        } else {
-            LOG(TRACE) << connectionName << " ReadFromPeer: New SocketContext != nullptr: SocketContextSwitch still in progress";
-        }
-
-        return ret;
+        return SocketReader::readFromPeer(chunk, chunkLen);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
@@ -292,20 +284,7 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onReceivedFromPeer(std::size_t available) {
-        std::size_t consumed = socketContext->onReceivedFromPeer();
-
-        if (available != 0 && consumed == 0) {
-            LOG(TRACE) << connectionName << ": Data available: " << available << " but nothing read";
-
-            close();
-
-            delete newSocketContext; // delete of nullptr is valid since C++14!
-            newSocketContext = nullptr;
-        } else if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-            disconnectCurrentSocketContext();
-            setSocketContext(newSocketContext);
-            newSocketContext = nullptr;
-        }
+        socketContext->readFromPeer(available);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
@@ -352,7 +331,11 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::unobservedEvent() {
-        disconnectCurrentSocketContext();
+        if (socketContext != nullptr) {
+            socketContext->detach();
+
+            LOG(DEBUG) << connectionName << ": SocketContext detached";
+        }
 
         onDisconnect();
 

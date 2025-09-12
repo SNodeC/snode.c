@@ -69,10 +69,6 @@ namespace core::socket::stream {
     SocketConnection::~SocketConnection() {
     }
 
-    void SocketConnection::switchSocketContext(SocketContext* newSocketContext) {
-        this->newSocketContext = newSocketContext;
-    }
-
     void SocketConnection::setSocketContext(SocketContext* socketContext) {
         if (socketContext != nullptr) { // Perform a pending SocketContextSwitch
             this->socketContext = socketContext;
@@ -130,15 +126,6 @@ namespace core::socket::stream {
         } else {
             LOG(ERROR) << connectionName << ": SocketContext failed to create";
             close();
-        }
-    }
-
-    void SocketConnection::disconnectCurrentSocketContext() {
-        if (socketContext != nullptr) {
-            socketContext->detach();
-            delete socketContext;
-
-            LOG(DEBUG) << connectionName << ": SocketContext detached";
         }
     }
 

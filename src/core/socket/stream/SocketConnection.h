@@ -92,8 +92,6 @@ namespace core::socket::stream {
         void setSocketContext(SocketContext* socketContext);
 
     public:
-        void switchSocketContext(SocketContext* newSocketContext);
-
         virtual void sendToPeer(const char* chunk, std::size_t chunkLen) = 0;
         void sendToPeer(const std::string& data);
         void sentToPeer(const std::vector<uint8_t>& data);
@@ -139,10 +137,7 @@ namespace core::socket::stream {
     protected:
         void connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
 
-        void disconnectCurrentSocketContext();
-
         core::socket::stream::SocketContext* socketContext = nullptr;
-        core::socket::stream::SocketContext* newSocketContext = nullptr;
 
         std::string instanceName;
         std::string connectionName;
@@ -151,6 +146,8 @@ namespace core::socket::stream {
 
     private:
         const net::config::ConfigInstance* config;
+
+        friend class core::socket::stream::SocketContext;
     };
 
     template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT, typename ConfigT>

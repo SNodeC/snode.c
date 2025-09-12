@@ -62,9 +62,13 @@ namespace core::socket::stream {
         , onlineSinceTimePoint(std::chrono::system_clock::now()) {
     }
 
+    SocketContext::~SocketContext() {
+        delete newSocketContext;
+    }
+
     void SocketContext::switchSocketContext(SocketContext* newSocketContext) {
         LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: switch";
-        socketConnection->switchSocketContext(newSocketContext);
+        this->newSocketContext = newSocketContext;
     }
 
     SocketConnection* SocketContext::getSocketConnection() const {
@@ -83,8 +87,36 @@ namespace core::socket::stream {
         socketConnection->streamEof();
     }
 
+    void SocketContext::readFromPeer(std::size_t available) {
+        const std::size_t consumed = onReceivedFromPeer();
+
+        if (available != 0 && consumed == 0) {
+            LOG(TRACE) << socketConnection->getConnectionName() << ": Data available: " << available << " but nothing read";
+
+            close();
+
+            delete newSocketContext; // delete of nullptr is valid since C++14!
+            newSocketContext = nullptr;
+        } else if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
+
+            socketConnection->setSocketContext(newSocketContext);
+            newSocketContext = nullptr;
+
+            detach();
+        }
+    }
+
     std::size_t SocketContext::readFromPeer(char* chunk, std::size_t chunklen) const {
-        return socketConnection->readFromPeer(chunk, chunklen);
+        std::size_t ret = 0;
+
+        if (newSocketContext == nullptr) {
+            ret = socketConnection->readFromPeer(chunk, chunklen);
+        } else {
+            LOG(TRACE) << socketConnection->getConnectionName()
+                       << " ReadFromPeer: New SocketContext != nullptr: SocketContextSwitch still in progress";
+        }
+
+        return ret;
     }
 
     void SocketContext::setTimeout(const utils::Timeval& timeout) {
@@ -159,6 +191,8 @@ namespace core::socket::stream {
         LOG(DEBUG) << "  Online Duration: " << getOnlineDuration();
         LOG(DEBUG) << "       Total Sent: " << getTotalQueued();
         LOG(DEBUG) << "  Total Processed: " << getTotalProcessed();
+
+        delete this;
     }
 
     std::string SocketContext::timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint) {

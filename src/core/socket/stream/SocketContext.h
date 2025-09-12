@@ -70,6 +70,9 @@ namespace core::socket::stream {
     public:
         explicit SocketContext(core::socket::stream::SocketConnection* socketConnection);
 
+        ~SocketContext() override;
+
+        using Super::readFromPeer;
         using Super::sendToPeer;
 
         void sendToPeer(const char* chunk, std::size_t chunkLen) const final;
@@ -100,6 +103,8 @@ namespace core::socket::stream {
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;
 
+        void readFromPeer(std::size_t available);
+
     private:
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
@@ -113,6 +118,8 @@ namespace core::socket::stream {
                          const std::chrono::time_point<std::chrono::system_clock>& later = std::chrono::system_clock::now());
 
         core::socket::stream::SocketConnection* socketConnection;
+
+        core::socket::stream::SocketContext* newSocketContext = nullptr;
 
         std::string onlineSince;
         std::size_t alreadyTotalQueued = 0;
