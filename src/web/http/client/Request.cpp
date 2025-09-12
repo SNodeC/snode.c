@@ -317,13 +317,13 @@ namespace web::http::client {
                            << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
 
                 req->upgrade(res, [req, res, connectionName, &onResponseReceived](const std::string& name) {
-                    onResponseReceived(req, res, !name.empty());
-
                     LOG(DEBUG) << connectionName << " HTTP: Upgrade bootstrap " << (!name.empty() ? "success" : "failed");
                     LOG(DEBUG) << "      Protocol selected: " << name;
                     LOG(DEBUG) << "              requested: " << req->header("upgrade");
-                    LOG(DEBUG) << "  Subprotocol  selected: " << res->headers["Sec-WebSocket-Protocol"];
-                    LOG(DEBUG) << "              requested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
+                    LOG(DEBUG) << "  Subprotocol  selected: " << res->get("Sec-WebSocket-Protocol");
+                    LOG(DEBUG) << "              requested: " << req->header("Sec-WebSocket-Protocol");
+
+                    onResponseReceived(req, res, !name.empty());
                 });
             };
 

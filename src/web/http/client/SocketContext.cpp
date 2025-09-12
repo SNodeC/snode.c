@@ -245,9 +245,9 @@ namespace web::http::client {
 
         request->deliverResponse(request, std::make_shared<Response>(std::move(response)));
 
-        responseDelivered(httpClose);
-
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response completed: " << requestLine;
+
+        responseDelivered(httpClose);
     }
 
     void SocketContext::deliverResponseParseError(int status, const std::string& reason) {

@@ -296,6 +296,12 @@ namespace web::http::server {
             LOG(ERROR) << connectionName << "HTTP upgrade: Unexpected disconnect";
         }
 
+        LOG(DEBUG) << connectionName << " HTTP: Upgrade bootstrap " << (!name.empty() ? "success" : "failed");
+        LOG(DEBUG) << "      Protocol selected: " << name;
+        LOG(DEBUG) << "              requested: " << request->get("upgrade");
+        LOG(DEBUG) << "  Subprotocol  selected: " << header("upgrade");
+        LOG(DEBUG) << "              requested: " << request->get("Sec-WebSocket-Protocol");
+
         status(name);
     }
 
