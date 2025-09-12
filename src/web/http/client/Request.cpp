@@ -298,14 +298,31 @@ namespace web::http::client {
         return send(chunk.data(), chunk.size(), onResponseReceived, onResponseParseError);
     }
 
-    bool Request::upgrade(const std::string& url,
-                          const std::string& protocols,
-                          const std::function<void(const std::shared_ptr<Request>&, bool)>& onUpgradeInitiate,
-                          const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                          const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
+    bool
+    Request::upgrade(const std::string& url,
+                     const std::string& protocols,
+                     const std::function<void(const std::shared_ptr<Request>&, bool)>& onUpgradeInitiate,
+                     const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, bool)>& onResponseReceived,
+                     const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         if (!masterRequest.expired()) {
-            this->onResponseReceived = onResponseReceived;
             this->onResponseParseError = onResponseParseError;
+
+            this->onResponseReceived = [onResponseReceived](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
+                LOG(DEBUG) << connectionName << "  HTTP: Response to upgrade request: " << req->method << " " << req->url << " " << "HTTP/"
+                           << req->httpMajor << "." << req->httpMinor << "\n"
+                           << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
+
+                req->upgrade(res, [req, res, connectionName, &onResponseReceived](const std::string& name) {
+                    onResponseReceived(req, res, !name.empty());
+
+                    LOG(DEBUG) << connectionName << " HTTP: Upgrade bootstrap " << (!name.empty() ? "success" : "failed");
+                    LOG(DEBUG) << "      Protocol selected: " << name;
+                    LOG(DEBUG) << "              requested: " << req->header("upgrade");
+                    LOG(DEBUG) << "  Subprotocol  selected: " << res->headers["Sec-WebSocket-Protocol"];
+                    LOG(DEBUG) << "              requested: " << req->getHeaders().at("Sec-WebSocket-Protocol");
+                });
+            };
 
             requestCommands.push_back(new commands::UpgradeCommand(url, protocols, onUpgradeInitiate));
 
@@ -328,19 +345,19 @@ namespace web::http::client {
                         name = socketContextUpgradeFactory->name();
 
                         LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                   << " HTTP upgrade: SocketContextUpgradeFactory created successful: " << name;
+                                   << " HTTP upgrade: SocketContextUpgradeFactory create success: " << name;
 
                         core::socket::stream::SocketContext* socketContextUpgrade =
                             socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                         if (socketContextUpgrade != nullptr) {
                             LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                       << " HTTP upgrade: SocketContextUpgrade created successful: " << name;
+                                       << " HTTP upgrade: SocketContextUpgrade create success: " << name;
 
                             socketContext->switchSocketContext(socketContextUpgrade);
                         } else {
                             LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                       << " HTTP upgrade: Create SocketContextUpgrade failed: " << name;
+                                       << " HTTP upgrade: SocketContextUpgrade create failed: " << name;
 
                             socketContext->close();
                         }
@@ -506,18 +523,37 @@ namespace web::http::client {
         web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
             web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
 
-        if (socketContextUpgradeFactory != nullptr) {
-            LOG(DEBUG) << getSocketContext()->getSocketConnection()->getConnectionName() << ": "
-                       << "SocketContextUpgradeFactory create success: " << socketContextUpgradeFactory->name();
+        const std::string connectionName = this->getSocketContext()->getSocketConnection()->getConnectionName();
 
-            socketContextUpgradeFactory->checkRefCount();
+        if (socketContextUpgradeFactory != nullptr) {
+            LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade: " << method << " " << url
+                       << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) << "\n"
+                       << httputils::toString(method,
+                                              url,
+                                              "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
+                                              queries,
+                                              headers,
+                                              cookies,
+                                              std::vector<char>());
 
             onStatus(true);
 
             executeSendHeader();
+
+            socketContextUpgradeFactory->checkRefCount();
         } else {
+            LOG(DEBUG) << connectionName << " HTTP: "
+                       << "SocketContextUpgradeFactory create success: " << socketContextUpgradeFactory->name();
+
             LOG(DEBUG) << getSocketContext()->getSocketConnection()->getConnectionName() << ": "
                        << "SocketContextUpgradeFactory create failed: " << protocols;
+            LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade success";
+            LOG(DEBUG) << "  Request: GET " << this->url << " HTTP/1.1";
+            LOG(DEBUG) << "  Upgrade:" << header("upgrade");
+            LOG(TRACE) << "  Headers:";
+            for (const auto& [field, value] : this->getHeaders()) {
+                LOG(TRACE) << "    " << field + " = " + value;
+            }
 
             onStatus(false);
 

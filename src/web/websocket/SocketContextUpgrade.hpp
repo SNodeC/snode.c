@@ -214,7 +214,7 @@ namespace web::websocket {
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onConnected() {
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name << "' connected";
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name << "' connect";
         subProtocol->attach();
     }
 

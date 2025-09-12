@@ -66,7 +66,7 @@ namespace web::http::server {
 
 #if !defined(NDEBUG)
         if (const char* httpUpgradeInstallLibdirEnv = std::getenv("HTTP_UPGRADE_INSTALL_LIBDIR")) {
-            LOG(WARNING) << "HTTP: Overriding http upgrade library dir";
+            LOG(WARNING) << "HTTP upgrade: Overriding http upgrade library dir";
             httpUpgradeInstallLibdir = std::string(httpUpgradeInstallLibdirEnv);
         }
 #endif

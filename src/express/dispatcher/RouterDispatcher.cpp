@@ -41,15 +41,16 @@
 
 #include "express/dispatcher/RouterDispatcher.h"
 
+#include "core/socket/stream/SocketConnection.h"
 #include "express/Controller.h"
 #include "express/Request.h"
+#include "express/Response.h"
 #include "express/Route.h"
+#include "web/http/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-
-#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -99,17 +100,16 @@ namespace express::dispatcher {
                 )
             );
         // clang-format on
-        LOG(TRACE) << "Express: router";
+        LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
+                   << " HTTP Express: router -> " << (requestMatched ? "MATCH" : "NO MATCH");
         LOG(TRACE) << "      RequestMethod: " << controller.getRequest()->method;
         LOG(TRACE) << "         RequestUrl: " << controller.getRequest()->url;
         LOG(TRACE) << "        RequestPath: " << controller.getRequest()->path;
         LOG(TRACE) << "  AbsoluteMountPath: " << absoluteMountPath;
         LOG(TRACE) << "      StrictRouting: " << controller.getStrictRouting();
         LOG(TRACE) << "      StrictRouting: " << controller.getStrictRouting();
-        LOG(TRACE) << "              MATCH: " << (requestMatched ? "true" : "false");
 
         if (requestMatched) {
-            LOG(TRACE) << "      MATCH";
             for (Route& route : routes) {
                 const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
 
@@ -127,8 +127,6 @@ namespace express::dispatcher {
                     break;
                 }
             }
-        } else {
-            LOG(TRACE) << "      NO MQTCH";
         }
 
         return dispatched;

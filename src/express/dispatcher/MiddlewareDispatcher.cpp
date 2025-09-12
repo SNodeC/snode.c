@@ -41,10 +41,13 @@
 
 #include "express/dispatcher/MiddlewareDispatcher.h"
 
+#include "core/socket/stream/SocketConnection.h"
 #include "express/Next.h"
 #include "express/Request.h"
+#include "express/Response.h"
 #include "express/Route.h"
 #include "express/dispatcher/regex_utils.h"
+#include "web/http/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -104,17 +107,16 @@ namespace express::dispatcher {
                 );
             // clang-format on
 
-            LOG(TRACE) << "Express: middleware";
+            LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
+                       << " HTTP Express: middleware -> " << (requestMatched ? "MATCH" : "NO MATCH");
             LOG(TRACE) << "      RequestMethod: " << controller.getRequest()->method;
             LOG(TRACE) << "         RequestUrl: " << controller.getRequest()->url;
             LOG(TRACE) << "        RequestPath: " << controller.getRequest()->path;
             LOG(TRACE) << "  AbsoluteMountPath: " << absoluteMountPath;
             LOG(TRACE) << "      StrictRouting: " << controller.getStrictRouting();
             LOG(TRACE) << "      StrictRouting: " << controller.getStrictRouting();
-            LOG(TRACE) << "              MATCH: " << (requestMatched ? "true" : "false");
 
             if (requestMatched) {
-                LOG(TRACE) << "      MATCH";
                 if (hasResult(absoluteMountPath)) {
                     setParams(absoluteMountPath, *controller.getRequest());
                 }
@@ -128,8 +130,6 @@ namespace express::dispatcher {
                     requestMatched = false;
                     controller = next.controller;
                 }
-            } else {
-                LOG(TRACE) << "      NO MQTCH";
             }
         }
 

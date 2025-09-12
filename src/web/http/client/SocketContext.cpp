@@ -145,7 +145,7 @@ namespace web::http::client {
                                             .append(".")
                                             .append(std::to_string(currentRequest->httpMinor));
 
-        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request delivering: " << requestLine;
+        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request start: " << requestLine;
 
         if (!currentRequest->initiate(currentRequest)) {
             LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request delivering failed: " << requestLine;
@@ -200,7 +200,7 @@ namespace web::http::client {
                 });
             }
         } else {
-            LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request delivering failed: " << requestLine;
+            LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request deliver failed: " << requestLine;
 
             shutdownWrite();
         }
@@ -216,9 +216,10 @@ namespace web::http::client {
                                                 .append(".")
                                                 .append(std::to_string(deliveredRequests.front().httpMinor));
 
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response started: " << requestLine;
+            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start: " << requestLine;
         } else {
             LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Response without delivered request";
+
             shutdownWrite(true);
         }
     }
@@ -235,7 +236,7 @@ namespace web::http::client {
                                             .append(".")
                                             .append(std::to_string(request->httpMinor));
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response ready: " << requestLine;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response received: " << requestLine;
 
         const bool httpClose =
             response.connectionState == ConnectionState::Close ||
@@ -279,10 +280,11 @@ namespace web::http::client {
                         if (!pendingRequests.empty()) {
                             Request& request = pendingRequests.front();
 
-                            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request dequeued: " << request.method << " "
-                                       << request.url << " HTTP/" << request.httpMajor << "." << request.httpMinor;
+                            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Initiating request: " << request.method
+                                       << " " << request.url << " HTTP/" << request.httpMajor << "." << request.httpMinor;
 
                             initiateRequest(request);
+
                             pendingRequests.pop_front();
                         } else {
                             currentRequest = nullptr;
@@ -294,7 +296,7 @@ namespace web::http::client {
     }
 
     void SocketContext::onConnected() {
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: connected";
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Connected";
 
         onRequestBegin(masterRequest);
     }
@@ -319,11 +321,11 @@ namespace web::http::client {
 
         onRequestEnd(masterRequest);
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: disconnected";
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Disconnected";
     }
 
     bool SocketContext::onSignal([[maybe_unused]] int signum) {
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: received signal " << signum;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received signal " << signum;
 
         return true;
     }

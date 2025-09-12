@@ -60,11 +60,6 @@ namespace core::socket::stream {
     SocketContext::SocketContext(SocketConnection* socketConnection)
         : socketConnection(socketConnection)
         , onlineSinceTimePoint(std::chrono::system_clock::now()) {
-        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: created";
-    }
-
-    SocketContext::~SocketContext() {
-        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: disconnected";
     }
 
     void SocketContext::switchSocketContext(SocketContext* newSocketContext) {
@@ -152,8 +147,6 @@ namespace core::socket::stream {
     void SocketContext::attach() {
         alreadyTotalQueued = socketConnection->getTotalQueued();
         alreadyTotalProcessed = socketConnection->getTotalProcessed();
-
-        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: attach";
 
         onConnected();
     }

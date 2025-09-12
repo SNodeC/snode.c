@@ -244,6 +244,18 @@ namespace web::http::server {
     void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string&)>& status) {
         std::string name;
 
+        const std::string connectionName = socketContext->getSocketConnection()->getConnectionName();
+
+        LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade: " << request->method << " " << request->url
+                   << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) << "\n"
+                   << httputils::toString(request->method,
+                                          request->url,
+                                          "HTTP/" + std::to_string(request->httpMajor) + "." + std::to_string(request->httpMinor),
+                                          request->queries,
+                                          request->headers,
+                                          request->cookies,
+                                          std::vector<char>());
+
         if (socketContext != nullptr) {
             if (request != nullptr) {
                 if (web::http::ciContains(request->get("connection"), "Upgrade")) {
@@ -253,22 +265,22 @@ namespace web::http::server {
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();
                         LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                   << " HTTP upgrade: SocketContextUpgradeFactory created successful: " << name;
+                                   << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << name;
 
                         socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                         if (socketContextUpgrade != nullptr) {
                             LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                       << " HTTP upgrade: SocketContextUpgrade created successful: " << name;
+                                       << " HTTP upgrade: SocketContextUpgrade create success for: " << name;
                         } else {
                             LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                       << " HTTP upgrade: Create SocketContextUpgrade failed: " << name;
+                                       << " HTTP upgrade: SocketContextUpgrade create failed for: " << name;
 
                             set("Connection", "close").status(404);
                         }
                     } else {
                         LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                   << " HTTP upgrade: SocketContextUpgradeFactory not supported: " << request->get("upgrade");
+                                   << " SocketContextUpgradeFactory create failed for all of: " << request->get("upgrade");
 
                         set("Connection", "close").status(404);
                     }
@@ -283,7 +295,7 @@ namespace web::http::server {
                 set("Connection", "close").status(500);
             }
         } else {
-            LOG(ERROR) << "HTTP upgrade: SocketContext has gone away";
+            LOG(ERROR) << "HTTP upgrade: Unexpected disconnect";
         }
 
         status(name);

@@ -97,15 +97,15 @@ namespace web::http {
 
                 if (socketContextUpgradeFactory != nullptr) {
                     if (add(socketContextUpgradeFactory, handle)) {
-                        LOG(DEBUG) << "HTTP: SocketContextUpgradeFactory created successful: " << socketContextUpgradeName;
+                        LOG(TRACE) << "HTTP: SocketContextUpgradeFactory create success: " << socketContextUpgradeName;
                     } else {
-                        LOG(DEBUG) << "HTTP: UpgradeSocketContext already existing. Not using: " << socketContextUpgradeName;
+                        LOG(TRACE) << "HTTP: SocketContextUpgradeFactory already existing: " << socketContextUpgradeName;
                         delete socketContextUpgradeFactory;
                         socketContextUpgradeFactory = nullptr;
                         core::DynamicLoader::dlClose(handle);
                     }
                 } else {
-                    LOG(ERROR) << "HTTP: SocketContextUpgradeFactory not created: " << socketContextUpgradeName;
+                    LOG(ERROR) << "HTTP: SocketContextUpgradeFactory create failed: " << socketContextUpgradeName;
                     core::DynamicLoader::dlClose(handle);
                 }
             } else {

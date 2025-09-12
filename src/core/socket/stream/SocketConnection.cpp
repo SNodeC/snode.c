@@ -77,11 +77,11 @@ namespace core::socket::stream {
         if (socketContext != nullptr) { // Perform a pending SocketContextSwitch
             this->socketContext = socketContext;
 
-            socketContext->attach();
+            LOG(DEBUG) << connectionName << ": SocketContext switch completed";
 
-            LOG(DEBUG) << connectionName << ": SocketContext attached";
+            socketContext->attach();
         } else {
-            LOG(ERROR) << connectionName << ": Connecting SocketContext failed: no new SocketContext";
+            LOG(ERROR) << connectionName << ": SocketContext switch failed: no new SocketContext";
         }
     }
 

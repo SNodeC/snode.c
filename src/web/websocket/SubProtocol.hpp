@@ -141,7 +141,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::attach() {
-        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': attach";
+        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': start";
 
         onConnected();
     }
@@ -150,7 +150,7 @@ namespace web::websocket {
     void SubProtocol<SocketContextUpgrade>::detach() {
         onDisconnected();
 
-        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': detached";
+        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': stopped";
 
         LOG(DEBUG) << "       Total Payload sent: " << getPayloadTotalSent();
         LOG(DEBUG) << "  Total Payload processed: " << getPayloadTotalRead();

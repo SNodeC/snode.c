@@ -65,10 +65,10 @@ namespace web::http::server {
         , parser(
               this,
               [this]() {
-                  LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP Request started";
+                  LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request start";
               },
               [this](web::http::server::Request&& request) {
-                  LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP Request parsed: " << request.method << " "
+                  LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request parse success: " << request.method << " "
                             << request.url << " HTTP/" << request.httpMajor << "." << request.httpMinor;
 
                   pendingRequests.emplace_back(std::make_shared<Request>(std::move(request)));
@@ -78,7 +78,7 @@ namespace web::http::server {
                   }
               },
               [this](int status, const std::string& reason) {
-                  LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP Request parse error: " << reason << " (" << status
+                  LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Request parse error: " << reason << " (" << status
                              << ") ";
 
                   shutdownWrite(true);
@@ -89,7 +89,7 @@ namespace web::http::server {
         if (!pendingRequests.empty()) {
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP Request ready: " << pendingRequest->method << " "
+            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request deliver: " << pendingRequest->method << " "
                       << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
 
             masterResponse->init();
@@ -103,14 +103,14 @@ namespace web::http::server {
 
             onRequestReady(pendingRequest, masterResponse);
         } else {
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP Request: No more pending";
+            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: No mor pending request";
         }
     }
 
     void SocketContext::responseStarted() {
         const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP Response started: " << pendingRequest->method << " "
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start: " << pendingRequest->method << " "
                   << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
     }
 
@@ -118,7 +118,7 @@ namespace web::http::server {
         if (success) {
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP Response completed: " << pendingRequest->method << " "
+            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response completed: " << pendingRequest->method << " "
                       << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
 
             httpClose = masterResponse->connectionState == ConnectionState::Close ||
@@ -128,7 +128,7 @@ namespace web::http::server {
 
             requestCompleted();
         } else {
-            LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP Response wrong content length";
+            LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Response wrong content length";
 
             shutdownWrite(true);
         }
@@ -137,7 +137,7 @@ namespace web::http::server {
     void SocketContext::requestCompleted() {
         const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP Request completed: " << pendingRequest->method << " "
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request completed: " << pendingRequest->method << " "
                   << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
 
         if (httpClose) {

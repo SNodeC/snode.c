@@ -47,7 +47,9 @@
 
 #include "log/Logger.h"
 
+#include <algorithm>
 #include <cstring>
+#include <list>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -68,19 +70,6 @@ int main(int argc, char* argv[]) {
 
     legacyApp.get("/ws", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
         const std::string connectionName = res->getSocketContext()->getSocketConnection()->getConnectionName();
-
-        VLOG(1) << connectionName << ": HTTP GET " << req->originalUrl << " HTTP/" << req->httpMajor << "." << req->httpMinor;
-        VLOG(2) << "                 OriginalUri: " << req->originalUrl;
-        VLOG(2) << "                         Uri: " << req->url;
-        VLOG(2) << "                  Connection: " << req->get("connection");
-        VLOG(2) << "                        Host: " << req->get("host");
-        VLOG(2) << "                      Origin: " << req->get("origin");
-        VLOG(2) << "      Sec-WebSocket-Protocol: " << req->get("sec-websocket-protocol");
-        VLOG(2) << "   sec-web-socket-extensions: " << req->get("sec-websocket-extensions");
-        VLOG(2) << "           sec-websocket-key: " << req->get("sec-websocket-key");
-        VLOG(2) << "       sec-websocket-version: " << req->get("sec-websocket-version");
-        VLOG(2) << "                     upgrade: " << req->get("upgrade");
-        VLOG(2) << "                  user-agent: " << req->get("user-agent");
 
         if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
             res->upgrade(req, [req, res, connectionName](const std::string& name) {
@@ -139,6 +128,13 @@ int main(int argc, char* argv[]) {
                     break;
             }
         });
+
+    VLOG(1) << "Legacy Routes:";
+    for (std::string& route : legacyApp.getRoutes()) {
+        route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
+
+        VLOG(1) << "  " << route;
+    }
 
     {
         using TlsWebApp = express::tls::in::WebApp;
@@ -219,6 +215,13 @@ int main(int argc, char* argv[]) {
                         break;
                 }
             });
+
+        VLOG(1) << "Tls Routes:";
+        for (std::string& route : legacyApp.getRoutes()) {
+            route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
+
+            VLOG(1) << "  " << route;
+        }
     }
 
     return express::WebApp::start();
