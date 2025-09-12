@@ -515,6 +515,7 @@ namespace web::http::client {
     }
 
     bool Request::executeUpgrade(const std::string& url, const std::string& protocols, const std::function<void(bool)>& onStatus) {
+        const std::string connectionName = this->getSocketContext()->getSocketConnection()->getConnectionName();
         this->url = url;
 
         set("Connection", "Upgrade", true);
@@ -523,9 +524,10 @@ namespace web::http::client {
         web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
             web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
 
-        const std::string connectionName = this->getSocketContext()->getSocketConnection()->getConnectionName();
-
         if (socketContextUpgradeFactory != nullptr) {
+            LOG(DEBUG) << connectionName << " HTTP: "
+                       << "SocketContextUpgradeFactory create success: " << socketContextUpgradeFactory->name();
+
             LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade: " << method << " " << url
                        << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) << "\n"
                        << httputils::toString(method,
@@ -543,9 +545,6 @@ namespace web::http::client {
             socketContextUpgradeFactory->checkRefCount();
         } else {
             LOG(DEBUG) << connectionName << " HTTP: "
-                       << "SocketContextUpgradeFactory create success: " << socketContextUpgradeFactory->name();
-
-            LOG(DEBUG) << getSocketContext()->getSocketConnection()->getConnectionName() << ": "
                        << "SocketContextUpgradeFactory create failed: " << protocols;
             LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade success";
             LOG(DEBUG) << "  Request: GET " << this->url << " HTTP/1.1";
