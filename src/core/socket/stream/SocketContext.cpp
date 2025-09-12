@@ -98,7 +98,6 @@ namespace core::socket::stream {
             delete newSocketContext; // delete of nullptr is valid since C++14!
             newSocketContext = nullptr;
         } else if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-
             socketConnection->setSocketContext(newSocketContext);
             newSocketContext = nullptr;
 

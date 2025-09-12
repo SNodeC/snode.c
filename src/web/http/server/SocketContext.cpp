@@ -103,7 +103,7 @@ namespace web::http::server {
 
             onRequestReady(pendingRequest, masterResponse);
         } else {
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: No mor pending request";
+            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: No more pending request";
         }
     }
 

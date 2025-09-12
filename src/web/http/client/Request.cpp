@@ -305,11 +305,13 @@ namespace web::http::client {
                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, bool)>& onResponseReceived,
                      const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         if (!masterRequest.expired()) {
+            this->url = url;
+
             this->onResponseParseError = onResponseParseError;
 
             this->onResponseReceived = [onResponseReceived](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
-                LOG(DEBUG) << connectionName << "  HTTP: Response to upgrade request: " << req->method << " " << req->url << " " << "HTTP/"
+                LOG(DEBUG) << connectionName << " HTTP: Response to upgrade request: " << req->method << " " << req->url << " " << "HTTP/"
                            << req->httpMajor << "." << req->httpMinor << "\n"
                            << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
 
@@ -525,35 +527,32 @@ namespace web::http::client {
         if (socketContextUpgradeFactory != nullptr) {
             LOG(DEBUG) << connectionName << " HTTP: "
                        << "SocketContextUpgradeFactory create success: " << socketContextUpgradeFactory->name();
-
             LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade: " << method << " " << url
-                       << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) << "\n"
-                       << httputils::toString(method,
-                                              url,
-                                              "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
-                                              queries,
-                                              headers,
-                                              cookies,
-                                              std::vector<char>());
+                       << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
-            onStatus(true);
+        } else {
+            LOG(DEBUG) << connectionName << " HTTP: "
+                       << "SocketContextUpgradeFactory create failed: " << protocols;
+            LOG(DEBUG) << connectionName << " HTTP: Not initiating upgrade " << method << " " << url
+                       << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
+        }
 
+        LOG(DEBUG) << connectionName << " HTTP: Upgrade request:\n"
+                   << httputils::toString(method,
+                                          url,
+                                          "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
+                                          queries,
+                                          headers,
+                                          cookies,
+                                          std::vector<char>());
+
+        onStatus(socketContextUpgradeFactory != nullptr);
+
+        if (socketContextUpgradeFactory != nullptr) {
             executeSendHeader();
 
             socketContextUpgradeFactory->checkRefCount();
         } else {
-            LOG(DEBUG) << connectionName << " HTTP: "
-                       << "SocketContextUpgradeFactory create failed: " << protocols;
-            LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade success";
-            LOG(DEBUG) << "  Request: GET " << this->url << " HTTP/1.1";
-            LOG(DEBUG) << "  Upgrade:" << header("upgrade");
-            LOG(TRACE) << "  Headers:";
-            for (const auto& [field, value] : this->getHeaders()) {
-                LOG(TRACE) << "    " << field + " = " + value;
-            }
-
-            onStatus(false);
-
             socketContext->close();
         }
 
