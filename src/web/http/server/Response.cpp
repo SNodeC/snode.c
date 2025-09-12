@@ -293,7 +293,7 @@ namespace web::http::server {
                 set("Connection", "close").status(500);
             }
         } else {
-            LOG(ERROR) << "HTTP upgrade: Unexpected disconnect";
+            LOG(ERROR) << connectionName << "HTTP upgrade: Unexpected disconnect";
         }
 
         status(name);

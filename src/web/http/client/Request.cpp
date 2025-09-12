@@ -311,6 +311,7 @@ namespace web::http::client {
 
             this->onResponseReceived = [onResponseReceived](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
+
                 LOG(DEBUG) << connectionName << " HTTP: Response to upgrade request: " << req->method << " " << req->url << " " << "HTTP/"
                            << req->httpMajor << "." << req->httpMinor << "\n"
                            << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
@@ -369,17 +370,17 @@ namespace web::http::client {
                         socketContext->close();
                     }
                 } else {
-                    LOG(DEBUG) << connectionName << " HTTP upgrade: Not any protocol supported by server: " << header("upgrade");
+                    LOG(DEBUG) << connectionName << " HTTP upgrade: No upgrade requested";
 
                     socketContext->close();
                 }
             } else {
-                LOG(ERROR) << socketContext->getSocketConnection()->getConnectionName() << " HTTP upgrade: Response has gone away";
+                LOG(ERROR) << connectionName << " HTTP upgrade: Response has gone away";
 
                 socketContext->close();
             }
         } else {
-            LOG(ERROR) << socketContext->getSocketConnection()->getConnectionName() << " HTTP upgrade: SocketContext has gone away";
+            LOG(ERROR) << connectionName << " HTTP upgrade: Unexpected disconnect";
         }
 
         status(name);

@@ -79,6 +79,10 @@ int main(int argc, char* argv[]) {
                     [connectionName]([[maybe_unused]] const std::shared_ptr<Request>& req,
                                      [[maybe_unused]] const std::shared_ptr<Response>& res,
                                      [[maybe_unused]] bool success) {
+                        VLOG(1) << connectionName << ": Upgrade success:";
+
+                        VLOG(1) << connectionName << ":   Requested: " << req->header("upgrade");
+                        VLOG(1) << connectionName << ":    Selected: " << res->get("upgrade");
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
