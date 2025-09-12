@@ -71,27 +71,27 @@ int main(int argc, char* argv[]) {
     legacyApp.get("/ws", [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
         const std::string connectionName = res->getSocketContext()->getSocketConnection()->getConnectionName();
 
-        if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
-            res->upgrade(req, [req, res, connectionName](const std::string& name) {
-                if (!name.empty()) {
-                    VLOG(1) << connectionName << ": Successful upgrade:";
-                    VLOG(1) << connectionName << ":   Requested: " << req->get("upgrade");
-                    VLOG(1) << connectionName << ":    Selected: " << name;
+        //        if (req->get("sec-websocket-protocol").find("echo") != std::string::npos) {
+        res->upgrade(req, [req, res, connectionName](const std::string& name) {
+            if (!name.empty()) {
+                VLOG(1) << connectionName << ": Successful upgrade:";
+                VLOG(1) << connectionName << ":   Requested: " << req->get("upgrade");
+                VLOG(1) << connectionName << ":    Selected: " << name;
 
-                    res->end();
-                } else {
-                    VLOG(1) << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
+                res->end();
+            } else {
+                VLOG(1) << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
 
-                    res->sendStatus(404);
-                }
-            });
-        } else {
-            VLOG(1) << connectionName << ": Unsupported subprotocol(s):";
-            VLOG(1) << "   Requested: " << req->get("upgrade");
-            VLOG(1) << "    Expected: echo";
+                res->sendStatus(404);
+            }
+        });
+        //        } else {
+        //            VLOG(1) << connectionName << ": Unsupported subprotocol(s):";
+        //            VLOG(1) << "   Requested: " << req->get("upgrade");
+        //            VLOG(1) << "    Expected: echo";
 
-            res->sendStatus(404);
-        }
+        //            res->sendStatus(404);
+        //        }
     });
 
     legacyApp.get("/", [] APPLICATION(req, res) {

@@ -134,7 +134,7 @@ namespace web::http::server {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        SocketContext* socketContext = nullptr;
+        web::http::server::SocketContext* socketContext = nullptr;
         core::socket::stream::SocketContext* socketContextUpgrade = nullptr;
 
         ConnectionState connectionState = ConnectionState::Default;

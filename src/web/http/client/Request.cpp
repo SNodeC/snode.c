@@ -72,7 +72,7 @@
 
 namespace web::http::client {
 
-    Request::Request(web::http::client::SocketContext* socketContext, const std::string& host)
+    Request::Request(SocketContext* socketContext, const std::string& host)
         : hostFieldValue(host)
         , socketContext(socketContext) {
         this->host(hostFieldValue);
@@ -333,43 +333,41 @@ namespace web::http::client {
     }
 
     void Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status) {
+        const std::string connectionName = socketContext->getSocketConnection()->getConnectionName();
+
         std::string name;
 
         if (!masterRequest.expired()) {
             if (response != nullptr) {
                 if (web::http::ciContains(response->get("connection"), "Upgrade")) {
-                    web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                        web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
+                    SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                        SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
 
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();
 
-                        LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                   << " HTTP upgrade: SocketContextUpgradeFactory create success: " << name;
+                        LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << name;
 
                         core::socket::stream::SocketContext* socketContextUpgrade =
                             socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                         if (socketContextUpgrade != nullptr) {
-                            LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                       << " HTTP upgrade: SocketContextUpgrade create success: " << name;
+                            LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create success for: " << name;
 
                             socketContext->switchSocketContext(socketContextUpgrade);
                         } else {
-                            LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                       << " HTTP upgrade: SocketContextUpgrade create failed: " << name;
+                            LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create failed for: " << name;
 
                             socketContext->close();
                         }
                     } else {
-                        LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
+                        LOG(DEBUG) << connectionName
                                    << " HTTP upgrade: SocketContextUpgradeFactory not supported by server: " << header("upgrade");
 
                         socketContext->close();
                     }
                 } else {
-                    LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                               << " HTTP upgrade: Not any protocol supported by server: " << header("upgrade");
+                    LOG(DEBUG) << connectionName << " HTTP upgrade: Not any protocol supported by server: " << header("upgrade");
 
                     socketContext->close();
                 }

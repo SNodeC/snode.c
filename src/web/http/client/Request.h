@@ -75,7 +75,7 @@ namespace web::http::client {
 
     class Request : public core::pipe::Sink {
     public:
-        explicit Request(web::http::client::SocketContext* socketContext, const std::string& host);
+        explicit Request(SocketContext* socketContext, const std::string& host);
 
         explicit Request(Request&) = delete;
         explicit Request(Request&&) noexcept;
@@ -161,7 +161,7 @@ namespace web::http::client {
         const CiStringMap<std::string>& getHeaders() const;
         const CiStringMap<std::string>& getCookies() const;
 
-        web::http::client::SocketContext* getSocketContext() const;
+        SocketContext* getSocketContext() const;
 
         std::string hostFieldValue;
         std::string method = "GET";

@@ -242,9 +242,9 @@ namespace web::http::server {
 @enduml
      */
     void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string&)>& status) {
-        std::string name;
-
         const std::string connectionName = socketContext->getSocketConnection()->getConnectionName();
+
+        std::string name;
 
         LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade: " << request->method << " " << request->url
                    << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) << "\n"
@@ -259,38 +259,36 @@ namespace web::http::server {
         if (socketContext != nullptr) {
             if (request != nullptr) {
                 if (web::http::ciContains(request->get("connection"), "Upgrade")) {
-                    web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                        web::http::server::SocketContextUpgradeFactorySelector::instance()->select(*request, *this);
+                    SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                        SocketContextUpgradeFactorySelector::instance()->select(*request, *this);
 
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();
-                        LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                   << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << name;
+
+                        LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << name;
 
                         socketContextUpgrade = socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                         if (socketContextUpgrade != nullptr) {
-                            LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                       << " HTTP upgrade: SocketContextUpgrade create success for: " << name;
+                            LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create success for: " << name;
                         } else {
-                            LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
-                                       << " HTTP upgrade: SocketContextUpgrade create failed for: " << name;
+                            LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create failed for: " << name;
 
                             set("Connection", "close").status(404);
                         }
                     } else {
-                        LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName()
+                        LOG(DEBUG) << connectionName
                                    << " SocketContextUpgradeFactory create failed for all of: " << request->get("upgrade");
 
                         set("Connection", "close").status(404);
                     }
                 } else {
-                    LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName() << " HTTP upgrade: No upgrade requested";
+                    LOG(DEBUG) << connectionName << " HTTP upgrade: No upgrade requested";
 
                     set("Connection", "close").status(400);
                 }
             } else {
-                LOG(ERROR) << socketContext->getSocketConnection()->getConnectionName() << " HTTP upgrade: Request has gone away";
+                LOG(ERROR) << connectionName << " HTTP upgrade: Request has gone away";
 
                 set("Connection", "close").status(500);
             }
