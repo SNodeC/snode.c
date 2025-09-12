@@ -61,9 +61,6 @@ namespace apps::websocket::subprotocol::echo::server {
 
     void Echo::onConnected() {
         VLOG(1) << "Echo connected";
-
-        sendMessage("Welcome to SimpleChat");
-        sendMessage("=====================");
     }
 
     void Echo::onMessageStart(int opCode) {
@@ -78,11 +75,12 @@ namespace apps::websocket::subprotocol::echo::server {
 
     void Echo::onMessageEnd() {
         VLOG(1) << "Message Data: " << data;
-        /*
-                forEachClient([&data = this->data](SubProtocol* client) {
-                    client->sendMessage(data);
-                });
-        */
+
+        // Alternative
+        // forEachClient([&data = this->data](SubProtocol* client) {
+        //    client->sendMessage(data);
+        // });
+
         sendBroadcast(data);
 
         data.clear();
