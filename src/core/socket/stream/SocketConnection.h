@@ -89,6 +89,9 @@ namespace core::socket::stream {
     protected:
         virtual ~SocketConnection();
 
+        void setSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
+
+    private:
         void setSocketContext(SocketContext* socketContext);
 
     public:
@@ -110,6 +113,7 @@ namespace core::socket::stream {
 
         SocketContext* getSocketContext() const;
 
+        virtual const core::socket::SocketAddress& getBindAddress() const = 0;
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
         virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
 
@@ -135,8 +139,6 @@ namespace core::socket::stream {
                          const std::chrono::time_point<std::chrono::system_clock>& later = std::chrono::system_clock::now());
 
     protected:
-        void setSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
-
         core::socket::stream::SocketContext* socketContext = nullptr;
 
         std::string instanceName;
@@ -179,6 +181,7 @@ namespace core::socket::stream {
 
         void setTimeout(const utils::Timeval& timeout) final;
 
+        const SocketAddress& getBindAddress() const final;
         const SocketAddress& getLocalAddress() const final;
         const SocketAddress& getRemoteAddress() const final;
 

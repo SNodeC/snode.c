@@ -113,69 +113,76 @@ namespace core::socket::stream {
     void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::init() {
         if (!config->getDisabled()) {
             try {
-                LOG(TRACE) << config->getInstanceName() << " Starting";
-
-                localAddress = config->Local::getSocketAddress();
-
                 core::socket::State state = core::socket::STATE_OK;
 
+                LOG(TRACE) << config->getInstanceName() << ": Starting";
+
+                bindAddress = config->Local::getSocketAddress();
+
                 if (physicalServerSocket.open(config->getSocketOptions(), PhysicalServerSocket::Flags::NONBLOCK) < 0) {
+                    PLOG(ERROR) << config->getInstanceName() << " open " << bindAddress.toString();
+
                     switch (errno) {
                         case EMFILE:
                         case ENFILE:
                         case ENOBUFS:
                         case ENOMEM:
-                            PLOG(DEBUG) << config->getInstanceName() << " open: '" << localAddress.toString() << "'";
-
                             state = core::socket::STATE_ERROR;
                             break;
                         default:
-                            PLOG(DEBUG) << config->getInstanceName() << " open: '" << localAddress.toString() << "'";
-
-                            state = core::socket::STATE_FATAL;
-                            break;
-                    }
-                } else if (physicalServerSocket.bind(localAddress) < 0) {
-                    switch (errno) {
-                        case EADDRINUSE:
-                            PLOG(DEBUG) << config->getInstanceName() << " bind: '" << localAddress.toString() << "'";
-
-                            state = core::socket::STATE_ERROR;
-                            break;
-                        default:
-                            PLOG(DEBUG) << config->getInstanceName() << " bind: '" << localAddress.toString() << "'";
-
-                            state = core::socket::STATE_FATAL;
-                            break;
-                    }
-                } else if (physicalServerSocket.listen(config->getBacklog()) < 0) {
-                    switch (errno) {
-                        case EADDRINUSE:
-                            PLOG(DEBUG) << config->getInstanceName() << " listen: '" << localAddress.toString() << "'";
-
-                            state = core::socket::STATE_ERROR;
-                            break;
-                        default:
-                            PLOG(DEBUG) << config->getInstanceName() << " listen: '" << localAddress.toString() << "'";
-
                             state = core::socket::STATE_FATAL;
                             break;
                     }
                 } else {
-                    if (enable(physicalServerSocket.getFd())) {
-                        LOG(DEBUG) << config->getInstanceName() << " enabled: '" << localAddress.toString() << "' success";
-                    } else {
-                        LOG(DEBUG) << config->getInstanceName() << " enabled: '" << localAddress.toString() << "' failed";
+                    LOG(DEBUG) << config->getInstanceName() << " open " << bindAddress.toString() << ": success";
 
-                        state = core::socket::STATE(core::socket::STATE_FATAL, ECANCELED, "SocketAcceptor not enabled");
+                    if (physicalServerSocket.bind(bindAddress) < 0) {
+                        PLOG(ERROR) << config->getInstanceName() << " bind " << bindAddress.toString();
+
+                        switch (errno) {
+                            case EADDRINUSE:
+
+                                state = core::socket::STATE_ERROR;
+                                break;
+                            default:
+
+                                state = core::socket::STATE_FATAL;
+                                break;
+                        }
+                    } else {
+                        LOG(DEBUG) << config->getInstanceName() << " bind " << bindAddress.toString() << ": success";
+
+                        if (physicalServerSocket.listen(config->getBacklog()) < 0) {
+                            PLOG(ERROR) << config->getInstanceName() << " listen " << bindAddress.toString();
+
+                            switch (errno) {
+                                case EADDRINUSE:
+                                    state = core::socket::STATE_ERROR;
+                                    break;
+                                default:
+                                    state = core::socket::STATE_FATAL;
+                                    break;
+                            }
+                        } else {
+                            LOG(DEBUG) << config->getInstanceName() << " listen " << bindAddress.toString() << ": success";
+
+                            if (enable(physicalServerSocket.getFd())) {
+                                LOG(DEBUG) << config->getInstanceName() << " enable " << bindAddress.toString() << ": success";
+                            } else {
+                                LOG(ERROR) << config->getInstanceName() << " enable " << bindAddress.toString()
+                                           << ": failed. No valid descriptor created";
+
+                                state = core::socket::STATE(core::socket::STATE_FATAL, ECANCELED, "SocketAcceptor not enabled");
+                            }
+                        }
                     }
                 }
 
-                SocketAddress currentLocalAddress = localAddress;
-                if (localAddress.useNext()) {
+                SocketAddress currentLocalAddress = bindAddress;
+                if (bindAddress.useNext()) {
                     onStatus(currentLocalAddress, (state | core::socket::State::NO_RETRY));
 
-                    LOG(DEBUG) << config->getInstanceName() << " using next SocketAddress: '"
+                    LOG(DEBUG) << config->getInstanceName() << ": Using next SocketAddress: '"
                                << config->Local::getSocketAddress().toString() << "'";
 
                     useNextSocketAddress();
@@ -183,12 +190,15 @@ namespace core::socket::stream {
                     onStatus(currentLocalAddress, state);
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(DEBUG) << config->getInstanceName() << " " << badSocketAddress.what();
+                core::socket::State state =
+                    core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what());
 
-                onStatus({}, core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what()));
+                LOG(ERROR) << state.what();
+
+                onStatus({}, state);
             }
         } else {
-            LOG(DEBUG) << config->getInstanceName() << " disabled";
+            LOG(DEBUG) << config->getInstanceName() << ": disabled";
 
             onStatus({}, core::socket::STATE_DISABLED);
         }
@@ -207,19 +217,20 @@ namespace core::socket::stream {
         int acceptsPerTick = config->getAcceptsPerTick();
 
         do {
-            PhysicalServerSocket connectedPhysicalSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK),
-                                                         physicalServerSocket.getBindAddress());
-            if (connectedPhysicalSocket.isValid()) {
-                LOG(DEBUG) << "[" << connectedPhysicalSocket.getFd() << " ]" << config->getInstanceName() << ": accept success: '"
-                           << connectedPhysicalSocket.getBindAddress().toString() << "'";
+            PhysicalServerSocket connectedPhysicalSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK), bindAddress);
 
+            LOG(DEBUG) << config->getInstanceName() << " accept " << bindAddress.toString() << ": success";
+
+            if (connectedPhysicalSocket.isValid()) {
                 SocketConnection* socketConnection = new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, config);
+
+                LOG(DEBUG) << socketConnection->getRemoteAddress().toString(false) << " -> "
+                           << socketConnection->getLocalAddress().toString(false);
 
                 onConnect(socketConnection);
                 onConnected(socketConnection);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                PLOG(WARNING) << config->getInstanceName() << " accept failed: '" << physicalServerSocket.getBindAddress().toString()
-                              << "'";
+                PLOG(WARNING) << config->getInstanceName() << " accept " << bindAddress.toString();
             }
         } while (--acceptsPerTick > 0);
     }

@@ -70,8 +70,6 @@ namespace core::socket::stream {
     public:
         explicit SocketContext(core::socket::stream::SocketConnection* socketConnection);
 
-        ~SocketContext() override;
-
         using Super::readFromPeer;
         using Super::sendToPeer;
 
@@ -97,7 +95,7 @@ namespace core::socket::stream {
         std::string getOnlineDuration() const override;
 
         SocketConnection* getSocketConnection() const;
-        virtual void switchSocketContext(SocketContext* newSocketContext);
+        void switchSocketContext(SocketContext* newSocketContext);
 
     protected:
         void onWriteError(int errnum) override;

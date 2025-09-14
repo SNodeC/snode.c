@@ -94,7 +94,7 @@ namespace net::phy {
         int getSockName(typename SocketAddress::SockAddr& localSockAddr, typename SocketAddress::SockLen& localSockAddrLen);
         int getPeerName(typename SocketAddress::SockAddr& remoteSockAddr, typename SocketAddress::SockLen& remoteSockAddrLen);
 
-        SocketAddress getBindAddress() const;
+        const SocketAddress& getBindAddress() const;
 
     private:
         int setSockopt(int level, int optname, const void* optval, typename SocketAddress::SockLen optlen) const;

@@ -77,8 +77,7 @@ namespace net::phy {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::open(const std::map<int, std::map<int, PhysicalSocketOption> > &socketOptionsMapMap,
-                                            Flags flags) {
+    int PhysicalSocket<SocketAddress>::open(const std::map<int, std::map<int, PhysicalSocketOption>>& socketOptionsMapMap, Flags flags) {
         int ret = Super::operator=(core::system::socket(domain, type | flags, protocol)).getFd();
 
         if (ret >= 0) {
@@ -149,7 +148,7 @@ namespace net::phy {
     }
 
     template <typename SocketAddress>
-    SocketAddress PhysicalSocket<SocketAddress>::getBindAddress() const {
+    const SocketAddress& PhysicalSocket<SocketAddress>::getBindAddress() const {
         return bindAddress;
     }
 

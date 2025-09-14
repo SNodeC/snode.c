@@ -62,10 +62,6 @@ namespace core::socket::stream {
         , onlineSinceTimePoint(std::chrono::system_clock::now()) {
     }
 
-    SocketContext::~SocketContext() {
-        //        delete newSocketContext;
-    }
-
     void SocketContext::switchSocketContext(SocketContext* newSocketContext) {
         LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: switch";
         this->newSocketContext = newSocketContext;
@@ -90,8 +86,10 @@ namespace core::socket::stream {
     void SocketContext::readFromPeer(std::size_t available) {
         const std::size_t consumed = onReceivedFromPeer();
 
+        const std::string connectionName = socketConnection->getConnectionName();
+
         if (available != 0 && consumed == 0) {
-            LOG(TRACE) << socketConnection->getConnectionName() << ": Data available: " << available << " but nothing read";
+            LOG(TRACE) << connectionName << ": Data available: " << available << " but nothing read";
 
             close();
 
@@ -100,9 +98,10 @@ namespace core::socket::stream {
         } else if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
             SocketConnection* socketConnection = this->socketConnection;
             SocketContext* newSocketContext = this->newSocketContext;
-            detach();
 
             socketConnection->setSocketContext(newSocketContext);
+
+            LOG(DEBUG) << connectionName << " SocketContext: switch completed";
         }
     }
 
@@ -186,7 +185,7 @@ namespace core::socket::stream {
     void SocketContext::detach() {
         onDisconnected();
 
-        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: detach";
+        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: detached";
         LOG(DEBUG) << "     Online Since: " << getOnlineSince();
         LOG(DEBUG) << "  Online Duration: " << getOnlineDuration();
         LOG(DEBUG) << "       Total Sent: " << getTotalQueued();

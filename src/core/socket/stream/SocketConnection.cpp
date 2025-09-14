@@ -69,16 +69,26 @@ namespace core::socket::stream {
     SocketConnection::~SocketConnection() {
     }
 
-    void SocketConnection::setSocketContext(SocketContext* socketContext) {
-        if (socketContext != nullptr) { // Perform a pending SocketContextSwitch
-            this->socketContext = socketContext;
+    void SocketConnection::setSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory) {
+        SocketContext* socketContext = socketContextFactory->create(this);
 
-            LOG(DEBUG) << connectionName << ": SocketContext switch completed";
-
-            socketContext->attach();
+        if (socketContext != nullptr) {
+            LOG(DEBUG) << connectionName << ": SocketContext created successful";
+            setSocketContext(socketContext);
         } else {
-            LOG(ERROR) << connectionName << ": SocketContext switch failed: no new SocketContext";
+            LOG(ERROR) << connectionName << ": SocketContext failed to create";
+            close();
         }
+    }
+
+    void SocketConnection::setSocketContext(SocketContext* socketContext) {
+        if (this->socketContext != nullptr) {
+            this->socketContext->detach();
+        }
+
+        this->socketContext = socketContext;
+
+        socketContext->attach();
     }
 
     void SocketConnection::sendToPeer(const std::string& data) {
@@ -115,18 +125,6 @@ namespace core::socket::stream {
 
     const net::config::ConfigInstance* SocketConnection::getConfig() const {
         return config;
-    }
-
-    void SocketConnection::setSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory) {
-        SocketContext* socketContext = socketContextFactory->create(this);
-
-        if (socketContext != nullptr) {
-            LOG(DEBUG) << connectionName << ": SocketContext created successful";
-            setSocketContext(socketContext);
-        } else {
-            LOG(ERROR) << connectionName << ": SocketContext failed to create";
-            close();
-        }
     }
 
     std::string SocketConnection::timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint) {

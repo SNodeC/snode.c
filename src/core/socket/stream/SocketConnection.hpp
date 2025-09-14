@@ -171,6 +171,12 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     const typename SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::SocketAddress&
+    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::getBindAddress() const {
+        return physicalSocket.getBindAddress();
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+    const typename SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::SocketAddress&
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::getLocalAddress() const {
         return localAddress;
     }
@@ -333,11 +339,11 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::unobservedEvent() {
         if (socketContext != nullptr) {
             socketContext->detach();
-
-            LOG(DEBUG) << connectionName << ": SocketContext detached";
         }
 
         onDisconnect();
+
+        LOG(DEBUG) << connectionName << ": disconnected";
 
         delete this;
     }
