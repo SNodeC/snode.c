@@ -142,7 +142,7 @@ namespace net::in6 {
             }
 
             throw core::socket::SocketAddress::BadSocketAddress(state,
-                                                                host + ":" + std::to_string(port) + " - " +
+                                                                host + ":" + std::to_string(port) + ": " +
                                                                     (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
                                                                 (aiErrCode == EAI_SYSTEM ? errno : aiErrCode));
         }
@@ -173,8 +173,8 @@ namespace net::in6 {
     }
 
     std::string SocketAddress::toString(bool expanded) const {
-        return std::string(host).append(expanded ? std::string(":").append(std::to_string(port)).append(" (").append(canonName).append(")")
-                                                 : "");
+        return std::string(host).append(
+            std::string(":").append(std::to_string(port)).append(expanded ? std::string(" (").append(canonName).append(")") : ""));
     }
 
     std::string SocketAddress::getEndpoint(const std::string_view& format) const {
