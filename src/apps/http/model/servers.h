@@ -195,8 +195,8 @@ namespace apps::http::tls {
         webApp.setOnDisconnect([webApp](SocketConnection* socketConnection) { // onDisconnect
             VLOG(1) << "OnDisconnect " << webApp.getConfig().getInstanceName();
 
-            VLOG(2) << "            Local: " << socketConnection->getLocalAddress().toString();
-            VLOG(2) << "             Peer: " << socketConnection->getRemoteAddress().toString();
+            VLOG(2) << "            Local: " << socketConnection->getLocalAddress().toString(false);
+            VLOG(2) << "             Peer: " << socketConnection->getRemoteAddress().toString(false);
 
             VLOG(2) << "     Online Since: " << socketConnection->getOnlineSince();
             VLOG(2) << "  Online Duration: " << socketConnection->getOnlineDuration();
