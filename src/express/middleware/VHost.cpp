@@ -43,14 +43,43 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string_view>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::middleware {
 
+    static std::string_view hostWithoutPort(std::string_view host) {
+        if (host.empty()) {
+            return host;
+        }
+
+        // Bracketed IPv6: "[::1]:8080" -> "::1"
+        if (host.front() == '[') {
+            if (auto rb = host.find(']'); rb != std::string_view::npos) {
+                return host.substr(1, rb - 1);
+            }
+
+            return host; // malformed, just return as-is
+        }
+
+        // Find last ':'; if there is exactly one colon, treat it as host:port
+        if (auto pos = host.rfind(':'); pos != std::string_view::npos) {
+            if (host.find(':') == pos) { // only one colon -> host:port
+
+                return host.substr(0, pos); // "localhost:8080" -> "localhost"
+            }
+
+            return host; // multiple colons (likely raw IPv6 without brackets) -> keep whole
+        }
+
+        return host; // no port
+    }
+
     VHost::VHost(const std::string& host)
         : host(host) {
         use("/", [&host = this->host] MIDDLEWARE(req, res, next) {
-            if (req->get("Host") == host) {
+            if (req->get("Host") == host || hostWithoutPort(req->get("Host")) == host) {
                 next();
             } else {
                 next("router");

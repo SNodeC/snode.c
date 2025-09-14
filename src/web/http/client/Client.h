@@ -84,7 +84,11 @@ namespace web::http::client {
                     onConnected,
                     onDisconnect,
                     // SocketContextFactory Args...
-                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestBegin),
+                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(
+                        [this, onRequestBegin = std::move(onRequestBegin)](const std::shared_ptr<Request>& request) {
+                            request->host(this->getConfig().Remote::getSocketAddress().toString(false));
+                            onRequestBegin(request);
+                        }),
                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestEnd),
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
@@ -109,7 +113,11 @@ namespace web::http::client {
                std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
             : Super(name,
                     // SocketContextFactory Args...
-                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestBegin),
+                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(
+                        [this, onRequestBegin = std::move(onRequestBegin)](const std::shared_ptr<Request>& request) {
+                            request->host(this->getConfig().Remote::getSocketAddress().toString(false));
+                            onRequestBegin(request);
+                        }),
                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestEnd),
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
