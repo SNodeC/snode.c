@@ -52,7 +52,7 @@ namespace core::eventreceiver {
 
     ReadEventReceiver::ReadEventReceiver(const std::string& name, const utils::Timeval& timeout)
         : core::DescriptorEventReceiver(
-              name + " Read",
+              name + " read",
               core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD),
               timeout) {
     }
