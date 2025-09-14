@@ -117,7 +117,7 @@ namespace core::socket::stream {
         return config;
     }
 
-    void SocketConnection::connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory) {
+    void SocketConnection::setSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory) {
         SocketContext* socketContext = socketContextFactory->create(this);
 
         if (socketContext != nullptr) {

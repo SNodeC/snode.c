@@ -64,7 +64,7 @@ namespace core::socket::stream::legacy {
               [socketContextFactory, onConnected](SocketConnection* socketConnection) {
                   onConnected(socketConnection);
 
-                  socketConnection->connectSocketContext(socketContextFactory);
+                  socketConnection->setSocketContext(socketContextFactory);
               },
               onDisconnect,
               onStatus,

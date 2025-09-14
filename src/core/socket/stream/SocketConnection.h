@@ -135,7 +135,7 @@ namespace core::socket::stream {
                          const std::chrono::time_point<std::chrono::system_clock>& later = std::chrono::system_clock::now());
 
     protected:
-        void connectSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
+        void setSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
 
         core::socket::stream::SocketContext* socketContext = nullptr;
 

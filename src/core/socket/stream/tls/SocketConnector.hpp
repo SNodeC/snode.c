@@ -91,7 +91,7 @@ namespace core::socket::stream::tls {
 
                               onConnected(socketConnection);
 
-                              socketConnection->connectSocketContext(socketContextFactory);
+                              socketConnection->setSocketContext(socketContextFactory);
                           },
                           [socketConnection]() { // onTimeout
                               LOG(ERROR) << socketConnection->getConnectionName() << " SSL/TLS: Handshake timed out";
