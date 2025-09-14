@@ -59,7 +59,7 @@ namespace core {
 
 namespace net::config {
     class ConfigInstance;
-}
+} // namespace net::config
 
 namespace utils {
     class Timeval;

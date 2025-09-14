@@ -177,8 +177,7 @@ namespace core::socket::stream {
                                 if (remoteAddress.useNext()) {
                                     onStatus(currentRemoteAddress, state | core::socket::State::NO_RETRY);
 
-                                    LOG(DEBUG) << config->getInstanceName()
-                                               << " using next SocketAddress: " << config->Remote::getSocketAddress().toString();
+                                    LOG(DEBUG) << config->getInstanceName() << " using next SocketAddress: " << remoteAddress.toString();
 
                                     useNextSocketAddress();
                                 } else {
@@ -189,7 +188,8 @@ namespace core::socket::stream {
 
                                 if (PhysicalClientSocket::connectInProgress(errno)) {
                                     if (enable(physicalClientSocket.getFd())) {
-                                        LOG(DEBUG) << config->getInstanceName() << " enable " << remoteAddress.toString() << ": success";
+                                        LOG(DEBUG)
+                                            << config->getInstanceName() << " enable " << remoteAddress.toString(false) << ": success";
                                     } else {
                                         LOG(ERROR) << config->getInstanceName() << " enable " << remoteAddress.toString()
                                                    << ": failed. No valid descriptor created";
@@ -199,15 +199,14 @@ namespace core::socket::stream {
                                         onStatus(remoteAddress, state);
                                     }
                                 } else {
-                                    LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success:";
-
-                                    onStatus(remoteAddress, state);
-
                                     SocketConnection* socketConnection =
                                         new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);
 
-                                    LOG(DEBUG) << socketConnection->getLocalAddress().toString(false) << " -> "
-                                               << socketConnection->getRemoteAddress().toString(false);
+                                    LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
+                                    LOG(DEBUG) << "  " << socketConnection->getLocalAddress().toString() << " -> "
+                                               << socketConnection->getRemoteAddress().toString();
+
+                                    onStatus(remoteAddress, state);
 
                                     onConnect(socketConnection);
                                     onConnected(socketConnection);
@@ -254,14 +253,13 @@ namespace core::socket::stream {
             const utils::PreserveErrno pe(cErrno);            // errno = cErrno
 
             if (errno == 0) {
-                LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success:";
-
-                onStatus(remoteAddress, core::socket::STATE_OK);
-
                 SocketConnection* socketConnection = new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);
 
-                LOG(DEBUG) << socketConnection->getLocalAddress().toString(false) << " -> "
-                           << socketConnection->getRemoteAddress().toString(false);
+                LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
+                LOG(DEBUG) << "  " << socketConnection->getLocalAddress().toString() << " -> "
+                           << socketConnection->getRemoteAddress().toString();
+
+                onStatus(remoteAddress, core::socket::STATE_OK);
 
                 onConnect(socketConnection);
                 onConnected(socketConnection);

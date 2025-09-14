@@ -92,12 +92,8 @@ namespace net::in6 {
                                                         NI_MAXSERV,
                                                         NI_NUMERICSERV | (numeric ? NI_NUMERICHOST : NI_NAMEREQD));
         if (aiErrCode == 0) {
-            if (servC[0] != '\0') {
-                this->port = static_cast<uint16_t>(std::stoul(servC));
-            }
-
             this->host = hostC;
-            this->canonName = hostC;
+            this->port = (servC[0] != '\0') ? static_cast<uint16_t>(std::stoul(servC)) : 0;
         } else {
             core::socket::State state = core::socket::STATE_OK;
             switch (aiErrCode) {
@@ -173,8 +169,9 @@ namespace net::in6 {
     }
 
     std::string SocketAddress::toString(bool expanded) const {
-        return std::string(host).append(
-            std::string(":").append(std::to_string(port)).append(expanded ? std::string(" (").append(canonName).append(")") : ""));
+        return std::string(host).append(std::string(":")
+                                            .append(std::to_string(port))
+                                            .append(expanded && !canonName.empty() ? std::string(" (").append(canonName).append(")") : ""));
     }
 
     std::string SocketAddress::getEndpoint(const std::string_view& format) const {

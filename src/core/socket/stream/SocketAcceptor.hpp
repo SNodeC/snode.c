@@ -182,8 +182,8 @@ namespace core::socket::stream {
                 if (bindAddress.useNext()) {
                     onStatus(currentLocalAddress, (state | core::socket::State::NO_RETRY));
 
-                    LOG(DEBUG) << config->getInstanceName() << ": Using next SocketAddress: '"
-                               << config->Local::getSocketAddress().toString() << "'";
+                    LOG(DEBUG) << config->getInstanceName()
+                               << ": Using next SocketAddress: " << config->Local::getSocketAddress().toString();
 
                     useNextSocketAddress();
                 } else {
@@ -219,13 +219,12 @@ namespace core::socket::stream {
         do {
             PhysicalServerSocket connectedPhysicalSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK), bindAddress);
 
-            LOG(DEBUG) << config->getInstanceName() << " accept " << bindAddress.toString() << ": success";
-
             if (connectedPhysicalSocket.isValid()) {
                 SocketConnection* socketConnection = new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, config);
 
-                LOG(DEBUG) << socketConnection->getRemoteAddress().toString(false) << " -> "
-                           << socketConnection->getLocalAddress().toString(false);
+                LOG(DEBUG) << config->getInstanceName() << " accept " << bindAddress.toString() << ": success";
+                LOG(DEBUG) << "  " << socketConnection->getRemoteAddress().toString() << " -> "
+                           << socketConnection->getLocalAddress().toString();
 
                 onConnect(socketConnection);
                 onConnected(socketConnection);
