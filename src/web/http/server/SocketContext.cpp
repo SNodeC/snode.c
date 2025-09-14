@@ -177,7 +177,7 @@ namespace web::http::server {
             masterResponse->stopResponse();
         }
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Disconnected";
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received disconnect";
     }
 
     bool SocketContext::onSignal(int signum) {

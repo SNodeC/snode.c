@@ -312,12 +312,12 @@ namespace web::http::client {
             this->onResponseReceived = [onResponseReceived](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                LOG(DEBUG) << connectionName << " HTTP: Response to upgrade request: " << req->method << " " << req->url << " " << "HTTP/"
-                           << req->httpMajor << "." << req->httpMinor << "\n"
+                LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << req->method << " " << req->url << " "
+                           << "HTTP/" << req->httpMajor << "." << req->httpMinor << "\n"
                            << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
 
                 req->upgrade(res, [req, res, connectionName, &onResponseReceived](const std::string& name) {
-                    LOG(DEBUG) << connectionName << " HTTP: Upgrade bootstrap " << (!name.empty() ? "success" : "failed");
+                    LOG(DEBUG) << connectionName << " HTTP upgrade: bootstrap " << (!name.empty() ? "success" : "failed");
                     LOG(DEBUG) << "      Protocol selected: " << name;
                     LOG(DEBUG) << "              requested: " << req->header("upgrade");
                     LOG(DEBUG) << "  Subprotocol  selected: " << res->get("Sec-WebSocket-Protocol");

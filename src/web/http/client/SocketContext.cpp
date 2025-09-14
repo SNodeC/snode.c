@@ -321,7 +321,7 @@ namespace web::http::client {
 
         onRequestEnd(masterRequest);
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Disconnected";
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received disconnect";
     }
 
     bool SocketContext::onSignal([[maybe_unused]] int signum) {

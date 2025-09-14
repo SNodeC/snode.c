@@ -270,6 +270,15 @@ namespace web::http::server {
                         if (socketContextUpgrade != nullptr) {
                             LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create success for: " << name;
 
+                            LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " "
+                                       << request->url << " " << "HTTP/" << request->httpMajor << "." << request->httpMinor << "\n"
+                                       << httputils::toString("HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
+                                                              std::to_string(statusCode),
+                                                              StatusCode::reason(statusCode),
+                                                              headers,
+                                                              cookies,
+                                                              {});
+
                             socketContext->switchSocketContext(socketContextUpgrade);
                         } else {
                             LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create failed for: " << name;
