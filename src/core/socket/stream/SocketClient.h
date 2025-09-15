@@ -82,11 +82,11 @@ namespace core::socket::stream {
         using SocketAddress = typename SocketConnector::SocketAddress;
 
     private:
-        SocketClient(const std::function<void(SocketConnection*)>& onConnect,
-                     const std::function<void(SocketConnection*)>& onConnected,
-                     const std::function<void(SocketConnection*)>& onDisconnect,
+        SocketClient(std::shared_ptr<typename SocketConnector::Config> config,
                      std::shared_ptr<SocketContextFactory> socketContextFactory,
-                     std::shared_ptr<typename SocketConnector::Config> config)
+                     const std::function<void(SocketConnection*)>& onConnect,
+                     const std::function<void(SocketConnection*)>& onConnected,
+                     const std::function<void(SocketConnection*)>& onDisconnect)
             : Super(config)
             , socketContextFactory(socketContextFactory)
             , onConnect(onConnect)
@@ -107,19 +107,6 @@ namespace core::socket::stream {
             , onDisconnect(onDisconnect) {
         }
 
-        /*
-                SocketClient(const std::string& name,
-                             const std::function<void(SocketConnection*)>& onConnect,
-                             const std::function<void(SocketConnection*)>& onConnected,
-                             const std::function<void(SocketConnection*)>& onDisconnect,
-                             Args&&... args)
-                    : SocketClient(onConnect,
-                                   onConnected,
-                                   onDisconnect,
-                                   std::make_shared<SocketContextFactory>(std::forward<Args>(args)...),
-                                   std::make_shared<typename SocketConnector::Config>(name)) {
-                }
-        */
         SocketClient(const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
@@ -201,7 +188,7 @@ namespace core::socket::stream {
                                  tries,
                                  retryTimeoutScale,
                                  socketContextFactory]() mutable {
-                                    SocketClient client(onConnect, onConnected, onDisconnect, socketContextFactory, config);
+                                    SocketClient client(config, socketContextFactory, onConnect, onConnected, onDisconnect);
 
                                     client.realConnect(onStatus, 0, client.getConfig().getRetryBase());
                                 },
@@ -243,7 +230,7 @@ namespace core::socket::stream {
                                  tries,
                                  retryTimeoutScale,
                                  socketContextFactory]() mutable {
-                                    SocketClient client(onConnect, onConnected, onDisconnect, socketContextFactory, config);
+                                    SocketClient client(config, socketContextFactory, onConnect, onConnected, onDisconnect);
 
                                     client.realConnect(onStatus, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
                                 },
