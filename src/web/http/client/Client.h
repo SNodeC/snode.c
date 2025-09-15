@@ -83,7 +83,7 @@ namespace web::http::client {
                std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
             : Super(
                   name,
-                  [config = this->config, socketContextFactory = this->getSocketContextFactory(), onConnect](
+                  [config = Super::config, socketContextFactory = Super::getSocketContextFactory(), onConnect](
                       SocketConnection* socketConnection) {
                       socketContextFactory->setHostHeader(config->Remote::getSocketAddress().toString(false));
 
@@ -120,8 +120,8 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::setOnConnect([config = this->config,
-                                 socketContextFactory = this->getSocketContextFactory(),
+            Super::setOnConnect([config = Super::config,
+                                 socketContextFactory = Super::getSocketContextFactory(),
                                  onConnect = Client::getOnConnect()](SocketConnection* socketConnection) {
                 socketContextFactory->setHostHeader(config->Remote::getSocketAddress().toString(false));
 

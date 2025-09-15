@@ -102,7 +102,7 @@ namespace apps::http::legacy {
                 req->end([](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                     logResponse(req, res);
                 });
-#define LONG
+// #define LONG
 #ifdef LONG
                 req->url = "/hihihih";
                 req->set("Connection", "keep-alive");
