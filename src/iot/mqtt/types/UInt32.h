@@ -42,7 +42,7 @@
 #ifndef IOT_MQTT_TYPES_UINT32_H
 #define IOT_MQTT_TYPES_UINT32_H
 
-#include "iot/mqtt/types/TypeBase.h"
+#include "iot/mqtt/types/TypeBase.h" // IWYU pragma: export
 
 // IWYU pragma: no_include "iot/mqtt/types/TypeBase.hpp"
 

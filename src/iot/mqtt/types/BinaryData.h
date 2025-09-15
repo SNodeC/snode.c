@@ -42,7 +42,6 @@
 #ifndef IOT_MQTT_TYPES_BINARYDATA_H
 #define IOT_MQTT_TYPES_BINARYDATA_H
 
-#include "iot/mqtt/types/TypeBase.h"
 #include "iot/mqtt/types/UInt16.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

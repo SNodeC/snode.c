@@ -43,7 +43,6 @@
 #define IOT_MQTT_TYPES_STRINGPAIR_H
 
 #include "iot/mqtt/types/String.h"
-#include "iot/mqtt/types/TypeBase.h"
 
 namespace iot::mqtt {
     class MqttContext;

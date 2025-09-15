@@ -42,7 +42,7 @@
 #ifndef IOT_MQTT_TYPES_UINTV_H
 #define IOT_MQTT_TYPES_UINTV_H
 
-#include "iot/mqtt/types/TypeBase.h"
+#include "iot/mqtt/types/TypeBase.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

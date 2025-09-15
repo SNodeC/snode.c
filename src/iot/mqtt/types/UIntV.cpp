@@ -42,7 +42,7 @@
 #include "iot/mqtt/types/UIntV.h"
 
 #include "iot/mqtt/MqttContext.h"
-#include "iot/mqtt/types/TypeBase.hpp" // IWYU pragma: keep
+#include "iot/mqtt/types/TypeBase.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
