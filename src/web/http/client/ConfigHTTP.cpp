@@ -55,8 +55,8 @@ namespace web::http::client {
     ConfigHTTP::ConfigHTTP(net::config::ConfigInstance& configInstance) {
         hostHeaderOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
                             .addOption( //
-                                "--host-header",
-                                "Host header field",
+                                "--host",
+                                "HTTP request 'Host' header field",
                                 "string");
 
         pipelinedRequestsOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
