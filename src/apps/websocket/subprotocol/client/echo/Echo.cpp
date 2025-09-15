@@ -80,7 +80,7 @@ namespace apps::websocket::subprotocol::echo::client {
         VLOG(1) << "Message Data: " << data;
 
         // To do ping-pong
-        sendMessage(data);
+        //        sendMessage(data);
 
         data.clear();
     }

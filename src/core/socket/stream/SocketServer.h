@@ -227,7 +227,7 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)>& getOnConnect() {
             return onConnect;
         }
-        
+
         std::function<void(SocketConnection*)> setOnConnect(const std::function<void(SocketConnection*)>& onConnect) {
             std::function<void(SocketConnection*)> oldOnConnect = this->onConnect;
 

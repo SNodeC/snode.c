@@ -39,27 +39,27 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(HTTP_SERVER_EXPRESS_LEGACY_IN_CPP
-    Server.cpp
-)
+set(HTTP_SERVER_EXPRESS_LEGACY_IN_CPP Server.cpp)
 
-set(HTTP_SERVER_EXPRESS_LEGACY_IN_H
-    Server.h
-)
+set(HTTP_SERVER_EXPRESS_LEGACY_IN_H Server.h)
 
 add_library(
     http-server-express-legacy-in SHARED ${HTTP_SERVER_EXPRESS_LEGACY_IN_CPP}
-                               ${HTTP_SERVER_EXPRESS_LEGACY_IN_H}
+                                         ${HTTP_SERVER_EXPRESS_LEGACY_IN_H}
 )
-add_library(snodec::http-server-express-legacy-in ALIAS http-server-express-legacy-in)
+add_library(
+    snodec::http-server-express-legacy-in ALIAS http-server-express-legacy-in
+)
 
 target_include_directories(
-    http-server-express-legacy-in PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-                               "$<INSTALL_INTERFACE:include/snode.c>"
+    http-server-express-legacy-in
+    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+           "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(
-    http-server-express-legacy-in PUBLIC http-server net-in-stream-legacy http-server-express
+    http-server-express-legacy-in PUBLIC http-server net-in-stream-legacy
+                                         http-server-express
 )
 
 get_target_property(HTTP_COMPILE_LIBDIR http-server HTTP_COMPILE_LIBDIR)
@@ -78,7 +78,8 @@ set_target_properties(
 install(
     TARGETS http-server-express-legacy-in
     EXPORT snodec_http-server-express-legacy-in_Targets
-    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR} COMPONENT http-server-express-legacy-in
+    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR}
+            COMPONENT http-server-express-legacy-in
 )
 
 install(

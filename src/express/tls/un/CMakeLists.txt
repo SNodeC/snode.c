@@ -39,27 +39,24 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(HTTP_SERVER_EXPRESS_TLS_UN_CPP
-    Server.cpp
-)
+set(HTTP_SERVER_EXPRESS_TLS_UN_CPP Server.cpp)
 
-set(HTTP_SERVER_EXPRESS_TLS_UN_H
-    Server.h
-)
+set(HTTP_SERVER_EXPRESS_TLS_UN_H Server.h)
 
 add_library(
     http-server-express-tls-un SHARED ${HTTP_SERVER_EXPRESS_TLS_UN_CPP}
-                               ${HTTP_SERVER_EXPRESS_TLS_UN_H}
+                                      ${HTTP_SERVER_EXPRESS_TLS_UN_H}
 )
 add_library(snodec::http-server-express-tls-un ALIAS http-server-express-tls-un)
 
 target_include_directories(
     http-server-express-tls-un PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-                               "$<INSTALL_INTERFACE:include/snode.c>"
+                                      "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(
-    http-server-express-tls-un PUBLIC http-server net-un-stream-tls http-server-express
+    http-server-express-tls-un PUBLIC http-server net-un-stream-tls
+                                      http-server-express
 )
 
 get_target_property(HTTP_COMPILE_LIBDIR http-server HTTP_COMPILE_LIBDIR)
@@ -78,7 +75,8 @@ set_target_properties(
 install(
     TARGETS http-server-express-tls-un
     EXPORT snodec_http-server-express-tls-un_Targets
-    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR} COMPONENT http-server-express-tls-un
+    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR}
+            COMPONENT http-server-express-tls-un
 )
 
 install(

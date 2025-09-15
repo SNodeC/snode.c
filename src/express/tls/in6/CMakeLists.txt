@@ -39,27 +39,27 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(HTTP_SERVER_EXPRESS_TLS_IN6_CPP
-    Server.cpp
-)
+set(HTTP_SERVER_EXPRESS_TLS_IN6_CPP Server.cpp)
 
-set(HTTP_SERVER_EXPRESS_TLS_IN6_H
-    Server.h
-)
+set(HTTP_SERVER_EXPRESS_TLS_IN6_H Server.h)
 
 add_library(
     http-server-express-tls-in6 SHARED ${HTTP_SERVER_EXPRESS_TLS_IN6_CPP}
-                               ${HTTP_SERVER_EXPRESS_TLS_IN6_H}
+                                       ${HTTP_SERVER_EXPRESS_TLS_IN6_H}
 )
-add_library(snodec::http-server-express-tls-in6 ALIAS http-server-express-tls-in6)
+add_library(
+    snodec::http-server-express-tls-in6 ALIAS http-server-express-tls-in6
+)
 
 target_include_directories(
-    http-server-express-tls-in6 PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-                               "$<INSTALL_INTERFACE:include/snode.c>"
+    http-server-express-tls-in6
+    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+           "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(
-    http-server-express-tls-in6 PUBLIC http-server net-in6-stream-tls http-server-express
+    http-server-express-tls-in6 PUBLIC http-server net-in6-stream-tls
+                                       http-server-express
 )
 
 get_target_property(HTTP_COMPILE_LIBDIR http-server HTTP_COMPILE_LIBDIR)
@@ -78,7 +78,8 @@ set_target_properties(
 install(
     TARGETS http-server-express-tls-in6
     EXPORT snodec_http-server-express-tls-in6_Targets
-    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR} COMPONENT http-server-express-tls-in6
+    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR}
+            COMPONENT http-server-express-tls-in6
 )
 
 install(

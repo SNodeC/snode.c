@@ -78,9 +78,10 @@ append_source_file_config(
     snodec
 )
 
-set_property (
-  SOURCE Config.cpp
-  APPEND PROPERTY COMPILE_DEFINITIONS CLI11_USE_OLD_HELP_PROCESSING
+set_property(
+    SOURCE Config.cpp
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS CLI11_USE_OLD_HELP_PROCESSING
 )
 
 add_library(utils SHARED ${UTILS_CPP} ${UTILS_H})

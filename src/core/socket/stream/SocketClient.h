@@ -168,9 +168,7 @@ namespace core::socket::stream {
                      onConnected = this->onConnected,
                      onDisconnect = this->onDisconnect,
                      socketContextFactory = this->socketContextFactory,
-                     onStatus,
-                     tries,
-                     retryTimeoutScale](SocketConnection* socketConnection) {
+                     onStatus](SocketConnection* socketConnection) {
                         onDisconnect(socketConnection);
 
                         if (config->getReconnect() && core::eventLoopState() == core::State::RUNNING) {
@@ -180,14 +178,7 @@ namespace core::socket::stream {
                             LOG(INFO) << "  reconnecting in " << relativeReconnectTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
-                                [config,
-                                 onConnect,
-                                 onConnected,
-                                 onDisconnect,
-                                 onStatus,
-                                 tries,
-                                 retryTimeoutScale,
-                                 socketContextFactory]() mutable {
+                                [config, onConnect, onConnected, onDisconnect, onStatus, socketContextFactory]() mutable {
                                     SocketClient client(config, socketContextFactory, onConnect, onConnected, onDisconnect);
 
                                     client.realConnect(onStatus, 0, client.getConfig().getRetryBase());

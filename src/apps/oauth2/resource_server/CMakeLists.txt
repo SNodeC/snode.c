@@ -42,6 +42,10 @@ cmake_minimum_required(VERSION 3.18)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set_source_files_properties(
+    ResourceServer.cpp PROPERTIES COMPILE_OPTIONS "-Wno-uninitialized"
+)
+
 add_executable(resource_server ResourceServer.cpp)
 
 target_link_libraries(
