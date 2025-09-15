@@ -81,6 +81,20 @@ namespace core::socket::stream {
         using SocketConnection = typename SocketConnector::SocketConnection;
         using SocketAddress = typename SocketConnector::SocketAddress;
 
+    private:
+        SocketClient(const std::function<void(SocketConnection*)>& onConnect,
+                     const std::function<void(SocketConnection*)>& onConnected,
+                     const std::function<void(SocketConnection*)>& onDisconnect,
+                     std::shared_ptr<SocketContextFactory> socketContextFactory,
+                     std::shared_ptr<typename SocketConnector::Config> config)
+            : Super(config)
+            , socketContextFactory(socketContextFactory)
+            , onConnect(onConnect)
+            , onConnected(onConnected)
+            , onDisconnect(onDisconnect) {
+        }
+
+    public:
         SocketClient(const std::string& name,
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
@@ -93,6 +107,19 @@ namespace core::socket::stream {
             , onDisconnect(onDisconnect) {
         }
 
+        /*
+                SocketClient(const std::string& name,
+                             const std::function<void(SocketConnection*)>& onConnect,
+                             const std::function<void(SocketConnection*)>& onConnected,
+                             const std::function<void(SocketConnection*)>& onDisconnect,
+                             Args&&... args)
+                    : SocketClient(onConnect,
+                                   onConnected,
+                                   onDisconnect,
+                                   std::make_shared<SocketContextFactory>(std::forward<Args>(args)...),
+                                   std::make_shared<typename SocketConnector::Config>(name)) {
+                }
+        */
         SocketClient(const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
@@ -149,51 +176,74 @@ namespace core::socket::stream {
                     socketContextFactory,
                     onConnect,
                     onConnected,
-                    [client = *this, onStatus](SocketConnection* socketConnection) {
-                        client.onDisconnect(socketConnection);
+                    [config = this->config,
+                     onConnect = this->onConnect,
+                     onConnected = this->onConnected,
+                     onDisconnect = this->onDisconnect,
+                     socketContextFactory = this->socketContextFactory,
+                     onStatus,
+                     tries,
+                     retryTimeoutScale](SocketConnection* socketConnection) {
+                        onDisconnect(socketConnection);
 
-                        if (client.getConfig().getReconnect() && core::eventLoopState() == core::State::RUNNING) {
-                            double relativeReconnectTimeout = client.getConfig().getReconnectTime();
+                        if (config->getReconnect() && core::eventLoopState() == core::State::RUNNING) {
+                            double relativeReconnectTimeout = config->getReconnectTime();
 
-                            LOG(INFO) << client.getConfig().getInstanceName() << ": OnStatus";
+                            LOG(INFO) << config->getInstanceName() << ": OnStatus";
                             LOG(INFO) << "  reconnecting in " << relativeReconnectTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
-                                [client, onStatus]() {
-                                    client.getConfig().Local::renew();
-                                    client.getConfig().Remote::renew();
+                                [config,
+                                 onConnect,
+                                 onConnected,
+                                 onDisconnect,
+                                 onStatus,
+                                 tries,
+                                 retryTimeoutScale,
+                                 socketContextFactory]() mutable {
+                                    SocketClient client(onConnect, onConnected, onDisconnect, socketContextFactory, config);
 
-                                    client.realConnect(onStatus, 0, 1);
+                                    client.realConnect(onStatus, 0, client.getConfig().getRetryBase());
                                 },
                                 relativeReconnectTimeout);
                         }
                     },
-                    [client = *this, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
-                                                                         core::socket::State state) mutable {
+                    [config = this->config,
+                     onConnect = this->onConnect,
+                     onConnected = this->onConnected,
+                     onDisconnect = this->onDisconnect,
+                     socketContextFactory = this->socketContextFactory,
+                     onStatus,
+                     tries,
+                     retryTimeoutScale](const SocketAddress& socketAddress, core::socket::State state) mutable {
                         const bool retryFlag = (state & core::socket::State::NO_RETRY) == 0;
                         state &= ~core::socket::State::NO_RETRY;
                         onStatus(socketAddress, state);
 
-                        if (retryFlag && client.getConfig().getRetry() // Shall we potentially retry? In case are the ...
-                            && (client.getConfig().getRetryTries() == 0 ||
-                                tries < client.getConfig().getRetryTries()) // ... limits not reached and has an ...
+                        if (retryFlag && config->getRetry() // Shall we potentially retry? In case are the ...
+                            && (config->getRetryTries() == 0 || tries < config->getRetryTries()) // ... limits not reached and has an ...
                             && (state == core::socket::State::ERROR ||
-                                (state == core::socket::State::FATAL && client.getConfig().getRetryOnFatal()))) { // error occurred?
-                            double relativeRetryTimeout = client.getConfig().getRetryLimit() > 0
-                                                              ? std::min<double>(client.getConfig().getRetryTimeout() * retryTimeoutScale,
-                                                                                 client.getConfig().getRetryLimit())
-                                                              : client.getConfig().getRetryTimeout() * retryTimeoutScale;
-                            relativeRetryTimeout -=
-                                utils::Random::getInRange(-client.getConfig().getRetryJitter(), client.getConfig().getRetryJitter()) *
-                                relativeRetryTimeout / 100.;
+                                (state == core::socket::State::FATAL && config->getRetryOnFatal()))) { // error occurred?
+                            double relativeRetryTimeout =
+                                config->getRetryLimit() > 0
+                                    ? std::min<double>(config->getRetryTimeout() * retryTimeoutScale, config->getRetryLimit())
+                                    : config->getRetryTimeout() * retryTimeoutScale;
+                            relativeRetryTimeout -= utils::Random::getInRange(-config->getRetryJitter(), config->getRetryJitter()) *
+                                                    relativeRetryTimeout / 100.;
 
-                            LOG(INFO) << client.getConfig().getInstanceName() << ": OnStatus";
+                            LOG(INFO) << config->getInstanceName() << ": OnStatus";
                             LOG(INFO) << "  retrying in " << relativeRetryTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
-                                [client, onStatus, tries, retryTimeoutScale]() mutable {
-                                    client.getConfig().Local::renew();
-                                    client.getConfig().Remote::renew();
+                                [config,
+                                 onConnect,
+                                 onConnected,
+                                 onDisconnect,
+                                 onStatus,
+                                 tries,
+                                 retryTimeoutScale,
+                                 socketContextFactory]() mutable {
+                                    SocketClient client(onConnect, onConnected, onDisconnect, socketContextFactory, config);
 
                                     client.realConnect(onStatus, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
                                 },

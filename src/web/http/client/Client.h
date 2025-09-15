@@ -46,6 +46,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <functional>
 #include <string>
 
@@ -111,17 +113,24 @@ namespace web::http::client {
         Client(const std::string& name,
                std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
                std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
-            : Super(name,
-                    // SocketContextFactory Args...
-                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(
-                        [this, onRequestBegin = std::move(onRequestBegin)](const std::shared_ptr<Request>& request) {
-                            request->host(this->getConfig().Remote::getSocketAddress().toString(false));
-                            onRequestBegin(request);
-                        }),
-                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestEnd),
-                    [this]() -> net::config::ConfigInstance& {
-                        return Super::getConfig();
-                    }) {
+            : Super(
+                  name,
+                  // SocketContextFactory Args...
+
+                  [this, onRequestBegin = onRequestBegin](const std::shared_ptr<Request>& request) {
+                      //                     request->getSocketContext()->getSocketConnection()->getConfig()->Remote::getSocketAddress();
+
+                      //                      dynamic_cast <
+                      //                      net::config::stream::ConfigSocketClient<net::config::ConfigAddressLocal<SocketAddress>>
+
+                      VLOG(0) << "--------------------";
+                      request->host(this->getConfig().Remote::getSocketAddress().toString(false));
+                      onRequestBegin(request);
+                  },
+                  std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestEnd),
+                  [this]() -> net::config::ConfigInstance& {
+                      return Super::getConfig();
+                  }) {
         }
 
         Client(std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,

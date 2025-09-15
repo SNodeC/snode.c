@@ -43,6 +43,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket {
@@ -50,14 +52,42 @@ namespace core::socket {
     template <typename Config>
     Socket<Config>::Socket(const std::string& name)
         : config(std::make_shared<Config>(name)) {
+        VLOG(0) << "-------------- 1 " << this << " - " << config.get();
+    }
+
+    template <typename Config>
+    Socket<Config>::Socket(std::shared_ptr<Config> config)
+        : config(config) {
+    }
+
+    template <typename Config>
+    Socket<Config>::Socket(const Socket& socket) {
+        VLOG(0) << "-------------- 3a " << this << " - " << config.get() << " - " << &socket << " - " << socket.config.get();
+
+        this->config = socket.config;
+
+        VLOG(0) << "-------------- 3b " << this << " - " << config.get() << " - " << &socket << " - " << socket.config.get();
+    }
+
+    template <typename Config>
+    Socket<Config>& Socket<Config>::operator=(const Socket& socket) {
+        VLOG(0) << "-------------- 4a " << this << " - " << config.get() << " - " << &socket << " - " << &socket.getConfig();
+
+        this->config = socket.config;
+
+        VLOG(0) << "-------------- 4b " << this << " - " << config.get() << " - " << &socket << " - " << &socket.getConfig();
+
+        return *this;
     }
 
     template <typename Config>
     Socket<Config>::~Socket() {
+        VLOG(0) << "-------------- 5 " << this << " - " << config.get();
     }
 
     template <typename Config>
     Config& Socket<Config>::getConfig() const {
+        VLOG(0) << "-------------- 2 " << this << " - " << config.get();
         return *config;
     }
 
