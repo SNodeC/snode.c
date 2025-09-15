@@ -119,11 +119,12 @@ namespace express::dispatcher {
 
                 if (dispatched) {
                     LOG(TRACE) << "Express: R - Dispatched: " << dispatched;
+
+                    break;
                 }
                 if (controller.nextRouterCalled()) {
                     LOG(TRACE) << "Express: R - NextRouter called - breaking dispatching";
-                }
-                if (dispatched || controller.nextRouterCalled()) {
+
                     break;
                 }
             }
