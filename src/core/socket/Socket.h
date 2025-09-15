@@ -59,9 +59,11 @@ namespace core::socket {
         explicit Socket(const std::string& name);
         Socket(std::shared_ptr<Config> config);
 
+    protected:
         Socket(const Socket&) = default;
         Socket& operator=(const Socket&) = default;
 
+    public:
         Socket(Socket&&) noexcept = delete;
         Socket& operator=(Socket&&) noexcept = delete;
 
