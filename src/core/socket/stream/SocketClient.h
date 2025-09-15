@@ -179,9 +179,8 @@ namespace core::socket::stream {
 
                             core::timer::Timer::singleshotTimer(
                                 [config, onConnect, onConnected, onDisconnect, onStatus, socketContextFactory]() mutable {
-                                    SocketClient client(config, socketContextFactory, onConnect, onConnected, onDisconnect);
-
-                                    client.realConnect(onStatus, 0, client.getConfig().getRetryBase());
+                                    SocketClient(config, socketContextFactory, onConnect, onConnected, onDisconnect)
+                                        .realConnect(onStatus, 0, config->getRetryBase());
                                 },
                                 relativeReconnectTimeout);
                         }
@@ -221,9 +220,8 @@ namespace core::socket::stream {
                                  tries,
                                  retryTimeoutScale,
                                  socketContextFactory]() mutable {
-                                    SocketClient client(config, socketContextFactory, onConnect, onConnected, onDisconnect);
-
-                                    client.realConnect(onStatus, tries + 1, retryTimeoutScale * client.getConfig().getRetryBase());
+                                    SocketClient(config, socketContextFactory, onConnect, onConnected, onDisconnect)
+                                        .realConnect(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
                                 },
                                 relativeRetryTimeout);
                         }

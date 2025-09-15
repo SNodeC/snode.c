@@ -193,9 +193,8 @@ namespace core::socket::stream {
                                  tries,
                                  retryTimeoutScale,
                                  socketContextFactory]() mutable {
-                                    SocketServer server(config, socketContextFactory, onConnect, onConnected, onDisconnect);
-
-                                    server.realListen(onStatus, tries + 1, retryTimeoutScale * server.getConfig().getRetryBase());
+                                    SocketServer(config, socketContextFactory, onConnect, onConnected, onDisconnect)
+                                        .realListen(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
                                 },
                                 relativeRetryTimeout);
                         }
