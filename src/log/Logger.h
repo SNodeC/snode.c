@@ -50,6 +50,8 @@
 #if __has_warning("-Wdocumentation-unknown-command")
 #pragma GCC diagnostic ignored "-Wdocumentation-unknown-command"
 #endif
+#else
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 #endif
 #include <easylogging++.h> // IWYU pragma: export
