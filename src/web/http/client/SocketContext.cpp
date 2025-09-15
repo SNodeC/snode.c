@@ -42,7 +42,6 @@
 #include "web/http/client/SocketContext.h" // IWYU pragma: export
 
 #include "core/EventReceiver.h"
-#include "core/socket/SocketAddress.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/CookieOptions.h"
 
@@ -62,14 +61,13 @@ namespace web::http::client {
     SocketContext::SocketContext(core::socket::stream::SocketConnection* socketConnection,
                                  const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
                                  const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd,
+                                 const std::string& hostHeader,
                                  bool pipelinedRequests)
         : Super(socketConnection)
         , onRequestBegin(onRequestBegin)
         , onRequestEnd(onRequestEnd)
         , pipelinedRequests(pipelinedRequests)
-        , masterRequest(std::make_shared<Request>(this,
-                                                  getSocketConnection()->getRemoteAddress().toString(false) +
-                                                      getSocketConnection()->getRemoteAddress().getEndpoint(":{}")))
+        , masterRequest(std::make_shared<Request>(this, hostHeader))
         , parser(
               this,
               [this]() {

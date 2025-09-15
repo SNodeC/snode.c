@@ -52,6 +52,8 @@ namespace CLI {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client {
@@ -65,11 +67,14 @@ namespace web::http::client {
         ConfigHTTP(ConfigHTTP&&) noexcept = default;
         ConfigHTTP& operator=(ConfigHTTP&&) = delete;
 
-        void setPipelinedRequests(bool pipelinedRequests);
+        void setHostHeader(const std::string& hostHeader);
+        std::string getHostHeader() const;
 
+        void setPipelinedRequests(bool pipelinedRequests);
         bool getPipelinedRequests() const;
 
     private:
+        CLI::Option* hostHeaderOpt = nullptr;
         CLI::Option* pipelinedRequestsOpt = nullptr;
     };
 

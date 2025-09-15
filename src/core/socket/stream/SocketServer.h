@@ -224,12 +224,24 @@ namespace core::socket::stream {
             listen(localAddress, onStatus);
         }
 
+        std::function<void(SocketConnection*)>& getOnConnect() {
+            return onConnect;
+        }
+        
         std::function<void(SocketConnection*)> setOnConnect(const std::function<void(SocketConnection*)>& onConnect) {
             std::function<void(SocketConnection*)> oldOnConnect = this->onConnect;
 
             this->onConnect = onConnect;
 
             return oldOnConnect;
+        }
+
+        std::function<void(SocketConnection*)>& getOnConnected() {
+            return onConnected();
+        }
+
+        std::function<void(SocketConnection*)>& getOnDisconnect() {
+            return onDisconnect;
         }
 
         std::function<void(SocketConnection*)> setOnConnected(const std::function<void(SocketConnection*)>& onConnected) {

@@ -53,6 +53,12 @@
 namespace web::http::client {
 
     ConfigHTTP::ConfigHTTP(net::config::ConfigInstance& configInstance) {
+        hostHeaderOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
+                            .addOption( //
+                                "--host-header",
+                                "Host header field",
+                                "string");
+
         pipelinedRequestsOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
                                    .addFlag( //
                                        "--pipelined-requests",
@@ -60,6 +66,14 @@ namespace web::http::client {
                                        "bool",
                                        XSTR(HTTP_REQUEST_PIPELINED),
                                        CLI::IsMember({"true", "false"}));
+    }
+
+    void ConfigHTTP::setHostHeader(const std::string& hostHeader) {
+        hostHeaderOpt->default_str(hostHeader);
+    }
+
+    std::string ConfigHTTP::getHostHeader() const {
+        return hostHeaderOpt->as<std::string>();
     }
 
     void ConfigHTTP::setPipelinedRequests(bool pipelinedRequests) {

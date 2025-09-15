@@ -47,12 +47,21 @@
 
 namespace web::http::client {
 
+    void SocketContextFactory::setHostHeader(const std::string& hostHeader) {
+        configHttp.setHostHeader(hostHeader);
+    }
+
+    std::string SocketContextFactory::getHostHeader() const {
+        return configHttp.getHostHeader();
+    }
+
     void SocketContextFactory::setPipelinedRequests(bool pipelinedRequests) {
         configHttp.setPipelinedRequests(pipelinedRequests);
     }
 
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
-        return new web::http::client::SocketContext(socketConnection, onRequestBegin, onRequestEnd, configHttp.getPipelinedRequests());
+        return new web::http::client::SocketContext(
+            socketConnection, onRequestBegin, onRequestEnd, configHttp.getHostHeader(), configHttp.getPipelinedRequests());
     }
 
 } // namespace web::http::client

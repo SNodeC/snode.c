@@ -261,6 +261,10 @@ namespace core::socket::stream {
             connect(remoteAddress, onStatus);
         }
 
+        std::function<void(SocketConnection*)>& getOnConnect() {
+            return onConnect;
+        }
+
         std::function<void(SocketConnection*)> setOnConnect(const std::function<void(SocketConnection*)>& onConnect) {
             std::function<void(SocketConnection*)> oldOnConnect = this->onConnect;
 
@@ -269,12 +273,20 @@ namespace core::socket::stream {
             return oldOnConnect;
         }
 
+        std::function<void(SocketConnection*)>& getOnConnected() {
+            return onConnected();
+        }
+
         std::function<void(SocketConnection*)> setOnConnected(const std::function<void(SocketConnection*)>& onConnected) {
             std::function<void(SocketConnection*)> oldOnConnected = this->onConnected;
 
             this->onConnected = onConnected;
 
             return oldOnConnected;
+        }
+
+        std::function<void(SocketConnection*)>& getOnDisconnect() {
+            return onDisconnect;
         }
 
         std::function<void(SocketConnection*)> setOnDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {

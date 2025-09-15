@@ -73,6 +73,7 @@ namespace web::http::client {
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
                       const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd,
+                      const std::string& hostHeader,
                       bool pipelinedRequests);
 
         ~SocketContext() override;

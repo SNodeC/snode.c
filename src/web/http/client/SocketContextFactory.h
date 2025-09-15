@@ -72,6 +72,9 @@ namespace web::http::client {
             , configHttp(web::http::client::ConfigHTTP(getConfigInstance())) {
         }
 
+        void setHostHeader(const std::string& hostHeader);
+        std::string getHostHeader() const;
+
         void setPipelinedRequests(bool pipelinedRequests);
 
     private:
