@@ -39,7 +39,7 @@
 
 find_program(iwyu_path NAMES include-what-you-use iwyu)
 if(iwyu_path)
-    option(CHECK_INCLUDES "Check used headers")
+    option(CHECK_INCLUDES "Check used headers" "ON")
 
     if(CHECK_INCLUDES)
         set(iwyu_path_and_options
