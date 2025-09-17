@@ -104,15 +104,6 @@ namespace CLI {
         std::string configFile;
     };
 
-    class BootstrapError : public CLI::Error {
-    public:
-        explicit BootstrapError(const std::string& error);
-        ~BootstrapError() override;
-
-    private:
-        std::string error;
-    };
-
 } // namespace CLI
 
 #endif // CLI_EXCEPTIONS_H

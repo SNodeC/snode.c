@@ -90,12 +90,4 @@ namespace CLI {
         return configFile;
     }
 
-    BootstrapError::BootstrapError(const std::string& error)
-        : CLI::Error("BootstrapError", error, CLI::ExitCodes::RequiredError)
-        , error(error) {
-    }
-
-    BootstrapError::~BootstrapError() {
-    }
-
 } // namespace CLI
