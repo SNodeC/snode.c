@@ -43,7 +43,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/Config.h"
 
 #include <cstddef>
@@ -173,16 +172,6 @@ namespace net::config {
 
         CLI::App* sectionSc = instanceSc->get_subcommand_no_throw(name);
         CLI::App* parentSectionSc = instanceSc->get_parent()->get_subcommand_no_throw(name);
-
-        if (sectionSc != nullptr) {
-            VLOG(0) << "----------- Origin: " << sectionSc->get_name() << " " << sectionSc << ", C: " << sectionSc->count()
-                    << " CA: " << sectionSc->count_all() << ", OnlyGot: " << onlyGot;
-        }
-
-        if (parentSectionSc != nullptr) {
-            VLOG(0) << "----------- Parent: " << parentSectionSc->get_name() << " " << parentSectionSc
-                    << ", C: " << parentSectionSc->count() << " CA: " << parentSectionSc->count_all() << ", OnlyGot: " << onlyGot;
-        }
 
         if (sectionSc != nullptr && (sectionSc->count_all() > 0 || !onlyGot)) {
             resultSc = sectionSc;
