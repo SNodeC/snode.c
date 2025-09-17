@@ -93,6 +93,8 @@ namespace net::config {
         void required(CLI::App* section, bool req = true);
         bool getRequired() const;
 
+        CLI::App* get() const;
+
     private:
         uint8_t requiredCount = 0;
 

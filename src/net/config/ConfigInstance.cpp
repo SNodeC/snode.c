@@ -43,6 +43,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/Config.h"
 
 #include <cstddef>
@@ -163,13 +164,30 @@ namespace net::config {
         return requiredCount > 0;
     }
 
-    CLI::App* ConfigInstance::getSection(const std::string& name, bool onlyGot, bool recursive) const {
-        CLI::App* resultSc = (instanceSc->got_subcommand(name) || !onlyGot) ? instanceSc->get_subcommand_no_throw(name) : nullptr;
+    CLI::App* ConfigInstance::get() const {
+        return instanceSc;
+    }
 
-        if (resultSc == nullptr && recursive) {
-            CLI::App* parentSc = instanceSc->get_parent();
-            resultSc =
-                (parentSc != nullptr && (parentSc->got_subcommand(name) || !onlyGot)) ? parentSc->get_subcommand_no_throw(name) : nullptr;
+    CLI::App* ConfigInstance::getSection(const std::string& name, bool onlyGot, bool recursive) const {
+        CLI::App* resultSc = nullptr;
+
+        CLI::App* sectionSc = instanceSc->get_subcommand_no_throw(name);
+        CLI::App* parentSectionSc = instanceSc->get_parent()->get_subcommand_no_throw(name);
+
+        if (sectionSc != nullptr) {
+            VLOG(0) << "----------- Origin: " << sectionSc->get_name() << " " << sectionSc << ", C: " << sectionSc->count()
+                    << " CA: " << sectionSc->count_all() << ", OnlyGot: " << onlyGot;
+        }
+
+        if (parentSectionSc != nullptr) {
+            VLOG(0) << "----------- Parent: " << parentSectionSc->get_name() << " " << parentSectionSc
+                    << ", C: " << parentSectionSc->count() << " CA: " << parentSectionSc->count_all() << ", OnlyGot: " << onlyGot;
+        }
+
+        if (sectionSc != nullptr && (sectionSc->count_all() > 0 || !onlyGot)) {
+            resultSc = sectionSc;
+        } else if (recursive && parentSectionSc != nullptr && (parentSectionSc->count_all() > 0 || !onlyGot)) {
+            resultSc = parentSectionSc;
         }
 
         return resultSc;

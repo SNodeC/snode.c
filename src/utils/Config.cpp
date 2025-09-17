@@ -257,12 +257,7 @@ namespace utils {
                 ->type_name("configfile")
                 ->check(!CLI::ExistingDirectory);
 
-            app->add_option_function<std::string>(
-                   "-w,--write-config",
-                   []([[maybe_unused]] const std::string& configFile) {
-                       throw CLI::CallForWriteConfig(configFile);
-                   },
-                   "Write config file and exit")
+            app->add_option("-w,--write-config", "Write config file and exit")
                 ->configurable(false)
                 ->default_val(configDirectory + "/" + applicationName + ".conf")
                 ->type_name("[configfile]")
@@ -368,8 +363,8 @@ namespace utils {
         aliases.clear();
 
         app->final_callback([]() {
-            if (daemonizeOpt->as<bool>() && (*app)["--show-config"]->count() == 0 && (*app)["--write-config"]->count() == 0 &&
-                (*app)["--command-line"]->count() == 0) {
+            if (daemonizeOpt->as<bool>() && helpTriggerApp == nullptr && showConfigTriggerApp == nullptr &&
+                (*app)["--write-config"]->count() == 0 && (*app)["--command-line"]->count() == 0) {
                 std::cout << "Running as daemon (double fork)" << std::endl;
 
                 utils::Daemon::startDaemon(
@@ -415,9 +410,7 @@ namespace utils {
 
             proceed = false;
         } else {
-            if ((*app)["--show-config"]->count() == 0 && (*app)["--write-config"]->count() == 0 && (*app)["--command-line"]->count() == 0) {
-                app->allow_extras(false);
-            }
+            app->allow_extras((*app)["--show-config"]->count() != 0);
 
             if (!quietOpt->as<bool>()) {
                 logger::Logger::setLogLevel(logLevelOpt->as<int>());
@@ -440,9 +433,9 @@ namespace utils {
         };
 
         std::string out;
-        out.reserve(s.size() * 2);
+        out.reserve(s.size() * 3);
 
-        for (char c : s) {
+        for (const char c : s) {
             if (special.contains(c)) {
                 out.push_back('\\');
             }
@@ -522,7 +515,7 @@ namespace utils {
         createCommandLineOptions(out, app, mode);
 
         std::string optionString = out.str();
-        if (optionString.back() == ' ') {
+        if (!optionString.empty() && optionString.back() == ' ') {
             optionString.pop_back();
         }
 
@@ -586,8 +579,33 @@ namespace utils {
 
         try {
             try {
-                app->parse(argc, argv);
-                success = true;
+                try {
+                    app->parse(argc, argv);
+                    success = true;
+                } catch (const CLI::ParseError&) {
+                    if (helpTriggerApp == nullptr) {
+                        if (showConfigTriggerApp != nullptr) {
+                            success = false;
+                            throw CLI::CallForShowConfig(showConfigTriggerApp);
+                        }
+                        if ((*app)["--write-config"]->count() > 0) {
+                            success = false;
+                            throw CLI::CallForWriteConfig((*app)["--write-config"]->as<std::string>());
+                        }
+                    }
+
+                    throw;
+                }
+                if (helpTriggerApp == nullptr) {
+                    if (showConfigTriggerApp != nullptr) {
+                        success = false;
+                        throw CLI::CallForShowConfig(showConfigTriggerApp);
+                    }
+                    if ((*app)["--write-config"]->count() > 0) {
+                        success = false;
+                        throw CLI::CallForWriteConfig((*app)["--write-config"]->as<std::string>());
+                    }
+                }
             } catch (const DaemonError& e) {
                 std::cout << "Daemon error: " << e.what() << " ... exiting" << std::endl;
             } catch (const DaemonFailure& e) {
@@ -595,13 +613,13 @@ namespace utils {
             } catch (const DaemonSignaled& e) {
                 std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
             } catch (const CLI::CallForHelp&) {
-                const std::string helpMode = helpApp->get_option("--help")->as<std::string>();
+                const std::string helpMode = helpTriggerApp->get_option("--help")->as<std::string>();
                 const CLI::App* helpApp = nullptr;
                 CLI::AppFormatMode mode = CLI::AppFormatMode::Normal;
                 if (helpMode == "exact") {
-                    helpApp = utils::Config::helpApp;
+                    helpApp = utils::Config::helpTriggerApp;
                 } else if (helpMode == "expanded") {
-                    helpApp = utils::Config::helpApp;
+                    helpApp = utils::Config::helpTriggerApp;
                     mode = CLI::AppFormatMode::All;
                 }
                 std::cout << app->help(helpApp, "", mode) << std::endl;
@@ -657,10 +675,11 @@ namespace utils {
                 throw;
             }
         } catch ([[maybe_unused]] const CLI::ParseError& e) {
-            std::cout << std::endl << "Append -h or --help  to your command line for more information." << std::endl;
+            std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
         } catch (const CLI::Error& e) {
-            std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
-            std::cout << "Append -h or --help to your command line for more information." << std::endl;
+            std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "   ] " << e.what() << std::endl;
+
+            std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
         }
 
         return success;
@@ -736,10 +755,10 @@ namespace utils {
 
     CLI::App* Config::addStandardFlags(CLI::App* app) {
         app //
-            ->add_flag_callback(
+            ->add_flag_function(
                 "-s,--show-config",
-                [app]() {
-                    throw CLI::CallForShowConfig(app);
+                [app](std::size_t) {
+                    showConfigTriggerApp = app;
                 },
                 "Show current configuration and exit") //
             ->configurable(false)
@@ -800,9 +819,9 @@ namespace utils {
 
     CLI::App* Config::addHelp(CLI::App* app) {
         app->set_help_flag(
-               "-h{standard},--help{standard}",
+               "-h{exact},--help{exact}",
                [app](std::size_t) {
-                   helpApp = app;
+                   helpTriggerApp = app;
                },
                "Print help message and exit")
             ->group(app->get_formatter()->get_label("Nonpersistent Options"))
@@ -813,13 +832,13 @@ namespace utils {
 
     CLI::App* Config::addSimpleHelp(CLI::App* app) {
         app->set_help_flag(
-               "--help,-h",
+               "--help{exact},-h{exact}",
                [app](std::size_t) {
-                   helpApp = app;
+                   helpTriggerApp = app;
                },
                "Print help message and exit")
             ->group(app->get_formatter()->get_label("Nonpersistent Options"))
-            ->disable_flag_override();
+            ->check(CLI::IsMember({"standard", "exact"}));
 
         return app;
     }
@@ -832,6 +851,7 @@ namespace utils {
                      return sc->get_required();
                  })) {
                 instance->needs(sub);
+                instance->configurable();
             }
         } else {
             app->remove_needs(instance);
@@ -840,6 +860,7 @@ namespace utils {
                      return sc->get_required();
                  })) {
                 instance->remove_needs(sub);
+                instance->configurable(false);
             }
         }
 
@@ -988,7 +1009,8 @@ namespace utils {
     CLI::Option* Config::verboseLevelOpt = nullptr;
     CLI::Option* Config::quietOpt = nullptr;
 
-    CLI::App* Config::helpApp = nullptr;
+    CLI::App* Config::helpTriggerApp = nullptr;
+    CLI::App* Config::showConfigTriggerApp = nullptr;
 
     std::map<std::string, std::string> Config::aliases;
     std::map<std::string, CLI::Option*> Config::applicationOptions;

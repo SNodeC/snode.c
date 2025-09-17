@@ -175,6 +175,7 @@ namespace CLI {
         return outString + out.str();
     }
 
+#ifndef CLI11_ORIGINAL_FORMATTER
     HelpFormatter::~HelpFormatter() {
     }
 
@@ -445,5 +446,7 @@ namespace CLI {
         }
         return out.str();
     }
+
+#endif // CLI11_ORIGINAL_FORMATTER
 
 } // namespace CLI

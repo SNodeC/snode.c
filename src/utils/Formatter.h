@@ -65,6 +65,8 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
+// #define CLI11_ORIGINAL_FORMATTER
+
 namespace CLI {
 
     class ConfigFormatter : public ConfigBase {
@@ -76,6 +78,8 @@ namespace CLI {
     };
 
     class HelpFormatter : public CLI::Formatter {
+#ifndef CLI11_ORIGINAL_FORMATTER
+
     public:
         ~HelpFormatter() override;
 
@@ -87,6 +91,8 @@ namespace CLI {
         std::string make_subcommand(const App* sub) const override;
         std::string make_expanded(const App* sub, AppFormatMode mode) const override;
         std::string make_option_opts(const Option* opt) const override;
+
+#endif // CLI11_ORIGINAL_FORMATTER
     };
 
 } // namespace CLI
