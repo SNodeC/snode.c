@@ -95,7 +95,7 @@ namespace express::dispatcher {
                     )
                 ) && (
                     (
-                        requestUrl.starts_with(absoluteMountPath)
+                        requestPath.starts_with(absoluteMountPath)
                     )
                 )
             );

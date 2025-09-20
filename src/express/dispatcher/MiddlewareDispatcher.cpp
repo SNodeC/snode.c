@@ -85,12 +85,12 @@ namespace express::dispatcher {
                         )
                     ) && (
                         (
-                            requestUrl == absoluteMountPath
+                            requestPath.starts_with(absoluteMountPath)
                         ) || (
                             (
                                 !controller.getStrictRouting()
                             ) && (
-                                requestPath.starts_with(absoluteMountPath)
+                                requestUrl == absoluteMountPath
                             )
                         ) || (
                             checkForUrlMatch(absoluteMountPath, requestUrl)
