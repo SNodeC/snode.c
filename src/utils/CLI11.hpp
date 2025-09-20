@@ -6783,6 +6783,9 @@ class App {
     /// This is a function that runs when all processing has completed
     std::function<void()> final_callback_{};
 
+    /// This is a function tat runs after all standard requirement checks havv been processed
+    std::function<void()> require_callback_{};
+
     ///@}
     /// @name Options
     ///@{
@@ -7007,6 +7010,13 @@ class App {
     ///
     App *preparse_callback(std::function<void(std::size_t)> pp_callback) {
         pre_parse_callback_ = std::move(pp_callback);
+        return this;
+    }
+
+    /// Set a callback to execute after all standard requirement checks have been processed
+    ///
+    App *require_callback(std::function<void()> req_callback) {
+        require_callback_ = std::move(req_callback);
         return this;
     }
 
@@ -9415,7 +9425,20 @@ CLI11_INLINE void App::_process_requirements() {
         }
     }
     for(const auto &subc : need_subcommands_) {
-        subc->_process_requirements();
+        try {
+            subc->_process_requirements();
+        } catch (const CLI::RequiresError& e) {
+            if (subc->count() == 0) {
+                std::string out = get_display_name();
+
+                for(const App* parent = get_parent(); parent != nullptr; parent = parent->get_parent()) {
+                    out = parent->get_display_name() + ":" + out;
+                }
+                throw RequiresError(out, subc->name_);
+            } else {
+                throw;
+            }
+        }
         if(subc->count_all() == 0) {
             missing_needed = true;
             missing_need = subc->get_display_name();
@@ -9423,13 +9446,13 @@ CLI11_INLINE void App::_process_requirements() {
     }
     if(missing_needed) {
         if(count_all() > 0) {
-            std::string out;
+            std::string out = get_display_name();
 
             for(const App* parent = get_parent(); parent != nullptr; parent = parent->get_parent()) {
                 out = parent->get_display_name() + ":" + out;
             }
 
-            throw RequiresError(out + get_display_name(), missing_need);
+            throw RequiresError(out, missing_need);
         }
         // if we missing something but didn't have any options, just return
         return;
@@ -9506,13 +9529,33 @@ CLI11_INLINE void App::_process_requirements() {
                 }
             }
         }
-        if(sub->count() > 0 || sub->name_.empty()) {
-            sub->_process_requirements();
+        if((sub->count() > 0 || sub->name_.empty()) && !need_subcommands_.contains(sub.get()) ) {
+            try {
+                sub->_process_requirements();
+            } catch (const CLI::RequiredError& e) {
+                std::string out = get_display_name() + ":" ;
+
+                for(const App* parent = get_parent(); parent != nullptr; parent = parent->get_parent()) {
+                    out = parent->get_display_name() + ":" + out;
+                }
+                throw RequiredError(out + e.what());
+            }
         }
 
         if(sub->required_ && sub->count_all() == 0) {
-            throw(CLI::RequiredError(sub->get_display_name()));
+            std::string out =  sub->get_display_name();
+
+            for(const App* parent = get_parent(); parent != nullptr; parent = parent->get_parent()) {
+                out = parent->get_display_name() + ":" + out;
+            }
+
+            throw(RequiredError(out));
         }
+    }
+
+
+    if (require_callback_) {
+        require_callback_();
     }
 }
 

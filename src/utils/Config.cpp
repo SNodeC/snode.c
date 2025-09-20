@@ -607,10 +607,10 @@ namespace utils {
                     }
                 }
             } catch (const DaemonError& e) {
-                std::cout << "1[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
+                std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
                           << " ... exiting" << std::endl;
             } catch (const DaemonFailure& e) {
-                std::cout << "2[" << Color::Code::FG_RED << "Failure" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
+                std::cout << "[" << Color::Code::FG_RED << "Failure" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
                           << " ... exiting" << std::endl;
             } catch (const DaemonSignaled& e) {
                 std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
@@ -637,8 +637,8 @@ namespace utils {
                 try {
                     std::cout << e.getApp()->config_to_str(true, true);
                 } catch (const CLI::ParseError& e1) {
-                    std::cout << "3[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                              << "] Showing config file: " << e.getApp() << " " << e1.get_name() << " " << e1.what() << std::endl;
+                    std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Showing config file: " << e.getApp()
+                              << " " << e1.get_name() << " " << e1.what() << std::endl;
                     throw;
                 }
             } catch (const CLI::CallForWriteConfig& e) {
@@ -654,17 +654,17 @@ namespace utils {
                         throw;
                     }
                 } else {
-                    std::cout << "4[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
+                    std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
                               << "] Writing config file: " << std::strerror(errno) << std::endl;
                 }
             } catch (const CLI::ConversionError& e) {
-                std::cout << "5[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
+                std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
                 throw;
             } catch (const CLI::ArgumentMismatch& e) {
-                std::cout << "6[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
+                std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
                 throw;
             } catch (const CLI::ConfigError& e) {
-                std::cout << "7[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
+                std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
                 std::cout << "              Adding '-w' on the command line may solve this problem" << std::endl;
                 throw;
             } catch (const CLI::ParseError& e) {
@@ -855,7 +855,6 @@ namespace utils {
                      return sc->get_required();
                  })) {
                 instance->needs(sub);
-                instance->configurable();
             }
         } else {
             app->remove_needs(instance);
@@ -864,7 +863,6 @@ namespace utils {
                      return sc->get_required();
                  })) {
                 instance->remove_needs(sub);
-                instance->configurable(false);
             }
         }
 
