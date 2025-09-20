@@ -98,7 +98,7 @@ namespace express {
         mutable Route* lastRoute = nullptr;
         Route* currentRoute = nullptr;
 
-        bool strictRouting;
+        bool strictRouting = false;
 
         unsigned long lastTick = 0;
 
