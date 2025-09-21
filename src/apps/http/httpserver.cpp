@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 
     WebApp::init(argc, argv);
 
-    webApp.get(express::middleware::StaticMiddleware(htmlRoot->as<std::string>()));
+    webApp.use(express::middleware::StaticMiddleware(htmlRoot->as<std::string>()));
 
     {
 #if (STREAM_TYPE == TLS)

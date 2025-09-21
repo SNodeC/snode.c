@@ -43,50 +43,122 @@
 #include "express/legacy/in/WebApp.h"
 #include "log/Logger.h"
 
+#include <iostream>
+#include <nlohmann/detail/json_ref.hpp>
+#include <nlohmann/json.hpp>
 #include <string>
+
+using express::Request;
+using express::Response;
+using express::Router;
 
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    const express::legacy::in::WebApp emptyWebapp("empty");
-    const express::legacy::in::WebApp routeWebapp("route");
+    const express::legacy::in::WebApp app("app");
 
-    const express::Router emptyRouter;
-    const express::Router routeRouter;
-
-    emptyRouter.get([] APPLICATION(req, res) {
-        VLOG(0) << "EmptyRoute Matches: " << req->originalUrl;
+    // Global middleware (prefix)
+    app.use("/", [] MIDDLEWARE(req, res, next) {
+        std::cout << "global.use -> " << req->method << " " << req->originalUrl << "\n";
+        next();
     });
 
-    routeRouter.get("/route", [] APPLICATION(req, res) {
-        VLOG(0) << "RouteRoute Matches: " << req->originalUrl;
+    // Health (end-anchored)
+    app.get("/health", [] APPLICATION(req, res) {
+        res->json({{"ok", true}});
     });
 
-    routeRouter.setStrictRouting();
-    emptyRouter.setStrictRouting();
+    // Query-constrained route: /search?q=books
+    app.get("/search", [] MIDDLEWARE(req, res, next) {
+        if (req->queries["q"] == "books") {
+            res->json({{"search", "books"}});
+            return;
+        }
+        next("route");
+    });
+    app.get("/search", [] APPLICATION(req, res) {
+        res->status(404).json({{"error", "unsupported query"}});
+    });
 
-    emptyWebapp.get(emptyRouter);
-    emptyWebapp.get(routeRouter);
+    // Static vs param ordering (static first)
+    app.get("/users/list", [] APPLICATION(req, res) {
+        res->send("users list (static wins if placed first)");
+    });
+    app.get("/users/:id(\\d+)", [] APPLICATION(req, res) {
+        res->send("user #" + req->params["id"]);
+    });
 
-    routeWebapp.get("/route", emptyRouter);
-    routeWebapp.get("/route", routeRouter);
+    // Nested router at /api
+    Router api;
 
-    emptyRouter.setStrictRouting();
-    routeRouter.setStrictRouting();
+    // Guard: require admin=true else skip the whole router
+    api.use([] MIDDLEWARE(req, res, next) {
+        if (req->queries["admin"] != "true") {
+            next("router");
+            return;
+        }
+        next();
+    });
 
-    emptyWebapp.setStrictRouting();
-    routeWebapp.setStrictRouting();
+    // Multi-handler chain + next('route') demo
+    api.get(
+        "/things/:id(\\d+)",
+        [] MIDDLEWARE(req, res, next) {
+            if (req->params["id"] == "0") {
+                next("route");
+                return;
+            }
+            next();
+        },
+        [] APPLICATION(req, res) {
+            res->send("api thing " + req->params["id"]);
+        });
+    api.get("/things/:id(\\d+)", [] APPLICATION(req, res) {
+        res->send("api thing fallback for id=0");
+    });
 
-    emptyWebapp.listen(
+    // Param on mount: /api/tenant/:tenant/info
+    const Router tenant;
+    tenant.get("/info", [] APPLICATION(req, res) {
+        res->json({{"tenant", req->params["tenant"]}, {"info", true}});
+    });
+    api.use("/tenant/:tenant", tenant);
+
+    // Admin stats
+    api.get("/admin/stats", [] APPLICATION(req, res) {
+        res->json({{"scope", "admin"}, {"ok", true}});
+    });
+
+    app.use("/api", api);
+
+    // Strict vs lax demo (two explicit routes like in Node)
+    app.get("/strict", [] APPLICATION(req, res) {
+        res->send("strict-lax demo (no slash)");
+    });
+    app.get("/strict/", [] APPLICATION(req, res) {
+        res->send("strict-lax demo (with slash)");
+    });
+
+    // HEAD→GET fallback: your patched method gate + Response::end() should handle HEAD
+    app.get("/head-demo", [] APPLICATION(req, res) {
+        res->set("X-Demo", "1");
+        res->send("head body");
+    });
+
+    // Catch-all
+    app.get("/:rest(.*)", [] APPLICATION(req, res) {
+        res->status(404).send("not found: " + req->params["rest"]);
+    });
+
+    // Start server (adapt to your HTTP bootstrap)
+    // express::WebAppT web("demo", app);
+    // web.listen(8080);
+    std::cout << "SNode.C Express on http://localhost:8080\n";
+
+    app.listen(
         8080,
         []([[maybe_unused]] const express::legacy::in::WebApp::SocketAddress& socketAddr, [[maybe_unused]] core::socket::State state) {
             VLOG(0) << "EmptyWebapp listening";
-        });
-
-    routeWebapp.listen(
-        8081,
-        []([[maybe_unused]] const express::legacy::in::WebApp::SocketAddress& socketAddr, [[maybe_unused]] core::socket::State state) {
-            VLOG(0) << "RouteWebapp listening";
         });
 
     return core::SNodeC::start();

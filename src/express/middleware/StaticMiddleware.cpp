@@ -59,23 +59,26 @@ namespace express::middleware {
         , index("index.html") {
         setStrictRouting(false);
 
-        get(
-            "/",
+        use(
             [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
                 req, res, next) {
                 LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express " << req->method;
 
-                if (connectionState == web::http::ConnectionState::Close) {
-                    res->set("Connection", "close");
-                } else if (connectionState == web::http::ConnectionState::Keep) {
-                    res->set("Connection", "keep-alive");
-                }
-                res->set(stdHeaders);
+                if (req->method == "GET") {
+                    if (connectionState == web::http::ConnectionState::Close) {
+                        res->set("Connection", "close");
+                    } else if (connectionState == web::http::ConnectionState::Keep) {
+                        res->set("Connection", "keep-alive");
+                    }
+                    res->set(stdHeaders);
 
-                for (auto& [value, options] : stdCookies) {
-                    res->cookie(value, options.getValue(), options.getOptions());
+                    for (auto& [value, options] : stdCookies) {
+                        res->cookie(value, options.getValue(), options.getOptions());
+                    }
+                    next();
+                } else {
+                    res->sendStatus(405, "Unsupported method: " + req->method + "\n");
                 }
-                next();
             },
             [&index = this->index] MIDDLEWARE(req, res, next) {
                 if (req->url.ends_with("/")) {
@@ -90,18 +93,24 @@ namespace express::middleware {
                     next();
                 }
             },
-            [&root = this->root] APPLICATION(req, res) {
-                res->sendFile(root + req->url, [&root, req, res](int ret) {
-                    if (ret == 0) {
-                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                                  << " Express StaticMiddleware: GET " << req->url + " -> " << root + req->url;
-                    } else {
-                        PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
-                                    << req->url + " -> " << root + req->url;
+            [&root = this->root] MIDDLEWARE(req, res, next) {
+                const bool fileAllowed = true;
 
-                        res->sendStatus(404);
-                    }
-                });
+                if (fileAllowed) {
+                    res->sendFile(root + req->url, [&root, req, res](int ret) {
+                        if (ret == 0) {
+                            LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                                      << " Express StaticMiddleware: GET " << req->url + " -> " << root + req->url;
+                        } else {
+                            PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                                        << " Express StaticMiddleware " << req->url + " -> " << root + req->url;
+
+                            res->sendStatus(404);
+                        }
+                    });
+                } else {
+                    next();
+                }
             });
     }
 

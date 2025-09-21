@@ -54,6 +54,7 @@
 #include "log/Logger.h"
 
 #include <list>
+#include <string_view>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -70,44 +71,58 @@ namespace express::dispatcher {
         bool requestMatched = false;
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
+            using namespace express::detail;
+
             const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
 
             const std::string requestMethod = controller.getRequest()->method;
             const std::string requestUrl = controller.getRequest()->url;
             const std::string requestPath = controller.getRequest()->path;
 
-            // clang-format off
-            requestMatched =
-                (
-                    (
-                        (
-                            mountPoint.method == requestMethod
-                        ) || (
-                            mountPoint.method == "all"
-                        )
-                    ) && (
-                        (
-                            requestPath.starts_with(absoluteMountPath)
-                        ) || (
-                            (
-                                !controller.getStrictRouting()
-                            ) && (
-                                requestUrl == absoluteMountPath
-                            )
-                        ) || (
-                            checkForUrlMatch(absoluteMountPath, requestUrl)
-                        )
-                    )
-                ) || (
-                    (
-                        mountPoint.method == "use"
-                    ) && (
-                        (
-                            requestUrl.starts_with(absoluteMountPath)
-                        )
-                    )
-                );
-            // clang-format on
+            // Split mount & request into path + query
+            std::string_view mPath, mQs;
+            splitPathAndQuery(absoluteMountPath, mPath, mQs);
+            auto needQ = parseQuery(mQs);
+
+            std::string_view reqAbs, reqQs;
+            splitPathAndQuery(controller.getRequest()->originalUrl, reqAbs, reqQs);
+            auto rq = parseQuery(reqQs);
+
+            // End-anchored equality (verbs) with one trailing slash relaxed when !strict
+            std::string_view mNorm = mPath, pNorm = reqAbs;
+            if (!controller.getStrictRouting()) {
+                mNorm = trimOneTrailingSlash(mNorm);
+                pNorm = trimOneTrailingSlash(pNorm);
+            }
+            if (mNorm.empty())
+                mNorm = "/";
+
+            bool pathOk = false;
+            if (mPath.find(':') != std::string::npos) {
+                auto [rx, names] = compile_param_regex(mPath,
+                                                       /*isPrefix*/ false,
+                                                       controller.getStrictRouting(),
+                                                       /*caseSensitive*/ true);
+                pathOk = match_and_fill_params(rx, names, reqAbs, *controller.getRequest());
+            } else {
+                pathOk = equalPath(pNorm, mNorm, /*caseSensitive*/ true);
+            }
+
+            const bool queryOk = querySupersetMatches(rq, needQ);
+            requestMatched = (pathOk && queryOk);
+            if (!requestMatched)
+                return requestMatched;
+
+            // Optional params on the application route (e.g. "/users/:id(\\d+)")
+            if (absoluteMountPath.find(':') != std::string::npos) {
+                auto [rx, names] = compile_param_regex(mPath, /*isPrefix*/ false, controller.getStrictRouting(), /*caseSensitive*/ true);
+                if (!match_and_fill_params(rx, names, reqAbs, *controller.getRequest())) {
+                    requestMatched = false;
+                    return requestMatched;
+                }
+            }
+
+            controller.getRequest()->queries.insert(rq.begin(), rq.end());
 
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " HTTP Express: application -> " << (requestMatched ? "MATCH" : "NO MATCH");

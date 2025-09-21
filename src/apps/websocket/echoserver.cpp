@@ -94,11 +94,12 @@ int main(int argc, char* argv[]) {
         }
 
         VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
-        res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int errnum) {
+        res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req, res](int errnum) {
             if (errnum == 0) {
                 VLOG(1) << req->url;
             } else {
                 VLOG(1) << "HTTP response send file failed: " << std::strerror(errnum);
+                res->sendStatus(404);
             }
         });
     });
@@ -162,9 +163,12 @@ int main(int argc, char* argv[]) {
             }
 
             VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
-            res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req](int ret) {
-                if (ret != 0) {
-                    PLOG(ERROR) << req->url;
+            res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req, res](int errnum) {
+                if (errnum == 0) {
+                    VLOG(1) << req->url;
+                } else {
+                    VLOG(1) << "HTTP response send file failed: " << std::strerror(errnum);
+                    res->sendStatus(404);
                 }
             });
         });
