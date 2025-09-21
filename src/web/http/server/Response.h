@@ -117,6 +117,7 @@ namespace web::http::server {
 
         SocketContext* getSocketContext() const;
 
+        std::string requestMethod = "GET";
         int statusCode = 200;
         int httpMajor = 1;
         int httpMinor = 1;

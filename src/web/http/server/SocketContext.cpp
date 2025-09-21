@@ -93,6 +93,7 @@ namespace web::http::server {
                       << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
 
             masterResponse->init();
+            masterResponse->requestMethod = pendingRequest->method;
             masterResponse->httpMajor = pendingRequest->httpMajor;
             masterResponse->httpMinor = pendingRequest->httpMinor;
 
@@ -158,8 +159,6 @@ namespace web::http::server {
 
     void SocketContext::onConnected() {
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Connected";
-
-        masterResponse->init();
     }
 
     std::size_t SocketContext::onReceivedFromPeer() {
