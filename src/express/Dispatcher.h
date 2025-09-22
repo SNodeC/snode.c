@@ -116,12 +116,12 @@ namespace express::detail {
         return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
     }
 
-    inline bool equalPath(std::string_view a, std::string_view b, bool caseSensitive) {
+    inline bool equalPath(std::string_view a, std::string_view b, bool caseInsensitive) {
         if (a.size() != b.size()) {
             return false;
         }
         for (size_t i = 0; i < a.size(); ++i) {
-            if (caseSensitive ? (a[i] != b[i]) : !ieq(a[i], b[i])) {
+            if (!caseInsensitive ? (a[i] != b[i]) : !ieq(a[i], b[i])) {
                 return false;
             }
         }
@@ -129,10 +129,11 @@ namespace express::detail {
     }
 
     // prefix with **segment boundary** (so "/api" won't match "/apix")
-    inline bool boundaryPrefix(std::string_view path, std::string_view base, bool caseSensitive) {
+    inline bool boundaryPrefix(std::string_view path, std::string_view base, bool caseInsensitive) {
         // Normalize: an empty base is equivalent to "/"
-        if (base.empty())
+        if (base.empty()) {
             base = "/";
+        }
 
         // Special case: base "/" matches any absolute path
         if (base.size() == 1 && base[0] == '/') {
@@ -140,17 +141,19 @@ namespace express::detail {
         }
 
         // Base longer than path cannot match
-        if (base.size() > path.size())
+        if (base.size() > path.size()) {
             return false;
+        }
 
         auto eq = [&](char a, char b) {
-            return caseSensitive ? (a == b) : (std::tolower((unsigned char) a) == std::tolower((unsigned char) b));
+            return !caseInsensitive ? (a == b) : (std::tolower((unsigned char) a) == std::tolower((unsigned char) b));
         };
 
         // Check prefix characters
         for (size_t i = 0; i < base.size(); ++i) {
-            if (!eq(path[i], base[i]))
+            if (!eq(path[i], base[i])) {
                 return false;
+            }
         }
 
         // Boundary: either exact match, or next char is a '/'
@@ -161,8 +164,9 @@ namespace express::detail {
                                      const std::unordered_map<std::string, std::string>& need) {
         for (const auto& kv : need) {
             auto it = rq.find(kv.first);
-            if (it == rq.end() || it->second != kv.second)
+            if (it == rq.end() || it->second != kv.second) {
                 return false;
+            }
         }
         return true;
     }
@@ -175,7 +179,7 @@ namespace express::detail {
     inline std::pair<std::regex, std::vector<std::string>> compile_param_regex(std::string_view mountPath,
                                                                                bool isPrefix, // router/middleware=true, application=false
                                                                                bool strictRouting,
-                                                                               bool caseSensitive) {
+                                                                               bool caseInsensitive) {
         std::string pat;
         pat.reserve(mountPath.size() * 2);
         std::vector<std::string> names;
@@ -187,8 +191,9 @@ namespace express::detail {
             if (*s == ':') {
                 ++s;
                 const char* nstart = s;
-                while (s < e && (std::isalnum((unsigned char) *s) || *s == '_' || *s == '-'))
+                while (s < e && (std::isalnum((unsigned char) *s) > 0 || *s == '_' || *s == '-')) {
                     ++s;
+                }
                 std::string name(nstart, s);
                 std::string custom;
                 if (s < e && *s == '(') {
@@ -196,15 +201,17 @@ namespace express::detail {
                     const char* rstart = s + 1;
                     ++s;
                     while (s < e) {
-                        if (*s == '(')
+                        if (*s == '(') {
                             ++depth;
-                        else if (*s == ')' && depth-- == 0)
+                        } else if (*s == ')' && depth-- == 0) {
                             break;
+                        }
                         ++s;
                     }
                     custom.assign(rstart, s);
-                    if (s < e && *s == ')')
+                    if (s < e && *s == ')') {
                         ++s;
+                    }
                 }
                 names.push_back(std::move(name));
                 if (!custom.empty()) {
@@ -216,8 +223,9 @@ namespace express::detail {
                 } // default: single segment
             } else {
                 static const std::string meta = R"(\.^$|()[]{}*+?!)";
-                if (meta.find(*s) != std::string::npos)
+                if (meta.find(*s) != std::string::npos) {
                     pat += '\\';
+                }
                 pat += *s;
                 ++s;
             }
@@ -226,12 +234,14 @@ namespace express::detail {
         if (isPrefix) {
             pat += "(?:/|$)"; // boundary
         } else {
-            if (!strictRouting)
+            if (!strictRouting) {
                 pat += "/?"; // allow single trailing slash
+            }
             pat += '$';
         }
 
-        auto flags = std::regex::ECMAScript | (caseSensitive ? std::regex::flag_type{} : std::regex::icase);
+        auto flags = std::regex::ECMAScript | (!caseInsensitive ? std::regex::flag_type{} : std::regex::icase);
+
         return {std::regex(pat, flags), std::move(names)};
     }
 
@@ -239,8 +249,9 @@ namespace express::detail {
     inline bool
     match_and_fill_params(const std::regex& rx, const std::vector<std::string>& names, std::string_view reqPath, RequestLike& req) {
         std::cmatch m;
-        if (!std::regex_search(reqPath.begin(), reqPath.end(), m, rx))
+        if (!std::regex_search(reqPath.begin(), reqPath.end(), m, rx)) {
             return false;
+        }
         const size_t g = (m.size() > 0) ? (m.size() - 1) : 0;
         const size_t n = std::min(names.size(), g);
         for (size_t i = 0; i < n; ++i) {

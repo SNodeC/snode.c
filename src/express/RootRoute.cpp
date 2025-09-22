@@ -100,6 +100,15 @@ namespace express {
         return oldStrictRouting;
     }
 
+    bool RootRoute::setCaseInsensitiveRouting(bool caseInsensitiveRouting) {
+        const bool oldCaseInsensitiveRouting =
+            std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getCaseInsensitiveRouting();
+
+        std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->setCaseInsensitiveRouting(caseInsensitiveRouting);
+
+        return oldCaseInsensitiveRouting;
+    }
+
     void RootRoute::dispatch(Controller&& controller) {
         controller.setRootRoute(this);
 
@@ -109,12 +118,15 @@ namespace express {
     void RootRoute::dispatch(Controller& controller) {
         const bool oldStrictRoute =
             controller.setStrictRouting(std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getStrictRouting());
+        const bool oldCaseInsensitiveRouting = controller.setCaseInsensitiveRouting(
+            std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getCaseInsensitiveRouting());
 
         if (!Route::dispatch(controller)) {
             controller.getResponse()->sendStatus(404);
         }
 
         controller.setStrictRouting(oldStrictRoute);
+        controller.setCaseInsensitiveRouting(oldCaseInsensitiveRouting);
     }
 
     DEFINE_ROOTROUTE_REQUESTMETHOD(use, "use")

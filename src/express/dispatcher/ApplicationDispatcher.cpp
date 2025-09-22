@@ -55,6 +55,7 @@
 
 #include <list>
 #include <string_view>
+#include <unordered_map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -80,42 +81,48 @@ namespace express::dispatcher {
             const std::string requestPath = controller.getRequest()->path;
 
             // Split mount & request into path + query
-            std::string_view mPath, mQs;
+            std::string_view mPath;
+            std::string_view mQs;
             splitPathAndQuery(absoluteMountPath, mPath, mQs);
             auto needQ = parseQuery(mQs);
 
-            std::string_view reqAbs, reqQs;
+            std::string_view reqAbs;
+            std::string_view reqQs;
             splitPathAndQuery(controller.getRequest()->originalUrl, reqAbs, reqQs);
             auto rq = parseQuery(reqQs);
 
             // End-anchored equality (verbs) with one trailing slash relaxed when !strict
-            std::string_view mNorm = mPath, pNorm = reqAbs;
+            std::string_view mNorm = mPath;
+            std::string_view pNorm = reqAbs;
             if (!controller.getStrictRouting()) {
                 mNorm = trimOneTrailingSlash(mNorm);
                 pNorm = trimOneTrailingSlash(pNorm);
             }
-            if (mNorm.empty())
+            if (mNorm.empty()) {
                 mNorm = "/";
+            }
 
             bool pathOk = false;
             if (mPath.find(':') != std::string::npos) {
                 auto [rx, names] = compile_param_regex(mPath,
                                                        /*isPrefix*/ false,
                                                        controller.getStrictRouting(),
-                                                       /*caseSensitive*/ true);
+                                                       controller.getCaseInsensitiveRouting());
                 pathOk = match_and_fill_params(rx, names, reqAbs, *controller.getRequest());
             } else {
-                pathOk = equalPath(pNorm, mNorm, /*caseSensitive*/ true);
+                pathOk = equalPath(pNorm, mNorm, controller.getCaseInsensitiveRouting());
             }
 
             const bool queryOk = querySupersetMatches(rq, needQ);
             requestMatched = (pathOk && queryOk);
-            if (!requestMatched)
+            if (!requestMatched) {
                 return requestMatched;
+            }
 
             // Optional params on the application route (e.g. "/users/:id(\\d+)")
             if (absoluteMountPath.find(':') != std::string::npos) {
-                auto [rx, names] = compile_param_regex(mPath, /*isPrefix*/ false, controller.getStrictRouting(), /*caseSensitive*/ true);
+                auto [rx, names] =
+                    compile_param_regex(mPath, /*isPrefix*/ false, controller.getStrictRouting(), controller.getCaseInsensitiveRouting());
                 if (!match_and_fill_params(rx, names, reqAbs, *controller.getRequest())) {
                     requestMatched = false;
                     return requestMatched;

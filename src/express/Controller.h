@@ -84,8 +84,10 @@ namespace express {
         bool dispatchNext(const std::string& parentMountPath);
 
         bool setStrictRouting(bool strictRouting);
-
         bool getStrictRouting() const;
+
+        bool setCaseInsensitiveRouting(bool caseInsensitiveRouting);
+        bool getCaseInsensitiveRouting() const;
 
         enum Flags { NONE = 0, NEXT = 1 << 0, NEXT_ROUTE = 1 << 1, NEXT_ROUTER = 1 << 2 };
 
@@ -99,6 +101,7 @@ namespace express {
         Route* currentRoute = nullptr;
 
         bool strictRouting = false;
+        bool caseInsensitiveRouting = false;
 
         unsigned long lastTick = 0;
 

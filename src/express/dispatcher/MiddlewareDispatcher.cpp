@@ -55,6 +55,7 @@
 
 #include <list>
 #include <string_view>
+#include <unordered_map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -78,11 +79,13 @@ namespace express::dispatcher {
             const std::string requestPath = controller.getRequest()->path;
 
             // Split mount & request into path + query
-            std::string_view mPath, mQs;
+            std::string_view mPath;
+            std::string_view mQs;
             splitPathAndQuery(absoluteMountPath, mPath, mQs);
             auto needQ = parseQuery(mQs);
 
-            std::string_view reqAbs, reqQs;
+            std::string_view reqAbs;
+            std::string_view reqQs;
             splitPathAndQuery(controller.getRequest()->originalUrl, reqAbs, reqQs);
             auto rq = parseQuery(reqQs);
 
@@ -91,8 +94,9 @@ namespace express::dispatcher {
                 mPath = trimOneTrailingSlash(mPath);
                 reqAbs = trimOneTrailingSlash(reqAbs);
             }
-            if (mPath.empty())
+            if (mPath.empty()) {
                 mPath = "/";
+            }
 
             // Middleware is **prefix** with boundary (Express: app.use)
             bool pathOk = false;
@@ -100,19 +104,21 @@ namespace express::dispatcher {
                 auto [rx, names] = compile_param_regex(mPath,
                                                        /*isPrefix*/ true,
                                                        controller.getStrictRouting(),
-                                                       /*caseSensitive*/ true);
+                                                       controller.getCaseInsensitiveRouting());
                 pathOk = match_and_fill_params(rx, names, reqAbs, *controller.getRequest());
             } else {
-                pathOk = boundaryPrefix(reqAbs, mPath, /*caseSensitive*/ true);
+                pathOk = boundaryPrefix(reqAbs, mPath, controller.getCaseInsensitiveRouting());
             }
             const bool queryOk = querySupersetMatches(rq, needQ);
             requestMatched = (pathOk && queryOk);
-            if (!requestMatched)
+            if (!requestMatched) {
                 return requestMatched;
+            }
 
             // Optional params on the mount (e.g. "/api/:tenant")
             if (absoluteMountPath.find(':') != std::string::npos) {
-                auto [rx, names] = compile_param_regex(mPath, /*isPrefix*/ true, controller.getStrictRouting(), /*caseSensitive*/ true);
+                auto [rx, names] =
+                    compile_param_regex(mPath, /*isPrefix*/ true, controller.getStrictRouting(), controller.getCaseInsensitiveRouting());
                 if (!match_and_fill_params(rx, names, reqAbs, *controller.getRequest())) {
                     requestMatched = false;
                     return requestMatched;
@@ -123,8 +129,9 @@ namespace express::dispatcher {
             std::string_view rem{};
             if (reqAbs.size() > mPath.size()) {
                 rem = reqAbs.substr(mPath.size());
-                if (!rem.empty() && rem.front() == '/')
+                if (!rem.empty() && rem.front() == '/') {
                     rem.remove_prefix(1);
+                }
             }
             auto& req = *controller.getRequest();
             const std::string prevPath = req.path;

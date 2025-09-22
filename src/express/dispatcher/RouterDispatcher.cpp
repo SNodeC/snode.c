@@ -53,6 +53,7 @@
 #include "log/Logger.h"
 
 #include <string_view>
+#include <unordered_map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -74,10 +75,20 @@ namespace express::dispatcher {
         return strictRouting;
     }
 
+    bool RouterDispatcher::setCaseInsensitiveRouting(bool caseInsensitiveRouting) {
+        const bool oldCaseInsensitiveRouting = this->caseInsensitiveRouting;
+
+        this->caseInsensitiveRouting = caseInsensitiveRouting;
+
+        return oldCaseInsensitiveRouting;
+    }
+
+    bool RouterDispatcher::getCaseInsensitiveRouting() const {
+        return caseInsensitiveRouting;
+    }
+
     bool
     RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
-        VLOG(0) << "####################### 1";
-
         using namespace express::detail;
 
         bool dispatched = false;
@@ -88,11 +99,13 @@ namespace express::dispatcher {
         const std::string requestUrl = controller.getRequest()->url;
         const std::string requestPath = controller.getRequest()->path;
         // Split mount & request into path + query
-        std::string_view mPath, mQs;
+        std::string_view mPath;
+        std::string_view mQs;
         splitPathAndQuery(absoluteMountPath, mPath, mQs);
         auto needQ = parseQuery(mQs);
 
-        std::string_view reqAbs, reqQs;
+        std::string_view reqAbs;
+        std::string_view reqQs;
         splitPathAndQuery(controller.getRequest()->originalUrl, reqAbs, reqQs);
         auto rq = parseQuery(reqQs);
 
@@ -101,8 +114,9 @@ namespace express::dispatcher {
             mPath = trimOneTrailingSlash(mPath);
             reqAbs = trimOneTrailingSlash(reqAbs);
         }
-        if (mPath.empty())
+        if (mPath.empty()) {
             mPath = "/";
+        }
 
         // Router is **prefix** with boundary (like app.use)
         bool pathOk = false;
@@ -110,35 +124,34 @@ namespace express::dispatcher {
             auto [rx, names] = compile_param_regex(mPath,
                                                    /*isPrefix*/ true,
                                                    controller.getStrictRouting(),
-                                                   /*caseSensitive*/ true);
+                                                   controller.getCaseInsensitiveRouting());
             pathOk = match_and_fill_params(rx, names, reqAbs, *controller.getRequest());
         } else {
-            pathOk = boundaryPrefix(reqAbs, mPath, /*caseSensitive*/ true);
+            pathOk = boundaryPrefix(reqAbs, mPath, controller.getCaseInsensitiveRouting());
         }
         const bool queryOk = querySupersetMatches(rq, needQ);
 
-        VLOG(0) << "####################### 1a: " << mPath << " - " << reqAbs << " - " << pathOk << " - " << queryOk;
-
         bool requestMatched = (pathOk && queryOk);
-        if (!requestMatched)
+        if (!requestMatched) {
             return requestMatched;
-        VLOG(0) << "####################### 2";
+        }
         // Optional params on the mount ("/api/:tenant")
         if (absoluteMountPath.find(':') != std::string::npos) {
-            auto [rx, names] = compile_param_regex(mPath, /*isPrefix*/ true, controller.getStrictRouting(), /*caseSensitive*/ true);
+            auto [rx, names] =
+                compile_param_regex(mPath, /*isPrefix*/ true, controller.getStrictRouting(), controller.getCaseInsensitiveRouting());
             if (!match_and_fill_params(rx, names, reqAbs, *controller.getRequest())) {
                 requestMatched = false;
                 return requestMatched;
             }
         }
 
-        VLOG(0) << "####################### 3";
         // Compute remainder and temporarily **rewrite req.path** for subtree
         std::string_view rem{};
         if (reqAbs.size() > mPath.size()) {
             rem = reqAbs.substr(mPath.size());
-            if (!rem.empty() && rem.front() == '/')
+            if (!rem.empty() && rem.front() == '/') {
                 rem.remove_prefix(1);
+            }
         }
         auto& req = *controller.getRequest();
         const std::string prevPath = req.path;

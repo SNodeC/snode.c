@@ -81,6 +81,12 @@ namespace express {
         return *this;
     }
 
+    const Router& Router::setCaseInsensitiveRouting(bool caseInsensitiveRouting) const {
+        rootRoute->setCaseInsensitiveRouting(caseInsensitiveRouting);
+
+        return *this;
+    }
+
     std::list<std::string> Router::getRoutes() const {
         return rootRoute->getRoutes();
     }

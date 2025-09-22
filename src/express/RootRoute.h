@@ -83,6 +83,7 @@ namespace express {
 
     private:
         bool setStrictRouting(bool strictRouting);
+        bool setCaseInsensitiveRouting(bool caseInsensitiveRouting);
 
         void dispatch(Controller&& controller);
         void dispatch(Controller& controller);

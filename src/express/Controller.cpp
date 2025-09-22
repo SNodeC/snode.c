@@ -160,4 +160,16 @@ namespace express {
         return strictRouting;
     }
 
+    bool Controller::setCaseInsensitiveRouting(bool caseInsensitiveRouting) {
+        const bool oldCaseInsensitiveRouting = this->caseInsensitiveRouting;
+
+        this->caseInsensitiveRouting = caseInsensitiveRouting;
+
+        return oldCaseInsensitiveRouting;
+    }
+
+    bool Controller::getCaseInsensitiveRouting() const {
+        return caseInsensitiveRouting;
+    }
+
 } // namespace express
