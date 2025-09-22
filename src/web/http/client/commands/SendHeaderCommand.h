@@ -51,7 +51,8 @@ namespace web::http::client::commands {
 
     class SendHeaderCommand : public web::http::client::RequestCommand {
     public:
-        SendHeaderCommand() = default;
+        SendHeaderCommand();
+
         ~SendHeaderCommand() override = default;
 
         // RequestCommand interface

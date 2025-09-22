@@ -45,11 +45,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client::commands {
+
+    EndCommand::EndCommand(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError)
+        : web::http::client::RequestCommand(onResponseReceived, onResponseParseError) {
+    }
 
     bool EndCommand::execute(const std::shared_ptr<Request>& request) {
         return request->executeEnd();

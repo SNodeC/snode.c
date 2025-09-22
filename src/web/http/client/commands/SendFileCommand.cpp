@@ -45,14 +45,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client::commands {
 
-    SendFileCommand::SendFileCommand(const std::string& file, const std::function<void(int)>& onStatus)
-        : file(file)
+    SendFileCommand::SendFileCommand(
+        const std::string& file,
+        const std::function<void(int)>& onStatus,
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError)
+        : web::http::client::RequestCommand(onResponseReceived, onResponseParseError)
+        , file(file)
         , onStatus(onStatus) {
     }
 

@@ -46,14 +46,14 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
-#include <memory>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client::commands {
 
     SendFragmentCommand::SendFragmentCommand(const char* chunk, std::size_t chunkLen)
-        : chunk(new char[chunkLen])
+        : web::http::client::RequestCommand(nullptr, nullptr)
+        , chunk(new char[chunkLen])
         , chunkLen(chunkLen) {
         std::memcpy(this->chunk, chunk, chunkLen);
     }

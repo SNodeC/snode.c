@@ -45,10 +45,9 @@
 #include "core/pipe/Sink.h"
 #include "web/http/ConnectionState.h"
 #include "web/http/TransferEncoding.h"
+#include "web/http/client/RequestCommand.h" // IWYU pragma: export
 
 namespace web::http::client {
-    class RequestCommand;
-    class Response;
     class SocketContext;
     namespace commands {
         class SendFileCommand;

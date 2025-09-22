@@ -46,13 +46,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client::commands {
 
     class EndCommand : public web::http::client::RequestCommand {
     public:
-        EndCommand() = default;
+        EndCommand(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                   const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
 
         ~EndCommand() override = default;
 

@@ -46,6 +46,13 @@
 
 namespace web::http::client {
 
+    RequestCommand::RequestCommand(
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError)
+        : onResponseReceived(onResponseReceived)
+        , onResponseParseError(onResponseParseError) {
+    }
+
     RequestCommand::~RequestCommand() {
     }
 

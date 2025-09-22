@@ -42,12 +42,15 @@
 #define WEB_HTTP_CLIENT_REQUESTCOMMAND_H
 
 namespace web::http::client {
-    class Request; // IWYU pragma: export
-}
+    class Request;  // IWYU pragma: export
+    class Response; // IWYU pragma: export
+} // namespace web::http::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
+#include <functional> // IWYU pragma: export
+#include <memory>     // IWYU pragma: export
+#include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -55,7 +58,8 @@ namespace web::http::client {
 
     class RequestCommand {
     public:
-        RequestCommand() = default;
+        RequestCommand(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
 
         RequestCommand(const RequestCommand&) = delete;
         RequestCommand(RequestCommand&&) noexcept = delete;
@@ -72,6 +76,11 @@ namespace web::http::client {
     protected:
         const std::shared_ptr<Request> request;
 
+    public:
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
+        const std::function<void(const std::shared_ptr<Request>&, const std::string&)> onResponseParseError;
+
+    protected:
         bool error = false;
     };
 

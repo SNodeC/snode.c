@@ -54,6 +54,7 @@ namespace web::http::client::commands {
     class SendFragmentCommand : public web::http::client::RequestCommand {
     public:
         SendFragmentCommand(const char* chunk, std::size_t chunkLen);
+
         ~SendFragmentCommand() override;
 
         // RequestCommand interface

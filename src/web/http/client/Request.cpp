@@ -268,9 +268,6 @@ namespace web::http::client {
         bool queued = true;
 
         if (!masterRequest.expired()) {
-            this->onResponseReceived = onResponseReceived;
-            this->onResponseParseError = onResponseParseError;
-
             if (chunkLen > 0) {
                 set("Content-Type", "application/octet-stream", false);
             }
@@ -278,7 +275,7 @@ namespace web::http::client {
             sendHeader();
             sendFragment(chunk, chunkLen);
 
-            requestCommands.push_back(new commands::EndCommand());
+            requestCommands.push_back(new commands::EndCommand(onResponseReceived, onResponseParseError));
 
             requestPrepared();
         } else {
@@ -307,27 +304,29 @@ namespace web::http::client {
         if (!masterRequest.expired()) {
             this->url = url;
 
-            this->onResponseParseError = onResponseParseError;
+            requestCommands.push_back(new commands::UpgradeCommand(
+                url,
+                protocols,
+                onUpgradeInitiate,
+                [onResponseReceived](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                    const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
-            this->onResponseReceived = [onResponseReceived](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
+                    LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << req->method << " " << req->url << " "
+                               << "HTTP/" << req->httpMajor << "." << req->httpMinor << "\n"
+                               << httputils::toString(
+                                      res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
 
-                LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << req->method << " " << req->url << " "
-                           << "HTTP/" << req->httpMajor << "." << req->httpMinor << "\n"
-                           << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
+                    req->upgrade(res, [req, res, connectionName, &onResponseReceived](const std::string& name) {
+                        LOG(DEBUG) << connectionName << " HTTP upgrade: bootstrap " << (!name.empty() ? "success" : "failed");
+                        LOG(DEBUG) << "      Protocol selected: " << name;
+                        LOG(DEBUG) << "              requested: " << req->header("upgrade");
+                        LOG(DEBUG) << "  Subprotocol  selected: " << res->get("Sec-WebSocket-Protocol");
+                        LOG(DEBUG) << "              requested: " << req->header("Sec-WebSocket-Protocol");
 
-                req->upgrade(res, [req, res, connectionName, &onResponseReceived](const std::string& name) {
-                    LOG(DEBUG) << connectionName << " HTTP upgrade: bootstrap " << (!name.empty() ? "success" : "failed");
-                    LOG(DEBUG) << "      Protocol selected: " << name;
-                    LOG(DEBUG) << "              requested: " << req->header("upgrade");
-                    LOG(DEBUG) << "  Subprotocol  selected: " << res->get("Sec-WebSocket-Protocol");
-                    LOG(DEBUG) << "              requested: " << req->header("Sec-WebSocket-Protocol");
-
-                    onResponseReceived(req, res, !name.empty());
-                });
-            };
-
-            requestCommands.push_back(new commands::UpgradeCommand(url, protocols, onUpgradeInitiate));
+                        onResponseReceived(req, res, !name.empty());
+                    });
+                },
+                onResponseParseError));
 
             requestPrepared();
         }
@@ -393,10 +392,7 @@ namespace web::http::client {
         bool queued = false;
 
         if (!masterRequest.expired()) {
-            this->onResponseReceived = onResponseReceived;
-            this->onResponseParseError = onResponseParseError;
-
-            requestCommands.push_back(new commands::SendFileCommand(file, onStatus));
+            requestCommands.push_back(new commands::SendFileCommand(file, onStatus, onResponseReceived, onResponseParseError));
 
             requestPrepared();
 
@@ -433,12 +429,9 @@ namespace web::http::client {
         bool queued = true;
 
         if (!masterRequest.expired()) {
-            this->onResponseReceived = onResponseReceived;
-            this->onResponseParseError = onResponseParseError;
-
             sendHeader();
 
-            requestCommands.push_back(new commands::EndCommand());
+            requestCommands.push_back(new commands::EndCommand(onResponseReceived, onResponseParseError));
 
             requestPrepared();
         } else {
@@ -454,6 +447,9 @@ namespace web::http::client {
 
         for (RequestCommand* requestCommand : requestCommands) {
             if (!error) {
+                this->onResponseParseError = requestCommand->onResponseParseError;
+                this->onResponseReceived = requestCommand->onResponseReceived;
+
                 const bool atomarCommand = requestCommand->execute(request);
                 if (atomar) {
                     atomar = atomarCommand;
