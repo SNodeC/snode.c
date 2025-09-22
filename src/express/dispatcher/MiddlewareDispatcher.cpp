@@ -53,8 +53,12 @@
 
 #include "log/Logger.h"
 
+#include <algorithm>
+#include <cstddef>
 #include <list>
+#include <regex>
 #include <string_view>
+#include <tuple>
 #include <unordered_map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -68,87 +72,93 @@ namespace express::dispatcher {
 
     bool MiddlewareDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const MountPoint& mountPoint) {
         bool requestMatched = false;
+        const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
-            using namespace express::detail;
-
-            const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
-
-            const std::string requestMethod = controller.getRequest()->method;
-            const std::string requestUrl = controller.getRequest()->url;
-            const std::string requestPath = controller.getRequest()->path;
-
             // Split mount & request into path + query
-            std::string_view mPath;
-            std::string_view mQs;
-            splitPathAndQuery(absoluteMountPath, mPath, mQs);
-            auto needQ = parseQuery(mQs);
+            std::string_view mountPath;
+            std::string_view mountQueryString;
+            splitPathAndQuery(absoluteMountPath, mountPath, mountQueryString);
+            auto requiredQueryPairs = parseQuery(mountQueryString);
 
-            std::string_view reqAbs;
-            std::string_view reqQs;
-            splitPathAndQuery(controller.getRequest()->originalUrl, reqAbs, reqQs);
-            auto rq = parseQuery(reqQs);
+            std::string_view requestPath;
+            std::string_view requestQueryString;
+            splitPathAndQuery(controller.getRequest()->originalUrl, requestPath, requestQueryString);
+            auto requestQueryPairs = parseQuery(requestQueryString);
 
             // Normalize single trailing slash if not strict
             if (!controller.getStrictRouting()) {
-                mPath = trimOneTrailingSlash(mPath);
-                reqAbs = trimOneTrailingSlash(reqAbs);
+                mountPath = trimOneTrailingSlash(mountPath);
+                requestPath = trimOneTrailingSlash(requestPath);
             }
-            if (mPath.empty()) {
-                mPath = "/";
+            if (mountPath.empty()) {
+                mountPath = "/";
             }
 
             // Middleware is **prefix** with boundary (Express: app.use)
-            bool pathOk = false;
+            bool pathMatches = false;
+            std::size_t consumedLength = 0;
             if (absoluteMountPath.find(':') != std::string::npos) {
-                auto [rx, names] = compile_param_regex(mPath,
-                                                       /*isPrefix*/ true,
-                                                       controller.getStrictRouting(),
-                                                       controller.getCaseInsensitiveRouting());
-                pathOk = match_and_fill_params(rx, names, reqAbs, *controller.getRequest());
+                // Param mount: compile once, match once, fill params, and record matched prefix length
+                if (regex.mark_count() == 0) {
+                    if (regex.mark_count() == 0) {
+                        LOG(TRACE) << "MiddlewarDispatchere: precompiled regex";
+                        std::tie(regex, names) = compileParamRegex(mountPath,
+                                                                   /*isPrefix*/ true,
+                                                                   controller.getStrictRouting(),
+                                                                   controller.getCaseInsensitiveRouting());
+                    } else {
+                        LOG(TRACE) << "MiddlewareDispatcher: using precompiled regex";
+                    }
+                }
+                std::cmatch regexMatches;
+                pathMatches = std::regex_search(requestPath.begin(), requestPath.end(), regexMatches, regex);
+                if (pathMatches) {
+                    // regexMatches[0] = full matched prefix starting at 0 (anchored by compile_param_regex)
+                    consumedLength = static_cast<std::size_t>(regexMatches.length(0));
+
+                    // fill named params
+                    const std::size_t groups = !regexMatches.empty() ? (regexMatches.size() - 1) : 0;
+                    const std::size_t n = std::min(names.size(), groups);
+                    for (std::size_t i = 0; i < n; ++i) {
+                        controller.getRequest()->params[names[i]] = regexMatches[i + 1].str();
+                    }
+                }
             } else {
-                pathOk = boundaryPrefix(reqAbs, mPath, controller.getCaseInsensitiveRouting());
-            }
-            const bool queryOk = querySupersetMatches(rq, needQ);
-            requestMatched = (pathOk && queryOk);
-            if (!requestMatched) {
-                return requestMatched;
-            }
-
-            // Optional params on the mount (e.g. "/api/:tenant")
-            if (absoluteMountPath.find(':') != std::string::npos) {
-                auto [rx, names] =
-                    compile_param_regex(mPath, /*isPrefix*/ true, controller.getStrictRouting(), controller.getCaseInsensitiveRouting());
-                if (!match_and_fill_params(rx, names, reqAbs, *controller.getRequest())) {
-                    requestMatched = false;
-                    return requestMatched;
+                // Literal boundary prefix
+                pathMatches = boundaryPrefix(requestPath, mountPath, controller.getCaseInsensitiveRouting());
+                if (pathMatches) {
+                    consumedLength = mountPath.size(); // IMPORTANT: literal consumes exactly its base length
                 }
             }
 
-            // Compute remainder and temporarily **rewrite req.path**
-            std::string_view rem{};
-            if (reqAbs.size() > mPath.size()) {
-                rem = reqAbs.substr(mPath.size());
-                if (!rem.empty() && rem.front() == '/') {
-                    rem.remove_prefix(1);
-                }
-            }
-            auto& req = *controller.getRequest();
-            const std::string prevPath = req.path;
-            req.path = rem.empty() ? "/" : ("/" + std::string(rem));
-
-            req.queries.insert(rq.begin(), rq.end());
+            const bool queryMatches = querySupersetMatches(requestQueryPairs, requiredQueryPairs);
+            requestMatched = (pathMatches && queryMatches);
 
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " HTTP Express: middleware -> " << (requestMatched ? "MATCH" : "NO MATCH");
-            LOG(TRACE) << "      RequestMethod: " << controller.getRequest()->method;
-            LOG(TRACE) << "         RequestUrl: " << controller.getRequest()->url;
-            LOG(TRACE) << "        RequestPath: " << controller.getRequest()->path;
-            LOG(TRACE) << "  AbsoluteMountPath: " << absoluteMountPath;
-            LOG(TRACE) << "      StrictRouting: " << controller.getStrictRouting();
-            LOG(TRACE) << "      StrictRouting: " << controller.getStrictRouting();
+            LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
+            LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
+            LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
+            LOG(TRACE) << "       AbsoluteMountPath: " << absoluteMountPath;
+            LOG(TRACE) << "           StrictRouting: " << controller.getStrictRouting();
+            LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
 
             if (requestMatched) {
+                // Compute remainder and temporarily **rewrite req.path**
+                std::string_view remainderPath{};
+                if (requestPath.size() > consumedLength) {
+                    remainderPath = requestPath.substr(consumedLength);
+                    if (!remainderPath.empty() && remainderPath.front() == '/') {
+                        remainderPath.remove_prefix(1);
+                    }
+                }
+                auto& req = *controller.getRequest();
+                const std::string previousPathBackup = req.path;
+                req.path = remainderPath.empty() ? "/" : ("/" + std::string(remainderPath));
+
+                req.queries.insert(requestQueryPairs.begin(), requestQueryPairs.end());
+
                 if (hasResult(absoluteMountPath)) {
                     setParams(absoluteMountPath, *controller.getRequest());
                 }
@@ -162,10 +172,17 @@ namespace express::dispatcher {
                     requestMatched = false;
                     controller = next.controller;
                 }
-            }
 
-            // Restore
-            req.path = prevPath;
+                // Restore
+                req.path = previousPathBackup;
+            }
+        } else {
+            LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
+                       << " HTTP Express: middleware -> next(...) called";
+            LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
+            LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
+            LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
+            LOG(TRACE) << "       AbsoluteMountPath: " << absoluteMountPath;
         }
 
         return requestMatched;

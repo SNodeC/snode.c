@@ -54,7 +54,9 @@ namespace express {
 
 #include <functional>
 #include <memory>
+#include <regex>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -71,6 +73,9 @@ namespace express::dispatcher {
         getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const override;
 
         const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, express::Next&)> lambda;
+
+        std::regex regex;
+        std::vector<std::string> names;
     };
 
 } // namespace express::dispatcher
