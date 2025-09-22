@@ -44,9 +44,10 @@
 #include "log/Logger.h"
 
 #include <iostream>
-#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
+
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 using express::Request;
 using express::Response;
