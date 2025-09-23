@@ -9424,24 +9424,27 @@ CLI11_INLINE void App::_process_requirements() {
             missing_need = opt->get_name();
         }
     }
-    for(const auto &subc : need_subcommands_) {
-        try {
+    for(const auto &subc : need_subcommands_) { // Process subcommands given on the commandline first
+        if (subc->count() > 0) {
             subc->_process_requirements();
-        } catch (const CLI::RequiresError& e) {
-            if (subc->count() == 0) {
+        }
+    }
+    for(const auto &subc : need_subcommands_) {
+        if (subc->count() == 0) {
+            try {
+                subc->_process_requirements();
+            } catch (const CLI::RequiresError&) {
                 std::string out = get_display_name();
 
                 for(const App* parent = get_parent(); parent != nullptr; parent = parent->get_parent()) {
                     out = parent->get_display_name() + ":" + out;
                 }
                 throw RequiresError(out, subc->name_);
-            } else {
-                throw;
             }
-        }
-        if(subc->count_all() == 0) {
-            missing_needed = true;
-            missing_need = subc->get_display_name();
+            if(subc->count_all() == 0) {
+                missing_needed = true;
+                missing_need = subc->get_display_name();
+            }
         }
     }
     if(missing_needed) {
@@ -9529,7 +9532,7 @@ CLI11_INLINE void App::_process_requirements() {
                 }
             }
         }
-        if((sub->count() > 0 || sub->name_.empty()) && !need_subcommands_.contains(sub.get()) ) {
+        if((sub->count() > 0 || sub->name_.empty()) && need_subcommands_.find(sub.get()) == need_subcommands_.end()) {
             try {
                 sub->_process_requirements();
             } catch (const CLI::RequiredError& e) {
