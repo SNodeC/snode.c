@@ -43,6 +43,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "web/http/http_utils.h"
 
 #include <regex>
@@ -74,6 +75,8 @@ namespace web::http::server {
     void RequestParser::parseStartLine(const std::string& line) {
         parserState = Parser::ParserState::HEADER;
 
+        VLOG(0) << "ParseStartLine ######: " << line;
+
         if (!line.empty()) {
             std::string remaining;
 
@@ -84,13 +87,13 @@ namespace web::http::server {
             std::tie(std::ignore, queriesLine) = httputils::str_split(request.url, '?');
 
             if (!methodSupported(request.method)) {
-                parseError(400, "Bad request method: " + request.method);
+                parseError(405, "Bad request method: " + request.method);
             } else if (request.url.empty() || request.url.front() != '/') {
                 parseError(400, "Malformed request");
             } else {
                 std::smatch httpVersionMatch;
                 if (!std::regex_match(request.httpVersion, httpVersionMatch, httpVersionRegex)) {
-                    parseError(400, "Wrong protocol-version: " + request.httpVersion);
+                    parseError(505, "Wrong protocol-version: " + request.httpVersion);
                 } else {
                     httpMajor = std::stoi(httpVersionMatch.str(1));
                     httpMinor = std::stoi(httpVersionMatch.str(2));

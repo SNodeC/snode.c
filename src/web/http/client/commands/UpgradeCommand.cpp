@@ -45,25 +45,31 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client::commands {
 
-    UpgradeCommand::UpgradeCommand(
-        const std::string& url,
-        const std::string& protocols,
-        const std::function<void(const std::shared_ptr<Request>&, bool)>& onUpgradeInitiate,
-        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError)
+    UpgradeCommand::UpgradeCommand(const std::string& url,
+                                   const std::string& protocols,
+                                   const std::function<void(bool)>& onUpgradeInitiate,
+                                   const std::function<void(const std::shared_ptr<Response>&)>& onResponseReceived,
+                                   const std::function<void(const std::string&)>& onResponseParseError)
         : web::http::client::RequestCommand(onResponseReceived, onResponseParseError)
         , url(url)
         , protocols(protocols)
         , onUpgradeInitiate(onUpgradeInitiate) {
     }
 
-    bool UpgradeCommand::execute(const std::shared_ptr<Request>& request) {
-        const bool ret = request->executeUpgrade(url, protocols, [this, request](bool success) {
-            onUpgradeInitiate(request, success);
+    bool UpgradeCommand::execute(std::shared_ptr<Request> request) {
+        VLOG(0) << "Request method 1: " << request->method;
+        for (auto& header : request->headers) {
+            VLOG(0) << "  Header: " << header.first << " : " << header.second;
+        }
+
+        const bool ret = request->executeUpgrade(url, protocols, [this](bool success) {
+            onUpgradeInitiate(success);
         });
 
         return ret;

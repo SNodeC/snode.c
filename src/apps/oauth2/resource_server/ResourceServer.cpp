@@ -93,19 +93,22 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "AccessToken: " << queryAccessToken;
                 const nlohmann::json requestJson = {{"access_token", queryAccessToken}, {"client_id", queryClientId}};
                 const std::string requestJsonString{requestJson.dump(4)};
-                request->send(requestJsonString,
-                              [res]([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& request,
-                                    const std::shared_ptr<web::http::client::Response>& response) {
-                                  VLOG(1) << "OnResponse";
-                                  VLOG(1) << "Response: " << std::string(response->body.begin(), response->body.end());
-                                  if (std::stoi(response->statusCode) != 200) {
-                                      const nlohmann::json errorJson = {{"error", "Invalid access token"}};
-                                      res->status(401).send(errorJson.dump(4));
-                                  } else {
-                                      const nlohmann::json successJson = {{"content", "🦆"}};
-                                      res->status(200).send(successJson.dump(4));
-                                  }
-                              });
+                request->send(
+                    requestJsonString,
+                    [res](const std::shared_ptr<web::http::client::Response>& response) {
+                        VLOG(1) << "OnResponse";
+                        VLOG(1) << "Response: " << std::string(response->body.begin(), response->body.end());
+                        if (std::stoi(response->statusCode) != 200) {
+                            const nlohmann::json errorJson = {{"error", "Invalid access token"}};
+                            res->status(401).send(errorJson.dump(4));
+                        } else {
+                            const nlohmann::json successJson = {{"content", "🦆"}};
+                            res->status(200).send(successJson.dump(4));
+                        }
+                    },
+                    [](const std::string& message) {
+                        VLOG(1) << "OAuth2ResourceServer: Request parse error: " << message;
+                    });
             },
             []([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& req) {
                 LOG(INFO) << " -- OnRequestEnd";

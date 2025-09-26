@@ -61,7 +61,7 @@ namespace web::http::client {
 
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
         return new web::http::client::SocketContext(
-            socketConnection, onRequestBegin, onRequestEnd, configHttp.getHostHeader(), configHttp.getPipelinedRequests());
+            socketConnection, onHttpConnected, onHttpDisconnected, configHttp.getHostHeader(), configHttp.getPipelinedRequests());
     }
 
 } // namespace web::http::client

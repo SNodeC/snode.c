@@ -52,7 +52,7 @@
 namespace web::http::client::commands {
 
     SendFragmentCommand::SendFragmentCommand(const char* chunk, std::size_t chunkLen)
-        : web::http::client::RequestCommand(nullptr, nullptr)
+        : web::http::client::RequestCommand({}, {})
         , chunk(new char[chunkLen])
         , chunkLen(chunkLen) {
         std::memcpy(this->chunk, chunk, chunkLen);
@@ -62,7 +62,7 @@ namespace web::http::client::commands {
         delete[] chunk;
     }
 
-    bool SendFragmentCommand::execute(const std::shared_ptr<Request>& request) {
+    bool SendFragmentCommand::execute(std::shared_ptr<Request> request) {
         return request->executeSendFragment(chunk, chunkLen);
     }
 

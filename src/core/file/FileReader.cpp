@@ -46,6 +46,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
+#include "log/Logger.h"
 
 #include <cerrno>
 #include <vector>
@@ -105,6 +106,7 @@ namespace core::file {
     }
 
     void FileReader::start() {
+        VLOG(0) << "Start------------------------";
         if (!running) {
             running = true;
             span();

@@ -66,31 +66,34 @@ int main(int argc, char* argv[]) {
             req->url = "/index.html";
             req->type("application/json");
             req->set("Connection", "close");
-            req->send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}",
-                      []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                          VLOG(1) << "-- OnResponse";
-                          VLOG(1) << "     Status:";
-                          VLOG(1) << "       " << res->httpVersion;
-                          VLOG(1) << "       " << res->statusCode;
-                          VLOG(1) << "       " << res->reason;
+            req->send(
+                "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}",
+                [](const std::shared_ptr<Response>& res) {
+                    VLOG(1) << "-- OnResponse";
+                    VLOG(1) << "     Status:";
+                    VLOG(1) << "       " << res->httpVersion;
+                    VLOG(1) << "       " << res->statusCode;
+                    VLOG(1) << "       " << res->reason;
 
-                          VLOG(1) << "     Headers:";
-                          for (const auto& [field, value] : res->headers) {
-                              VLOG(1) << "       " << field + " = " + value;
-                          }
+                    VLOG(1) << "     Headers:";
+                    for (const auto& [field, value] : res->headers) {
+                        VLOG(1) << "       " << field + " = " + value;
+                    }
 
-                          VLOG(1) << "     Cookies:";
-                          for (const auto& [name, cookie] : res->cookies) {
-                              VLOG(1) << "       " + name + " = " + cookie.getValue();
-                              for (const auto& [option, value] : cookie.getOptions()) {
-                                  VLOG(1) << "         " + option + " = " + value;
-                              }
-                          }
+                    VLOG(1) << "     Cookies:";
+                    for (const auto& [name, cookie] : res->cookies) {
+                        VLOG(1) << "       " + name + " = " + cookie.getValue();
+                        for (const auto& [option, value] : cookie.getOptions()) {
+                            VLOG(1) << "         " + option + " = " + value;
+                        }
+                    }
 
-                          res->body.push_back(0);
-                          VLOG(1) << "     Body:\n----------- start body -----------" << res->body.data()
-                                  << "------------ end body ------------";
-                      });
+                    res->body.push_back(0);
+                    VLOG(1) << "     Body:\n----------- start body -----------" << res->body.data() << "------------ end body ------------";
+                },
+                [](const std::string& message) {
+                    VLOG(1) << "legacy: Request parse error: " << message;
+                });
         },
         []([[maybe_unused]] const std::shared_ptr<Request>& req) {
             LOG(INFO) << " -- OnRequestEnd";

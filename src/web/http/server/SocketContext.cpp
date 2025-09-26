@@ -43,6 +43,7 @@
 
 #include "core/EventReceiver.h"
 #include "core/socket/stream/SocketConnection.h"
+#include "web/http/StatusCodes.h"
 #include "web/http/server/Response.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -80,6 +81,8 @@ namespace web::http::server {
               [this](int status, const std::string& reason) {
                   LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Request parse error: " << reason << " (" << status
                              << ") ";
+
+                  masterResponse->status(status).send(reason);
 
                   shutdownWrite(true);
               }) {
@@ -129,7 +132,9 @@ namespace web::http::server {
 
             requestCompleted();
         } else {
-            LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Response wrong content length";
+            LOG(WARNING) << getSocketConnection()->getConnectionName()
+                         << " HTTP: Response completed with error: " << masterResponse->statusCode << " "
+                         << StatusCode::reason(masterResponse->statusCode);
 
             shutdownWrite(true);
         }

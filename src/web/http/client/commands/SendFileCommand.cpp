@@ -45,22 +45,27 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client::commands {
 
-    SendFileCommand::SendFileCommand(
-        const std::string& file,
-        const std::function<void(int)>& onStatus,
-        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError)
+    SendFileCommand::SendFileCommand(const std::string& file,
+                                     const std::function<void(int)>& onStatus,
+                                     const std::function<void(const std::shared_ptr<Response>&)>& onResponseReceived,
+                                     const std::function<void(const std::string&)>& onResponseParseError)
         : web::http::client::RequestCommand(onResponseReceived, onResponseParseError)
         , file(file)
         , onStatus(onStatus) {
     }
 
-    bool SendFileCommand::execute(const std::shared_ptr<Request>& request) {
-        return error = request->executeSendFile(file, onStatus);
+    bool SendFileCommand::execute(std::shared_ptr<Request> request) {
+        VLOG(0) << "------------";
+        return request->executeSendFile(file, [this](int errnum) {
+            this->error = errnum;
+            onStatus(errnum);
+        });
     }
 
 } // namespace web::http::client::commands

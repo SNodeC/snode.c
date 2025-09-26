@@ -72,17 +72,17 @@ int main(int argc, char* argv[]) {
                 req->upgrade(
                     "/ws",
                     "websocket",
-                    [connectionName](const std::shared_ptr<Request>& req, bool success) {
-                        VLOG(1) << connectionName << ": HTTP Upgrade (http -> " << req->header("upgrade") << "|"
-                                << req->header("Sec-WebSocket-Protocol") << ") start " << (success ? "success" : "failed");
+                    [connectionName](bool success) {
+                        VLOG(1) << connectionName << ": HTTP Upgrade (http -> websocket) start " << (success ? "success" : "failed");
                     },
-                    [connectionName]([[maybe_unused]] const std::shared_ptr<Request>& req,
-                                     [[maybe_unused]] const std::shared_ptr<Response>& res,
-                                     [[maybe_unused]] bool success) {
+                    [req, connectionName](const std::shared_ptr<Response>& res, [[maybe_unused]] bool success) {
                         VLOG(1) << connectionName << ": Upgrade success:";
 
                         VLOG(1) << connectionName << ":   Requested: " << req->header("upgrade");
                         VLOG(1) << connectionName << ":    Selected: " << res->get("upgrade");
+                    },
+                    [connectionName](const std::string& message) {
+                        VLOG(1) << connectionName << ": Request parse error: " << message;
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
@@ -126,13 +126,13 @@ int main(int argc, char* argv[]) {
                 req->upgrade(
                     "/ws",
                     "websocket",
-                    [connectionName](const std::shared_ptr<Request>& req, bool success) {
-                        VLOG(1) << connectionName << ": HTTP Upgrade (http -> " << req->header("upgrade") << "|"
-                                << req->header("Sec-WebSocket-Protocol") << ") start " << (success ? "success" : "failed");
+                    [connectionName](bool success) {
+                        VLOG(1) << connectionName << ": HTTP Upgrade (http -> websocket) start " << (success ? "success" : "failed");
                     },
-                    [connectionName]([[maybe_unused]] const std::shared_ptr<Request>& req,
-                                     [[maybe_unused]] const std::shared_ptr<Response>& res,
-                                     [[maybe_unused]] bool success) {
+                    [connectionName]([[maybe_unused]] const std::shared_ptr<Response>& res, [[maybe_unused]] bool success) {
+                    },
+                    [connectionName](const std::string& message) {
+                        VLOG(1) << connectionName << ": Request parse error: " << message;
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {

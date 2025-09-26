@@ -123,16 +123,11 @@ namespace web::http::client {
         headers.clear();
         cookies.clear();
         trailer.clear();
-        for (const RequestCommand* requestCommand : requestCommands) {
-            delete requestCommand;
-        }
         requestCommands.clear();
         transferEncoding = TransferEncoding::HTTP10;
         contentLength = 0;
         contentLengthSent = 0;
         connectionState = ConnectionState::Default;
-        onResponseReceived = nullptr;
-        onResponseParseError = nullptr;
 
         this->host(hostFieldValue);
         set("X-Powered-By", "snode.c");
@@ -255,29 +250,26 @@ namespace web::http::client {
         return *this;
     }
 
-    void Request::responseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
-        LOG(WARNING) << request->getSocketContext()->getSocketConnection()->getConnectionName()
-                     << " HTTP: Response parse error: " << request->method << " " << request->url << " "
-                     << "HTTP/" << request->httpMajor << "." << request->httpMinor << ": " << message;
-    }
-
     bool Request::send(const char* chunk,
                        std::size_t chunkLen,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
+                       const std::function<void(const std::shared_ptr<Response>&)>& onResponseReceived,
+                       const std::function<void(const std::string&)>& onResponseParseError) {
         bool queued = true;
 
         if (!masterRequest.expired()) {
+            std::shared_ptr<Request> newRequest = std::make_shared<Request>(std::move(*this));
+
             if (chunkLen > 0) {
-                set("Content-Type", "application/octet-stream", false);
+                newRequest->set("Content-Type", "application/octet-stream", false);
             }
 
-            sendHeader();
-            sendFragment(chunk, chunkLen);
+            newRequest->sendHeader();
+            newRequest->sendFragment(chunk, chunkLen);
 
-            requestCommands.push_back(new commands::EndCommand(onResponseReceived, onResponseParseError));
+            newRequest->requestCommands.push_back(new commands::EndCommand(onResponseReceived, onResponseParseError));
 
-            requestPrepared();
+            newRequest->requestPrepared(newRequest);
+
         } else {
             queued = false;
         }
@@ -286,8 +278,8 @@ namespace web::http::client {
     }
 
     bool Request::send(const std::string& chunk,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
+                       const std::function<void(const std::shared_ptr<Response>&)>& onResponseReceived,
+                       const std::function<void(const std::string&)>& onResponseParseError) {
         if (!chunk.empty()) {
             set("Content-Type", "text/html; charset=utf-8", false);
         }
@@ -295,40 +287,55 @@ namespace web::http::client {
         return send(chunk.data(), chunk.size(), onResponseReceived, onResponseParseError);
     }
 
-    bool
-    Request::upgrade(const std::string& url,
-                     const std::string& protocols,
-                     const std::function<void(const std::shared_ptr<Request>&, bool)>& onUpgradeInitiate,
-                     const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, bool)>& onResponseReceived,
-                     const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
+    bool Request::upgrade(const std::string& url,
+                          const std::string& protocols,
+                          const std::function<void(bool)>& onUpgradeInitiate,
+                          const std::function<void(const std::shared_ptr<Response>&, bool)>& onResponseReceived,
+                          const std::function<void(const std::string&)>& onResponseParseError) {
         if (!masterRequest.expired()) {
-            this->url = url;
+            const std::shared_ptr<Request> newRequest = std::make_shared<Request>(std::move(*this));
 
-            requestCommands.push_back(new commands::UpgradeCommand(
+            newRequest->url = url;
+
+            newRequest->requestCommands.push_back(new commands::UpgradeCommand(
                 url,
                 protocols,
                 onUpgradeInitiate,
-                [onResponseReceived](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                    const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
+                [originRequest = std::weak_ptr(newRequest), onResponseReceived](const std::shared_ptr<Response>& response) {
+                    const std::shared_ptr<Request> request = originRequest.lock();
 
-                    LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << req->method << " " << req->url << " "
-                               << "HTTP/" << req->httpMajor << "." << req->httpMinor << "\n"
-                               << httputils::toString(
-                                      res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
+                    if (request != nullptr) {
+                        const std::string connectionName = originRequest.lock()->socketContext->getSocketConnection()->getConnectionName();
 
-                    req->upgrade(res, [req, res, connectionName, &onResponseReceived](const std::string& name) {
-                        LOG(DEBUG) << connectionName << " HTTP upgrade: bootstrap " << (!name.empty() ? "success" : "failed");
-                        LOG(DEBUG) << "      Protocol selected: " << name;
-                        LOG(DEBUG) << "              requested: " << req->header("upgrade");
-                        LOG(DEBUG) << "  Subprotocol  selected: " << res->get("Sec-WebSocket-Protocol");
-                        LOG(DEBUG) << "              requested: " << req->header("Sec-WebSocket-Protocol");
+                        VLOG(0) << "Request method 3: " << request->method;
+                        for (auto& header : request->headers) {
+                            VLOG(0) << "  Header: " << header.first << " : " << header.second;
+                        }
 
-                        onResponseReceived(req, res, !name.empty());
-                    });
+                        LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " "
+                                   << request->url << " "
+                                   << "HTTP/" << request->httpMajor << "." << request->httpMinor << "\n"
+                                   << httputils::toString(response->httpVersion,
+                                                          response->statusCode,
+                                                          response->reason,
+                                                          response->headers,
+                                                          response->cookies,
+                                                          response->body);
+
+                        request->upgrade(response, [request, response, connectionName, &onResponseReceived](const std::string& name) {
+                            LOG(DEBUG) << connectionName << " HTTP upgrade: bootstrap " << (!name.empty() ? "success" : "failed");
+                            LOG(DEBUG) << "      Protocol selected: " << name;
+                            LOG(DEBUG) << "              requested: " << request->header("upgrade");
+                            LOG(DEBUG) << "  Subprotocol  selected: " << response->get("Sec-WebSocket-Protocol");
+                            LOG(DEBUG) << "              requested: " << request->header("Sec-WebSocket-Protocol");
+
+                            onResponseReceived(response, !name.empty());
+                        });
+                    }
                 },
                 onResponseParseError));
 
-            requestPrepared();
+            requestPrepared(newRequest);
         }
 
         return !masterRequest.expired();
@@ -387,14 +394,16 @@ namespace web::http::client {
 
     bool Request::sendFile(const std::string& file,
                            const std::function<void(int)>& onStatus,
-                           const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
+                           const std::function<void(const std::shared_ptr<Response>&)>& onResponseReceived,
+                           const std::function<void(const std::string&)>& onResponseParseError) {
         bool queued = false;
 
         if (!masterRequest.expired()) {
-            requestCommands.push_back(new commands::SendFileCommand(file, onStatus, onResponseReceived, onResponseParseError));
+            const std::shared_ptr<Request> newRequest = std::make_shared<Request>(std::move(*this));
 
-            requestPrepared();
+            newRequest->requestCommands.push_back(new commands::SendFileCommand(file, onStatus, onResponseReceived, onResponseParseError));
+
+            requestPrepared(newRequest);
 
             queued = true;
         }
@@ -424,16 +433,18 @@ namespace web::http::client {
         return sendFragment(data.data(), data.size());
     }
 
-    bool Request::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                      const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
+    bool Request::end(const std::function<void(const std::shared_ptr<Response>&)>& onResponseReceived,
+                      const std::function<void(const std::string&)>& onResponseParseError) {
         bool queued = true;
 
         if (!masterRequest.expired()) {
-            sendHeader();
+            const std::shared_ptr<Request> newRequest = std::make_shared<Request>(std::move(*this));
 
-            requestCommands.push_back(new commands::EndCommand(onResponseReceived, onResponseParseError));
+            newRequest->sendHeader();
 
-            requestPrepared();
+            newRequest->requestCommands.push_back(new commands::EndCommand(onResponseReceived, onResponseParseError));
+
+            requestPrepared(newRequest);
         } else {
             queued = false;
         }
@@ -441,7 +452,7 @@ namespace web::http::client {
         return queued;
     }
 
-    bool Request::initiate(const std::shared_ptr<Request>& request) {
+    bool Request::initiate(std::shared_ptr<Request> request) {
         bool error = false;
         bool atomar = true;
 
@@ -450,11 +461,7 @@ namespace web::http::client {
                 this->onResponseParseError = requestCommand->onResponseParseError;
                 this->onResponseReceived = requestCommand->onResponseReceived;
 
-                const bool atomarCommand = requestCommand->execute(request);
-                if (atomar) {
-                    atomar = atomarCommand;
-                }
-
+                atomar = requestCommand->execute(request);
                 error = requestCommand->getError();
             }
 
@@ -462,11 +469,11 @@ namespace web::http::client {
         }
         requestCommands.clear();
 
-        if (atomar && (!error || contentLengthSent != 0)) {
+        if (atomar && !error) {
             requestDelivered();
         }
 
-        return !error || contentLengthSent != 0;
+        return !error;
     }
 
     bool Request::executeSendFile(const std::string& file, const std::function<void(int)>& onStatus) {
@@ -482,7 +489,6 @@ namespace web::http::client {
                 core::file::FileReader::open(absolutFileName)->pipe(this, [this, &atomar, &absolutFileName, &onStatus](int errnum) {
                     errno = errnum;
                     onStatus(errnum);
-
                     if (errnum == 0) {
                         if (httpMajor == 1) {
                             atomar = false;
@@ -514,6 +520,11 @@ namespace web::http::client {
     bool Request::executeUpgrade(const std::string& url, const std::string& protocols, const std::function<void(bool)>& onStatus) {
         const std::string connectionName = this->getSocketContext()->getSocketConnection()->getConnectionName();
         this->url = url;
+
+        VLOG(0) << "Request method 2: " << method;
+        for (auto& header : headers) {
+            VLOG(0) << "  Header: " << header.first << " : " << header.second;
+        }
 
         set("Connection", "Upgrade", true);
         set("Upgrade", protocols, true);
@@ -608,17 +619,16 @@ namespace web::http::client {
         return true;
     }
 
-    void Request::requestPrepared() {
-        socketContext->requestPrepared(std::move(*this));
-        init();
+    void Request::requestPrepared(std::shared_ptr<Request> request) {
+        socketContext->requestPrepared(request);
     }
 
-    void Request::deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
-        onResponseReceived(request, response);
+    void Request::deliverResponse(const std::shared_ptr<Response>& response) {
+        onResponseReceived(response);
     }
 
-    void Request::deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
-        onResponseParseError(request, message);
+    void Request::deliverResponseParseError(const std::string& message) {
+        onResponseParseError(message);
     }
 
     void Request::requestDelivered() {
@@ -634,7 +644,7 @@ namespace web::http::client {
                 }
             }
 
-            socketContext->requestDelivered(std::move(*this), contentLengthSent == contentLength);
+            socketContext->requestDelivered(contentLengthSent == contentLength);
         }
     }
 

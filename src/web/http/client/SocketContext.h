@@ -71,24 +71,24 @@ namespace web::http::client {
 
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                      const std::function<void(const std::shared_ptr<Request>&)>& onRequestBegin,
-                      const std::function<void(const std::shared_ptr<Request>&)>& onRequestEnd,
+                      const std::function<void(const std::shared_ptr<Request>&)>& onHttpConnected,
+                      const std::function<void(const std::shared_ptr<Request>&)>& onHttpDisconnected,
                       const std::string& hostHeader,
                       bool pipelinedRequests);
 
         ~SocketContext() override;
 
     private:
-        void requestPrepared(Request&& request);
-        void initiateRequest(Request& request);
-        void requestDelivered(Request&& request, bool success);
+        void requestPrepared(std::shared_ptr<Request> request);
+        void initiateRequest(std::shared_ptr<Request> request);
+        void requestDelivered(bool success);
         void responseStarted();
         void deliverResponse(Response&& response);
         void deliverResponseParseError(int status, const std::string& reason);
         void responseDelivered(bool httpClose);
 
-        std::function<void(const std::shared_ptr<Request>&)> onRequestBegin;
-        std::function<void(const std::shared_ptr<Request>&)> onRequestEnd;
+        std::function<void(const std::shared_ptr<Request>&)> onHttpConnected;
+        std::function<void(const std::shared_ptr<Request>&)> onHttpDisconnected;
 
         void onConnected() override;
         std::size_t onReceivedFromPeer() override;
@@ -96,10 +96,14 @@ namespace web::http::client {
         bool onSignal(int signum) override;
         void onWriteError(int errnum) override;
 
-        std::list<Request> pendingRequests;
-        std::list<Request> deliveredRequests;
+        std::list<std::shared_ptr<Request>> pendingRequests;
+        std::list<std::shared_ptr<Request>> deliveredRequests;
 
         bool pipelinedRequests = false;
+
+        std::shared_ptr<Request> getCurrentRequest() {
+            return deliveredRequests.front();
+        }
 
         std::shared_ptr<Request> currentRequest = nullptr;
         std::shared_ptr<Request> masterRequest;
@@ -114,6 +118,8 @@ namespace web::http::client {
             CLOSE = 0b00001000
         };
         int flags = Flags::NONE;
+
+        bool reqInProgress = false;
 
         friend class web::http::client::Request;
     };
