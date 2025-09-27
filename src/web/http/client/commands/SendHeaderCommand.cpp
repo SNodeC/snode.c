@@ -53,7 +53,7 @@ namespace web::http::client::commands {
         : web::http::client::RequestCommand({}, {}) {
     }
 
-    bool SendHeaderCommand::execute(std::shared_ptr<Request> request) {
+    bool SendHeaderCommand::execute(const std::shared_ptr<Request>& request) {
         return request->executeSendHeader();
     }
 

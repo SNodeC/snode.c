@@ -69,7 +69,7 @@ namespace web::http::client {
 
         virtual ~RequestCommand();
 
-        virtual bool execute(std::shared_ptr<Request> request) = 0;
+        virtual bool execute(const std::shared_ptr<Request>& request) = 0;
 
         bool getError() const;
 

@@ -65,7 +65,7 @@ namespace web::http::client::commands {
         ~UpgradeCommand() override = default;
 
         // RequestCommand interface
-        bool execute(std::shared_ptr<Request> request) override;
+        bool execute(const std::shared_ptr<Request>& request) override;
 
     private:
         std::string url;

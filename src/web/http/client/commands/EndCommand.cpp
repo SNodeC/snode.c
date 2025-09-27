@@ -54,7 +54,7 @@ namespace web::http::client::commands {
         : web::http::client::RequestCommand(onResponseReceived, onResponseParseError) {
     }
 
-    bool EndCommand::execute(std::shared_ptr<Request> request) {
+    bool EndCommand::execute(const std::shared_ptr<Request>& request) {
         return request->executeEnd();
     }
 

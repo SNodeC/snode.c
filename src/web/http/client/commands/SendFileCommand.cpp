@@ -45,8 +45,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client::commands {
@@ -61,8 +59,7 @@ namespace web::http::client::commands {
         , onStatus(onStatus) {
     }
 
-    bool SendFileCommand::execute(std::shared_ptr<Request> request) {
-        VLOG(0) << "------------";
+    bool SendFileCommand::execute(const std::shared_ptr<Request>& request) {
         return request->executeSendFile(file, [this](int errnum) {
             this->error = errnum;
             onStatus(errnum);

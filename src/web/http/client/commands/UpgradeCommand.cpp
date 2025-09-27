@@ -45,8 +45,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client::commands {
@@ -63,12 +61,7 @@ namespace web::http::client::commands {
         , onUpgradeInitiate(onUpgradeInitiate) {
     }
 
-    bool UpgradeCommand::execute(std::shared_ptr<Request> request) {
-        VLOG(0) << "Request method 1: " << request->method;
-        for (auto& header : request->headers) {
-            VLOG(0) << "  Header: " << header.first << " : " << header.second;
-        }
-
+    bool UpgradeCommand::execute(const std::shared_ptr<Request>& request) {
         const bool ret = request->executeUpgrade(url, protocols, [this](bool success) {
             onUpgradeInitiate(success);
         });
