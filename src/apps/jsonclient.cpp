@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
             req->set("Connection", "close");
             req->send(
                 "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}",
-                [](const std::shared_ptr<Response>& res) {
+                []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                     VLOG(1) << "-- OnResponse";
                     VLOG(1) << "     Status:";
                     VLOG(1) << "       " << res->httpVersion;

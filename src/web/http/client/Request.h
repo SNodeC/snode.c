@@ -99,24 +99,24 @@ namespace web::http::client {
 
         bool send(const char* chunk,
                   std::size_t chunkLen,
-                  const std::function<void(const std::shared_ptr<Response>&)>& onResponseReceived,
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                   const std::function<void(const std::string&)>& onResponseParseError);
         bool send(const std::string& chunk,
-                  const std::function<void(const std::shared_ptr<Response>&)>& onResponseReceived,
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                   const std::function<void(const std::string&)>& onResponseParseError);
         bool upgrade(const std::string& url,
                      const std::string& protocols,
                      const std::function<void(bool)>& onUpgradeInitiate,
-                     const std::function<void(const std::shared_ptr<Response>&, bool)>& onResponseReceived,
+                     const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, bool)>& onResponseReceived,
                      const std::function<void(const std::string&)>& onResponseParseError);
         bool sendFile(const std::string& file,
                       const std::function<void(int errnum)>& onStatus,
-                      const std::function<void(const std::shared_ptr<Response>&)>& onResponseReceived,
+                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                       const std::function<void(const std::string&)>& onResponseParseError);
         Request& sendHeader();
         Request& sendFragment(const char* chunk, std::size_t chunkLen);
         Request& sendFragment(const std::string& data);
-        bool end(const std::function<void(const std::shared_ptr<Response>&)>& onResponseReceived,
+        bool end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                  const std::function<void(const std::string&)>& onResponseParseError);
 
     private:
@@ -139,7 +139,7 @@ namespace web::http::client {
         void requestPrepared(std::shared_ptr<Request> request);
         void requestDelivered();
 
-        void deliverResponse(const std::shared_ptr<Response>& response);
+        void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
         void deliverResponseParseError(const std::string& message);
 
         void onSourceConnect(core::pipe::Source* source) override;
@@ -178,7 +178,7 @@ namespace web::http::client {
 
         ConnectionState connectionState = ConnectionState::Default;
 
-        std::function<void(const std::shared_ptr<Response>&)> onResponseReceived;
+        std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
         std::function<void(const std::string& message)> onResponseParseError;
 
         std::weak_ptr<Request> masterRequest;

@@ -95,7 +95,8 @@ int main(int argc, char* argv[]) {
                 const std::string requestJsonString{requestJson.dump(4)};
                 request->send(
                     requestJsonString,
-                    [res](const std::shared_ptr<web::http::client::Response>& response) {
+                    [res]([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& request,
+                          const std::shared_ptr<web::http::client::Response>& response) {
                         VLOG(1) << "OnResponse";
                         VLOG(1) << "Response: " << std::string(response->body.begin(), response->body.end());
                         if (std::stoi(response->statusCode) != 200) {

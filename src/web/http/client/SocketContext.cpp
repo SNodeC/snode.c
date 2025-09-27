@@ -241,7 +241,7 @@ namespace web::http::client {
             (response.connectionState == ConnectionState::Default &&
              ((response.httpMajor == 0 && response.httpMinor == 9) || (response.httpMajor == 1 && response.httpMinor == 0)));
 
-        request->deliverResponse(std::make_shared<Response>(std::move(response)));
+        request->deliverResponse(request, std::make_shared<Response>(std::move(response)));
 
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response completed: " << requestLine;
 
