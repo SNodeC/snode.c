@@ -80,7 +80,7 @@ namespace web::http::client {
 
     private:
         void requestPrepared(std::shared_ptr<Request> request);
-        void initiateRequest(std::shared_ptr<Request> request);
+        void initiateRequest();
         void requestDelivered(bool success);
         void responseStarted();
         void deliverResponse(Response&& response);
@@ -105,7 +105,6 @@ namespace web::http::client {
             return deliveredRequests.front();
         }
 
-        std::shared_ptr<Request> currentRequest = nullptr;
         std::shared_ptr<Request> masterRequest;
 
         ResponseParser parser;
