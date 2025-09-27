@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
                             res->status(200).send(successJson.dump(4));
                         }
                     },
-                    [](const std::string& message) {
+                    [](const std::shared_ptr<web::http::client::Request>&, const std::string& message) {
                         VLOG(1) << "OAuth2ResourceServer: Request parse error: " << message;
                     });
             },

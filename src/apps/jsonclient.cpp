@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
                     res->body.push_back(0);
                     VLOG(1) << "     Body:\n----------- start body -----------" << res->body.data() << "------------ end body ------------";
                 },
-                [](const std::string& message) {
+                [](const std::shared_ptr<Request>&, const std::string& message) {
                     VLOG(1) << "legacy: Request parse error: " << message;
                 });
         },

@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
                         VLOG(1) << connectionName << ":   Requested: " << req->header("upgrade");
                         VLOG(1) << connectionName << ":    Selected: " << res->get("upgrade");
                     },
-                    [connectionName](const std::string& message) {
+                    [connectionName](const std::shared_ptr<Request>&, const std::string& message) {
                         VLOG(1) << connectionName << ": Request parse error: " << message;
                     });
             },
@@ -135,7 +135,7 @@ int main(int argc, char* argv[]) {
                                      [[maybe_unused]] const std::shared_ptr<Response>& res,
                                      [[maybe_unused]] bool success) {
                     },
-                    [connectionName](const std::string& message) {
+                    [connectionName](const std::shared_ptr<Request>&, const std::string& message) {
                         VLOG(1) << connectionName << ": Request parse error: " << message;
                     });
             },

@@ -261,7 +261,7 @@ namespace web::http::client {
                             .append(".")
                             .append(std::to_string(request->httpMinor));
 
-        request->deliverResponseParseError(reason);
+        request->deliverResponseParseError(request, reason);
 
         shutdownWrite(true);
     }

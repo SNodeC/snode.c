@@ -253,11 +253,11 @@ namespace web::http::client {
     bool Request::send(const char* chunk,
                        std::size_t chunkLen,
                        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                       const std::function<void(const std::string&)>& onResponseParseError) {
+                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         bool queued = true;
 
         if (!masterRequest.expired()) {
-            std::shared_ptr<Request> newRequest = std::make_shared<Request>(std::move(*this));
+            const std::shared_ptr<Request> newRequest = std::make_shared<Request>(std::move(*this));
 
             if (chunkLen > 0) {
                 newRequest->set("Content-Type", "application/octet-stream", false);
@@ -279,7 +279,7 @@ namespace web::http::client {
 
     bool Request::send(const std::string& chunk,
                        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                       const std::function<void(const std::string&)>& onResponseParseError) {
+                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         if (!chunk.empty()) {
             set("Content-Type", "text/html; charset=utf-8", false);
         }
@@ -292,7 +292,7 @@ namespace web::http::client {
                      const std::string& protocols,
                      const std::function<void(bool)>& onUpgradeInitiate,
                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, bool)>& onResponseReceived,
-                     const std::function<void(const std::string&)>& onResponseParseError) {
+                     const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         if (!masterRequest.expired()) {
             const std::shared_ptr<Request> newRequest = std::make_shared<Request>(std::move(*this));
 
@@ -397,7 +397,7 @@ namespace web::http::client {
     bool Request::sendFile(const std::string& file,
                            const std::function<void(int)>& onStatus,
                            const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                           const std::function<void(const std::string&)>& onResponseParseError) {
+                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         bool queued = false;
 
         if (!masterRequest.expired()) {
@@ -436,7 +436,7 @@ namespace web::http::client {
     }
 
     bool Request::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                      const std::function<void(const std::string&)>& onResponseParseError) {
+                      const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         bool queued = true;
 
         if (!masterRequest.expired()) {
@@ -629,8 +629,8 @@ namespace web::http::client {
         onResponseReceived(request, response);
     }
 
-    void Request::deliverResponseParseError(const std::string& message) {
-        onResponseParseError(message);
+    void Request::deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
+        onResponseParseError(request, message);
     }
 
     void Request::requestDelivered() {
