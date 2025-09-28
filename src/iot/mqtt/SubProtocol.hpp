@@ -132,8 +132,6 @@ namespace iot::mqtt {
         size += data.size();
         data.clear();
 
-        iot::mqtt::MqttContext::onReceivedFromPeer();
-
         if (size > 0) {
             onReceivedFromPeerEvent.span();
         } else {
