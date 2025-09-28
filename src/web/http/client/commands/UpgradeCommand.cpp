@@ -52,7 +52,7 @@ namespace web::http::client::commands {
     UpgradeCommand::UpgradeCommand(
         const std::string& url,
         const std::string& protocols,
-        const std::function<void(const std::shared_ptr<Request>&, bool)>& onUpgradeInitiate,
+        const std::function<void(bool)>& onUpgradeInitiate,
         const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
         const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError)
         : web::http::client::RequestCommand(onResponseReceived, onResponseParseError)
@@ -62,8 +62,8 @@ namespace web::http::client::commands {
     }
 
     bool UpgradeCommand::execute(const std::shared_ptr<Request>& request) {
-        const bool ret = request->executeUpgrade(url, protocols, [this, request](bool success) {
-            onUpgradeInitiate(request, success);
+        const bool ret = request->executeUpgrade(url, protocols, [this](bool success) {
+            onUpgradeInitiate(success);
         });
 
         return ret;

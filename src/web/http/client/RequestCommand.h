@@ -73,10 +73,6 @@ namespace web::http::client {
 
         bool getError() const;
 
-    protected:
-        const std::shared_ptr<Request> request;
-
-    public:
         const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
         const std::function<void(const std::shared_ptr<Request>&, const std::string&)> onResponseParseError;
 

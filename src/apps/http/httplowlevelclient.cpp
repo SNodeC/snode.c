@@ -72,7 +72,7 @@ namespace apps::http {
             []() {
                 VLOG(1) << "++   OnStarted";
             },
-            []([[maybe_unused]] web::http::client::Response&& res) {
+            []([[maybe_unused]] web::http::client::Response& res) {
                 VLOG(1) << "++   OnParsed";
             },
             [](int status, const std::string& reason) {

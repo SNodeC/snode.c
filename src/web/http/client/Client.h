@@ -79,8 +79,8 @@ namespace web::http::client {
                const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(SocketConnection*)>& onDisconnect,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
+               std::function<void(const std::shared_ptr<Request>&)>&& onHttpConnected,
+               std::function<void(const std::shared_ptr<Request>&)>&& onHttpDisconnected)
             : Super(
                   name,
                   [config = Super::config, socketContextFactory = Super::getSocketContextFactory(), onConnect](
@@ -91,8 +91,8 @@ namespace web::http::client {
                   },
                   onConnected,
                   onDisconnect,
-                  std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestBegin),
-                  std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestEnd),
+                  std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpConnected),
+                  std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpDisconnected),
                   [this]() -> net::config::ConfigInstance& {
                       return Super::getConfig();
                   }) {
@@ -101,22 +101,22 @@ namespace web::http::client {
         Client(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(SocketConnection*)>& onDisconnect,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
+               std::function<void(const std::shared_ptr<Request>&)>&& onHttpConnected,
+               std::function<void(const std::shared_ptr<Request>&)>&& onHttpDisconnected)
             : Client("",
                      onConnect,
                      onConnected,
                      onDisconnect,
-                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestBegin),
-                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestEnd)) {
+                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpConnected),
+                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpDisconnected)) {
         }
 
         Client(const std::string& name,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
+               std::function<void(const std::shared_ptr<Request>&)>&& onHttpConnected,
+               std::function<void(const std::shared_ptr<Request>&)>&& onHttpDisconnected)
             : Super(name,
-                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestBegin),
-                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestEnd),
+                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpConnected),
+                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpDisconnected),
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
@@ -129,11 +129,11 @@ namespace web::http::client {
             });
         }
 
-        Client(std::function<void(const std::shared_ptr<Request>&)>&& onRequestBegin,
-               std::function<void(const std::shared_ptr<Request>&)>&& onRequestEnd)
+        Client(std::function<void(const std::shared_ptr<Request>&)>&& onHttpConnected,
+               std::function<void(const std::shared_ptr<Request>&)>&& onHttpDisconnected)
             : Client("",
-                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestBegin),
-                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onRequestEnd)) {
+                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpConnected),
+                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpDisconnected)) {
         }
 
         void setPipelinedRequests(bool pipelinedRequests) {

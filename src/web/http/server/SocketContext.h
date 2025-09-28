@@ -78,9 +78,9 @@ namespace web::http::server {
 
     private:
         void deliverRequest();
-        void responseStarted();
-        void responseCompleted(bool success);
-        void requestCompleted();
+        void responseStarted(const Response& response);
+        void responseCompleted(const Response& response, bool success);
+        void requestCompleted(const Response& response);
 
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onRequestReady;
 

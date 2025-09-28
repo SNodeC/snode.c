@@ -58,20 +58,12 @@ namespace web::http::client {
 
     ResponseParser::ResponseParser(core::socket::stream::SocketContext* socketContext,
                                    const std::function<void()>& onResponseStart,
-                                   const std::function<void(Response&&)>& onResponseParsed,
+                                   const std::function<void(Response&)>& onResponseParsed,
                                    const std::function<void(int, const std::string&)>& onResponseParseError)
         : Parser(socketContext)
         , onResponseStart(onResponseStart)
         , onResponseParsed(onResponseParsed)
         , onResponseParseError(onResponseParseError) {
-    }
-
-    Response&& ResponseParser::getResponse() {
-        if (!decoderQueue.empty()) {
-            response.body = decoderQueue.back()->getContent();
-        }
-
-        return std::move(response);
     }
 
     void ResponseParser::begin() {
@@ -171,7 +163,7 @@ namespace web::http::client {
         response.headers = std::move(headers);
         response.body = std::move(content);
 
-        onResponseParsed(std::move(response));
+        onResponseParsed(response);
 
         reset();
 

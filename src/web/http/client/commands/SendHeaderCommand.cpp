@@ -50,7 +50,7 @@
 namespace web::http::client::commands {
 
     SendHeaderCommand::SendHeaderCommand()
-        : web::http::client::RequestCommand(nullptr, nullptr) {
+        : web::http::client::RequestCommand({}, {}) {
     }
 
     bool SendHeaderCommand::execute(const std::shared_ptr<Request>& request) {

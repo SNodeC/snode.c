@@ -57,25 +57,21 @@ namespace core::pipe {
         }
     }
 
-    void Source::pipe(Sink* sink, const std::function<void(int)>& callback) {
+    void Source::pipe(Sink* sink) {
         if (sink != nullptr) {
             if (isOpen()) {
-                callback(0);
-
                 this->sink = sink;
                 sink->pipe(this);
             } else {
-                callback(errno);
                 stop();
             }
         } else {
-            callback(EINVAL);
             stop();
         }
     }
 
-    void Source::pipe(const std::shared_ptr<Sink>& sink, const std::function<void(int)>& callback) {
-        pipe(sink.get(), callback);
+    void Source::pipe(const std::shared_ptr<Sink>& sink) {
+        pipe(sink.get());
     }
 
     void Source::disconnect(const Sink* sink) {

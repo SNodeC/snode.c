@@ -64,13 +64,11 @@ namespace web::http::client {
     public:
         ResponseParser(core::socket::stream::SocketContext* socketContext,
                        const std::function<void()>& onResponseStart,
-                       const std::function<void(Response&&)>& onResponseParsed,
+                       const std::function<void(Response&)>& onResponseParsed,
                        const std::function<void(int, const std::string&)>& onResponseParseError);
 
         ResponseParser(const ResponseParser&) = delete;
         ResponseParser& operator=(const ResponseParser&) = delete;
-
-        Response&& getResponse();
 
     private:
         // Entrence
@@ -88,7 +86,7 @@ namespace web::http::client {
 
         // Callbacks
         std::function<void()> onResponseStart;
-        std::function<void(Response&&)> onResponseParsed;
+        std::function<void(Response&)> onResponseParsed;
         std::function<void(int, const std::string&)> onResponseParseError;
     };
 

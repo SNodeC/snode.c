@@ -97,33 +97,27 @@ namespace web::http::client {
         Request& query(const std::string& key, const std::string& value);
         Request& setTrailer(const std::string& field, const std::string& value, bool overwrite = true);
 
-        static void responseParseError(const std::shared_ptr<Request>& request, const std::string& message);
-
-        bool
-        send(const char* chunk,
-             std::size_t chunkLen,
-             const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-             const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
-        bool
-        send(const std::string& chunk,
-             const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-             const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
-        bool
-        upgrade(const std::string& url,
-                const std::string& protocols,
-                const std::function<void(const std::shared_ptr<Request>&, bool)>& onUpgradeInitiate,
-                const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, bool)>& onResponseReceived,
-                const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
-        bool
-        sendFile(const std::string& file,
-                 const std::function<void(int errnum)>& onStatus,
-                 const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                 const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
+        bool send(const char* chunk,
+                  std::size_t chunkLen,
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
+        bool send(const std::string& chunk,
+                  const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
+        bool upgrade(const std::string& url,
+                     const std::string& protocols,
+                     const std::function<void(bool)>& onUpgradeInitiate,
+                     const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, bool)>& onResponseReceived,
+                     const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
+        bool sendFile(const std::string& file,
+                      const std::function<void(int errnum)>& onStatus,
+                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                      const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
         Request& sendHeader();
         Request& sendFragment(const char* chunk, std::size_t chunkLen);
         Request& sendFragment(const std::string& data);
         bool end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                 const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError = responseParseError);
+                 const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
 
     private:
         bool initiate(const std::shared_ptr<Request>& request);
@@ -142,7 +136,7 @@ namespace web::http::client {
         bool executeSendHeader();
         bool executeSendFragment(const char* chunk, std::size_t chunkLen);
 
-        void requestPrepared();
+        void requestPrepared(const std::shared_ptr<Request>& request);
         void requestDelivered();
 
         void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
@@ -185,7 +179,7 @@ namespace web::http::client {
         ConnectionState connectionState = ConnectionState::Default;
 
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
-        std::function<void(const std::shared_ptr<Request>& request, const std::string& message)> onResponseParseError;
+        std::function<void(const std::shared_ptr<Request>&, const std::string& message)> onResponseParseError;
 
         std::weak_ptr<Request> masterRequest;
 

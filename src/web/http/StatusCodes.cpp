@@ -49,7 +49,10 @@
 
 namespace web::http {
 
-    std::map<int, std::string> StatusCode::statusCode = {{100, "Continue"},
+    // clang-format off
+
+    std::map<int, std::string> StatusCode::statusCode = {{  0, "Connection loss"},
+                                                         {100, "Continue"},
                                                          {101, "Switching Protocols"},
                                                          {102, "Processing"},
                                                          {103, "Early Hints"},
@@ -112,6 +115,8 @@ namespace web::http {
                                                          {508, "Loop Detected"},
                                                          {510, "Not Extended"},
                                                          {511, "Network Authentication Required"}};
+
+    // clang-format on
 
     std::string StatusCode::reason(int status) {
         std::string reasonPhrase = "unknown status code";

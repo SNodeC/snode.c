@@ -57,7 +57,7 @@ namespace core::socket {
         using Config = ConfigT;
 
         explicit Socket(const std::string& name);
-        Socket(std::shared_ptr<Config> config);
+        Socket(const std::shared_ptr<Config>& config);
 
     protected:
         Socket(const Socket&) = default;

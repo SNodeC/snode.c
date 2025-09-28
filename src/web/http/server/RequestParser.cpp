@@ -84,13 +84,13 @@ namespace web::http::server {
             std::tie(std::ignore, queriesLine) = httputils::str_split(request.url, '?');
 
             if (!methodSupported(request.method)) {
-                parseError(400, "Bad request method: " + request.method);
+                parseError(405, "Bad request method: " + request.method);
             } else if (request.url.empty() || request.url.front() != '/') {
                 parseError(400, "Malformed request");
             } else {
                 std::smatch httpVersionMatch;
                 if (!std::regex_match(request.httpVersion, httpVersionMatch, httpVersionRegex)) {
-                    parseError(400, "Wrong protocol-version: " + request.httpVersion);
+                    parseError(505, "Wrong protocol-version: " + request.httpVersion);
                 } else {
                     httpMajor = std::stoi(httpVersionMatch.str(1));
                     httpMinor = std::stoi(httpVersionMatch.str(2));

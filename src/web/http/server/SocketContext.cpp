@@ -43,6 +43,7 @@
 
 #include "core/EventReceiver.h"
 #include "core/socket/stream/SocketConnection.h"
+#include "web/http/StatusCodes.h"
 #include "web/http/server/Response.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -81,6 +82,8 @@ namespace web::http::server {
                   LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Request parse error: " << reason << " (" << status
                              << ") ";
 
+                  masterResponse->status(status).send(reason);
+
                   shutdownWrite(true);
               }) {
     }
@@ -108,52 +111,67 @@ namespace web::http::server {
         }
     }
 
-    void SocketContext::responseStarted() {
-        const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
-
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start: " << pendingRequest->method << " "
-                  << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
-    }
-
-    void SocketContext::responseCompleted(bool success) {
-        if (success) {
+    void SocketContext::responseStarted(const Response& response) {
+        if (!pendingRequests.empty()) {
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response completed: " << pendingRequest->method << " "
-                      << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start for request: " << pendingRequest->method
+                      << " " << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+            LOG(INFO) << getSocketConnection()->getConnectionName() << "   "
+                      << "HTTP/" + std::to_string(response.httpMajor)
+                                       .append(".")
+                                       .append(std::to_string(response.httpMinor))
+                                       .append(" ")
+                                       .append(std::to_string(response.statusCode))
+                                       .append(" ")
+                                       .append(StatusCode::reason(response.statusCode));
+        }
+    }
 
-            httpClose = masterResponse->connectionState == ConnectionState::Close ||
-                        (masterResponse->connectionState == ConnectionState::Default &&
-                         ((masterResponse->httpMajor == 0 && masterResponse->httpMinor == 9) ||
-                          (masterResponse->httpMajor == 1 && masterResponse->httpMinor == 0)));
-
-            requestCompleted();
+    void SocketContext::responseCompleted(const Response& response, bool success) {
+        if (success) {
+            requestCompleted(response);
         } else {
-            LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Response wrong content length";
+            LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Response completed with error: " << response.statusCode
+                         << " " << StatusCode::reason(response.statusCode);
 
             shutdownWrite(true);
         }
     }
 
-    void SocketContext::requestCompleted() {
-        const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
+    void SocketContext::requestCompleted(const Response& response) {
+        const std::shared_ptr<Request> request = std::move(pendingRequests.front());
+        pendingRequests.pop_front();
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request completed: " << pendingRequest->method << " "
-                  << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response completed for request: " << request->method << " "
+                  << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << "   "
+                  << "HTTP/" + std::to_string(response.httpMajor)
+                                   .append(".")
+                                   .append(std::to_string(response.httpMinor))
+                                   .append(" ")
+                                   .append(std::to_string(response.statusCode))
+                                   .append(" ")
+                                   .append(StatusCode::reason(response.statusCode));
+
+        httpClose = response.connectionState == ConnectionState::Close ||
+                    (response.connectionState == ConnectionState::Default &&
+                     ((response.httpMajor == 0 && response.httpMinor == 9) || (response.httpMajor == 1 && response.httpMinor == 0)));
 
         if (httpClose) {
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
 
-            shutdownWrite();
+            shutdownWrite(true);
         } else {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
 
-            core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->masterResponse)]() {
-                if (!response.expired()) {
-                    pendingRequests.pop_front();
-                    deliverRequest();
-                }
-            });
+            if (!pendingRequests.empty()) {
+                core::EventReceiver::atNextTick([this, response = std::weak_ptr<Response>(masterResponse)]() {
+                    if (!response.expired()) {
+                        deliverRequest();
+                    }
+                });
+            }
         }
     }
 

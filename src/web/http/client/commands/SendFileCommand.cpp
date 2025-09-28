@@ -60,7 +60,10 @@ namespace web::http::client::commands {
     }
 
     bool SendFileCommand::execute(const std::shared_ptr<Request>& request) {
-        return error = request->executeSendFile(file, onStatus);
+        return request->executeSendFile(file, [this](int errnum) {
+            this->error = errnum;
+            onStatus(errnum);
+        });
     }
 
 } // namespace web::http::client::commands

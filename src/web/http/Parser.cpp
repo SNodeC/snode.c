@@ -233,7 +233,7 @@ namespace web::http {
                 parsingFinished();
             }
         } else if (contentDecoder->isError()) {
-            parseError(400, "Wrong content encoding");
+            parseError(501, "Wrong content encoding");
         }
 
         return consumed;
