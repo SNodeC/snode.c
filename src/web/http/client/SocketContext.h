@@ -83,7 +83,7 @@ namespace web::http::client {
         void initiateRequest();
         void requestDelivered(bool success);
         void responseStarted();
-        void deliverResponse(Response&& response);
+        void deliverResponse(const std::shared_ptr<Response>& response);
         void deliverResponseParseError(int status, const std::string& reason);
         void requestCompleted(bool httpClose);
 

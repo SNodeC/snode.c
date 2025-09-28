@@ -47,8 +47,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::decoder {
@@ -151,7 +149,6 @@ namespace web::http::decoder {
                 CR = false;
                 LF = false;
 
-                VLOG(0) << "ChunkLen: " << chunkLenTotalS;
                 try {
                     chunkLenTotal = std::stoul(chunkLenTotalS, &pos, 16);
                     chunk.resize(chunkLenTotal);

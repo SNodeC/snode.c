@@ -73,11 +73,11 @@ namespace web::http::client {
               [this]() {
                   responseStarted();
               },
-              [this](web::http::client::Response&& response) {
+              [this](web::http::client::Response& response) {
                   LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response parsed: HTTP/" << response.httpMajor << "."
                             << response.httpMinor << " " << response.statusCode << " " << response.reason;
 
-                  deliverResponse(std::move(response));
+                  deliverResponse(std::make_shared<Response>(std::move(response)));
               },
               [this](int status, const std::string& reason) {
                   deliverResponseParseError(status, reason);
@@ -219,7 +219,7 @@ namespace web::http::client {
         }
     }
 
-    void SocketContext::deliverResponse(Response&& response) {
+    void SocketContext::deliverResponse(const std::shared_ptr<Response>& response) {
         const std::shared_ptr<Request> request = std::move(deliveredRequests.front());
         deliveredRequests.pop_front();
 
@@ -234,11 +234,11 @@ namespace web::http::client {
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response received: " << requestLine;
 
         const bool httpClose =
-            response.connectionState == ConnectionState::Close ||
-            (response.connectionState == ConnectionState::Default &&
-             ((response.httpMajor == 0 && response.httpMinor == 9) || (response.httpMajor == 1 && response.httpMinor == 0)));
+            response->connectionState == ConnectionState::Close ||
+            (response->connectionState == ConnectionState::Default &&
+             ((response->httpMajor == 0 && response->httpMinor == 9) || (response->httpMajor == 1 && response->httpMinor == 0)));
 
-        request->deliverResponse(request, std::make_shared<Response>(std::move(response)));
+        request->deliverResponse(request, response);
 
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response completed: " << requestLine;
 
@@ -301,18 +301,16 @@ namespace web::http::client {
     }
 
     void SocketContext::onDisconnected() {
-        if (!deliveredRequests.empty()) {
+        while (!deliveredRequests.empty()) {
             const std::shared_ptr<Request> request = deliveredRequests.front();
-            if (request->httpMajor == 1 && request->httpMinor == 0) {
-                Response response;
-                response.httpVersion = "HTTP/1.1";
-                response.httpMajor = 1;
-                response.httpMinor = 1;
-                response.statusCode = "0";
-                response.reason = "Connection loss";
+            const std::shared_ptr<Response> response(new Response());
+            response->httpVersion = "HTTP/1.1";
+            response->httpMajor = 1;
+            response->httpMinor = 1;
+            response->statusCode = "0";
+            response->reason = "Connection loss";
 
-                deliverResponse(std::move(response));
-            }
+            deliverResponse(response);
         }
 
         onHttpDisconnected(masterRequest);

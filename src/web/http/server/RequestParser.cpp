@@ -43,7 +43,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "web/http/http_utils.h"
 
 #include <regex>
@@ -74,8 +73,6 @@ namespace web::http::server {
 
     void RequestParser::parseStartLine(const std::string& line) {
         parserState = Parser::ParserState::HEADER;
-
-        VLOG(0) << "ParseStartLine ######: " << line;
 
         if (!line.empty()) {
             std::string remaining;
