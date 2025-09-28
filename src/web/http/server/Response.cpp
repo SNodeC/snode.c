@@ -359,7 +359,7 @@ namespace web::http::server {
 
     Response& Response::sendHeader() {
         if (socketContext != nullptr) {
-            socketContext->responseStarted();
+            socketContext->responseStarted(*this);
 
             socketContext->sendToPeer("HTTP/" + std::to_string(httpMajor)
                                                     .append(".")
@@ -430,7 +430,7 @@ namespace web::http::server {
         }
 
         if (socketContext != nullptr) {
-            socketContext->responseCompleted(contentSent == contentLength || (httpMajor == 1 && httpMinor == 0));
+            socketContext->responseCompleted(*this, contentSent == contentLength || (httpMajor == 1 && httpMinor == 0));
         }
     }
 

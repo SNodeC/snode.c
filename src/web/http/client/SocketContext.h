@@ -85,7 +85,7 @@ namespace web::http::client {
         void responseStarted();
         void deliverResponse(const std::shared_ptr<Response>& response);
         void deliverResponseParseError(int status, const std::string& reason);
-        void requestCompleted(bool httpClose);
+        void requestCompleted(const std::shared_ptr<Response>& response);
 
         std::function<void(const std::shared_ptr<Request>&)> onHttpConnected;
         std::function<void(const std::shared_ptr<Request>&)> onHttpDisconnected;
@@ -113,6 +113,8 @@ namespace web::http::client {
             CLOSE = 0b00001000
         };
         int flags = Flags::NONE;
+
+        bool httpClose = false;
 
         friend class web::http::client::Request;
     };

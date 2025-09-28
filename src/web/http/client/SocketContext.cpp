@@ -74,9 +74,6 @@ namespace web::http::client {
                   responseStarted();
               },
               [this](web::http::client::Response& response) {
-                  LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response parsed: HTTP/" << response.httpMajor << "."
-                            << response.httpMinor << " " << response.statusCode << " " << response.reason;
-
                   deliverResponse(std::make_shared<Response>(std::move(response)));
               },
               [this](int status, const std::string& reason) {
@@ -202,17 +199,7 @@ namespace web::http::client {
     }
 
     void SocketContext::responseStarted() {
-        if (!deliveredRequests.empty()) {
-            const std::string requestLine = std::string(deliveredRequests.front()->method)
-                                                .append(" ")
-                                                .append(deliveredRequests.front()->url)
-                                                .append(" HTTP/")
-                                                .append(std::to_string(deliveredRequests.front()->httpMajor))
-                                                .append(".")
-                                                .append(std::to_string(deliveredRequests.front()->httpMinor));
-
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start: " << requestLine;
-        } else {
+        if (deliveredRequests.empty()) {
             LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Response without delivered request";
 
             shutdownWrite(true);
@@ -231,18 +218,16 @@ namespace web::http::client {
                                             .append(".")
                                             .append(std::to_string(request->httpMinor));
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response received: " << requestLine;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response received for request: " << requestLine;
 
-        const bool httpClose =
-            response->connectionState == ConnectionState::Close ||
-            (response->connectionState == ConnectionState::Default &&
-             ((response->httpMajor == 0 && response->httpMinor == 9) || (response->httpMajor == 1 && response->httpMinor == 0)));
+        LOG(INFO) << getSocketConnection()->getConnectionName() << "   HTTP/" << response->httpMajor << "." << response->httpMinor << " "
+                  << response->statusCode << " " << response->reason;
 
         request->deliverResponse(request, response);
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response completed: " << requestLine;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request completed: " << requestLine;
 
-        requestCompleted(httpClose);
+        requestCompleted(response);
     }
 
     void SocketContext::deliverResponseParseError(int status, const std::string& reason) {
@@ -263,7 +248,11 @@ namespace web::http::client {
         shutdownWrite(true);
     }
 
-    void SocketContext::requestCompleted(bool httpClose) {
+    void SocketContext::requestCompleted(const std::shared_ptr<Response>& response) {
+        httpClose = response->connectionState == ConnectionState::Close ||
+                    (response->connectionState == ConnectionState::Default &&
+                     ((response->httpMajor == 0 && response->httpMinor == 9) || (response->httpMajor == 1 && response->httpMinor == 0)));
+
         if (httpClose) {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
         } else {
@@ -293,7 +282,7 @@ namespace web::http::client {
     std::size_t SocketContext::onReceivedFromPeer() {
         std::size_t consumed = 0;
 
-        if (!deliveredRequests.empty()) {
+        if (!httpClose && !deliveredRequests.empty()) {
             consumed = parser.parse();
         }
 

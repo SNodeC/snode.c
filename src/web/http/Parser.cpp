@@ -48,7 +48,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "web/http/http_utils.h"
 
 #include <tuple>
@@ -159,9 +158,6 @@ namespace web::http {
     }
 
     void Parser::analyzeHeader() {
-        for (auto& header : headers) {
-            VLOG(0) << "Header: " << header.first << " = " << header.second;
-        }
         if (headers.contains("Content-Length")) {
             contentLength = std::stoul(headers["Content-Length"]);
             transferEncoding = TransferEncoding::Identity;

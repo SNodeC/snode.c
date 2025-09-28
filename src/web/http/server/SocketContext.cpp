@@ -111,48 +111,57 @@ namespace web::http::server {
         }
     }
 
-    void SocketContext::responseStarted() {
+    void SocketContext::responseStarted(const Response& response) {
         if (!pendingRequests.empty()) {
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start: " << pendingRequest->method << " "
-                      << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start for request: " << pendingRequest->method
+                      << " " << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+            LOG(INFO) << getSocketConnection()->getConnectionName() << "   "
+                      << "HTTP/" + std::to_string(response.httpMajor)
+                                       .append(".")
+                                       .append(std::to_string(response.httpMinor))
+                                       .append(" ")
+                                       .append(std::to_string(response.statusCode))
+                                       .append(" ")
+                                       .append(StatusCode::reason(response.statusCode));
         }
     }
 
-    void SocketContext::responseCompleted(bool success) {
+    void SocketContext::responseCompleted(const Response& response, bool success) {
         if (success) {
-            const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
-
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response completed: " << pendingRequest->method << " "
-                      << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
-
-            httpClose = masterResponse->connectionState == ConnectionState::Close ||
-                        (masterResponse->connectionState == ConnectionState::Default &&
-                         ((masterResponse->httpMajor == 0 && masterResponse->httpMinor == 9) ||
-                          (masterResponse->httpMajor == 1 && masterResponse->httpMinor == 0)));
-
-            requestCompleted();
+            requestCompleted(response);
         } else {
-            LOG(WARNING) << getSocketConnection()->getConnectionName()
-                         << " HTTP: Response completed with error: " << masterResponse->statusCode << " "
-                         << StatusCode::reason(masterResponse->statusCode);
+            LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Response completed with error: " << response.statusCode
+                         << " " << StatusCode::reason(response.statusCode);
 
             shutdownWrite(true);
         }
     }
 
-    void SocketContext::requestCompleted() {
+    void SocketContext::requestCompleted(const Response& response) {
         const std::shared_ptr<Request> request = std::move(pendingRequests.front());
         pendingRequests.pop_front();
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request completed: " << request->method << " " << request->url
-                  << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response completed for request: " << request->method << " "
+                  << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << "   "
+                  << "HTTP/" + std::to_string(response.httpMajor)
+                                   .append(".")
+                                   .append(std::to_string(response.httpMinor))
+                                   .append(" ")
+                                   .append(std::to_string(response.statusCode))
+                                   .append(" ")
+                                   .append(StatusCode::reason(response.statusCode));
+
+        httpClose = response.connectionState == ConnectionState::Close ||
+                    (response.connectionState == ConnectionState::Default &&
+                     ((response.httpMajor == 0 && response.httpMinor == 9) || (response.httpMajor == 1 && response.httpMinor == 0)));
 
         if (httpClose) {
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
 
-            shutdownWrite();
+            shutdownWrite(true);
         } else {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
 
