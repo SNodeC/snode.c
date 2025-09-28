@@ -101,6 +101,7 @@ namespace apps::http::legacy {
                                                    // send here because there is no content which is send using "Transfer-Encoding:chunked"
                 req->end(
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                        VLOG(0) << "******* End 1";
                         logResponse(req, res);
                     },
                     [](const std::shared_ptr<Request>&, const std::string&) {
@@ -108,7 +109,7 @@ namespace apps::http::legacy {
 
                 req->httpMinor = 1;
                 req->method = "GET";
-                req->url = "/";
+                req->url = "/sendfile/";
                 req->set("Connection", "keep-alive");
                 req->sendFile(
                     "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
@@ -140,8 +141,8 @@ namespace apps::http::legacy {
 
                 req->init();
                 req->httpMinor = 1;
-                req->url = "/index.hhh";
-                req->set("Connection", "close");
+                req->url = "/third";
+                req->set("Connection", "keep-alive");
                 req->setTrailer("MyTrailer",
                                 "MyTrailerValue"); // The "Trailer" header field should be populated but the Trailer itself should not be
                                                    // send here because there is no content which is send using "Transfer-Encoding:chunked"
@@ -153,145 +154,145 @@ namespace apps::http::legacy {
                     [](const std::shared_ptr<Request>&, const std::string&) {
                     });
 
-// #define LONG
+#define LONG
 #ifdef LONG
-                req->url = "/hihihih";
+                req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [](const std::shared_ptr<Request>&, const std::string&) {
                     });
 
                 req->httpMinor = 1;
                 req->url = "/index.html";
                 //                req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/index.html";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/index.html";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/index.html";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/index.html";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/index.html";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/index.html";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/index.html";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
 
                 req->httpMinor = 1;
@@ -322,14 +323,14 @@ namespace apps::http::legacy {
 
                             req->set("Connection", "close");
                             req->end(
-                                [req](const std::shared_ptr<Response>& res) {
+                                [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                                     logResponse(req, res);
                                 },
-                                [req](const std::string&) {
+                                [req](const std::shared_ptr<Request>&, const std::string&) {
                                 });
                         }
                     },
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
 
                         req->method = "POST";
@@ -354,30 +355,30 @@ namespace apps::http::legacy {
                                     req->set("Connection", "close");
                                     req->set("Test", "ccc");
                                     req->end(
-                                        [req](const std::shared_ptr<Response>& res) {
+                                        [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                                             logResponse(req, res);
                                         },
-                                        [](const std::string&) {
+                                        [](const std::shared_ptr<Request>&, const std::string&) {
                                         });
                                 }
                             },
-                            [req](const std::shared_ptr<Response>& res) {
+                            [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                                 logResponse(req, res);
                             },
-                            [req](const std::string&) {
+                            [req](const std::shared_ptr<Request>&, const std::string&) {
                             });
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->method = "GET";
                 req->url = "/";
                 req->set("Connection", "close");
                 req->set("Test", "xxx");
                 req->end(
-                    [req](const std::shared_ptr<Response>& res) {
+                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
                     },
-                    [req](const std::string&) {
+                    [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 core::EventReceiver::atNextTick([req]() {
                     req->method = "POST";
@@ -398,16 +399,17 @@ namespace apps::http::legacy {
 
                                 req->set("Connection", "close");
                                 req->end(
-                                    []([[maybe_unused]] const std::shared_ptr<Response>& res) {
+                                    []([[maybe_unused]] const std::shared_ptr<Request>& req,
+                                       [[maybe_unused]] const std::shared_ptr<Response>& res) {
                                     },
-                                    [req](const std::string&) {
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
                                     });
                             }
                         },
-                        [req](const std::shared_ptr<Response>& res) {
+                        [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                             logResponse(req, res);
                         },
-                        [req](const std::string&) {
+                        [req](const std::shared_ptr<Request>&, const std::string&) {
                         });
 
                     req->method = "POST";
@@ -430,16 +432,17 @@ namespace apps::http::legacy {
 
                                 req->set("Connection", "close");
                                 req->end(
-                                    []([[maybe_unused]] const std::shared_ptr<Response>& res) {
+                                    []([[maybe_unused]] const std::shared_ptr<Request>& req,
+                                       [[maybe_unused]] const std::shared_ptr<Response>& res) {
                                     },
-                                    [req](const std::string&) {
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
                                     });
                             }
                         },
-                        [req](const std::shared_ptr<Response>& res) {
+                        [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                             logResponse(req, res);
                         },
-                        [req](const std::string&) {
+                        [req](const std::shared_ptr<Request>&, const std::string&) {
                         });
                 });
 #endif
