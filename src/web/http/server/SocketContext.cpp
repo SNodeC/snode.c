@@ -112,10 +112,12 @@ namespace web::http::server {
     }
 
     void SocketContext::responseStarted() {
-        const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
+        if (!pendingRequests.empty()) {
+            const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start: " << pendingRequest->method << " "
-                  << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start: " << pendingRequest->method << " "
+                      << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+        }
     }
 
     void SocketContext::responseCompleted(bool success) {
@@ -141,10 +143,11 @@ namespace web::http::server {
     }
 
     void SocketContext::requestCompleted() {
-        const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
+        const std::shared_ptr<Request> request = std::move(pendingRequests.front());
+        pendingRequests.pop_front();
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request completed: " << pendingRequest->method << " "
-                  << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request completed: " << request->method << " " << request->url
+                  << " HTTP/" << request->httpMajor << "." << request->httpMinor;
 
         if (httpClose) {
             LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
@@ -153,14 +156,14 @@ namespace web::http::server {
         } else {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
 
-            core::EventReceiver::atNextTick([this, response = std::weak_ptr<Response>(masterResponse)]() {
-                if (!response.expired()) {
-                    deliverRequest();
-                }
-            });
+            if (!pendingRequests.empty()) {
+                core::EventReceiver::atNextTick([this, response = std::weak_ptr<Response>(masterResponse)]() {
+                    if (!response.expired()) {
+                        deliverRequest();
+                    }
+                });
+            }
         }
-
-        pendingRequests.pop_front();
     }
 
     void SocketContext::onConnected() {

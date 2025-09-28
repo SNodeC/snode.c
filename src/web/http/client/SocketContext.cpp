@@ -151,15 +151,13 @@ namespace web::http::client {
                 LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request delivering failed: " << requestLine;
 
                 core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {
-                    if (!masterRequest.expired()) {
-                        if (!pendingRequests.empty()) {
-                            const std::shared_ptr<Request>& request = pendingRequests.front();
+                    if (!masterRequest.expired() && !pendingRequests.empty()) {
+                        const std::shared_ptr<Request>& request = pendingRequests.front();
 
-                            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request dequeued: " << request->method
-                                       << " " << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+                        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request dequeued: " << request->method << " "
+                                   << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
 
-                            initiateRequest();
-                        }
+                        initiateRequest();
                     }
                 });
             }
@@ -222,7 +220,8 @@ namespace web::http::client {
     }
 
     void SocketContext::deliverResponse(Response&& response) {
-        const std::shared_ptr<Request>& request = std::move(deliveredRequests.front());
+        const std::shared_ptr<Request> request = std::move(deliveredRequests.front());
+        deliveredRequests.pop_front();
 
         const std::string requestLine = std::string(request->method)
                                             .append(" ")
@@ -265,8 +264,6 @@ namespace web::http::client {
     }
 
     void SocketContext::requestCompleted(bool httpClose) {
-        deliveredRequests.pop_front();
-
         if (httpClose) {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
         } else {
