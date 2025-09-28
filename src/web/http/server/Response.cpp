@@ -314,7 +314,7 @@ namespace web::http::server {
         status(name);
     }
 
-    void Response::sendFile(const std::string& file, const std::function<void(int)>& callback) {
+    void Response::sendFile(const std::string& file, const std::function<void(int)>& onStatus) {
         if (socketContext != nullptr) {
             std::string absolutFileName = file;
 
@@ -323,10 +323,10 @@ namespace web::http::server {
                 absolutFileName = std::filesystem::canonical(absolutFileName);
 
                 if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                    core::file::FileReader::open(absolutFileName)->pipe(this, [this, &absolutFileName, &callback](int errnum) {
-                        callback(errnum);
+                    core::file::FileReader::open(absolutFileName, [this, &absolutFileName, &onStatus](int fd) {
+                        onStatus(errno);
 
-                        if (errnum == 0) {
+                        if (fd >= 0) {
                             set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
                             set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
                             if (httpMajor == 1) {
@@ -339,15 +339,16 @@ namespace web::http::server {
                         } else {
                             status(404);
                         }
-                    });
+                    })->pipe(this);
                 } else {
                     status(404);
                     errno = EEXIST;
-                    callback(errno);
+                    onStatus(errno);
                 }
             } else {
+                status(404);
                 errno = ENOENT;
-                callback(errno);
+                onStatus(errno);
             }
         }
     }

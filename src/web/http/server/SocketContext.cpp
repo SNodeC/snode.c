@@ -74,7 +74,7 @@ namespace web::http::server {
 
                   pendingRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
-                  if (pendingRequests.size() == 1) {
+                  if (!reqInProgress) {
                       deliverRequest();
                   }
               },
@@ -90,6 +90,8 @@ namespace web::http::server {
 
     void SocketContext::deliverRequest() {
         if (!pendingRequests.empty()) {
+            reqInProgress = true;
+
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
             LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request deliver: " << pendingRequest->method << " "
@@ -153,13 +155,15 @@ namespace web::http::server {
         } else {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
 
-            core::EventReceiver::atNextTick([this, response = static_cast<std::weak_ptr<Response>>(this->masterResponse)]() {
+            core::EventReceiver::atNextTick([this, response = std::weak_ptr<Response>(masterResponse)]() {
                 if (!response.expired()) {
-                    pendingRequests.pop_front();
                     deliverRequest();
                 }
             });
         }
+
+        reqInProgress = false;
+        pendingRequests.pop_front();
     }
 
     void SocketContext::onConnected() {
