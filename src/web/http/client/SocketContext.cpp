@@ -111,11 +111,11 @@ namespace web::http::client {
             (flags & Flags::CLOSE) != Flags::CLOSE) {
             LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request accepted: " << requestLine;
 
-            flags = (flags & ~Flags::HTTP11) | ((request->httpMajor == 1 && request->httpMinor == 1) ? Flags::HTTP11 : Flags::NONE);
-            flags = (flags & ~Flags::HTTP10) | ((request->httpMajor == 1 && request->httpMinor == 0) ? Flags::HTTP10 : Flags::NONE);
-            flags = (flags & ~Flags::KEEPALIVE) |
+            flags = (flags & Flags::HTTP11) | ((request->httpMajor == 1 && request->httpMinor == 1) ? Flags::HTTP11 : Flags::NONE);
+            flags = (flags & Flags::HTTP10) | ((request->httpMajor == 1 && request->httpMinor == 0) ? Flags::HTTP10 : Flags::NONE);
+            flags = (flags & Flags::KEEPALIVE) |
                     (web::http::ciContains(request->header("Connection"), "keep-alive") ? Flags::KEEPALIVE : Flags::NONE);
-            flags = (flags & ~Flags::CLOSE) | (web::http::ciContains(request->header("Connection"), "close") ? Flags::CLOSE : Flags::NONE);
+            flags = (flags & Flags::CLOSE) | (web::http::ciContains(request->header("Connection"), "close") ? Flags::CLOSE : Flags::NONE);
 
             pendingRequests.push_back(request);
 
