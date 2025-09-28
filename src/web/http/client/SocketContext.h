@@ -79,7 +79,7 @@ namespace web::http::client {
         ~SocketContext() override;
 
     private:
-        void requestPrepared(std::shared_ptr<Request> request);
+        void requestPrepared(const std::shared_ptr<Request>& request);
         void initiateRequest();
         void requestDelivered(bool success);
         void responseStarted();
@@ -100,10 +100,6 @@ namespace web::http::client {
         std::list<std::shared_ptr<Request>> deliveredRequests;
 
         bool pipelinedRequests = false;
-
-        std::shared_ptr<Request> getCurrentRequest() {
-            return deliveredRequests.front();
-        }
 
         std::shared_ptr<Request> masterRequest;
 

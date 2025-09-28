@@ -74,7 +74,6 @@ namespace web::http::client {
         ConnectionState connectionState = ConnectionState::Default;
 
     public:
-        // Properties
         std::string httpVersion;
         std::string statusCode;
         std::string reason;

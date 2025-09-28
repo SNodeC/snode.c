@@ -53,7 +53,7 @@ namespace core::socket {
     }
 
     template <typename Config>
-    Socket<Config>::Socket(std::shared_ptr<Config> config)
+    Socket<Config>::Socket(const std::shared_ptr<Config>& config)
         : config(config) {
     }
 

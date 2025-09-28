@@ -77,8 +77,8 @@ namespace core::socket::stream {
         using SocketAddress = typename SocketAcceptor::SocketAddress;
 
     private:
-        SocketServer(std::shared_ptr<typename SocketAcceptor::Config> config,
-                     std::shared_ptr<SocketContextFactory> socketContextFactory,
+        SocketServer(const std::shared_ptr<typename SocketAcceptor::Config>& config,
+                     const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect)

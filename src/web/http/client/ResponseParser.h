@@ -70,8 +70,6 @@ namespace web::http::client {
         ResponseParser(const ResponseParser&) = delete;
         ResponseParser& operator=(const ResponseParser&) = delete;
 
-        //        Response&& getResponse();
-
     private:
         // Entrence
         void begin() override;

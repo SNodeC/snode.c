@@ -120,7 +120,7 @@ namespace web::http::client {
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
 
     private:
-        bool initiate(std::shared_ptr<Request> request);
+        bool initiate(const std::shared_ptr<Request>& request);
 
         void upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status);
 
@@ -136,7 +136,7 @@ namespace web::http::client {
         bool executeSendHeader();
         bool executeSendFragment(const char* chunk, std::size_t chunkLen);
 
-        void requestPrepared(std::shared_ptr<Request> request);
+        void requestPrepared(const std::shared_ptr<Request>& request);
         void requestDelivered();
 
         void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);

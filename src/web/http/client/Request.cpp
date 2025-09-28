@@ -454,7 +454,7 @@ namespace web::http::client {
         return queued;
     }
 
-    bool Request::initiate(std::shared_ptr<Request> request) {
+    bool Request::initiate(const std::shared_ptr<Request>& request) {
         bool error = false;
         bool atomar = true;
 
@@ -488,10 +488,10 @@ namespace web::http::client {
             absolutFileName = std::filesystem::canonical(absolutFileName);
 
             if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                core::file::FileReader::open(absolutFileName)->pipe(this, [this, &atomar, &absolutFileName, &onStatus](int errnum) {
-                    errno = errnum;
-                    onStatus(errnum);
-                    if (errnum == 0) {
+                core::file::FileReader::open(absolutFileName, [this, &absolutFileName, &onStatus, &atomar](int fd) {
+                    onStatus(errno);
+
+                    if (fd >= 0) {
                         if (httpMajor == 1) {
                             atomar = false;
 
@@ -504,9 +504,9 @@ namespace web::http::client {
                             }
 
                             executeSendHeader();
-                        }
+                        };
                     }
-                });
+                })->pipe(this);
             } else {
                 errno = EINVAL;
                 onStatus(errno);
@@ -621,7 +621,7 @@ namespace web::http::client {
         return true;
     }
 
-    void Request::requestPrepared(std::shared_ptr<Request> request) {
+    void Request::requestPrepared(const std::shared_ptr<Request>& request) {
         socketContext->requestPrepared(request);
     }
 

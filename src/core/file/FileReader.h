@@ -63,7 +63,7 @@ namespace core::file {
         FileReader(int fd, const std::string& name, std::size_t pufferSize, int openErrno);
 
     public:
-        static FileReader* open(const std::string& path);
+        static FileReader* open(const std::string& path, const std::function<void(int)>& callback);
 
         bool isOpen() override;
 

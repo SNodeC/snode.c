@@ -101,7 +101,7 @@ namespace web::http::client {
         }
     }
 
-    void SocketContext::requestPrepared(std::shared_ptr<Request> request) {
+    void SocketContext::requestPrepared(const std::shared_ptr<Request>& request) {
         const std::string requestLine = std::string(request->method)
                                             .append(" ")
                                             .append(request->url)

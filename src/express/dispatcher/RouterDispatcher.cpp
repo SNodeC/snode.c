@@ -186,7 +186,7 @@ namespace express::dispatcher {
                 controller.setStrictRouting(oldStrictRouting);
 
                 if (dispatched) {
-                    LOG(TRACE) << "Express: R - Dispatched: " << dispatched;
+                    LOG(TRACE) << "Express: R - Dispatched";
 
                     break;
                 }

@@ -46,7 +46,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
-#include "log/Logger.h"
 
 #include <cerrno>
 #include <vector>
@@ -64,10 +63,12 @@ namespace core::file {
         , openErrno(openErrno) {
     }
 
-    FileReader* FileReader::open(const std::string& path) {
+    FileReader* FileReader::open(const std::string& path, const std::function<void(int)>& callback) {
         errno = 0;
 
         const int fd = core::system::open(path.c_str(), O_RDONLY);
+
+        callback(fd);
 
         return new FileReader(fd, "FileReader: " + path, MF_READSIZE, fd < 0 ? errno : 0);
     }
@@ -106,7 +107,6 @@ namespace core::file {
     }
 
     void FileReader::start() {
-        VLOG(0) << "Start------------------------";
         if (!running) {
             running = true;
             span();

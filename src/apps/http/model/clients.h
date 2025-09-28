@@ -101,7 +101,6 @@ namespace apps::http::legacy {
                                                    // send here because there is no content which is send using "Transfer-Encoding:chunked"
                 req->end(
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        VLOG(0) << "******* End 1";
                         logResponse(req, res);
                     },
                     [](const std::shared_ptr<Request>&, const std::string&) {

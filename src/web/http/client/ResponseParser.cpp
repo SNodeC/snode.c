@@ -65,15 +65,7 @@ namespace web::http::client {
         , onResponseParsed(onResponseParsed)
         , onResponseParseError(onResponseParseError) {
     }
-    /*
-        Response&& ResponseParser::getResponse() {
-            if (!decoderQueue.empty()) {
-                response.body = decoderQueue.back()->getContent();
-            }
 
-            return std::move(response);
-        }
-    */
     void ResponseParser::begin() {
         onResponseStart();
     }
