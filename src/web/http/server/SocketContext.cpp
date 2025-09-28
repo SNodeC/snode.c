@@ -74,7 +74,7 @@ namespace web::http::server {
 
                   pendingRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
-                  if (!reqInProgress) {
+                  if (pendingRequests.size() == 1) {
                       deliverRequest();
                   }
               },
@@ -90,8 +90,6 @@ namespace web::http::server {
 
     void SocketContext::deliverRequest() {
         if (!pendingRequests.empty()) {
-            reqInProgress = true;
-
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
             LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request deliver: " << pendingRequest->method << " "
@@ -162,7 +160,6 @@ namespace web::http::server {
             });
         }
 
-        reqInProgress = false;
         pendingRequests.pop_front();
     }
 

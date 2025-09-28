@@ -97,8 +97,6 @@ namespace web::http::server {
 
         bool httpClose = false;
 
-        bool reqInProgress = false;
-
         friend Response;
     };
 
