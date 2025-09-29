@@ -49,7 +49,6 @@ namespace core::pipe {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <functional>
 #include <memory>
 #include <sys/types.h>
 
