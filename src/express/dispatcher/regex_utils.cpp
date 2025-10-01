@@ -104,7 +104,7 @@ namespace express::dispatcher {
         std::vector<std::string> explodedReqString = explode(req.url, '/');
 
         for (std::vector<std::string>::size_type i = 0; i < explodedString.size() && i < explodedReqString.size(); i++) {
-            if (explodedString[i].front() == ':') {
+            if (!explodedString[i].empty() && explodedString[i].front() == ':') {
                 const std::smatch smatch = matchResult(explodedString[i]);
                 std::string regex = "(.*)";
 
