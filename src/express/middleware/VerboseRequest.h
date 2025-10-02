@@ -56,10 +56,11 @@ namespace express::middleware {
             W_NONE = 0x00,
             W_REQUEST = 0x01,
             W_QUERIES = 0x02,
-            W_HEADERS = 0x05,
-            W_COOKIES = 0x08,
-            W_CONTENT = 0x10,
-            W_ALL = 0x1F
+            W_HEADERS = 0x04,
+            W_TRAILER = 0x08,
+            W_COOKIES = 0x10,
+            W_CONTENT = 0x20,
+            W_ALL = 0xFF
         };
 
         VerboseRequest(const VerboseRequest&) = delete;

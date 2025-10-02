@@ -107,27 +107,27 @@ namespace core::file {
     }
 
     void FileReader::start() {
-        if (!running) {
+        if (!running && isOpen()) {
             running = true;
             span();
         }
     }
 
     void FileReader::suspend() {
-        if (running) {
+        if (running && isOpen()) {
             suspended = true;
         }
     }
 
     void FileReader::resume() {
-        if (running) {
+        if (running && isOpen()) {
             suspended = false;
             span();
         }
     }
 
     void FileReader::stop() {
-        if (running) {
+        if (running && isOpen()) {
             this->eof();
 
             running = false;

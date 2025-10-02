@@ -100,6 +100,7 @@ namespace express {
 
         web::http::CiStringMap<std::string> queries;
         web::http::CiStringMap<std::string> headers;
+        web::http::CiStringMap<std::string> trailer;
         web::http::CiStringMap<std::string> cookies;
         std::vector<char> body;
 

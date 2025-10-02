@@ -152,6 +152,7 @@ namespace web::http::client {
 
         const CiStringMap<std::string>& getQueries() const;
         const CiStringMap<std::string>& getHeaders() const;
+        const CiStringMap<std::string>& getTrailer() const;
         const CiStringMap<std::string>& getCookies() const;
 
         SocketContext* getSocketContext() const;
@@ -161,6 +162,8 @@ namespace web::http::client {
         std::string url = "/";
         int httpMajor = 1;
         int httpMinor = 1;
+
+        std::size_t count;
 
     protected:
         CiStringMap<std::string> queries;

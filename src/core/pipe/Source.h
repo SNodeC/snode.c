@@ -70,8 +70,8 @@ namespace core::pipe {
 
         virtual bool isOpen() = 0;
 
-        void pipe(Sink* sink);
-        void pipe(const std::shared_ptr<Sink>& sink);
+        bool pipe(Sink* sink);
+        bool pipe(const std::shared_ptr<Sink>& sink);
 
         virtual void start() = 0;
         virtual void suspend() = 0;

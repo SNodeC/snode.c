@@ -65,6 +65,7 @@ namespace express::middleware {
                               req->httpVersion,
                               (details & Details::W_QUERIES) == Details::W_QUERIES ? req->queries : web::http::CiStringMap<std::string>(),
                               (details & Details::W_HEADERS) == Details::W_HEADERS ? req->headers : web::http::CiStringMap<std::string>(),
+                              (details & Details::W_TRAILER) == Details::W_TRAILER ? req->trailer : web::http::CiStringMap<std::string>(),
                               (details & Details::W_COOKIES) == Details::W_COOKIES ? req->cookies : web::http::CiStringMap<std::string>(),
                               (details & Details::W_CONTENT) == Details::W_CONTENT ? req->body : std::vector<char>());
 

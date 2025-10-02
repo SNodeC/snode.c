@@ -56,7 +56,8 @@ namespace core::pipe {
     }
 
     void Sink::pipe(Source* source) {
-        this->source = source;
+        if (source->isOpen())
+            this->source = source;
 
         onSourceConnect(source);
     }

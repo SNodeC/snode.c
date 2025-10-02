@@ -184,6 +184,7 @@ namespace httputils {
                          const std::string& version,
                          const web::http::CiStringMap<std::string>& queries,
                          const web::http::CiStringMap<std::string>& header,
+                         const web::http::CiStringMap<std::string>& trailer,
                          const web::http::CiStringMap<std::string>& cookies,
                          const std::vector<char>& body) {
         const int prefixLength = 9;
@@ -193,6 +194,9 @@ namespace httputils {
             keyLength = std::max(keyLength, static_cast<int>(key.size()));
         }
         for (const auto& [key, value] : header) {
+            keyLength = std::max(keyLength, static_cast<int>(key.size()));
+        }
+        for (const auto& [key, value] : trailer) {
             keyLength = std::max(keyLength, static_cast<int>(key.size()));
         }
         for (const auto& [key, value] : cookies) {
@@ -224,6 +228,14 @@ namespace httputils {
         if (!header.empty()) {
             prefix = "Header";
             for (const auto& [field, value] : header) {
+                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << field << " : " << value << "\n";
+                prefix = "";
+            }
+        }
+
+        if (!trailer.empty()) {
+            prefix = "Trailer";
+            for (const auto& [field, value] : trailer) {
                 requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << field << " : " << value << "\n";
                 prefix = "";
             }

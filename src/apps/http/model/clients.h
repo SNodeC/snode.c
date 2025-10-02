@@ -72,6 +72,7 @@ static void logResponse(const std::shared_ptr<web::http::client::Request>& req, 
                                    "HTTP/" + std::to_string(req->httpMajor) + "." + std::to_string(req->httpMinor),
                                    req->getQueries(),
                                    req->getHeaders(),
+                                   req->getTrailer(),
                                    req->getCookies(),
                                    {})
             << "\n"
@@ -93,7 +94,7 @@ namespace apps::http::legacy {
             [](const std::shared_ptr<Request>& req) {
                 VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestStart";
 
-                req->httpMinor = 0;
+                req->httpMinor = 1;
                 req->url = "/";
                 req->set("Connection", "keep-alive");
                 req->setTrailer("MyTrailer",
@@ -112,24 +113,24 @@ namespace apps::http::legacy {
                 req->url = "/sendfile/";
                 req->set("Connection", "keep-alive");
                 req->sendFile(
-                    "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
+                    "/home/voc/projects/snodec/snode.c/CMakeLists.tt",
                     [req](int ret) {
                         if (ret == 0) {
                             VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                    << " HTTP: Request accepted: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                    << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                             VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         } else {
                             LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                       << " HTTP: Request failed: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                       << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                             PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
 
-                            req->set("Connection", "close");
-                            req->end(
-                                []([[maybe_unused]] const std::shared_ptr<Request>& req,
-                                   [[maybe_unused]] const std::shared_ptr<Response>& res) {
-                                },
-                                [](const std::shared_ptr<Request>&, const std::string&) {
-                                });
+                            //                            req->set("Connection", "close");
+                            //                            req->end(
+                            //                                []([[maybe_unused]] const std::shared_ptr<Request>& req,
+                            //                                   [[maybe_unused]] const std::shared_ptr<Response>& res) {
+                            //                                },
+                            //                                [](const std::shared_ptr<Request>&, const std::string&) {
+                            //                                });
                         }
                     },
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -296,7 +297,7 @@ namespace apps::http::legacy {
                     });
 
                 req->httpMinor = 1;
-                req->method = "POST";
+                req->method = "GET";
                 req->url = "/";
                 req->set("Test", "aaa");
                 req->setTrailer("MyTrailer1",
@@ -314,52 +315,32 @@ namespace apps::http::legacy {
                     [req](int ret) {
                         if (ret == 0) {
                             VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                    << " HTTP: Request accepted: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                    << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                             VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         } else {
                             LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                       << " HTTP: Request failed: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                       << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                             PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-
-                            req->set("Connection", "close");
-                            req->end(
-                                [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                                    logResponse(req, res);
-                                },
-                                [req](const std::shared_ptr<Request>&, const std::string&) {
-                                });
                         }
                     },
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
+                    [&req](const std::shared_ptr<Request>& reqa, const std::shared_ptr<Response>& res) {
+                        logResponse(reqa, res);
 
-                        req->method = "POST";
-                        req->url = "/";
-                        req->set("Connection", "keep-alive");
+                        req->method = "GET";
+                        req->url = "/sdfsdf";
+                        req->set("Connection", "close");
                         req->set("Test", "bbb");
                         req->sendFile(
-                            "/home/voc/projects/snodec/snode.c/CMakeLists.tt",
-                            [req](int ret) {
+                            "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
+                            [&req](int ret) {
                                 if (ret == 0) {
                                     VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                            << " HTTP: Request accepted: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                    VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
+                                            << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                    VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                                 } else {
                                     LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                               << " HTTP: Request failed: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                    PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
-
-                                    //                                    req->init();
-                                    req->method = "GET";
-                                    req->url = "/";
-                                    req->set("Connection", "close");
-                                    req->set("Test", "ccc");
-                                    req->end(
-                                        [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                                            logResponse(req, res);
-                                        },
-                                        [](const std::shared_ptr<Request>&, const std::string&) {
-                                        });
+                                               << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                    PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                                 }
                             },
                             [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -372,7 +353,7 @@ namespace apps::http::legacy {
                     });
                 req->method = "GET";
                 req->url = "/";
-                req->set("Connection", "close");
+                //                req->set("Connection", "close");
                 req->set("Test", "xxx");
                 req->end(
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -380,8 +361,8 @@ namespace apps::http::legacy {
                     },
                     [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
-                core::EventReceiver::atNextTick([req]() {
-                    req->method = "POST";
+                core::EventReceiver::atNextTick([&req]() {
+                    req->method = "GET";
                     req->url = "/";
                     req->set("Connection", "keep-alive");
                     req->set("Test", "ddd");
@@ -390,20 +371,12 @@ namespace apps::http::legacy {
                         [req](int ret) {
                             if (ret == 0) {
                                 VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                        << " HTTP: Request accepted: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                        << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                                 VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                             } else {
                                 LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                           << " HTTP: Request failed: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                           << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                                 PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-
-                                req->set("Connection", "close");
-                                req->end(
-                                    []([[maybe_unused]] const std::shared_ptr<Request>& req,
-                                       [[maybe_unused]] const std::shared_ptr<Response>& res) {
-                                    },
-                                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                                    });
                             }
                         },
                         [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -412,7 +385,7 @@ namespace apps::http::legacy {
                         [req](const std::shared_ptr<Request>&, const std::string&) {
                         });
 
-                    req->method = "POST";
+                    req->method = "GET";
                     req->url = "/";
                     req->set("Connection", "keep-alive");
                     req->set("Test", "eee");
@@ -423,20 +396,12 @@ namespace apps::http::legacy {
                         [req](int ret) {
                             if (ret == 0) {
                                 VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                        << " HTTP: Request accepted: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                        << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                                 VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                             } else {
                                 LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                           << " HTTP: Request failed: POST / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                           << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                                 PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-
-                                req->set("Connection", "close");
-                                req->end(
-                                    []([[maybe_unused]] const std::shared_ptr<Request>& req,
-                                       [[maybe_unused]] const std::shared_ptr<Response>& res) {
-                                    },
-                                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                                    });
                             }
                         },
                         [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {

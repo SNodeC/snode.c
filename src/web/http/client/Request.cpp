@@ -74,6 +74,7 @@ namespace web::http::client {
 
     Request::Request(SocketContext* socketContext, const std::string& host)
         : hostFieldValue(host)
+        , count(0)
         , socketContext(socketContext) {
         this->host(hostFieldValue);
     }
@@ -84,6 +85,7 @@ namespace web::http::client {
         , url(std::move(request.url))
         , httpMajor(request.httpMajor)
         , httpMinor(request.httpMinor)
+        , count(request.count)
         , queries(std::move(request.queries))
         , headers(std::move(request.headers))
         , cookies(std::move(request.cookies))
@@ -98,6 +100,7 @@ namespace web::http::client {
         , masterRequest(request.masterRequest) // NOLINT
         , socketContext(request.socketContext) {
         request.init();
+        request.count++;
     }
 
     Request::~Request() {
@@ -302,10 +305,7 @@ namespace web::http::client {
                 url,
                 protocols,
                 onUpgradeInitiate,
-                [/*originRequest = std::weak_ptr(newRequest),*/ onResponseReceived](const std::shared_ptr<Request>& request,
-                                                                                    const std::shared_ptr<Response>& response) {
-                    //                    const std::shared_ptr<Request> request = originRequest.lock();
-
+                [onResponseReceived](const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
                     if (request != nullptr) {
                         const std::string connectionName = request->socketContext->getSocketConnection()->getConnectionName();
 
@@ -505,6 +505,8 @@ namespace web::http::client {
 
                             executeSendHeader();
                         };
+                    } else {
+                        executeEnd();
                     }
                 })->pipe(this);
             } else {
@@ -553,6 +555,7 @@ namespace web::http::client {
                                           "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
                                           queries,
                                           headers,
+                                          trailer,
                                           cookies,
                                           std::vector<char>());
 
@@ -685,6 +688,10 @@ namespace web::http::client {
 
     std::string Request::header(const std::string& field) {
         return headers.contains(field) ? headers[field] : "";
+    }
+
+    const CiStringMap<std::string>& Request::getTrailer() const {
+        return trailer;
     }
 
     const web::http::CiStringMap<std::string>& Request::getQueries() const {

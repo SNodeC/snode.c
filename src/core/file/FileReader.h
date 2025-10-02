@@ -57,7 +57,7 @@
 namespace core::file {
 
     class FileReader
-        : public core::EventReceiver
+        : private core::EventReceiver
         , public core::pipe::Source
         , virtual public File {
     private:

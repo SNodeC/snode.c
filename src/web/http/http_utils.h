@@ -83,6 +83,7 @@ namespace httputils {
                          const std::string& version,
                          const web::http::CiStringMap<std::string>& queries,
                          const web::http::CiStringMap<std::string>& header,
+                         const web::http::CiStringMap<std::string>& trailer,
                          const web::http::CiStringMap<std::string>& cookies,
                          const std::vector<char>& body);
 
