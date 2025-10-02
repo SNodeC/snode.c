@@ -61,7 +61,7 @@ namespace web::http::client::commands {
                         const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
         ~SendFileCommand() override = default;
 
-        bool execute(const std::shared_ptr<Request>& request) override;
+        bool execute(const std::shared_ptr<MasterRequest>& request) override;
 
     private:
         std::string file;

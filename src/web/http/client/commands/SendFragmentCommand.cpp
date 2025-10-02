@@ -62,7 +62,7 @@ namespace web::http::client::commands {
         delete[] chunk;
     }
 
-    bool SendFragmentCommand::execute(const std::shared_ptr<Request>& request) {
+    bool SendFragmentCommand::execute(const std::shared_ptr<MasterRequest>& request) {
         return request->executeSendFragment(chunk, chunkLen);
     }
 

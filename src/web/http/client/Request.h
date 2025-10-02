@@ -43,9 +43,8 @@
 #define WEB_HTTP_CLIENT_REQUEST_H
 
 #include "core/pipe/Sink.h"
-#include "web/http/ConnectionState.h"
-#include "web/http/TransferEncoding.h"
-#include "web/http/client/RequestCommand.h" // IWYU pragma: export
+#include "web/http/client/RequestCommand.h" // IW YU pragma: export
+#include "web/http/client/RequestS.h"       // IWYU pragma: export
 
 namespace web::http::client {
     class SocketContext;
@@ -72,30 +71,21 @@ namespace web::http::client {
 
 namespace web::http::client {
 
-    class Request : public core::pipe::Sink {
+    class MasterRequest
+        : public web::http::client::Request
+        , public core::pipe::Sink {
     public:
-        explicit Request(SocketContext* socketContext, const std::string& host);
+        MasterRequest(SocketContext* socketContext, const std::string& host);
 
-        explicit Request(Request&) = delete;
-        explicit Request(Request&&) noexcept;
+        explicit MasterRequest(MasterRequest&) = delete;
+        explicit MasterRequest(MasterRequest&&) noexcept;
 
-        Request& operator=(Request&) = delete;
-        Request& operator=(Request&&) noexcept = delete;
+        MasterRequest& operator=(MasterRequest&) = delete;
+        MasterRequest& operator=(MasterRequest&&) noexcept = delete;
 
-        ~Request() override;
+        ~MasterRequest() override;
 
-        void setMasterRequest(const std::shared_ptr<Request>& masterRequest);
         virtual void init();
-
-        Request& host(const std::string& hostFieldValue);
-        Request& append(const std::string& field, const std::string& value);
-        Request& set(const std::string& field, const std::string& value, bool overwrite = true);
-        Request& set(const std::map<std::string, std::string>& headers, bool overwrite = true);
-        Request& type(const std::string& type);
-        Request& cookie(const std::string& name, const std::string& value);
-        Request& cookie(const std::map<std::string, std::string>& cookies);
-        Request& query(const std::string& key, const std::string& value);
-        Request& setTrailer(const std::string& field, const std::string& value, bool overwrite = true);
 
         bool send(const char* chunk,
                   std::size_t chunkLen,
@@ -113,16 +103,14 @@ namespace web::http::client {
                       const std::function<void(int errnum)>& onStatus,
                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
-        Request& sendHeader();
-        Request& sendFragment(const char* chunk, std::size_t chunkLen);
-        Request& sendFragment(const std::string& data);
+        MasterRequest& sendHeader();
+        MasterRequest& sendFragment(const char* chunk, std::size_t chunkLen);
+        MasterRequest& sendFragment(const std::string& data);
         bool end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
 
     private:
-        bool initiate(const std::shared_ptr<Request>& request);
-
-        void upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status);
+        bool initiate(const std::shared_ptr<MasterRequest>& request);
 
         friend class commands::SendFileCommand;
         friend class commands::SendFragmentCommand;
@@ -136,57 +124,23 @@ namespace web::http::client {
         bool executeSendHeader();
         bool executeSendFragment(const char* chunk, std::size_t chunkLen);
 
-        void requestPrepared(const std::shared_ptr<Request>& request);
+        void requestPrepared(const std::shared_ptr<MasterRequest>& request);
         void requestDelivered();
 
-        void deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response);
-        void deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message);
+        void deliverResponse(const std::shared_ptr<MasterRequest>& request, const std::shared_ptr<Response>& response);
+        void deliverResponseParseError(const std::shared_ptr<MasterRequest>& request, const std::string& message);
 
         void onSourceConnect(core::pipe::Source* source) override;
         void onSourceData(const char* chunk, std::size_t chunkLen) override;
         void onSourceEof() override;
         void onSourceError(int errnum) override;
 
-    public:
-        std::string header(const std::string& field);
-
-        const CiStringMap<std::string>& getQueries() const;
-        const CiStringMap<std::string>& getHeaders() const;
-        const CiStringMap<std::string>& getTrailer() const;
-        const CiStringMap<std::string>& getCookies() const;
-
-        SocketContext* getSocketContext() const;
-
-        std::string hostFieldValue;
-        std::string method = "GET";
-        std::string url = "/";
-        int httpMajor = 1;
-        int httpMinor = 1;
-
-        std::size_t count;
-
-    protected:
-        CiStringMap<std::string> queries;
-        CiStringMap<std::string> headers;
-        CiStringMap<std::string> cookies;
-        CiStringMap<std::string> trailer;
-
-    private:
         std::list<RequestCommand*> requestCommands;
 
-        TransferEncoding transferEncoding = TransferEncoding::HTTP10;
-
-        std::size_t contentLength = 0;
         std::size_t contentLengthSent = 0;
-
-        ConnectionState connectionState = ConnectionState::Default;
 
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
         std::function<void(const std::shared_ptr<Request>&, const std::string& message)> onResponseParseError;
-
-        std::weak_ptr<Request> masterRequest;
-
-        web::http::client::SocketContext* socketContext;
 
         friend class SocketContext;
     };

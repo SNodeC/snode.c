@@ -56,13 +56,14 @@ int main(int argc, char* argv[]) {
 
     {
         using LegacyClient = web::http::legacy::in::Client;
+        using MasterRequest = LegacyClient::MasterRequest;
         using Request = LegacyClient::Request;
         using Response = LegacyClient::Response;
         using LegacySocketAddress = LegacyClient::SocketAddress;
 
         const LegacyClient legacyClient(
             "legacy",
-            [](const std::shared_ptr<Request>& req) {
+            [](const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
                 VLOG(1) << connectionName << ": OnRequestBegin";
@@ -87,7 +88,7 @@ int main(int argc, char* argv[]) {
                         VLOG(1) << connectionName << ": Request parse error: " << message;
                     });
             },
-            []([[maybe_unused]] const std::shared_ptr<Request>& req) {
+            []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
                 VLOG(1) << connectionName << ": OnRequestEnd";
@@ -112,13 +113,14 @@ int main(int argc, char* argv[]) {
         }); // Connection:keep-alive\r\n\r\n"
 
         using TlsClient = web::http::tls::in::Client;
+        using MasterRequest = TlsClient::MasterRequest;
         using Request = TlsClient::Request;
         using Response = TlsClient::Response;
         using TLSSocketAddress = TlsClient::SocketAddress;
 
         const TlsClient tlsClient(
             "tls",
-            [](const std::shared_ptr<Request>& req) {
+            [](const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
                 VLOG(1) << connectionName << ": OnRequestBegin";
@@ -139,7 +141,7 @@ int main(int argc, char* argv[]) {
                         VLOG(1) << connectionName << ": Request parse error: " << message;
                     });
             },
-            []([[maybe_unused]] const std::shared_ptr<Request>& req) {
+            []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
                 VLOG(1) << connectionName << ": OnRequestEnd";

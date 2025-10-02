@@ -84,6 +84,7 @@ static void logResponse(const std::shared_ptr<web::http::client::Request>& req, 
 namespace apps::http::legacy {
 
     using Client = web::http::legacy::NET::Client;
+    using MasterRequest = Client::MasterRequest;
     using Request = Client::Request;
     using Response = Client::Response;
     using SocketConnection = Client::SocketConnection;
@@ -91,7 +92,7 @@ namespace apps::http::legacy {
     static Client getClient() {
         Client client(
             "httpclient",
-            [](const std::shared_ptr<Request>& req) {
+            [](const std::shared_ptr<MasterRequest>& req) {
                 VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestStart";
 
                 req->httpMinor = 1;
@@ -442,6 +443,7 @@ namespace apps::http::legacy {
 namespace apps::http::tls {
 
     using Client = web::http::tls::NET::Client;
+    using MasterRequest = Client::MasterRequest;
     using Request = Client::Request;
     using Response = Client::Response;
     using SocketConnection = Client::SocketConnection;
@@ -449,7 +451,7 @@ namespace apps::http::tls {
     static Client getClient() {
         Client client(
             "httpclient",
-            [](const std::shared_ptr<Request>& req) {
+            [](const std::shared_ptr<MasterRequest>& req) {
                 VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestStart";
 
                 req->url = "/";

@@ -54,13 +54,14 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     using Client = web::http::legacy::in::Client;
+    using MasterRequest = Client::MasterRequest;
     using Request = Client::Request;
     using Response = Client::Response;
     using SocketAddress = Client::SocketAddress;
 
     const Client jsonClient(
         "legacy",
-        [](const std::shared_ptr<Request>& req) {
+        [](const std::shared_ptr<MasterRequest>& req) {
             VLOG(1) << "-- OnRequest";
             req->method = "POST";
             req->url = "/index.html";
@@ -95,7 +96,7 @@ int main(int argc, char* argv[]) {
                     VLOG(1) << "legacy: Request parse error: " << message;
                 });
         },
-        []([[maybe_unused]] const std::shared_ptr<Request>& req) {
+        []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
             LOG(INFO) << " -- OnRequestEnd";
         });
 

@@ -57,7 +57,7 @@ namespace web::http::client::commands {
 
         ~SendFragmentCommand() override;
 
-        bool execute(const std::shared_ptr<Request>& request) override;
+        bool execute(const std::shared_ptr<MasterRequest>& request) override;
 
     private:
         char* chunk;
