@@ -82,7 +82,7 @@ namespace web::http::server {
                   LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Request parse error: " << reason << " (" << status
                              << ") ";
 
-                  masterResponse->status(status).send(reason);
+                  //                  masterResponse->status(status).send(reason);
 
                   shutdownWrite(true);
               }) {
