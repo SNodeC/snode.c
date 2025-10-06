@@ -82,9 +82,11 @@ namespace web::http::server {
                   LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Request parse error: " << reason << " (" << status
                              << ") ";
 
-                  masterResponse->status(status).send(reason);
+                  pendingRequests.emplace_back(std::make_shared<Request>(Request(status, reason)));
 
-                  shutdownWrite(true);
+                  if (pendingRequests.size() == 1) {
+                      deliverRequest();
+                  }
               }) {
     }
 
@@ -92,20 +94,28 @@ namespace web::http::server {
         if (!pendingRequests.empty()) {
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request deliver: " << pendingRequest->method << " "
-                      << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+            if (pendingRequest->status == 0) {
+                LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request deliver: " << pendingRequest->method << " "
+                          << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
 
-            masterResponse->init();
-            masterResponse->requestMethod = pendingRequest->method;
-            masterResponse->httpMajor = pendingRequest->httpMajor;
-            masterResponse->httpMinor = pendingRequest->httpMinor;
+                masterResponse->init();
+                masterResponse->requestMethod = pendingRequest->method;
+                masterResponse->httpMajor = pendingRequest->httpMajor;
+                masterResponse->httpMinor = pendingRequest->httpMinor;
 
-            const std::string connection = pendingRequest->get("Connection");
-            if (!connection.empty()) {
-                masterResponse->set("Connection", connection);
+                const std::string connection = pendingRequest->get("Connection");
+                if (!connection.empty()) {
+                    masterResponse->set("Connection", connection);
+                }
+
+                onRequestReady(pendingRequest, masterResponse);
+            } else {
+                masterResponse->init();
+                masterResponse->httpMajor = 1;
+                masterResponse->httpMinor = 1;
+                masterResponse->status(pendingRequest->status).send(pendingRequest->reason);
+                shutdownRead();
             }
-
-            onRequestReady(pendingRequest, masterResponse);
         } else {
             LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: No more pending request";
         }

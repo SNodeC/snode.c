@@ -41,6 +41,8 @@
 
 #include "web/http/server/Request.h"
 
+#include "web/http/StatusCodes.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <iterator>
@@ -84,6 +86,11 @@ namespace web::http::server {
         }
 
         return nullstr;
+    }
+
+    Request::Request(int status, const std::string& reason)
+        : status(status)
+        , reason(reason.empty() ? web::http::StatusCode::reason(status) : reason) {
     }
 
 } // namespace web::http::server
