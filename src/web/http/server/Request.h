@@ -88,7 +88,12 @@ namespace web::http::server {
         std::vector<char> body;
 
     private:
+        Request(int status, const std::string& reason = "");
+
         std::string nullstr;
+
+        int status = 0;
+        std::string reason;
 
         friend class SocketContext;
 
