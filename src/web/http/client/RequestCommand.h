@@ -44,14 +44,13 @@
 namespace web::http::client {
     class MasterRequest;
     class Request;
-    class Request;
     class Response;
 } // namespace web::http::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <memory>
+#include <functional> // IWYU pragma: export
+#include <memory>     // IWYU pragma: export
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

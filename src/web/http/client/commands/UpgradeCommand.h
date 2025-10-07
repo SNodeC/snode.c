@@ -44,10 +44,13 @@
 
 #include "web/http/client/RequestCommand.h" // IWYU pragma: export
 
+namespace web::http::client {
+    class Request;
+    class Response;
+} // namespace web::http::client
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <memory>
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

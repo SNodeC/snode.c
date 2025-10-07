@@ -44,7 +44,6 @@ add_subdirectory(commands)
 set(HTTPCLIENT_CPP
     ConfigHTTP.cpp
     Request.cpp
-    RequestS.cpp
     RequestCommand.cpp
     Response.cpp
     ResponseParser.cpp
@@ -58,7 +57,6 @@ set(HTTPCLIENT_H
     Client.h
     ConfigHTTP.h
     Request.h
-    RequestS.h
     RequestCommand.h
     Response.h
     ResponseParser.h
@@ -73,7 +71,7 @@ append_source_file_config(
 )
 
 add_library(http-client SHARED ${HTTPCLIENT_CPP} ${HTTPCLIENT_H}
-    RequestS.h RequestS.cpp)
+)
 add_library(snodec::http-client ALIAS http-client)
 
 set_source_files_properties(

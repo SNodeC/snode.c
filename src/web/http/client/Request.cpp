@@ -73,8 +73,235 @@
 
 namespace web::http::client {
 
+    Request::Request(SocketContext* socketContext, const std::string& host)
+        : hostFieldValue(host)
+        , socketContext(socketContext) {
+    }
+
+    Request::Request(Request&& request) noexcept
+        : hostFieldValue(request.hostFieldValue) // NOLINT
+        , method(std::move(request.method))
+        , url(std::move(request.url))
+        , httpMajor(request.httpMajor)
+        , httpMinor(request.httpMinor)
+        , count(request.count)
+        , queries(std::move(request.queries))
+        , headers(std::move(request.headers))
+        , cookies(std::move(request.cookies))
+        , trailer(std::move(request.trailer))
+        , contentLength(request.contentLength)
+        , masterRequest(request.masterRequest) // NOLINT
+        , socketContext(request.socketContext)
+        , transferEncoding(request.transferEncoding)
+        , connectionState(request.connectionState) {
+        request.count++;
+    }
+
+    void Request::setMasterRequest(const std::shared_ptr<MasterRequest>& masterRequest) {
+        this->masterRequest = masterRequest;
+    }
+
+    std::shared_ptr<MasterRequest> Request::getMasterRequest() const {
+        return masterRequest.lock();
+    }
+
+    SocketContext* Request::getSocketContext() const {
+        return socketContext;
+    }
+
+    Request& Request::host(const std::string& hostFieldValue) {
+        set("Host", hostFieldValue);
+
+        return *this;
+    }
+
+    Request& Request::append(const std::string& field, const std::string& value) {
+        const std::map<std::string, std::string>::iterator it = headers.find(field);
+
+        if (it != headers.end()) {
+            set(field, it->second.append(", ").append(value));
+        } else {
+            set(field, value);
+        }
+
+        return *this;
+    }
+
+    Request& Request::set(const std::string& field, const std::string& value, bool overwrite) {
+        if (!value.empty()) {
+            if (overwrite) {
+                headers.insert_or_assign(field, value);
+            } else {
+                headers.insert({field, value});
+            }
+
+            if (web::http::ciEquals(field, "Connection")) {
+                if (web::http::ciContains(headers[field], "close")) {
+                    connectionState = ConnectionState::Close;
+                } else if (web::http::ciContains(headers[field], "keep-alive")) {
+                    connectionState = ConnectionState::Keep;
+                }
+            } else if (web::http::ciEquals(field, "Content-Length")) {
+                contentLength = std::stoul(value);
+                transferEncoding = TransferEncoding::Identity;
+                headers.erase("Transfer-Encoding");
+            } else if (web::http::ciEquals(field, "Transfer-Encoding")) {
+                if (web::http::ciContains(headers[field], "chunked")) {
+                    transferEncoding = TransferEncoding::Chunked;
+                    headers.erase("Content-Length");
+                }
+                if (web::http::ciContains(headers[field], "compressed")) {
+                }
+                if (web::http::ciContains(headers[field], "deflate")) {
+                }
+                if (web::http::ciContains(headers[field], "gzip")) {
+                }
+            } else if (web::http::ciEquals(field, "Content-Encoding")) {
+                if (web::http::ciContains(headers[field], "compressed")) {
+                }
+                if (web::http::ciContains(headers[field], "deflate")) {
+                }
+                if (web::http::ciContains(headers[field], "gzip")) {
+                }
+                if (web::http::ciContains(headers[field], "br")) {
+                }
+            }
+        } else {
+            headers.erase(field);
+        }
+
+        return *this;
+    }
+
+    Request& Request::set(const std::map<std::string, std::string>& headers, bool overwrite) {
+        for (const auto& [field, value] : headers) {
+            set(field, value, overwrite);
+        }
+
+        return *this;
+    }
+
+    Request& Request::type(const std::string& type) {
+        headers.insert({"Content-Type", type});
+
+        return *this;
+    }
+
+    Request& Request::cookie(const std::string& name, const std::string& value) {
+        cookies.insert({name, value});
+
+        return *this;
+    }
+
+    Request& Request::cookie(const std::map<std::string, std::string>& cookies) {
+        for (const auto& [name, value] : cookies) {
+            cookie(name, value);
+        }
+
+        return *this;
+    }
+
+    Request& Request::query(const std::string& key, const std::string& value) {
+        queries.insert({key, value});
+
+        return *this;
+    }
+
+    Request& Request::setTrailer(const std::string& field, const std::string& value, bool overwrite) {
+        if (!value.empty()) {
+            if (overwrite) {
+                trailer.insert_or_assign(field, value);
+            } else {
+                trailer.insert({field, value});
+            }
+            if (!headers.contains("Trailer")) {
+                set("Trailer", field);
+            } else {
+                headers["Trailer"].append("," + field);
+            }
+        } else {
+            trailer.erase(field);
+        }
+
+        return *this;
+    }
+
+    std::string Request::header(const std::string& field) const {
+        auto fieldElement = headers.find(field);
+
+        return fieldElement != headers.end() ? fieldElement->second : "";
+    }
+
+    const CiStringMap<std::string>& Request::getQueries() const {
+        return queries;
+    }
+
+    const CiStringMap<std::string>& Request::getHeaders() const {
+        return headers;
+    }
+
+    const CiStringMap<std::string>& Request::getTrailer() const {
+        return trailer;
+    }
+
+    const CiStringMap<std::string>& Request::getCookies() const {
+        return cookies;
+    }
+
+    void Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status) {
+        const std::string connectionName = socketContext->getSocketConnection()->getConnectionName();
+
+        std::string name;
+
+        if (!masterRequest.expired()) {
+            if (response != nullptr) {
+                if (web::http::ciContains(response->get("connection"), "Upgrade")) {
+                    SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                        SocketContextUpgradeFactorySelector::instance()->select(*this, *response);
+
+                    if (socketContextUpgradeFactory != nullptr) {
+                        name = socketContextUpgradeFactory->name();
+
+                        LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << name;
+
+                        core::socket::stream::SocketContext* socketContextUpgrade =
+                            socketContextUpgradeFactory->create(socketContext->getSocketConnection());
+
+                        if (socketContextUpgrade != nullptr) {
+                            LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create success for: " << name;
+
+                            socketContext->switchSocketContext(socketContextUpgrade);
+                        } else {
+                            LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create failed for: " << name;
+
+                            socketContext->close();
+                        }
+                    } else {
+                        LOG(DEBUG) << connectionName
+                                   << " HTTP upgrade: SocketContextUpgradeFactory not supported by server: " << header("upgrade");
+
+                        socketContext->close();
+                    }
+                } else {
+                    LOG(DEBUG) << connectionName << " HTTP upgrade: No upgrade requested";
+
+                    socketContext->close();
+                }
+            } else {
+                LOG(ERROR) << connectionName << " HTTP upgrade: Response has gone away";
+
+                socketContext->close();
+            }
+        } else {
+            LOG(ERROR) << connectionName << " HTTP upgrade: Unexpected disconnect";
+        }
+
+        status(name);
+    }
+
     MasterRequest::MasterRequest(SocketContext* socketContext, const std::string& host)
         : Request(socketContext, host) {
+        this->init();
         this->host(hostFieldValue);
     }
 
@@ -320,7 +547,7 @@ namespace web::http::client {
                             }
 
                             executeSendHeader();
-                        };
+                        }
                     } else {
                         executeEnd();
                     }

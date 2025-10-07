@@ -43,10 +43,13 @@
 #define WEB_HTTP_CLIENT_REQUEST_H
 
 #include "core/pipe/Sink.h"
-#include "web/http/client/RequestCommand.h" // IW YU pragma: export
-#include "web/http/client/RequestS.h"       // IWYU pragma: export
+#include "web/http/ConnectionState.h"
+#include "web/http/TransferEncoding.h"
 
 namespace web::http::client {
+    class MasterRequest;
+    class RequestCommand;
+    class Response;
     class SocketContext;
     namespace commands {
         class SendFileCommand;
@@ -59,8 +62,6 @@ namespace web::http::client {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "web/http/CiStringMap.h" // IWYU pragma: export
-
 #include <cstddef>
 #include <functional>
 #include <list>
@@ -69,7 +70,75 @@ namespace web::http::client {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+namespace web::http::client {} // namespace web::http::client
+
+// IW YU pragma: no_include "web/http/client/RequestCommand.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "web/http/CiStringMap.h" // IWYU pragma: export
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+
 namespace web::http::client {
+
+    class Request {
+    public:
+        Request(SocketContext* socketContext, const std::string& host);
+
+        explicit Request(Request&) = delete;
+        explicit Request(Request&& request) noexcept;
+
+        Request& operator=(Request&) = delete;
+        Request& operator=(Request&&) noexcept = delete;
+
+        void setMasterRequest(const std::shared_ptr<MasterRequest>& masterRequest);
+        std::shared_ptr<MasterRequest> getMasterRequest() const;
+
+        SocketContext* getSocketContext() const;
+
+        Request& host(const std::string& hostFieldValue);
+        Request& append(const std::string& field, const std::string& value);
+        Request& set(const std::string& field, const std::string& value, bool overwrite = true);
+        Request& set(const std::map<std::string, std::string>& headers, bool overwrite = true);
+        Request& type(const std::string& type);
+        Request& cookie(const std::string& name, const std::string& value);
+        Request& cookie(const std::map<std::string, std::string>& cookies);
+        Request& query(const std::string& key, const std::string& value);
+        Request& setTrailer(const std::string& field, const std::string& value, bool overwrite = true);
+
+        std::string header(const std::string& field) const;
+        const CiStringMap<std::string>& getQueries() const;
+        const CiStringMap<std::string>& getHeaders() const;
+        const CiStringMap<std::string>& getTrailer() const;
+        const CiStringMap<std::string>& getCookies() const;
+
+        std::string hostFieldValue;
+        std::string method = "GET";
+        std::string url = "/";
+        int httpMajor = 1;
+        int httpMinor = 1;
+
+        std::size_t count{0};
+
+    protected:
+        void upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status);
+
+        CiStringMap<std::string> queries;
+        CiStringMap<std::string> headers;
+        CiStringMap<std::string> cookies;
+        CiStringMap<std::string> trailer;
+
+        std::size_t contentLength = 0;
+
+        std::weak_ptr<MasterRequest> masterRequest;
+        web::http::client::SocketContext* socketContext;
+
+        TransferEncoding transferEncoding = TransferEncoding::HTTP10;
+        ConnectionState connectionState = ConnectionState::Default;
+
+        friend class MasterRequest;
+    };
 
     class MasterRequest
         : public web::http::client::Request
