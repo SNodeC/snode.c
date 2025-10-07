@@ -320,7 +320,6 @@ namespace web::http::client {
 
     void SocketContext::onDisconnected() {
         while (!deliveredRequests.empty()) {
-            const std::shared_ptr<Request> request = deliveredRequests.front();
             const std::shared_ptr<Response> response(new Response());
             response->httpVersion = "HTTP/1.1";
             response->httpMajor = 1;

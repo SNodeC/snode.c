@@ -81,6 +81,7 @@ namespace web::http::server {
               [this](int status, const std::string& reason) {
                   LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Request parse error: " << reason << " (" << status
                              << ") ";
+                  shutdownRead();
 
                   pendingRequests.emplace_back(std::make_shared<Request>(Request(status, reason)));
 
@@ -113,8 +114,8 @@ namespace web::http::server {
                 masterResponse->init();
                 masterResponse->httpMajor = 1;
                 masterResponse->httpMinor = 1;
+
                 masterResponse->status(pendingRequest->status).send(pendingRequest->reason);
-                shutdownRead();
             }
         } else {
             LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: No more pending request";
