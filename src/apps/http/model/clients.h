@@ -102,7 +102,6 @@ namespace apps::http::legacy {
                                                    // send here because there is no content which is send using "Transfer-Encoding:chunked"
                 req->end(
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        VLOG(0) << "******* End 1";
                         logResponse(req, res);
                     },
                     [](const std::shared_ptr<Request>&, const std::string&) {
@@ -123,18 +122,9 @@ namespace apps::http::legacy {
                             LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                        << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                             PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-
-                            //                            req->set("Connection", "close");
-                            //                            req->end(
-                            //                                []([[maybe_unused]] const std::shared_ptr<Request>& req,
-                            //                                   [[maybe_unused]] const std::shared_ptr<Response>& res) {
-                            //                                },
-                            //                                [](const std::shared_ptr<Request>&, const std::string&) {
-                            //                                });
                         }
                     },
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        VLOG(0) << "******* End 2";
                         logResponse(req, res);
                     },
                     [](const std::shared_ptr<Request>&, const std::string&) {
@@ -149,7 +139,6 @@ namespace apps::http::legacy {
                                                    // send here because there is no content which is send using "Transfer-Encoding:chunked"
                 req->end(
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        VLOG(0) << "******* End 3";
                         logResponse(req, res);
                     },
                     [](const std::shared_ptr<Request>&, const std::string&) {
