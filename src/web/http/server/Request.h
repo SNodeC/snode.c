@@ -96,7 +96,6 @@ namespace web::http::server {
         std::string reason;
 
         friend class SocketContext;
-
         friend class RequestParser;
     };
 

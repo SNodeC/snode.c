@@ -52,6 +52,11 @@
 
 namespace web::http::server {
 
+    Request::Request(int status, const std::string& reason)
+        : status(status)
+        , reason(reason.empty() ? web::http::StatusCode::reason(status) : reason) {
+    }
+
     const std::string& Request::get(const std::string& key, int i) const {
         if (headers.find(key) != headers.end()) {
             std::pair<std::multimap<std::string, std::string>::const_iterator, std::multimap<std::string, std::string>::const_iterator>
@@ -86,11 +91,6 @@ namespace web::http::server {
         }
 
         return nullstr;
-    }
-
-    Request::Request(int status, const std::string& reason)
-        : status(status)
-        , reason(reason.empty() ? web::http::StatusCode::reason(status) : reason) {
     }
 
 } // namespace web::http::server
