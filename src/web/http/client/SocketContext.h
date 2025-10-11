@@ -65,21 +65,19 @@ namespace web::http::client {
     class SocketContext : public core::socket::stream::SocketContext {
     private:
         using Super = core::socket::stream::SocketContext;
-
-        using Request = web::http::client::Request;
         using Response = web::http::client::Response;
 
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                      const std::function<void(const std::shared_ptr<Request>&)>& onHttpConnected,
-                      const std::function<void(const std::shared_ptr<Request>&)>& onHttpDisconnected,
+                      const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpConnected,
+                      const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpDisconnected,
                       const std::string& hostHeader,
                       bool pipelinedRequests);
 
         ~SocketContext() override;
 
     private:
-        void requestPrepared(const std::shared_ptr<Request>& request);
+        void requestPrepared(const std::shared_ptr<MasterRequest>& request);
         void initiateRequest();
         void requestDelivered(bool success);
         void responseStarted();
@@ -87,8 +85,8 @@ namespace web::http::client {
         void deliverResponseParseError(int status, const std::string& reason);
         void requestCompleted(const std::shared_ptr<Response>& response);
 
-        std::function<void(const std::shared_ptr<Request>&)> onHttpConnected;
-        std::function<void(const std::shared_ptr<Request>&)> onHttpDisconnected;
+        std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpConnected;
+        std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpDisconnected;
 
         void onConnected() override;
         std::size_t onReceivedFromPeer() override;
@@ -96,12 +94,12 @@ namespace web::http::client {
         bool onSignal(int signum) override;
         void onWriteError(int errnum) override;
 
-        std::list<std::shared_ptr<Request>> pendingRequests;
-        std::list<std::shared_ptr<Request>> deliveredRequests;
+        std::list<std::shared_ptr<MasterRequest>> pendingRequests;
+        std::list<std::shared_ptr<MasterRequest>> deliveredRequests;
 
         bool pipelinedRequests = false;
 
-        std::shared_ptr<Request> masterRequest;
+        std::shared_ptr<MasterRequest> masterRequest;
 
         ResponseParser parser;
 
@@ -116,7 +114,7 @@ namespace web::http::client {
 
         bool httpClose = false;
 
-        friend class web::http::client::Request;
+        friend class web::http::client::MasterRequest;
     };
 
 } // namespace web::http::client

@@ -61,11 +61,11 @@ namespace web::http::client {
 
     class SocketContextFactory : public web::http::SocketContextFactory<web::http::client::SocketContext> {
     public:
-        using Request = web::http::client::Request;
+        using MasterRequest = web::http::client::MasterRequest;
         using Response = web::http::client::Response;
 
-        SocketContextFactory(const std::function<void(const std::shared_ptr<Request>&)>& onHttpConnected,
-                             const std::function<void(const std::shared_ptr<Request>&)>& onHttpDisconnected,
+        SocketContextFactory(const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpConnected,
+                             const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpDisconnected,
                              const std::function<net::config::ConfigInstance&()>& getConfigInstance)
             : onHttpConnected(onHttpConnected)
             , onHttpDisconnected(onHttpDisconnected)
@@ -80,8 +80,8 @@ namespace web::http::client {
     private:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
 
-        std::function<void(const std::shared_ptr<Request>&)> onHttpConnected;
-        std::function<void(const std::shared_ptr<Request>&)> onHttpDisconnected;
+        std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpConnected;
+        std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpDisconnected;
 
         ConfigHTTP configHttp;
     };

@@ -59,7 +59,7 @@ namespace web::http::client::commands {
         , onStatus(onStatus) {
     }
 
-    bool SendFileCommand::execute(const std::shared_ptr<Request>& request) {
+    bool SendFileCommand::execute(const std::shared_ptr<MasterRequest>& request) {
         return request->executeSendFile(file, [this](int errnum) {
             this->error = errnum;
             onStatus(errnum);

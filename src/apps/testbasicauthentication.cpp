@@ -81,9 +81,9 @@ int main(int argc, char* argv[]) {
         router1.use(ba);
         legacyApp.use(router1);
 
-        const Router& router2 = middleware::VHost("ceres.home.vchrist.at:8080");
+        const Router& router2 = middleware::VHost("jupiter.home.vchrist.at:8080");
         router2.get("/", [] APPLICATION(req, res) {
-            res->send("Hello! I am VHOST ceres.home.vchrist.at.");
+            res->send("Hello! I am VHOST jupiter.home.vchrist.at.");
         });
         legacyApp.use(router2);
 
@@ -117,9 +117,9 @@ int main(int argc, char* argv[]) {
             vh1.use(getRouter(utils::Config::getStringOptionValue("--web-root")));
             tlsApp.use(vh1);
 
-            const Router& vh2 = middleware::VHost("ceres.home.vchrist.at:8088");
+            const Router& vh2 = middleware::VHost("jupiter.home.vchrist.at:8088");
             vh2.get("/", [] APPLICATION(req, res) {
-                res->send("Hello! I am VHOST ceres.home.vchrist.at.");
+                res->send("Hello! I am VHOST jupiter.home.vchrist.at.");
             });
 
             tlsApp.use(vh2);

@@ -44,6 +44,11 @@
 
 #include "web/http/client/RequestCommand.h" // IWYU pragma: export
 
+namespace web::http::client {
+    class Request;
+    class Response;
+} // namespace web::http::client
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -59,7 +64,7 @@ namespace web::http::client::commands {
 
         ~EndCommand() override = default;
 
-        bool execute(const std::shared_ptr<Request>& request) override;
+        bool execute(const std::shared_ptr<MasterRequest>& request) override;
     };
 
 } // namespace web::http::client::commands

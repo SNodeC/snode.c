@@ -165,7 +165,7 @@ namespace express::dispatcher {
             if (*s == ':') {
                 ++s;
                 const char* nstart = s;
-                while (s < e && (std::isalnum((unsigned char) *s) > 0 || *s == '_' || *s == '-')) {
+                while (s < e && (std::isalnum(static_cast<unsigned char>(*s)) > 0 || *s == '_' || *s == '-')) {
                     ++s;
                 }
                 std::string name(nstart, s);
@@ -247,7 +247,8 @@ namespace express::dispatcher {
         }
 
         auto eq = [&](char a, char b) {
-            return !caseInsensitive ? (a == b) : (std::tolower((unsigned char) a) == std::tolower((unsigned char) b));
+            return !caseInsensitive ? (a == b)
+                                    : (std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b)));
         };
 
         // Check prefix characters

@@ -58,17 +58,18 @@ namespace web::http::client {
     template <template <typename SocketContextFactoryT, typename... Args> typename SocketClientT>
     class Client
         : public SocketClientT<web::http::client::SocketContextFactory,
-                               std::function<void(const std::shared_ptr<web::http::client::Request>&)>,
-                               std::function<void(const std::shared_ptr<web::http::client::Request>&)>,
+                               std::function<void(const std::shared_ptr<web::http::client::MasterRequest>&)>,
+                               std::function<void(const std::shared_ptr<web::http::client::MasterRequest>&)>,
                                std::function<net::config::ConfigInstance&()>> {
     public:
+        using MasterRequest = web::http::client::MasterRequest;
         using Request = web::http::client::Request;
         using Response = web::http::client::Response;
 
     private:
         using Super = SocketClientT<web::http::client::SocketContextFactory,
-                                    std::function<void(const std::shared_ptr<web::http::client::Request>&)>,
-                                    std::function<void(const std::shared_ptr<web::http::client::Request>&)>,
+                                    std::function<void(const std::shared_ptr<MasterRequest>&)>,
+                                    std::function<void(const std::shared_ptr<MasterRequest>&)>,
                                     std::function<net::config::ConfigInstance&()>>; // this makes it an HTTP client;
 
     public:
@@ -79,8 +80,8 @@ namespace web::http::client {
                const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(SocketConnection*)>& onDisconnect,
-               std::function<void(const std::shared_ptr<Request>&)>&& onHttpConnected,
-               std::function<void(const std::shared_ptr<Request>&)>&& onHttpDisconnected)
+               std::function<void(const std::shared_ptr<MasterRequest>&)>&& onHttpConnected,
+               std::function<void(const std::shared_ptr<MasterRequest>&)>&& onHttpDisconnected)
             : Super(
                   name,
                   [config = Super::config, socketContextFactory = Super::getSocketContextFactory(), onConnect](
@@ -91,8 +92,8 @@ namespace web::http::client {
                   },
                   onConnected,
                   onDisconnect,
-                  std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpConnected),
-                  std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpDisconnected),
+                  std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpConnected),
+                  std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected),
                   [this]() -> net::config::ConfigInstance& {
                       return Super::getConfig();
                   }) {
@@ -101,22 +102,22 @@ namespace web::http::client {
         Client(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(SocketConnection*)>& onDisconnect,
-               std::function<void(const std::shared_ptr<Request>&)>&& onHttpConnected,
-               std::function<void(const std::shared_ptr<Request>&)>&& onHttpDisconnected)
+               std::function<void(const std::shared_ptr<MasterRequest>&)>&& onHttpConnected,
+               std::function<void(const std::shared_ptr<MasterRequest>&)>&& onHttpDisconnected)
             : Client("",
                      onConnect,
                      onConnected,
                      onDisconnect,
-                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpConnected),
-                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpDisconnected)) {
+                     std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpConnected),
+                     std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected)) {
         }
 
         Client(const std::string& name,
-               std::function<void(const std::shared_ptr<Request>&)>&& onHttpConnected,
-               std::function<void(const std::shared_ptr<Request>&)>&& onHttpDisconnected)
+               std::function<void(const std::shared_ptr<MasterRequest>&)>&& onHttpConnected,
+               std::function<void(const std::shared_ptr<MasterRequest>&)>&& onHttpDisconnected)
             : Super(name,
-                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpConnected),
-                    std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpDisconnected),
+                    std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpConnected),
+                    std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected),
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
@@ -129,11 +130,11 @@ namespace web::http::client {
             });
         }
 
-        Client(std::function<void(const std::shared_ptr<Request>&)>&& onHttpConnected,
-               std::function<void(const std::shared_ptr<Request>&)>&& onHttpDisconnected)
+        Client(std::function<void(const std::shared_ptr<MasterRequest>&)>&& onHttpConnected,
+               std::function<void(const std::shared_ptr<MasterRequest>&)>&& onHttpDisconnected)
             : Client("",
-                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpConnected),
-                     std::forward<std::function<void(const std::shared_ptr<Request>&)>>(onHttpDisconnected)) {
+                     std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpConnected),
+                     std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected)) {
         }
 
         void setPipelinedRequests(bool pipelinedRequests) {

@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
-            [queryAccessToken, queryClientId, res](const std::shared_ptr<web::http::client::Request>& request) {
+            [queryAccessToken, queryClientId, res](const std::shared_ptr<web::http::client::MasterRequest>& request) {
                 VLOG(1) << "OnRequestBegin";
                 request->url = "/oauth2/token/validate?client_id=" + queryClientId;
                 request->method = "POST";

@@ -60,15 +60,15 @@
 namespace web::http::client {
 
     SocketContext::SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                                 const std::function<void(const std::shared_ptr<Request>&)>& onHttpConnected,
-                                 const std::function<void(const std::shared_ptr<Request>&)>& onHttpDisconnected,
+                                 const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpConnected,
+                                 const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpDisconnected,
                                  const std::string& hostHeader,
                                  bool pipelinedRequests)
         : Super(socketConnection)
         , onHttpConnected(onHttpConnected)
         , onHttpDisconnected(onHttpDisconnected)
         , pipelinedRequests(pipelinedRequests)
-        , masterRequest(std::make_shared<Request>(this, hostHeader))
+        , masterRequest(std::make_shared<MasterRequest>(this, hostHeader))
         , parser(
               this,
               [this]() {
@@ -86,20 +86,20 @@ namespace web::http::client {
     SocketContext::~SocketContext() {
         if (!deliveredRequests.empty()) {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Responses missed";
-            for (const std::shared_ptr<Request>& request : deliveredRequests) {
+            for (const std::shared_ptr<MasterRequest>& request : deliveredRequests) {
                 LOG(DEBUG) << "  " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
             }
         }
 
         if (!pendingRequests.empty()) {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Requests ignored";
-            for (const std::shared_ptr<Request>& request : pendingRequests) {
+            for (const std::shared_ptr<MasterRequest>& request : pendingRequests) {
                 LOG(DEBUG) << "  " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
             }
         }
     }
 
-    void SocketContext::requestPrepared(const std::shared_ptr<Request>& request) {
+    void SocketContext::requestPrepared(const std::shared_ptr<MasterRequest>& request) {
         const std::string requestLine = std::string(request->method)
                                             .append(" ")
                                             .append(request->url)
@@ -144,7 +144,7 @@ namespace web::http::client {
 
     void SocketContext::initiateRequest() {
         if (!pendingRequests.empty()) {
-            const std::shared_ptr<Request>& request = pendingRequests.front();
+            const std::shared_ptr<MasterRequest>& request = pendingRequests.front();
 
             const std::string requestLine = std::string(request->method)
                                                 .append(" ")
@@ -177,7 +177,7 @@ namespace web::http::client {
     }
 
     void SocketContext::requestDelivered(bool success) {
-        const std::shared_ptr<Request> currentRequest = std::move(pendingRequests.front());
+        const std::shared_ptr<MasterRequest> currentRequest = std::move(pendingRequests.front());
         pendingRequests.pop_front();
 
         const std::string requestLine = std::string(currentRequest->method)
@@ -224,7 +224,7 @@ namespace web::http::client {
     }
 
     void SocketContext::deliverResponse(const std::shared_ptr<Response>& response) {
-        const std::shared_ptr<Request> request = std::move(deliveredRequests.front());
+        const std::shared_ptr<MasterRequest> request = std::move(deliveredRequests.front());
         deliveredRequests.pop_front();
 
         const std::string requestLine = std::string(request->method)
@@ -250,7 +250,7 @@ namespace web::http::client {
     }
 
     void SocketContext::deliverResponseParseError(int status, const std::string& reason) {
-        const std::shared_ptr<Request> request = std::move(deliveredRequests.front());
+        const std::shared_ptr<MasterRequest> request = std::move(deliveredRequests.front());
         deliveredRequests.pop_front();
 
         const std::string requestLine = std::string(request->method)

@@ -42,8 +42,9 @@
 #define WEB_HTTP_CLIENT_REQUESTCOMMAND_H
 
 namespace web::http::client {
-    class Request;  // IWYU pragma: export
-    class Response; // IWYU pragma: export
+    class MasterRequest;
+    class Request;
+    class Response;
 } // namespace web::http::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -69,7 +70,7 @@ namespace web::http::client {
 
         virtual ~RequestCommand();
 
-        virtual bool execute(const std::shared_ptr<Request>& request) = 0;
+        virtual bool execute(const std::shared_ptr<MasterRequest>& request) = 0;
 
         bool getError() const;
 

@@ -84,6 +84,7 @@ static void logResponse(const std::shared_ptr<web::http::client::Request>& req, 
 namespace apps::http::legacy {
 
     using Client = web::http::legacy::NET::Client;
+    using MasterRequest = Client::MasterRequest;
     using Request = Client::Request;
     using Response = Client::Response;
     using SocketConnection = Client::SocketConnection;
@@ -91,7 +92,7 @@ namespace apps::http::legacy {
     static Client getClient() {
         Client client(
             "httpclient",
-            [](const std::shared_ptr<Request>& req) {
+            [](const std::shared_ptr<MasterRequest>& req) {
                 VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestStart";
 
                 req->httpMinor = 1;
@@ -117,11 +118,11 @@ namespace apps::http::legacy {
                         if (ret == 0) {
                             VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                     << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                            VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
                         } else {
                             LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                        << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                            PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
                         }
                     },
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -431,6 +432,7 @@ namespace apps::http::legacy {
 namespace apps::http::tls {
 
     using Client = web::http::tls::NET::Client;
+    using MasterRequest = Client::MasterRequest;
     using Request = Client::Request;
     using Response = Client::Response;
     using SocketConnection = Client::SocketConnection;
@@ -438,7 +440,7 @@ namespace apps::http::tls {
     static Client getClient() {
         Client client(
             "httpclient",
-            [](const std::shared_ptr<Request>& req) {
+            [](const std::shared_ptr<MasterRequest>& req) {
                 VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestStart";
 
                 req->url = "/";

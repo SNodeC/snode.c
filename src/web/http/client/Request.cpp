@@ -44,6 +44,7 @@
 #include "core/file/FileReader.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/MimeTypes.h"
+#include "web/http/TransferEncoding.h"
 #include "web/http/client/SocketContext.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
@@ -74,9 +75,7 @@ namespace web::http::client {
 
     Request::Request(SocketContext* socketContext, const std::string& host)
         : hostFieldValue(host)
-        , count(0)
         , socketContext(socketContext) {
-        this->host(hostFieldValue);
     }
 
     Request::Request(Request&& request) noexcept
@@ -90,50 +89,24 @@ namespace web::http::client {
         , headers(std::move(request.headers))
         , cookies(std::move(request.cookies))
         , trailer(std::move(request.trailer))
-        , requestCommands(std::move(request.requestCommands))
-        , transferEncoding(request.transferEncoding)
         , contentLength(request.contentLength)
-        , contentLengthSent(request.contentLengthSent)
-        , connectionState(request.connectionState)
-        , onResponseReceived(std::move(request.onResponseReceived))
-        , onResponseParseError(std::move(request.onResponseParseError))
         , masterRequest(request.masterRequest) // NOLINT
-        , socketContext(request.socketContext) {
-        request.init();
+        , socketContext(request.socketContext)
+        , transferEncoding(request.transferEncoding)
+        , connectionState(request.connectionState) {
         request.count++;
     }
 
-    Request::~Request() {
-        for (const RequestCommand* requestCommand : requestCommands) {
-            delete requestCommand;
-        }
-
-        if (!masterRequest.expired() && Sink::isStreaming()) {
-            socketContext->streamEof();
-        }
-    }
-
-    void Request::setMasterRequest(const std::shared_ptr<Request>& masterRequest) {
+    void Request::setMasterRequest(const std::shared_ptr<MasterRequest>& masterRequest) {
         this->masterRequest = masterRequest;
     }
 
-    void Request::init() {
-        method = "GET";
-        url = "/";
-        httpMajor = 1;
-        httpMinor = 1;
-        queries.clear();
-        headers.clear();
-        cookies.clear();
-        trailer.clear();
-        requestCommands.clear();
-        transferEncoding = TransferEncoding::HTTP10;
-        contentLength = 0;
-        contentLengthSent = 0;
-        connectionState = ConnectionState::Default;
+    std::shared_ptr<MasterRequest> Request::getMasterRequest() const {
+        return masterRequest.lock();
+    }
 
-        this->host(hostFieldValue);
-        set("X-Powered-By", "snode.c");
+    SocketContext* Request::getSocketContext() const {
+        return socketContext;
     }
 
     Request& Request::host(const std::string& hostFieldValue) {
@@ -253,94 +226,26 @@ namespace web::http::client {
         return *this;
     }
 
-    bool Request::send(const char* chunk,
-                       std::size_t chunkLen,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        bool queued = true;
+    std::string Request::header(const std::string& field) const {
+        auto fieldElement = headers.find(field);
 
-        if (!masterRequest.expired()) {
-            const std::shared_ptr<Request> newRequest = std::make_shared<Request>(std::move(*this));
-
-            if (chunkLen > 0) {
-                newRequest->set("Content-Type", "application/octet-stream", false);
-            }
-
-            newRequest->sendHeader();
-            newRequest->sendFragment(chunk, chunkLen);
-
-            newRequest->requestCommands.push_back(new commands::EndCommand(onResponseReceived, onResponseParseError));
-
-            newRequest->requestPrepared(newRequest);
-
-        } else {
-            queued = false;
-        }
-
-        return queued;
+        return fieldElement != headers.end() ? fieldElement->second : "";
     }
 
-    bool Request::send(const std::string& chunk,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        if (!chunk.empty()) {
-            set("Content-Type", "text/html; charset=utf-8", false);
-        }
-
-        return send(chunk.data(), chunk.size(), onResponseReceived, onResponseParseError);
+    const CiStringMap<std::string>& Request::getQueries() const {
+        return queries;
     }
 
-    bool
-    Request::upgrade(const std::string& url,
-                     const std::string& protocols,
-                     const std::function<void(bool)>& onUpgradeInitiate,
-                     const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, bool)>& onResponseReceived,
-                     const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
-        if (!masterRequest.expired()) {
-            const std::shared_ptr<Request> newRequest = std::make_shared<Request>(std::move(*this));
+    const CiStringMap<std::string>& Request::getHeaders() const {
+        return headers;
+    }
 
-            newRequest->url = url;
+    const CiStringMap<std::string>& Request::getTrailer() const {
+        return trailer;
+    }
 
-            newRequest->requestCommands.push_back(new commands::UpgradeCommand(
-                url,
-                protocols,
-                onUpgradeInitiate,
-                [onResponseReceived](const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
-                    if (request != nullptr) {
-                        const std::string connectionName = request->socketContext->getSocketConnection()->getConnectionName();
-
-                        VLOG(0) << "Request method 3: " << request->method;
-                        for (auto& header : request->headers) {
-                            VLOG(0) << "  Header: " << header.first << " : " << header.second;
-                        }
-
-                        LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " "
-                                   << request->url << " "
-                                   << "HTTP/" << request->httpMajor << "." << request->httpMinor << "\n"
-                                   << httputils::toString(response->httpVersion,
-                                                          response->statusCode,
-                                                          response->reason,
-                                                          response->headers,
-                                                          response->cookies,
-                                                          response->body);
-
-                        request->upgrade(response, [request, response, connectionName, &onResponseReceived](const std::string& name) {
-                            LOG(DEBUG) << connectionName << " HTTP upgrade: bootstrap " << (!name.empty() ? "success" : "failed");
-                            LOG(DEBUG) << "      Protocol selected: " << name;
-                            LOG(DEBUG) << "              requested: " << request->header("upgrade");
-                            LOG(DEBUG) << "  Subprotocol  selected: " << response->get("Sec-WebSocket-Protocol");
-                            LOG(DEBUG) << "              requested: " << request->header("Sec-WebSocket-Protocol");
-
-                            onResponseReceived(request, response, !name.empty());
-                        });
-                    }
-                },
-                onResponseParseError));
-
-            requestPrepared(newRequest);
-        }
-
-        return !masterRequest.expired();
+    const CiStringMap<std::string>& Request::getCookies() const {
+        return cookies;
     }
 
     void Request::upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status) {
@@ -394,14 +299,151 @@ namespace web::http::client {
         status(name);
     }
 
-    bool Request::sendFile(const std::string& file,
-                           const std::function<void(int)>& onStatus,
-                           const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                           const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
+    MasterRequest::MasterRequest(SocketContext* socketContext, const std::string& host)
+        : Request(socketContext, host) {
+        this->init();
+        this->host(hostFieldValue);
+    }
+
+    MasterRequest::MasterRequest(MasterRequest&& request) noexcept
+        : Request(std::move(request))
+        , requestCommands(std::move(request.requestCommands))
+        , contentLengthSent(request.contentLengthSent)
+        , onResponseReceived(std::move(request.onResponseReceived))
+        , onResponseParseError(std::move(request.onResponseParseError)) {
+        request.init();
+    }
+
+    MasterRequest::~MasterRequest() {
+        for (const RequestCommand* requestCommand : requestCommands) {
+            delete requestCommand;
+        }
+
+        if (!masterRequest.expired() && Sink::isStreaming()) {
+            socketContext->streamEof();
+        }
+    }
+
+    void MasterRequest::init() {
+        method = "GET";
+        url = "/";
+        httpMajor = 1;
+        httpMinor = 1;
+        queries.clear();
+        headers.clear();
+        cookies.clear();
+        trailer.clear();
+        requestCommands.clear();
+        transferEncoding = TransferEncoding::HTTP10;
+        contentLength = 0;
+        contentLengthSent = 0;
+        connectionState = ConnectionState::Default;
+
+        this->host(hostFieldValue);
+        set("X-Powered-By", "snode.c");
+    }
+
+    bool
+    MasterRequest::send(const char* chunk,
+                        std::size_t chunkLen,
+                        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
+        bool queued = true;
+
+        if (!masterRequest.expired()) {
+            const std::shared_ptr<MasterRequest> newRequest = std::make_shared<MasterRequest>(std::move(*this));
+
+            if (chunkLen > 0) {
+                newRequest->set("Content-Type", "application/octet-stream", false);
+            }
+
+            newRequest->sendHeader();
+            newRequest->sendFragment(chunk, chunkLen);
+
+            newRequest->requestCommands.push_back(new commands::EndCommand(onResponseReceived, onResponseParseError));
+
+            newRequest->requestPrepared(newRequest);
+
+        } else {
+            queued = false;
+        }
+
+        return queued;
+    }
+
+    bool
+    MasterRequest::send(const std::string& chunk,
+                        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
+        if (!chunk.empty()) {
+            set("Content-Type", "text/html; charset=utf-8", false);
+        }
+
+        return send(chunk.data(), chunk.size(), onResponseReceived, onResponseParseError);
+    }
+
+    bool MasterRequest::upgrade(
+        const std::string& url,
+        const std::string& protocols,
+        const std::function<void(bool)>& onUpgradeInitiate,
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, bool)>& onResponseReceived,
+        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
+        if (!masterRequest.expired()) {
+            const std::shared_ptr<MasterRequest> newRequest = std::make_shared<MasterRequest>(std::move(*this));
+
+            newRequest->url = url;
+
+            newRequest->requestCommands.push_back(new commands::UpgradeCommand(
+                url,
+                protocols,
+                onUpgradeInitiate,
+                [onResponseReceived](const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
+                    if (request != nullptr) {
+                        const std::string connectionName = request->getSocketContext()->getSocketConnection()->getConnectionName();
+
+                        VLOG(0) << "Request method 3: " << request->method;
+                        for (auto& header : request->getHeaders()) {
+                            VLOG(0) << "  Header: " << header.first << " : " << header.second;
+                        }
+
+                        LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " "
+                                   << request->url << " "
+                                   << "HTTP/" << request->httpMajor << "." << request->httpMinor << "\n"
+                                   << httputils::toString(response->httpVersion,
+                                                          response->statusCode,
+                                                          response->reason,
+                                                          response->headers,
+                                                          response->cookies,
+                                                          response->body);
+
+                        request->upgrade(response, [request, response, connectionName, &onResponseReceived](const std::string& name) {
+                            LOG(DEBUG) << connectionName << " HTTP upgrade: bootstrap " << (!name.empty() ? "success" : "failed");
+                            LOG(DEBUG) << "      Protocol selected: " << name;
+                            LOG(DEBUG) << "              requested: " << request->header("upgrade");
+                            LOG(DEBUG) << "  Subprotocol  selected: " << response->get("Sec-WebSocket-Protocol");
+                            LOG(DEBUG) << "              requested: " << request->header("Sec-WebSocket-Protocol");
+
+                            onResponseReceived(request, response, !name.empty());
+                        });
+                    }
+                },
+                onResponseParseError));
+
+            requestPrepared(newRequest);
+        }
+
+        return !masterRequest.expired();
+    }
+
+    bool MasterRequest::sendFile(
+        const std::string& file,
+        const std::function<void(int)>& onStatus,
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+        const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         bool queued = false;
 
         if (!masterRequest.expired()) {
-            const std::shared_ptr<Request> newRequest = std::make_shared<Request>(std::move(*this));
+            const std::shared_ptr<MasterRequest> newRequest = std::make_shared<MasterRequest>(std::move(*this));
 
             newRequest->requestCommands.push_back(new commands::SendFileCommand(file, onStatus, onResponseReceived, onResponseParseError));
 
@@ -413,7 +455,7 @@ namespace web::http::client {
         return queued;
     }
 
-    Request& Request::sendHeader() {
+    MasterRequest& MasterRequest::sendHeader() {
         if (!masterRequest.expired()) {
             requestCommands.push_back(new commands::SendHeaderCommand());
         }
@@ -421,7 +463,7 @@ namespace web::http::client {
         return *this;
     }
 
-    Request& Request::sendFragment(const char* chunk, std::size_t chunkLen) {
+    MasterRequest& MasterRequest::sendFragment(const char* chunk, std::size_t chunkLen) {
         if (!masterRequest.expired()) {
             contentLength += chunkLen;
 
@@ -431,16 +473,17 @@ namespace web::http::client {
         return *this;
     }
 
-    Request& Request::sendFragment(const std::string& data) {
+    MasterRequest& MasterRequest::sendFragment(const std::string& data) {
         return sendFragment(data.data(), data.size());
     }
 
-    bool Request::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
-                      const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
+    bool
+    MasterRequest::end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
+                       const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         bool queued = true;
 
         if (!masterRequest.expired()) {
-            const std::shared_ptr<Request> newRequest = std::make_shared<Request>(std::move(*this));
+            const std::shared_ptr<MasterRequest> newRequest = std::make_shared<MasterRequest>(std::move(*this));
 
             newRequest->sendHeader();
 
@@ -454,7 +497,7 @@ namespace web::http::client {
         return queued;
     }
 
-    bool Request::initiate(const std::shared_ptr<Request>& request) {
+    bool MasterRequest::initiate(const std::shared_ptr<MasterRequest>& request) {
         bool error = false;
         bool atomar = true;
 
@@ -478,7 +521,7 @@ namespace web::http::client {
         return !error;
     }
 
-    bool Request::executeSendFile(const std::string& file, const std::function<void(int)>& onStatus) {
+    bool MasterRequest::executeSendFile(const std::string& file, const std::function<void(int)>& onStatus) {
         bool atomar = true;
 
         std::string absolutFileName = file;
@@ -504,7 +547,7 @@ namespace web::http::client {
                             }
 
                             executeSendHeader();
-                        };
+                        }
                     } else {
                         executeEnd();
                     }
@@ -521,7 +564,7 @@ namespace web::http::client {
         return atomar;
     }
 
-    bool Request::executeUpgrade(const std::string& url, const std::string& protocols, const std::function<void(bool)>& onStatus) {
+    bool MasterRequest::executeUpgrade(const std::string& url, const std::string& protocols, const std::function<void(bool)>& onStatus) {
         const std::string connectionName = this->getSocketContext()->getSocketConnection()->getConnectionName();
         this->url = url;
 
@@ -572,11 +615,11 @@ namespace web::http::client {
         return true;
     }
 
-    bool Request::executeEnd() { // NOLINT
+    bool MasterRequest::executeEnd() { // NOLINT
         return true;
     }
 
-    bool Request::executeSendHeader() {
+    bool MasterRequest::executeSendHeader() {
         const std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
         std::string queryString;
@@ -608,7 +651,7 @@ namespace web::http::client {
         return true;
     }
 
-    bool Request::executeSendFragment(const char* chunk, std::size_t chunkLen) {
+    bool MasterRequest::executeSendFragment(const char* chunk, std::size_t chunkLen) {
         if (transferEncoding == TransferEncoding::Chunked) {
             socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
         }
@@ -624,19 +667,19 @@ namespace web::http::client {
         return true;
     }
 
-    void Request::requestPrepared(const std::shared_ptr<Request>& request) {
+    void MasterRequest::requestPrepared(const std::shared_ptr<MasterRequest>& request) {
         socketContext->requestPrepared(request);
     }
 
-    void Request::deliverResponse(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
+    void MasterRequest::deliverResponse(const std::shared_ptr<MasterRequest>& request, const std::shared_ptr<Response>& response) {
         onResponseReceived(request, response);
     }
 
-    void Request::deliverResponseParseError(const std::shared_ptr<Request>& request, const std::string& message) {
+    void MasterRequest::deliverResponseParseError(const std::shared_ptr<MasterRequest>& request, const std::string& message) {
         onResponseParseError(request, message);
     }
 
-    void Request::requestDelivered() {
+    void MasterRequest::requestDelivered() {
         if (!masterRequest.expired()) {
             if (transferEncoding == TransferEncoding::Chunked) {
                 executeSendFragment("", 0); // For transfer encoding chunked. Terminate the chunk sequence.
@@ -653,7 +696,7 @@ namespace web::http::client {
         }
     }
 
-    void Request::onSourceConnect(core::pipe::Source* source) {
+    void MasterRequest::onSourceConnect(core::pipe::Source* source) {
         if (!masterRequest.expired()) {
             if (socketContext->streamToPeer(source)) {
                 source->start();
@@ -663,11 +706,11 @@ namespace web::http::client {
         }
     }
 
-    void Request::onSourceData(const char* chunk, std::size_t chunkLen) {
+    void MasterRequest::onSourceData(const char* chunk, std::size_t chunkLen) {
         executeSendFragment(chunk, chunkLen);
     }
 
-    void Request::onSourceEof() {
+    void MasterRequest::onSourceEof() {
         if (!masterRequest.expired()) {
             socketContext->streamEof();
 
@@ -675,7 +718,7 @@ namespace web::http::client {
         }
     }
 
-    void Request::onSourceError(int errnum) {
+    void MasterRequest::onSourceError(int errnum) {
         errno = errnum;
 
         if (!masterRequest.expired()) {
@@ -684,30 +727,6 @@ namespace web::http::client {
 
             requestDelivered();
         }
-    }
-
-    std::string Request::header(const std::string& field) {
-        return headers.contains(field) ? headers[field] : "";
-    }
-
-    const CiStringMap<std::string>& Request::getTrailer() const {
-        return trailer;
-    }
-
-    const web::http::CiStringMap<std::string>& Request::getQueries() const {
-        return queries;
-    }
-
-    const web::http::CiStringMap<std::string>& Request::getHeaders() const {
-        return headers;
-    }
-
-    const web::http::CiStringMap<std::string>& Request::getCookies() const {
-        return cookies;
-    }
-
-    SocketContext* Request::getSocketContext() const {
-        return socketContext;
     }
 
 } // namespace web::http::client

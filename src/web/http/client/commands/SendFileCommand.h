@@ -44,9 +44,13 @@
 
 #include "web/http/client/RequestCommand.h" // IWYU pragma: export
 
+namespace web::http::client {
+    class Request;
+    class Response;
+} // namespace web::http::client
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -61,7 +65,7 @@ namespace web::http::client::commands {
                         const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
         ~SendFileCommand() override = default;
 
-        bool execute(const std::shared_ptr<Request>& request) override;
+        bool execute(const std::shared_ptr<MasterRequest>& request) override;
 
     private:
         std::string file;
