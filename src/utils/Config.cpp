@@ -872,22 +872,22 @@ namespace utils {
 
     void Config::disabled(CLI::App* instance, bool disabled) {
         if (disabled) {
-            app->remove_needs(instance);
+            if (instance->get_ignore_case()) {
+                app->remove_needs(instance);
+            }
 
             for (const auto& sub : instance->get_subcommands({})) {
-                //                sub->disabled();
-
                 if (sub->get_ignore_case()) {
                     instance->remove_needs(sub);
                     sub->required(false); // ### must be stored in ConfigInstance
                 }
             }
         } else {
-            app->needs(instance);
+            if (instance->get_ignore_case()) {
+                app->needs(instance);
+            }
 
             for (const auto& sub : instance->get_subcommands({})) {
-                //                sub->disabled(false);
-
                 if (sub->get_ignore_case()) { // ### must be recalled from ConfigInstance
                     instance->needs(sub);
                     sub->required();
