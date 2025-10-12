@@ -215,7 +215,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::sendPublish(const std::string& topic, const std::string& message, uint8_t qoS,
-                           bool retain) { // Server & Client
+                           bool retain) const { // Server & Client
 
         uint16_t packageIdentifier = qoS != 0 ? getPacketIdentifier() : 0;
 
@@ -396,7 +396,7 @@ namespace iot::mqtt {
         return toHexString(std::vector<char>(data.begin(), data.end()));
     }
 
-    uint16_t Mqtt::getPacketIdentifier() {
+    uint16_t Mqtt::getPacketIdentifier() const {
         ++_packetIdentifier;
 
         if (_packetIdentifier == 0) {

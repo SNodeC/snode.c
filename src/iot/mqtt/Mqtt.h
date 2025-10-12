@@ -105,7 +105,7 @@ namespace iot::mqtt {
         void initSession(Session* session, utils::Timeval keepAlive);
 
     public:
-        void sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain);
+        void sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain) const;
         void sendPuback(uint16_t packetIdentifier) const;
         void sendPubrec(uint16_t packetIdentifier) const;
         void sendPubrel(uint16_t packetIdentifier) const;
@@ -124,7 +124,7 @@ namespace iot::mqtt {
         void _onPubrel(const iot::mqtt::packets::Pubrel& pubrel);
         void _onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp);
 
-        uint16_t getPacketIdentifier();
+        uint16_t getPacketIdentifier() const;
 
         void send(const iot::mqtt::ControlPacket& controlPacket) const;
 
@@ -146,7 +146,7 @@ namespace iot::mqtt {
         iot::mqtt::FixedHeader fixedHeader;
         iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr;
 
-        uint16_t _packetIdentifier = 0;
+        mutable uint16_t _packetIdentifier = 0;
 
         core::timer::Timer keepAliveTimer;
 

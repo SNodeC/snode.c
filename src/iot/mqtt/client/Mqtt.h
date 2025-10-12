@@ -85,7 +85,10 @@ namespace iot::mqtt::client {
     public:
         using Super = iot::mqtt::Mqtt;
 
-        explicit Mqtt(const std::string& connectionName, const std::string& clientId, const std::string& sessionStoreFileName);
+        explicit Mqtt(const std::string& connectionName,
+                      const std::string& clientId,
+                      uint16_t keepAlive,
+                      const std::string& sessionStoreFileName);
 
         ~Mqtt() override;
 
@@ -109,18 +112,16 @@ namespace iot::mqtt::client {
         void _onPingresp(const iot::mqtt::client::packets::Pingresp& pingresp);
 
     public:
-        void sendConnect(uint16_t keepAlive,
-                         const std::string& clientId,
-                         bool cleanSession,
+        void sendConnect(bool cleanSession,
                          const std::string& willTopic,
                          const std::string& willMessage,
                          uint8_t willQoS,
                          bool willRetain,
                          const std::string& username,
                          const std::string& password,
-                         bool loopPrevention = false);
-        void sendSubscribe(const std::list<Topic>& topics);
-        void sendUnsubscribe(const std::list<std::string>& topics);
+                         bool loopPrevention = false) const;
+        void sendSubscribe(const std::list<Topic>& topics) const;
+        void sendUnsubscribe(const std::list<std::string>& topics) const;
         void sendPingreq() const;
         void sendDisconnect() const;
 
@@ -134,9 +135,10 @@ namespace iot::mqtt::client {
         friend class iot::mqtt::client::packets::Puback;
         friend class iot::mqtt::client::packets::Pubrel;
 
-    private:
+    protected:
         uint16_t keepAlive = 0;
 
+    private:
         std::string sessionStoreFileName;
         iot::mqtt::Session session;
 

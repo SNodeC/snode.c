@@ -75,8 +75,9 @@
 
 namespace iot::mqtt::client {
 
-    Mqtt::Mqtt(const std::string& connectionName, const std::string& clientId, const std::string& sessionStoreFileName)
+    Mqtt::Mqtt(const std::string& connectionName, const std::string& clientId, uint16_t keepAlive, const std::string& sessionStoreFileName)
         : Super(connectionName, clientId)
+        , keepAlive(keepAlive)
         , sessionStoreFileName(sessionStoreFileName) { // NOLINT
         if (!sessionStoreFileName.empty()) {
             std::ifstream sessionStoreFile(sessionStoreFileName);
@@ -258,32 +259,30 @@ namespace iot::mqtt::client {
         onPingresp(pingresp);
     }
 
-    void Mqtt::sendConnect(uint16_t keepAlive,
-                           const std::string& clientId,
-                           bool cleanSession,
+    void Mqtt::sendConnect(bool cleanSession,
                            const std::string& willTopic,
                            const std::string& willMessage,
                            uint8_t willQoS,
                            bool willRetain,
                            const std::string& username,
                            const std::string& password,
-                           bool loopPrevention) { // Client
-        this->clientId = clientId;
-
+                           bool loopPrevention) const { // Client
         LOG(INFO) << connectionName << " MQTT Client: CONNECT send: " << clientId;
 
         send(iot::mqtt::packets::Connect(
             clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password, loopPrevention));
-
-        this->keepAlive = keepAlive;
     }
 
-    void Mqtt::sendSubscribe(const std::list<iot::mqtt::Topic>& topics) { // Client
-        send(iot::mqtt::packets::Subscribe(getPacketIdentifier(), topics));
+    void Mqtt::sendSubscribe(const std::list<iot::mqtt::Topic>& topics) const { // Client
+        if (!topics.empty()) {
+            send(iot::mqtt::packets::Subscribe(getPacketIdentifier(), topics));
+        }
     }
 
-    void Mqtt::sendUnsubscribe(const std::list<std::string>& topics) { // Client
-        send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
+    void Mqtt::sendUnsubscribe(const std::list<std::string>& topics) const { // Client
+        if (!topics.empty()) {
+            send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
+        }
     }
 
     void Mqtt::sendPingreq() const { // Client
