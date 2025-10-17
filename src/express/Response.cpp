@@ -61,6 +61,10 @@ namespace express {
     Response::~Response() {
     }
 
+    bool Response::isConnected() const {
+        return responseBase->isConnected();
+    }
+
     web::http::server::SocketContext* Response::getSocketContext() const {
         return responseBase->getSocketContext();
     }

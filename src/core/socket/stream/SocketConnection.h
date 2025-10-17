@@ -120,6 +120,8 @@ namespace core::socket::stream {
         virtual void close() = 0;
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
+        virtual void setReadTimeout(const utils::Timeval& timeout) = 0;
+        virtual void setWriteTimeout(const utils::Timeval& timeout) = 0;
 
         virtual std::size_t getTotalSent() const = 0;
         virtual std::size_t getTotalQueued() const = 0;
@@ -180,6 +182,8 @@ namespace core::socket::stream {
         int getFd() const final;
 
         void setTimeout(const utils::Timeval& timeout) final;
+        void setReadTimeout(const utils::Timeval& timeout) final;
+        void setWriteTimeout(const utils::Timeval& timeout) final;
 
         const SocketAddress& getBindAddress() const final;
         const SocketAddress& getLocalAddress() const final;
@@ -198,7 +202,7 @@ namespace core::socket::stream {
 
         void close() final;
 
-        Config& getConfig() const;
+        //        Config& getConfig() const;
 
         std::size_t getTotalSent() const override;
         std::size_t getTotalQueued() const override;

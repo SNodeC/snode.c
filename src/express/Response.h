@@ -76,6 +76,7 @@ namespace express {
 
         ~Response();
 
+        bool isConnected() const;
         web::http::server::SocketContext* getSocketContext() const;
 
         void json(const nlohmann::json& json);

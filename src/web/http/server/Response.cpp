@@ -74,13 +74,18 @@ namespace web::http::server {
     }
 
     Response::~Response() {
-        if (socketContext != nullptr && Sink::isStreaming()) {
+        if (isConnected() && Sink::isStreaming()) {
             socketContext->streamEof();
         }
     }
 
-    void Response::stopResponse() {
+    void Response::disconnect() {
         stop();
+        socketContext = nullptr;
+    }
+
+    bool Response::isConnected() const {
+        return socketContext != nullptr;
     }
 
     void Response::init() {
@@ -208,14 +213,16 @@ namespace web::http::server {
     }
 
     void Response::send(const char* chunk, std::size_t chunkLen) {
-        if (chunkLen > 0) {
-            set("Content-Type", "application/octet-stream", false);
-        }
-        set("Content-Length", std::to_string(chunkLen));
+        if (isConnected()) {
+            if (chunkLen > 0) {
+                set("Content-Type", "application/octet-stream", false);
+            }
+            set("Content-Length", std::to_string(chunkLen));
 
-        sendHeader();
-        sendFragment(chunk, chunkLen);
-        sendCompleted();
+            sendHeader();
+            sendFragment(chunk, chunkLen);
+            sendCompleted();
+        }
     }
 
     void Response::send(const std::string& chunk) {
@@ -239,23 +246,22 @@ namespace web::http::server {
 @enduml
      */
     void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string&)>& status) {
-        const std::string connectionName = socketContext->getSocketConnection()->getConnectionName();
+        if (isConnected()) {
+            const std::string connectionName = socketContext->getSocketConnection()->getConnectionName();
 
-        std::string name;
+            std::string name;
 
-        LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade: " << request->method << " " << request->url
-                   << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) << "\n"
-                   << httputils::toString(request->method,
-                                          request->url,
-                                          "HTTP/" + std::to_string(request->httpMajor) + "." + std::to_string(request->httpMinor),
-                                          request->queries,
-                                          request->headers,
-                                          {},
-                                          request->cookies,
-                                          std::vector<char>());
-
-        if (socketContext != nullptr) {
             if (request != nullptr) {
+                LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade: " << request->method << " " << request->url
+                           << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) << "\n"
+                           << httputils::toString(request->method,
+                                                  request->url,
+                                                  "HTTP/" + std::to_string(request->httpMajor) + "." + std::to_string(request->httpMinor),
+                                                  request->queries,
+                                                  request->headers,
+                                                  {},
+                                                  request->cookies,
+                                                  std::vector<char>());
                 if (web::http::ciContains(request->get("connection"), "Upgrade")) {
                     SocketContextUpgradeFactory* socketContextUpgradeFactory =
                         SocketContextUpgradeFactorySelector::instance()->select(*request, *this);
@@ -302,21 +308,21 @@ namespace web::http::server {
 
                 set("Connection", "close").status(500);
             }
+
+            LOG(DEBUG) << connectionName << " HTTP: Upgrade bootstrap " << (!name.empty() ? "success" : "failed");
+            LOG(DEBUG) << "      Protocol selected: " << name;
+            LOG(DEBUG) << "              requested: " << request->get("upgrade");
+            LOG(DEBUG) << "  Subprotocol  selected: " << header("upgrade");
+            LOG(DEBUG) << "              requested: " << request->get("Sec-WebSocket-Protocol");
+
+            status(name);
         } else {
-            LOG(ERROR) << connectionName << "HTTP upgrade: Unexpected disconnect";
+            LOG(ERROR) << "HTTP upgrade: Unexpected disconnect";
         }
-
-        LOG(DEBUG) << connectionName << " HTTP: Upgrade bootstrap " << (!name.empty() ? "success" : "failed");
-        LOG(DEBUG) << "      Protocol selected: " << name;
-        LOG(DEBUG) << "              requested: " << request->get("upgrade");
-        LOG(DEBUG) << "  Subprotocol  selected: " << header("upgrade");
-        LOG(DEBUG) << "              requested: " << request->get("Sec-WebSocket-Protocol");
-
-        status(name);
     }
 
     void Response::sendFile(const std::string& file, const std::function<void(int)>& onStatus) {
-        if (socketContext != nullptr) {
+        if (isConnected()) {
             std::string absolutFileName = file;
 
             if (std::filesystem::exists(absolutFileName)) {
@@ -359,7 +365,7 @@ namespace web::http::server {
     }
 
     Response& Response::sendHeader() {
-        if (socketContext != nullptr) {
+        if (isConnected()) {
             socketContext->responseStarted(*this);
 
             socketContext->sendToPeer("HTTP/" + std::to_string(httpMajor)
@@ -396,7 +402,7 @@ namespace web::http::server {
     }
 
     Response& Response::sendFragment(const char* chunk, std::size_t chunkLen) {
-        if (socketContext != nullptr) {
+        if (isConnected()) {
             if (transferEncoding == TransferEncoding::Chunked) {
                 socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
             }
@@ -404,7 +410,7 @@ namespace web::http::server {
             socketContext->sendToPeer(chunk, chunkLen);
             contentSent += chunkLen;
 
-            if (transferEncoding == TransferEncoding::Chunked) {
+            if (transferEncoding == TransferEncoding::Chunked || web::http::ciContains(headers["Content-Type"], "text/event-stream")) {
                 socketContext->sendToPeer("\r\n");
                 contentLength += chunkLen;
             }
@@ -418,25 +424,25 @@ namespace web::http::server {
     }
 
     void Response::sendCompleted() {
-        if (transferEncoding == TransferEncoding::Chunked) {
-            sendFragment(""); // For transfer encoding chunked. Terminate the chunk sequence.
+        if (isConnected()) {
+            if (transferEncoding == TransferEncoding::Chunked) {
+                sendFragment(""); // For transfer encoding chunked. Terminate the chunk sequence.
 
-            if (!trailer.empty()) {
-                for (auto& [field, value] : trailer) {
-                    socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+                if (!trailer.empty()) {
+                    for (auto& [field, value] : trailer) {
+                        socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+                    }
+
+                    socketContext->sendToPeer("\r\n");
                 }
-
-                socketContext->sendToPeer("\r\n");
             }
-        }
 
-        if (socketContext != nullptr) {
             socketContext->responseCompleted(*this, contentSent == contentLength || (httpMajor == 1 && httpMinor == 0));
         }
     }
 
     void Response::onSourceConnect(core::pipe::Source* source) {
-        if (socketContext != nullptr) {
+        if (isConnected()) {
             if (socketContext->streamToPeer(source)) {
                 sendHeader();
 
@@ -454,7 +460,7 @@ namespace web::http::server {
     }
 
     void Response::onSourceEof() {
-        if (socketContext != nullptr) {
+        if (isConnected()) {
             socketContext->streamEof();
         }
 
@@ -464,7 +470,7 @@ namespace web::http::server {
     void Response::onSourceError(int errnum) {
         errno = errnum;
 
-        if (socketContext != nullptr) {
+        if (isConnected()) {
             socketContext->streamEof();
             socketContext->close();
         }

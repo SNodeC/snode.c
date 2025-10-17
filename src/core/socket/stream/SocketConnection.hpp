@@ -160,7 +160,16 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::setTimeout(const utils::Timeval& timeout) {
+        setReadTimeout(timeout);
+        setWriteTimeout(timeout);
+    }
+
+    template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT, typename ConfigT>
+    void SocketConnectionT<PhysicalSocketT, SocketReaderT, SocketWriterT, ConfigT>::setReadTimeout(const utils::Timeval& timeout) {
         SocketReader::setTimeout(timeout);
+    }
+    template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT, typename ConfigT>
+    void SocketConnectionT<PhysicalSocketT, SocketReaderT, SocketWriterT, ConfigT>::setWriteTimeout(const utils::Timeval& timeout) {
         SocketWriter::setTimeout(timeout);
     }
 
@@ -245,12 +254,12 @@ namespace core::socket::stream {
             SocketReader::disable();
         }
     }
-
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
-    Config& SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::getConfig() const {
-        return *config;
-    }
-
+    /*
+        template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+        Config& SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::getConfig() const {
+            return *config;
+        }
+    */
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::getTotalSent() const {
         return SocketWriter::getTotalSent();

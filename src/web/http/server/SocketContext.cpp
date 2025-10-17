@@ -201,9 +201,7 @@ namespace web::http::server {
     }
 
     void SocketContext::onDisconnected() {
-        if (masterResponse != nullptr) {
-            masterResponse->stopResponse();
-        }
+        masterResponse->disconnect();
 
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received disconnect";
     }

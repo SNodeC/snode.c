@@ -78,7 +78,8 @@ namespace web::http::server {
 
         ~Response() override;
 
-        void stopResponse();
+        void disconnect();
+        bool isConnected() const;
 
     private:
         virtual void init();

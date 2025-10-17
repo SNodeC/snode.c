@@ -70,6 +70,7 @@ set(HTTP_H
     CiStringMap.h
     ConnectionState.h
     ContentDecoder.h
+    ContentType.h
     CookieOptions.h
     MimeTypes.h
     Parser.h

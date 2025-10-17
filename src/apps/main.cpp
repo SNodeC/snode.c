@@ -39,7 +39,9 @@
  * THE SOFTWARE.
  */
 
+#include "core/DescriptorEventReceiver.h"
 #include "core/SNodeC.h"
+#include "core/timer/Timer.h"
 #include "express/legacy/in/WebApp.h"
 #include "log/Logger.h"
 
@@ -85,12 +87,13 @@ int main(int argc, char* argv[]) {
     app.get("/users/list", [] APPLICATION(req, res) {
         res->send("users list (static wins if placed first)");
     });
+
     app.get("/users/:id(\\d+)", [] APPLICATION(req, res) {
         res->send("user #" + req->params["id"]);
     });
 
     // Nested router at /api
-    Router api;
+    const Router api;
 
     // Guard: require admin=true else skip the whole router
     api.use([] MIDDLEWARE(req, res, next) {
@@ -146,21 +149,59 @@ int main(int argc, char* argv[]) {
         res->send("head body");
     });
 
+    app.get("/sse", [] APPLICATION(req, res) {
+        if (web::http::ciContains(req->get("Accept"), "text/event-stream")) {
+            res->getSocketContext()->getSocketConnection()->setReadTimeout(core::DescriptorEventReceiver::TIMEOUT::DISABLE);
+
+            res->set("Content-Type", "text/event-stream").set("Cache-Control", "no-cache").set("Connection", "keep-alive");
+
+            res->sendHeader();
+
+            auto timer = std::make_shared<std::function<void(const utils::Timeval& timeout, uint64_t id)>>();
+            *timer = [timer, res](const utils::Timeval timeout, uint64_t id) {
+                if (res->isConnected()) {
+                    res->sendFragment("event: eventName");
+                    res->sendFragment("id: " + std::to_string(id));
+                    res->sendFragment("data: test\r\n");
+
+                    core::timer::Timer::singleshotTimer(
+                        [timer, timeout, res, id]() {
+                            if (*timer) {
+                                (*timer)(timeout, id + 1);
+                            }
+                        },
+                        timeout);
+                }
+            };
+
+            (*timer)(1, 0);
+        } else {
+            res->status(406).set("Content-Type", "text/plain").send("This endpoint only supports text/event-stream (SSE).\n");
+        }
+    });
+
     // Catch-all
     app.get("/:rest(.*)", [] APPLICATION(req, res) {
         res->status(404).send("not found: " + req->params["rest"]);
     });
 
-    // Start server (adapt to your HTTP bootstrap)
-    // express::WebAppT web("demo", app);
-    // web.listen(8080);
-    std::cout << "SNode.C Express on http://localhost:8080\n";
-
-    app.listen(
-        8080,
-        []([[maybe_unused]] const express::legacy::in::WebApp::SocketAddress& socketAddr, [[maybe_unused]] core::socket::State state) {
-            VLOG(0) << "EmptyWebapp listening";
-        });
+    app.listen(8080,
+               [instanceName = "app"](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
+                   switch (state) {
+                       case core::socket::State::OK:
+                           VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                           break;
+                       case core::socket::State::DISABLED:
+                           VLOG(1) << instanceName << " disabled";
+                           break;
+                       case core::socket::State::ERROR:
+                           LOG(ERROR) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                           break;
+                       case core::socket::State::FATAL:
+                           LOG(FATAL) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                           break;
+                   }
+               });
 
     return core::SNodeC::start();
 }
