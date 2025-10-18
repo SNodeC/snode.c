@@ -43,6 +43,7 @@
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "express/legacy/in/WebApp.h"
+#include "express/middleware/VerboseRequest.h"
 #include "log/Logger.h"
 
 #include <iostream>
@@ -59,6 +60,8 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     const express::legacy::in::WebApp app("app");
+
+    app.use(express::middleware::VerboseRequest());
 
     // Global middleware (prefix)
     app.use("/", [] MIDDLEWARE(req, res, next) {
@@ -186,7 +189,7 @@ int main(int argc, char* argv[]) {
             eventSource.onmessage = function(event) {
                 const newElement = document.createElement("li");
                 newElement.textContent = event.data;
-                 document.getElementById("events").appendChild(newElement);
+                document.getElementById("events").appendChild(newElement);
             };
 
             // Log connection error
