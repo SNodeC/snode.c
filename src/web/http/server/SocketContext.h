@@ -96,6 +96,7 @@ namespace web::http::server {
         RequestParser parser;
 
         bool httpClose = false;
+        bool serverSentEvent = false;
 
         friend Response;
     };

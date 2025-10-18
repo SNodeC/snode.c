@@ -109,6 +109,8 @@ namespace web::http::server {
                     masterResponse->set("Connection", connection);
                 }
 
+                serverSentEvent = web::http::ciContains(pendingRequest->get("Accept"), "text/event-stream");
+
                 onRequestReady(pendingRequest, masterResponse);
             } else {
                 masterResponse->init();
@@ -193,7 +195,7 @@ namespace web::http::server {
     std::size_t SocketContext::onReceivedFromPeer() {
         std::size_t consumed = 0;
 
-        if (!httpClose) {
+        if (!serverSentEvent && !httpClose) {
             consumed = parser.parse();
         }
 

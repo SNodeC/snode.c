@@ -154,29 +154,48 @@ int main(int argc, char* argv[]) {
             res->getSocketContext()->getSocketConnection()->setReadTimeout(core::DescriptorEventReceiver::TIMEOUT::DISABLE);
 
             res->set("Content-Type", "text/event-stream").set("Cache-Control", "no-cache").set("Connection", "keep-alive");
-
             res->sendHeader();
 
-            auto timer = std::make_shared<std::function<void(const utils::Timeval& timeout, uint64_t id)>>();
-            *timer = [timer, res](const utils::Timeval timeout, uint64_t id) {
-                if (res->isConnected()) {
-                    res->sendFragment("event: eventName");
-                    res->sendFragment("id: " + std::to_string(id));
-                    res->sendFragment("data: test\r\n");
+            core::timer::Timer::intervalTimer(
+                [res, id = 0](auto& stop) mutable {
+                    if (res->isConnected()) {
+                        res->sendFragment("data: Message " + std::to_string(id) + "\r\n");
+                    } else {
+                        stop();
+                    }
+                    id++;
+                },
+                1);
+        } else {
+            res->send(R"html(<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SSE Example</title>
+    </head>
+    <body>
+        <h1>Server-Sent Events</h1>
+        <ul id="events"></ul>
 
-                    core::timer::Timer::singleshotTimer(
-                        [timer, timeout, res, id]() {
-                            if (*timer) {
-                                (*timer)(timeout, id + 1);
-                            }
-                        },
-                        timeout);
-                }
+        <script>
+            // Initialize the EventSource, listening for server updates
+            const eventSource = new EventSource('http://localhost:8080/sse');
+
+            // Listen for messages from the server
+            eventSource.onmessage = function(event) {
+                const newElement = document.createElement("li");
+                newElement.textContent = event.data;
+                 document.getElementById("events").appendChild(newElement);
             };
 
-            (*timer)(1, 0);
-        } else {
-            res->status(406).set("Content-Type", "text/plain").send("This endpoint only supports text/event-stream (SSE).\n");
+            // Log connection error
+            eventSource.onerror = function(event) {
+                console.log('Error occurred:', event);
+            };
+        </script>
+    </body>
+</html>)html");
         }
     });
 
