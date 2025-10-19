@@ -88,8 +88,11 @@ namespace web::http::client {
         Request(SocketContext* socketContext, const std::string& host);
 
         explicit Request(Request&) = delete;
+
+    protected:
         explicit Request(Request&& request) noexcept;
 
+    public:
         Request& operator=(Request&) = delete;
         Request& operator=(Request&&) noexcept = delete;
 
@@ -145,7 +148,7 @@ namespace web::http::client {
         : public web::http::client::Request
         , public core::pipe::Sink {
     public:
-        MasterRequest(SocketContext* socketContext, const std::string& host);
+        MasterRequest(SocketContext* socketContext, const std::string& hostFieldValue);
 
         explicit MasterRequest(MasterRequest&) = delete;
         explicit MasterRequest(MasterRequest&&) noexcept;
@@ -155,7 +158,7 @@ namespace web::http::client {
 
         ~MasterRequest() override;
 
-        virtual void init();
+        void init();
 
         bool send(const char* chunk,
                   std::size_t chunkLen,

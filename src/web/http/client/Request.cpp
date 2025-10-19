@@ -74,9 +74,11 @@
 
 namespace web::http::client {
 
-    Request::Request(SocketContext* socketContext, const std::string& host)
-        : hostFieldValue(host)
+    Request::Request(SocketContext* socketContext, const std::string& hostFieldValue)
+        : hostFieldValue(hostFieldValue)
         , socketContext(socketContext) {
+        host(hostFieldValue);
+        set("X-Powered-By", "snode.c");
     }
 
     Request::Request(Request&& request) noexcept
@@ -96,6 +98,9 @@ namespace web::http::client {
         , transferEncoding(request.transferEncoding)
         , connectionState(request.connectionState) {
         request.count++;
+
+        host(hostFieldValue);
+        set("X-Powered-By", "snode.c");
     }
 
     void Request::setMasterRequest(const std::shared_ptr<MasterRequest>& masterRequest) {
@@ -111,7 +116,7 @@ namespace web::http::client {
     }
 
     Request& Request::host(const std::string& hostFieldValue) {
-        set("Host", hostFieldValue);
+        set("Host", hostFieldValue, true);
 
         return *this;
     }
@@ -303,7 +308,6 @@ namespace web::http::client {
     MasterRequest::MasterRequest(SocketContext* socketContext, const std::string& host)
         : Request(socketContext, host) {
         this->init();
-        this->host(hostFieldValue);
     }
 
     MasterRequest::MasterRequest(MasterRequest&& request) noexcept
@@ -339,9 +343,6 @@ namespace web::http::client {
         contentLength = 0;
         contentLengthSent = 0;
         connectionState = ConnectionState::Default;
-
-        this->host(hostFieldValue);
-        set("X-Powered-By", "snode.c");
     }
 
     bool
