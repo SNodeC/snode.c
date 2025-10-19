@@ -243,8 +243,7 @@ namespace web::http::client {
 
         request->deliverResponse(request, response);
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
-                  << ") completed 111: " << requestLine;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count << ") completed: " << requestLine;
 
         requestCompleted(response);
     }
@@ -279,7 +278,7 @@ namespace web::http::client {
     void SocketContext::requestCompleted(const std::shared_ptr<Response>& response) {
         httpClose = response->connectionState == ConnectionState::Close ||
                     (response->connectionState == ConnectionState::Default &&
-                     ((response->httpMajor == 0 && response->httpMinor == 9) || (response->httpMajor == 1 && response->httpMinor == 0)));
+                     ((response->httpMajor == 0 && response->httpMinor == 0) || (response->httpMajor == 1 && response->httpMinor == 0)));
 
         if (httpClose) {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
