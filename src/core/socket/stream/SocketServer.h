@@ -98,9 +98,46 @@ namespace core::socket::stream {
                      Args&&... args)
             : Super(name)
             , socketContextFactory(std::make_shared<SocketContextFactory>(std::forward<Args>(args)...))
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect) {
+            , onConnect([onConnect](SocketConnection* socketConnection) { // onConnect
+                LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";
+
+                LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
+                LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+
+                if (onConnect) {
+                    onConnect(socketConnection);
+                }
+            })
+            , onConnected([onConnected](SocketConnection* socketConnection) { // onConnected
+                LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnected";
+
+                LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
+                LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+
+                if (onConnected) {
+                    onConnected(socketConnection);
+                }
+            })
+            , onDisconnect([onDisconnect](SocketConnection* socketConnection) { // onDisconnect
+                LOG(DEBUG) << socketConnection->getConnectionName() << ": OnDisconnect";
+
+                LOG(DEBUG) << "            Local: " << socketConnection->getLocalAddress().toString();
+                LOG(DEBUG) << "             Peer: " << socketConnection->getRemoteAddress().toString();
+
+                LOG(DEBUG) << "     Online Since: " << socketConnection->getOnlineSince();
+                LOG(DEBUG) << "  Online Duration: " << socketConnection->getOnlineDuration();
+
+                LOG(DEBUG) << "     Total Queued: " << socketConnection->getTotalQueued();
+                LOG(DEBUG) << "       Total Sent: " << socketConnection->getTotalSent();
+                LOG(DEBUG) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
+                LOG(DEBUG) << "       Total Read: " << socketConnection->getTotalRead();
+                LOG(DEBUG) << "  Total Processed: " << socketConnection->getTotalProcessed();
+                LOG(DEBUG) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
+
+                if (onDisconnect) {
+                    onDisconnect(socketConnection);
+                }
+            }) {
         }
 
         SocketServer(const std::function<void(SocketConnection*)>& onConnect,
@@ -112,37 +149,7 @@ namespace core::socket::stream {
 
         // VLOG() is used hire as this are log messages for the application
         SocketServer(const std::string& name, Args&&... args)
-            : SocketServer(
-                  name,
-                  [](SocketConnection* socketConnection) { // onConnect
-                      VLOG(2) << socketConnection->getConnectionName() << ": OnConnect";
-
-                      VLOG(2) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      VLOG(2) << "   Peer: " << socketConnection->getRemoteAddress().toString();
-                  },
-                  [](SocketConnection* socketConnection) { // onConnected
-                      VLOG(2) << socketConnection->getConnectionName() << ": OnConnected";
-
-                      VLOG(2) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      VLOG(2) << "   Peer: " << socketConnection->getRemoteAddress().toString();
-                  },
-                  [](SocketConnection* socketConnection) { // onDisconnect
-                      VLOG(2) << socketConnection->getConnectionName() << ": OnDisconnect";
-
-                      VLOG(2) << "            Local: " << socketConnection->getLocalAddress().toString();
-                      VLOG(2) << "             Peer: " << socketConnection->getRemoteAddress().toString();
-
-                      VLOG(2) << "     Online Since: " << socketConnection->getOnlineSince();
-                      VLOG(2) << "  Online Duration: " << socketConnection->getOnlineDuration();
-
-                      VLOG(2) << "     Total Queued: " << socketConnection->getTotalQueued();
-                      VLOG(2) << "       Total Sent: " << socketConnection->getTotalSent();
-                      VLOG(2) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
-                      VLOG(2) << "       Total Read: " << socketConnection->getTotalRead();
-                      VLOG(2) << "  Total Processed: " << socketConnection->getTotalProcessed();
-                      VLOG(2) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
-                  },
-                  std::forward<Args>(args)...) {
+            : SocketServer(name, {}, {}, {}, std::forward<Args>(args)...) {
         }
 
         explicit SocketServer(Args&&... args)
