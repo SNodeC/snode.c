@@ -47,6 +47,14 @@
 
 namespace web::http::client {
 
+    SocketContextFactory::SocketContextFactory(const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpConnected,
+                                               const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpDisconnected,
+                                               const std::function<net::config::ConfigInstance&()>& getConfigInstance)
+        : onHttpConnected(onHttpConnected)
+        , onHttpDisconnected(onHttpDisconnected)
+        , configHttp(web::http::client::ConfigHTTP(getConfigInstance())) {
+    }
+
     void SocketContextFactory::setHostHeader(const std::string& hostHeader) {
         configHttp.setHostHeader(hostHeader);
     }
