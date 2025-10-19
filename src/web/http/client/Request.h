@@ -57,6 +57,7 @@ namespace web::http::client {
         class SendHeaderCommand;
         class UpgradeCommand;
         class EndCommand;
+        class SseCommand;
     } // namespace commands
 } // namespace web::http::client
 
@@ -178,6 +179,10 @@ namespace web::http::client {
         bool end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
 
+        bool requestSse(
+            const std::string& url,
+            const std::function<std::size_t(const std::string& event, const std::string& id, const std::string& data)>& onServerSentEvent);
+
     private:
         bool initiate(const std::shared_ptr<MasterRequest>& request);
 
@@ -186,12 +191,14 @@ namespace web::http::client {
         friend class commands::SendHeaderCommand;
         friend class commands::UpgradeCommand;
         friend class commands::EndCommand;
+        friend class commands::SseCommand;
 
         bool executeSendFile(const std::string& file, const std::function<void(int)>& onStatus);
         bool executeUpgrade(const std::string& url, const std::string& protocols, const std::function<void(bool)>& onStatus);
-        bool executeEnd();
         bool executeSendHeader();
         bool executeSendFragment(const char* chunk, std::size_t chunkLen);
+        bool executeEnd();
+        bool executeSse();
 
         void requestPrepared(const std::shared_ptr<MasterRequest>& request);
         void requestDelivered();

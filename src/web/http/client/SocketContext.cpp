@@ -302,6 +302,11 @@ namespace web::http::client {
         }
     }
 
+    void SocketContext::setSseEventReceiver(
+        const std::function<std::size_t(const std::string&, const std::string&, const std::string&)>& onServerSentEvent) {
+        this->onServerSentEvent = onServerSentEvent;
+    }
+
     void SocketContext::onConnected() {
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Connected";
 
@@ -311,8 +316,12 @@ namespace web::http::client {
     std::size_t SocketContext::onReceivedFromPeer() {
         std::size_t consumed = 0;
 
-        if (!httpClose && !deliveredRequests.empty()) {
-            consumed = parser.parse();
+        if (!httpClose && (!deliveredRequests.empty() || onServerSentEvent)) {
+            if (!onServerSentEvent) {
+                consumed = parser.parse();
+            } else if (onServerSentEvent) {
+                consumed = onServerSentEvent("Event", "Id", "Data");
+            }
         }
 
         return consumed;

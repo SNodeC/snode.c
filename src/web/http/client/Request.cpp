@@ -54,6 +54,7 @@
 #include "commands/SendFileCommand.h"
 #include "commands/SendFragmentCommand.h"
 #include "commands/SendHeaderCommand.h"
+#include "commands/SseCommand.h"
 #include "commands/UpgradeCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -402,7 +403,7 @@ namespace web::http::client {
                         const std::string connectionName = request->getSocketContext()->getSocketConnection()->getConnectionName();
 
                         VLOG(0) << "Request method 3: " << request->method;
-                        for (auto& header : request->getHeaders()) {
+                        for (const auto& header : request->getHeaders()) {
                             VLOG(0) << "  Header: " << header.first << " : " << header.second;
                         }
 
@@ -428,6 +429,40 @@ namespace web::http::client {
                     }
                 },
                 onResponseParseError));
+
+            requestPrepared(newRequest);
+        }
+
+        return !masterRequest.expired();
+    }
+
+    bool MasterRequest::requestSse(
+        const std::string& url,
+        const std::function<std::size_t(const std::string&, const std::string&, const std::string&)>& onServerSentEvent) {
+        if (!masterRequest.expired()) {
+            const std::shared_ptr<MasterRequest> newRequest = std::make_shared<MasterRequest>(std::move(*this));
+
+            newRequest->url = url;
+            newRequest->sendHeader();
+            newRequest->requestCommands.push_back(new commands::SseCommand(
+                [masterRequest = this->masterRequest, onServerSentEvent](const std::shared_ptr<Request>& request,
+                                                                         const std::shared_ptr<Response>& response) {
+                    if (!masterRequest.expired()) {
+                        if (web::http::ciContains(response->headers["Content-Type"], "text/event-stream") &&
+                            web::http::ciContains(request->header("Accept"), "text/event-stream")) {
+                            masterRequest.lock()->getSocketContext()->setSseEventReceiver(onServerSentEvent);
+                        } else {
+                            masterRequest.lock()->getSocketContext()->shutdownWrite(true);
+                        }
+                    }
+                },
+                [masterRequest = this->masterRequest](const std::shared_ptr<Request>& request, const std::string& status) {
+                    if (!masterRequest.expired()) {
+                        LOG(DEBUG) << request->getSocketContext()->getSocketConnection()->getConnectionName()
+                                   << " error in response: " << status;
+                        masterRequest.lock()->getSocketContext()->shutdownWrite(true);
+                    }
+                }));
 
             requestPrepared(newRequest);
         }
@@ -568,11 +603,6 @@ namespace web::http::client {
         const std::string connectionName = this->getSocketContext()->getSocketConnection()->getConnectionName();
         this->url = url;
 
-        VLOG(0) << "Request method 2: " << method;
-        for (auto& header : headers) {
-            VLOG(0) << "  Header: " << header.first << " : " << header.second;
-        }
-
         set("Connection", "Upgrade", true);
         set("Upgrade", protocols, true);
 
@@ -615,7 +645,11 @@ namespace web::http::client {
         return true;
     }
 
-    bool MasterRequest::executeEnd() { // NOLINT
+    bool MasterRequest::executeEnd() {
+        return true;
+    }
+
+    bool MasterRequest::executeSse() {
         return true;
     }
 

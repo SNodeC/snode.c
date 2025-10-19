@@ -160,7 +160,6 @@ namespace web::http {
     void Parser::analyzeHeader() {
         if (headers.contains("Content-Length")) {
             contentLength = std::stoul(headers["Content-Length"]);
-            transferEncoding = TransferEncoding::Identity;
             decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, contentLength));
         }
         if (headers.contains("Transfer-Encoding")) {
@@ -194,7 +193,6 @@ namespace web::http {
             }
         }
         if (decoderQueue.empty()) {
-            transferEncoding = TransferEncoding::HTTP10;
             decoderQueue.emplace_back(new web::http::decoder::HTTP10Response(socketContext));
         }
 

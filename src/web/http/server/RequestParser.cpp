@@ -95,6 +95,12 @@ namespace web::http::server {
                     httpMajor = std::stoi(httpVersionMatch.str(1));
                     httpMinor = std::stoi(httpVersionMatch.str(2));
 
+                    if (httpMinor == 0) {
+                        transferEncoding = TransferEncoding::HTTP10;
+                    } else if (httpMinor == 1) {
+                        transferEncoding = TransferEncoding::Identity;
+                    }
+
                     while (!queriesLine.empty()) {
                         std::string query;
 

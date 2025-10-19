@@ -41,11 +41,11 @@ cmake_minimum_required(VERSION 3.18)
 
 set(REQCOMMANDS_CPP
     EndCommand.cpp SendFragmentCommand.cpp SendHeaderCommand.cpp
-    SendFileCommand.cpp UpgradeCommand.cpp
+    SendFileCommand.cpp SseCommand.cpp UpgradeCommand.cpp
 )
 
 set(REQCOMMANDS_H EndCommand.h SendFragmentCommand.h SendHeaderCommand.h
-                  SendFileCommand.h UpgradeCommand.h
+                  SendFileCommand.h SseCommand.h UpgradeCommand.h
 )
 
 add_library(http-client-commands STATIC ${REQCOMMANDS_CPP} ${REQCOMMANDS_H})

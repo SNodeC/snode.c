@@ -95,312 +95,344 @@ namespace apps::http::legacy {
             [](const std::shared_ptr<MasterRequest>& req) {
                 VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestStart";
 
+                req->httpMajor = 1;
                 req->httpMinor = 1;
-                req->url = "/";
-                req->set("Connection", "keep-alive");
-                req->setTrailer("MyTrailer",
-                                "MyTrailerValue"); // The "Trailer" header field should be populated but the Trailer itself should not be
-                                                   // send here because there is no content which is send using "Transfer-Encoding:chunked"
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [](const std::shared_ptr<Request>&, const std::string&) {
-                    });
 
-                req->httpMinor = 1;
-                req->method = "GET";
-                req->url = "/sendfile/";
                 req->set("Connection", "keep-alive");
-                req->sendFile(
-                    "/home/voc/projects/snodec/snode.c/CMakeLists.tt",
-                    [req](int ret) {
-                        if (ret == 0) {
-                            VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                    << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
-                        } else {
-                            LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                       << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
-                        }
-                    },
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [](const std::shared_ptr<Request>&, const std::string&) {
-                    });
+                req->set("Accept", "text/event-stream");
+                req->set("Cache-Control", "no-cache");
 
-                req->init();
-                req->httpMinor = 1;
-                req->url = "/third";
-                req->set("Connection", "keep-alive");
-                req->setTrailer("MyTrailer",
-                                "MyTrailerValue"); // The "Trailer" header field should be populated but the Trailer itself should not be
-                                                   // send here because there is no content which is send using "Transfer-Encoding:chunked"
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [](const std::shared_ptr<Request>&, const std::string&) {
-                    });
+                req->requestSse("/sse",
+                                [request = std::weak_ptr<MasterRequest>(req)](
+                                    const std::string& event, const std::string& id, const std::string& data) -> std::size_t {
+                                    std::size_t consumed = 0;
 
-#define LONG
-#ifdef LONG
-                req->url = "/";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [](const std::shared_ptr<Request>&, const std::string&) {
-                    });
+                                    if (!request.expired()) {
+                                        VLOG(0) << "Event: " << event;
+                                        VLOG(0) << "Id: " << id;
+                                        VLOG(0) << "Data: " << data;
 
-                req->httpMinor = 1;
-                req->url = "/index.html";
-                //                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/index.html";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/index.html";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/index.html";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/index.html";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/index.html";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/index.html";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/index.html";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->url = "/";
-                req->set("Connection", "keep-alive");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
+                                        char message[2048];
+                                        consumed = request.lock()->getSocketContext()->readFromPeer(message, 2047);
+                                        message[consumed] = 0;
 
-                req->httpMinor = 1;
-                req->method = "GET";
-                req->url = "/";
-                req->set("Test", "aaa");
-                req->setTrailer("MyTrailer1",
-                                "MyTrailerValue1"); // Full trailer processing. Header field "Trailer" set and the Trailer itself is also
-                                                    // sent because here content will be sent with "Transfer-Encoding:chunked"
-                req->setTrailer("MyTrailer2", "MyTrailerValue2");
-                req->setTrailer("MyTrailer3", "MyTrailerValue3");
-                req->setTrailer("MyTrailer4", "MyTrailerValue4");
-                req->setTrailer("MyTrailer5", "MyTrailerValue5");
-                req->setTrailer("MyTrailer6", "MyTrailerValue6");
-                req->query("Query1", "QueryValue1");
-                req->query("Query2", "QueryValue2");
-                req->sendFile(
-                    "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
-                    [req](int ret) {
-                        if (ret == 0) {
-                            VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                    << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-                        } else {
-                            LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                       << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-                        }
-                    },
-                    [&req](const std::shared_ptr<Request>& reqa, const std::shared_ptr<Response>& res) {
-                        logResponse(reqa, res);
+                                        std::cout << "Message: " << message;
+                                    } else {
+                                        if (!request.expired()) {
+                                            logResponse(request.lock(), std::shared_ptr<web::http::client::Response>());
+                                        }
+                                    }
 
-                        req->method = "GET";
-                        req->url = "/sdfsdf";
-                        req->set("Connection", "close");
-                        req->set("Test", "bbb");
-                        req->sendFile(
-                            "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
-                            [&req](int ret) {
-                                if (ret == 0) {
-                                    VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                            << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                    VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-                                } else {
-                                    LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                               << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                    PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-                                }
-                            },
-                            [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                                logResponse(req, res);
-                            },
-                            [req](const std::shared_ptr<Request>&, const std::string&) {
-                            });
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                req->method = "GET";
-                req->url = "/";
-                //                req->set("Connection", "close");
-                req->set("Test", "xxx");
-                req->end(
-                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                        logResponse(req, res);
-                    },
-                    [req](const std::shared_ptr<Request>&, const std::string&) {
-                    });
-                core::EventReceiver::atNextTick([&req]() {
-                    req->method = "GET";
-                    req->url = "/";
-                    req->set("Connection", "keep-alive");
-                    req->set("Test", "ddd");
-                    req->sendFile(
-                        "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
-                        [req](int ret) {
-                            if (ret == 0) {
-                                VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                        << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-                            } else {
-                                LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                           << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-                            }
-                        },
-                        [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                            logResponse(req, res);
-                        },
-                        [req](const std::shared_ptr<Request>&, const std::string&) {
-                        });
+                                    return consumed;
+                                });
 
-                    req->method = "GET";
-                    req->url = "/";
-                    req->set("Connection", "keep-alive");
-                    req->set("Test", "eee");
-                    req->setTrailer("MyTrailer1", "MyTrailerValue1");
-                    req->setTrailer("MyTrailer2", "MyTrailerValue2");
-                    req->sendFile(
-                        "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
-                        [req](int ret) {
-                            if (ret == 0) {
-                                VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                        << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-                            } else {
-                                LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                           << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
-                            }
-                        },
-                        [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                            logResponse(req, res);
-                        },
-                        [req](const std::shared_ptr<Request>&, const std::string&) {
-                        });
-                });
-#endif
+                /*
+
+                                req->httpMinor = 1;
+                                req->url = "/";
+                                req->set("Connection", "keep-alive");
+                                req->setTrailer("MyTrailer",
+                                                "MyTrailerValue"); // The "Trailer" header field should be populated but the Trailer itself
+                should not be
+                                                                   // send here because there is no content which is send using
+                "Transfer-Encoding:chunked" req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+
+                                req->httpMinor = 1;
+                                req->method = "GET";
+                                req->url = "/sendfile/";
+                                req->set("Connection", "keep-alive");
+                                req->sendFile(
+                                    "/home/voc/projects/snodec/snode.c/CMakeLists.tt",
+                                    [req](int ret) {
+                                        if (ret == 0) {
+                                            VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                                    << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                            VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
+                                        } else {
+                                            LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                                       << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                            PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
+                                        }
+                                    },
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+
+                                req->init();
+                                req->httpMinor = 1;
+                                req->url = "/third";
+                                req->set("Connection", "keep-alive");
+                                req->setTrailer("MyTrailer",
+                                                "MyTrailerValue"); // The "Trailer" header field should be populated but the Trailer itself
+                should not be
+                                                                   // send here because there is no content which is send using
+                "Transfer-Encoding:chunked" req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+
+                #define LONG
+                #ifdef LONG
+                                req->url = "/";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+
+                                req->httpMinor = 1;
+                                req->url = "/index.html";
+                                //                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/index.html";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/index.html";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/index.html";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/index.html";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/index.html";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/index.html";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/index.html";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->url = "/";
+                                req->set("Connection", "keep-alive");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+
+                                req->httpMinor = 1;
+                                req->method = "GET";
+                                req->url = "/";
+                                req->set("Test", "aaa");
+                                req->setTrailer("MyTrailer1",
+                                                "MyTrailerValue1"); // Full trailer processing. Header field "Trailer" set and the Trailer
+                itself is also
+                                                                    // sent because here content will be sent with
+                "Transfer-Encoding:chunked" req->setTrailer("MyTrailer2", "MyTrailerValue2"); req->setTrailer("MyTrailer3",
+                "MyTrailerValue3"); req->setTrailer("MyTrailer4", "MyTrailerValue4"); req->setTrailer("MyTrailer5", "MyTrailerValue5");
+                                req->setTrailer("MyTrailer6", "MyTrailerValue6");
+                                req->query("Query1", "QueryValue1");
+                                req->query("Query2", "QueryValue2");
+                                req->sendFile(
+                                    "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
+                                    [req](int ret) {
+                                        if (ret == 0) {
+                                            VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                                    << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                            VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                                        } else {
+                                            LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                                       << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                                            PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                                        }
+                                    },
+                                    [&req](const std::shared_ptr<Request>& reqa, const std::shared_ptr<Response>& res) {
+                                        logResponse(reqa, res);
+
+                                        req->method = "GET";
+                                        req->url = "/sdfsdf";
+                                        req->set("Connection", "close");
+                                        req->set("Test", "bbb");
+                                        req->sendFile(
+                                            "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
+                                            [&req](int ret) {
+                                                if (ret == 0) {
+                                                    VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                                            << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." <<
+                req->httpMinor; VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt"; } else { LOG(ERROR) <<
+                req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                                               << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." <<
+                req->httpMinor; PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                                                }
+                                            },
+                                            [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                                logResponse(req, res);
+                                            },
+                                            [req](const std::shared_ptr<Request>&, const std::string&) {
+                                            });
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                req->method = "GET";
+                                req->url = "/";
+                                //                req->set("Connection", "close");
+                                req->set("Test", "xxx");
+                                req->end(
+                                    [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                        logResponse(req, res);
+                                    },
+                                    [req](const std::shared_ptr<Request>&, const std::string&) {
+                                    });
+                                core::EventReceiver::atNextTick([&req]() {
+                                    req->method = "GET";
+                                    req->url = "/";
+                                    req->set("Connection", "keep-alive");
+                                    req->set("Test", "ddd");
+                                    req->sendFile(
+                                        "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
+                                        [req](int ret) {
+                                            if (ret == 0) {
+                                                VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                                        << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." <<
+                req->httpMinor; VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt"; } else { LOG(ERROR) <<
+                req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                                           << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." <<
+                req->httpMinor; PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                                            }
+                                        },
+                                        [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                            logResponse(req, res);
+                                        },
+                                        [req](const std::shared_ptr<Request>&, const std::string&) {
+                                        });
+
+                                    req->method = "GET";
+                                    req->url = "/";
+                                    req->set("Connection", "keep-alive");
+                                    req->set("Test", "eee");
+                                    req->setTrailer("MyTrailer1", "MyTrailerValue1");
+                                    req->setTrailer("MyTrailer2", "MyTrailerValue2");
+                                    req->sendFile(
+                                        "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
+                                        [req](int ret) {
+                                            if (ret == 0) {
+                                                VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                                        << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." <<
+                req->httpMinor; VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt"; } else { LOG(ERROR) <<
+                req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                                           << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." <<
+                req->httpMinor; PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                                            }
+                                        },
+                                        [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                                            logResponse(req, res);
+                                        },
+                                        [req](const std::shared_ptr<Request>&, const std::string&) {
+                                        });
+                                });
+                #endif
+                */
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
                 VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestEnd";
