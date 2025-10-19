@@ -75,9 +75,10 @@ namespace core::socket::stream {
     public:
         using SocketConnection = typename SocketAcceptor::SocketConnection;
         using SocketAddress = typename SocketAcceptor::SocketAddress;
+        using Config = typename SocketAcceptor::Config;
 
     private:
-        SocketServer(const std::shared_ptr<typename SocketAcceptor::Config>& config,
+        SocketServer(const std::shared_ptr<Config>& config,
                      const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                      const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
@@ -227,10 +228,14 @@ namespace core::socket::stream {
             return onConnect;
         }
 
-        std::function<void(SocketConnection*)> setOnConnect(const std::function<void(SocketConnection*)>& onConnect) {
+        std::function<void(SocketConnection*)> setOnConnect(const std::function<void(SocketConnection*)>& onConnect,
+                                                            bool initialize = false) {
             std::function<void(SocketConnection*)> oldOnConnect = this->onConnect;
 
-            this->onConnect = onConnect;
+            this->onConnect = initialize ? onConnect : [oldOnConnect, onConnect](SocketConnection* socketConnection) {
+                oldOnConnect(socketConnection);
+                onConnect(socketConnection);
+            };
 
             return oldOnConnect;
         }
@@ -239,22 +244,30 @@ namespace core::socket::stream {
             return onConnected();
         }
 
-        std::function<void(SocketConnection*)>& getOnDisconnect() {
-            return onDisconnect;
-        }
-
-        std::function<void(SocketConnection*)> setOnConnected(const std::function<void(SocketConnection*)>& onConnected) {
+        std::function<void(SocketConnection*)> setOnConnected(const std::function<void(SocketConnection*)>& onConnected,
+                                                              bool initialize = false) {
             std::function<void(SocketConnection*)> oldOnConnected = this->onConnected;
 
-            this->onConnected = onConnected;
+            this->onConnected = initialize ? onConnected : [oldOnConnected, onConnected](SocketConnection* socketConnection) {
+                oldOnConnected(socketConnection);
+                onConnected(socketConnection);
+            };
 
             return oldOnConnected;
         }
 
-        std::function<void(SocketConnection*)> setOnDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
+        std::function<void(SocketConnection*)>& getOnDisconnect() {
+            return onDisconnect;
+        }
+
+        std::function<void(SocketConnection*)> setOnDisconnect(const std::function<void(SocketConnection*)>& onDisconnect,
+                                                               bool initialize = false) {
             std::function<void(SocketConnection*)> oldOnDisconnect = this->onDisconnect;
 
-            this->onDisconnect = onDisconnect;
+            this->onDisconnect = initialize ? onDisconnect : [oldOnDisconnect, onDisconnect](SocketConnection* socketConnection) {
+                oldOnDisconnect(socketConnection);
+                onDisconnect(socketConnection);
+            };
 
             return oldOnDisconnect;
         }
