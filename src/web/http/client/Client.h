@@ -121,12 +121,9 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::setOnConnect([config = Super::config,
-                                 socketContextFactory = Super::getSocketContextFactory(),
-                                 onConnect = Client::getOnConnect()](SocketConnection* socketConnection) {
+            Super::setOnConnect([config = Super::config, socketContextFactory = Super::getSocketContextFactory()](
+                                    [[maybe_unused]] SocketConnection* socketConnection) {
                 socketContextFactory->setHostHeader(config->Remote::getSocketAddress().toString(false));
-
-                onConnect(socketConnection);
             });
         }
 
