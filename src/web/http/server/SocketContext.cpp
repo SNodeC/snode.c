@@ -109,8 +109,6 @@ namespace web::http::server {
                     masterResponse->set("Connection", connection);
                 }
 
-                serverSentEvent = web::http::ciContains(pendingRequest->get("Accept"), "text/event-stream");
-
                 onRequestReady(pendingRequest, masterResponse);
             } else {
                 masterResponse->init();
@@ -127,6 +125,8 @@ namespace web::http::server {
     void SocketContext::responseStarted(const Response& response) {
         if (!pendingRequests.empty()) {
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
+
+            serverSentEvent = web::http::ciContains(pendingRequest->get("Accept"), "text/event-stream");
 
             LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start for request: " << pendingRequest->method
                       << " " << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
