@@ -47,6 +47,11 @@
 
 namespace web::http::server {
 
+    SocketContextFactory::SocketContextFactory(
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
+        : onRequestReady(onRequestReady) {
+    }
+
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
         return new web::http::server::SocketContext(socketConnection, onRequestReady);
     }

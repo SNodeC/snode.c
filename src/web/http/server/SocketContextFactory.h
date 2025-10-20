@@ -67,9 +67,7 @@ namespace web::http::server {
         using Response = web::http::server::Response;
 
         explicit SocketContextFactory(
-            const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
-            : onRequestReady(onRequestReady) {
-        }
+            const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady);
 
     private:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
