@@ -48,7 +48,6 @@
 
 #include "log/Logger.h"
 
-#include <atomic>
 #include <cstddef>
 #include <iostream>
 #include <list>
@@ -70,8 +69,8 @@ namespace web::http::legacy::in {
     using EventFn = std::function<void(const std::string& id, const std::string& data)>;
 
     struct SharedState {
-        std::atomic<std::shared_ptr<std::list<DataFn>>> dataCbList{nullptr};
-        std::atomic<std::shared_ptr<std::map<std::string, EventFn>>> eventCbMap{nullptr};
+        std::shared_ptr<std::list<DataFn>> dataCbList{std::make_shared<std::list<DataFn>>()};
+        std::shared_ptr<std::map<std::string, EventFn>> eventCbMap{std::make_shared<std::map<std::string, EventFn>>()};
     };
 
     class EventStream : public std::enable_shared_from_this<EventStream> {
@@ -157,21 +156,16 @@ namespace web::http::legacy::in {
 
                                     std::cout << "Message: " << message;
 
-                                    if (const std::shared_ptr<std::list<DataFn>> dataCbList =
-                                            state->dataCbList.load(std::memory_order_acquire)) {
-                                        for (const DataFn& dataCb : *dataCbList) {
-                                            dataCb(message);
-                                        }
+                                    for (const DataFn& dataCb : *state->dataCbList) {
+                                        dataCb(message);
                                     }
 
                                     const std::string event = "event";
 
-                                    if (const std::shared_ptr<std::map<std::string, EventFn>> eventCbMap =
-                                            state->eventCbMap.load(std::memory_order_acquire)) {
-                                        if (const auto it = eventCbMap->find(event); it != eventCbMap->end()) {
-                                            it->second(id, data);
-                                        }
+                                    if (const auto it = state->eventCbMap->find(event); it != state->eventCbMap->end()) {
+                                        it->second(id, data);
                                     }
+
                                 } else {
                                     VLOG(0) << "Server-sent event: disconnected";
                                 }
@@ -211,17 +205,11 @@ namespace web::http::legacy::in {
 
     public:
         void onMessage(DataFn fn) {
-            auto oldList = state_->dataCbList.load(std::memory_order_acquire);
-            auto newList = std::make_shared<std::list<DataFn>>(oldList ? *oldList : std::list<DataFn>{});
-            newList->push_back(std::move(fn));
-            state_->dataCbList.store(std::move(newList), std::memory_order_release);
+            state_->dataCbList->push_back(std::move(fn));
         }
 
         void addEventListener(std::string key, EventFn fn) {
-            auto oldMap = state_->eventCbMap.load(std::memory_order_relaxed);
-            auto newMap = std::make_shared<std::map<std::string, EventFn>>(oldMap ? *oldMap : std::map<std::string, EventFn>{});
-            (*newMap)[std::move(key)] = std::move(fn);
-            state_->eventCbMap.store(std::move(newMap), std::memory_order_release);
+            state_->eventCbMap->insert({key, fn});
         }
 
         void close() {
