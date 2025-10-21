@@ -55,6 +55,7 @@
 
 #include "log/Logger.h"
 #include "web/http/http_utils.h"
+#include "web/http/legacy/in/EventStream.h"
 
 #if (STREAM_TYPE == TLS) // tls
 #include <cstddef>
@@ -294,30 +295,45 @@ namespace apps::http::legacy {
                 req->set("Accept", "text/event-stream");
                 req->set("Cache-Control", "no-cache");
 
-                req->getSocketContext()->getSocketConnection()->setWriteTimeout(0);
-                req->requestSse("/sse",
-                                [request = std::weak_ptr<MasterRequest>(req)](
-                                    const std::string& event, const std::string& id, const std::string& data) -> std::size_t {
-                                    std::size_t consumed = 0;
+                auto eventStream = web::http::legacy::in::EventStream("http://localhost:8080/sse");
+                eventStream->onMessage([](const std::string& message) {
+                    VLOG(0) << "############# 1: " << message;
+                });
+                eventStream->addEventListener("event", [](const std::string& id, const std::string& message) {
+                    VLOG(0) << "############# 2: " << id << " : " << message;
+                });
 
-                                    if (!request.expired()) {
-                                        VLOG(0) << "Event: " << event;
-                                        VLOG(0) << "Id: " << id;
-                                        VLOG(0) << "Data: " << data;
+                core::timer::Timer::singleshotTimer(
+                    [eventStream]() {
+                        eventStream->close();
+                    },
+                    5);
 
-                                        char message[2048];
-                                        consumed = request.lock()->getSocketContext()->readFromPeer(message, 2047);
-                                        message[consumed] = 0;
+            /*
+                            req->requestSse("/sse",
+                                            [request = std::weak_ptr<MasterRequest>(req)](
+                                                const std::string& event, const std::string& id, const std::string& data) -> std::size_t {
+                                                std::size_t consumed = 0;
 
-                                        std::cout << "Message: " << message;
-                                    } else {
-                                        if (!request.expired()) {
-                                            logResponse(request.lock(), std::shared_ptr<web::http::client::Response>());
-                                        }
-                                    }
+                                                if (!request.expired()) {
+                                                    VLOG(0) << "Event: " << event;
+                                                    VLOG(0) << "Id: " << id;
+                                                    VLOG(0) << "Data: " << data;
 
-                                    return consumed;
-                                });
+                                                    char message[2048];
+                                                    consumed = request.lock()->getSocketContext()->readFromPeer(message, 2047);
+                                                    message[consumed] = 0;
+
+                                                    std::cout << "Message: " << message;
+                                                } else {
+                                                    if (!request.expired()) {
+                                                        logResponse(request.lock(), std::shared_ptr<web::http::client::Response>());
+                                                    }
+                                                }
+
+                                                return consumed;
+                                            });
+            */
             /*
             req->httpMinor = 1;
             req->method = "GET";

@@ -49,6 +49,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/Timeval.h"
 
 #include <string>
 #include <utility>
@@ -127,6 +128,10 @@ namespace web::http::server {
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
             serverSentEvent = web::http::ciContains(pendingRequest->get("Accept"), "text/event-stream");
+
+            if (serverSentEvent) {
+                getSocketConnection()->setReadTimeout(0);
+            }
 
             LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start for request: " << pendingRequest->method
                       << " " << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;

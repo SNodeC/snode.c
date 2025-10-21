@@ -154,8 +154,6 @@ int main(int argc, char* argv[]) {
 
     app.get("/sse", [] APPLICATION(req, res) {
         if (web::http::ciContains(req->get("Accept"), "text/event-stream")) {
-            res->getSocketContext()->getSocketConnection()->setReadTimeout(core::DescriptorEventReceiver::TIMEOUT::DISABLE);
-
             res->set("Content-Type", "text/event-stream").set("Cache-Control", "no-cache").set("Connection", "keep-alive");
             res->sendHeader();
 

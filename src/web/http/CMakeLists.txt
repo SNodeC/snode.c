@@ -56,6 +56,7 @@ pkg_check_modules(LIBMAGIC libmagic)
 set(HTTP_CPP
     CiStringMap.cpp
     ContentDecoder.cpp
+    legacy/in/EventStream.cpp
     MimeTypes.cpp
     Parser.cpp
     StatusCodes.cpp
@@ -85,6 +86,7 @@ set(HTTP_H
     decoder/HTTP10Response.h
     decoder/Identity.h
     legacy/in/Client.h
+    legacy/in/EventStream.h
     legacy/in/Server.h
     legacy/in6/Client.h
     legacy/in6/Server.h
@@ -102,7 +104,8 @@ set(HTTP_H
     tls/un/Server.h
 )
 
-add_library(http SHARED ${HTTP_CPP} ${HTTP_H})
+add_library(http SHARED ${HTTP_CPP} ${HTTP_H}
+)
 add_library(snodec::http ALIAS http)
 
 if(LIBMAGIC_FOUND)

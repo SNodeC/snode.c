@@ -82,21 +82,18 @@ namespace web::http::client {
                const std::function<void(SocketConnection*)>& onDisconnect,
                std::function<void(const std::shared_ptr<MasterRequest>&)>&& onHttpConnected,
                std::function<void(const std::shared_ptr<MasterRequest>&)>&& onHttpDisconnected)
-            : Super(
-                  name,
-                  [config = Super::config, socketContextFactory = Super::getSocketContextFactory(), onConnect](
-                      SocketConnection* socketConnection) {
-                      socketContextFactory->setHostHeader(config->Remote::getSocketAddress().toString(false));
-
-                      onConnect(socketConnection);
-                  },
-                  onConnected,
-                  onDisconnect,
-                  std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpConnected),
-                  std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected),
-                  [this]() -> net::config::ConfigInstance& {
-                      return Super::getConfig();
-                  }) {
+            : Super(name,
+                    onConnect,
+                    onConnected,
+                    onDisconnect,
+                    std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpConnected),
+                    std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected),
+                    [this]() -> net::config::ConfigInstance& {
+                        return Super::getConfig();
+                    }) {
+            Super::setOnConnected([socketContextFactory = Super::getSocketContextFactory(), onConnect](SocketConnection* socketConnection) {
+                socketContextFactory->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
+            });
         }
 
         Client(const std::function<void(SocketConnection*)>& onConnect,
@@ -121,9 +118,8 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::setOnConnect([config = Super::config, socketContextFactory = Super::getSocketContextFactory()](
-                                    [[maybe_unused]] SocketConnection* socketConnection) {
-                socketContextFactory->setHostHeader(config->Remote::getSocketAddress().toString(false));
+            Super::setOnConnect([socketContextFactory = Super::getSocketContextFactory()](SocketConnection* socketConnection) {
+                socketContextFactory->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }
 

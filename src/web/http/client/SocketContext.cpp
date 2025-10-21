@@ -48,6 +48,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/Timeval.h"
 #include "web/http/http_utils.h"
 
 #include <utility>
@@ -304,6 +305,8 @@ namespace web::http::client {
     void SocketContext::setSseEventReceiver(
         const std::function<std::size_t(const std::string&, const std::string&, const std::string&)>& onServerSentEvent) {
         this->onServerSentEvent = onServerSentEvent;
+
+        getSocketConnection()->setWriteTimeout(0);
     }
 
     void SocketContext::onConnected() {

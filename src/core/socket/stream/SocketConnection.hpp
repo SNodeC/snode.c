@@ -254,12 +254,12 @@ namespace core::socket::stream {
             SocketReader::disable();
         }
     }
-    /*
-        template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
-        Config& SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::getConfig() const {
-            return *config;
-        }
-    */
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+    Config& SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::getConfig() const {
+        return *config;
+    }
+
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::getTotalSent() const {
         return SocketWriter::getTotalSent();

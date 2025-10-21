@@ -202,7 +202,7 @@ namespace core::socket::stream {
 
         void close() final;
 
-        //        Config& getConfig() const;
+        Config& getConfig() const;
 
         std::size_t getTotalSent() const override;
         std::size_t getTotalQueued() const override;
