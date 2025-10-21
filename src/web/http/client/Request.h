@@ -182,9 +182,7 @@ namespace web::http::client {
         bool end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
 
-        bool requestSse(
-            const std::string& url,
-            const std::function<std::size_t(const std::string& event, const std::string& id, const std::string& data)>& onServerSentEvent);
+        bool requestEventStream(const std::string& url, const std::function<std::size_t()>& onServerSentEvent);
 
     private:
         bool initiate(const std::shared_ptr<MasterRequest>& request);

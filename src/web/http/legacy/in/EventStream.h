@@ -49,7 +49,6 @@
 #include "log/Logger.h"
 
 #include <cstddef>
-#include <iostream>
 #include <list>
 #include <regex>
 #include <string>
@@ -73,7 +72,7 @@ namespace web::http::legacy::in {
         std::map<std::string, std::list<EventFn>> eventCbMap;
     };
 
-    class EventStream : public std::enable_shared_from_this<EventStream> {
+    class EventStream : private std::enable_shared_from_this<EventStream> {
     public:
         EventStream(const EventStream&) = delete;
         EventStream& operator=(const EventStream&) = delete;
@@ -131,30 +130,16 @@ namespace web::http::legacy::in {
                      state = this->state](const std::shared_ptr<MasterRequest>& masterRequest) {
                         VLOG(1) << masterRequest->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestStart";
 
-                        masterRequest->url = url;
-                        masterRequest->httpMajor = 1;
-                        masterRequest->httpMinor = 1;
-
-                        masterRequest->set("Connection", "keep-alive");
-                        masterRequest->set("Accept", "text/event-stream");
-                        masterRequest->set("Cache-Control", "no-cache");
-
-                        masterRequest->requestSse(
-                            url,
-                            [masterRequest = std::weak_ptr<MasterRequest>(masterRequest),
-                             state](const std::string& event, const std::string& id, const std::string& data) -> std::size_t {
+                        masterRequest->requestEventStream(
+                            url, [masterRequest = std::weak_ptr<MasterRequest>(masterRequest), state]() -> std::size_t {
                                 std::size_t consumed = 0;
 
                                 if (!masterRequest.expired()) {
-                                    VLOG(0) << "Event: " << event;
-                                    VLOG(0) << "Id: " << id;
-                                    VLOG(0) << "Data: " << data;
-
                                     char message[2048];
                                     consumed = masterRequest.lock()->getSocketContext()->readFromPeer(message, 2047);
                                     message[consumed] = 0;
 
-                                    std::cout << "Message: " << message;
+                                    LOG(DEBUG) << "Message: " << message;
 
                                     for (const DataFn& dataCb : state->dataCbList) {
                                         dataCb(message);
@@ -164,7 +149,7 @@ namespace web::http::legacy::in {
 
                                     if (const auto it = state->eventCbMap.find(event); it != state->eventCbMap.end()) {
                                         for (const EventFn& eventCb : it->second) {
-                                            eventCb(id, data);
+                                            eventCb("FakeId", "FakeData");
                                         }
                                     }
                                 } else {
@@ -215,6 +200,7 @@ namespace web::http::legacy::in {
 
         void close() {
             client->getConfig().setReconnect(false);
+
             if (socketConnection != nullptr) {
                 socketConnection->shutdownRead();
             }

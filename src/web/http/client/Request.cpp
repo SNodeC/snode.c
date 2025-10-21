@@ -437,13 +437,18 @@ namespace web::http::client {
         return !masterRequest.expired();
     }
 
-    bool MasterRequest::requestSse(
-        const std::string& url,
-        const std::function<std::size_t(const std::string&, const std::string&, const std::string&)>& onServerSentEvent) {
+    bool MasterRequest::requestEventStream(const std::string& url, const std::function<std::size_t()>& onServerSentEvent) {
         if (!masterRequest.expired()) {
             const std::shared_ptr<MasterRequest> newRequest = std::make_shared<MasterRequest>(std::move(*this));
 
             newRequest->url = url;
+            newRequest->httpMajor = 1;
+            newRequest->httpMinor = 1;
+
+            newRequest->set("Connection", "keep-alive", true);
+            newRequest->set("Accept", "text/event-stream", true);
+            newRequest->set("Cache-Control", "no-cache", true);
+
             newRequest->sendHeader();
             newRequest->requestCommands.push_back(new commands::SseCommand(
                 [masterRequest = this->masterRequest, onServerSentEvent](const std::shared_ptr<Request>& request,

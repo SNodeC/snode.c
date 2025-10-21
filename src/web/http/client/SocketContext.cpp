@@ -302,8 +302,7 @@ namespace web::http::client {
         }
     }
 
-    void SocketContext::setSseEventReceiver(
-        const std::function<std::size_t(const std::string&, const std::string&, const std::string&)>& onServerSentEvent) {
+    void SocketContext::setSseEventReceiver(const std::function<std::size_t()>& onServerSentEvent) {
         this->onServerSentEvent = onServerSentEvent;
 
         getSocketConnection()->setWriteTimeout(0);
@@ -322,7 +321,7 @@ namespace web::http::client {
             if (!onServerSentEvent) {
                 consumed = parser.parse();
             } else if (onServerSentEvent) {
-                consumed = onServerSentEvent("Event", "Id", "Data");
+                consumed = onServerSentEvent();
             }
         }
 

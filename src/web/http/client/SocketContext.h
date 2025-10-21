@@ -85,8 +85,7 @@ namespace web::http::client {
         void deliverResponseParseError(int status, const std::string& reason);
         void requestCompleted(const std::shared_ptr<Response>& response);
 
-        void setSseEventReceiver(
-            const std::function<std::size_t(const std::string&, const std::string&, const std::string&)>& onServerSentEvent);
+        void setSseEventReceiver(const std::function<std::size_t()>& onServerSentEvent);
 
         std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpConnected;
         std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpDisconnected;
@@ -97,7 +96,7 @@ namespace web::http::client {
         bool onSignal(int signum) override;
         void onWriteError(int errnum) override;
 
-        std::function<std::size_t(const std::string&, const std::string&, const std::string&)> onServerSentEvent = nullptr;
+        std::function<std::size_t()> onServerSentEvent = nullptr;
 
         std::list<std::shared_ptr<MasterRequest>> pendingRequests;
         std::list<std::shared_ptr<MasterRequest>> deliveredRequests;
