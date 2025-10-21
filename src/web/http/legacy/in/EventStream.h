@@ -69,8 +69,8 @@ namespace web::http::legacy::in {
     using EventFn = std::function<void(const std::string& id, const std::string& data)>;
 
     struct SharedState {
-        std::shared_ptr<std::list<DataFn>> dataCbList{std::make_shared<std::list<DataFn>>()};
-        std::shared_ptr<std::map<std::string, EventFn>> eventCbMap{std::make_shared<std::map<std::string, EventFn>>()};
+        std::list<DataFn> dataCbList;
+        std::map<std::string, std::list<EventFn>> eventCbMap;
     };
 
     class EventStream : public std::enable_shared_from_this<EventStream> {
@@ -84,7 +84,7 @@ namespace web::http::legacy::in {
 
     private:
         EventStream()
-            : state_(std::make_shared<SharedState>()) {
+            : state(std::make_shared<SharedState>()) {
         }
 
         void init(const std::string& url) {
@@ -128,7 +128,7 @@ namespace web::http::legacy::in {
                         }
                     },
                     [url = match[5].matched ? match[5].str() : "/",
-                     state = this->state_](const std::shared_ptr<MasterRequest>& masterRequest) {
+                     state = this->state](const std::shared_ptr<MasterRequest>& masterRequest) {
                         VLOG(1) << masterRequest->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestStart";
 
                         masterRequest->url = url;
@@ -156,18 +156,19 @@ namespace web::http::legacy::in {
 
                                     std::cout << "Message: " << message;
 
-                                    for (const DataFn& dataCb : *state->dataCbList) {
+                                    for (const DataFn& dataCb : state->dataCbList) {
                                         dataCb(message);
                                     }
 
                                     const std::string event = "event";
 
-                                    if (const auto it = state->eventCbMap->find(event); it != state->eventCbMap->end()) {
-                                        it->second(id, data);
+                                    if (const auto it = state->eventCbMap.find(event); it != state->eventCbMap.end()) {
+                                        for (const EventFn& eventCb : it->second) {
+                                            eventCb(id, data);
+                                        }
                                     }
-
                                 } else {
-                                    VLOG(0) << "Server-sent event: disconnected";
+                                    VLOG(0) << "Server-sent event: server disconnect";
                                 }
 
                                 return consumed;
@@ -205,11 +206,11 @@ namespace web::http::legacy::in {
 
     public:
         void onMessage(DataFn fn) {
-            state_->dataCbList->push_back(std::move(fn));
+            state->dataCbList.push_back(std::move(fn));
         }
 
-        void addEventListener(std::string key, EventFn fn) {
-            state_->eventCbMap->insert({key, fn});
+        void addEventListener(const std::string& key, EventFn fn) {
+            state->eventCbMap[key].push_back(std::move(fn));
         }
 
         void close() {
@@ -221,7 +222,7 @@ namespace web::http::legacy::in {
 
         std::shared_ptr<Client> client;
         SocketConnection* socketConnection = nullptr;
-        std::shared_ptr<SharedState> state_;
+        std::shared_ptr<SharedState> state;
 
         friend inline std::shared_ptr<class EventStream> EventStream(const std::string& url);
     };
