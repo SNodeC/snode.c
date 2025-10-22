@@ -110,7 +110,7 @@ namespace web::http::legacy::in {
                             eventStream->socketConnection = socketConnection;
                         }
                     },
-                    [eventStreamWeak](SocketConnection* socketConnection) {
+                    [](SocketConnection* socketConnection) {
                         VLOG(1) << socketConnection->getConnectionName() << ": OnConnected";
 
                         VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
