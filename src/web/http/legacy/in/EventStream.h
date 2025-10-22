@@ -72,7 +72,7 @@ namespace web::http::legacy::in {
         std::map<std::string, std::list<EventFn>> eventCbMap;
     };
 
-    class EventStream : private std::enable_shared_from_this<EventStream> {
+    class EventStream : public std::enable_shared_from_this<EventStream> {
     public:
         EventStream(const EventStream&) = delete;
         EventStream& operator=(const EventStream&) = delete;
