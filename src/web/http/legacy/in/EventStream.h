@@ -91,36 +91,36 @@ namespace web::http::legacy::in {
 
             std::smatch match;
             if (std::regex_match(url, match, re)) {
-                VLOG(0) << "Full protocol: " << match[1];
-                VLOG(0) << "     protocol: " << match[2];
-                VLOG(0) << "         Host: " << match[3];
-                VLOG(0) << "         Port: " << (match[4].matched ? match[4].str() : "80");
-                VLOG(0) << "         Path: " << (match[5].matched ? match[5].str() : "/");
+                LOG(TRACE) << "Full protocol: " << match[1];
+                LOG(TRACE) << "     protocol: " << match[2];
+                LOG(TRACE) << "         Host: " << match[3];
+                LOG(TRACE) << "         Port: " << (match[4].matched ? match[4].str() : "80");
+                LOG(TRACE) << "         Path: " << (match[5].matched ? match[5].str() : "/");
 
                 const std::weak_ptr<EventStream> eventStreamWeak = weak_from_this();
 
                 client = std::make_shared<Client>(
                     [eventStreamWeak](SocketConnection* socketConnection) {
-                        VLOG(1) << socketConnection->getConnectionName() << ": OnConnect";
+                        LOG(DEBUG) << socketConnection->getConnectionName() << " EventStream: OnConnect";
 
-                        VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                        VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+                        LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+                        LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
                         if (const std::shared_ptr<EventStream> eventStream = eventStreamWeak.lock()) {
                             eventStream->socketConnection = socketConnection;
                         }
                     },
                     [](SocketConnection* socketConnection) {
-                        VLOG(1) << socketConnection->getConnectionName() << ": OnConnected";
+                        LOG(DEBUG) << socketConnection->getConnectionName() << " EventStream: OnConnected";
 
-                        VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                        VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+                        LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+                        LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                     },
                     [eventStreamWeak](SocketConnection* socketConnection) {
-                        VLOG(1) << socketConnection->getConnectionName() << ": OnDisconnect";
+                        LOG(DEBUG) << socketConnection->getConnectionName() << " EventStream: OnDisconnect";
 
-                        VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                        VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+                        LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
+                        LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
                         if (const std::shared_ptr<EventStream> eventStream = eventStreamWeak.lock()) {
                             eventStream->socketConnection = nullptr;
@@ -128,7 +128,8 @@ namespace web::http::legacy::in {
                     },
                     [url = match[5].matched ? match[5].str() : "/",
                      state = this->state](const std::shared_ptr<MasterRequest>& masterRequest) {
-                        VLOG(1) << masterRequest->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestStart";
+                        LOG(DEBUG) << masterRequest->getSocketContext()->getSocketConnection()->getConnectionName()
+                                   << " EventStream: OnRequestStart";
 
                         masterRequest->requestEventStream(
                             url, [masterRequest = std::weak_ptr<MasterRequest>(masterRequest), state]() -> std::size_t {
@@ -153,14 +154,14 @@ namespace web::http::legacy::in {
                                         }
                                     }
                                 } else {
-                                    VLOG(0) << "Server-sent event: server disconnect";
+                                    LOG(DEBUG) << "Server-sent event: server disconnect";
                                 }
 
                                 return consumed;
                             });
                     },
                     [](const std::shared_ptr<Request>& req) {
-                        VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestEnd";
+                        LOG(DEBUG) << req->getSocketContext()->getSocketConnection()->getConnectionName() << " EventStream: OnRequestEnd";
                     });
 
                 client->getConfig().Remote::setHost(match[3].str());
