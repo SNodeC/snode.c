@@ -45,9 +45,9 @@
 #include "web/http/client/tools/EventSource.h"
 #include "web/http/legacy/in/Client.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include <memory>
 
-#include <string>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -60,12 +60,19 @@ namespace web::http::legacy::in {
         using Super::init;
         using Super::Super;
 
-        friend inline std::shared_ptr<class EventSource> EventSource(const std::string& url);
+    public:
+        inline ~EventSource() override;
+
+        friend inline std::shared_ptr<EventSource> EventSource(const std::string& url);
     };
 
-    inline std::shared_ptr<class EventSource> EventSource(const std::string& url) {
+    inline EventSource::~EventSource() {
+    }
+
+    inline std::shared_ptr<EventSource> EventSource(const std::string& url) {
         std::shared_ptr<class EventSource> eventSource = std::make_shared<class EventSource>();
         eventSource->init(url);
+
         return eventSource;
     }
 

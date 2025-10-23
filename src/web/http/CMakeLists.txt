@@ -56,7 +56,6 @@ pkg_check_modules(LIBMAGIC libmagic)
 set(HTTP_CPP
     CiStringMap.cpp
     ContentDecoder.cpp
-    legacy/in/EventSource.cpp
     MimeTypes.cpp
     Parser.cpp
     StatusCodes.cpp
@@ -104,8 +103,7 @@ set(HTTP_H
     tls/un/Server.h
 )
 
-add_library(http SHARED ${HTTP_CPP} ${HTTP_H}
-)
+add_library(http SHARED ${HTTP_CPP} ${HTTP_H})
 add_library(snodec::http ALIAS http)
 
 if(LIBMAGIC_FOUND)

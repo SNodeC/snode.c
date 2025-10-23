@@ -39,10 +39,15 @@
  * THE SOFTWARE.
  */
 
-#include "web/http/legacy/in/EventSource.h"
+#include "web/http/client/tools/EventSource.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace web::http::legacy::in {} // namespace web::http::legacy::in
+namespace web::http::client::tools {
+
+    EventSource1::~EventSource1() {
+    }
+
+}

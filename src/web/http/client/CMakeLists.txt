@@ -51,6 +51,7 @@ set(HTTPCLIENT_CPP
     SocketContextFactory.cpp
     SocketContextUpgradeFactory.cpp
     SocketContextUpgradeFactorySelector.cpp
+    tools/EventSource.cpp
 )
 
 set(HTTPCLIENT_H
