@@ -39,7 +39,6 @@
  * THE SOFTWARE.
  */
 
-#include "core/DescriptorEventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "express/legacy/in/WebApp.h"
@@ -160,6 +159,8 @@ int main(int argc, char* argv[]) {
             core::timer::Timer::intervalTimer(
                 [res, id = 0](auto& stop) mutable {
                     if (res->isConnected()) {
+                        res->sendFragment("event: myevent");
+                        res->sendFragment("id: 23");
                         res->sendFragment("data: Message " + std::to_string(id) + "\r\n");
                     } else {
                         stop();

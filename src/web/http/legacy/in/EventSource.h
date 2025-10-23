@@ -39,8 +39,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef WEB_HTTP_LEGACY_IN_EVENTSTREAM_H
-#define WEB_HTTP_LEGACY_IN_EVENTSTREAM_H
+#ifndef WEB_HTTP_LEGACY_IN_EVENTSOURCE_H
+#define WEB_HTTP_LEGACY_IN_EVENTSOURCE_H
 
 #include "web/http/legacy/in/Client.h"
 
@@ -48,10 +48,13 @@
 
 #include "log/Logger.h"
 
+#include <cctype>
 #include <cstddef>
 #include <list>
+#include <optional>
 #include <regex>
 #include <string>
+#include <string_view>
 #include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -64,15 +67,23 @@ namespace web::http::legacy::in {
     using Response = Client::Response;
     using SocketConnection = Client::SocketConnection;
 
-    using DataFn = std::function<void(const std::string& data)>;
-    using EventFn = std::function<void(const std::string& id, const std::string& data)>;
-
-    struct SharedState {
-        std::list<DataFn> dataCbList;
-        std::map<std::string, std::list<EventFn>> eventCbMap;
-    };
-
     class EventStream : public std::enable_shared_from_this<EventStream> {
+    private:
+        using DataFn = std::function<void(const std::string& data)>;
+        using EventFn = std::function<void(const std::string& id, const std::string& data)>;
+
+        struct SharedState {
+            std::list<DataFn> dataCbList;
+            std::map<std::string, std::list<EventFn>> eventCbMap;
+
+            std::string pending_;
+            std::string data_;
+            std::string type_;
+            std::string idBuf_;
+            std::string lastId_;
+            std::optional<uint32_t> retry_;
+        };
+
     public:
         EventStream(const EventStream&) = delete;
         EventStream& operator=(const EventStream&) = delete;
@@ -133,9 +144,121 @@ namespace web::http::legacy::in {
 
                         masterRequest->requestEventStream(
                             url, [masterRequest = std::weak_ptr<MasterRequest>(masterRequest), state]() -> std::size_t {
+                                auto digits = [](std::string_view s) -> bool {
+                                    for (const char c : s) {
+                                        if (!std::isdigit(c)) {
+                                            return false;
+                                        }
+                                    }
+
+                                    return !s.empty();
+                                };
+
+                                auto parseU32 = [](std::string_view s) -> uint32_t {
+                                    uint64_t v = 0;
+
+                                    for (const char c : s) {
+                                        v = v * 10 + (static_cast<unsigned char>(c) - '0');
+                                        if (v > 0xFFFFFFFFULL) {
+                                            return 0xFFFFFFFFU;
+                                        }
+                                    }
+
+                                    return static_cast<uint32_t>(v);
+                                };
+
+                                auto dispatch = [state]() mutable {
+                                    state->lastId_ = state->idBuf_;
+                                    if (state->data_.empty()) {
+                                        state->type_.clear();
+                                        return;
+                                    }
+                                    if (!state->data_.empty() && state->data_.back() == '\n') {
+                                        state->data_.pop_back();
+                                    }
+                                    /*
+                                    if (cb_)
+                                        cb_({type_.empty() ? "message" : type_, std::move(data_), lastId_});
+                                    */
+
+                                    VLOG(0) << "Message type: " << (state->type_.empty() ? "message" : state->type_);
+                                    VLOG(0) << "Data: " << state->data_;
+                                    VLOG(0) << "LastId: " << state->lastId_;
+
+                                    state->type_.clear();
+                                    state->data_.clear();
+                                };
+
+                                auto processLine = [state, &digits, &parseU32, &dispatch](std::string_view line) {
+                                    if (line.empty()) {
+                                        dispatch();
+                                        return;
+                                    }
+                                    if (line.front() == ':') {
+                                        return;
+                                    }
+
+                                    std::string_view f;
+                                    std::string_view v;
+
+                                    if (auto p = line.find(':'); p != std::string_view::npos) {
+                                        f = line.substr(0, p);
+                                        v = line.substr(p + 1);
+                                        if (!v.empty() && v.front() == ' ') {
+                                            v.remove_prefix(1);
+                                        }
+                                    } else {
+                                        f = line;
+                                    }
+
+                                    if (f == "data") {
+                                        state->data_.append(v);
+                                        state->data_.push_back('\n');
+                                    } else if (f == "event") {
+                                        state->type_ = v;
+                                    } else if (f == "id") {
+                                        if (v.find('\0') == std::string_view::npos) {
+                                            state->idBuf_ = v;
+                                        }
+                                    } else if (f == "retry") {
+                                        if (digits(v)) {
+                                            state->retry_ = parseU32(v);
+                                        }
+                                    }
+                                    // else ignore
+                                };
+
+                                auto parse = [state, &processLine]() {
+                                    size_t start = 0;
+                                    for (;;) {
+                                        const size_t i = state->pending_.find_first_of("\r\n", start);
+                                        if (i == std::string::npos) {
+                                            if (start) {
+                                                state->pending_.erase(0, start);
+                                            }
+                                            break;
+                                        }
+                                        const size_t eol =
+                                            (state->pending_[i] == '\r' && i + 1 < state->pending_.size() && state->pending_[i + 1] == '\n')
+                                                ? 2
+                                                : 1;
+                                        const std::string_view line(&state->pending_[start], i - start);
+                                        start = i + eol;
+                                        processLine(line);
+                                    }
+                                };
+
                                 std::size_t consumed = 0;
 
                                 if (!masterRequest.expired()) {
+                                    char buf[16384];
+                                    consumed = masterRequest.lock()->getSocketContext()->readFromPeer(buf, sizeof(buf));
+
+                                    if (consumed > 0) {
+                                        state->pending_.append(buf, consumed);
+                                        parse();
+                                    }
+                                    /*
                                     char message[2048];
                                     consumed = masterRequest.lock()->getSocketContext()->readFromPeer(message, 2047);
                                     message[consumed] = 0;
@@ -153,6 +276,7 @@ namespace web::http::legacy::in {
                                             eventCb("FakeId", "FakeData");
                                         }
                                     }
+                                    */
                                 } else {
                                     LOG(DEBUG) << "Server-sent event: server disconnect";
                                 }
@@ -174,16 +298,16 @@ namespace web::http::legacy::in {
                                     const core::socket::State& state) { // example.com:81 simulate connnect timeout
                     switch (state) {
                         case core::socket::State::OK:
-                            VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                            LOG(DEBUG) << instanceName << ": connected to '" << socketAddress.toString() << "'";
                             break;
                         case core::socket::State::DISABLED:
-                            VLOG(1) << instanceName << ": disabled";
+                            LOG(DEBUG) << instanceName << ": disabled";
                             break;
                         case core::socket::State::ERROR:
-                            VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                            LOG(DEBUG) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                             break;
                         case core::socket::State::FATAL:
-                            VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                            LOG(DEBUG) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                             break;
                     }
                 });
@@ -211,15 +335,15 @@ namespace web::http::legacy::in {
         SocketConnection* socketConnection = nullptr;
         std::shared_ptr<SharedState> state;
 
-        friend inline std::shared_ptr<class EventStream> EventStream(const std::string& url);
+        friend inline std::shared_ptr<class EventStream> EventSource(const std::string& url);
     };
 
-    inline std::shared_ptr<class EventStream> EventStream(const std::string& url) {
-        std::shared_ptr<class EventStream> eventStream = std::shared_ptr<class EventStream>(new class EventStream());
-        eventStream->init(url);
-        return eventStream;
+    inline std::shared_ptr<class EventStream> EventSource(const std::string& url) {
+        std::shared_ptr<class EventStream> eventSource = std::shared_ptr<class EventStream>(new class EventStream());
+        eventSource->init(url);
+        return eventSource;
     }
 
 } // namespace web::http::legacy::in
 
-#endif // WEB_HTTP_LEGACY_IN_EVENTSTREAM_H
+#endif // WEB_HTTP_LEGACY_IN_EVENTSOURCE_H

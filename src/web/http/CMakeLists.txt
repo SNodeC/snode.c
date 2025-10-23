@@ -56,7 +56,7 @@ pkg_check_modules(LIBMAGIC libmagic)
 set(HTTP_CPP
     CiStringMap.cpp
     ContentDecoder.cpp
-    legacy/in/EventStream.cpp
+    legacy/in/EventSource.cpp
     MimeTypes.cpp
     Parser.cpp
     StatusCodes.cpp
@@ -86,7 +86,7 @@ set(HTTP_H
     decoder/HTTP10Response.h
     decoder/Identity.h
     legacy/in/Client.h
-    legacy/in/EventStream.h
+    legacy/in/EventSource.h
     legacy/in/Server.h
     legacy/in6/Client.h
     legacy/in6/Server.h

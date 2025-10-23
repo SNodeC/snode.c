@@ -55,7 +55,7 @@
 
 #include "log/Logger.h"
 #include "web/http/http_utils.h"
-#include "web/http/legacy/in/EventStream.h"
+#include "web/http/legacy/in/EventSource.h"
 
 #if (STREAM_TYPE == TLS) // tls
 #include <cstddef>
@@ -295,45 +295,61 @@ namespace apps::http::legacy {
                 req->set("Accept", "text/event-stream");
                 req->set("Cache-Control", "no-cache");
 
-                auto eventStream = web::http::legacy::in::EventStream("http://localhost:8080/sse");
-                eventStream->onMessage([](const std::string& message) {
-                    VLOG(0) << "############# 1: " << message;
+                auto eventStream_1 = web::http::legacy::in::EventSource("http://localhost:8080/sse");
+
+                eventStream_1->onMessage([](const std::string& message) {
+                    VLOG(0) << "OnMessage 1:1: " << message;
                 });
-                eventStream->addEventListener("event", [](const std::string& id, const std::string& message) {
-                    VLOG(0) << "############# 2: " << id << " : " << message;
+                eventStream_1->onMessage([](const std::string& message) {
+                    VLOG(0) << "OnMessage 1:2: " << message;
+                });
+                eventStream_1->addEventListener("event", [](const std::string& id, const std::string& message) {
+                    VLOG(0) << "EventListener for 'event' 1:1: " << id << " : " << message;
+                });
+                eventStream_1->addEventListener("event", [](const std::string& id, const std::string& message) {
+                    VLOG(0) << "EventListener for 'event' 1:2: " << id << " : " << message;
                 });
 
                 core::timer::Timer::singleshotTimer(
-                    [eventStream]() {
-                        eventStream->close();
+                    [eventStream_1]() {
+                        eventStream_1->close();
                     },
                     5);
 
+                auto eventStream_2 = web::http::legacy::in::EventSource("http://localhost:8080/sse");
+
+                eventStream_2->onMessage([](const std::string& message) {
+                    VLOG(0) << "OnMessage 2:1: " << message;
+                });
+                eventStream_2->onMessage([](const std::string& message) {
+                    VLOG(0) << "OnMessage 2:2: " << message;
+                });
+                eventStream_2->addEventListener("event", [](const std::string& id, const std::string& message) {
+                    VLOG(0) << "EventListener for 'event' 2:1: " << id << " : " << message;
+                });
+                eventStream_2->addEventListener("event", [](const std::string& id, const std::string& message) {
+                    VLOG(0) << "EventListener for 'event' 2:2: " << id << " : " << message;
+                });
             /*
-                            req->requestSse("/sse",
-                                            [request = std::weak_ptr<MasterRequest>(req)](
-                                                const std::string& event, const std::string& id, const std::string& data) -> std::size_t {
-                                                std::size_t consumed = 0;
+                req->requestEventStream("/sse", [request = std::weak_ptr<MasterRequest>(req)]() -> std::size_t {
+                    std::size_t consumed = 0;
 
-                                                if (!request.expired()) {
-                                                    VLOG(0) << "Event: " << event;
-                                                    VLOG(0) << "Id: " << id;
-                                                    VLOG(0) << "Data: " << data;
+                    if (!request.expired()) {
+                        char message[2048];
+                        consumed = request.lock()->getSocketContext()->readFromPeer(message, 2047);
+                        message[consumed] = 0;
 
-                                                    char message[2048];
-                                                    consumed = request.lock()->getSocketContext()->readFromPeer(message, 2047);
-                                                    message[consumed] = 0;
+                        std::cout << "Message: " << message;
+                    } else {
+                        if (!request.expired()) {
+                            logResponse(request.lock(), std::shared_ptr<web::http::client::Response>());
+                        }
+                    }
 
-                                                    std::cout << "Message: " << message;
-                                                } else {
-                                                    if (!request.expired()) {
-                                                        logResponse(request.lock(), std::shared_ptr<web::http::client::Response>());
-                                                    }
-                                                }
-
-                                                return consumed;
-                                            });
+                    return consumed;
+                });
             */
+
             /*
             req->httpMinor = 1;
             req->method = "GET";

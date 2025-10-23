@@ -39,7 +39,7 @@
  * THE SOFTWARE.
  */
 
-#include "web/http/legacy/in/EventStream.h"
+#include "web/http/legacy/in/EventSource.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
