@@ -92,8 +92,8 @@ namespace web::http::legacy::in {
         struct SharedState {
             std::list<EventFn> onMessageListener;
             std::map<std::string, std::list<EventFn>> onEventListener;
-            std::function<void()> onOpen;
-            std::function<void()> onError;
+            std::list<std::function<void()>> onOpenListener;
+            std::list<std::function<void()>> onErrorListener;
 
             std::string pending;
             std::string data;
@@ -298,8 +298,8 @@ namespace web::http::legacy::in {
                         }
 
                         if (state->config->getReconnect()) {
-                            if (state->onError) {
-                                state->onError();
+                            for (const auto& onError : state->onErrorListener) {
+                                onError();
                             }
                             state->ready = ReadyState::CONNECTING;
                         } else {
@@ -336,8 +336,8 @@ namespace web::http::legacy::in {
 
                                 state->ready = ReadyState::OPEN;
 
-                                if (state->onOpen) {
-                                    state->onOpen();
+                                for (const auto& onOpen : state->onOpenListener) {
+                                    onOpen();
                                 }
 
                                 state->config->setReconnectTime(state->retry);
@@ -407,14 +407,14 @@ namespace web::http::legacy::in {
             }
         }
 
-        EventSource* onOpen(std::function<void()> h) {
-            state->onOpen = std::move(h);
+        EventSource* onOpen(std::function<void()> onOpen) {
+            state->onOpenListener.push_back(std::move(onOpen));
 
             return this;
         }
 
-        EventSource* onError(std::function<void()> h) {
-            state->onError = std::move(h);
+        EventSource* onError(std::function<void()> onError) {
+            state->onErrorListener.push_back(std::move(onError));
 
             return this;
         }
