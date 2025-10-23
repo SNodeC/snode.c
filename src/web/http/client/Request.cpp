@@ -403,11 +403,6 @@ namespace web::http::client {
                     if (request != nullptr) {
                         const std::string connectionName = request->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                        VLOG(0) << "Request method 3: " << request->method;
-                        for (const auto& header : request->getHeaders()) {
-                            VLOG(0) << "  Header: " << header.first << " : " << header.second;
-                        }
-
                         LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " "
                                    << request->url << " "
                                    << "HTTP/" << request->httpMajor << "." << request->httpMinor << "\n"
