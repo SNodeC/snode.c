@@ -64,14 +64,14 @@ set(HTTPCLIENT_H
     SocketContextFactory.h
     SocketContextUpgradeFactory.h
     SocketContextUpgradeFactorySelector.h
+    tools/EventSource.h
 )
 
 append_source_file_config(
     ConfigHTTP.cpp HTTP_REQUEST_PIPELINED "HTTP pipelined requests" true
 )
 
-add_library(http-client SHARED ${HTTPCLIENT_CPP} ${HTTPCLIENT_H}
-)
+add_library(http-client SHARED ${HTTPCLIENT_CPP} ${HTTPCLIENT_H})
 add_library(snodec::http-client ALIAS http-client)
 
 set_source_files_properties(
