@@ -201,8 +201,12 @@ namespace core::socket::stream {
                                  tries,
                                  retryTimeoutScale,
                                  socketContextFactory]() mutable {
-                                    SocketServer(config, socketContextFactory, onConnect, onConnected, onDisconnect)
-                                        .realListen(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
+                                    if (config->getRetry()) {
+                                        SocketServer(config, socketContextFactory, onConnect, onConnected, onDisconnect)
+                                            .realListen(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
+                                    } else {
+                                        LOG(INFO) << config->getInstanceName() << ": Retry disabled during wait";
+                                    }
                                 },
                                 relativeRetryTimeout);
                         }
