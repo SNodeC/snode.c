@@ -180,45 +180,45 @@ namespace web::http::legacy::in {
                     },
                     [url = match[5].matched ? match[5].str() : "/",
                      state = this->state](const std::shared_ptr<MasterRequest>& masterRequest) {
-                        LOG(DEBUG) << masterRequest->getSocketContext()->getSocketConnection()->getConnectionName()
-                                   << " EventSource: OnRequestStart";
+                        const std::string connectionName = masterRequest->getSocketContext()->getSocketConnection()->getConnectionName();
+
+                        LOG(DEBUG) << connectionName << " EventSource: OnRequestStart";
 
                         masterRequest->requestEventSource(
                             url,
-                            [masterRequest = std::weak_ptr<MasterRequest>(masterRequest), state]() -> std::size_t {
-                                auto digits = [](std::string_view s) -> bool {
-                                    for (const char c : s) {
-                                        if (!std::isdigit(c)) {
+                            [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), state, connectionName]() -> std::size_t {
+                                auto digits = [](std::string_view maybeDigitsAsString) -> bool {
+                                    for (const char maybeDigit : maybeDigitsAsString) {
+                                        if (!std::isdigit(maybeDigit)) {
                                             return false;
                                         }
                                     }
 
-                                    return !s.empty();
+                                    return !maybeDigitsAsString.empty();
                                 };
 
-                                auto parseU32 = [](std::string_view s) -> uint32_t {
-                                    uint64_t v = 0;
+                                auto parseU32 = [](std::string_view uint32AsString) -> uint32_t {
+                                    uint64_t uint32AsUint64 = 0;
 
-                                    for (const char c : s) {
-                                        v = v * 10 + (static_cast<unsigned char>(c) - '0');
-                                        if (v > 0xFFFFFFFFULL) {
+                                    for (const char digit : uint32AsString) {
+                                        uint32AsUint64 = uint32AsUint64 * 10 + (static_cast<unsigned char>(digit) - '0');
+                                        if (uint32AsUint64 > 0xFFFFFFFFULL) {
                                             return 0xFFFFFFFFU;
                                         }
                                     }
 
-                                    return static_cast<uint32_t>(v);
+                                    return static_cast<uint32_t>(uint32AsUint64);
                                 };
 
                                 auto deliverMessage =
                                     [state](const std::string& evType, const std::string& payload, const std::string& evId) {
-                                        // 1) typed listeners (EventTarget semantics)
                                         if (auto it = state->onEventListener.find(evType); it != state->onEventListener.end()) {
                                             const MessageEvent e{evType, payload, evId, state->origin};
                                             for (const auto& onEventListener : it->second) {
                                                 onEventListener(e);
                                             }
                                         }
-                                        // 2) onmessage for default type
+
                                         if (evType == "message") {
                                             const MessageEvent e{evType, payload, evId, state->origin};
 
@@ -254,31 +254,31 @@ namespace web::http::legacy::in {
                                         return;
                                     }
 
-                                    std::string_view f;
-                                    std::string_view v;
+                                    std::string_view field;
+                                    std::string_view value;
 
                                     if (auto p = line.find(':'); p != std::string_view::npos) {
-                                        f = line.substr(0, p);
-                                        v = line.substr(p + 1);
-                                        if (!v.empty() && v.front() == ' ') {
-                                            v.remove_prefix(1);
+                                        field = line.substr(0, p);
+                                        value = line.substr(p + 1);
+                                        if (!value.empty() && value.front() == ' ') {
+                                            value.remove_prefix(1);
                                         }
                                     } else {
-                                        f = line;
+                                        field = line;
                                     }
 
-                                    if (f == "data") {
-                                        state->data.append(v);
+                                    if (field == "data") {
+                                        state->data.append(value);
                                         state->data.push_back('\n');
-                                    } else if (f == "event") {
-                                        state->type = v;
-                                    } else if (f == "id") {
-                                        if (v.find('\0') == std::string_view::npos) {
-                                            state->idBuf = v;
+                                    } else if (field == "event") {
+                                        state->type = value;
+                                    } else if (field == "id") {
+                                        if (value.find('\0') == std::string_view::npos) {
+                                            state->idBuf = value;
                                         }
-                                    } else if (f == "retry") {
-                                        if (digits(v)) {
-                                            uint32_t const retry = parseU32(v);
+                                    } else if (field == "retry") {
+                                        if (digits(value)) {
+                                            uint32_t const retry = parseU32(value);
 
                                             state->retry = retry;
                                             state->config->setReconnectTime(retry);
@@ -319,34 +319,34 @@ namespace web::http::legacy::in {
 
                                 std::size_t consumed = 0;
 
-                                if (!masterRequest.expired()) {
+                                if (const std::shared_ptr<MasterRequest> masterRequest = masterRequestWeak.lock()) {
                                     char buf[16384];
-                                    consumed = masterRequest.lock()->getSocketContext()->readFromPeer(buf, sizeof(buf));
+                                    consumed = masterRequest->getSocketContext()->readFromPeer(buf, sizeof(buf));
 
                                     if (consumed > 0) {
                                         state->pending.append(buf, consumed);
                                         parse();
                                     }
                                 } else {
-                                    LOG(DEBUG) << "Server-sent event: server disconnect";
+                                    LOG(DEBUG) << connectionName << ": server-sent event: server disconnect";
                                 }
 
                                 return consumed;
                             },
-                            [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), state]() {
-                                if (const std::shared_ptr<MasterRequest> masterRequest = masterRequestWeak.lock()) {
-                                    LOG(DEBUG) << masterRequest->getSocketContext()->getSocketConnection()->getConnectionName()
-                                               << ": server-sent event stream start";
+                            [state, connectionName]() {
+                                LOG(DEBUG) << connectionName << ": server-sent event stream start";
+
+                                state->ready = ReadyState::OPEN;
+
+                                if (state->onOpen) {
+                                    state->onOpen();
                                 }
-                                state->onOpen();
 
                                 state->config->setReconnectTime(state->retry);
                                 state->config->setRetryTimeout(state->retry);
-
-                                state->ready = ReadyState::OPEN;
                             },
-                            [state]() {
-                                LOG(DEBUG) << "Not an server-sent event endpoint: " << state->origin + state->path;
+                            [state, connectionName]() {
+                                LOG(DEBUG) << connectionName << ": not an server-sent event endpoint: " << state->origin + state->path;
                             });
                     },
                     [](const std::shared_ptr<Request>& req) {
