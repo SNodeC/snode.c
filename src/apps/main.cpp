@@ -159,8 +159,9 @@ int main(int argc, char* argv[]) {
             core::timer::Timer::intervalTimer(
                 [res, id = 0](auto& stop) mutable {
                     if (res->isConnected()) {
-                        res->sendFragment("event: myevent");
+                        res->sendFragment("event: message");
                         res->sendFragment("id: 23");
+                        res->sendFragment("retry: 1");
                         res->sendFragment("data: Message " + std::to_string(id) + "\r\n");
                     } else {
                         stop();
