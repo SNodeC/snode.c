@@ -78,6 +78,14 @@ namespace web::http::legacy::in {
     };
 
     class EventSource : public std::enable_shared_from_this<EventSource> {
+    public:
+        EventSource(const EventSource&) = delete;
+        EventSource& operator=(const EventSource&) = delete;
+        EventSource(EventSource&&) noexcept = delete;
+        EventSource& operator=(EventSource&&) noexcept = delete;
+
+        ~EventSource() = default;
+
     private:
         using EventFn = std::function<void(const MessageEvent&)>;
 
@@ -103,15 +111,135 @@ namespace web::http::legacy::in {
             Client::Config* config;
         };
 
-    public:
-        EventSource(const EventSource&) = delete;
-        EventSource& operator=(const EventSource&) = delete;
-        EventSource(EventSource&&) noexcept = delete;
-        EventSource& operator=(EventSource&&) noexcept = delete;
+        static bool digits(std::string_view maybeDigitsAsString) {
+            for (const char maybeDigit : maybeDigitsAsString) {
+                if (std::isdigit(maybeDigit) == 0) {
+                    return false;
+                }
+            }
 
-        ~EventSource() = default;
+            return !maybeDigitsAsString.empty();
+        }
 
-    private:
+        static uint32_t parseU32(std::string_view uint32AsString) {
+            uint64_t uint32AsUint64 = 0;
+
+            for (const char digit : uint32AsString) {
+                uint32AsUint64 = uint32AsUint64 * 10 + (static_cast<unsigned char>(digit) - '0');
+                if (uint32AsUint64 > 0xFFFFFFFFULL) {
+                    return 0xFFFFFFFFU;
+                }
+            }
+
+            return static_cast<uint32_t>(uint32AsUint64);
+        }
+
+        static void deliverMessage(const std::shared_ptr<SharedState>& state,
+                                   const std::string& evType,
+                                   const std::string& payload,
+                                   const std::string& evId) {
+            if (auto it = state->onEventListener.find(evType); it != state->onEventListener.end()) {
+                const MessageEvent e{evType, payload, evId, state->origin};
+                for (const auto& onEventListener : it->second) {
+                    onEventListener(e);
+                }
+            }
+
+            if (evType == "message") {
+                const MessageEvent e{evType, payload, evId, state->origin};
+
+                for (const auto& onMessageListener : state->onMessageListener) {
+                    onMessageListener(e);
+                }
+            }
+        }
+
+        static void dispatch(const std::shared_ptr<SharedState>& state) {
+            state->lastId = state->idBuf;
+            if (state->data.empty()) {
+                state->type.clear();
+                return;
+            }
+            if (!state->data.empty() && state->data.back() == '\n') {
+                state->data.pop_back();
+            }
+
+            const std::string evType = state->type.empty() ? "message" : std::exchange(state->type, std::string{});
+            const std::string payload = std::exchange(state->data, std::string{});
+            const std::string evId = state->lastId;
+
+            deliverMessage(state, evType, payload, evId);
+        }
+
+        static void processLine(const std::shared_ptr<SharedState>& state, std::string_view line) {
+            if (line.empty()) {
+                dispatch(state);
+                return;
+            }
+            if (line.front() == ':') {
+                return;
+            }
+
+            std::string_view field;
+            std::string_view value;
+
+            if (auto p = line.find(':'); p != std::string_view::npos) {
+                field = line.substr(0, p);
+                value = line.substr(p + 1);
+                if (!value.empty() && value.front() == ' ') {
+                    value.remove_prefix(1);
+                }
+            } else {
+                field = line;
+            }
+
+            if (field == "data") {
+                state->data.append(value);
+                state->data.push_back('\n');
+            } else if (field == "event") {
+                state->type = value;
+            } else if (field == "id") {
+                if (value.find('\0') == std::string_view::npos) {
+                    state->idBuf = value;
+                }
+            } else if (field == "retry") {
+                if (digits(value)) {
+                    uint32_t const retry = parseU32(value);
+
+                    state->retry = retry;
+                    state->config->setReconnectTime(retry);
+                    state->config->setRetryTimeout(retry);
+                }
+            }
+            // else ignore
+        }
+
+        static void parse(const std::shared_ptr<SharedState>& state) {
+            size_t start = 0;
+            for (;;) {
+                const size_t i = state->pending.find_first_of("\r\n", start);
+                if (i == std::string::npos) {
+                    if (start != 0U) {
+                        state->pending.erase(0, start);
+                    }
+                    break;
+                }
+
+                if (state->pending[i] == '\r' && i + 1 >= state->pending.size()) {
+                    if (start != 0U) {
+                        state->pending.erase(0, start);
+                    }
+                    break;
+                }
+
+                const size_t eol = (state->pending[i] == '\r' && i + 1 < state->pending.size() && state->pending[i + 1] == '\n') ? 2 : 1;
+
+                const std::string_view line(&state->pending[start], i - start);
+                start = i + eol;
+                processLine(state, line);
+            }
+        }
+
         EventSource()
             : state(std::make_shared<SharedState>()) {
         }
@@ -187,136 +315,6 @@ namespace web::http::legacy::in {
                         masterRequest->requestEventSource(
                             url,
                             [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), state, connectionName]() -> std::size_t {
-                                auto digits = [](std::string_view maybeDigitsAsString) -> bool {
-                                    for (const char maybeDigit : maybeDigitsAsString) {
-                                        if (!std::isdigit(maybeDigit)) {
-                                            return false;
-                                        }
-                                    }
-
-                                    return !maybeDigitsAsString.empty();
-                                };
-
-                                auto parseU32 = [](std::string_view uint32AsString) -> uint32_t {
-                                    uint64_t uint32AsUint64 = 0;
-
-                                    for (const char digit : uint32AsString) {
-                                        uint32AsUint64 = uint32AsUint64 * 10 + (static_cast<unsigned char>(digit) - '0');
-                                        if (uint32AsUint64 > 0xFFFFFFFFULL) {
-                                            return 0xFFFFFFFFU;
-                                        }
-                                    }
-
-                                    return static_cast<uint32_t>(uint32AsUint64);
-                                };
-
-                                auto deliverMessage =
-                                    [state](const std::string& evType, const std::string& payload, const std::string& evId) {
-                                        if (auto it = state->onEventListener.find(evType); it != state->onEventListener.end()) {
-                                            const MessageEvent e{evType, payload, evId, state->origin};
-                                            for (const auto& onEventListener : it->second) {
-                                                onEventListener(e);
-                                            }
-                                        }
-
-                                        if (evType == "message") {
-                                            const MessageEvent e{evType, payload, evId, state->origin};
-
-                                            for (const auto& onMessageListener : state->onMessageListener) {
-                                                onMessageListener(e);
-                                            }
-                                        }
-                                    };
-
-                                auto dispatch = [state, &deliverMessage]() mutable {
-                                    state->lastId = state->idBuf;
-                                    if (state->data.empty()) {
-                                        state->type.clear();
-                                        return;
-                                    }
-                                    if (!state->data.empty() && state->data.back() == '\n') {
-                                        state->data.pop_back();
-                                    }
-
-                                    const std::string evType = state->type.empty() ? "message" : std::exchange(state->type, std::string{});
-                                    const std::string payload = std::exchange(state->data, std::string{});
-                                    const std::string evId = state->lastId;
-
-                                    deliverMessage(evType, payload, evId);
-                                };
-
-                                auto processLine = [state, &digits, &parseU32, &dispatch](std::string_view line) {
-                                    if (line.empty()) {
-                                        dispatch();
-                                        return;
-                                    }
-                                    if (line.front() == ':') {
-                                        return;
-                                    }
-
-                                    std::string_view field;
-                                    std::string_view value;
-
-                                    if (auto p = line.find(':'); p != std::string_view::npos) {
-                                        field = line.substr(0, p);
-                                        value = line.substr(p + 1);
-                                        if (!value.empty() && value.front() == ' ') {
-                                            value.remove_prefix(1);
-                                        }
-                                    } else {
-                                        field = line;
-                                    }
-
-                                    if (field == "data") {
-                                        state->data.append(value);
-                                        state->data.push_back('\n');
-                                    } else if (field == "event") {
-                                        state->type = value;
-                                    } else if (field == "id") {
-                                        if (value.find('\0') == std::string_view::npos) {
-                                            state->idBuf = value;
-                                        }
-                                    } else if (field == "retry") {
-                                        if (digits(value)) {
-                                            uint32_t const retry = parseU32(value);
-
-                                            state->retry = retry;
-                                            state->config->setReconnectTime(retry);
-                                            state->config->setRetryTimeout(retry);
-                                        }
-                                    }
-                                    // else ignore
-                                };
-
-                                auto parse = [state, &processLine]() {
-                                    size_t start = 0;
-                                    for (;;) {
-                                        const size_t i = state->pending.find_first_of("\r\n", start);
-                                        if (i == std::string::npos) {
-                                            if (start) {
-                                                state->pending.erase(0, start);
-                                            }
-                                            break;
-                                        }
-
-                                        if (state->pending[i] == '\r' && i + 1 >= state->pending.size()) {
-                                            if (start) {
-                                                state->pending.erase(0, start);
-                                            }
-                                            break;
-                                        }
-
-                                        const size_t eol =
-                                            (state->pending[i] == '\r' && i + 1 < state->pending.size() && state->pending[i + 1] == '\n')
-                                                ? 2
-                                                : 1;
-
-                                        const std::string_view line(&state->pending[start], i - start);
-                                        start = i + eol;
-                                        processLine(line);
-                                    }
-                                };
-
                                 std::size_t consumed = 0;
 
                                 if (const std::shared_ptr<MasterRequest> masterRequest = masterRequestWeak.lock()) {
@@ -325,7 +323,7 @@ namespace web::http::legacy::in {
 
                                     if (consumed > 0) {
                                         state->pending.append(buf, consumed);
-                                        parse();
+                                        parse(state);
                                     }
                                 } else {
                                     LOG(DEBUG) << connectionName << ": server-sent event: server disconnect";
