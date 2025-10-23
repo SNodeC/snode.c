@@ -432,7 +432,10 @@ namespace web::http::client {
         return !masterRequest.expired();
     }
 
-    bool MasterRequest::requestEventStream(const std::string& url, const std::function<std::size_t()>& onServerSentEvent) {
+    bool MasterRequest::requestEventSource(const std::string& url,
+                                           const std::function<std::size_t()>& onServerSentEvent,
+                                           const std::function<void()>& onOpen,
+                                           const std::function<void()>& onError) {
         if (!masterRequest.expired()) {
             const std::shared_ptr<MasterRequest> newRequest = std::make_shared<MasterRequest>(std::move(*this));
 
@@ -446,14 +449,18 @@ namespace web::http::client {
 
             newRequest->sendHeader();
             newRequest->requestCommands.push_back(new commands::SseCommand(
-                [masterRequest = this->masterRequest, onServerSentEvent](const std::shared_ptr<Request>& request,
-                                                                         const std::shared_ptr<Response>& response) {
+                [masterRequest = this->masterRequest, onServerSentEvent, onOpen, onError](const std::shared_ptr<Request>& request,
+                                                                                          const std::shared_ptr<Response>& response) {
                     if (!masterRequest.expired()) {
                         if (web::http::ciContains(response->headers["Content-Type"], "text/event-stream") &&
                             web::http::ciContains(request->header("Accept"), "text/event-stream")) {
                             masterRequest.lock()->getSocketContext()->setSseEventReceiver(onServerSentEvent);
+
+                            const std::string connectionName = request->getSocketContext()->getSocketConnection()->getConnectionName();
+                            onOpen();
                         } else {
                             masterRequest.lock()->getSocketContext()->shutdownWrite(true);
+                            onError();
                         }
                     }
                 },

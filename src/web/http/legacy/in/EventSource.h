@@ -51,7 +51,6 @@
 #include <cctype>
 #include <cstddef>
 #include <list>
-#include <optional>
 #include <regex>
 #include <string>
 #include <string_view>
@@ -67,33 +66,53 @@ namespace web::http::legacy::in {
     using Response = Client::Response;
     using SocketConnection = Client::SocketConnection;
 
-    class EventStream : public std::enable_shared_from_this<EventStream> {
+    // JS-like readyState
+    enum class ReadyState : int { CONNECTING = 0, OPEN = 1, CLOSED = 2 };
+
+    // JS-like MessageEvent (simplified)
+    struct MessageEvent {
+        std::string type;        // "message" or custom from "event:"
+        std::string data;        // joined data (LF between lines, trailing LF removed)
+        std::string lastEventId; // from "id:"
+        std::string origin;      // scheme://host[:port]
+    };
+
+    class EventSource : public std::enable_shared_from_this<EventSource> {
     private:
-        using DataFn = std::function<void(const std::string& data)>;
-        using EventFn = std::function<void(const std::string& id, const std::string& data)>;
+        using EventFn = std::function<void(const MessageEvent&)>;
 
         struct SharedState {
-            std::list<DataFn> dataCbList;
-            std::map<std::string, std::list<EventFn>> eventCbMap;
+            std::list<EventFn> onMessageListener;
+            std::map<std::string, std::list<EventFn>> onEventListener;
+            std::function<void()> onOpen;
+            std::function<void()> onError;
 
-            std::string pending_;
-            std::string data_;
-            std::string type_;
-            std::string idBuf_;
-            std::string lastId_;
-            std::optional<uint32_t> retry_;
+            std::string pending;
+            std::string data;
+            std::string type;
+            std::string idBuf;
+            std::string lastId;
+            uint32_t retry = 3;
+
+            ReadyState ready = ReadyState::CONNECTING;
+            std::string scheme; // "http" or "https"
+            std::string host;   // example.com
+            uint16_t port = 80;
+            std::string origin; // scheme://host[:port]
+            std::string path;
+            Client::Config* config;
         };
 
     public:
-        EventStream(const EventStream&) = delete;
-        EventStream& operator=(const EventStream&) = delete;
-        EventStream(EventStream&&) noexcept = delete;
-        EventStream& operator=(EventStream&&) noexcept = delete;
+        EventSource(const EventSource&) = delete;
+        EventSource& operator=(const EventSource&) = delete;
+        EventSource(EventSource&&) noexcept = delete;
+        EventSource& operator=(EventSource&&) noexcept = delete;
 
-        ~EventStream() = default;
+        ~EventSource() = default;
 
     private:
-        EventStream()
+        EventSource()
             : state(std::make_shared<SharedState>()) {
         }
 
@@ -102,48 +121,71 @@ namespace web::http::legacy::in {
 
             std::smatch match;
             if (std::regex_match(url, match, re)) {
-                LOG(TRACE) << "Full protocol: " << match[1];
-                LOG(TRACE) << "     protocol: " << match[2];
-                LOG(TRACE) << "         Host: " << match[3];
-                LOG(TRACE) << "         Port: " << (match[4].matched ? match[4].str() : "80");
-                LOG(TRACE) << "         Path: " << (match[5].matched ? match[5].str() : "/");
+                // capture URL parts for origin/ports
+                state->scheme = (match[2].matched ? match[2].str() : "http");
+                state->host = match[3].str();
+                const bool isHttps = (state->scheme == "https");
+                state->port =
+                    match[4].matched ? static_cast<uint16_t>(std::stoi(match[4].str())) : static_cast<uint16_t>(isHttps ? 443 : 80);
+                state->origin =
+                    state->scheme + std::string("://") + state->host +
+                    (((isHttps && state->port == 443) || (!isHttps && state->port == 80)) ? "" : (":" + std::to_string(state->port)));
 
-                const std::weak_ptr<EventStream> eventStreamWeak = weak_from_this();
+                state->path = (match[5].matched ? match[5].str() : "/");
+
+                LOG(TRACE) << "Full protocol: " << match[1];
+                LOG(TRACE) << "     protocol: " << state->scheme;
+                LOG(TRACE) << "         Host: " << state->host;
+                LOG(TRACE) << "         Port: " << state->port;
+                LOG(TRACE) << "         Path: " << state->path;
+                LOG(TRACE) << "       Origin: " << state->origin;
+
+                const std::weak_ptr<EventSource> eventStreamWeak = weak_from_this();
 
                 client = std::make_shared<Client>(
                     [eventStreamWeak](SocketConnection* socketConnection) {
-                        LOG(DEBUG) << socketConnection->getConnectionName() << " EventStream: OnConnect";
+                        LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnConnect";
 
                         LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
                         LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
-                        if (const std::shared_ptr<EventStream> eventStream = eventStreamWeak.lock()) {
+                        if (const std::shared_ptr<EventSource> eventStream = eventStreamWeak.lock()) {
                             eventStream->socketConnection = socketConnection;
                         }
                     },
-                    [](SocketConnection* socketConnection) {
-                        LOG(DEBUG) << socketConnection->getConnectionName() << " EventStream: OnConnected";
+                    [state = this->state](SocketConnection* socketConnection) {
+                        LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnConnected";
 
                         LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
                         LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                     },
-                    [eventStreamWeak](SocketConnection* socketConnection) {
-                        LOG(DEBUG) << socketConnection->getConnectionName() << " EventStream: OnDisconnect";
+                    [eventStreamWeak, state = this->state](SocketConnection* socketConnection) {
+                        LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnDisconnect";
 
                         LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
                         LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
-                        if (const std::shared_ptr<EventStream> eventStream = eventStreamWeak.lock()) {
+                        if (const std::shared_ptr<EventSource> eventStream = eventStreamWeak.lock()) {
                             eventStream->socketConnection = nullptr;
+                        }
+
+                        if (state->config->getReconnect()) {
+                            if (state->onError) {
+                                state->onError();
+                            }
+                            state->ready = ReadyState::CONNECTING;
+                        } else {
+                            state->ready = ReadyState::CLOSED;
                         }
                     },
                     [url = match[5].matched ? match[5].str() : "/",
                      state = this->state](const std::shared_ptr<MasterRequest>& masterRequest) {
                         LOG(DEBUG) << masterRequest->getSocketContext()->getSocketConnection()->getConnectionName()
-                                   << " EventStream: OnRequestStart";
+                                   << " EventSource: OnRequestStart";
 
-                        masterRequest->requestEventStream(
-                            url, [masterRequest = std::weak_ptr<MasterRequest>(masterRequest), state]() -> std::size_t {
+                        masterRequest->requestEventSource(
+                            url,
+                            [masterRequest = std::weak_ptr<MasterRequest>(masterRequest), state]() -> std::size_t {
                                 auto digits = [](std::string_view s) -> bool {
                                     for (const char c : s) {
                                         if (!std::isdigit(c)) {
@@ -167,26 +209,40 @@ namespace web::http::legacy::in {
                                     return static_cast<uint32_t>(v);
                                 };
 
-                                auto dispatch = [state]() mutable {
-                                    state->lastId_ = state->idBuf_;
-                                    if (state->data_.empty()) {
-                                        state->type_.clear();
+                                auto deliverMessage =
+                                    [state](const std::string& evType, const std::string& payload, const std::string& evId) {
+                                        // 1) typed listeners (EventTarget semantics)
+                                        if (auto it = state->onEventListener.find(evType); it != state->onEventListener.end()) {
+                                            const MessageEvent e{evType, payload, evId, state->origin};
+                                            for (const auto& onEventListener : it->second) {
+                                                onEventListener(e);
+                                            }
+                                        }
+                                        // 2) onmessage for default type
+                                        if (evType == "message") {
+                                            const MessageEvent e{evType, payload, evId, state->origin};
+
+                                            for (const auto& onMessageListener : state->onMessageListener) {
+                                                onMessageListener(e);
+                                            }
+                                        }
+                                    };
+
+                                auto dispatch = [state, &deliverMessage]() mutable {
+                                    state->lastId = state->idBuf;
+                                    if (state->data.empty()) {
+                                        state->type.clear();
                                         return;
                                     }
-                                    if (!state->data_.empty() && state->data_.back() == '\n') {
-                                        state->data_.pop_back();
+                                    if (!state->data.empty() && state->data.back() == '\n') {
+                                        state->data.pop_back();
                                     }
-                                    /*
-                                    if (cb_)
-                                        cb_({type_.empty() ? "message" : type_, std::move(data_), lastId_});
-                                    */
 
-                                    VLOG(0) << "Message type: " << (state->type_.empty() ? "message" : state->type_);
-                                    VLOG(0) << "Data: " << state->data_;
-                                    VLOG(0) << "LastId: " << state->lastId_;
+                                    const std::string evType = state->type.empty() ? "message" : std::exchange(state->type, std::string{});
+                                    const std::string payload = std::exchange(state->data, std::string{});
+                                    const std::string evId = state->lastId;
 
-                                    state->type_.clear();
-                                    state->data_.clear();
+                                    deliverMessage(evType, payload, evId);
                                 };
 
                                 auto processLine = [state, &digits, &parseU32, &dispatch](std::string_view line) {
@@ -212,17 +268,21 @@ namespace web::http::legacy::in {
                                     }
 
                                     if (f == "data") {
-                                        state->data_.append(v);
-                                        state->data_.push_back('\n');
+                                        state->data.append(v);
+                                        state->data.push_back('\n');
                                     } else if (f == "event") {
-                                        state->type_ = v;
+                                        state->type = v;
                                     } else if (f == "id") {
                                         if (v.find('\0') == std::string_view::npos) {
-                                            state->idBuf_ = v;
+                                            state->idBuf = v;
                                         }
                                     } else if (f == "retry") {
                                         if (digits(v)) {
-                                            state->retry_ = parseU32(v);
+                                            uint32_t const retry = parseU32(v);
+
+                                            state->retry = retry;
+                                            state->config->setReconnectTime(retry);
+                                            state->config->setRetryTimeout(retry);
                                         }
                                     }
                                     // else ignore
@@ -231,18 +291,27 @@ namespace web::http::legacy::in {
                                 auto parse = [state, &processLine]() {
                                     size_t start = 0;
                                     for (;;) {
-                                        const size_t i = state->pending_.find_first_of("\r\n", start);
+                                        const size_t i = state->pending.find_first_of("\r\n", start);
                                         if (i == std::string::npos) {
                                             if (start) {
-                                                state->pending_.erase(0, start);
+                                                state->pending.erase(0, start);
                                             }
                                             break;
                                         }
+
+                                        if (state->pending[i] == '\r' && i + 1 >= state->pending.size()) {
+                                            if (start) {
+                                                state->pending.erase(0, start);
+                                            }
+                                            break;
+                                        }
+
                                         const size_t eol =
-                                            (state->pending_[i] == '\r' && i + 1 < state->pending_.size() && state->pending_[i + 1] == '\n')
+                                            (state->pending[i] == '\r' && i + 1 < state->pending.size() && state->pending[i + 1] == '\n')
                                                 ? 2
                                                 : 1;
-                                        const std::string_view line(&state->pending_[start], i - start);
+
+                                        const std::string_view line(&state->pending[start], i - start);
                                         start = i + eol;
                                         processLine(line);
                                     }
@@ -255,43 +324,42 @@ namespace web::http::legacy::in {
                                     consumed = masterRequest.lock()->getSocketContext()->readFromPeer(buf, sizeof(buf));
 
                                     if (consumed > 0) {
-                                        state->pending_.append(buf, consumed);
+                                        state->pending.append(buf, consumed);
                                         parse();
                                     }
-                                    /*
-                                    char message[2048];
-                                    consumed = masterRequest.lock()->getSocketContext()->readFromPeer(message, 2047);
-                                    message[consumed] = 0;
-
-                                    LOG(DEBUG) << "Message: " << message;
-
-                                    for (const DataFn& dataCb : state->dataCbList) {
-                                        dataCb(message);
-                                    }
-
-                                    const std::string event = "event";
-
-                                    if (const auto it = state->eventCbMap.find(event); it != state->eventCbMap.end()) {
-                                        for (const EventFn& eventCb : it->second) {
-                                            eventCb("FakeId", "FakeData");
-                                        }
-                                    }
-                                    */
                                 } else {
                                     LOG(DEBUG) << "Server-sent event: server disconnect";
                                 }
 
                                 return consumed;
+                            },
+                            [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), state]() {
+                                if (const std::shared_ptr<MasterRequest> masterRequest = masterRequestWeak.lock()) {
+                                    LOG(DEBUG) << masterRequest->getSocketContext()->getSocketConnection()->getConnectionName()
+                                               << ": server-sent event stream start";
+                                }
+                                state->onOpen();
+
+                                state->config->setReconnectTime(state->retry);
+                                state->config->setRetryTimeout(state->retry);
+
+                                state->ready = ReadyState::OPEN;
+                            },
+                            [state]() {
+                                LOG(DEBUG) << "Not an server-sent event endpoint: " << state->origin + state->path;
                             });
                     },
                     [](const std::shared_ptr<Request>& req) {
-                        LOG(DEBUG) << req->getSocketContext()->getSocketConnection()->getConnectionName() << " EventStream: OnRequestEnd";
+                        LOG(DEBUG) << req->getSocketContext()->getSocketConnection()->getConnectionName() << " EventSource: OnRequestEnd";
                     });
 
-                client->getConfig().Remote::setHost(match[3].str());
-                client->getConfig().Remote::setPort(match[4].matched ? static_cast<uint16_t>(std::stoi(match[4].str())) : 80);
+                client->getConfig().Remote::setHost(state->host);
+                client->getConfig().Remote::setPort(state->port);
                 client->getConfig().setReconnect();
                 client->getConfig().setRetry();
+                client->getConfig().setRetryBase(1);
+
+                state->config = &client->getConfig();
 
                 client->connect([instanceName = client->getConfig().getInstanceName()](
                                     const core::socket::SocketAddress& socketAddress,
@@ -315,12 +383,22 @@ namespace web::http::legacy::in {
         }
 
     public:
-        void onMessage(DataFn fn) {
-            state->dataCbList.push_back(std::move(fn));
+        EventSource* onMessage(EventFn fn) {
+            state->onMessageListener.push_back(std::move(fn));
+
+            return this;
         }
 
-        void addEventListener(const std::string& key, EventFn fn) {
-            state->eventCbMap[key].push_back(std::move(fn));
+        EventSource* addEventListener(const std::string& key, EventFn fn) {
+            state->onEventListener[key].push_back(std::move(fn));
+
+            return this;
+        }
+
+        EventSource* removeEventListeners(const std::string& type) {
+            state->onEventListener.erase(type);
+
+            return this;
         }
 
         void close() {
@@ -331,15 +409,47 @@ namespace web::http::legacy::in {
             }
         }
 
+        EventSource* onOpen(std::function<void()> h) {
+            state->onOpen = std::move(h);
+
+            return this;
+        }
+
+        EventSource* onError(std::function<void()> h) {
+            state->onError = std::move(h);
+
+            return this;
+        }
+
+        ReadyState readyState() const {
+            return state->ready;
+        }
+
+        const std::string& lastEventId() const {
+            return state->lastId;
+        }
+
+        uint32_t retry() const {
+            return state->retry;
+        }
+
+        EventSource* retry(uint32_t retry) {
+            state->retry = retry;
+            state->config->setReconnectTime(retry);
+            state->config->setRetryTimeout(retry);
+
+            return this;
+        }
+
         std::shared_ptr<Client> client;
         SocketConnection* socketConnection = nullptr;
         std::shared_ptr<SharedState> state;
 
-        friend inline std::shared_ptr<class EventStream> EventSource(const std::string& url);
+        friend inline std::shared_ptr<class EventSource> EventSource(const std::string& url);
     };
 
-    inline std::shared_ptr<class EventStream> EventSource(const std::string& url) {
-        std::shared_ptr<class EventStream> eventSource = std::shared_ptr<class EventStream>(new class EventStream());
+    inline std::shared_ptr<class EventSource> EventSource(const std::string& url) {
+        std::shared_ptr<class EventSource> eventSource = std::shared_ptr<class EventSource>(new class EventSource());
         eventSource->init(url);
         return eventSource;
     }
