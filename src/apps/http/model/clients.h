@@ -297,17 +297,25 @@ namespace apps::http::legacy {
 
                 auto eventStream_1 = web::http::legacy::in::EventSource("http://localhost:8080/sse");
 
-                eventStream_1->onMessage([](const std::string& message) {
-                    VLOG(0) << "OnMessage 1:1: " << message;
+                eventStream_1->onOpen([]() {
+                    VLOG(0) << "OnOpen 1";
                 });
-                eventStream_1->onMessage([](const std::string& message) {
-                    VLOG(0) << "OnMessage 1:2: " << message;
+
+                eventStream_1->onError([]() {
+                    VLOG(0) << "onError 1";
                 });
-                eventStream_1->addEventListener("event", [](const std::string& id, const std::string& message) {
-                    VLOG(0) << "EventListener for 'event' 1:1: " << id << " : " << message;
+
+                eventStream_1->onMessage([](const web::http::legacy::in::MessageEvent& message) {
+                    VLOG(0) << "OnMessage 1:1: " << message.data;
                 });
-                eventStream_1->addEventListener("event", [](const std::string& id, const std::string& message) {
-                    VLOG(0) << "EventListener for 'event' 1:2: " << id << " : " << message;
+                eventStream_1->onMessage([](const web::http::legacy::in::MessageEvent& message) {
+                    VLOG(0) << "OnMessage 1:2: " << message.data;
+                });
+                eventStream_1->addEventListener("message", [](const web::http::legacy::in::MessageEvent& message) {
+                    VLOG(0) << "EventListener for 'event' 1:1: " << message.lastEventId << " : " << message.data;
+                });
+                eventStream_1->addEventListener("message", [](const web::http::legacy::in::MessageEvent& message) {
+                    VLOG(0) << "EventListener for 'event' 1:2: " << message.lastEventId << " : " << message.data;
                 });
 
                 core::timer::Timer::singleshotTimer(
@@ -318,20 +326,29 @@ namespace apps::http::legacy {
 
                 auto eventStream_2 = web::http::legacy::in::EventSource("http://localhost:8080/sse");
 
-                eventStream_2->onMessage([](const std::string& message) {
-                    VLOG(0) << "OnMessage 2:1: " << message;
+                eventStream_2->onOpen([]() {
+                    VLOG(0) << "OnOpen 2";
                 });
-                eventStream_2->onMessage([](const std::string& message) {
-                    VLOG(0) << "OnMessage 2:2: " << message;
+
+                eventStream_2->onError([]() {
+                    VLOG(0) << "onError 2";
                 });
-                eventStream_2->addEventListener("event", [](const std::string& id, const std::string& message) {
-                    VLOG(0) << "EventListener for 'event' 2:1: " << id << " : " << message;
+
+                eventStream_2->onMessage([](const web::http::legacy::in::MessageEvent& message) {
+                    VLOG(0) << "OnMessage 2:1: " << message.data;
                 });
-                eventStream_2->addEventListener("event", [](const std::string& id, const std::string& message) {
-                    VLOG(0) << "EventListener for 'event' 2:2: " << id << " : " << message;
+                eventStream_2->onMessage([](const web::http::legacy::in::MessageEvent& message) {
+                    VLOG(0) << "OnMessage 2:2: " << message.data;
                 });
+                eventStream_2->addEventListener("message", [](const web::http::legacy::in::MessageEvent& message) {
+                    VLOG(0) << "EventListener for 'event' 2:1: " << message.lastEventId << " : " << message.data;
+                });
+                eventStream_2->addEventListener("message", [](const web::http::legacy::in::MessageEvent& message) {
+                    VLOG(0) << "EventListener for 'event' 2:2: " << message.lastEventId << " : " << message.data;
+                });
+
             /*
-                req->requestEventStream("/sse", [request = std::weak_ptr<MasterRequest>(req)]() -> std::size_t {
+                req->requestEventSource("/sse", [request = std::weak_ptr<MasterRequest>(req)]() -> std::size_t {
                     std::size_t consumed = 0;
 
                     if (!request.expired()) {
