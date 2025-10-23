@@ -47,7 +47,7 @@
 
 namespace web::http::client::tools {
 
-    EventSource1::~EventSource1() {
+    EventSource::~EventSource() {
     }
 
 }

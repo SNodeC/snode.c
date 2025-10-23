@@ -53,9 +53,9 @@
 
 namespace web::http::legacy::in {
 
-    class EventSource : public web::http::client::tools::EventSource<web::http::legacy::in::Client> {
+    class EventSource : public web::http::client::tools::EventSourceT<web::http::legacy::in::Client> {
     private:
-        using Super = web::http::client::tools::EventSource<web::http::legacy::in::Client>;
+        using Super = web::http::client::tools::EventSourceT<web::http::legacy::in::Client>;
 
         using Super::init;
         using Super::Super;

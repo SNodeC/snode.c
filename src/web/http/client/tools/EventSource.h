@@ -76,29 +76,29 @@ namespace web::http::client::tools {
         std::string origin;      // scheme://host[:port]
     };
 
-    class EventSource1 {
+    class EventSource {
     protected:
         using EventFn = std::function<void(const MessageEvent&)>;
 
     public:
-        virtual ~EventSource1();
+        virtual ~EventSource();
 
-        virtual EventSource1* onMessage(EventFn fn) = 0;
-        virtual EventSource1* addEventListener(const std::string& key, EventFn fn) = 0;
-        virtual EventSource1* removeEventListeners(const std::string& type) = 0;
+        virtual EventSource* onMessage(EventFn fn) = 0;
+        virtual EventSource* addEventListener(const std::string& key, EventFn fn) = 0;
+        virtual EventSource* removeEventListeners(const std::string& type) = 0;
         virtual void close() = 0;
-        virtual EventSource1* onOpen(std::function<void()> onOpen) = 0;
-        virtual EventSource1* onError(std::function<void()> onError) = 0;
+        virtual EventSource* onOpen(std::function<void()> onOpen) = 0;
+        virtual EventSource* onError(std::function<void()> onError) = 0;
         virtual ReadyState readyState() const = 0;
         virtual const std::string& lastEventId() const = 0;
         virtual uint32_t retry() const = 0;
-        virtual EventSource1* retry(uint32_t retry) = 0;
+        virtual EventSource* retry(uint32_t retry) = 0;
     };
 
     template <typename Client>
-    class EventSource
-        : public EventSource1
-        , public std::enable_shared_from_this<EventSource<Client>> {
+    class EventSourceT
+        : public EventSource
+        , public std::enable_shared_from_this<EventSourceT<Client>> {
     public:
         using MasterRequest = typename Client::MasterRequest;
         using Request = typename Client::Request;
@@ -258,13 +258,13 @@ namespace web::http::client::tools {
         }
 
     public:
-        EventSource(const EventSource&) = delete;
-        EventSource& operator=(const EventSource&) = delete;
-        EventSource(EventSource&&) noexcept = delete;
-        EventSource& operator=(EventSource&&) noexcept = delete;
+        EventSourceT(const EventSourceT&) = delete;
+        EventSourceT& operator=(const EventSourceT&) = delete;
+        EventSourceT(EventSourceT&&) noexcept = delete;
+        EventSourceT& operator=(EventSourceT&&) noexcept = delete;
 
     protected:
-        EventSource()
+        EventSourceT()
             : state(std::make_shared<SharedState>()) {
         }
 
@@ -292,7 +292,7 @@ namespace web::http::client::tools {
                 LOG(TRACE) << "         Path: " << state->path;
                 LOG(TRACE) << "       Origin: " << state->origin;
 
-                const std::weak_ptr<EventSource> eventStreamWeak = this->weak_from_this();
+                const std::weak_ptr<EventSourceT> eventStreamWeak = this->weak_from_this();
 
                 client = std::make_shared<Client>(
                     [eventStreamWeak](SocketConnection* socketConnection) {
@@ -301,7 +301,7 @@ namespace web::http::client::tools {
                         LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
                         LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
-                        if (const std::shared_ptr<EventSource> eventStream = eventStreamWeak.lock()) {
+                        if (const std::shared_ptr<EventSourceT> eventStream = eventStreamWeak.lock()) {
                             eventStream->socketConnection = socketConnection;
                         }
                     },
@@ -317,7 +317,7 @@ namespace web::http::client::tools {
                         LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
                         LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
-                        if (const std::shared_ptr<EventSource> eventStream = eventStreamWeak.lock()) {
+                        if (const std::shared_ptr<EventSourceT> eventStream = eventStreamWeak.lock()) {
                             eventStream->socketConnection = nullptr;
                         }
 
@@ -405,19 +405,19 @@ namespace web::http::client::tools {
         }
 
     public:
-        EventSource* onMessage(EventFn fn) override {
+        EventSourceT* onMessage(EventFn fn) override {
             state->onMessageListener.push_back(std::move(fn));
 
             return this;
         }
 
-        EventSource* addEventListener(const std::string& key, EventFn fn) override {
+        EventSourceT* addEventListener(const std::string& key, EventFn fn) override {
             state->onEventListener[key].push_back(std::move(fn));
 
             return this;
         }
 
-        EventSource* removeEventListeners(const std::string& type) override {
+        EventSourceT* removeEventListeners(const std::string& type) override {
             state->onEventListener.erase(type);
 
             return this;
@@ -431,13 +431,13 @@ namespace web::http::client::tools {
             }
         }
 
-        EventSource* onOpen(std::function<void()> onOpen) override {
+        EventSourceT* onOpen(std::function<void()> onOpen) override {
             state->onOpenListener.push_back(std::move(onOpen));
 
             return this;
         }
 
-        EventSource* onError(std::function<void()> onError) override {
+        EventSourceT* onError(std::function<void()> onError) override {
             state->onErrorListener.push_back(std::move(onError));
 
             return this;
@@ -455,7 +455,7 @@ namespace web::http::client::tools {
             return state->retry;
         }
 
-        EventSource* retry(uint32_t retry) override {
+        EventSourceT* retry(uint32_t retry) override {
             state->retry = retry;
             state->config->setReconnectTime(retry);
             state->config->setRetryTimeout(retry);

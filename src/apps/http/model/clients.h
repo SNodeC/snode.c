@@ -295,7 +295,8 @@ namespace apps::http::legacy {
                 req->set("Accept", "text/event-stream");
                 req->set("Cache-Control", "no-cache");
 
-                auto eventStream_1 = web::http::legacy::in::EventSource("http://localhost:8080/sse");
+                std::shared_ptr<web::http::client::tools::EventSource> eventStream_1 =
+                    web::http::legacy::in::EventSource("http://localhost:8080/sse");
 
                 eventStream_1->onOpen([]() {
                     VLOG(0) << "OnOpen 1";
