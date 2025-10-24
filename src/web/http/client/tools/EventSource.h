@@ -413,6 +413,7 @@ namespace web::http::client::tools {
     public:
         void close() override {
             sharedConfig->config->setReconnect(false);
+            sharedConfig->config->setRetry(false);
 
             if (socketConnection != nullptr) {
                 socketConnection->shutdownRead();
