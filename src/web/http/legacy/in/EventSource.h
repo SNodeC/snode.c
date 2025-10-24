@@ -63,13 +63,13 @@ namespace web::http::legacy::in {
     public:
         inline ~EventSource() override;
 
-        friend inline std::shared_ptr<EventSource> EventSource(const std::string& url);
+        friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url);
     };
 
     inline EventSource::~EventSource() {
     }
 
-    inline std::shared_ptr<EventSource> EventSource(const std::string& url) {
+    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url) {
         std::shared_ptr<class EventSource> eventSource = std::make_shared<class EventSource>();
         eventSource->init(url);
 

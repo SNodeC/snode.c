@@ -51,12 +51,12 @@
 
 #include <cctype>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <list>
 #include <map>
 #include <memory>
 #include <regex>
-#include <stdint.h>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -80,32 +80,24 @@ namespace web::http::client::tools {
     protected:
         using EventFn = std::function<void(const MessageEvent&)>;
 
+        EventSource();
+
     public:
         virtual ~EventSource();
 
-        virtual EventSource* onMessage(EventFn fn) = 0;
-        virtual EventSource* addEventListener(const std::string& key, EventFn fn) = 0;
-        virtual EventSource* removeEventListeners(const std::string& type) = 0;
+        EventSource* onMessage(EventFn fn);
+        EventSource* addEventListener(const std::string& key, EventFn fn);
+        EventSource* removeEventListeners(const std::string& type);
+        EventSource* onOpen(std::function<void()> onOpen);
+        EventSource* onError(std::function<void()> onError);
+        ReadyState readyState() const;
+        const std::string& lastEventId() const;
+        uint32_t retry() const;
+
         virtual void close() = 0;
-        virtual EventSource* onOpen(std::function<void()> onOpen) = 0;
-        virtual EventSource* onError(std::function<void()> onError) = 0;
-        virtual ReadyState readyState() const = 0;
-        virtual const std::string& lastEventId() const = 0;
-        virtual uint32_t retry() const = 0;
         virtual EventSource* retry(uint32_t retry) = 0;
-    };
 
-    template <typename Client>
-    class EventSourceT
-        : public EventSource
-        , public std::enable_shared_from_this<EventSourceT<Client>> {
-    public:
-        using MasterRequest = typename Client::MasterRequest;
-        using Request = typename Client::Request;
-        using Response = typename Client::Response;
-        using SocketConnection = typename Client::SocketConnection;
-
-    private:
+    protected:
         struct SharedState {
             std::list<EventFn> onMessageListener;
             std::map<std::string, std::list<EventFn>> onEventListener;
@@ -125,6 +117,23 @@ namespace web::http::client::tools {
             uint16_t port = 80;
             std::string origin; // scheme://host[:port]
             std::string path;
+        };
+
+        std::shared_ptr<SharedState> state;
+    };
+
+    template <typename Client>
+    class EventSourceT
+        : public EventSource
+        , public std::enable_shared_from_this<EventSourceT<Client>> {
+    public:
+        using MasterRequest = typename Client::MasterRequest;
+        using Request = typename Client::Request;
+        using Response = typename Client::Response;
+        using SocketConnection = typename Client::SocketConnection;
+
+    private:
+        struct Config {
             typename Client::Config* config;
         };
 
@@ -188,7 +197,7 @@ namespace web::http::client::tools {
             deliverMessage(state, evType, payload, evId);
         }
 
-        static void processLine(const std::shared_ptr<SharedState>& state, std::string_view line) {
+        static void processLine(const std::shared_ptr<SharedState>& state, const std::shared_ptr<Config>& config, std::string_view line) {
             if (line.empty()) {
                 dispatch(state);
                 return;
@@ -224,14 +233,14 @@ namespace web::http::client::tools {
                     uint32_t const retry = parseU32(value);
 
                     state->retry = retry;
-                    state->config->setReconnectTime(retry);
-                    state->config->setRetryTimeout(retry);
+                    config->config->setReconnectTime(retry);
+                    config->config->setRetryTimeout(retry);
                 }
             }
             // else ignore
         }
 
-        static void parse(const std::shared_ptr<SharedState>& state) {
+        static void parse(const std::shared_ptr<SharedState>& state, const std::shared_ptr<Config>& config) {
             size_t start = 0;
             for (;;) {
                 const size_t i = state->pending.find_first_of("\r\n", start);
@@ -253,7 +262,7 @@ namespace web::http::client::tools {
 
                 const std::string_view line(&state->pending[start], i - start);
                 start = i + eol;
-                processLine(state, line);
+                processLine(state, config, line);
             }
         }
 
@@ -265,7 +274,7 @@ namespace web::http::client::tools {
 
     protected:
         EventSourceT()
-            : state(std::make_shared<SharedState>()) {
+            : config(std::make_shared<Config>()) {
         }
 
         void init(const std::string& url) {
@@ -311,7 +320,7 @@ namespace web::http::client::tools {
                         LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
                         LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                     },
-                    [eventStreamWeak, state = this->state](SocketConnection* socketConnection) {
+                    [eventStreamWeak, state = this->state, config = this->config](SocketConnection* socketConnection) {
                         LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnDisconnect";
 
                         LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
@@ -321,7 +330,7 @@ namespace web::http::client::tools {
                             eventStream->socketConnection = nullptr;
                         }
 
-                        if (state->config->getReconnect()) {
+                        if (config->config->getReconnect()) {
                             for (const auto& onError : state->onErrorListener) {
                                 onError();
                             }
@@ -330,15 +339,16 @@ namespace web::http::client::tools {
                             state->ready = ReadyState::CLOSED;
                         }
                     },
-                    [url = match[5].matched ? match[5].str() : "/",
-                     state = this->state](const std::shared_ptr<MasterRequest>& masterRequest) {
+                    [url = match[5].matched ? match[5].str() : "/", state = this->state, config = this->config](
+                        const std::shared_ptr<MasterRequest>& masterRequest) {
                         const std::string connectionName = masterRequest->getSocketContext()->getSocketConnection()->getConnectionName();
 
                         LOG(DEBUG) << connectionName << " EventSource: OnRequestStart";
 
                         masterRequest->requestEventSource(
                             url,
-                            [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), state, connectionName]() -> std::size_t {
+                            [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), state, config, connectionName]()
+                                -> std::size_t {
                                 std::size_t consumed = 0;
 
                                 if (const std::shared_ptr<MasterRequest> masterRequest = masterRequestWeak.lock()) {
@@ -347,7 +357,7 @@ namespace web::http::client::tools {
 
                                     if (consumed > 0) {
                                         state->pending.append(buf, consumed);
-                                        parse(state);
+                                        parse(state, config);
                                     }
                                 } else {
                                     LOG(DEBUG) << connectionName << ": server-sent event: server disconnect";
@@ -355,7 +365,7 @@ namespace web::http::client::tools {
 
                                 return consumed;
                             },
-                            [state, connectionName]() {
+                            [state, config, connectionName]() {
                                 LOG(DEBUG) << connectionName << ": server-sent event stream start";
 
                                 state->ready = ReadyState::OPEN;
@@ -364,8 +374,8 @@ namespace web::http::client::tools {
                                     onOpen();
                                 }
 
-                                state->config->setReconnectTime(state->retry);
-                                state->config->setRetryTimeout(state->retry);
+                                config->config->setReconnectTime(state->retry);
+                                config->config->setRetryTimeout(state->retry);
                             },
                             [state, connectionName]() {
                                 LOG(DEBUG) << connectionName << ": not an server-sent event endpoint: " << state->origin + state->path;
@@ -381,7 +391,7 @@ namespace web::http::client::tools {
                 client->getConfig().setRetry();
                 client->getConfig().setRetryBase(1);
 
-                state->config = &client->getConfig();
+                config->config = &client->getConfig();
 
                 client->connect([instanceName = client->getConfig().getInstanceName()](
                                     const core::socket::SocketAddress& socketAddress,
@@ -405,24 +415,6 @@ namespace web::http::client::tools {
         }
 
     public:
-        EventSourceT* onMessage(EventFn fn) override {
-            state->onMessageListener.push_back(std::move(fn));
-
-            return this;
-        }
-
-        EventSourceT* addEventListener(const std::string& key, EventFn fn) override {
-            state->onEventListener[key].push_back(std::move(fn));
-
-            return this;
-        }
-
-        EventSourceT* removeEventListeners(const std::string& type) override {
-            state->onEventListener.erase(type);
-
-            return this;
-        }
-
         void close() override {
             client->getConfig().setReconnect(false);
 
@@ -431,41 +423,17 @@ namespace web::http::client::tools {
             }
         }
 
-        EventSourceT* onOpen(std::function<void()> onOpen) override {
-            state->onOpenListener.push_back(std::move(onOpen));
-
-            return this;
-        }
-
-        EventSourceT* onError(std::function<void()> onError) override {
-            state->onErrorListener.push_back(std::move(onError));
-
-            return this;
-        }
-
-        ReadyState readyState() const override {
-            return state->ready;
-        }
-
-        const std::string& lastEventId() const override {
-            return state->lastId;
-        }
-
-        uint32_t retry() const override {
-            return state->retry;
-        }
-
         EventSourceT* retry(uint32_t retry) override {
             state->retry = retry;
-            state->config->setReconnectTime(retry);
-            state->config->setRetryTimeout(retry);
+            config->config->setReconnectTime(retry);
+            config->config->setRetryTimeout(retry);
 
             return this;
         }
 
         std::shared_ptr<Client> client;
         SocketConnection* socketConnection = nullptr;
-        std::shared_ptr<SharedState> state;
+        std::shared_ptr<Config> config;
     };
 
 } // namespace web::http::client::tools
