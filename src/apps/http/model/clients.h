@@ -47,15 +47,18 @@
 
 // clang-format off
 #define CLIENT_INCLUDE QUOTE_INCLUDE(web/http/STREAM/NET/Client.h)
+
+#define EVENTSOURCE_INCLUDE QUOTE_INCLUDE(web/http/STREAM/NET/EventSource.h)
+
 // clang-format on
 
-#include CLIENT_INCLUDE // IWYU pragma: export
+#include CLIENT_INCLUDE      // IWYU pragma: export
+#include EVENTSOURCE_INCLUDE // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
 #include "web/http/http_utils.h"
-#include "web/http/legacy/in/EventSource.h"
 
 #if (STREAM_TYPE == TLS) // tls
 #include <cstddef>
@@ -296,7 +299,7 @@ namespace apps::http::legacy {
                 req->set("Cache-Control", "no-cache");
 
                 const std::shared_ptr<web::http::client::tools::EventSource> eventStream_1 =
-                    web::http::legacy::in::EventSource("http://localhost:8080/sse");
+                    web::http::legacy::NET::EventSource("http://localhost:8080/sse");
 
                 eventStream_1->onOpen([]() {
                     VLOG(0) << "OnOpen 1";
@@ -325,7 +328,7 @@ namespace apps::http::legacy {
                     },
                     5);
 
-                auto eventStream_2 = web::http::legacy::in::EventSource("http://localhost:8080/sse");
+                auto eventStream_2 = web::http::legacy::NET::EventSource("http://localhost:8080/sse");
 
                 eventStream_2->onOpen([]() {
                     VLOG(0) << "OnOpen 2";

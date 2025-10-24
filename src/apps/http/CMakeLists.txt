@@ -74,7 +74,7 @@ set(HTTPSERVERCLIENTCERT_CPP httpserverclientcert.cpp)
 set(HTTPSERVERCLIENTCERT_H model/servers.h)
 
 # set(NETS "in" "in6" "un")
-set(NETS "in")
+set(NETS "in" "in6")
 
 # if(BLUEZ_FOUND) list(APPEND NETS "rc") endif(BLUEZ_FOUND)
 
@@ -91,7 +91,7 @@ foreach(NET IN LISTS NETS)
         set(NET_TYPE ${UN})
     endif()
 
-    # set(STREAMS "legacy" "tls")
+    set(STREAMS "legacy" "tls")
     set(STREAMS "legacy")
     foreach(STREAM IN LISTS STREAMS)
         if(${STREAM} STREQUAL "legacy")
