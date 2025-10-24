@@ -90,7 +90,7 @@ namespace apps::http::legacy {
     using Response = Client::Response;
     using SocketConnection = Client::SocketConnection;
 
-    static Client getClient() {
+    Client getClient() {
         Client client(
             "httpclient",
             [](const std::shared_ptr<MasterRequest>& req) {
@@ -521,7 +521,7 @@ namespace apps::http::tls {
     using Response = Client::Response;
     using SocketConnection = Client::SocketConnection;
 
-    static Client getClient() {
+    Client getClient() {
         Client client(
             "httpclient",
             [](const std::shared_ptr<MasterRequest>& req) {
