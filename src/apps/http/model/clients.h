@@ -312,11 +312,11 @@ namespace apps::http::legacy {
                 eventStream_1->onMessage([](const web::http::client::tools::MessageEvent& message) {
                     VLOG(0) << "OnMessage 1:2: " << message.data;
                 });
-                eventStream_1->addEventListener("message", [](const web::http::client::tools::MessageEvent& message) {
-                    VLOG(0) << "EventListener for 'event' 1:1: " << message.lastEventId << " : " << message.data;
+                eventStream_1->addEventListener("myevent", [](const web::http::client::tools::MessageEvent& message) {
+                    VLOG(0) << "EventListener for 'myevent' 1:1: " << message.lastEventId << " : " << message.data;
                 });
-                eventStream_1->addEventListener("message", [](const web::http::client::tools::MessageEvent& message) {
-                    VLOG(0) << "EventListener for 'event' 1:2: " << message.lastEventId << " : " << message.data;
+                eventStream_1->addEventListener("myevent", [](const web::http::client::tools::MessageEvent& message) {
+                    VLOG(0) << "EventListener for 'myevent' 1:2: " << message.lastEventId << " : " << message.data;
                 });
 
                 core::timer::Timer::singleshotTimer(
@@ -341,11 +341,11 @@ namespace apps::http::legacy {
                 eventStream_2->onMessage([](const web::http::client::tools::MessageEvent& message) {
                     VLOG(0) << "OnMessage 2:2: " << message.data;
                 });
-                eventStream_2->addEventListener("message", [](const web::http::client::tools::MessageEvent& message) {
-                    VLOG(0) << "EventListener for 'event' 2:1: " << message.lastEventId << " : " << message.data;
+                eventStream_2->addEventListener("myevent", [](const web::http::client::tools::MessageEvent& message) {
+                    VLOG(0) << "EventListener for 'myevent' 2:1: " << message.lastEventId << " : " << message.data;
                 });
-                eventStream_2->addEventListener("message", [](const web::http::client::tools::MessageEvent& message) {
-                    VLOG(0) << "EventListener for 'event' 2:2: " << message.lastEventId << " : " << message.data;
+                eventStream_2->addEventListener("myevent", [](const web::http::client::tools::MessageEvent& message) {
+                    VLOG(0) << "EventListener for 'myevent' 2:2: " << message.lastEventId << " : " << message.data;
                 });
 
             /*
