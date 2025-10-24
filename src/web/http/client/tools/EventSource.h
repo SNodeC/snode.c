@@ -310,25 +310,16 @@ namespace web::http::client::tools {
                     [eventStreamWeak](SocketConnection* socketConnection) {
                         LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnConnect";
 
-                        LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                        LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
-
                         if (const std::shared_ptr<EventSourceT> eventStream = eventStreamWeak.lock()) {
                             eventStream->socketConnection = socketConnection;
                         }
                     },
                     [state = this->sharedState](SocketConnection* socketConnection) {
                         LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnConnected";
-
-                        LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                        LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
                     },
                     [eventStreamWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](
                         SocketConnection* socketConnection) {
                         LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnDisconnect";
-
-                        LOG(DEBUG) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-                        LOG(DEBUG) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
                         if (const std::shared_ptr<EventSourceT> eventStream = eventStreamWeak.lock()) {
                             eventStream->socketConnection = nullptr;
