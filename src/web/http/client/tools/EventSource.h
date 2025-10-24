@@ -65,18 +65,19 @@
 
 namespace web::http::client::tools {
 
-    // JS-like readyState
-    enum class ReadyState : int { CONNECTING = 0, OPEN = 1, CLOSED = 2 };
-
-    // JS-like MessageEvent (simplified)
-    struct MessageEvent {
-        std::string type;        // "message" or custom from "event:"
-        std::string data;        // joined data (LF between lines, trailing LF removed)
-        std::string lastEventId; // from "id:"
-        std::string origin;      // scheme://host[:port]
-    };
-
     class EventSource {
+    public:
+        // JS-like readyState
+        enum class ReadyState : int { CONNECTING = 0, OPEN = 1, CLOSED = 2 };
+
+        // JS-like MessageEvent (simplified)
+        struct MessageEvent {
+            std::string type;        // "message" or custom from "event:"
+            std::string data;        // joined data (LF between lines, trailing LF removed)
+            std::string lastEventId; // from "id:"
+            std::string origin;      // scheme://host[:port]
+        };
+
     protected:
         EventSource();
 
@@ -88,7 +89,7 @@ namespace web::http::client::tools {
         EventSource* removeEventListeners(const std::string& type);
         EventSource* onOpen(std::function<void()> onOpen);
         EventSource* onError(std::function<void()> onError);
-        ReadyState readyState() const;
+        EventSource::ReadyState readyState() const;
         const std::string& lastEventId() const;
         uint32_t retry() const;
         EventSource* retry(uint32_t retry);

@@ -306,16 +306,16 @@ namespace apps::http::legacy {
                     VLOG(0) << "onError 1";
                 });
 
-                eventStream_1->onMessage([](const web::http::client::tools::MessageEvent& message) {
+                eventStream_1->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
                     VLOG(0) << "OnMessage 1:1: " << message.data;
                 });
-                eventStream_1->onMessage([](const web::http::client::tools::MessageEvent& message) {
+                eventStream_1->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
                     VLOG(0) << "OnMessage 1:2: " << message.data;
                 });
-                eventStream_1->addEventListener("myevent", [](const web::http::client::tools::MessageEvent& message) {
+                eventStream_1->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
                     VLOG(0) << "EventListener for 'myevent' 1:1: " << message.lastEventId << " : " << message.data;
                 });
-                eventStream_1->addEventListener("myevent", [](const web::http::client::tools::MessageEvent& message) {
+                eventStream_1->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
                     VLOG(0) << "EventListener for 'myevent' 1:2: " << message.lastEventId << " : " << message.data;
                 });
 
@@ -335,16 +335,16 @@ namespace apps::http::legacy {
                     VLOG(0) << "onError 2";
                 });
 
-                eventStream_2->onMessage([](const web::http::client::tools::MessageEvent& message) {
+                eventStream_2->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
                     VLOG(0) << "OnMessage 2:1: " << message.data;
                 });
-                eventStream_2->onMessage([](const web::http::client::tools::MessageEvent& message) {
+                eventStream_2->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
                     VLOG(0) << "OnMessage 2:2: " << message.data;
                 });
-                eventStream_2->addEventListener("myevent", [](const web::http::client::tools::MessageEvent& message) {
+                eventStream_2->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
                     VLOG(0) << "EventListener for 'myevent' 2:1: " << message.lastEventId << " : " << message.data;
                 });
-                eventStream_2->addEventListener("myevent", [](const web::http::client::tools::MessageEvent& message) {
+                eventStream_2->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
                     VLOG(0) << "EventListener for 'myevent' 2:2: " << message.lastEventId << " : " << message.data;
                 });
 

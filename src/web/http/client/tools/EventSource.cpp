@@ -84,7 +84,7 @@ namespace web::http::client::tools {
         return this;
     }
 
-    ReadyState EventSource::readyState() const {
+    EventSource::ReadyState EventSource::readyState() const {
         return sharedState->ready;
     }
 
