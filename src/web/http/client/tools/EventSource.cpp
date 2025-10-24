@@ -48,51 +48,51 @@
 namespace web::http::client::tools {
 
     EventSource::EventSource()
-        : state(std::make_shared<SharedState>()) {
+        : sharedState(std::make_shared<SharedState>()) {
     }
 
     EventSource::~EventSource() {
     }
 
     EventSource* EventSource::onMessage(EventFn fn) {
-        state->onMessageListener.push_back(std::move(fn));
+        sharedState->onMessageListener.push_back(std::move(fn));
 
         return this;
     }
 
     EventSource* EventSource::addEventListener(const std::string& key, EventFn fn) {
-        state->onEventListener[key].push_back(std::move(fn));
+        sharedState->onEventListener[key].push_back(std::move(fn));
 
         return this;
     }
 
     EventSource* EventSource::removeEventListeners(const std::string& type) {
-        state->onEventListener.erase(type);
+        sharedState->onEventListener.erase(type);
 
         return this;
     }
 
     EventSource* EventSource::onOpen(std::function<void()> onOpen) {
-        state->onOpenListener.push_back(std::move(onOpen));
+        sharedState->onOpenListener.push_back(std::move(onOpen));
 
         return this;
     }
 
     EventSource* EventSource::onError(std::function<void()> onError) {
-        state->onErrorListener.push_back(std::move(onError));
+        sharedState->onErrorListener.push_back(std::move(onError));
 
         return this;
     }
 
     ReadyState EventSource::readyState() const {
-        return state->ready;
+        return sharedState->ready;
     }
 
     const std::string& EventSource::lastEventId() const {
-        return state->lastId;
+        return sharedState->lastId;
     }
 
     uint32_t EventSource::retry() const {
-        return state->retry;
+        return sharedState->retry;
     }
 }
