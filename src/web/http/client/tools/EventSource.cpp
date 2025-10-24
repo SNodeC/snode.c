@@ -54,14 +54,14 @@ namespace web::http::client::tools {
     EventSource::~EventSource() {
     }
 
-    EventSource* EventSource::onMessage(EventFn fn) {
-        sharedState->onMessageListener.push_back(std::move(fn));
+    EventSource* EventSource::onMessage(std::function<void(const MessageEvent&)> messageCallback) {
+        sharedState->onMessageListener.push_back(std::move(messageCallback));
 
         return this;
     }
 
-    EventSource* EventSource::addEventListener(const std::string& key, EventFn fn) {
-        sharedState->onEventListener[key].push_back(std::move(fn));
+    EventSource* EventSource::addEventListener(const std::string& key, std::function<void(const MessageEvent&)> eventListener) {
+        sharedState->onEventListener[key].push_back(std::move(eventListener));
 
         return this;
     }
@@ -95,4 +95,10 @@ namespace web::http::client::tools {
     uint32_t EventSource::retry() const {
         return sharedState->retry;
     }
-}
+
+    EventSource* EventSource::retry(uint32_t retry) {
+        sharedState->retry = retry;
+
+        return this;
+    }
+} // namespace web::http::client::tools

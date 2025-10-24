@@ -78,29 +78,26 @@ namespace web::http::client::tools {
 
     class EventSource {
     protected:
-        using EventFn = std::function<void(const MessageEvent&)>;
-
         EventSource();
 
     public:
         virtual ~EventSource();
 
-        EventSource* onMessage(EventFn fn);
-        EventSource* addEventListener(const std::string& key, EventFn fn);
+        EventSource* onMessage(std::function<void(const MessageEvent&)> messageCallback);
+        EventSource* addEventListener(const std::string& key, std::function<void(const MessageEvent&)> eventListener);
         EventSource* removeEventListeners(const std::string& type);
         EventSource* onOpen(std::function<void()> onOpen);
         EventSource* onError(std::function<void()> onError);
         ReadyState readyState() const;
         const std::string& lastEventId() const;
         uint32_t retry() const;
-
+        EventSource* retry(uint32_t retry);
         virtual void close() = 0;
-        virtual EventSource* retry(uint32_t retry) = 0;
 
     protected:
         struct SharedState {
-            std::list<EventFn> onMessageListener;
-            std::map<std::string, std::list<EventFn>> onEventListener;
+            std::list<std::function<void(const MessageEvent&)>> onMessageListener;
+            std::map<std::string, std::list<std::function<void(const MessageEvent&)>>> onEventListener;
             std::list<std::function<void()>> onOpenListener;
             std::list<std::function<void()>> onErrorListener;
 
@@ -109,7 +106,7 @@ namespace web::http::client::tools {
             std::string type;
             std::string idBuf;
             std::string lastId;
-            uint32_t retry = 3;
+            uint32_t retry = 3000;
 
             ReadyState ready = ReadyState::CONNECTING;
             std::string scheme; // "http" or "https"
@@ -234,8 +231,8 @@ namespace web::http::client::tools {
                     uint32_t const retry = parseU32(value);
 
                     sharedState->retry = retry;
-                    sharedConfig->config->setReconnectTime(retry);
-                    sharedConfig->config->setRetryTimeout(retry);
+                    sharedConfig->config->setReconnectTime(retry / 1000.);
+                    sharedConfig->config->setRetryTimeout(retry / 1000.);
                 }
             }
             // else ignore
@@ -330,6 +327,9 @@ namespace web::http::client::tools {
                                 onError();
                             }
                             sharedState->ready = ReadyState::CONNECTING;
+
+                            sharedConfig->config->setReconnectTime(sharedState->retry / 1000.);
+                            sharedConfig->config->setRetryTimeout(sharedState->retry / 1000.);
                         } else {
                             sharedState->ready = ReadyState::CLOSED;
                         }
@@ -365,12 +365,12 @@ namespace web::http::client::tools {
 
                                 sharedState->ready = ReadyState::OPEN;
 
+                                sharedConfig->config->setReconnectTime(sharedState->retry / 1000.);
+                                sharedConfig->config->setRetryTimeout(sharedState->retry / 1000.);
+
                                 for (const auto& onOpen : sharedState->onOpenListener) {
                                     onOpen();
                                 }
-
-                                sharedConfig->config->setReconnectTime(sharedState->retry);
-                                sharedConfig->config->setRetryTimeout(sharedState->retry);
                             },
                             [sharedState, connectionName]() {
                                 LOG(DEBUG) << connectionName
@@ -418,14 +418,6 @@ namespace web::http::client::tools {
             if (socketConnection != nullptr) {
                 socketConnection->shutdownRead();
             }
-        }
-
-        EventSource* retry(uint32_t retry) override {
-            sharedState->retry = retry;
-            sharedConfig->config->setReconnectTime(retry);
-            sharedConfig->config->setRetryTimeout(retry);
-
-            return this;
         }
 
         std::shared_ptr<Client> client;
