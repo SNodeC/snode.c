@@ -420,6 +420,7 @@ namespace web::http::client::tools {
             }
         }
 
+    private:
         std::shared_ptr<Client> client;
         SocketConnection* socketConnection = nullptr;
         std::shared_ptr<Config> sharedConfig;
