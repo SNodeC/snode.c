@@ -88,18 +88,25 @@ set(HTTP_H
     legacy/in/EventSource.h
     legacy/in/Server.h
     legacy/in6/Client.h
+    legacy/in6/EventSource.h
     legacy/in6/Server.h
     legacy/rc/Client.h
+    legacy/rc/EventSource.h
     legacy/rc/Server.h
     legacy/un/Client.h
+    legacy/un/EventSource.h
     legacy/un/Server.h
     tls/in/Client.h
+    tls/in/EventSource.h
     tls/in/Server.h
     tls/in6/Client.h
+    tls/in6/EventSource.h
     tls/in6/Server.h
     tls/rc/Client.h
+    tls/rc/EventSource.h
     tls/rc/Server.h
     tls/un/Client.h
+    tls/un/EventSource.h
     tls/un/Server.h
 )
 
