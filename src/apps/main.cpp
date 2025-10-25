@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
                 [res, id = 0](auto& stop) mutable {
                     if (res->isConnected()) {
                         res->sendFragment("event: myevent");
-                        res->sendFragment("id: 23");
+                        res->sendFragment("id: " + std::to_string(id));
                         res->sendFragment("retry: 1000");
                         res->sendFragment("data: Message " + std::to_string(id) + "\r\n");
                     } else {
