@@ -57,23 +57,50 @@ namespace web::http::legacy::in6 {
     private:
         using Super = web::http::client::tools::EventSourceT<web::http::legacy::in6::Client>;
 
-        using Super::init;
-        using Super::Super;
-
     public:
         inline ~EventSource() override;
 
         friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url);
+        friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const net::in6::SocketAddress& socketAddress, //
+                                                                                         const std::string& path);
+        friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& host, //
+                                                                                         uint16_t port,
+                                                                                         const std::string& path);
     };
 
     inline EventSource::~EventSource() {
     }
 
     inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url) {
-        std::shared_ptr<class EventSource> eventSource = std::make_shared<class EventSource>();
-        eventSource->init(url);
+        std::shared_ptr<class EventSource> eventSource;
+
+        static const std::regex re(R"(^((https?)://)?([^/:]+)(?::(\d+))?(/.*)?$)");
+        std::smatch match;
+        if (std::regex_match(url, match, re)) {
+            const std::string& host = match[3].str();
+            const uint16_t port = match[4].matched ? static_cast<uint16_t>(std::stoi(match[4].str())) : static_cast<uint16_t>(80);
+            const std::string& path = (match[5].matched ? match[5].str() : "/");
+
+            eventSource = std::make_shared<class EventSource>();
+            eventSource->init("http", net::in6::SocketAddress(host, port), path);
+        } else {
+            LOG(ERROR) << "EventSource url not accepted: " << url;
+        }
 
         return eventSource;
+    }
+
+    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const net::in6::SocketAddress& socketAddress,
+                                                                              const std::string& path) {
+        std::shared_ptr<class EventSource> eventSource = std::make_shared<class EventSource>();
+        eventSource->init("http", socketAddress, path);
+
+        return eventSource;
+    }
+
+    inline std::shared_ptr<web::http::client::tools::EventSource>
+    EventSource(const std::string& host, uint16_t port, const std::string& path) {
+        return EventSource(net::in6::SocketAddress(host, port), path);
     }
 
 } // namespace web::http::legacy::in6
