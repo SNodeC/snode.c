@@ -103,8 +103,8 @@ namespace net::l2 {
         return psm;
     }
 
-    std::string SocketAddress::toString(bool expanded) const {
-        return std::string(btAddress).append(expanded ? std::string(":").append(std::to_string(psm)) : "");
+    std::string SocketAddress::toString([[maybe_unused]] bool expanded) const {
+        return std::string(btAddress).append(":").append(std::to_string(psm));
     }
 
 } // namespace net::l2

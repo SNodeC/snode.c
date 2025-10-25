@@ -103,8 +103,8 @@ namespace net::rc {
         return channel;
     }
 
-    std::string SocketAddress::toString(bool expanded) const {
-        return std::string(btAddress).append(expanded ? std::string(":").append(std::to_string(channel)) : "");
+    std::string SocketAddress::toString([[maybe_unused]] bool expanded) const {
+        return std::string(btAddress).append(":").append(std::to_string(channel));
     }
 
 } // namespace net::rc
