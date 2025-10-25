@@ -57,23 +57,71 @@ namespace web::http::legacy::rc {
     private:
         using Super = web::http::client::tools::EventSourceT<web::http::legacy::rc::Client>;
 
-        using Super::init;
-        using Super::Super;
-
     public:
         inline ~EventSource() override;
 
-        friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url);
+        friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& scheme, //
+                                                                                         const net::rc::SocketAddress& socketAddress,
+                                                                                         const std::string& path);
     };
 
     inline EventSource::~EventSource() {
     }
 
-    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url) {
+    inline std::shared_ptr<web::http::client::tools::EventSource>
+    EventSource(const std::string& scheme, const net::rc::SocketAddress& socketAddress, const std::string& path) {
         std::shared_ptr<class EventSource> eventSource = std::make_shared<class EventSource>();
-        eventSource->init(url);
+        eventSource->init(scheme, socketAddress, path);
 
         return eventSource;
+    }
+
+    inline std::shared_ptr<web::http::client::tools::EventSource>
+    EventSource(const std::string& host, uint8_t channel, const std::string& path) {
+        return EventSource("http", net::rc::SocketAddress(host, channel), path);
+    }
+
+    // Factory for Bluetooth RFCOMM (IPv4-style sibling; rfcomm only)
+    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url) {
+        std::shared_ptr<web::http::client::tools::EventSource> eventSource;
+
+        static const std::regex re(
+            R"(^(?:rfcomm://)(?![^/]*@)((?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}|[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)"
+            R"(?::([1-9]|[12]\d|30))?([^?#]*)(\?[^#]*)?(?:#.*)?$)",
+            std::regex::ECMAScript | std::regex::icase);
+
+        std::smatch match;
+        if (std::regex_match(url, match, re)) {
+            // rfcomm://<mac-or-host>[:<channel>][/path][?query][#fragment]
+            //  [1] addr   -> MAC "01:23:45:67:89:AB" OR hostname
+            //  [2] chan   -> RFCOMM channel 1..30 (optional; default 1)
+            //  [3] path   -> may be empty; default "/"
+            //  [4] query  -> optional
+
+            const std::string scheme = "rfcomm";     // fixed
+            const std::string addr = match[1].str(); // MAC or hostname
+            const uint8_t chan = match[2].matched ? static_cast<uint8_t>(std::stoi(match[2].str())) : static_cast<uint16_t>(1);
+            const std::string path = match[3].matched ? match[3].str() : "/";
+            const std::string query = match[4].matched ? match[4].str() : "";
+
+            eventSource = std::make_shared<class EventSource>(scheme, net::rc::SocketAddress(addr, chan), path + query);
+        } else {
+            LOG(ERROR) << "EventSource RFCOMM url not accepted: " << url;
+        }
+
+        return eventSource;
+    }
+
+    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(std::string origin, std::string path) {
+        if (!origin.empty() && origin.at(origin.length() - 1) == '/') {
+            origin.pop_back();
+        }
+
+        if (!path.empty() && path.at(0) != '/') {
+            path = "/" + path;
+        }
+
+        return EventSource(!origin.empty() ? origin + path : "");
     }
 
 } // namespace web::http::legacy::rc

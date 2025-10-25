@@ -57,21 +57,86 @@ namespace web::http::tls::un {
     private:
         using Super = web::http::client::tools::EventSourceT<web::http::tls::un::Client>;
 
-        using Super::init;
-        using Super::Super;
-
     public:
         inline ~EventSource() override;
 
-        friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url);
+        friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& scheme, //
+                                                                                         const SocketAddress& socketAddress,
+                                                                                         const std::string& path);
     };
 
     inline EventSource::~EventSource() {
     }
 
-    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url) {
+    inline std::shared_ptr<web::http::client::tools::EventSource>
+    EventSource(const std::string& scheme, const net::un::SocketAddress& socketAddress, const std::string& path) {
         std::shared_ptr<class EventSource> eventSource = std::make_shared<class EventSource>();
-        eventSource->init(url);
+        eventSource->init(scheme, socketAddress, path);
+
+        return eventSource;
+    }
+
+    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& socketPath, const std::string& path) {
+        return EventSource("http", net::un::SocketAddress(socketPath), path);
+    }
+
+    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url) {
+        std::shared_ptr<web::http::client::tools::EventSource> eventSource;
+
+        // One-liner regex: scheme + token (no '/' inside token) + optional /path + optional ?query + optional #fragment
+        static const std::regex re(R"(^(?:un://)([^/?#]+)(/[^?#]*)?(\?[^#]*)?(?:#.*)?$)", std::regex::ECMAScript | std::regex::icase);
+
+        auto pct_decode = [](std::string_view s) -> std::string {
+            std::string out;
+            out.reserve(s.size());
+            for (size_t i = 0; i < s.size(); ++i) {
+                if (s[i] == '%' && i + 2 < s.size()) {
+                    auto hex = [](char c) -> int {
+                        if (c >= '0' && c <= '9') {
+                            return c - '0';
+                        }
+                        c |= 0x20;
+                        if (c >= 'a' && c <= 'f') {
+                            return 10 + (c - 'a');
+                        }
+                        return -1;
+                    };
+                    const int h = hex(s[i + 1]);
+                    const int l = hex(s[i + 2]);
+                    if (h >= 0 && l >= 0) {
+                        out.push_back(static_cast<char>((h << 4) | l));
+                        i += 2;
+                        continue;
+                    }
+                }
+                out.push_back(s[i]);
+            }
+            return out;
+        };
+
+        std::smatch match;
+        if (std::regex_match(url, match, re)) {
+            // Factory for Unix Domain Sockets (un://)
+            // URL form: un://<pct-encoded-sockpath>[/http-path][?query][#fragment]
+            //   [1] sockToken -> percent-encoded abs path ("/...") or abstract name ("@name")
+            //   [2] path      -> optional HTTP path (defaults to "/")
+            //   [3] query     -> optional
+
+            const std::string sockToken = match[1].str();
+            std::string socketPath = pct_decode(sockToken); // may start with '/' or '@'
+
+            if ((!socketPath.empty() && (socketPath.front() == '/' || socketPath.front() == '@'))) {
+                const std::string scheme = "un"; // fixed
+                const std::string httpPath = match[2].matched ? match[2].str() : "/";
+                const std::string query = match[3].matched ? match[3].str() : "";
+
+                eventSource = EventSource(scheme, net::un::SocketAddress(socketPath), httpPath + query);
+            } else {
+                LOG(ERROR) << "UNIX socket must decode to absolute ('/..') or abstract ('@name'): " << sockToken;
+            }
+        } else {
+            LOG(ERROR) << "EventSource unix-domain url not accepted: " << url;
+        }
 
         return eventSource;
     }

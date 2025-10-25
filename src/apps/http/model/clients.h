@@ -93,7 +93,7 @@ namespace apps::http::legacy {
     using Response = Client::Response;
     using SocketConnection = Client::SocketConnection;
 
-    Client getClient() {
+    inline Client getClient() {
         Client client(
             "httpclient",
             [](const std::shared_ptr<MasterRequest>& req) {
@@ -298,58 +298,76 @@ namespace apps::http::legacy {
                 req->set("Accept", "text/event-stream");
                 req->set("Cache-Control", "no-cache");
 
+                VLOG(0) << "###################: " << req->hostFieldValue;
+                /*
+                    const std::shared_ptr<web::http::client::tools::EventSource> eventStream_1 =
+                        web::http::legacy::NET::EventSource("http://localhost:8080/sse");
+                */
+                /*
                 const std::shared_ptr<web::http::client::tools::EventSource> eventStream_1 =
-                    web::http::legacy::NET::EventSource("http://localhost:8080/sse");
+                    web::http::legacy::NET::EventSource("localhost", 8080, "/sse");
+                */
+                /*
+                const std::shared_ptr<web::http::client::tools::EventSource> eventStream_1 =
+                    web::http::legacy::NET::EventSource("http://localhost:8080", "/sse");
+                */
 
-                eventStream_1->onOpen([]() {
-                    VLOG(0) << "OnOpen 1";
-                });
+                const std::shared_ptr<web::http::client::tools::EventSource> eventStream_1 =
+                    web::http::legacy::NET::EventSource("http://" + req->hostFieldValue, "/sse?hihi=3");
 
-                eventStream_1->onError([]() {
-                    VLOG(0) << "onError 1";
-                });
+                if (eventStream_1) {
+                    eventStream_1->onOpen([]() {
+                        VLOG(0) << "OnOpen 1";
+                    });
 
-                eventStream_1->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
-                    VLOG(0) << "OnMessage 1:1: " << message.data;
-                });
-                eventStream_1->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
-                    VLOG(0) << "OnMessage 1:2: " << message.data;
-                });
-                eventStream_1->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
-                    VLOG(0) << "EventListener for 'myevent' 1:1: " << message.lastEventId << " : " << message.data;
-                });
-                eventStream_1->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
-                    VLOG(0) << "EventListener for 'myevent' 1:2: " << message.lastEventId << " : " << message.data;
-                });
+                    eventStream_1->onError([]() {
+                        VLOG(0) << "onError 1";
+                    });
 
-                core::timer::Timer::singleshotTimer(
-                    [eventStream_1]() {
-                        eventStream_1->close();
-                    },
-                    5);
+                    eventStream_1->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
+                        VLOG(0) << "OnMessage 1:1: " << message.data;
+                    });
+                    eventStream_1->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
+                        VLOG(0) << "OnMessage 1:2: " << message.data;
+                    });
+                    eventStream_1->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
+                        VLOG(0) << "EventListener for 'myevent' 1:1: " << message.lastEventId << " : " << message.data;
+                    });
+                    eventStream_1->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
+                        VLOG(0) << "EventListener for 'myevent' 1:2: " << message.lastEventId << " : " << message.data;
+                    });
+
+                    core::timer::Timer::singleshotTimer(
+                        [eventStream_1]() {
+                            eventStream_1->close();
+                        },
+                        5);
+                }
 
                 auto eventStream_2 = web::http::legacy::NET::EventSource("http://localhost:8080/sse");
 
-                eventStream_2->onOpen([]() {
-                    VLOG(0) << "OnOpen 2";
-                });
+                if (eventStream_2) {
+                    eventStream_2->onOpen([]() {
+                        VLOG(0) << "OnOpen 2";
+                    });
 
-                eventStream_2->onError([]() {
-                    VLOG(0) << "onError 2";
-                });
+                    eventStream_2->onError([]() {
+                        VLOG(0) << "onError 2";
+                    });
 
-                eventStream_2->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
-                    VLOG(0) << "OnMessage 2:1: " << message.data;
-                });
-                eventStream_2->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
-                    VLOG(0) << "OnMessage 2:2: " << message.data;
-                });
-                eventStream_2->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
-                    VLOG(0) << "EventListener for 'myevent' 2:1: " << message.lastEventId << " : " << message.data;
-                });
-                eventStream_2->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
-                    VLOG(0) << "EventListener for 'myevent' 2:2: " << message.lastEventId << " : " << message.data;
-                });
+                    eventStream_2->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
+                        VLOG(0) << "OnMessage 2:1: " << message.data;
+                    });
+                    eventStream_2->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
+                        VLOG(0) << "OnMessage 2:2: " << message.data;
+                    });
+                    eventStream_2->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
+                        VLOG(0) << "EventListener for 'myevent' 2:1: " << message.lastEventId << " : " << message.data;
+                    });
+                    eventStream_2->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
+                        VLOG(0) << "EventListener for 'myevent' 2:2: " << message.lastEventId << " : " << message.data;
+                    });
+                }
 
             /*
                 req->requestEventSource("/sse", [request = std::weak_ptr<MasterRequest>(req)]() -> std::size_t {
@@ -524,7 +542,7 @@ namespace apps::http::tls {
     using Response = Client::Response;
     using SocketConnection = Client::SocketConnection;
 
-    Client getClient() {
+    inline Client getClient() {
         Client client(
             "httpclient",
             [](const std::shared_ptr<MasterRequest>& req) {

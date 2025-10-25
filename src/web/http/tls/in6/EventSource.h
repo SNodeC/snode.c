@@ -60,29 +60,53 @@ namespace web::http::tls::in6 {
     public:
         inline ~EventSource() override;
 
-        friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url);
-        friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const net::in6::SocketAddress& socketAddress, //
-                                                                                         const std::string& path);
-        friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& host, //
-                                                                                         uint16_t port,
+        friend inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& scheme, //
+                                                                                         const net::in6::SocketAddress& socketAddress,
                                                                                          const std::string& path);
     };
 
     inline EventSource::~EventSource() {
     }
 
-    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url) {
-        std::shared_ptr<class EventSource> eventSource;
+    inline std::shared_ptr<web::http::client::tools::EventSource>
+    EventSource(const std::string& scheme, const net::in6::SocketAddress& socketAddress, const std::string& path) {
+        std::shared_ptr<class EventSource> eventSource = std::make_shared<class EventSource>();
+        eventSource->init(scheme, socketAddress, path);
 
-        static const std::regex re(R"(^((https?)://)?([^/:]+)(?::(\d+))?(/.*)?$)");
+        return eventSource;
+    }
+
+    inline std::shared_ptr<web::http::client::tools::EventSource>
+    EventSource(const std::string& host, uint16_t port, const std::string& path) {
+        return EventSource("http", net::in6::SocketAddress(host, port), path);
+    }
+
+    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const std::string& url) {
+        std::shared_ptr<web::http::client::tools::EventSource> eventSource;
+
+        static const std::regex re(
+            R"(^(?:(https?)://)?(?![^/]*@)((?:(?:25[0-5]|2[0-4]\d|1?\d{1,2})\.){3}(?:25[0-5]|2[0-4]\d|1?\d{1,2})|[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)(?::([0-9]{1,5}))?([^?#]*)(\?[^#]*)?(?:#.*)?$)",
+            std::regex::ECMAScript | std::regex::icase);
+
         std::smatch match;
         if (std::regex_match(url, match, re)) {
-            const std::string& host = match[3].str();
-            const uint16_t port = match[4].matched ? static_cast<uint16_t>(std::stoi(match[4].str())) : static_cast<uint16_t>(80);
-            const std::string& path = (match[5].matched ? match[5].str() : "/");
+            //  [1] scheme    (optional) -> "http" or "https"
+            //  [2] host      (required) -> hostname or IPv4 token (no [ ], no :)
+            //  [3] port      (optional) -> digits
+            //  [4] path      (may be empty)
+            //  [5] query     (optional)
 
-            eventSource = std::make_shared<class EventSource>();
-            eventSource->init("https", net::in6::SocketAddress(host, port), path);
+            const std::string& scheme = match[1].matched ? match[1].str() : "http";
+            const std::string& host = match[2].str();
+            const uint16_t port = match[3].matched ? static_cast<uint16_t>(std::stoi(match[3].str())) : static_cast<uint16_t>(80);
+            const std::string& path = (match[4].matched ? match[4].str() : "/");
+            const std::string& query = (match[5].matched ? match[5].str() : "");
+
+            if (scheme == "https") {
+                eventSource = EventSource(scheme, net::in6::SocketAddress(host, port), path);
+            } else {
+                LOG(ERROR) << "Scheme not valid: " << scheme;
+            }
         } else {
             LOG(ERROR) << "EventSource url not accepted: " << url;
         }
@@ -90,17 +114,16 @@ namespace web::http::tls::in6 {
         return eventSource;
     }
 
-    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(const net::in6::SocketAddress& socketAddress,
-                                                                              const std::string& path) {
-        std::shared_ptr<class EventSource> eventSource = std::make_shared<class EventSource>();
-        eventSource->init("https", socketAddress, path);
+    inline std::shared_ptr<web::http::client::tools::EventSource> EventSource(std::string origin, std::string path) {
+        if (!origin.empty() && origin.at(origin.length() - 1) == '/') {
+            origin.pop_back();
+        }
 
-        return eventSource;
-    }
+        if (!path.empty() && path.at(0) != '/') {
+            path = "/" + path;
+        }
 
-    inline std::shared_ptr<web::http::client::tools::EventSource>
-    EventSource(const std::string& host, uint16_t port, const std::string& path) {
-        return EventSource(net::in6::SocketAddress(host, port), path);
+        return EventSource(!origin.empty() ? origin + path : "");
     }
 
 } // namespace web::http::tls::in6
