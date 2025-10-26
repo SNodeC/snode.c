@@ -103,7 +103,7 @@ namespace web::http::server {
 
         Response& sendHeader();
         Response& sendFragment(const char* chunk, std::size_t chunkLen);
-        Response& sendFragment(const std::string& chunk);
+        Response& sendFragment(const std::string& chunk = "");
 
     private:
         void sendCompleted();

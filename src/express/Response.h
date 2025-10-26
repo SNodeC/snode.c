@@ -115,7 +115,7 @@ namespace express {
 
         Response& sendHeader();
         Response& sendFragment(const char* chunk, std::size_t chunkLen);
-        Response& sendFragment(const std::string& chunk);
+        Response& sendFragment(const std::string& chunk = "");
 
         const std::string& header(const std::string& field);
     };
