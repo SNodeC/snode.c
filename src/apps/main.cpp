@@ -47,6 +47,7 @@
 
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <stdexcept>
 #include <string>
 
 // IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
@@ -153,11 +154,20 @@ int main(int argc, char* argv[]) {
 
     app.get("/sse", [] APPLICATION(req, res) {
         if (web::http::ciContains(req->get("Accept"), "text/event-stream")) {
-            res->set("Content-Type", "text/event-stream").set("Cache-Control", "no-cache").set("Connection", "keep-alive");
+            res->set("Content-Type", "text/event-stream") //
+                .set("Cache-Control", "no-cache")
+                .set("Connection", "keep-alive");
             res->sendHeader();
 
+            int lastEventId = 0;
+            try {
+                lastEventId = std::stoi(req->get("Last-Event-ID"));
+            } catch (std::logic_error const& ex) {
+                std::cout << "std::logic_error::what(): " << ex.what() << '\n';
+            }
+
             core::timer::Timer::intervalTimer(
-                [res, id = 0](auto& stop) mutable {
+                [res, id = ++lastEventId](auto& stop) mutable {
                     if (res->isConnected()) {
                         res->sendFragment("event: myevent");
                         res->sendFragment("id: " + std::to_string(id));
