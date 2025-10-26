@@ -173,7 +173,7 @@ namespace core::socket::stream {
 
     protected:
         SocketConnectionT(PhysicalSocket&& physicalSocket,
-                          const std::function<void()>& onDisconnectm,
+                          const std::function<void()>& onDisconnect,
                           const std::shared_ptr<Config>& config);
 
         ~SocketConnectionT() override;
