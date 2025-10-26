@@ -291,14 +291,6 @@ namespace apps::http::legacy {
                     [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
 
-                req->httpMajor = 1;
-                req->httpMinor = 1;
-
-                req->set("Connection", "keep-alive");
-                req->set("Accept", "text/event-stream");
-                req->set("Cache-Control", "no-cache");
-
-                VLOG(0) << "###################: " << req->hostFieldValue;
                 /*
                     const std::shared_ptr<web::http::client::tools::EventSource> eventStream_1 =
                         web::http::legacy::NET::EventSource("http://localhost:8080/sse");
