@@ -92,6 +92,18 @@ namespace web::http::server {
               }) {
     }
 
+    SocketContext* SocketContext::onConnected(std::function<void()> onConnectEventReceiver) {
+        onConnectEventReceiverList.push_back(std::move(onConnectEventReceiver));
+
+        return this;
+    }
+
+    SocketContext* SocketContext::onDisconnected(std::function<void()> onDisconnectEventReceiver) {
+        onDisconnectEventReceiverList.push_back(std::move(onDisconnectEventReceiver));
+
+        return this;
+    }
+
     void SocketContext::deliverRequest() {
         if (!pendingRequests.empty()) {
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
@@ -195,6 +207,10 @@ namespace web::http::server {
 
     void SocketContext::onConnected() {
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Connected";
+
+        for (auto& onConnectEventReceiver : onConnectEventReceiverList) {
+            onConnectEventReceiver();
+        }
     }
 
     std::size_t SocketContext::onReceivedFromPeer() {
@@ -211,6 +227,10 @@ namespace web::http::server {
         masterResponse->disconnect();
 
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received disconnect";
+
+        for (auto& onDisconnectEventReceiver : onDisconnectEventReceiverList) {
+            onDisconnectEventReceiver();
+        }
     }
 
     bool SocketContext::onSignal(int signum) {

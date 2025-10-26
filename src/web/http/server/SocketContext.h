@@ -76,6 +76,10 @@ namespace web::http::server {
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
                       const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady);
 
+        SocketContext* onConnected(std::function<void()> onConnectEventReceiver);
+
+        SocketContext* onDisconnected(std::function<void()> onDisconnectEventReceiver);
+
     private:
         void deliverRequest();
         void responseStarted(const Response& response);
@@ -92,6 +96,9 @@ namespace web::http::server {
 
         std::list<std::shared_ptr<Request>> pendingRequests;
         std::shared_ptr<Response> masterResponse;
+
+        std::list<std::function<void()>> onConnectEventReceiverList;
+        std::list<std::function<void()>> onDisconnectEventReceiverList;
 
         RequestParser parser;
 
