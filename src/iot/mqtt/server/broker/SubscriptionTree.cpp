@@ -104,9 +104,7 @@ namespace iot::mqtt::server::broker {
     }
 
     std::list<std::string> SubscriptionTree::getSubscriptions(const std::string& clientId) const {
-        std::list<std::string> subscriptions = head.getSubscriptions(clientId);
-
-        return subscriptions;
+        return head.getSubscriptions(clientId);
     }
 
     std::map<std::string, std::list<std::pair<std::string, uint8_t>>> SubscriptionTree::getSubscriptionTree() const {
