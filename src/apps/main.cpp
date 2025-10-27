@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
 
         <script>
             // Initialize the EventSource, listening for server updates
-            const eventSource = new EventSource('http://localhost:8080/sse');
+            const eventSource = new EventSource('/sse');
 
             // Listen for messages from the server
             eventSource.onmessage = function(event) {
