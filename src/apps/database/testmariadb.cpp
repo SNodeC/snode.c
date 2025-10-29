@@ -79,7 +79,15 @@ int main(int argc, char* argv[]) {
     // GRANT ALL PRIVILEGES ON snodec.snodec TO 'snodec'@localhost;
     // FLUSH PRIVILEGES;
 
-    database::mariadb::MariaDBClient db1(details);
+    database::mariadb::MariaDBClient db1(details, [](const database::mariadb::MariaDBState& state) {
+        if (state.error != 0) {
+            VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
+        } else if (state.connected) {
+            VLOG(0) << "MySQL connected";
+        } else {
+            VLOG(0) << "MySQL disconnected";
+        }
+    });
 
     int r = 0;
 
@@ -141,7 +149,15 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
             });
 
-    database::mariadb::MariaDBClient db2(details);
+    database::mariadb::MariaDBClient db2(details, [](const database::mariadb::MariaDBState& state) {
+        if (state.error != 0) {
+            VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
+        } else if (state.connected) {
+            VLOG(0) << "MySQL connected";
+        } else {
+            VLOG(0) << "MySQL disconnected";
+        }
+    });
     {
         db2.query(
             "SELECT * FROM snodec",

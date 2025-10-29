@@ -285,7 +285,15 @@ int main(int argc, char* argv[]) {
     // CREATE DATABASE 'snodec';
     // CREATE TABLE 'snodec' ('username' text NOT NULL, 'password' text NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 
-    database::mariadb::MariaDBClient db(details);
+    database::mariadb::MariaDBClient db(details, [](const database::mariadb::MariaDBState& state) {
+        if (state.error != 0) {
+            VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
+        } else if (state.connected) {
+            VLOG(0) << "MySQL connected";
+        } else {
+            VLOG(0) << "MySQL disconnected";
+        }
+    });
 
     {
         legacy::in::WebApp legacyApp("legacy-testregex");

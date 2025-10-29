@@ -103,7 +103,15 @@ int main(int argc, char* argv[]) {
         .socket = "/run/mysqld/mysqld.sock",
         .flags = 0,
     };
-    database::mariadb::MariaDBClient db{details};
+    database::mariadb::MariaDBClient db{details, [](const database::mariadb::MariaDBState& state) {
+                                            if (state.error != 0) {
+                                                VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
+                                            } else if (state.connected) {
+                                                VLOG(0) << "MySQL connected";
+                                            } else {
+                                                VLOG(0) << "MySQL disconnected";
+                                            }
+                                        }};
 
     app.use(express::middleware::JsonMiddleware());
 
