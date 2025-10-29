@@ -64,6 +64,9 @@ namespace database::mariadb {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+#include <string>
+
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #ifdef __has_warning
@@ -80,11 +83,17 @@ namespace database::mariadb {
 
 namespace database::mariadb {
 
+    struct MariaDBState {
+        unsigned int error = 0;
+        std::string errorMessage{};
+        bool connected = false;
+    };
+
     class MariaDBClient
         : public MariaDBClientASyncAPI
         , public MariaDBClientSyncAPI {
     public:
-        explicit MariaDBClient(const MariaDBConnectionDetails& details);
+        explicit MariaDBClient(const MariaDBConnectionDetails& details, const std::function<void(const MariaDBState&)>& onStateChanged);
         ~MariaDBClient() override;
 
     private:
@@ -96,6 +105,8 @@ namespace database::mariadb {
         MariaDBConnection* mariaDBConnection = nullptr;
 
         MariaDBConnectionDetails details;
+
+        std::function<void(const MariaDBState&)> onStateChanged = nullptr;
 
         friend class MariaDBConnection;
     };

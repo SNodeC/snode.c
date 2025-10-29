@@ -53,8 +53,9 @@
 
 namespace database::mariadb {
 
-    MariaDBClient::MariaDBClient(const MariaDBConnectionDetails& details)
-        : details(details) {
+    MariaDBClient::MariaDBClient(const MariaDBConnectionDetails& details, const std::function<void(const MariaDBState&)>& onStateChanged)
+        : details(details)
+        , onStateChanged(onStateChanged) {
     }
 
     MariaDBClient::~MariaDBClient() {

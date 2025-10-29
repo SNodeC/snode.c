@@ -74,8 +74,6 @@ namespace database::mariadb {
                 if (mysql_errno(mysql) == 0) {
                     const int fd = mysql_get_socket(mysql);
 
-                    LOG(DEBUG) << "MariaDB: Got valid descriptor: " << fd;
-
                     if (ReadEventReceiver::enable(fd) && WriteEventReceiver::enable(fd) && ExceptionalConditionEventReceiver::enable(fd)) {
                         ReadEventReceiver::suspend();
                         WriteEventReceiver::suspend();
@@ -92,16 +90,24 @@ namespace database::mariadb {
                         if (ExceptionalConditionEventReceiver::isEnabled()) {
                             ExceptionalConditionEventReceiver::disable();
                         }
+
+                        LOG(ERROR) << "MariaDB: Descriptor not registered in SNode.C eventloop";
                     }
-                } else {
-                    LOG(WARNING) << "MariaDB: Got no valid descriptor: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
                 }
             },
-            []() {
-                LOG(DEBUG) << "MariaDB: Connect success";
+            [this]() {
+                LOG(DEBUG) << "MariaDB connect: success";
+
+                if (this->mariaDBClient != nullptr) {
+                    this->mariaDBClient->onStateChanged({.connected = true});
+                }
             },
-            [](const std::string& errorString, unsigned int errorNumber) {
-                LOG(WARNING) << "MariaDB: Connect error: " << errorString << " : " << errorNumber;
+            [this](const std::string& errorString, unsigned int errorNumber) {
+                LOG(WARNING) << "MariaDB connect: error: " << errorString << " : " << errorNumber;
+
+                if (this->mariaDBClient != nullptr) {
+                    this->mariaDBClient->onStateChanged({.error = errorNumber, .errorMessage = errorString});
+                }
             }))));
     }
 
@@ -151,7 +157,7 @@ namespace database::mariadb {
         if (!commandSequenceQueue.empty()) {
             currentCommand = commandSequenceQueue.front().nextCommand();
 
-            LOG(DEBUG) << "MariaDB: Start: " << currentCommand->commandInfo();
+            LOG(DEBUG) << "MariaDB start: " << currentCommand->commandInfo();
 
             currentCommand->setMariaDBConnection(this);
             checkStatus(currentCommand->commandStart(mysql, currentTime));
@@ -177,7 +183,7 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::commandCompleted() {
-        LOG(DEBUG) << "MariaDB: Completed: " << currentCommand->commandInfo();
+        LOG(DEBUG) << "MariaDB completed: " << currentCommand->commandInfo();
         commandSequenceQueue.front().commandCompleted();
 
         if (commandSequenceQueue.front().empty()) {
@@ -242,6 +248,7 @@ namespace database::mariadb {
         } else {
             currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
             commandCompleted();
+
             delete this;
         }
     }
@@ -271,6 +278,12 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::unobservedEvent() {
+        LOG(ERROR) << "MariaDB: Lost connection";
+
+        if (mariaDBClient != nullptr) {
+            mariaDBClient->onStateChanged({});
+        }
+
         delete this;
     }
 
