@@ -69,17 +69,20 @@ namespace database::mariadb {
         MariaDBCommandSequence& query(const std::string& sql,
                                       const std::function<void(const MYSQL_ROW)>& onQuery,
                                       const std::function<void(const std::string&, unsigned int)>& onError);
+
         MariaDBCommandSequence& exec(const std::string& sql,
                                      const std::function<void(void)>& onExec,
                                      const std::function<void(const std::string&, unsigned int)>& onError);
 
         MariaDBCommandSequence& startTransactions(const std::function<void(void)>& onAutoCommit,
                                                   const std::function<void(const std::string&, unsigned int)>& onError);
+
         MariaDBCommandSequence& endTransactions(const std::function<void(void)>& onAutoCommit,
                                                 const std::function<void(const std::string&, unsigned int)>& onError);
 
         MariaDBCommandSequence& commit(const std::function<void(void)>& onCommit,
                                        const std::function<void(const std::string&, unsigned int)>& onError);
+
         MariaDBCommandSequence& rollback(const std::function<void(void)>& onRollback,
                                          const std::function<void(const std::string&, unsigned int)>& onError);
 
