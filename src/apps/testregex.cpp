@@ -270,6 +270,7 @@ int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
     const database::mariadb::MariaDBConnectionDetails details = {
+        .connectionName = "regex",
         .hostname = "localhost",
         .username = "snodec",
         .password = "pentium5",

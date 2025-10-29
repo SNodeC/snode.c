@@ -52,6 +52,7 @@
 namespace database::mariadb {
 
     struct MariaDBConnectionDetails {
+        std::string connectionName;
         std::string hostname;
         std::string username;
         std::string password;

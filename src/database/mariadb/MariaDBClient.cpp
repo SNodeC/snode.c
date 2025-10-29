@@ -66,7 +66,7 @@ namespace database::mariadb {
 
     MariaDBCommandSequence& MariaDBClient::execute_async(MariaDBCommand* mariaDBCommand) {
         if (mariaDBConnection == nullptr) {
-            mariaDBConnection = new MariaDBConnection(this, details);
+            mariaDBConnection = new MariaDBConnection(this, details, onStateChanged);
         }
 
         return mariaDBConnection->execute_async(std::move(MariaDBCommandSequence().execute_async(mariaDBCommand)));
@@ -74,7 +74,7 @@ namespace database::mariadb {
 
     void MariaDBClient::execute_sync(MariaDBCommandSync* mariaDBCommand) {
         if (mariaDBConnection == nullptr) {
-            mariaDBConnection = new MariaDBConnection(this, details);
+            mariaDBConnection = new MariaDBConnection(this, details, onStateChanged);
         }
 
         mariaDBConnection->execute_sync(mariaDBCommand);

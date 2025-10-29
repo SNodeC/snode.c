@@ -95,6 +95,7 @@ int main(int argc, char* argv[]) {
     const express::legacy::in::WebApp app("OAuth2AuthorizationServer");
 
     const database::mariadb::MariaDBConnectionDetails details{
+        .connectionName = "authorization",
         .hostname = "localhost",
         .username = "rathalin",
         .password = "rathalin",

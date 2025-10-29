@@ -89,7 +89,7 @@ namespace database::mariadb::commands::async {
     }
 
     std::string MariaDBConnectCommand::commandInfo() {
-        return commandName() + ": " + details.hostname + ":" + std::to_string(details.port) + " | " + details.socket;
+        return commandName() + " " + details.hostname + ":" + std::to_string(details.port) + " | " + details.socket;
     }
 
 } // namespace database::mariadb::commands::async

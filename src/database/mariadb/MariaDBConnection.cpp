@@ -59,13 +59,17 @@
 
 namespace database::mariadb {
 
-    MariaDBConnection::MariaDBConnection(MariaDBClient* mariaDBClient, const MariaDBConnectionDetails& connectionDetails)
+    MariaDBConnection::MariaDBConnection(MariaDBClient* mariaDBClient,
+                                         const MariaDBConnectionDetails& connectionDetails,
+                                         const std::function<void(const MariaDBState&)>& onStateChanged)
         : ReadEventReceiver("MariaDBConnectionRead", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , WriteEventReceiver("MariaDBConnectionWrite", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , ExceptionalConditionEventReceiver("MariaDBConnectionExceptional", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , mariaDBClient(mariaDBClient)
         , mysql(mysql_init(nullptr))
-        , commandStartEvent("MariaDBCommandStartEvent", this) {
+        , connectionName(connectionDetails.connectionName)
+        , commandStartEvent("MariaDBCommandStartEvent", this)
+        , onStateChanged(onStateChanged) {
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, nullptr);
 
         execute_async(std::move(MariaDBCommandSequence().execute_async(new database::mariadb::commands::async::MariaDBConnectCommand(
@@ -91,23 +95,19 @@ namespace database::mariadb {
                             ExceptionalConditionEventReceiver::disable();
                         }
 
-                        LOG(ERROR) << "MariaDB: Descriptor not registered in SNode.C eventloop";
+                        LOG(ERROR) << this->connectionName << " MariaDB: Descriptor not registered in SNode.C eventloop";
                     }
                 }
             },
             [this]() {
-                LOG(DEBUG) << "MariaDB connect: success";
+                LOG(DEBUG) << this->connectionName << " MariaDB connect: success";
 
-                if (this->mariaDBClient != nullptr) {
-                    this->mariaDBClient->onStateChanged({.connected = true});
-                }
+                this->onStateChanged({.connected = true});
             },
             [this](const std::string& errorString, unsigned int errorNumber) {
-                LOG(WARNING) << "MariaDB connect: error: " << errorString << " : " << errorNumber;
+                LOG(WARNING) << this->connectionName << " MariaDB connect: error: " << errorString << " : " << errorNumber;
 
-                if (this->mariaDBClient != nullptr) {
-                    this->mariaDBClient->onStateChanged({.error = errorNumber, .errorMessage = errorString});
-                }
+                this->onStateChanged({.error = errorNumber, .errorMessage = errorString});
             }))));
     }
 
@@ -157,7 +157,7 @@ namespace database::mariadb {
         if (!commandSequenceQueue.empty()) {
             currentCommand = commandSequenceQueue.front().nextCommand();
 
-            LOG(DEBUG) << "MariaDB start: " << currentCommand->commandInfo();
+            LOG(DEBUG) << connectionName << " MariaDB start: " << currentCommand->commandInfo();
 
             currentCommand->setMariaDBConnection(this);
             checkStatus(currentCommand->commandStart(mysql, currentTime));
@@ -183,7 +183,7 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::commandCompleted() {
-        LOG(DEBUG) << "MariaDB completed: " << currentCommand->commandInfo();
+        LOG(DEBUG) << connectionName << " MariaDB completed: " << currentCommand->commandInfo();
         commandSequenceQueue.front().commandCompleted();
 
         if (commandSequenceQueue.front().empty()) {
@@ -278,10 +278,10 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::unobservedEvent() {
-        LOG(ERROR) << "MariaDB: Lost connection";
+        LOG(ERROR) << connectionName << " MariaDB: Lost connection";
 
         if (mariaDBClient != nullptr) {
-            mariaDBClient->onStateChanged({});
+            onStateChanged({});
         }
 
         delete this;

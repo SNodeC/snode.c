@@ -63,6 +63,7 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     const database::mariadb::MariaDBConnectionDetails details = {
+        .connectionName = "testconnection",
         .hostname = utils::Config::getStringOptionValue("--db-host"),
         .username = "snodec",
         .password = "pentium5",

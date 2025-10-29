@@ -75,7 +75,7 @@ namespace database::mariadb::commands::async {
     }
 
     std::string MariaDBQueryCommand::commandInfo() {
-        return commandName() + ": " + sql;
+        return commandName() + " " + sql;
     }
 
 } // namespace database::mariadb::commands::async

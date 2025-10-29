@@ -53,6 +53,7 @@ namespace database::mariadb {
     class MariaDBClient;
     class MariaDBConnection;
     struct MariaDBConnectionDetails;
+    struct MariaDBState;
 } // namespace database::mariadb
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -62,6 +63,7 @@ namespace utils {
 }
 
 #include <deque>
+#include <functional>
 #include <mysql.h>
 #include <string>
 
@@ -88,7 +90,9 @@ namespace database::mariadb {
         , private core::eventreceiver::WriteEventReceiver
         , private core::eventreceiver::ExceptionalConditionEventReceiver {
     public:
-        explicit MariaDBConnection(MariaDBClient* mariaDBClient, const MariaDBConnectionDetails& connectionDetails);
+        explicit MariaDBConnection(MariaDBClient* mariaDBClient,
+                                   const MariaDBConnectionDetails& connectionDetails,
+                                   const std::function<void(const MariaDBState&)>& onStateChanged);
         MariaDBConnection(const MariaDBConnection&) = delete;
 
         ~MariaDBConnection() override;
@@ -120,6 +124,7 @@ namespace database::mariadb {
     private:
         MariaDBClient* mariaDBClient;
         MYSQL* mysql;
+        const std::string connectionName;
 
         std::deque<MariaDBCommandSequence> commandSequenceQueue;
 
@@ -127,6 +132,8 @@ namespace database::mariadb {
         bool connected = false;
 
         MariaDBCommandStartEvent commandStartEvent;
+
+        std::function<void(const MariaDBState&)> onStateChanged;
     };
 
 } // namespace database::mariadb
