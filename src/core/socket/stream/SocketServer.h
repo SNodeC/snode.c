@@ -189,8 +189,7 @@ namespace core::socket::stream {
                             relativeRetryTimeout -= utils::Random::getInRange(-config->getRetryJitter(), config->getRetryJitter()) *
                                                     relativeRetryTimeout / 100.;
 
-                            LOG(INFO) << config->getInstanceName() << ": OnStatus";
-                            LOG(INFO) << "  retrying in " << relativeRetryTimeout << " seconds";
+                            LOG(INFO) << config->getInstanceName() << ": Retry listen in " << relativeRetryTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
                                 [config,
@@ -205,7 +204,7 @@ namespace core::socket::stream {
                                         SocketServer(config, socketContextFactory, onConnect, onConnected, onDisconnect)
                                             .realListen(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
                                     } else {
-                                        LOG(INFO) << config->getInstanceName() << ": Retry disabled during wait";
+                                        LOG(INFO) << config->getInstanceName() << ": Retry listen disabled during wait";
                                     }
                                 },
                                 relativeRetryTimeout);

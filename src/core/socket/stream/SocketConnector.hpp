@@ -177,7 +177,7 @@ namespace core::socket::stream {
                                 if (remoteAddress.useNext()) {
                                     onStatus(currentRemoteAddress, state | core::socket::State::NO_RETRY);
 
-                                    LOG(DEBUG) << config->getInstanceName() << " using next SocketAddress: " << remoteAddress.toString();
+                                    LOG(INFO) << config->getInstanceName() << ": Using next SocketAddress: " << remoteAddress.toString();
 
                                     useNextSocketAddress();
                                 } else {

@@ -182,8 +182,8 @@ namespace core::socket::stream {
                 if (bindAddress.useNext()) {
                     onStatus(currentLocalAddress, (state | core::socket::State::NO_RETRY));
 
-                    LOG(DEBUG) << config->getInstanceName()
-                               << ": Using next SocketAddress: " << config->Local::getSocketAddress().toString();
+                    LOG(INFO) << config->getInstanceName()
+                              << ": Using next SocketAddress: " << config->Local::getSocketAddress().toString();
 
                     useNextSocketAddress();
                 } else {

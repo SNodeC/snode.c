@@ -196,6 +196,18 @@ namespace database::mariadb {
 
     void MariaDBConnection::unmanaged() {
         mariaDBClient = nullptr;
+
+        if (currentCommand == nullptr && commandSequenceQueue.empty()) {
+            if (ReadEventReceiver::isEnabled()) {
+                ReadEventReceiver::disable();
+            }
+            if (WriteEventReceiver::isEnabled()) {
+                WriteEventReceiver::disable();
+            }
+            if (ExceptionalConditionEventReceiver::isEnabled()) {
+                ExceptionalConditionEventReceiver::disable();
+            }
+        }
     }
 
     void MariaDBConnection::checkStatus(int status) {

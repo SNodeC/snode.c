@@ -181,8 +181,7 @@ namespace core::socket::stream {
                         if (config->getReconnect() && core::eventLoopState() == core::State::RUNNING) {
                             double relativeReconnectTimeout = config->getReconnectTime();
 
-                            LOG(INFO) << config->getInstanceName() << ": OnStatus";
-                            LOG(INFO) << "  reconnecting in " << relativeReconnectTimeout << " seconds";
+                            LOG(INFO) << config->getInstanceName() << ": Reconnect in " << relativeReconnectTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
                                 [config, onConnect, onConnected, onDisconnect, onStatus, socketContextFactory]() mutable {
@@ -219,8 +218,7 @@ namespace core::socket::stream {
                             relativeRetryTimeout -= utils::Random::getInRange(-config->getRetryJitter(), config->getRetryJitter()) *
                                                     relativeRetryTimeout / 100.;
 
-                            LOG(INFO) << config->getInstanceName() << ": OnStatus";
-                            LOG(INFO) << "  retrying in " << relativeRetryTimeout << " seconds";
+                            LOG(INFO) << config->getInstanceName() << ": Retry connect in " << relativeRetryTimeout << " seconds";
 
                             core::timer::Timer::singleshotTimer(
                                 [config,
@@ -235,7 +233,7 @@ namespace core::socket::stream {
                                         SocketClient(config, socketContextFactory, onConnect, onConnected, onDisconnect)
                                             .realConnect(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
                                     } else {
-                                        LOG(INFO) << config->getInstanceName() << ": Retry disabled during wait";
+                                        LOG(INFO) << config->getInstanceName() << ": Retry connect disabled during wait";
                                     }
                                 },
                                 relativeRetryTimeout);
