@@ -71,8 +71,7 @@ namespace core::socket::stream {
         using SocketConnection = SocketConnectionT<PhysicalClientSocket, Config>;
 
     public:
-        SocketConnector(const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
-                        const std::function<void(SocketConnection*)>& onConnect,
+        SocketConnector(const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
@@ -101,8 +100,6 @@ namespace core::socket::stream {
         SocketAddress remoteAddress;
 
     protected:
-        std::shared_ptr<core::socket::stream::SocketContextFactory> socketContextFactory = nullptr;
-
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;

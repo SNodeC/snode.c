@@ -59,14 +59,12 @@ namespace core::socket::stream {
               typename Config,
               template <typename ConfigT, typename PhysicalSocketServerT> typename SocketConnection>
     SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::SocketAcceptor(
-        const std::shared_ptr<core::socket::stream::SocketContextFactory>& socketContextFactory,
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::AcceptEventReceiver(config->getInstanceName() + " SocketAcceptor", 0)
-        , socketContextFactory(socketContextFactory)
         , onConnect(onConnect)
         , onConnected(onConnected)
         , onDisconnect(onDisconnect)
@@ -86,7 +84,6 @@ namespace core::socket::stream {
               template <typename ConfigT, typename PhysicalSocketServerT> typename SocketConnection>
     SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
         : core::eventreceiver::AcceptEventReceiver(socketAcceptor.config->getInstanceName() + " SocketAcceptor", 0)
-        , socketContextFactory(socketAcceptor.socketContextFactory)
         , onConnect(socketAcceptor.onConnect)
         , onConnected(socketAcceptor.onConnected)
         , onDisconnect(socketAcceptor.onDisconnect)

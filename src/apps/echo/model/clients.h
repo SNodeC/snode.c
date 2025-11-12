@@ -73,7 +73,7 @@ namespace apps::echo::model::legacy {
 
     using EchoSocketClient = net::NET::stream::legacy::SocketClient<EchoClientSocketContextFactory>;
 
-    EchoSocketClient getClient() {
+    inline EchoSocketClient getClient() {
         return EchoSocketClient("echoclient");
     }
 
@@ -86,7 +86,7 @@ namespace apps::echo::model::tls {
     using EchoSocketClient = net::NET::stream::tls::SocketClient<EchoClientSocketContextFactory>;
     using SocketConnection = EchoSocketClient::SocketConnection;
 
-    EchoSocketClient getClient() {
+    inline EchoSocketClient getClient() {
         EchoSocketClient client("echoclient");
 
         client.setOnConnect([&client](SocketConnection* socketConnection) { // onConnect
@@ -110,7 +110,7 @@ namespace apps::echo::model::tls {
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
-                long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
+                const long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
                 VLOG(1) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
                                std::string(X509_verify_cert_error_string(verifyErr));
@@ -135,7 +135,7 @@ namespace apps::echo::model::tls {
 #endif
 #endif
 #endif
-                int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
+                const int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 #ifdef __GNUC_
 #pragma GCC diagnostic pop
 #endif
@@ -154,12 +154,12 @@ namespace apps::echo::model::tls {
 #pragma GCC diagnostic pop
 #endif
                     if (generalName->type == GEN_URI) {
-                        std::string subjectAltName =
+                        const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
                         VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
-                        std::string subjectAltName =
+                        const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
                         VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;

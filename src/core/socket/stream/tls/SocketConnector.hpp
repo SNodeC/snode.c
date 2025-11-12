@@ -65,7 +65,6 @@ namespace core::socket::stream::tls {
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
         : Super(
-              socketContextFactory,
               [onConnect, this](SocketConnection* socketConnection) { // onConnect
                   onConnect(socketConnection);
 
