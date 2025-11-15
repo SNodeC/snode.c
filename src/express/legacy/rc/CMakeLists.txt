@@ -39,63 +39,66 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(HTTP_SERVER_EXPRESS_LEGACY_RC_CPP Server.cpp)
+if(BLUEZ_FOUND)
+    set(HTTP_SERVER_EXPRESS_LEGACY_RC_CPP Server.cpp)
 
-set(HTTP_SERVER_EXPRESS_LEGACY_RC_H Server.h)
+    set(HTTP_SERVER_EXPRESS_LEGACY_RC_H Server.h)
 
-add_library(
-    http-server-express-legacy-rc SHARED ${HTTP_SERVER_EXPRESS_LEGACY_RC_CPP}
-                                         ${HTTP_SERVER_EXPRESS_LEGACY_RC_H}
-)
-add_library(
-    snodec::http-server-express-legacy-rc ALIAS http-server-express-legacy-rc
-)
+    add_library(
+        http-server-express-legacy-rc SHARED
+        ${HTTP_SERVER_EXPRESS_LEGACY_RC_CPP} ${HTTP_SERVER_EXPRESS_LEGACY_RC_H}
+    )
+    add_library(
+        snodec::http-server-express-legacy-rc ALIAS
+        http-server-express-legacy-rc
+    )
 
-target_include_directories(
-    http-server-express-legacy-rc
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
-)
+    target_include_directories(
+        http-server-express-legacy-rc
+        PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+               "$<INSTALL_INTERFACE:include/snode.c>"
+    )
 
-target_link_libraries(
-    http-server-express-legacy-rc PUBLIC http-server net-rc-stream-legacy
-                                         http-server-express
-)
+    target_link_libraries(
+        http-server-express-legacy-rc PUBLIC http-server net-rc-stream-legacy
+                                             http-server-express
+    )
 
-get_target_property(HTTP_COMPILE_LIBDIR http-server HTTP_COMPILE_LIBDIR)
-get_target_property(HTTP_INSTALL_LIBDIR http-server HTTP_INSTALL_LIBDIR)
-get_target_property(HTTP_INSTALL_RPATH http-server HTTP_INSTALL_RPATH)
+    get_target_property(HTTP_COMPILE_LIBDIR http-server HTTP_COMPILE_LIBDIR)
+    get_target_property(HTTP_INSTALL_LIBDIR http-server HTTP_INSTALL_LIBDIR)
+    get_target_property(HTTP_INSTALL_RPATH http-server HTTP_INSTALL_RPATH)
 
-set_target_properties(
-    http-server-express-legacy-rc
-    PROPERTIES OUTPUT_NAME snodec-http-server-express-legacy-rc
-               LIBRARY_OUTPUT_DIRECTORY ${HTTP_COMPILE_LIBDIR}
-               VERSION ${SNode.C_VERSION}
-               SOVERSION ${SNODEC_SOVERSION}
-               INSTALL_RPATH "${HTTP_INSTALL_RPATH}"
-)
+    set_target_properties(
+        http-server-express-legacy-rc
+        PROPERTIES OUTPUT_NAME snodec-http-server-express-legacy-rc
+                   LIBRARY_OUTPUT_DIRECTORY ${HTTP_COMPILE_LIBDIR}
+                   VERSION ${SNode.C_VERSION}
+                   SOVERSION ${SNODEC_SOVERSION}
+                   INSTALL_RPATH "${HTTP_INSTALL_RPATH}"
+    )
 
-install(
-    TARGETS http-server-express-legacy-rc
-    EXPORT snodec_http-server-express-legacy-rc_Targets
-    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR}
-            COMPONENT http-server-express-legacy-rc
-)
+    install(
+        TARGETS http-server-express-legacy-rc
+        EXPORT snodec_http-server-express-legacy-rc_Targets
+        LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR}
+                COMPONENT http-server-express-legacy-rc
+    )
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express/legacy/rc
-    COMPONENT http-server-express-legacy-rc
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
+    install(
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express/legacy/rc
+        COMPONENT http-server-express-legacy-rc
+        FILES_MATCHING
+        PATTERN "*.h"
+        PATTERN "*.hpp"
+        PATTERN "cmake" EXCLUDE
+    )
 
-install(
-    EXPORT snodec_http-server-express-legacy-rc_Targets
-    FILE snodec_http-server-express-legacy-rc_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT http-server-express-legacy-rc
-)
+    install(
+        EXPORT snodec_http-server-express-legacy-rc_Targets
+        FILE snodec_http-server-express-legacy-rc_Targets.cmake
+        NAMESPACE snodec::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+        COMPONENT http-server-express-legacy-rc
+    )
+endif(BLUEZ_FOUND)
