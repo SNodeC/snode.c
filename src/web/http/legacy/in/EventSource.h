@@ -105,7 +105,7 @@ namespace web::http::legacy::in {
             const std::string& query = (match[5].matched ? match[5].str() : "");
 
             if (scheme == "http") {
-                eventSource = EventSource(scheme, net::in::SocketAddress(host, port), path);
+                eventSource = EventSource(scheme, net::in::SocketAddress(host, port), path + query);
             } else {
                 LOG(ERROR) << "Scheme not valid: " << scheme;
             }
