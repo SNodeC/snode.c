@@ -43,7 +43,6 @@
 #define WEB_HTTP_LEGACY_IN6_SERVER_H
 
 #include "net/in6/stream/legacy/SocketServer.h" // IWYU pragma: export
-#include "web/http/server/Response.h"           // IWYU pragma: export
 #include "web/http/server/Server.h"             // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
