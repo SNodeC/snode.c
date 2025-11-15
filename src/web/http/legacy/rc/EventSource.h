@@ -121,7 +121,7 @@ namespace web::http::legacy::rc {
             path = "/" + path;
         }
 
-        return EventSource(!origin.empty() ? origin + path : "");
+        return EventSource(!origin.empty() ? origin + path : path);
     }
 
 } // namespace web::http::legacy::rc

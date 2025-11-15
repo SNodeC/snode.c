@@ -123,7 +123,7 @@ namespace web::http::tls::in6 {
             path = "/" + path;
         }
 
-        return EventSource(!origin.empty() ? origin + path : "");
+        return EventSource(!origin.empty() ? origin + path : path);
     }
 
 } // namespace web::http::tls::in6
