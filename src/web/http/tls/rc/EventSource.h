@@ -104,7 +104,7 @@ namespace web::http::tls::rc {
             const std::string path = match[3].matched ? match[3].str() : "/";
             const std::string query = match[4].matched ? match[4].str() : "";
 
-            eventSource = std::make_shared<class EventSource>(scheme, net::rc::SocketAddress(addr, chan), path + query);
+            eventSource = EventSource(scheme, net::rc::SocketAddress(addr, chan), path + query);
         } else {
             LOG(ERROR) << "EventSource RFCOMM url not accepted: " << url;
         }
