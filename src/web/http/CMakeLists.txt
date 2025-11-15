@@ -74,7 +74,6 @@ set(HTTP_H
     CookieOptions.h
     MimeTypes.h
     Parser.h
-    SocketContextFactory.h
     SocketContextUpgrade.h
     SocketContextUpgradeFactory.h
     SocketContextUpgradeFactory.hpp

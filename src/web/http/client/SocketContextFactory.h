@@ -42,7 +42,7 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 
-#include "web/http/SocketContextFactory.h"
+#include "core/socket/stream//SocketContextFactory.h"
 #include "web/http/client/ConfigHTTP.h"
 #include "web/http/client/SocketContext.h" // IWYU pragma: export
 
@@ -59,7 +59,7 @@ namespace net::config {
 
 namespace web::http::client {
 
-    class SocketContextFactory : public web::http::SocketContextFactory<web::http::client::SocketContext> {
+    class SocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
         using MasterRequest = web::http::client::MasterRequest;
         using Response = web::http::client::Response;

@@ -50,7 +50,7 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 
-#include "web/http/SocketContextFactory.h"
+#include "core/socket/stream/SocketContextFactory.h"
 #include "web/http/server/SocketContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -61,7 +61,7 @@
 
 namespace web::http::server {
 
-    class SocketContextFactory : public web::http::SocketContextFactory<web::http::server::SocketContext> {
+    class SocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
         using Request = web::http::server::Request;
         using Response = web::http::server::Response;
