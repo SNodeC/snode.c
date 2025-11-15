@@ -75,7 +75,9 @@ set(HTTPSERVERCLIENTCERT_H model/servers.h)
 
 set(NETS "in" "in6" "un")
 
-# if(BLUEZ_FOUND) list(APPEND NETS "rc") endif(BLUEZ_FOUND)
+if(BLUEZ_FOUND)
+    list(APPEND NETS "rc")
+endif(BLUEZ_FOUND)
 
 foreach(NET IN LISTS NETS)
     if(${NET} STREQUAL "in")
