@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 
     // Global middleware (prefix)
     app.use("/", [] MIDDLEWARE(req, res, next) {
-        std::cout << "global.use -> " << req->method << " " << req->originalUrl << "\n";
+        std::cout << "Starting with request " << req->method << " " << req->originalUrl << "\n";
         next();
     });
 
@@ -162,8 +162,8 @@ int main(int argc, char* argv[]) {
             int lastEventId = 0;
             try {
                 lastEventId = std::stoi(req->get("Last-Event-ID"));
-            } catch (std::logic_error const& ex) {
-                std::cout << "std::logic_error::what(): " << ex.what() << '\n';
+            } catch ([[maybe_unused]] std::logic_error const& ex) {
+                std::cout << "No Last-Event-ID field in header: OK, starting from scratch\n";
             }
 
             core::timer::Timer::intervalTimer(
@@ -206,6 +206,13 @@ int main(int argc, char* argv[]) {
             eventSource.onerror = function(event) {
                 console.log('Error occurred:', event);
             };
+
+            // Attach specific event listener
+            eventSource.addEventListener("myevent", (event) => {
+                const newElement = document.createElement("li");
+                newElement.textContent = event.data;
+                document.getElementById("events").appendChild(newElement);
+            });
         </script>
     </body>
 </html>)html");
