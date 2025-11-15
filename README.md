@@ -5,7 +5,7 @@
 
 The development of the  framework began during the first corona lock down in Austria in the summer semester 2020 as part of the course *Network and Distributed Systems* in the master's program [Interactive Media](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the department [Informatics, Communications and Media](https://www.fh-ooe.at/en/campus-hagenberg/) at the [University of Applied Sciences Upper Austria, Campus Hagenberg](https://www.fh-ooe.at/en/campus-hagenberg/), to give students an insight into the fundamental techniques of network and web frameworks.
 
-Main focus (but not only) of the framework is on *Machine to Machine* (M2M) communication and in particular on the field of *Internet of Things* (IoT). As such, the SNode.C reference project [MQTTSuite](https://github.com/SNodeC/mqttsuite) exists, which provides *MQTTBroker*, *MQTTIntegrator*, and *MQTTBridge* applications.
+Main focus (but not only) of the framework is on *Machine to Machine* (M2M) communication and in particular on the field of *Internet of Things* (IoT). As such, the SNode.C reference project [MQTTSuite](https://github.com/SNodeC/mqttsuite) exists, which provides *MQTTBroker*, *MQTTIntegrator*, *MQTTBridge* and *MQTTCli* applications.
 
 # Table of Content
 <!--ts-->
@@ -2574,7 +2574,7 @@ int main(int argc, char* argv[]) {
                          1,
                          [](const SocketAddressRc& socketAddress,
                             const core::socket::State& state) -> void {
-    	switch (state) {
+        switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << "EchoClientRc: connected to '" << socketAddress.toString() << "'";
                 break;
