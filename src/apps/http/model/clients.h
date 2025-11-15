@@ -313,7 +313,7 @@ namespace apps::http::legacy {
                     });
 
                     eventStream_1->onError([]() {
-                        VLOG(0) << "onError 1";
+                        VLOG(0) << "OnError 1";
                     });
 
                     eventStream_1->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
@@ -344,7 +344,7 @@ namespace apps::http::legacy {
                     });
 
                     eventStream_2->onError([]() {
-                        VLOG(0) << "onError 2";
+                        VLOG(0) << "OnError 2";
                     });
 
                     eventStream_2->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
