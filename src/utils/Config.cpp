@@ -260,7 +260,7 @@ namespace utils {
             app->add_option("-w,--write-config", "Write config file and exit")
                 ->configurable(false)
                 ->default_val(configDirectory + "/" + applicationName + ".conf")
-                ->type_name("[configfile]")
+                ->type_name("configfile")
                 ->check(!CLI::ExistingDirectory)
                 ->expected(0, 1);
 
@@ -782,6 +782,24 @@ namespace utils {
                             "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
                             CLI::CallForCommandline::Mode::STANDARD);
                     }
+                    if (result == "active") {
+                        throw CLI::CallForCommandline( //
+                            app,
+                            "Below is a command line viewing the active set of options with their default or configured values:\n"
+                            "* Options show either their configured or default value\n"
+                            "* Required but not yet configured options show <REQUIRED> as value\n"
+                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                            CLI::CallForCommandline::Mode::FULL);
+                    }
+                    if (result == "complete") {
+                        throw CLI::CallForCommandline( //
+                            app,
+                            "Below is a command line viewing the complete set of options with their default values\n"
+                            "* Options show their default value\n"
+                            "* Required but not yet configured options show <REQUIRED> as value\n"
+                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                            CLI::CallForCommandline::Mode::DEFAULT);
+                    }
                     if (result == "required") {
                         throw CLI::CallForCommandline( //
                             app,
@@ -791,32 +809,14 @@ namespace utils {
                             "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
                             CLI::CallForCommandline::Mode::REQUIRED);
                     }
-                    if (result == "full") {
-                        throw CLI::CallForCommandline( //
-                            app,
-                            "Below is a command line viewing the full set of options with their default or configured values:\n"
-                            "* Options show either their configured or default value\n"
-                            "* Required but not yet configured options show <REQUIRED> as value\n"
-                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                            CLI::CallForCommandline::Mode::FULL);
-                    }
-                    if (result == "default") {
-                        throw CLI::CallForCommandline( //
-                            app,
-                            "Below is a command line viewing the full set of options with their default values\n"
-                            "* Options show their default value\n"
-                            "* Required but not yet configured options show <REQUIRED> as value\n"
-                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                            CLI::CallForCommandline::Mode::DEFAULT);
-                    }
                 },
-                "Print a command line\n"
-                "  standard (default): View all non-default and required options\n"
-                "  required: View required options only\n"
-                "  full: View the full set of options with their default or configured values\n"
-                "  default: View the full set of options with their default values")
+                "Print command-line\n"
+                "* standard (default): Show all non-default and required options\n"
+                "* active: Show all active options\n"
+                "* complete: Show the complete option set with default values\n"
+                "* required: Show only required options")
             ->configurable(false)
-            ->check(CLI::IsMember({"standard", "required", "full", "default"}));
+            ->check(CLI::IsMember({"standard", "active", "complete", "required"}));
 
         return app;
     }
@@ -827,7 +827,10 @@ namespace utils {
                [app](std::size_t) {
                    helpTriggerApp = app;
                },
-               "Print help message and exit")
+               "Print help message and exit\n"
+               "* standard: display help for the last command processed\n"
+               "* exact: display help for the command directly preceding --help\n"
+               "* expanded: print help including all descendant command options")
             ->group(app->get_formatter()->get_label("Nonpersistent Options"))
             ->check(CLI::IsMember({"standard", "exact", "expanded"}));
 
@@ -840,7 +843,9 @@ namespace utils {
                [app](std::size_t) {
                    helpTriggerApp = app;
                },
-               "Print help message and exit")
+               "Print help message and exit\n"
+               "* standard: display help for the last command processed\n"
+               "* exact: display help for the command directly preceding --help\n")
             ->group(app->get_formatter()->get_label("Nonpersistent Options"))
             ->check(CLI::IsMember({"standard", "exact"}));
 
