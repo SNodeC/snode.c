@@ -132,7 +132,7 @@ namespace core::socket::stream {
         std::string getOnlineSince() const;
         std::string getOnlineDuration() const;
 
-        const net::config::ConfigInstance* getConfig() const;
+        const net::config::ConfigInstance* getConfigInstance() const;
 
     private:
         static std::string timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint);

@@ -123,7 +123,7 @@ namespace core::socket::stream {
         return durationToString(onlineSinceTimePoint);
     }
 
-    const net::config::ConfigInstance* SocketConnection::getConfig() const {
+    const net::config::ConfigInstance* SocketConnection::getConfigInstance() const {
         return config;
     }
 
