@@ -70,7 +70,7 @@ namespace utils {
         static bool bootstrap();
         static void terminate();
 
-        static CLI::App* addInstance(const std::string& name, const std::string& description, const std::string& group);
+        static CLI::App* addInstance(const std::string& name, const std::string& description, const std::string& group, bool final = false);
         static CLI::App* getInstance(const std::string& name);
 
         static bool removeInstance(CLI::App* instance);

@@ -727,7 +727,7 @@ namespace utils {
 
     std::shared_ptr<CLI::Formatter> Config::sectionFormatter = makeSectionFormatter();
 
-    CLI::App* Config::addInstance(const std::string& name, const std::string& description, const std::string& group) {
+    CLI::App* Config::addInstance(const std::string& name, const std::string& description, const std::string& group, bool final) {
         CLI::App* instanceSc = app->add_subcommand(name, description) //
                                    ->group(group)
                                    ->fallthrough()
@@ -748,7 +748,12 @@ namespace utils {
         }
 
         utils::Config::addStandardFlags(instanceSc);
-        utils::Config::addHelp(instanceSc);
+
+        if (!final) {
+            utils::Config::addHelp(instanceSc);
+        } else {
+            utils::Config::addSimpleHelp(instanceSc);
+        }
 
         return instanceSc;
     }
