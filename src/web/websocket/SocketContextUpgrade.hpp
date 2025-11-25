@@ -183,14 +183,14 @@ namespace web::websocket {
                     closeSent = false;
                     LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
                                << "' close confirmed from peer";
+
+                    shutdownWrite();
                 } else { // passive close
                     LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
                                << "' close request received - replying with close";
 
                     sendClose(pongCloseData.data(), pongCloseData.length());
                     pongCloseData.clear();
-
-                    shutdownWrite();
                 }
                 break;
             case SubProtocolContext::OpCode::PING:
