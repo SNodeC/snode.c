@@ -109,7 +109,7 @@ namespace core::socket::stream {
                                                                                              const std::shared_ptr<Config>& config)
         : SocketConnection(physicalSocket.getFd(), config.get())
         , SocketReader(
-              instanceName + " [" + std::to_string(physicalSocket.getFd()) + "]",
+              Super::getConnectionName(),
               [this](int errnum) {
                   {
                       const utils::PreserveErrno pe(errnum);
@@ -127,7 +127,7 @@ namespace core::socket::stream {
               config->getReadBlockSize(),
               config->getTerminateTimeout())
         , SocketWriter(
-              instanceName + " [" + std::to_string(physicalSocket.getFd()) + "]",
+              Super::getConnectionName(),
               [this](int errnum) {
                   {
                       const utils::PreserveErrno pe(errnum);
