@@ -190,8 +190,6 @@ namespace web::http::server {
 
         if (httpClose) {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
-
-            shutdownWrite(true);
         } else {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
 

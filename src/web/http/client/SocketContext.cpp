@@ -283,6 +283,8 @@ namespace web::http::client {
 
         if (httpClose) {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
+
+            shutdownWrite();
         } else {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
 
