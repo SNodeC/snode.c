@@ -145,7 +145,7 @@ namespace core::socket::stream {
                 LOG(WARNING) << getName() << ": Send while not enabled";
             }
         } else {
-            LOG(WARNING) << getName() << ": Send while shutdown in progress";
+            LOG(WARNING) << getName() << ": Send while shutdown in progress: ignoring";
         }
     }
 
