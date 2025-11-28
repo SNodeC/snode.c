@@ -122,7 +122,9 @@ namespace express::dispatcher {
                 LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
                 LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
                 LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
-                LOG(TRACE) << "       AbsoluteMountPath: " << absoluteMountPath;
+                LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
+                LOG(TRACE) << " Mountpoint RelativePath: " << mountPoint.relativeMountPath;
+                LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
                 LOG(TRACE) << "           StrictRouting: " << controller.getStrictRouting();
                 LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
 
