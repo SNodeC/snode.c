@@ -72,75 +72,77 @@ namespace express::dispatcher {
                                          const express::MountPoint& mountPoint) {
         bool requestMatched = false;
 
-        const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
+        if (controller.getRequest()->method == mountPoint.method || mountPoint.method == "use" || mountPoint.method == "all") {
+            const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
 
-        if ((controller.getFlags() & Controller::NEXT) == 0) {
-            // Split mount & request into path + query
-            std::string_view mountPath;
-            std::string_view mountQueryString;
-            splitPathAndQuery(absoluteMountPath, mountPath, mountQueryString);
-            auto requiredQueryPairs = parseQuery(mountQueryString);
+            if ((controller.getFlags() & Controller::NEXT) == 0) {
+                // Split mount & request into path + query
+                std::string_view mountPath;
+                std::string_view mountQueryString;
+                splitPathAndQuery(absoluteMountPath, mountPath, mountQueryString);
+                auto requiredQueryPairs = parseQuery(mountQueryString);
 
-            std::string_view requestPath;
-            std::string_view requestQueryString;
-            splitPathAndQuery(controller.getRequest()->originalUrl, requestPath, requestQueryString);
-            auto requestQueryPairs = parseQuery(requestQueryString);
+                std::string_view requestPath;
+                std::string_view requestQueryString;
+                splitPathAndQuery(controller.getRequest()->originalUrl, requestPath, requestQueryString);
+                auto requestQueryPairs = parseQuery(requestQueryString);
 
-            // End-anchored equality (verbs) with one trailing slash relaxed when !strict
-            std::string_view normalizedMountPath = mountPath;
-            std::string_view normalizedRequestPath = requestPath;
-            if (!controller.getStrictRouting()) {
-                normalizedMountPath = trimOneTrailingSlash(normalizedMountPath);
-                normalizedRequestPath = trimOneTrailingSlash(normalizedRequestPath);
-            }
-            if (normalizedMountPath.empty()) {
-                normalizedMountPath = "/";
-            }
+                // End-anchored equality (verbs) with one trailing slash relaxed when !strict
+                std::string_view normalizedMountPath = mountPath;
+                std::string_view normalizedRequestPath = requestPath;
+                if (!controller.getStrictRouting()) {
+                    normalizedMountPath = trimOneTrailingSlash(normalizedMountPath);
+                    normalizedRequestPath = trimOneTrailingSlash(normalizedRequestPath);
+                }
+                if (normalizedMountPath.empty()) {
+                    normalizedMountPath = "/";
+                }
 
-            bool pathMatches = false;
-            if (mountPath.find(':') != std::string::npos) {
-                if (regex.mark_count() == 0) {
-                    LOG(TRACE) << "ApplicationDispatcher: precompiled regex";
-                    std::tie(regex, names) = compileParamRegex(mountPath,
-                                                               /*isPrefix*/ true,
-                                                               controller.getStrictRouting(),
-                                                               controller.getCaseInsensitiveRouting());
+                bool pathMatches = false;
+                if (mountPath.find(':') != std::string::npos) {
+                    if (regex.mark_count() == 0) {
+                        LOG(TRACE) << "ApplicationDispatcher: precompiled regex";
+                        std::tie(regex, names) = compileParamRegex(mountPath,
+                                                                   /*isPrefix*/ true,
+                                                                   controller.getStrictRouting(),
+                                                                   controller.getCaseInsensitiveRouting());
+                    } else {
+                        LOG(TRACE) << "ApplicationDispatcher: using precompiled regex";
+                    }
+                    pathMatches = matchAndFillParams(regex, names, requestPath, *controller.getRequest());
                 } else {
-                    LOG(TRACE) << "ApplicationDispatcher: using precompiled regex";
+                    pathMatches = equalPath(normalizedRequestPath, normalizedMountPath, controller.getCaseInsensitiveRouting());
                 }
-                pathMatches = matchAndFillParams(regex, names, requestPath, *controller.getRequest());
+
+                const bool queryMatches = querySupersetMatches(requestQueryPairs, requiredQueryPairs);
+                requestMatched = (pathMatches && queryMatches);
+
+                LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
+                           << " HTTP Express: application -> " << (requestMatched ? "MATCH" : "NO MATCH");
+                LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
+                LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
+                LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
+                LOG(TRACE) << "       AbsoluteMountPath: " << absoluteMountPath;
+                LOG(TRACE) << "           StrictRouting: " << controller.getStrictRouting();
+                LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
+
+                if (requestMatched) {
+                    controller.getRequest()->queries.insert(requestQueryPairs.begin(), requestQueryPairs.end());
+
+                    if (hasResult(absoluteMountPath)) {
+                        setParams(absoluteMountPath, *controller.getRequest());
+                    }
+
+                    lambda(controller.getRequest(), controller.getResponse());
+                }
             } else {
-                pathMatches = equalPath(normalizedRequestPath, normalizedMountPath, controller.getCaseInsensitiveRouting());
+                LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
+                           << " HTTP Express: application -> next(...) called";
+                LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
+                LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
+                LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
+                LOG(TRACE) << "       AbsoluteMountPath: " << absoluteMountPath;
             }
-
-            const bool queryMatches = querySupersetMatches(requestQueryPairs, requiredQueryPairs);
-            requestMatched = (pathMatches && queryMatches);
-
-            LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
-                       << " HTTP Express: application -> " << (requestMatched ? "MATCH" : "NO MATCH");
-            LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
-            LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
-            LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
-            LOG(TRACE) << "       AbsoluteMountPath: " << absoluteMountPath;
-            LOG(TRACE) << "           StrictRouting: " << controller.getStrictRouting();
-            LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
-
-            if (requestMatched) {
-                controller.getRequest()->queries.insert(requestQueryPairs.begin(), requestQueryPairs.end());
-
-                if (hasResult(absoluteMountPath)) {
-                    setParams(absoluteMountPath, *controller.getRequest());
-                }
-
-                lambda(controller.getRequest(), controller.getResponse());
-            }
-        } else {
-            LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
-                       << " HTTP Express: application -> next(...) called";
-            LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
-            LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
-            LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
-            LOG(TRACE) << "       AbsoluteMountPath: " << absoluteMountPath;
         }
 
         return requestMatched;

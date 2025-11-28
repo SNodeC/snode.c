@@ -63,6 +63,14 @@ int main(int argc, char* argv[]) {
 
     app.use(express::middleware::VerboseRequest());
 
+    app.get("/config", [] APPLICATION(req, res) {
+        std::cout << "Starting with GET request " << req->method << " " << req->originalUrl << "\n";
+    });
+
+    app.patch("/config", [] APPLICATION(req, res) {
+        std::cout << "Starting with PATCH request " << req->method << " " << req->originalUrl << "\n";
+    });
+
     // Global middleware (prefix)
     app.use("/", [] MIDDLEWARE(req, res, next) {
         std::cout << "Starting with request " << req->method << " " << req->originalUrl << "\n";
