@@ -66,7 +66,10 @@ namespace core::socket::stream::tls {
               [onDisconnect, this]() {
                   onDisconnect(this);
               },
-              config) {
+              config)
+        , sslInitTimeout(config->getInitTimeout())
+        , sslShutdownTimeout(config->getShutdownTimeout())
+        , closeNotifyIsEOF(!config->getNoCloseNotifyIsEOF()) {
     }
 
     template <typename PhysicalSocket, typename Config>
@@ -75,10 +78,7 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocket, typename Config>
-    SSL* SocketConnection<PhysicalSocket, Config>::startSSL(
-        int fd, SSL_CTX* ctx, const utils::Timeval& sslInitTimeout, const utils::Timeval& sslShutdownTimeout, bool closeNotifyIsEOF) {
-        this->sslInitTimeout = sslInitTimeout;
-        this->sslShutdownTimeout = sslShutdownTimeout;
+    SSL* SocketConnection<PhysicalSocket, Config>::startSSL(int fd, SSL_CTX* ctx) {
         if (ctx != nullptr) {
             ssl = SSL_new(ctx);
 
@@ -88,8 +88,6 @@ namespace core::socket::stream::tls {
                 if (SSL_set_fd(ssl, fd) == 1) {
                     SocketReader::ssl = ssl;
                     SocketWriter::ssl = ssl;
-                    SocketReader::closeNotifyIsEOF = closeNotifyIsEOF;
-                    SocketWriter::closeNotifyIsEOF = closeNotifyIsEOF;
                 } else {
                     SSL_free(ssl);
                     ssl = nullptr;
@@ -207,7 +205,9 @@ namespace core::socket::stream::tls {
                 LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Active close_notify sent and received";
                 SocketWriter::shutdownInProgress = false;
 
-                this->onReadError(0);
+                if (closeNotifyIsEOF) {
+                    this->onReadError(0);
+                }
             } else {
                 LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Passive close_notify received, answering with close_notify";
 

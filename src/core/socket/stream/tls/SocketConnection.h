@@ -81,8 +81,7 @@ namespace core::socket::stream::tls {
         SSL* getSSL() const;
 
     private:
-        SSL* startSSL(
-            int fd, SSL_CTX* ctx, const utils::Timeval& sslInitTimeout, const utils::Timeval& sslShutdownTimeout, bool closeNotifyIsEOF);
+        SSL* startSSL(int fd, SSL_CTX* ctx);
 
         void stopSSL();
 
@@ -100,6 +99,7 @@ namespace core::socket::stream::tls {
 
         utils::Timeval sslInitTimeout;
         utils::Timeval sslShutdownTimeout;
+        bool closeNotifyIsEOF;
 
         template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;

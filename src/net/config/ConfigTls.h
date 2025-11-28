@@ -115,7 +115,7 @@ namespace net::config {
         CLI::Option* sslOptionsOpt = nullptr;
         CLI::Option* initTimeoutOpt = nullptr;
         CLI::Option* shutdownTimeoutOpt = nullptr;
-        CLI::Option* noCloseNotifyIsEOFOpt = nullptr;
+        bool noCloseNotifyIsEOFOpt = false;
     };
 
 } // namespace net::config

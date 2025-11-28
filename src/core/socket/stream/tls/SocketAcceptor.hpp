@@ -67,11 +67,7 @@ namespace core::socket::stream::tls {
               [onConnect, this](SocketConnection* socketConnection) { // onConnect
                   onConnect(socketConnection);
 
-                  SSL* ssl = socketConnection->startSSL(socketConnection->getFd(),
-                                                        Super::config->getSslCtx(),
-                                                        Super::config->getInitTimeout(),
-                                                        Super::config->getShutdownTimeout(),
-                                                        !Super::config->getNoCloseNotifyIsEOF());
+                  SSL* ssl = socketConnection->startSSL(socketConnection->getFd(), Super::config->getSslCtx());
                   if (ssl != nullptr) {
                       SSL_set_accept_state(ssl);
                       SSL_set_ex_data(ssl, 1, Super::config.get());

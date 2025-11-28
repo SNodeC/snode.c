@@ -70,8 +70,6 @@ namespace core::socket::stream::tls {
                                     const std::function<void(int)>& onStatus) = 0;
 
         SSL* ssl = nullptr;
-
-        bool closeNotifyIsEOF = true;
     };
 
 } // namespace core::socket::stream::tls

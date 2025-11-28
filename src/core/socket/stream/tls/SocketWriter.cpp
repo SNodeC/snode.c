@@ -87,8 +87,7 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
-                        LOG(DEBUG) << getName() << " SSL/TLS: Close_notify received. Is EOF? " << (closeNotifyIsEOF ? "true" : "false");
-                        errno = closeNotifyIsEOF ? EPIPE : EAGAIN;
+                        errno = EAGAIN;
                         ret = -1; // on the write side this means a TCP broken pipe
                         break;
                     case SSL_ERROR_SYSCALL:

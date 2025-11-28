@@ -89,10 +89,9 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case SSL_ERROR_ZERO_RETURN: // received close_notify
-                        LOG(DEBUG) << getName() << " SSL/TLS: Close_notify is" << (closeNotifyIsEOF ? " " : " not ") << "EOF";
                         onReadShutdown();
-                        errno = closeNotifyIsEOF ? 0 : EAGAIN;
-                        ret = closeNotifyIsEOF ? 0 : -1;
+                        errno = EAGAIN;
+                        ret = -1;
                         break;
                     case SSL_ERROR_SYSCALL: // When SSL_get_error(ssl, ret) returns SSL_ERROR_SYSCALL
                                             // and ret is 0, it indicates that the underlying TCP connection
