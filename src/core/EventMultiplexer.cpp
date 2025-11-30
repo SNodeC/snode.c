@@ -206,8 +206,8 @@ namespace core {
         return std::accumulate(descriptorEventPublishers.begin(),
                                descriptorEventPublishers.end(),
                                -1,
-                               [](int count, const DescriptorEventPublisher* descriptorEventPublisher) -> int {
-                                   return std::max(descriptorEventPublisher->maxFd(), count);
+                               [](int maxFd, const DescriptorEventPublisher* descriptorEventPublisher) -> int {
+                                   return std::max(descriptorEventPublisher->maxFd(), maxFd);
                                });
     }
 
