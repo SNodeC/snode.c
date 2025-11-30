@@ -82,13 +82,15 @@ namespace core::socket::stream {
     }
 
     void SocketConnection::setSocketContext(SocketContext* socketContext) {
-        if (this->socketContext != nullptr) {
-            this->socketContext->detach();
+        if (this->socketContext == nullptr) {
+            this->socketContext = socketContext;
+
+            socketContext->attach();
+        } else {
+            LOG(DEBUG) << connectionName << " SocketContext: switch";
+
+            newSocketContext = socketContext;
         }
-
-        this->socketContext = socketContext;
-
-        socketContext->attach();
     }
 
     void SocketConnection::sendToPeer(const std::string& data) {

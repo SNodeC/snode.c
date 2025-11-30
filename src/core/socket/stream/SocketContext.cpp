@@ -62,11 +62,6 @@ namespace core::socket::stream {
         , onlineSinceTimePoint(std::chrono::system_clock::now()) {
     }
 
-    void SocketContext::switchSocketContext(SocketContext* newSocketContext) {
-        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: switch";
-        this->newSocketContext = newSocketContext;
-    }
-
     SocketConnection* SocketContext::getSocketConnection() const {
         return socketConnection;
     }
@@ -83,39 +78,12 @@ namespace core::socket::stream {
         socketConnection->streamEof();
     }
 
-    void SocketContext::readFromPeer(std::size_t available) {
-        const std::size_t consumed = onReceivedFromPeer();
-
-        const std::string connectionName = socketConnection->getConnectionName();
-
-        if (available != 0 && consumed == 0) {
-            LOG(TRACE) << connectionName << ": Data available: " << available << " but nothing read";
-
-            close();
-
-            delete newSocketContext; // delete of nullptr is valid since C++14!
-            newSocketContext = nullptr;
-        } else if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-            SocketConnection* socketConnection = this->socketConnection;
-            SocketContext* newSocketContext = this->newSocketContext;
-
-            socketConnection->setSocketContext(newSocketContext);
-
-            LOG(DEBUG) << connectionName << " SocketContext: switch completed";
-        }
+    std::size_t SocketContext::readFromPeer() {
+        return onReceivedFromPeer();
     }
 
     std::size_t SocketContext::readFromPeer(char* chunk, std::size_t chunklen) const {
-        std::size_t ret = 0;
-
-        if (newSocketContext == nullptr) {
-            ret = socketConnection->readFromPeer(chunk, chunklen);
-        } else {
-            LOG(TRACE) << socketConnection->getConnectionName()
-                       << " ReadFromPeer: New SocketContext != nullptr: SocketContextSwitch still in progress";
-        }
-
-        return ret;
+        return socketConnection->readFromPeer(chunk, chunklen);
     }
 
     void SocketContext::setTimeout(const utils::Timeval& timeout) {

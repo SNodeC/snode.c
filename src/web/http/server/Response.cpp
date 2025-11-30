@@ -286,7 +286,7 @@ namespace web::http::server {
                                                               cookies,
                                                               {});
 
-                            socketContext->switchSocketContext(socketContextUpgrade);
+                            socketContext->getSocketConnection()->setSocketContext(socketContextUpgrade);
                         } else {
                             LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create failed for: " << name;
 

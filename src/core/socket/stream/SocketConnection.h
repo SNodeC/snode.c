@@ -91,10 +91,9 @@ namespace core::socket::stream {
 
         void setSocketContext(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
 
-    private:
+    public:
         void setSocketContext(SocketContext* socketContext);
 
-    public:
         virtual void sendToPeer(const char* chunk, std::size_t chunkLen) = 0;
         void sendToPeer(const std::string& data);
         void sentToPeer(const std::vector<uint8_t>& data);
@@ -142,6 +141,7 @@ namespace core::socket::stream {
 
     protected:
         core::socket::stream::SocketContext* socketContext = nullptr;
+        core::socket::stream::SocketContext* newSocketContext = nullptr;
 
         std::string instanceName;
         std::string connectionName;

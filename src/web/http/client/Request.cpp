@@ -275,8 +275,7 @@ namespace web::http::client {
 
                         if (socketContextUpgrade != nullptr) {
                             LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create success for: " << name;
-
-                            socketContext->switchSocketContext(socketContextUpgrade);
+                            socketContext->getSocketConnection()->setSocketContext(socketContextUpgrade);
                         } else {
                             LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create failed for: " << name;
 

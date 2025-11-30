@@ -198,7 +198,15 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     std::size_t SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::readFromPeer(char* chunk, std::size_t chunkLen) {
-        return SocketReader::readFromPeer(chunk, chunkLen);
+        std::size_t ret = 0;
+
+        if (newSocketContext == nullptr) {
+            ret = SocketReader::readFromPeer(chunk, chunkLen);
+        } else {
+            LOG(TRACE) << connectionName << " ReadFromPeer: New SocketContext != nullptr: SocketContextSwitch still in progress";
+        }
+
+        return ret;
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
@@ -299,7 +307,25 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onReceivedFromPeer(std::size_t available) {
-        socketContext->readFromPeer(available);
+        std::size_t consumed = socketContext->readFromPeer();
+
+        if (available != 0 && consumed == 0) {
+            LOG(TRACE) << connectionName << ": Data available: " << available << " but nothing read";
+
+            close();
+
+            delete newSocketContext;
+            newSocketContext = nullptr;
+        } else if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
+            socketContext->detach();
+
+            socketContext = newSocketContext;
+            newSocketContext = nullptr;
+
+            socketContext->attach();
+
+            LOG(DEBUG) << connectionName << " SocketConnection: switch completed";
+        }
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>

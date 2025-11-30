@@ -95,13 +95,12 @@ namespace core::socket::stream {
         std::string getOnlineDuration() const override;
 
         SocketConnection* getSocketConnection() const;
-        void switchSocketContext(SocketContext* newSocketContext);
 
     protected:
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;
 
-        void readFromPeer(std::size_t available);
+        std::size_t readFromPeer();
 
     private:
         virtual void onConnected() = 0;
@@ -116,8 +115,6 @@ namespace core::socket::stream {
                          const std::chrono::time_point<std::chrono::system_clock>& later = std::chrono::system_clock::now());
 
         core::socket::stream::SocketConnection* socketConnection;
-
-        core::socket::stream::SocketContext* newSocketContext = nullptr;
 
         std::string onlineSince;
         std::size_t alreadyTotalQueued = 0;
