@@ -291,24 +291,24 @@ namespace web::http::client::tools {
             LOG(TRACE) << "Origin: " << sharedState->origin;
             LOG(TRACE) << "  Path: " << sharedState->path;
 
-            const std::weak_ptr<EventSourceT> eventStreamWeak = this->weak_from_this();
+            const std::weak_ptr<EventSourceT> eventSourceWeak = this->weak_from_this();
 
             client = std::make_shared<Client>(
-                [eventStreamWeak](SocketConnection* socketConnection) {
+                [eventSourceWeak](SocketConnection* socketConnection) {
                     LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnConnect";
 
-                    if (const std::shared_ptr<EventSourceT> eventStream = eventStreamWeak.lock()) {
+                    if (const std::shared_ptr<EventSourceT> eventStream = eventSourceWeak.lock()) {
                         eventStream->socketConnection = socketConnection;
                     }
                 },
                 [](SocketConnection* socketConnection) {
                     LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnConnected";
                 },
-                [eventStreamWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](SocketConnection* socketConnection) {
+                [eventSourceWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](SocketConnection* socketConnection) {
                     LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnDisconnect";
 
-                    if (const std::shared_ptr<EventSourceT> eventStream = eventStreamWeak.lock()) {
-                        eventStream->socketConnection = nullptr;
+                    if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
+                        eventSource->socketConnection = nullptr;
                     }
 
                     if (sharedState->ready != ReadyState::CLOSED) {
@@ -334,7 +334,8 @@ namespace web::http::client::tools {
                         sharedConfig->config->setRetryTimeout(sharedState->retry / 1000.);
                     }
                 },
-                [sharedState = this->sharedState, sharedConfig = this->sharedConfig](const std::shared_ptr<MasterRequest>& masterRequest) {
+                [eventSourceWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](
+                    const std::shared_ptr<MasterRequest>& masterRequest) {
                     const std::string connectionName = masterRequest->getSocketContext()->getSocketConnection()->getConnectionName();
 
                     LOG(DEBUG) << connectionName << " EventSource: OnRequestStart";
@@ -343,51 +344,55 @@ namespace web::http::client::tools {
                         masterRequest->set("Last-Event-ID", sharedState->lastId);
                     }
 
-                    masterRequest->requestEventSource(
-                        sharedState->path,
-                        [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), sharedState, sharedConfig, connectionName]()
-                            -> std::size_t {
-                            std::size_t consumed = 0;
+                    if (!masterRequest->requestEventSource(
+                            sharedState->path,
+                            [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), sharedState, sharedConfig, connectionName]()
+                                -> std::size_t {
+                                std::size_t consumed = 0;
 
-                            if (const std::shared_ptr<MasterRequest> masterRequest = masterRequestWeak.lock()) {
-                                char buf[16384];
-                                consumed = masterRequest->getSocketContext()->readFromPeer(buf, sizeof(buf));
+                                if (const std::shared_ptr<MasterRequest> masterRequest = masterRequestWeak.lock()) {
+                                    char buf[16384];
+                                    consumed = masterRequest->getSocketContext()->readFromPeer(buf, sizeof(buf));
 
-                                sharedState->pending.append(buf, consumed);
+                                    sharedState->pending.append(buf, consumed);
 
-                                if (!parse(sharedState, sharedConfig)) {
-                                    masterRequest->getSocketContext()->shutdownWrite(true);
+                                    if (!parse(sharedState, sharedConfig)) {
+                                        masterRequest->getSocketContext()->shutdownWrite(true);
+                                    }
+                                } else {
+                                    LOG(DEBUG) << connectionName << ": server-sent event: server disconnect";
                                 }
-                            } else {
-                                LOG(DEBUG) << connectionName << ": server-sent event: server disconnect";
-                            }
 
-                            return consumed;
-                        },
-                        [sharedState, sharedConfig, connectionName]() {
-                            LOG(DEBUG) << connectionName << ": server-sent event stream start";
+                                return consumed;
+                            },
+                            [sharedState, sharedConfig, connectionName]() {
+                                LOG(DEBUG) << connectionName << ": server-sent event stream start";
 
-                            sharedState->ready = ReadyState::OPEN;
+                                sharedState->ready = ReadyState::OPEN;
 
-                            sharedConfig->config->setReconnectTime(sharedState->retry / 1000.);
-                            sharedConfig->config->setRetryTimeout(sharedState->retry / 1000.);
+                                sharedConfig->config->setReconnectTime(sharedState->retry / 1000.);
+                                sharedConfig->config->setRetryTimeout(sharedState->retry / 1000.);
 
-                            if (auto it = sharedState->onEventListener.find("open"); it != sharedState->onEventListener.end()) {
-                                EventSource::MessageEvent e{"open", "", sharedState->lastId, sharedState->origin};
+                                if (auto it = sharedState->onEventListener.find("open"); it != sharedState->onEventListener.end()) {
+                                    EventSource::MessageEvent e{"open", "", sharedState->lastId, sharedState->origin};
 
-                                for (auto& onOpen : it->second) {
-                                    onOpen(e);
+                                    for (auto& onOpen : it->second) {
+                                        onOpen(e);
+                                    }
                                 }
-                            }
 
-                            for (const auto& onOpen : sharedState->onOpenListener) {
-                                onOpen();
-                            }
-                        },
-                        [sharedState, connectionName]() {
-                            LOG(DEBUG) << connectionName
-                                       << ": not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
-                        });
+                                for (const auto& onOpen : sharedState->onOpenListener) {
+                                    onOpen();
+                                }
+                            },
+                            [sharedState, connectionName]() {
+                                LOG(DEBUG) << connectionName
+                                           << ": not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
+                            })) {
+                        if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
+                            eventSource->socketConnection->close();
+                        }
+                    }
                 },
                 [](const std::shared_ptr<Request>& req) {
                     LOG(DEBUG) << req->getSocketContext()->getSocketConnection()->getConnectionName() << " EventSource: OnRequestEnd";
