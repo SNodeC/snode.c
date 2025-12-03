@@ -447,6 +447,7 @@ namespace web::http::client {
             newRequest->set("Cache-Control", "no-cache", true);
 
             newRequest->sendHeader();
+
             newRequest->requestCommands.push_back(new commands::SseCommand(
                 [masterRequest = this->masterRequest, onServerSentEvent, onOpen, onError](const std::shared_ptr<Request>& request,
                                                                                           const std::shared_ptr<Response>& response) {

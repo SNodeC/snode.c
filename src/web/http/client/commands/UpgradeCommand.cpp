@@ -62,9 +62,7 @@ namespace web::http::client::commands {
     }
 
     bool UpgradeCommand::execute(const std::shared_ptr<MasterRequest>& request) {
-        const bool ret = request->executeUpgrade(url, protocols, [this](bool success) {
-            onUpgradeInitiate(success);
-        });
+        const bool ret = request->executeUpgrade(url, protocols, onUpgradeInitiate);
 
         return ret;
     }
