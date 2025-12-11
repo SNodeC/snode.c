@@ -95,8 +95,19 @@ namespace express::legacy::rc {
         return webApp;
     }
 
-    WebApp Server(const std::string& instanceName, const Router& router, const std::function<void(WebApp::Config&)>& configurator) {
+    WebApp
+    Server(const std::string& instanceName, const express::Router& router, const std::function<void(WebApp::Config&)>& configurator) {
         return Server(instanceName, router, nullptr, configurator);
+    }
+
+    WebApp Server(const std::string& instanceName,
+                  const std::function<void(const std::string&, WebApp::SocketAddress, const core::socket::State&)>& reportState,
+                  const std::function<void(typename WebApp::Config&)>& configurator) {
+        return Server(instanceName, Router(), reportState, configurator);
+    }
+
+    WebApp Server(const std::string& instanceName, const std::function<void(WebApp::Config&)>& configurator) {
+        return Server(instanceName, express::Router(), configurator);
     }
 
 } // namespace express::legacy::rc

@@ -61,6 +61,12 @@ namespace express::tls::rc {
                   const express::Router& router,
                   const std::function<void(typename WebApp::Config&)>& configurator);
 
+    WebApp Server(const std::string& instanceName,
+                  const std::function<void(const std::string&, WebApp::SocketAddress, const core::socket::State&)>& reportState = nullptr,
+                  const std::function<void(typename WebApp::Config&)>& configurator = nullptr);
+
+    WebApp Server(const std::string& instanceName, const std::function<void(typename WebApp::Config&)>& configurator);
+
 } // namespace express::tls::rc
 
 #endif // EXPRESS_TLS_RC_SERVER_H
