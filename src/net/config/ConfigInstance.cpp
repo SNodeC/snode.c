@@ -59,6 +59,12 @@
 #if __has_warning("-Wcovered-switch-default")
 #pragma GCC diagnostic ignored "-Wcovered-switch-default"
 #endif
+#if __has_warning("-Wmissing-noreturn")
+#pragma GCC diagnostic ignored "-Wmissing-noreturn"
+#endif
+#if __has_warning("-Wnrvo")
+#pragma GCC diagnostic ignored "-Wnrvo"
+#endif
 #endif
 #endif
 #include "utils/CLI11.hpp"
