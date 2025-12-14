@@ -106,11 +106,21 @@ namespace core::socket::stream::tls {
               },
               onStatus,
               config) {
+        if (core::eventLoopState() == core::State::RUNNING) {
+            init();
+        } else {
+            Super::destruct();
+        }
     }
 
     template <typename PhysicalSocketServer, typename Config>
     SocketAcceptor<PhysicalSocketServer, Config>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
         : Super(socketAcceptor) {
+        if (core::eventLoopState() == core::State::RUNNING) {
+            init();
+        } else {
+            Super::destruct();
+        }
     }
 
     template <typename PhysicalClientSocket, typename Config>

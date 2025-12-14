@@ -86,10 +86,10 @@ namespace core::socket::stream {
 
         ~SocketAcceptor() override;
 
+        virtual void init();
+
     protected:
         virtual void useNextSocketAddress() = 0;
-
-        virtual void init();
 
     private:
         void acceptEvent() final;

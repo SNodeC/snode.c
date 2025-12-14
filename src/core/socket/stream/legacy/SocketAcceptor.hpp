@@ -68,11 +68,21 @@ namespace core::socket::stream::legacy {
               onDisconnect,
               onStatus,
               config) {
+        if (core::eventLoopState() == core::State::RUNNING) {
+            Super::init();
+        } else {
+            Super::destruct();
+        }
     }
 
     template <typename PhysicalSocketServer, typename Config>
     SocketAcceptor<PhysicalSocketServer, Config>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
         : Super(socketAcceptor) {
+        if (core::eventLoopState() == core::State::RUNNING) {
+            Super::init();
+        } else {
+            Super::destruct();
+        }
     }
 
     template <typename PhysicalClientSocket, typename Config>

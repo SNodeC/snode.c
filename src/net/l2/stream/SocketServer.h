@@ -72,35 +72,36 @@ namespace net::l2::stream {
 
         using Super::listen;
 
-        void listen(uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        const Super& listen(uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setPsm(psm);
 
-            listen(onStatus);
+            return listen(onStatus);
         }
 
-        void listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        const Super&
+        listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setPsm(psm);
             Super::getConfig().setBacklog(backlog);
 
-            listen(onStatus);
+            return listen(onStatus);
         }
 
-        void listen(const std::string& btAddress,
-                    uint16_t psm,
-                    const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        const Super& listen(const std::string& btAddress,
+                            uint16_t psm,
+                            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm);
 
-            listen(onStatus);
+            return listen(onStatus);
         }
 
-        void listen(const std::string& btAddress,
-                    uint16_t psm,
-                    int backlog,
-                    const std::function<void(const SocketAddress& SocketAddress, core::socket::State)>& onStatus) const {
+        const Super& listen(const std::string& btAddress,
+                            uint16_t psm,
+                            int backlog,
+                            const std::function<void(const SocketAddress& SocketAddress, core::socket::State)>& onStatus) const {
             Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm);
             Super::getConfig().setBacklog(backlog);
 
-            listen(onStatus);
+            return listen(onStatus);
         }
     };
 
