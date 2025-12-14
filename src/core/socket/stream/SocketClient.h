@@ -183,7 +183,7 @@ namespace core::socket::stream {
                                     LOG(INFO) << config->getInstanceName() << ": Reconnect in " << relativeReconnectTimeout << " seconds";
 
                                     core::timer::Timer::singleshotTimer(
-                                        [config, onConnect, onConnected, onDisconnect, onStatus, socketContextFactory]() mutable {
+                                        [config, onConnect, onConnected, onDisconnect, onStatus, socketContextFactory]() {
                                             if (config->getReconnect()) {
                                                 SocketClient(config, socketContextFactory, onConnect, onConnected, onDisconnect)
                                                     .realConnect(onStatus, 0, config->getRetryBase());
@@ -201,7 +201,7 @@ namespace core::socket::stream {
                              socketContextFactory = sharedContext->socketContextFactory,
                              onStatus,
                              tries,
-                             retryTimeoutScale](const SocketAddress& socketAddress, core::socket::State state) mutable {
+                             retryTimeoutScale](const SocketAddress& socketAddress, core::socket::State state) {
                                 const bool retryFlag = (state & core::socket::State::NO_RETRY) == 0;
                                 state &= ~core::socket::State::NO_RETRY;
                                 onStatus(socketAddress, state);
@@ -228,7 +228,7 @@ namespace core::socket::stream {
                                          onStatus,
                                          tries,
                                          retryTimeoutScale,
-                                         socketContextFactory]() mutable {
+                                         socketContextFactory]() {
                                             if (config->getRetry()) {
                                                 SocketClient(config, socketContextFactory, onConnect, onConnected, onDisconnect)
                                                     .realConnect(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());

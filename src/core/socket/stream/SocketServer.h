@@ -172,7 +172,7 @@ namespace core::socket::stream {
                              socketContextFactory = sharedContext->socketContextFactory,
                              onStatus,
                              tries,
-                             retryTimeoutScale](const SocketAddress& socketAddress, core::socket::State state) mutable {
+                             retryTimeoutScale](const SocketAddress& socketAddress, core::socket::State state) {
                                 const bool retryFlag = (state & core::socket::State::NO_RETRY) == 0;
                                 state &= ~core::socket::State::NO_RETRY;
                                 onStatus(socketAddress, state);
@@ -199,7 +199,7 @@ namespace core::socket::stream {
                                          onStatus,
                                          tries,
                                          retryTimeoutScale,
-                                         socketContextFactory]() mutable {
+                                         socketContextFactory]() {
                                             if (config->getRetry()) {
                                                 SocketServer(config, socketContextFactory, onConnect, onConnected, onDisconnect)
                                                     .realListen(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
