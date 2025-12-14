@@ -157,6 +157,8 @@ namespace core::socket::stream {
         const SocketServer& realListen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                                        unsigned int tries,
                                        double retryTimeoutScale) const {
+            LOG(DEBUG) << this->config->getInstanceName() << ": Initiating listen";
+
             core::EventReceiver::atNextTick(
                 [config = this->config, sharedContext = this->sharedContext, onStatus, tries, retryTimeoutScale] {
                     if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {

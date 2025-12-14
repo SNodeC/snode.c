@@ -162,6 +162,8 @@ namespace core::socket::stream {
         const SocketClient& realConnect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                                         unsigned int tries,
                                         double retryTimeoutScale) const {
+            LOG(DEBUG) << this->config->getInstanceName() << ": Initiating connect";
+
             core::EventReceiver::atNextTick(
                 [config = this->config, sharedContext = this->sharedContext, onStatus, tries, retryTimeoutScale] {
                     if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
