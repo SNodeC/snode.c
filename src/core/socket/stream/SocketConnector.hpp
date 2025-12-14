@@ -70,13 +70,6 @@ namespace core::socket::stream {
         , onDisconnect(onDisconnect)
         , onStatus(onStatus)
         , config(config) {
-        atNextTick([this]() {
-            if (core::eventLoopState() == core::State::RUNNING) {
-                init();
-            } else {
-                destruct();
-            }
-        });
     }
 
     template <typename PhysicalSocketServer,
@@ -89,13 +82,6 @@ namespace core::socket::stream {
         , onDisconnect(socketConnector.onDisconnect)
         , onStatus(socketConnector.onStatus)
         , config(socketConnector.config) {
-        atNextTick([this]() {
-            if (core::eventLoopState() == core::State::RUNNING) {
-                init();
-            } else {
-                destruct();
-            }
-        });
     }
 
     template <typename PhysicalSocketClient,

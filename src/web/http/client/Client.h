@@ -130,8 +130,10 @@ namespace web::http::client {
                      std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected)) {
         }
 
-        void setPipelinedRequests(bool pipelinedRequests) {
+        const Client& setPipelinedRequests(bool pipelinedRequests) const {
             Super::getSocketContextFactory()->setPipelinedRequests(pipelinedRequests);
+
+            return *this;
         }
     };
 

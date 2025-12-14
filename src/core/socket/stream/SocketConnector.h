@@ -81,10 +81,10 @@ namespace core::socket::stream {
 
         ~SocketConnector() override;
 
+        virtual void init();
+
     protected:
         virtual void useNextSocketAddress() = 0;
-
-        virtual void init();
 
     private:
         void connectEvent() final;

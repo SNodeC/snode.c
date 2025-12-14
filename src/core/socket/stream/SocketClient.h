@@ -89,10 +89,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect)
             : Super(config)
-            , socketContextFactory(socketContextFactory)
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect) {
+            , sharedContext(std::make_shared<Context>(socketContextFactory, onConnect, onConnected, onDisconnect)) {
         }
 
     public:
@@ -102,47 +99,48 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      Args&&... args)
             : Super(name)
-            , socketContextFactory(std::make_shared<SocketContextFactory>(std::forward<Args>(args)...))
-            , onConnect([onConnect](SocketConnection* socketConnection) { // onConnect
-                LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";
+            , sharedContext(std::make_shared<Context>(
+                  std::make_shared<SocketContextFactory>(std::forward<Args>(args)...),
+                  [onConnect](SocketConnection* socketConnection) { // onConnect
+                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";
 
-                LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
-                LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+                      LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
+                      LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
 
-                if (onConnect) {
-                    onConnect(socketConnection);
-                }
-            })
-            , onConnected([onConnected](SocketConnection* socketConnection) { // onConnected
-                LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnected";
+                      if (onConnect) {
+                          onConnect(socketConnection);
+                      }
+                  },
+                  [onConnected](SocketConnection* socketConnection) { // onConnected
+                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnected";
 
-                LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
-                LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+                      LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
+                      LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
 
-                if (onConnected) {
-                    onConnected(socketConnection);
-                }
-            })
-            , onDisconnect([onDisconnect](SocketConnection* socketConnection) { // onDisconnect
-                LOG(DEBUG) << socketConnection->getConnectionName() << ": OnDisconnect";
+                      if (onConnected) {
+                          onConnected(socketConnection);
+                      }
+                  },
+                  [onDisconnect](SocketConnection* socketConnection) { // onDisconnect
+                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnDisconnect";
 
-                LOG(DEBUG) << "            Local: " << socketConnection->getLocalAddress().toString();
-                LOG(DEBUG) << "             Peer: " << socketConnection->getRemoteAddress().toString();
+                      LOG(DEBUG) << "            Local: " << socketConnection->getLocalAddress().toString();
+                      LOG(DEBUG) << "             Peer: " << socketConnection->getRemoteAddress().toString();
 
-                LOG(DEBUG) << "     Online Since: " << socketConnection->getOnlineSince();
-                LOG(DEBUG) << "  Online Duration: " << socketConnection->getOnlineDuration();
+                      LOG(DEBUG) << "     Online Since: " << socketConnection->getOnlineSince();
+                      LOG(DEBUG) << "  Online Duration: " << socketConnection->getOnlineDuration();
 
-                LOG(DEBUG) << "     Total Queued: " << socketConnection->getTotalQueued();
-                LOG(DEBUG) << "       Total Sent: " << socketConnection->getTotalSent();
-                LOG(DEBUG) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
-                LOG(DEBUG) << "       Total Read: " << socketConnection->getTotalRead();
-                LOG(DEBUG) << "  Total Processed: " << socketConnection->getTotalProcessed();
-                LOG(DEBUG) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
+                      LOG(DEBUG) << "     Total Queued: " << socketConnection->getTotalQueued();
+                      LOG(DEBUG) << "       Total Sent: " << socketConnection->getTotalSent();
+                      LOG(DEBUG) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
+                      LOG(DEBUG) << "       Total Read: " << socketConnection->getTotalRead();
+                      LOG(DEBUG) << "  Total Processed: " << socketConnection->getTotalProcessed();
+                      LOG(DEBUG) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
 
-                if (onDisconnect) {
-                    onDisconnect(socketConnection);
-                }
-            }) {
+                      if (onDisconnect) {
+                          onDisconnect(socketConnection);
+                      }
+                  })) {
         }
 
         SocketClient(const std::function<void(SocketConnection*)>& onConnect,
@@ -152,7 +150,6 @@ namespace core::socket::stream {
             : SocketClient("", onConnect, onConnected, onDisconnect, std::forward<Args>(args)...) {
         }
 
-        // VLOG() is used hire as this are log messages for the application
         SocketClient(const std::string& name, Args&&... args)
             : SocketClient(name, {}, {}, {}, std::forward<Args>(args)...) {
         }
@@ -162,162 +159,179 @@ namespace core::socket::stream {
         }
 
     private:
-        void realConnect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
-                         unsigned int tries,
-                         double retryTimeoutScale) const {
-            if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
-                new SocketConnector(
-                    socketContextFactory,
-                    onConnect,
-                    onConnected,
-                    [config = this->config,
-                     onConnect = this->onConnect,
-                     onConnected = this->onConnected,
-                     onDisconnect = this->onDisconnect,
-                     socketContextFactory = this->socketContextFactory,
-                     onStatus](SocketConnection* socketConnection) {
-                        onDisconnect(socketConnection);
+        const SocketClient& realConnect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
+                                        unsigned int tries,
+                                        double retryTimeoutScale) const {
+            core::EventReceiver::atNextTick(
+                [config = this->config, sharedContext = this->sharedContext, onStatus, tries, retryTimeoutScale] {
+                    if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
+                        new SocketConnector(
+                            sharedContext->socketContextFactory,
+                            sharedContext->onConnect,
+                            sharedContext->onConnected,
+                            [config,
+                             onConnect = sharedContext->onConnect,
+                             onConnected = sharedContext->onConnected,
+                             onDisconnect = sharedContext->onDisconnect,
+                             socketContextFactory = sharedContext->socketContextFactory,
+                             onStatus](SocketConnection* socketConnection) {
+                                onDisconnect(socketConnection);
 
-                        if (config->getReconnect() && core::eventLoopState() == core::State::RUNNING) {
-                            double relativeReconnectTimeout = config->getReconnectTime();
+                                if (config->getReconnect() && core::eventLoopState() == core::State::RUNNING) {
+                                    double relativeReconnectTimeout = config->getReconnectTime();
 
-                            LOG(INFO) << config->getInstanceName() << ": Reconnect in " << relativeReconnectTimeout << " seconds";
+                                    LOG(INFO) << config->getInstanceName() << ": Reconnect in " << relativeReconnectTimeout << " seconds";
 
-                            core::timer::Timer::singleshotTimer(
-                                [config, onConnect, onConnected, onDisconnect, onStatus, socketContextFactory]() mutable {
-                                    if (config->getReconnect()) {
-                                        SocketClient(config, socketContextFactory, onConnect, onConnected, onDisconnect)
-                                            .realConnect(onStatus, 0, config->getRetryBase());
-                                    } else {
-                                        LOG(INFO) << config->getInstanceName() << ": Reconnect disabled during wait";
-                                    }
-                                },
-                                relativeReconnectTimeout);
-                        }
-                    },
-                    [config = this->config,
-                     onConnect = this->onConnect,
-                     onConnected = this->onConnected,
-                     onDisconnect = this->onDisconnect,
-                     socketContextFactory = this->socketContextFactory,
-                     onStatus,
-                     tries,
-                     retryTimeoutScale](const SocketAddress& socketAddress, core::socket::State state) mutable {
-                        const bool retryFlag = (state & core::socket::State::NO_RETRY) == 0;
-                        state &= ~core::socket::State::NO_RETRY;
-                        onStatus(socketAddress, state);
+                                    core::timer::Timer::singleshotTimer(
+                                        [config, onConnect, onConnected, onDisconnect, onStatus, socketContextFactory]() mutable {
+                                            if (config->getReconnect()) {
+                                                SocketClient(config, socketContextFactory, onConnect, onConnected, onDisconnect)
+                                                    .realConnect(onStatus, 0, config->getRetryBase());
+                                            } else {
+                                                LOG(INFO) << config->getInstanceName() << ": Reconnect disabled during wait";
+                                            }
+                                        },
+                                        relativeReconnectTimeout);
+                                }
+                            },
+                            [config,
+                             onConnect = sharedContext->onConnect,
+                             onConnected = sharedContext->onConnected,
+                             onDisconnect = sharedContext->onDisconnect,
+                             socketContextFactory = sharedContext->socketContextFactory,
+                             onStatus,
+                             tries,
+                             retryTimeoutScale](const SocketAddress& socketAddress, core::socket::State state) mutable {
+                                const bool retryFlag = (state & core::socket::State::NO_RETRY) == 0;
+                                state &= ~core::socket::State::NO_RETRY;
+                                onStatus(socketAddress, state);
 
-                        if (retryFlag && config->getRetry() // Shall we potentially retry? In case are the ...
-                            && (config->getRetryTries() == 0 || tries < config->getRetryTries()) // ... limits not reached and has an ...
-                            && (state == core::socket::State::ERROR ||
-                                (state == core::socket::State::FATAL && config->getRetryOnFatal()))) { // error occurred?
-                            double relativeRetryTimeout =
-                                config->getRetryLimit() > 0
-                                    ? std::min<double>(config->getRetryTimeout() * retryTimeoutScale, config->getRetryLimit())
-                                    : config->getRetryTimeout() * retryTimeoutScale;
-                            relativeRetryTimeout -= utils::Random::getInRange(-config->getRetryJitter(), config->getRetryJitter()) *
-                                                    relativeRetryTimeout / 100.;
+                                if (retryFlag && config->getRetry() // Shall we potentially retry? In case are the ...
+                                    && (config->getRetryTries() == 0 ||
+                                        tries < config->getRetryTries()) // ... limits not reached and has an ...
+                                    && (state == core::socket::State::ERROR ||
+                                        (state == core::socket::State::FATAL && config->getRetryOnFatal()))) { // error occurred?
+                                    double relativeRetryTimeout =
+                                        config->getRetryLimit() > 0
+                                            ? std::min<double>(config->getRetryTimeout() * retryTimeoutScale, config->getRetryLimit())
+                                            : config->getRetryTimeout() * retryTimeoutScale;
+                                    relativeRetryTimeout -= utils::Random::getInRange(-config->getRetryJitter(), config->getRetryJitter()) *
+                                                            relativeRetryTimeout / 100.;
 
-                            LOG(INFO) << config->getInstanceName() << ": Retry connect in " << relativeRetryTimeout << " seconds";
+                                    LOG(INFO) << config->getInstanceName() << ": Retry connect in " << relativeRetryTimeout << " seconds";
 
-                            core::timer::Timer::singleshotTimer(
-                                [config,
-                                 onConnect,
-                                 onConnected,
-                                 onDisconnect,
-                                 onStatus,
-                                 tries,
-                                 retryTimeoutScale,
-                                 socketContextFactory]() mutable {
-                                    if (config->getRetry()) {
-                                        SocketClient(config, socketContextFactory, onConnect, onConnected, onDisconnect)
-                                            .realConnect(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
-                                    } else {
-                                        LOG(INFO) << config->getInstanceName() << ": Retry connect disabled during wait";
-                                    }
-                                },
-                                relativeRetryTimeout);
-                        }
-                    },
-                    Super::config);
-            }
+                                    core::timer::Timer::singleshotTimer(
+                                        [config,
+                                         onConnect,
+                                         onConnected,
+                                         onDisconnect,
+                                         onStatus,
+                                         tries,
+                                         retryTimeoutScale,
+                                         socketContextFactory]() mutable {
+                                            if (config->getRetry()) {
+                                                SocketClient(config, socketContextFactory, onConnect, onConnected, onDisconnect)
+                                                    .realConnect(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
+                                            } else {
+                                                LOG(INFO) << config->getInstanceName() << ": Retry connect disabled during wait";
+                                            }
+                                        },
+                                        relativeRetryTimeout);
+                                }
+                            },
+                            config);
+                    }
+                });
+
+            return *this;
         }
 
     public:
-        void connect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            realConnect(onStatus, 0, 1);
+        const SocketClient& connect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+            return realConnect(onStatus, 0, 1);
         }
 
-        void connect(const SocketAddress& remoteAddress,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        const SocketClient& connect(const SocketAddress& remoteAddress,
+                                    const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::config->Remote::setSocketAddress(remoteAddress);
 
-            connect(onStatus);
+            return connect(onStatus);
         }
 
-        void connect(const SocketAddress& remoteAddress,
-                     const SocketAddress& localAddress,
-                     const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        const SocketClient& connect(const SocketAddress& remoteAddress,
+                                    const SocketAddress& localAddress,
+                                    const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::config->Local::setSocketAddress(localAddress);
 
-            connect(remoteAddress, onStatus);
+            return connect(remoteAddress, onStatus);
         }
 
         std::function<void(SocketConnection*)>& getOnConnect() {
-            return onConnect;
+            return sharedContext->onConnect;
         }
 
-        SocketClient& setOnConnect(const std::function<void(SocketConnection*)>& onConnect, bool initialize = false) {
-            std::function<void(SocketConnection*)> oldOnConnect = this->onConnect;
-
-            this->onConnect = initialize ? onConnect : [oldOnConnect, onConnect](SocketConnection* socketConnection) {
-                oldOnConnect(socketConnection);
-                onConnect(socketConnection);
-            };
+        const SocketClient& setOnConnect(const std::function<void(SocketConnection*)>& onConnect, bool initialize = false) const {
+            sharedContext->onConnect =
+                initialize ? onConnect : [oldOnConnect = sharedContext->onConnect, onConnect](SocketConnection* socketConnection) {
+                    oldOnConnect(socketConnection);
+                    onConnect(socketConnection);
+                };
 
             return *this;
         }
 
-        std::function<void(SocketConnection*)>& getOnConnected() {
-            return onConnected();
+        std::function<void(SocketConnection*)>& getOnConnected() const {
+            return sharedContext->onConnected();
         }
 
-        SocketClient& setOnConnected(const std::function<void(SocketConnection*)>& onConnected, bool initialize = false) {
-            std::function<void(SocketConnection*)> oldOnConnected = this->onConnected;
-
-            this->onConnected = initialize ? onConnected : [oldOnConnected, onConnected](SocketConnection* socketConnection) {
-                oldOnConnected(socketConnection);
-                onConnected(socketConnection);
-            };
+        const SocketClient& setOnConnected(const std::function<void(SocketConnection*)>& onConnected, bool initialize = false) const {
+            sharedContext->onConnected =
+                initialize ? onConnected : [oldOnConnected = sharedContext->onConnected, onConnected](SocketConnection* socketConnection) {
+                    oldOnConnected(socketConnection);
+                    onConnected(socketConnection);
+                };
 
             return *this;
         }
 
-        std::function<void(SocketConnection*)>& getOnDisconnect() {
-            return onDisconnect;
+        std::function<void(SocketConnection*)>& getOnDisconnect() const {
+            return sharedContext->onDisconnect;
         }
 
-        SocketClient& setOnDisconnect(const std::function<void(SocketConnection*)>& onDisconnect, bool initialize = false) {
-            std::function<void(SocketConnection*)> oldOnDisconnect = this->onDisconnect;
-
-            this->onDisconnect = initialize ? onDisconnect : [oldOnDisconnect, onDisconnect](SocketConnection* socketConnection) {
-                oldOnDisconnect(socketConnection);
-                onDisconnect(socketConnection);
-            };
+        const SocketClient& setOnDisconnect(const std::function<void(SocketConnection*)>& onDisconnect, bool initialize = false) const {
+            sharedContext->onDisconnect =
+                initialize ? onDisconnect
+                           : [oldOnDisconnect = sharedContext->onDisconnect, onDisconnect](SocketConnection* socketConnection) {
+                                 oldOnDisconnect(socketConnection);
+                                 onDisconnect(socketConnection);
+                             };
 
             return *this;
         }
 
         std::shared_ptr<SocketContextFactory> getSocketContextFactory() const {
-            return socketContextFactory;
+            return sharedContext->socketContextFactory;
         }
 
     private:
-        const std::shared_ptr<SocketContextFactory> socketContextFactory;
+        struct Context {
+            Context(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+                    std::function<void(SocketConnection*)> onConnect,
+                    std::function<void(SocketConnection*)> onConnected,
+                    std::function<void(SocketConnection*)> onDisconnect)
+                : socketContextFactory(socketContextFactory)
+                , onConnect(onConnect)
+                , onConnected(onConnected)
+                , onDisconnect(onDisconnect) {
+            }
+            std::shared_ptr<SocketContextFactory> socketContextFactory;
 
-        std::function<void(SocketConnection*)> onConnect;
-        std::function<void(SocketConnection*)> onConnected;
-        std::function<void(SocketConnection*)> onDisconnect;
+            std::function<void(SocketConnection*)> onConnect;
+            std::function<void(SocketConnection*)> onConnected;
+            std::function<void(SocketConnection*)> onDisconnect;
+        };
+
+        std::shared_ptr<Context> sharedContext;
     };
 
     template <typename SocketClient, typename... Args>
