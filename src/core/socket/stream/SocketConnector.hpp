@@ -98,7 +98,7 @@ namespace core::socket::stream {
             try {
                 core::socket::State state = core::socket::STATE_OK;
 
-                LOG(TRACE) << config->getInstanceName() << " Connect: starting";
+                LOG(DEBUG) << config->getInstanceName() << " Connect: starting";
 
                 SocketAddress bindAddress = config->Local::getSocketAddress();
 
