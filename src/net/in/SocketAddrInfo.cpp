@@ -113,7 +113,7 @@ namespace net::in {
                         sizeof(servBfr),
                         NI_NUMERICHOST | NI_NUMERICSERV);
 
-            struct sockaddr_in* aiAddr = reinterpret_cast<sockaddr_in*>(currentAddrInfo->ai_addr);
+            const struct sockaddr_in* aiAddr = reinterpret_cast<sockaddr_in*>(currentAddrInfo->ai_addr);
 
             const std::string format = "AddressInfo:\n"
                                        "   ai_next      = %v\n"
