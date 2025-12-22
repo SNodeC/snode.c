@@ -83,14 +83,6 @@ namespace iot::mqtt::server {
         }
     }
 
-    void Mqtt::subscribe(const std::string& topic, uint8_t qoS) const {
-        broker->subscribe(clientId, topic, qoS);
-    }
-
-    void Mqtt::unsubscribe(const std::string& topic) const {
-        broker->unsubscribe(clientId, topic);
-    }
-
     bool Mqtt::onSignal([[maybe_unused]] int sig) {
         willFlag = false;
         return true;
