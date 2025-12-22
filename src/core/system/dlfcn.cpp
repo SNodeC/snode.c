@@ -50,17 +50,17 @@
 namespace core::system {
 
     void* dlopen(const char* filename, int flags) {
-        errno = 0;
+        dlerror();
         return ::dlopen(filename, flags);
     }
 
     int dlclose(void* handle) {
-        errno = 0;
+        dlerror();
         return ::dlclose(handle);
     }
 
     void* dlsym(void* handle, const char* symbol) {
-        errno = 0;
+        dlerror();
         return ::dlsym(handle, symbol);
     }
 
