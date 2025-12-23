@@ -74,7 +74,7 @@ namespace iot::mqtt::server::broker {
         nlohmann::json toJson() const;
         void fromJson(const nlohmann::json& json);
 
-        std::list<std::pair<std::string, std::string>> getRetainTree() const;
+        std::list<std::pair<std::string, std::pair<std::string, uint8_t>>> getRetainTree() const;
 
         void clear();
 
@@ -88,7 +88,7 @@ namespace iot::mqtt::server::broker {
 
             void appear(const std::string& clientId, std::string topic, uint8_t qoS);
 
-            std::list<std::pair<std::string, std::string>> getRetainTree() const;
+            std::list<std::pair<std::string, std::pair<std::string, uint8_t>>> getRetainTree() const;
 
             TopicLevel& fromJson(const nlohmann::json& json);
             nlohmann::json toJson() const;
@@ -98,7 +98,8 @@ namespace iot::mqtt::server::broker {
         private:
             void appear(const std::string& clientId, uint8_t clientQoS);
 
-            std::list<std::pair<std::string, std::string>> getRetainTree(const std::string& absoluteParentTopicLevel) const;
+            std::list<std::pair<std::string, std::pair<std::string, uint8_t>>>
+            getRetainTree(const std::string& absoluteParentTopicLevel) const;
 
             Message message;
 

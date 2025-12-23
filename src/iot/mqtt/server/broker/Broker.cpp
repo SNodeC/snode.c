@@ -234,7 +234,7 @@ namespace iot::mqtt::server::broker {
         return subscriptionTree.getSubscriptionTree();
     }
 
-    std::list<std::pair<std::string, std::string>> Broker::getRetainTree() {
+    std::list<std::pair<std::string, std::pair<std::string, uint8_t>>> Broker::getRetainTree() const {
         return retainTree.getRetainTree();
     }
 

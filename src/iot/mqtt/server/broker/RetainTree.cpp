@@ -86,7 +86,7 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    std::list<std::pair<std::string, std::string>> RetainTree::getRetainTree() const {
+    std::list<std::pair<std::string, std::pair<std::string, uint8_t>>> RetainTree::getRetainTree() const {
         return head.getRetainTree();
     }
 
@@ -188,7 +188,7 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    std::list<std::pair<std::string, std::string>> RetainTree::TopicLevel::getRetainTree() const {
+    std::list<std::pair<std::string, std::pair<std::string, uint8_t>>> RetainTree::TopicLevel::getRetainTree() const {
         return getRetainTree("");
     }
 
@@ -211,14 +211,15 @@ namespace iot::mqtt::server::broker {
         }
     }
 
-    std::list<std::pair<std::string, std::string>>
+    std::list<std::pair<std::string, std::pair<std::string, uint8_t>>>
     RetainTree::TopicLevel::getRetainTree(const std::string& absoluteParentTopicLevel) const {
-        std::list<std::pair<std::string, std::string>> topicLevelTree;
+        std::list<std::pair<std::string, std::pair<std::string, uint8_t>>> topicLevelTree;
         for (const auto& [topicLevel, subTopicLevel] : subTopicLevels) {
             const std::string absoluteTopicLevel = absoluteParentTopicLevel + topicLevel;
 
             if (!subTopicLevel.message.getMessage().empty()) {
-                topicLevelTree.emplace_back(absoluteTopicLevel, subTopicLevel.message.getMessage());
+                topicLevelTree.emplace_back(absoluteTopicLevel,
+                                            std::pair{subTopicLevel.message.getMessage(), subTopicLevel.message.getQoS()});
             }
 
             topicLevelTree.splice(topicLevelTree.end(), subTopicLevel.getRetainTree(absoluteTopicLevel + "/"));

@@ -101,7 +101,7 @@ namespace iot::mqtt::server::broker {
         std::list<std::string> getSubscriptions(const std::string& clientId) const;
 
         std::map<std::string, std::list<std::pair<std::string, uint8_t>>> getSubscriptionTree() const;
-        std::list<std::pair<std::string, std::string>> getRetainTree();
+        std::list<std::pair<std::string, std::pair<std::string, uint8_t>>> getRetainTree() const;
 
         void sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool retain);
 
