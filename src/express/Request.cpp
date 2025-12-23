@@ -76,7 +76,9 @@ namespace express {
         originalUrl = url;
         originalPath = httputils::url_decode(httputils::str_split_last(originalUrl, '?').first);
 
-        if (originalPath.length() <= 2 || !originalPath.ends_with("/")) {
+        if (originalPath.length() == 1) {
+            path = originalPath;
+        } else if (!originalPath.ends_with("/")) {
             std::tie(path, file) = httputils::str_split_last(originalPath, '/');
 
             if (path.empty()) {
