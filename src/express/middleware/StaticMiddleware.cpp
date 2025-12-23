@@ -84,8 +84,15 @@ namespace express::middleware {
                 if (req->path == "/") {
                     if (!index.empty()) {
                         LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                                  << " Express StaticMiddleware Redirecting: " << req->url << " -> " << req->originalPath + "/" + index;
-                        res->redirect(308, req->originalPath + "/" + index);
+                                  << " Express StaticMiddleware Redirecting: " << req->url << " -> "
+                                  << req->originalPath +
+                                         (!req->originalPath.empty() && req->originalPath.back() != '/' && index.front() != '/' ? "/"
+                                                                                                                                : "") +
+                                         index;
+                        res->redirect(
+                            308,
+                            req->originalPath +
+                                (!req->originalPath.empty() && req->originalPath.back() != '/' && index.front() != '/' ? "/" : "") + index);
                     } else {
                         res->status(404).send("Unsupported resource: " + req->url + "\n");
                     }
