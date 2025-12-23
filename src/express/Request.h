@@ -73,7 +73,9 @@ namespace express {
 
         const std::string& param(const std::string& id, const std::string& fallBack = "");
 
+        std::string baseUrl;
         std::string originalUrl;
+        std::string originalPath;
         std::string path;
         std::string file;
         std::map<std::string, std::string> params;

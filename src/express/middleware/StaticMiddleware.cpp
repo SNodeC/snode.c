@@ -81,11 +81,11 @@ namespace express::middleware {
                 }
             },
             [&index = this->index] MIDDLEWARE(req, res, next) {
-                if (req->url.ends_with("/")) {
+                if (req->path == "/") {
                     if (!index.empty()) {
                         LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                                  << " Express StaticMiddleware Redirecting: " << req->url << " -> " << req->url + index;
-                        res->redirect(308, req->url + index);
+                                  << " Express StaticMiddleware Redirecting: " << req->url << " -> " << req->originalPath + "/" + index;
+                        res->redirect(308, req->originalPath + "/" + index);
                     } else {
                         res->status(404).send("Unsupported resource: " + req->url + "\n");
                     }
@@ -95,15 +95,14 @@ namespace express::middleware {
             },
             [&root = this->root] MIDDLEWARE(req, res, next) {
                 const bool fileAllowed = true;
-
                 if (fileAllowed) {
-                    res->sendFile(root + req->url, [&root, req, res](int ret) {
+                    res->sendFile(root + req->path, [&root, req, res](int ret) {
                         if (ret == 0) {
                             LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                                      << " Express StaticMiddleware: GET " << req->url + " -> " << root + req->url;
+                                      << " Express StaticMiddleware: GET " << req->url + " -> " << root + req->path;
                         } else {
                             PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                                        << " Express StaticMiddleware " << req->url + " -> " << root + req->url;
+                                        << " Express StaticMiddleware " << req->url + " -> " << root + req->path;
 
                             res->sendStatus(404);
                         }

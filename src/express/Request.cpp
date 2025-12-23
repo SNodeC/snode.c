@@ -74,16 +74,16 @@ namespace express {
 
     Request& Request::extend() {
         originalUrl = url;
-        url = httputils::url_decode(httputils::str_split_last(originalUrl, '?').first);
+        originalPath = httputils::url_decode(httputils::str_split_last(originalUrl, '?').first);
 
-        if (url.length() <= 2 || !url.ends_with("/")) {
-            std::tie(path, file) = httputils::str_split_last(url, '/');
+        if (originalPath.length() <= 2 || !originalPath.ends_with("/")) {
+            std::tie(path, file) = httputils::str_split_last(originalPath, '/');
 
             if (path.empty()) {
                 path = "/";
             }
-        } else if (url.ends_with("/")) {
-            path = url;
+        } else if (originalPath.ends_with("/")) {
+            path = originalPath;
             path.pop_back();
         }
 
