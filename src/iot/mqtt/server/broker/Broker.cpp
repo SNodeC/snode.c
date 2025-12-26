@@ -199,10 +199,6 @@ namespace iot::mqtt::server::broker {
         retainTree.appear(clientId, topic, qoS);
     }
 
-    void Broker::release(const std::string& topic) {
-        retainTree.release(topic);
-    }
-
     uint8_t Broker::subscribe(const std::string& clientId, const std::string& topic, uint8_t qoS) {
         qoS = std::min(maxQoS, qoS);
         uint8_t returnCode = 0;
