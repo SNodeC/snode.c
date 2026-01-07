@@ -48,6 +48,7 @@
 
 #include <endian.h>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -144,17 +145,15 @@ namespace web::websocket {
         if (masking) {
             sendFrameData(maskingKeyAsArray.keyAsBytes, 4);
 
+            // Never mutate the caller-provided payload buffer.
+            std::vector<char> maskedPayload(payload, payload + payloadLength);
             for (uint64_t i = 0; i < payloadLength; i++) {
-                *(const_cast<char*>(payload) + i) = static_cast<char>(*(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4));
+                maskedPayload[static_cast<std::size_t>(i)] =
+                    static_cast<char>(maskedPayload[static_cast<std::size_t>(i)] ^ maskingKeyAsArray.keyAsBytes[i % 4]);
             }
-        }
-
-        sendFrameData(payload, payloadLength);
-
-        if (masking) {
-            for (uint64_t i = 0; i < payloadLength; i++) {
-                *(const_cast<char*>(payload) + i) = static_cast<char>(*(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4));
-            }
+            sendFrameData(maskedPayload.data(), payloadLength);
+        } else {
+            sendFrameData(payload, payloadLength);
         }
     }
 

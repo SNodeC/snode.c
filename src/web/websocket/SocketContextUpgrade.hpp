@@ -46,6 +46,9 @@
 
 #include "utils/hexdump.h"
 
+#include <cstring>
+#include <vector>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket {
@@ -93,18 +96,18 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void
     SocketContextUpgrade<SubProtocol, Request, Response>::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
-        std::size_t closePayloadLength = reasonLength + 2;
-        char* closePayload = new char[closePayloadLength];
+        const std::size_t closePayloadLength = reasonLength + 2;
+        std::vector<char> closePayload(closePayloadLength);
 
-        *reinterpret_cast<uint16_t*>(closePayload) = htobe16(statusCode); // cppcheck-suppress uninitdata
+        // Avoid unaligned stores.
+        const uint16_t beStatus = htobe16(statusCode);
+        std::memcpy(closePayload.data(), &beStatus, sizeof(beStatus));
 
         if (reasonLength > 0) {
-            memcpy(closePayload + 2, reason, reasonLength);
+            std::memcpy(closePayload.data() + 2, reason, reasonLength);
         }
 
-        sendClose(closePayload, closePayloadLength);
-
-        delete[] closePayload;
+        sendClose(closePayload.data(), closePayloadLength);
     }
 
     template <typename SubProtocol, typename Request, typename Response>
