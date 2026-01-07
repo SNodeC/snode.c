@@ -96,8 +96,10 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::close() { // should hard close
-        getSocketConnection()->close();
+    void SubProtocol<WSSubProtocolRole>::close() {
+        const std::string reason = "Protocol error";
+
+        WSSubProtocolRole::sendClose(1002, reason.data(), reason.length());
     }
 
     template <typename WSSubProtocolRole>

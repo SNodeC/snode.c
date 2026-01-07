@@ -128,6 +128,9 @@ namespace web::http::server {
                 masterResponse->httpMajor = 1;
                 masterResponse->httpMinor = 1;
 
+                masterResponse->set("Connection", "close");
+                masterResponse->connectionState = ConnectionState::Close;
+
                 masterResponse->status(pendingRequest->status).send(pendingRequest->reason);
             }
         } else {
@@ -190,6 +193,8 @@ namespace web::http::server {
 
         if (httpClose) {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
+
+            shutdownWrite();
         } else {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
 
