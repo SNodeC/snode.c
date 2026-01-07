@@ -174,7 +174,7 @@ namespace iot::mqtt {
     void Mqtt::initSession(Session* session, utils::Timeval keepAlive) {
         this->session = session;
 
-        for (const auto& [packetIdentifier, publish] : session->publishMap) {
+        for (const auto& [packetIdentifier, publish] : session->outgoingPublishMap) {
             LOG(INFO) << connectionName << " MQTT: PUBLISH Resend";
 
             send(publish);
@@ -183,7 +183,7 @@ namespace iot::mqtt {
         for (const uint16_t packetIdentifier : session->pubrelPacketIdentifierSet) {
             LOG(INFO) << connectionName << " MQTT: PUBREL Resend";
 
-            send(iot::mqtt::packets::Pubrel(packetIdentifier));
+            sendPubrel(packetIdentifier);
         }
 
         if (keepAlive > 0) {
@@ -214,23 +214,21 @@ namespace iot::mqtt {
         mqttContext->send(data.data(), data.size());
     }
 
-    void Mqtt::sendPublish(const std::string& topic, const std::string& message, uint8_t qoS,
-                           bool retain) const { // Server & Client
+    void Mqtt::sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain) const {
+        const uint16_t packetIdentifier = qoS != 0 ? getPacketIdentifier() : 0;
 
-        uint16_t packageIdentifier = qoS != 0 ? getPacketIdentifier() : 0;
-
-        send(iot::mqtt::packets::Publish(packageIdentifier, topic, message, qoS, false, retain));
+        send(iot::mqtt::packets::Publish(packetIdentifier, topic, message, qoS, false, retain));
 
         LOG(INFO) << connectionName << " MQTT:   Topic: " << topic;
         LOG(INFO) << connectionName << " MQTT:   Message:\n" << toHexString(message);
         LOG(DEBUG) << connectionName << " MQTT:   QoS: " << static_cast<uint16_t>(qoS);
-        LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: " << _packetIdentifier;
+        LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: " << packetIdentifier;
         LOG(DEBUG) << connectionName << " MQTT:   DUP: " << false;
         LOG(DEBUG) << connectionName << " MQTT:   Retain: " << retain;
 
-        if (qoS == 2) {
-            session->publishMap.emplace(packageIdentifier,
-                                        iot::mqtt::packets::Publish(packageIdentifier, topic, message, qoS, true, retain));
+        if (qoS >= 1) {
+            session->outgoingPublishMap.insert_or_assign(packetIdentifier,
+                                                         iot::mqtt::packets::Publish(packetIdentifier, topic, message, qoS, true, retain));
         }
     }
 
@@ -265,7 +263,7 @@ namespace iot::mqtt {
     void Mqtt::onPubcomp([[maybe_unused]] const iot::mqtt::packets::Pubcomp& pubcomp) {
     }
 
-    bool Mqtt::_onPublish(const packets::Publish& publish) {
+    bool Mqtt::_onPublish(const iot::mqtt::packets::Publish& publish) {
         bool deliver = true;
 
         LOG(INFO) << connectionName << " MQTT:   Topic: " << publish.getTopic();
@@ -283,6 +281,10 @@ namespace iot::mqtt {
             LOG(ERROR) << connectionName << " MQTT:   Received QoS > 0 but no PackageIdentifier present";
             mqttContext->end(true);
             deliver = false;
+        } else if (publish.getQoS() == 0 && publish.getDup()) {
+            LOG(ERROR) << connectionName << " MQTT:   Received QoS == 0 but dup is set";
+            mqttContext->end(true);
+            deliver = false;
         } else {
             switch (publish.getQoS()) {
                 case 1:
@@ -292,10 +294,23 @@ namespace iot::mqtt {
                 case 2:
                     sendPubrec(publish.getPacketIdentifier());
 
-                    if (session->publishPacketIdentifierSet.contains(publish.getPacketIdentifier())) {
-                        deliver = false;
+                    deliver = false;
+
+                    const uint16_t pid = publish.getPacketIdentifier();
+
+                    if (session->pubcompPacketIdentifierSet.contains(pid)) {
+                        if (!publish.getDup()) {
+                            session->pubcompPacketIdentifierSet.erase(pid);
+                        } else {
+                            LOG(WARNING) << connectionName << " MQTT:   Duplicate QoS2 PUBLISH after PUBCOMP for PacketIdentifier: " << pid;
+                            break;
+                        }
+                    }
+
+                    if (session->incomingPublishMap.contains(pid)) {
+                        LOG(INFO) << connectionName << " MQTT:   Duplicate QoS2 PUBLISH suppressed for PacketIdentifier: " << pid;
                     } else {
-                        session->publishPacketIdentifierSet.insert(publish.getPacketIdentifier());
+                        session->incomingPublishMap.emplace(pid, publish);
                     }
 
                     break;
@@ -312,6 +327,8 @@ namespace iot::mqtt {
         } else {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << puback.getPacketIdentifier() << std::dec;
+
+            session->outgoingPublishMap.erase(puback.getPacketIdentifier());
         }
 
         onPuback(puback);
@@ -325,7 +342,7 @@ namespace iot::mqtt {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << pubrec.getPacketIdentifier() << std::dec;
 
-            session->publishMap.erase(pubrec.getPacketIdentifier());
+            session->outgoingPublishMap.erase(pubrec.getPacketIdentifier());
             session->pubrelPacketIdentifierSet.insert(pubrec.getPacketIdentifier());
 
             sendPubrel(pubrec.getPacketIdentifier());
@@ -342,9 +359,24 @@ namespace iot::mqtt {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << pubrel.getPacketIdentifier() << std::dec;
 
-            session->publishPacketIdentifierSet.erase(pubrel.getPacketIdentifier());
+            const uint16_t pid = pubrel.getPacketIdentifier();
 
-            sendPubcomp(pubrel.getPacketIdentifier());
+            if (session->incomingPublishMap.contains(pid)) {
+                LOG(INFO) << connectionName << " MQTT:   QoS2 PUBREL received. Deliver publish: " << pid;
+
+                deliverPublish(session->incomingPublishMap[pid]);
+
+                session->incomingPublishMap.erase(pid);
+                session->pubcompPacketIdentifierSet.insert(pid);
+            } else if (session->pubcompPacketIdentifierSet.contains(pid)) {
+                LOG(INFO) << connectionName << " MQTT:   Duplicate QoS2 PUBREL for completed PacketIdentifier: " << pid;
+            } else {
+                LOG(WARNING) << connectionName << " MQTT:   QoS2 PUBREL received for unknown PacketIdentifier: " << pid;
+
+                session->pubcompPacketIdentifierSet.insert(pid);
+            }
+
+            sendPubcomp(pid);
         }
 
         onPubrel(pubrel);
@@ -358,7 +390,7 @@ namespace iot::mqtt {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << pubcomp.getPacketIdentifier() << std::dec;
 
-            session->publishMap.erase(pubcomp.getPacketIdentifier());
+            session->outgoingPublishMap.erase(pubcomp.getPacketIdentifier());
             session->pubrelPacketIdentifierSet.erase(pubcomp.getPacketIdentifier());
         }
 
@@ -397,11 +429,12 @@ namespace iot::mqtt {
     }
 
     uint16_t Mqtt::getPacketIdentifier() const {
-        ++_packetIdentifier;
-
-        if (_packetIdentifier == 0) {
+        do {
             ++_packetIdentifier;
-        }
+            if (_packetIdentifier == 0) {
+                _packetIdentifier = 1;
+            }
+        } while (session->outgoingPublishMap.contains(_packetIdentifier) || session->pubrelPacketIdentifierSet.contains(_packetIdentifier));
 
         return _packetIdentifier;
     }

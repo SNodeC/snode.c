@@ -93,14 +93,13 @@ namespace iot::mqtt::server {
 
         ~Mqtt() override;
 
-    private:
-        iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) final;
-        void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
-
     protected:
         bool onSignal(int sig) override;
 
     private:
+        ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) const final;
+        void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) override;
+
         using Super::initSession;
         bool initSession(const utils::Timeval& keepAlive);
         void releaseSession();
@@ -117,6 +116,8 @@ namespace iot::mqtt::server {
         void _onUnsubscribe(const iot::mqtt::server::packets::Unsubscribe& unsubscribe);
         void _onPingreq(const iot::mqtt::server::packets::Pingreq& pingreq);
         void _onDisconnect(const iot::mqtt::server::packets::Disconnect& disconnect);
+
+        void deliverPublish(const iot::mqtt::packets::Publish& publish) final;
 
     public:
         void sendConnack(uint8_t returnCode, uint8_t flags) const;

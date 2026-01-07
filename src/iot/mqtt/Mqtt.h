@@ -98,7 +98,7 @@ namespace iot::mqtt {
         const MqttContext* getMqttContext() const;
 
     private:
-        virtual iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& staticHeader) = 0;
+        virtual iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader& staticHeader) const = 0;
         virtual void deliverPacket(iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer) = 0;
 
     protected:
@@ -127,6 +127,8 @@ namespace iot::mqtt {
         uint16_t getPacketIdentifier() const;
 
         void send(const iot::mqtt::ControlPacket& controlPacket) const;
+
+        virtual void deliverPublish(const iot::mqtt::packets::Publish& publish) = 0;
 
     public:
         static std::string toHexString(const std::vector<char>& data);

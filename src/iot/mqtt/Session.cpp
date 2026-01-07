@@ -60,7 +60,7 @@ namespace iot::mqtt {
         nlohmann::json json;
 
         std::vector<nlohmann::json> publishJsonVector;
-        for (const auto& [packetIdentifier, publish] : publishMap) {
+        for (const auto& [packetIdentifier, publish] : outgoingPublishMap) {
             nlohmann::json publishJson;
 
             publishJson["packet_identifier"] = packetIdentifier;
@@ -79,8 +79,27 @@ namespace iot::mqtt {
         if (!pubrelPacketIdentifierSet.empty()) {
             json["pubrel_packetidentifier_set"] = pubrelPacketIdentifierSet;
         }
-        if (!publishPacketIdentifierSet.empty()) {
-            json["publish_packetidentifier_set"] = publishPacketIdentifierSet;
+
+        // QoS 2 inbound state (receiver side)
+        std::vector<nlohmann::json> incomingPublishJsonVector;
+        for (const auto& [packetIdentifier, publish] : incomingPublishMap) {
+            nlohmann::json publishJson;
+
+            publishJson["packet_identifier"] = packetIdentifier;
+            publishJson["topic"] = publish.getTopic();
+            publishJson["message"] = publish.getMessage();
+            publishJson["dup"] = publish.getDup();
+            publishJson["qos"] = publish.getQoS();
+            publishJson["retain"] = publish.getRetain();
+
+            incomingPublishJsonVector.emplace_back(publishJson);
+        }
+
+        if (!incomingPublishJsonVector.empty()) {
+            json["incoming_publish_map"] = incomingPublishJsonVector;
+        }
+        if (!pubcompPacketIdentifierSet.empty()) {
+            json["pubcomp_packetidentifier_set"] = pubcompPacketIdentifierSet;
         }
 
         return json;
@@ -90,28 +109,45 @@ namespace iot::mqtt {
         if (json.contains("pubrel_packetidentifier_set")) {
             pubrelPacketIdentifierSet = static_cast<std::set<uint16_t>>(json["pubrel_packetidentifier_set"]);
         }
-        if (json.contains("publish_packetidentifier_set")) {
-            publishPacketIdentifierSet = static_cast<std::set<uint16_t>>(json["publish_packetidentifier_set"]);
-        }
         if (json.contains("publish_map")) {
             for (const auto& publishJson : json["publish_map"]) {
                 if (publishJson.contains("packet_identifier")) {
-                    publishMap.emplace(publishJson["packet_identifier"],
-                                       iot::mqtt::packets::Publish(publishJson["packet_identifier"],
-                                                                   publishJson["topic"],
-                                                                   publishJson["message"],
-                                                                   publishJson["qos"],
-                                                                   publishJson["dup"],
-                                                                   publishJson["retain"]));
+                    outgoingPublishMap.emplace(publishJson["packet_identifier"],
+                                               iot::mqtt::packets::Publish(publishJson["packet_identifier"],
+                                                                           publishJson["topic"],
+                                                                           publishJson["message"],
+                                                                           publishJson["qos"],
+                                                                           publishJson["dup"],
+                                                                           publishJson["retain"]));
+                }
+            }
+        }
+
+        // QoS 2 inbound state (receiver side)
+        if (json.contains("pubcomp_packetidentifier_set")) {
+            pubcompPacketIdentifierSet = static_cast<std::set<uint16_t>>(json["pubcomp_packetidentifier_set"]);
+        }
+
+        if (json.contains("incoming_publish_map")) {
+            for (const auto& publishJson : json["incoming_publish_map"]) {
+                if (publishJson.contains("packet_identifier")) {
+                    incomingPublishMap.emplace(publishJson["packet_identifier"],
+                                               iot::mqtt::packets::Publish(publishJson["packet_identifier"],
+                                                                           publishJson["topic"],
+                                                                           publishJson["message"],
+                                                                           publishJson["qos"],
+                                                                           publishJson["dup"],
+                                                                           publishJson["retain"]));
                 }
             }
         }
     }
 
     void Session::clear() {
-        publishMap.clear();
+        outgoingPublishMap.clear();
         pubrelPacketIdentifierSet.clear();
-        publishPacketIdentifierSet.clear();
+        incomingPublishMap.clear();
+        pubcompPacketIdentifierSet.clear();
     }
 
 } // namespace iot::mqtt

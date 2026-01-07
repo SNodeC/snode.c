@@ -81,12 +81,16 @@ namespace iot::mqtt::server::broker {
                 LOG(INFO) << "MQTT Broker:     Suppress reflection to origin to avoid message looping";
             }
         } else {
-            if (message.getQoS() == 0) {
-                messageQueue.clear();
+            // Offline session behavior:
+            // - QoS 0 publications MUST NOT be queued (best-effort only).
+            // - QoS 1/2 publications may be queued for later delivery (persisted sessions).
+            const uint8_t effectiveQoS = static_cast<uint8_t>(std::min(message.getQoS(), qoS));
+            if (effectiveQoS > 0) {
+                message.setQoS(effectiveQoS);
+                messageQueue.emplace_back(message);
+            } else {
+                LOG(INFO) << "MQTT Broker:     Drop QoS0 message for inactive session";
             }
-
-            message.setQoS(std::min(message.getQoS(), qoS));
-            messageQueue.emplace_back(message);
         }
     }
 

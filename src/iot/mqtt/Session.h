@@ -69,8 +69,6 @@ namespace iot::mqtt {
         Session(const Session&) = default;
         Session& operator=(const Session&) = default;
 
-        bool isCleanSession() const;
-
         virtual nlohmann::json toJson() const;
         void fromJson(const nlohmann::json& json);
 
@@ -78,11 +76,12 @@ namespace iot::mqtt {
 
     private:
         // Sender side
-        std::map<uint16_t, iot::mqtt::packets::Publish> publishMap;
+        std::map<uint16_t, iot::mqtt::packets::Publish> outgoingPublishMap;
         std::set<uint16_t> pubrelPacketIdentifierSet;
 
         // Receiver side
-        std::set<uint16_t> publishPacketIdentifierSet;
+        std::map<uint16_t, iot::mqtt::packets::Publish> incomingPublishMap;
+        std::set<uint16_t> pubcompPacketIdentifierSet;
 
         friend class iot::mqtt::Mqtt;
     };

@@ -88,8 +88,8 @@ namespace iot::mqtt::server {
         return true;
     }
 
-    iot::mqtt::ControlPacketDeserializer* Mqtt::createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) {
-        iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr;
+    iot::mqtt::ControlPacketDeserializer* Mqtt::createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) const {
+        iot::mqtt::ControlPacketDeserializer* controlPacketDeserializer = nullptr; // NOLINT
 
         switch (fixedHeader.getType()) {
             case MQTT_CONNECT:
@@ -245,6 +245,18 @@ namespace iot::mqtt::server {
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
 
             mqttContext->end(true);
+        } else if (!connect.getWillFlag() && (connect.getWillQoS() != 0 || connect.getWillRetain())) {
+            LOG(ERROR) << connectionName << " MQTT Broker:   WillFlag not set but WillQoS or WillRetain set";
+
+            mqttContext->end(true);
+        } else if (connect.getWillQoS() > 2) {
+            LOG(ERROR) << connectionName << " MQTT Broker:   WillQoS larger than 2";
+
+            mqttContext->end(true);
+        } else if (connect.getPasswordFlag() && !connect.getUsernameFlag()) {
+            LOG(ERROR) << connectionName << " MQTT Broker:   Password flag set but username flag not";
+
+            mqttContext->end(true);
         } else {
             // V-Header
             protocol = connect.getProtocol();
@@ -278,9 +290,7 @@ namespace iot::mqtt::server {
 
     void Mqtt::_onPublish(const iot::mqtt::server::packets::Publish& publish) {
         if (Super::_onPublish(publish)) {
-            broker->publish(clientId, publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
-
-            onPublish(publish);
+            deliverPublish(publish);
         }
     }
 
@@ -343,6 +353,12 @@ namespace iot::mqtt::server {
         onDisconnect(disconnect);
 
         releaseSession();
+    }
+
+    void Mqtt::deliverPublish(const iot::mqtt::packets::Publish& publish) {
+        broker->publish(clientId, publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
+
+        onPublish(publish);
     }
 
     void Mqtt::sendConnack(uint8_t returnCode, uint8_t flags) const { // Server

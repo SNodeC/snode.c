@@ -132,8 +132,12 @@ namespace iot::mqtt::client {
         pingTimer.cancel();
     }
 
-    iot::mqtt::ControlPacketDeserializer* Mqtt::createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) {
-        iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr;
+    bool Mqtt::onSignal([[maybe_unused]] int sig) {
+        return false;
+    }
+
+    iot::mqtt::ControlPacketDeserializer* Mqtt::createControlPacketDeserializer(iot::mqtt::FixedHeader& fixedHeader) const {
+        iot::mqtt::ControlPacketDeserializer* currentPacket = nullptr; // NOLINT
 
         switch (fixedHeader.getType()) {
             case MQTT_CONNACK:
@@ -175,10 +179,6 @@ namespace iot::mqtt::client {
         static_cast<iot::mqtt::client::ControlPacketDeserializer*>(controlPacketDeserializer)->deliverPacket(this); // NOLINT
     }
 
-    bool Mqtt::onSignal([[maybe_unused]] int sig) {
-        return false;
-    }
-
     void Mqtt::onConnack([[maybe_unused]] const mqtt::packets::Connack& connack) {
     }
 
@@ -213,7 +213,7 @@ namespace iot::mqtt::client {
 
     void Mqtt::_onPublish(const iot::mqtt::client::packets::Publish& publish) {
         if (Super::_onPublish(publish)) {
-            onPublish(publish);
+            deliverPublish(publish);
         }
     }
 
@@ -257,6 +257,10 @@ namespace iot::mqtt::client {
 
     void Mqtt::_onPingresp(const iot::mqtt::client::packets::Pingresp& pingresp) {
         onPingresp(pingresp);
+    }
+
+    void Mqtt::deliverPublish(const iot::mqtt::packets::Publish& publish) {
+        onPublish(publish);
     }
 
     void Mqtt::sendConnect(bool cleanSession,
