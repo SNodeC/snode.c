@@ -2,7 +2,6 @@
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
  *               2020, 2021, 2022, 2023, 2024, 2025
- *               2021, 2022 Daniel Flockert
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -40,41 +39,20 @@
  * THE SOFTWARE.
  */
 
-#ifndef DATABASE_MARIADB_MARIADBCLIENTSYNCAPI
-#define DATABASE_MARIADB_MARIADBCLIENTSYNCAPI
-
-namespace database::mariadb {
-    class MariaDBCommandSync;
-} // namespace database::mariadb
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <functional>
-#include <mysql.h>
-#include <string>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#ifndef DATABASE_MARIADB_MARIADBLIBRARY
+#define DATABASE_MARIADB_MARIADBLIBRARY
 
 namespace database::mariadb {
 
-    class MariaDBClientSyncAPI {
-    protected:
-        MariaDBClientSyncAPI() = default;
-        MariaDBClientSyncAPI(const MariaDBClientSyncAPI&) = default;
-
-        virtual ~MariaDBClientSyncAPI();
-
+    class MariaDBLibrary final {
     public:
-        void affectedRows(const std::function<void(my_ulonglong)>& onAffectedRows,
-                          const std::function<void(const std::string&, unsigned int)>& onError);
+        MariaDBLibrary() = delete;
+        MariaDBLibrary(const MariaDBLibrary&) = delete;
+        MariaDBLibrary& operator=(const MariaDBLibrary&) = delete;
 
-        void fieldCount(const std::function<void(unsigned int)>& onFieldCount,
-                        const std::function<void(const std::string&, unsigned int)>& onError);
-
-    protected:
-        virtual void execute_sync(MariaDBCommandSync* mariaDBCommand) = 0;
+        static void ensureInitialized();
     };
 
 } // namespace database::mariadb
 
-#endif // DATABASE_MARIADB_MARIADBCLIENTSYNCAPI
+#endif // DATABASE_MARIADB_MARIADBLIBRARY

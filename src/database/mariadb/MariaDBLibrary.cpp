@@ -2,7 +2,6 @@
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
  *               2020, 2021, 2022, 2023, 2024, 2025
- *               2021, 2022 Daniel Flockert
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -40,41 +39,34 @@
  * THE SOFTWARE.
  */
 
-#ifndef DATABASE_MARIADB_MARIADBCLIENTSYNCAPI
-#define DATABASE_MARIADB_MARIADBCLIENTSYNCAPI
+#include "database/mariadb/MariaDBLibrary.h"
 
-namespace database::mariadb {
-    class MariaDBCommandSync;
-} // namespace database::mariadb
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include <cstdlib>
+#include <mutex>
 #include <mysql.h>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace database::mariadb {
 
-    class MariaDBClientSyncAPI {
-    protected:
-        MariaDBClientSyncAPI() = default;
-        MariaDBClientSyncAPI(const MariaDBClientSyncAPI&) = default;
+    void MariaDBLibrary::ensureInitialized() {
+        static std::once_flag initOnce;
 
-        virtual ~MariaDBClientSyncAPI();
+        std::call_once(initOnce, []() {
+            const int rc = mysql_library_init(0, nullptr, nullptr);
+            if (rc != 0) {
+                LOG(ERROR) << "MariaDB: mysql_library_init failed (rc=" << rc << ")";
+                // Best effort: proceed; subsequent mysql_* calls may fail.
+            }
 
-    public:
-        void affectedRows(const std::function<void(my_ulonglong)>& onAffectedRows,
-                          const std::function<void(const std::string&, unsigned int)>& onError);
-
-        void fieldCount(const std::function<void(unsigned int)>& onFieldCount,
-                        const std::function<void(const std::string&, unsigned int)>& onError);
-
-    protected:
-        virtual void execute_sync(MariaDBCommandSync* mariaDBCommand) = 0;
-    };
+            std::atexit([]() {
+                mysql_library_end();
+            });
+        });
+    }
 
 } // namespace database::mariadb
-
-#endif // DATABASE_MARIADB_MARIADBCLIENTSYNCAPI

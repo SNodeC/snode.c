@@ -54,7 +54,7 @@ namespace database::mariadb {
     MariaDBClientSyncAPI::~MariaDBClientSyncAPI() {
     }
 
-    void MariaDBClientSyncAPI::affectedRows(const std::function<void(int)>& onAffectedRows,
+    void MariaDBClientSyncAPI::affectedRows(const std::function<void(my_ulonglong)>& onAffectedRows,
                                             const std::function<void(const std::string&, unsigned int)>& onError) {
         execute_sync(new database::mariadb::commands::sync::MariaDBAffectedRowsCommand(onAffectedRows, onError));
     }

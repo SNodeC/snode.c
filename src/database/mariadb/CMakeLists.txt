@@ -53,6 +53,7 @@ if(LIBMARIADB_FOUND)
         MariaDBCommandSync.cpp
         MariaDBCommandSequence.cpp
         MariaDBConnection.cpp
+        MariaDBLibrary.cpp
         commands/sync/MariaDBAffectedRowsCommand.cpp
         commands/sync/MariaDBFieldCountCommand.cpp
         commands/sync/MariaDBUseResultCommand.cpp
@@ -76,6 +77,7 @@ if(LIBMARIADB_FOUND)
         MariaDBCommandSequence.h
         MariaDBConnection.h
         MariaDBConnectionDetails.h
+        MariaDBLibrary.h
         commands/sync/MariaDBAffectedRowsCommand.h
         commands/sync/MariaDBFieldCountCommand.h
         commands/sync/MariaDBUseResultCommand.h

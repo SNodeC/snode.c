@@ -43,6 +43,7 @@
 #include "database/mariadb/MariaDBConnection.h"
 
 #include "database/mariadb/MariaDBClient.h"
+#include "database/mariadb/MariaDBLibrary.h"
 #include "database/mariadb/commands/async/MariaDBConnectCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -66,10 +67,12 @@ namespace database::mariadb {
         , WriteEventReceiver("MariaDBConnectionWrite", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , ExceptionalConditionEventReceiver("MariaDBConnectionExceptional", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , mariaDBClient(mariaDBClient)
-        , mysql(mysql_init(nullptr))
         , connectionName(connectionDetails.connectionName)
         , commandStartEvent("MariaDBCommandStartEvent", this)
         , onStateChanged(onStateChanged) {
+        MariaDBLibrary::ensureInitialized();
+
+        mysql = mysql_init(nullptr);
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, nullptr);
 
         execute_async(std::move(MariaDBCommandSequence().execute_async(new database::mariadb::commands::async::MariaDBConnectCommand(
@@ -126,8 +129,10 @@ namespace database::mariadb {
             mariaDBClient->connectionVanished();
         }
 
-        mysql_close(mysql);
-        mysql_library_end();
+        if (mysql != nullptr) {
+            mysql_close(mysql);
+            mysql = nullptr;
+        }
     }
 
     MariaDBCommandSequence& MariaDBConnection::execute_async(MariaDBCommandSequence&& commandSequence) {
@@ -196,6 +201,7 @@ namespace database::mariadb {
 
     void MariaDBConnection::unmanaged() {
         mariaDBClient = nullptr;
+        closing = true;
 
         if (currentCommand == nullptr && commandSequenceQueue.empty()) {
             if (ReadEventReceiver::isEnabled()) {
@@ -290,7 +296,9 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::unobservedEvent() {
-        LOG(ERROR) << connectionName << " MariaDB: Lost connection";
+        if (!closing) {
+            LOG(ERROR) << connectionName << " MariaDB: Lost connection";
+        }
 
         if (mariaDBClient != nullptr) {
             onStateChanged({});

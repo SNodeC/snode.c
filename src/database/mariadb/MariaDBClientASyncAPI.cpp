@@ -66,20 +66,22 @@ namespace database::mariadb {
     MariaDBCommandSequence& MariaDBClientASyncAPI::query(const std::string& sql,
                                                          const std::function<void(const MYSQL_ROW)>& onQuery,
                                                          const std::function<void(const std::string&, unsigned int)>& onError) {
-        return execute_async(new database::mariadb::commands::async::MariaDBQueryCommand(
-                                 sql,
-                                 []() {
-                                 },
-                                 onError))
+        MariaDBCommandSequence& sequence = execute_async(new database::mariadb::commands::async::MariaDBQueryCommand(
+            sql,
+            []() {
+            },
+            onError));
+
+        return sequence
             .execute_async(new database::mariadb::commands::sync::MariaDBUseResultCommand(
-                [&lastResult = this->lastResult](MYSQL_RES* result) {
+                [&lastResult = sequence.lastResult](MYSQL_RES* result) {
                     lastResult = result;
                 },
                 onError))
-            .execute_async(new database::mariadb::commands::async::MariaDBFetchRowCommand(lastResult, onQuery, onError))
+            .execute_async(new database::mariadb::commands::async::MariaDBFetchRowCommand(sequence.lastResult, onQuery, onError))
             .execute_async(new database::mariadb::commands::async::MariaDBFreeResultCommand(
-                lastResult,
-                [this]() {
+                sequence.lastResult,
+                [&lastResult = sequence.lastResult]() {
                     lastResult = nullptr;
                 },
                 onError));

@@ -122,14 +122,15 @@ namespace database::mariadb {
         void unobservedEvent() override;
 
     private:
-        MariaDBClient* mariaDBClient;
-        MYSQL* mysql;
+        MariaDBClient* mariaDBClient = nullptr;
+        MYSQL* mysql = nullptr;
         const std::string connectionName;
 
         std::deque<MariaDBCommandSequence> commandSequenceQueue;
 
         MariaDBCommand* currentCommand = nullptr;
         bool connected = false;
+        bool closing = false;
 
         MariaDBCommandStartEvent commandStartEvent;
 
