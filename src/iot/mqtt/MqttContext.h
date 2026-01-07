@@ -72,7 +72,7 @@ namespace iot::mqtt {
 
         virtual core::socket::stream::SocketConnection* getSocketConnection() const = 0;
 
-        virtual void end(bool fatal = false) = 0;
+        virtual void end() = 0;
         virtual void close() = 0;
 
         void onConnected();

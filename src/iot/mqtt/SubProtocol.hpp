@@ -91,13 +91,13 @@ namespace iot::mqtt {
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::end([[maybe_unused]] bool fatal) {
+    void SubProtocol<WSSubProtocolRole>::end() {
         WSSubProtocolRole::sendClose();
     }
 
     template <typename WSSubProtocolRole>
-    void SubProtocol<WSSubProtocolRole>::close() {
-        WSSubProtocolRole::sendClose();
+    void SubProtocol<WSSubProtocolRole>::close() { // should hard close
+        getSocketConnection()->close();
     }
 
     template <typename WSSubProtocolRole>
@@ -110,7 +110,7 @@ namespace iot::mqtt {
     void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
         if (opCode == web::websocket::SubProtocolContext::OpCode::TEXT) {
             LOG(ERROR) << getSocketConnection()->getConnectionName() << " WsMqtt: Wrong Opcode: " << opCode << " (TEXT)";
-            this->end(true);
+            this->close();
         } else {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WsMqtt: Message START: " << opCode << " (BIN)";
         }

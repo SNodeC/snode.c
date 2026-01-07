@@ -93,7 +93,7 @@ namespace iot::mqtt {
         std::size_t recv(char* chunk, std::size_t chunklen) override;
         void send(const char* chunk, std::size_t chunklen) override;
 
-        void end(bool fatal = false) override;
+        void end() override;
         void close() override;
 
     private:

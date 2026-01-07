@@ -80,8 +80,8 @@ namespace iot::mqtt {
         sendToPeer(chunk, chunklen);
     }
 
-    void SocketContext::end(bool fatal) {
-        shutdownWrite(fatal);
+    void SocketContext::end() {
+        shutdownWrite();
     }
 
     void SocketContext::close() {

@@ -82,7 +82,7 @@ namespace core::socket::stream {
         void setTimeout(const utils::Timeval& timeout) final;
 
         void shutdownRead();
-        void shutdownWrite(bool forceClose = false);
+        void shutdownWrite();
         void close() override;
 
         std::size_t getTotalSent() const override;

@@ -220,7 +220,7 @@ namespace iot::mqtt::client {
     void Mqtt::_onSuback(const iot::mqtt::client::packets::Suback& suback) {
         if (suback.getPacketIdentifier() == 0) {
             LOG(ERROR) << connectionName << " MQTT Client:   PackageIdentifier missing";
-            mqttContext->end(true);
+            mqttContext->close();
         } else {
             LOG(DEBUG) << connectionName << " MQTT Client:  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << suback.getPacketIdentifier() << std::dec;
@@ -246,7 +246,7 @@ namespace iot::mqtt::client {
     void Mqtt::_onUnsuback(const iot::mqtt::client::packets::Unsuback& unsuback) {
         if (unsuback.getPacketIdentifier() == 0) {
             LOG(ERROR) << connectionName << " MQTT Client:  PacketIdentifier missing";
-            mqttContext->end(true);
+            mqttContext->close();
         } else {
             LOG(DEBUG) << connectionName << " MQTT Client:  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << unsuback.getPacketIdentifier() << std::dec;

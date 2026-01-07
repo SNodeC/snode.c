@@ -220,7 +220,7 @@ namespace web::http::client {
         if (deliveredRequests.empty()) {
             LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Response without delivered request";
 
-            shutdownWrite(true);
+            close();
         }
     }
 
@@ -273,7 +273,7 @@ namespace web::http::client {
 
         request->deliverResponseParseError(request, reason);
 
-        shutdownWrite(true);
+        close();
     }
 
     void SocketContext::requestCompleted(const std::shared_ptr<Response>& response) {

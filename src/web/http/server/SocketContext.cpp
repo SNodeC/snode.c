@@ -165,7 +165,7 @@ namespace web::http::server {
             LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Response completed with error: " << response.statusCode
                          << " " << StatusCode::reason(response.statusCode);
 
-            shutdownWrite(true);
+            close();
         }
     }
 

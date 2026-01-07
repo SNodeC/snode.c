@@ -459,7 +459,7 @@ namespace web::http::client {
                             const std::string connectionName = request->getSocketContext()->getSocketConnection()->getConnectionName();
                             onOpen();
                         } else {
-                            masterRequest.lock()->getSocketContext()->shutdownWrite(true);
+                            masterRequest.lock()->getSocketContext()->close();
                             onError();
                         }
                     }
@@ -468,7 +468,7 @@ namespace web::http::client {
                     if (!masterRequest.expired()) {
                         LOG(DEBUG) << request->getSocketContext()->getSocketConnection()->getConnectionName()
                                    << " error in response: " << status;
-                        masterRequest.lock()->getSocketContext()->shutdownWrite(true);
+                        masterRequest.lock()->getSocketContext()->close();
                     }
                 }));
 

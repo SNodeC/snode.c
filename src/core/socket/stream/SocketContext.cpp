@@ -121,8 +121,8 @@ namespace core::socket::stream {
         socketConnection->shutdownRead();
     }
 
-    void SocketContext::shutdownWrite(bool forceClose) {
-        socketConnection->shutdownWrite(forceClose);
+    void SocketContext::shutdownWrite() {
+        socketConnection->shutdownWrite();
     }
 
     void SocketContext::onWriteError(int errnum) {

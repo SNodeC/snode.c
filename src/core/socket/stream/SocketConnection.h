@@ -105,7 +105,7 @@ namespace core::socket::stream {
         virtual std::size_t readFromPeer(char* chunk, std::size_t chunkLen) = 0;
 
         virtual void shutdownRead() = 0;
-        virtual void shutdownWrite(bool forceClose) = 0;
+        virtual void shutdownWrite() = 0;
 
         const std::string& getInstanceName() const;
         const std::string& getConnectionName() const;
@@ -198,7 +198,7 @@ namespace core::socket::stream {
         void streamEof() final;
 
         void shutdownRead() final;
-        void shutdownWrite(bool forceClose) final;
+        void shutdownWrite() final;
 
         void close() final;
 

@@ -357,7 +357,7 @@ namespace web::http::client::tools {
                                     sharedState->pending.append(buf, consumed);
 
                                     if (!parse(sharedState, sharedConfig)) {
-                                        masterRequest->getSocketContext()->shutdownWrite(true);
+                                        masterRequest->getSocketContext()->close();
                                     }
                                 } else {
                                     LOG(DEBUG) << connectionName << ": server-sent event: server disconnect";
@@ -433,7 +433,7 @@ namespace web::http::client::tools {
             sharedConfig->config->setRetry(false);
 
             if (socketConnection != nullptr) {
-                socketConnection->shutdownWrite(true);
+                socketConnection->shutdownWrite();
             }
         }
 

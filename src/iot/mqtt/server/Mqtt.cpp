@@ -234,29 +234,29 @@ namespace iot::mqtt::server {
 
         if (connect.getProtocol() != "MQTT") {
             LOG(ERROR) << connectionName << " MQTT Broker:   Wrong Protocol: " << connect.getProtocol();
-            mqttContext->end(true);
+            mqttContext->close();
         } else if ((connect.getLevel()) != MQTT_VERSION_3_1_1) {
             LOG(ERROR) << connectionName << " MQTT Broker:   Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
-            mqttContext->end(true);
+            mqttContext->close();
         } else if (connect.isFakedClientId() && !connect.getCleanSession()) {
             LOG(ERROR) << connectionName << " MQTT Broker:   Resume session but no ClientId present";
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
 
-            mqttContext->end(true);
+            mqttContext->close();
         } else if (!connect.getWillFlag() && (connect.getWillQoS() != 0 || connect.getWillRetain())) {
             LOG(ERROR) << connectionName << " MQTT Broker:   WillFlag not set but WillQoS or WillRetain set";
 
-            mqttContext->end(true);
+            mqttContext->close();
         } else if (connect.getWillQoS() > 2) {
             LOG(ERROR) << connectionName << " MQTT Broker:   WillQoS larger than 2";
 
-            mqttContext->end(true);
+            mqttContext->close();
         } else if (connect.getPasswordFlag() && !connect.getUsernameFlag()) {
             LOG(ERROR) << connectionName << " MQTT Broker:   Password flag set but username flag not";
 
-            mqttContext->end(true);
+            mqttContext->close();
         } else {
             // V-Header
             protocol = connect.getProtocol();
@@ -283,7 +283,7 @@ namespace iot::mqtt::server {
             if (initSession(keepAlive)) {
                 onConnect(connect);
             } else {
-                mqttContext->end(true);
+                mqttContext->close();
             }
         }
     }
@@ -297,7 +297,7 @@ namespace iot::mqtt::server {
     void Mqtt::_onSubscribe(const iot::mqtt::server::packets::Subscribe& subscribe) {
         if (subscribe.getPacketIdentifier() == 0) {
             LOG(ERROR) << connectionName << " MQTT Broker:   PackageIdentifier missing";
-            mqttContext->end(true);
+            mqttContext->close();
         } else {
             LOG(DEBUG) << connectionName << " MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << subscribe.getPacketIdentifier() << std::dec;
@@ -322,7 +322,7 @@ namespace iot::mqtt::server {
     void Mqtt::_onUnsubscribe(const iot::mqtt::server::packets::Unsubscribe& unsubscribe) {
         if (unsubscribe.getPacketIdentifier() == 0) {
             LOG(ERROR) << connectionName << " MQTT Broker:   PackageIdentifier missing";
-            mqttContext->end(true);
+            mqttContext->close();
         } else {
             LOG(DEBUG) << connectionName << " MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << unsubscribe.getPacketIdentifier() << std::dec;

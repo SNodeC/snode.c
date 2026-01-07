@@ -119,7 +119,7 @@ namespace iot::mqtt {
                 if (controlPacketDeserializer == nullptr) {
                     LOG(DEBUG) << connectionName << " MQTT: Received packet-type is unavailable ... closing connection";
 
-                    mqttContext->end(true);
+                    mqttContext->close();
                     break;
                 }
                 if (controlPacketDeserializer->isError()) {
@@ -128,7 +128,7 @@ namespace iot::mqtt {
                     delete controlPacketDeserializer;
                     controlPacketDeserializer = nullptr;
 
-                    mqttContext->end(true);
+                    mqttContext->close();
                     break;
                 }
 
@@ -140,7 +140,7 @@ namespace iot::mqtt {
 
                 if (controlPacketDeserializer->isError()) {
                     LOG(DEBUG) << connectionName << " MQTT: Control packet has error ... closing connection";
-                    mqttContext->end(true);
+                    mqttContext->close();
 
                     delete controlPacketDeserializer;
                     controlPacketDeserializer = nullptr;
@@ -275,15 +275,15 @@ namespace iot::mqtt {
 
         if (publish.getQoS() > 2) {
             LOG(ERROR) << connectionName << " MQTT:   Received invalid QoS: " << publish.getQoS();
-            mqttContext->end(true);
+            mqttContext->close();
             deliver = false;
         } else if (publish.getPacketIdentifier() == 0 && publish.getQoS() > 0) {
             LOG(ERROR) << connectionName << " MQTT:   Received QoS > 0 but no PackageIdentifier present";
-            mqttContext->end(true);
+            mqttContext->close();
             deliver = false;
         } else if (publish.getQoS() == 0 && publish.getDup()) {
             LOG(ERROR) << connectionName << " MQTT:   Received QoS == 0 but dup is set";
-            mqttContext->end(true);
+            mqttContext->close();
             deliver = false;
         } else {
             switch (publish.getQoS()) {
@@ -323,7 +323,7 @@ namespace iot::mqtt {
     void Mqtt::_onPuback(const iot::mqtt::packets::Puback& puback) {
         if (puback.getPacketIdentifier() == 0) {
             LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
-            mqttContext->end(true);
+            mqttContext->close();
         } else {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << puback.getPacketIdentifier() << std::dec;
@@ -337,7 +337,7 @@ namespace iot::mqtt {
     void Mqtt::_onPubrec(const iot::mqtt::packets::Pubrec& pubrec) {
         if (pubrec.getPacketIdentifier() == 0) {
             LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
-            mqttContext->end(true);
+            mqttContext->close();
         } else {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << pubrec.getPacketIdentifier() << std::dec;
@@ -354,7 +354,7 @@ namespace iot::mqtt {
     void Mqtt::_onPubrel(const iot::mqtt::packets::Pubrel& pubrel) {
         if (pubrel.getPacketIdentifier() == 0) {
             LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
-            mqttContext->end(true);
+            mqttContext->close();
         } else {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << pubrel.getPacketIdentifier() << std::dec;
@@ -385,7 +385,7 @@ namespace iot::mqtt {
     void Mqtt::_onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) {
         if (pubcomp.getPacketIdentifier() == 0) {
             LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
-            mqttContext->end(true);
+            mqttContext->close();
         } else {
             LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << pubcomp.getPacketIdentifier() << std::dec;

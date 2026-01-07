@@ -238,16 +238,13 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::shutdownWrite(bool forceClose) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::shutdownWrite() {
         if (!SocketWriter::shutdownInProgress) {
             LOG(TRACE) << connectionName << ": Stop writing";
 
-            SocketWriter::shutdownWrite([forceClose, this]() {
+            SocketWriter::shutdownWrite([this]() {
                 if (SocketWriter::isEnabled()) {
                     SocketWriter::disable();
-                }
-                if (forceClose && SocketReader::isEnabled()) {
-                    close();
                 }
             });
         }
