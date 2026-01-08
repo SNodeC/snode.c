@@ -45,61 +45,132 @@
 
 #include "log/Logger.h"
 
-#include <algorithm>
+#include <filesystem>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
-    std::map<void*, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
-    std::list<void*> DynamicLoader::closeHandles;
+    std::map<std::string, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
+    std::map<void*, std::string> DynamicLoader::dlOpenedLibrariesByHandle;
+    std::list<std::string> DynamicLoader::closeQueue;
 
-    void* DynamicLoader::dlRegisterHandle(void* handle, const std::string& libFile) {
-        if (handle != nullptr) {
-            if (!dlOpenedLibraries.contains(handle)) {
-                dlOpenedLibraries[handle].fileName = libFile;
-                dlOpenedLibraries[handle].handle = handle;
+    std::string DynamicLoader::canonicalizePath(const std::string& libFile) {
+        try {
+            const std::filesystem::path p(libFile);
+            // Only try to resolve symlinks / normalize if the file actually exists.
+            // Otherwise (e.g. "libfoo.so" to be found via ld search path), keep as-is.
+            if (std::filesystem::exists(p)) {
+                return std::filesystem::canonical(p).string();
             }
+        } catch (...) {
+            // fallthrough
+        }
+        return libFile;
+    }
+
+    void* DynamicLoader::dlOpen(const std::string& libFile, int flags) {
+        const std::string canonicalFile = canonicalizePath(libFile);
+
+        auto it = dlOpenedLibraries.find(canonicalFile);
+        if (it != dlOpenedLibraries.end()) {
+            Library& lib = it->second;
+            ++lib.refCount;
+            lib.closePending = false;
+
+            LOG(TRACE) << "DynLoader: dlOpen: " << lib.fileName << ": already open (refCount=" << lib.refCount << ")";
+            return lib.handle;
+        }
+
+        // Clear possible stale error
+        (void) DynamicLoader::dlError();
+
+        void* handle = core::system::dlopen(libFile.c_str(), flags);
+        if (handle != nullptr) {
+            Library lib;
+            lib.fileName = libFile;
+            lib.canonicalFileName = canonicalFile;
+            lib.handle = handle;
+            lib.refCount = 1;
+            lib.closePending = false;
+
+            dlOpenedLibraries.emplace(canonicalFile, lib);
+            dlOpenedLibrariesByHandle.emplace(handle, canonicalFile);
+
             LOG(TRACE) << "DynLoader: dlOpen: " << libFile << ": success";
         } else {
-            LOG(TRACE) << "DynLoader: dlOpen: " << DynamicLoader::dlError();
+            LOG(TRACE) << "DynLoader: dlOpen: " << libFile << ": " << DynamicLoader::dlError();
         }
 
         return handle;
     }
 
     void DynamicLoader::dlCloseDelayed(void* handle) {
-        if (handle != nullptr) {
-            if (dlOpenedLibraries.contains(handle)) {
-                if (std::find(closeHandles.begin(), closeHandles.end(), handle) == closeHandles.end()) {
-                    LOG(TRACE) << "DynLoader: dlCloseDelayed: " << dlOpenedLibraries[handle].fileName;
-
-                    closeHandles.push_back(handle);
-                } else {
-                    LOG(TRACE) << "DynLoader: dlCloseDelayed: " << dlOpenedLibraries[handle].fileName << ": already registered: ";
-                }
-            } else {
-                LOG(TRACE) << "DynLoader: dlCloseDelayed: " << handle << ": not opened using dlOpen";
-            }
-        } else {
+        if (handle == nullptr) {
             LOG(TRACE) << "DynLoader: dlCloseDelayed: handle is nullptr";
+            return;
+        }
+
+        auto itHandle = dlOpenedLibrariesByHandle.find(handle);
+        if (itHandle == dlOpenedLibrariesByHandle.end()) {
+            LOG(TRACE) << "DynLoader: dlCloseDelayed: " << handle << ": not opened using dlOpen";
+            return;
+        }
+
+        auto itLib = dlOpenedLibraries.find(itHandle->second);
+        if (itLib == dlOpenedLibraries.end()) {
+            LOG(TRACE) << "DynLoader: dlCloseDelayed: internal error: handle known but library record missing";
+            return;
+        }
+
+        Library& lib = itLib->second;
+        if (lib.refCount > 0) {
+            --lib.refCount;
+        }
+
+        if (lib.refCount == 0) {
+            lib.closePending = true;
+            closeQueue.push_back(lib.canonicalFileName);
+            LOG(TRACE) << "DynLoader: dlCloseDelayed: " << lib.fileName;
+        } else {
+            LOG(TRACE) << "DynLoader: dlCloseDelayed: " << lib.fileName << ": still referenced (refCount=" << lib.refCount << ")";
         }
     }
 
     int DynamicLoader::dlClose(void* handle) {
-        int ret = 0;
-
-        if (handle != nullptr) {
-            if (dlOpenedLibraries.contains(handle)) {
-                ret = dlClose(dlOpenedLibraries[handle]);
-
-                dlOpenedLibraries.erase(handle);
-            } else {
-                LOG(TRACE) << "DynLoader: dlCloseDelayed: " << handle << ": not opened using dlOpen";
-            }
-        } else {
-            LOG(TRACE) << "DynLoader: dlClose handle: nullptr";
+        if (handle == nullptr) {
+            LOG(TRACE) << "DynLoader: dlClose: handle is nullptr";
+            return 0;
         }
+
+        auto itHandle = dlOpenedLibrariesByHandle.find(handle);
+        if (itHandle == dlOpenedLibrariesByHandle.end()) {
+            LOG(TRACE) << "DynLoader: dlClose: " << handle << ": not opened using dlOpen";
+            return 0;
+        }
+
+        auto itLib = dlOpenedLibraries.find(itHandle->second);
+        if (itLib == dlOpenedLibraries.end()) {
+            LOG(TRACE) << "DynLoader: dlClose: internal error: handle known but library record missing";
+            return 0;
+        }
+
+        Library& lib = itLib->second;
+        if (lib.refCount > 0) {
+            --lib.refCount;
+        }
+
+        if (lib.refCount != 0) {
+            LOG(TRACE) << "DynLoader: dlClose: " << lib.fileName << ": still referenced (refCount=" << lib.refCount << ")";
+            return 0;
+        }
+
+        lib.closePending = false;
+        const int ret = dlClose(lib);
+
+        dlOpenedLibrariesByHandle.erase(lib.handle);
+        dlOpenedLibraries.erase(itLib);
 
         return ret;
     }
@@ -116,7 +187,7 @@ namespace core {
         return core::system::dlclose(library.handle);
     }
 
-    int DynamicLoader::dlClose(const Library& library) {
+    int DynamicLoader::dlClose(Library& library) {
         int ret = 0;
         ret = realExecDlClose(library);
 
@@ -130,29 +201,44 @@ namespace core {
     }
 
     void DynamicLoader::execDlCloseDeleyed() {
-        if (!closeHandles.empty()) {
-            LOG(TRACE) << "DynLoader: execDlCloseDeleyed";
+        if (closeQueue.empty()) {
+            return;
+        }
 
-            for (void* handle : closeHandles) {
-                dlClose(dlOpenedLibraries[handle]);
-                dlOpenedLibraries.erase(handle);
+        LOG(TRACE) << "DynLoader: execDlCloseDeleyed";
+
+        for (const std::string& canonicalFile : closeQueue) {
+            auto it = dlOpenedLibraries.find(canonicalFile);
+            if (it == dlOpenedLibraries.end()) {
+                continue;
             }
 
-            closeHandles.clear();
+            Library& lib = it->second;
+            if (!lib.closePending || lib.refCount != 0) {
+                continue;
+            }
 
-            LOG(TRACE) << "DynLoader: execDlCloseDeleyed done";
+            lib.closePending = false;
+            (void) dlClose(lib);
+            dlOpenedLibrariesByHandle.erase(lib.handle);
+            dlOpenedLibraries.erase(it);
         }
+
+        closeQueue.clear();
+
+        LOG(TRACE) << "DynLoader: execDlCloseDeleyed done";
     }
 
     void DynamicLoader::execDlCloseAll() {
         LOG(TRACE) << "DynLoader: execDlCloseAll";
 
-        for (auto& [handle, library] : dlOpenedLibraries) {
-            dlClose(library);
+        for (auto& [canonical, library] : dlOpenedLibraries) {
+            (void) dlClose(library);
         }
 
         dlOpenedLibraries.clear();
-        closeHandles.clear();
+        dlOpenedLibrariesByHandle.clear();
+        closeQueue.clear();
 
         LOG(TRACE) << "DynLoader: execDlCloseAll done";
     }

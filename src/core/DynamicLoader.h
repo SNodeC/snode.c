@@ -46,6 +46,7 @@
 
 #include "core/system/dlfcn.h"
 
+#include <cstddef>
 #include <list>
 #include <map>
 #include <string>
@@ -58,30 +59,33 @@ namespace core {
     private:
         struct Library {
             std::string fileName;
+            std::string canonicalFileName;
             void* handle = nullptr;
+            std::size_t refCount = 0;
+            bool closePending = false;
         };
 
     public:
         DynamicLoader() = delete;
         ~DynamicLoader() = delete;
 
-#define dlOpen(libFile) dlRegisterHandle(core::system::dlopen((libFile).c_str(), RTLD_LOCAL | RTLD_LAZY), libFile)
-
-        static void* dlRegisterHandle(void* handle, const std::string& libFile);
+        static void* dlOpen(const std::string& libFile, int flags = RTLD_LOCAL | RTLD_LAZY);
         static void dlCloseDelayed(void* handle);
         static int dlClose(void* handle);
         static void* dlSym(void* handle, const std::string& symbol);
         static char* dlError();
 
     private:
-        static int dlClose(const Library& library);
+        static std::string canonicalizePath(const std::string& libFile);
+        static int dlClose(Library& library);
 
         static int realExecDlClose(const Library& library);
         static void execDlCloseDeleyed();
         static void execDlCloseAll();
 
-        static std::map<void*, Library> dlOpenedLibraries;
-        static std::list<void*> closeHandles;
+        static std::map<std::string, Library> dlOpenedLibraries;
+        static std::map<void*, std::string> dlOpenedLibrariesByHandle;
+        static std::list<std::string> closeQueue;
 
         friend class EventLoop;
         friend class EventMultiplexer;
