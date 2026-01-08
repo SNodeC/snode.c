@@ -72,8 +72,8 @@ namespace core {
         static void* dlOpen(const std::string& libFile, int flags = RTLD_LOCAL | RTLD_LAZY);
         static void dlCloseDelayed(void* handle);
         static int dlClose(void* handle);
-        static void* dlSym(void* handle, const std::string& symbol);
-        static char* dlError();
+        static const void* dlSym(void* handle, const std::string& symbol);
+        static const char* dlError();
 
     private:
         static std::string canonicalizePath(const std::string& libFile);

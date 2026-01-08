@@ -46,7 +46,6 @@
 
 #include "utils/hexdump.h"
 
-#include <cstring>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

@@ -145,7 +145,6 @@ namespace web::websocket {
         if (masking) {
             sendFrameData(maskingKeyAsArray.keyAsBytes, 4);
 
-            // Never mutate the caller-provided payload buffer.
             std::vector<char> maskedPayload(payload, payload + payloadLength);
             for (uint64_t i = 0; i < payloadLength; i++) {
                 maskedPayload[static_cast<std::size_t>(i)] =
