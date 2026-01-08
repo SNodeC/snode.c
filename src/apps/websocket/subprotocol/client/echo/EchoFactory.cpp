@@ -42,6 +42,7 @@
 #include "EchoFactory.h"
 
 #include "Echo.h"
+#include "web/websocket/client/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -57,6 +58,6 @@ namespace apps::websocket::subprotocol::echo::client {
 
 } // namespace apps::websocket::subprotocol::echo::client
 
-extern "C" apps::websocket::subprotocol::echo::client::EchoFactory* echoClientSubProtocolFactory() {
+extern "C" web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>* echoClientSubProtocolFactory() {
     return new apps::websocket::subprotocol::echo::client::EchoFactory(NAME);
 }

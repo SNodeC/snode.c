@@ -96,8 +96,10 @@ namespace apps::http::tls {
     static WebApp getWebApp(const std::string& name) {
         WebApp webApp(name, getRouter());
 
-        webApp.setOnConnect([webApp](SocketConnection* socketConnection) { // onConnect
-            VLOG(1) << "OnConnect " << webApp.getConfig().getInstanceName();
+        const std::string& instanceName = webApp.getConfig().getInstanceName();
+
+        webApp.setOnConnect([instanceName](SocketConnection* socketConnection) { // onConnect
+            VLOG(1) << "OnConnect " << instanceName;
 
             VLOG(1) << "  Local: " << socketConnection->getLocalAddress().toString();
             VLOG(1) << "   Peer: " << socketConnection->getRemoteAddress().toString();
@@ -112,8 +114,8 @@ namespace apps::http::tls {
             // }
         });
 
-        webApp.setOnConnected([webApp](SocketConnection* socketConnection) { // onConnected
-            VLOG(1) << "OnConnected " << webApp.getConfig().getInstanceName();
+        webApp.setOnConnected([instanceName](SocketConnection* socketConnection) { // onConnected
+            VLOG(1) << "OnConnected " << instanceName;
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
@@ -164,8 +166,8 @@ namespace apps::http::tls {
             }
         });
 
-        webApp.setOnDisconnect([webApp](SocketConnection* socketConnection) { // onDisconnect
-            VLOG(1) << "OnDisconnect " << webApp.getConfig().getInstanceName();
+        webApp.setOnDisconnect([instanceName](SocketConnection* socketConnection) { // onDisconnect
+            VLOG(1) << "OnDisconnect " << instanceName;
 
             VLOG(2) << "            Local: " << socketConnection->getLocalAddress().toString(false);
             VLOG(2) << "             Peer: " << socketConnection->getRemoteAddress().toString(false);

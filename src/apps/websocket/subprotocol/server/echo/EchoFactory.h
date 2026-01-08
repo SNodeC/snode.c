@@ -42,11 +42,8 @@
 #ifndef APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 #define APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
+#include "Echo.h"
 #include "web/websocket/SubProtocolFactory.h"
-
-namespace apps::websocket::subprotocol::echo::server {
-    class Echo; // IWYU pragma: keep
-}
 
 // IWYU pragma: no_include "apps/websocket/subprotocol/server/echo/Echo.h"
 
@@ -56,9 +53,9 @@ namespace apps::websocket::subprotocol::echo::server {
 
 namespace apps::websocket::subprotocol::echo::server {
 
-    class EchoFactory : public web::websocket::SubProtocolFactory<Echo> {
+    class EchoFactory : public web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol> {
     public:
-        using web::websocket::SubProtocolFactory<Echo>::SubProtocolFactory;
+        using web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>::SubProtocolFactory;
 
     private:
         Echo* create(web::websocket::SubProtocolContext* subProtocolContext) override;
@@ -66,6 +63,6 @@ namespace apps::websocket::subprotocol::echo::server {
 
 } // namespace apps::websocket::subprotocol::echo::server
 
-extern "C" apps::websocket::subprotocol::echo::server::EchoFactory* echoServerSubProtocolFactory();
+extern "C" web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>* echoServerSubProtocolFactory();
 
 #endif // APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H

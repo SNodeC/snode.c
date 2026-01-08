@@ -191,12 +191,14 @@ namespace database::mariadb {
         LOG(DEBUG) << connectionName << " MariaDB completed: " << currentCommand->commandInfo();
         commandSequenceQueue.front().commandCompleted();
 
-        if (commandSequenceQueue.front().empty()) {
-            commandSequenceQueue.pop_front();
-        }
+        const bool sequenceEmpty = commandSequenceQueue.front().empty();
 
         delete currentCommand;
         currentCommand = nullptr;
+
+        if (sequenceEmpty) {
+            commandSequenceQueue.pop_front();
+        }
     }
 
     void MariaDBConnection::unmanaged() {

@@ -159,6 +159,9 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "MySQL disconnected";
         }
     });
+    
+    int r1 = 0;
+    int r2 = 0;
     {
         db2.query(
             "SELECT * FROM snodec",
@@ -172,9 +175,6 @@ int main(int argc, char* argv[]) {
             [](const std::string& errorString, unsigned int errorNumber) -> void {
                 VLOG(0) << "Error 3: " << errorString << " : " << errorNumber;
             });
-
-        int r1 = 0;
-        int r2 = 0;
 
         db2.query(
             "SELECT * FROM snodec",
