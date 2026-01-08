@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "MySQL disconnected";
         }
     });
-    
+
     int r1 = 0;
     int r2 = 0;
     {
