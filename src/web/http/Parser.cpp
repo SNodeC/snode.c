@@ -1,7 +1,7 @@
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
- *               2020, 2021, 2022, 2023, 2024, 2025
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -51,7 +51,6 @@
 #include "web/http/http_utils.h"
 
 #include <charconv>
-#include <limits>
 #include <system_error>
 #include <tuple>
 #include <utility>
@@ -71,7 +70,7 @@ namespace web::http {
 
             const auto [ptr, ec] = std::from_chars(first, last, value, 10);
 
-            if (ec == std::errc{} && ptr == last && value <= static_cast<unsigned long long>(std::numeric_limits<std::size_t>::max())) {
+            if (ec == std::errc{} && ptr == last) {
                 out = static_cast<std::size_t>(value);
                 success = true;
             }

@@ -1,7 +1,7 @@
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
- *               2020, 2021, 2022, 2023, 2024, 2025
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -44,6 +44,7 @@
 
 #include "Echo.h"
 #include "web/websocket/SubProtocolFactory.h"
+#include "web/websocket/server/SubProtocol.h"
 
 // IWYU pragma: no_include "apps/websocket/subprotocol/server/echo/Echo.h"
 

@@ -1,7 +1,7 @@
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
- *               2020, 2021, 2022, 2023, 2024, 2025
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -72,7 +72,7 @@ namespace core {
         static void* dlOpen(const std::string& libFile, int flags = RTLD_LOCAL | RTLD_LAZY);
         static void dlCloseDelayed(void* handle);
         static int dlClose(void* handle);
-        static const void* dlSym(void* handle, const std::string& symbol);
+        static void* dlSym(void* handle, const std::string& symbol);
         static const char* dlError();
 
     private:
