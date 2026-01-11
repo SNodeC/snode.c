@@ -42,7 +42,7 @@
 #ifndef APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 #define APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 
-#include "web/websocket/client/SubProtocol.h"
+#include "web/websocket/client/SubProtocol.h" // IWYU pragma: export
 
 namespace web::websocket {
     class SubProtocolContext;

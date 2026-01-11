@@ -42,9 +42,8 @@
 #ifndef APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 #define APPS_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
-#include "Echo.h"
+#include "Echo.h" // IWYU pragma: export
 #include "web/websocket/SubProtocolFactory.h"
-#include "web/websocket/server/SubProtocol.h"
 
 // IWYU pragma: no_include "apps/websocket/subprotocol/server/echo/Echo.h"
 
