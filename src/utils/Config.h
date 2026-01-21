@@ -124,8 +124,11 @@ namespace utils {
 
     private:
         static bool parse1();
+
+    public:
         static bool parse2();
 
+    private:
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
     public:
