@@ -533,7 +533,7 @@ namespace utils {
     static std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode) {
         std::stringstream out;
 
-        CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
+        const CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
         if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::DEFAULT) {
             for (CLI::App* subcommand : app->get_subcommands({})) {
                 if (!subcommand->get_name().empty()) {
