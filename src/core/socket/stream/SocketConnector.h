@@ -74,6 +74,7 @@ namespace core::socket::stream {
         SocketConnector(const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
+                        const std::function<void(core::DescriptorEventReceiver*)>& onInitState,
                         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                         const std::shared_ptr<Config>& config);
 
@@ -103,6 +104,7 @@ namespace core::socket::stream {
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
+        std::function<void(core::DescriptorEventReceiver*)> onInitState;
 
         std::function<void(const SocketAddress&, core::socket::State)> onStatus;
 

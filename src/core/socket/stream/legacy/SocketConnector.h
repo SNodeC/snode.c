@@ -70,6 +70,7 @@ namespace core::socket::stream::legacy {
                         const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
+                        const std::function<void(core::DescriptorEventReceiver*)>& onInitState,
                         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                         const std::shared_ptr<Config>& config);
 

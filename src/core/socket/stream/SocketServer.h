@@ -167,10 +167,12 @@ namespace core::socket::stream {
                             sharedContext->onConnect,
                             sharedContext->onConnected,
                             sharedContext->onDisconnect,
+                            sharedContext->onInitState,
                             [config,
                              onConnect = sharedContext->onConnect,
                              onConnected = sharedContext->onConnected,
                              onDisconnect = sharedContext->onDisconnect,
+                             onInitState = sharedContext->onInitState,
                              socketContextFactory = sharedContext->socketContextFactory,
                              onStatus,
                              tries,
@@ -198,12 +200,14 @@ namespace core::socket::stream {
                                          onConnect,
                                          onConnected,
                                          onDisconnect,
+                                         onInitState,
                                          onStatus,
                                          tries,
                                          retryTimeoutScale,
                                          socketContextFactory]() {
                                             if (config->getRetry()) {
                                                 SocketServer(config, socketContextFactory, onConnect, onConnected, onDisconnect)
+                                                    .setOnInitState(onInitState)
                                                     .realListen(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
                                             } else {
                                                 LOG(INFO) << config->getInstanceName() << ": Retry listen disabled during wait";
@@ -282,6 +286,22 @@ namespace core::socket::stream {
             return *this;
         }
 
+        std::function<void(core::DescriptorEventReceiver*)>& getOnInitState() const {
+            return sharedContext->onDisconnect;
+        }
+
+        const SocketServer& setOnInitState(const std::function<void(core::DescriptorEventReceiver*)>& onInitState,
+                                           bool initialize = false) const {
+            sharedContext->onInitState = initialize ? onInitState
+                                                    : [oldOnInitState = sharedContext->onInitState,
+                                                       onInitState](core::DescriptorEventReceiver* descriptorEventReceiver) {
+                                                          oldOnInitState(descriptorEventReceiver);
+                                                          onInitState(descriptorEventReceiver);
+                                                      };
+
+            return *this;
+        }
+
         std::shared_ptr<SocketContextFactory> getSocketContextFactory() const {
             return sharedContext->socketContextFactory;
         }
@@ -295,13 +315,16 @@ namespace core::socket::stream {
                 : socketContextFactory(socketContextFactory)
                 , onConnect(onConnect)
                 , onConnected(onConnected)
-                , onDisconnect(onDisconnect) {
+                , onDisconnect(onDisconnect)
+                , onInitState([]([[maybe_unused]] core::DescriptorEventReceiver* descriptorEventReceiver) {
+                }) {
             }
             std::shared_ptr<SocketContextFactory> socketContextFactory;
 
             std::function<void(SocketConnection*)> onConnect;
             std::function<void(SocketConnection*)> onConnected;
             std::function<void(SocketConnection*)> onDisconnect;
+            std::function<void(core::DescriptorEventReceiver*)> onInitState;
         };
 
         std::shared_ptr<Context> sharedContext;

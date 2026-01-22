@@ -94,8 +94,11 @@ namespace core {
 
     protected:
         bool enable(int fd);
+
+    public:
         void disable();
 
+    protected:
         void suspend();
         void resume();
 

@@ -104,23 +104,28 @@ int main(int argc, char* argv[]) {
         });
     });
 
-    legacyApp.listen(
-        [instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
-            switch (state) {
-                case core::socket::State::OK:
-                    VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
-                    break;
-                case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << " disabled";
-                    break;
-                case core::socket::State::ERROR:
-                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                    break;
-                case core::socket::State::FATAL:
-                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                    break;
-            }
-        });
+    legacyApp
+        .setOnInitState([]([[maybe_unused]] core::DescriptorEventReceiver* descriptorEventReceiver) {
+            VLOG(0) << "------------------- Init";
+            descriptorEventReceiver->disable();
+        })
+        .listen(
+            [instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
+                switch (state) {
+                    case core::socket::State::OK:
+                        VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                        break;
+                    case core::socket::State::DISABLED:
+                        VLOG(1) << instanceName << " disabled";
+                        break;
+                    case core::socket::State::ERROR:
+                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        break;
+                    case core::socket::State::FATAL:
+                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        break;
+                }
+            });
 
     VLOG(1) << "Legacy Routes:";
     for (std::string& route : legacyApp.getRoutes()) {
@@ -173,8 +178,12 @@ int main(int argc, char* argv[]) {
             });
         });
 
-        tlsApp.listen(
-            [instanceName = tlsApp.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
+        tlsApp
+            .setOnInitState([]([[maybe_unused]] core::DescriptorEventReceiver* descriptorEventReceiver) {
+                VLOG(0) << "------------------- Init";
+            })
+            .listen([instanceName = tlsApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
+                                                                          const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
                         VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";

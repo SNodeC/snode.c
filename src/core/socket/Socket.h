@@ -72,7 +72,7 @@ namespace core::socket {
         Config& getConfig() const;
 
     protected:
-        std::shared_ptr<Config> config;
+        const std::shared_ptr<Config> config;
     };
 
 } // namespace core::socket

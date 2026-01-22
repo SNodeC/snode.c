@@ -61,6 +61,7 @@ namespace core::socket::stream::tls {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
+        const std::function<void(core::DescriptorEventReceiver*)>& onInitState,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
         : Super(
@@ -104,6 +105,7 @@ namespace core::socket::stream::tls {
                   socketConnection->stopSSL();
                   onDisconnect(socketConnection);
               },
+              onInitState,
               onStatus,
               config) {
         if (core::eventLoopState() == core::State::RUNNING) {

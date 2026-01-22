@@ -62,12 +62,14 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
+        const std::function<void(core::DescriptorEventReceiver*)>& onInitState,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::ConnectEventReceiver(config->getInstanceName() + " SocketConnector", 0)
         , onConnect(onConnect)
         , onConnected(onConnected)
         , onDisconnect(onDisconnect)
+        , onInitState(onInitState)
         , onStatus(onStatus)
         , config(config) {
     }
@@ -80,6 +82,7 @@ namespace core::socket::stream {
         , onConnect(socketConnector.onConnect)
         , onConnected(socketConnector.onConnected)
         , onDisconnect(socketConnector.onDisconnect)
+        , onInitState(socketConnector.onInitState)
         , onStatus(socketConnector.onStatus)
         , config(socketConnector.config) {
     }
@@ -220,6 +223,7 @@ namespace core::socket::stream {
         }
 
         if (isEnabled()) {
+            onInitState(this);
             core::eventreceiver::ConnectEventReceiver::setTimeout(config->getConnectTimeout());
         } else {
             destruct();
@@ -329,6 +333,8 @@ namespace core::socket::stream {
               typename Config,
               template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::destruct() {
+        onInitState(this);
+
         delete this;
     }
 
