@@ -62,7 +62,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(core::DescriptorEventReceiver*)>& onInitState,
+        const std::function<void(core::eventreceiver::AcceptEventReceiver*)>& onInitState,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::AcceptEventReceiver(config->getInstanceName() + " SocketAcceptor", 0)
@@ -201,24 +201,27 @@ namespace core::socket::stream {
               typename Config,
               template <typename ConfigT, typename PhysicalSocketServerT> typename SocketConnection>
     void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::acceptEvent() {
-        int acceptsPerTick = config->getAcceptsPerTick();
+        if (isEnabled()) {
+            int acceptsPerTick = config->getAcceptsPerTick();
 
-        do {
-            PhysicalServerSocket connectedPhysicalSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK), bindAddress);
+            do {
+                PhysicalServerSocket connectedPhysicalSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK),
+                                                             bindAddress);
 
-            if (connectedPhysicalSocket.isValid()) {
-                SocketConnection* socketConnection = new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, config);
+                if (connectedPhysicalSocket.isValid()) {
+                    SocketConnection* socketConnection = new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, config);
 
-                LOG(DEBUG) << config->getInstanceName() << " accept " << bindAddress.toString() << ": success";
-                LOG(DEBUG) << "  " << socketConnection->getRemoteAddress().toString() << " -> "
-                           << socketConnection->getLocalAddress().toString();
+                    LOG(DEBUG) << config->getInstanceName() << " accept " << bindAddress.toString() << ": success";
+                    LOG(DEBUG) << "  " << socketConnection->getRemoteAddress().toString() << " -> "
+                               << socketConnection->getLocalAddress().toString();
 
-                onConnect(socketConnection);
-                onConnected(socketConnection);
-            } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                PLOG(WARNING) << config->getInstanceName() << " accept " << bindAddress.toString();
-            }
-        } while (--acceptsPerTick > 0);
+                    onConnect(socketConnection);
+                    onConnected(socketConnection);
+                } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
+                    PLOG(WARNING) << config->getInstanceName() << " accept " << bindAddress.toString();
+                }
+            } while (--acceptsPerTick > 0);
+        }
     }
 
     template <typename PhysicalSocketServer,

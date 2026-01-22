@@ -61,6 +61,10 @@ namespace core::eventreceiver {
         disable();
     }
 
+    void ConnectEventReceiver::stopConnect() {
+        disable();
+    }
+
     void ConnectEventReceiver::dispatchEvent() {
         connectEvent();
     }

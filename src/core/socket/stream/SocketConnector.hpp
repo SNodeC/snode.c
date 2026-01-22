@@ -62,7 +62,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onConnect,
         const std::function<void(SocketConnection*)>& onConnected,
         const std::function<void(SocketConnection*)>& onDisconnect,
-        const std::function<void(core::DescriptorEventReceiver*)>& onInitState,
+        const std::function<void(core::eventreceiver::ConnectEventReceiver*)>& onInitState,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::ConnectEventReceiver(config->getInstanceName() + " SocketConnector", 0)
@@ -236,8 +236,8 @@ namespace core::socket::stream {
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectEvent() {
         int cErrno = 0;
 
-        if (physicalClientSocket.getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed
-            const utils::PreserveErrno pe(cErrno);            // errno = cErrno
+        if (isEnabled() && physicalClientSocket.getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed
+            const utils::PreserveErrno pe(cErrno);                           // errno = cErrno
 
             if (errno == 0) {
                 SocketConnection* socketConnection = new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);

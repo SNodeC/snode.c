@@ -60,6 +60,9 @@ namespace core::eventreceiver {
 
         virtual void connectTimeout();
 
+    public:
+        void stopConnect();
+
     private:
         virtual void connectEvent() = 0;
 

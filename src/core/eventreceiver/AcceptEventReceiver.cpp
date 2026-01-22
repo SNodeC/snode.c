@@ -61,6 +61,10 @@ namespace core::eventreceiver {
         disable();
     }
 
+    void AcceptEventReceiver::stopListen() {
+        disable();
+    }
+
     void AcceptEventReceiver::dispatchEvent() {
         acceptEvent();
     }

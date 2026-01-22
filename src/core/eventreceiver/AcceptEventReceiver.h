@@ -60,6 +60,9 @@ namespace core::eventreceiver {
 
         virtual void acceptTimeout();
 
+    public:
+        void stopListen();
+
     private:
         virtual void acceptEvent() = 0;
 

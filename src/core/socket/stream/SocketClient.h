@@ -317,15 +317,15 @@ namespace core::socket::stream {
             return *this;
         }
 
-        std::function<void(core::DescriptorEventReceiver*)>& getOnInitState() const {
+        std::function<void(core::eventreceiver::ConnectEventReceiver*)>& getOnInitState() const {
             return sharedContext->onDisconnect;
         }
 
-        const SocketClient& setOnInitState(const std::function<void(core::DescriptorEventReceiver*)>& onInitState,
+        const SocketClient& setOnInitState(const std::function<void(core::eventreceiver::ConnectEventReceiver*)>& onInitState,
                                            bool initialize = false) const {
             sharedContext->onInitState = initialize ? onInitState
                                                     : [oldOnInitState = sharedContext->onInitState,
-                                                       onInitState](core::DescriptorEventReceiver* descriptorEventReceiver) {
+                                                       onInitState](core::eventreceiver::ConnectEventReceiver* descriptorEventReceiver) {
                                                           oldOnInitState(descriptorEventReceiver);
                                                           onInitState(descriptorEventReceiver);
                                                       };
@@ -347,7 +347,7 @@ namespace core::socket::stream {
                 , onConnect(onConnect)
                 , onConnected(onConnected)
                 , onDisconnect(onDisconnect)
-                , onInitState([]([[maybe_unused]] core::DescriptorEventReceiver* descriptorEventReceiver) {
+                , onInitState([]([[maybe_unused]] core::eventreceiver::ConnectEventReceiver* descriptorEventReceiver) {
                 }) {
             }
             std::shared_ptr<SocketContextFactory> socketContextFactory;
@@ -355,7 +355,7 @@ namespace core::socket::stream {
             std::function<void(SocketConnection*)> onConnect;
             std::function<void(SocketConnection*)> onConnected;
             std::function<void(SocketConnection*)> onDisconnect;
-            std::function<void(core::DescriptorEventReceiver*)> onInitState;
+            std::function<void(core::eventreceiver::ConnectEventReceiver*)> onInitState;
         };
 
         std::shared_ptr<Context> sharedContext;
