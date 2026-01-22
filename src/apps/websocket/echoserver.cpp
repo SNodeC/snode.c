@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "core/eventreceiver/AcceptEventReceiver.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/VerboseRequest.h"
 #include "express/tls/in/WebApp.h"
@@ -105,9 +106,11 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp
-        .setOnInitState([]([[maybe_unused]] core::DescriptorEventReceiver* descriptorEventReceiver) {
-            VLOG(0) << "------------------- Init";
-            descriptorEventReceiver->disable();
+        .setOnInitState([]([[maybe_unused]] core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
+            VLOG(0) << "------------------- Legacy Server Init: " << acceptEventReceiver;
+            if (acceptEventReceiver->isEnabled()) {
+                acceptEventReceiver->stopListen();
+            }
         })
         .listen(
             [instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
@@ -179,8 +182,8 @@ int main(int argc, char* argv[]) {
         });
 
         tlsApp
-            .setOnInitState([]([[maybe_unused]] core::DescriptorEventReceiver* descriptorEventReceiver) {
-                VLOG(0) << "------------------- Init";
+            .setOnInitState([]([[maybe_unused]] core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
+                VLOG(0) << "------------------- TLS Server Init: " << acceptEventReceiver;
             })
             .listen([instanceName = tlsApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
                                                                           const core::socket::State& state) {

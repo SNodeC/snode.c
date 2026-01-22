@@ -39,8 +39,8 @@
  * THE SOFTWARE.
  */
 
-#include "core/DescriptorEventReceiver.h"
 #include "core/SNodeC.h"
+#include "core/eventreceiver/ConnectEventReceiver.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/tls/in/Client.h"
 
@@ -96,9 +96,11 @@ int main(int argc, char* argv[]) {
             });
 
         legacyClient
-            .setOnInitState([]([[maybe_unused]] core::DescriptorEventReceiver* descriptorEventReceiver) {
-                VLOG(0) << "------------------- Init";
-                descriptorEventReceiver->disable();
+            .setOnInitState([]([[maybe_unused]] core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
+                VLOG(0) << "------------------- Legacy Client Init: " << connectEventReceiver;
+                if (connectEventReceiver->isEnabled()) {
+                    connectEventReceiver->stopConnect();
+                }
             })
             .connect([instanceName = legacyClient.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
                                                                                  const core::socket::State& state) {
@@ -154,8 +156,8 @@ int main(int argc, char* argv[]) {
             });
 
         tlsClient
-            .setOnInitState([]([[maybe_unused]] core::DescriptorEventReceiver* descriptorEventReceiver) {
-                VLOG(0) << "------------------- Init";
+            .setOnInitState([]([[maybe_unused]] core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
+                VLOG(0) << "------------------- TLS Client Init: " << connectEventReceiver;
             })
             .connect([instanceName = tlsClient.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress,
                                                                               const core::socket::State& state) {
