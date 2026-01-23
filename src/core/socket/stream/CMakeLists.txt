@@ -40,11 +40,12 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(CORE_SOCKET_STREAM_CPP
-    SocketContext.cpp SocketContextFactory.cpp SocketConnection.cpp
-    SocketReader.cpp SocketWriter.cpp
+    AutoConnectControl.cpp SocketContext.cpp SocketContextFactory.cpp
+    SocketConnection.cpp SocketReader.cpp SocketWriter.cpp
 )
 
 set(CORE_SOCKET_STREAM_H
+    AutoConnectControl.h
     SocketAcceptor.h
     SocketAcceptor.hpp
     SocketClient.h
@@ -61,6 +62,7 @@ set(CORE_SOCKET_STREAM_H
 
 add_library(
     core-socket-stream SHARED ${CORE_SOCKET_STREAM_CPP} ${CORE_SOCKET_STREAM_H}
+                              AutoConnectControl.cpp
 )
 add_library(snodec::core-socket-stream ALIAS core-socket-stream)
 

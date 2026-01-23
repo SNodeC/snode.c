@@ -95,6 +95,7 @@ add_compile_options(
     -Wfloat-equal
     -pedantic-errors
     -fexec-charset=UTF-8
+    -ftemplate-backtrace-limit=0
     -Wno-shadow # yes we do
     -Wno-psabi # needed for RaspberryPi
     -Wno-used-but-marked-unused
@@ -113,8 +114,8 @@ add_compile_options(
 add_link_options(LINKER:--as-needed)
 
 # add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer -g)
-# add_link_options(-fsanitize=address,undefined)
-# export LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/15/libasan.s
+# add_link_options(-fsanitize=address,undefined) export
+# LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/15/libasan.s
 
 option(SNODEC_DISABLE_LOGLEVEL_LOGGING "Disable LOG() and PLOG() logging")
 option(SNODEC_DISABLE_VERBOSE_LOGGING "Disable VLOG() logging")
