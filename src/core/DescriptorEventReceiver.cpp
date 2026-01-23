@@ -85,6 +85,14 @@ namespace core {
         return observedFd;
     }
 
+    bool DescriptorEventReceiver::isEnabled() const {
+        return enabled;
+    }
+
+    bool DescriptorEventReceiver::isSuspended() const {
+        return suspended;
+    }
+
     bool DescriptorEventReceiver::enable(int fd) {
         if (!enabled) {
             observedFd = fd;
@@ -99,12 +107,6 @@ namespace core {
         return enabled;
     }
 
-    void DescriptorEventReceiver::setEnabled(const utils::Timeval& currentTime) {
-        lastTriggered = currentTime;
-
-        observed();
-    }
-
     void DescriptorEventReceiver::disable() {
         if (enabled) {
             enabled = false;
@@ -113,14 +115,6 @@ namespace core {
         } else {
             LOG(WARNING) << getName() << ": Double disable";
         }
-    }
-
-    void DescriptorEventReceiver::setDisabled() {
-        unObserved();
-    }
-
-    bool DescriptorEventReceiver::isEnabled() const {
-        return enabled;
     }
 
     void DescriptorEventReceiver::suspend() {
@@ -150,10 +144,6 @@ namespace core {
         }
     }
 
-    bool DescriptorEventReceiver::isSuspended() const {
-        return suspended;
-    }
-
     void DescriptorEventReceiver::setTimeout(const utils::Timeval& timeout) {
         if (timeout == TIMEOUT::DEFAULT) {
             this->maxInactivity = initialTimeout;
@@ -166,6 +156,12 @@ namespace core {
 
     utils::Timeval DescriptorEventReceiver::getTimeout(const utils::Timeval& currentTime) const {
         return maxInactivity > 0 ? currentTime > lastTriggered ? maxInactivity - (currentTime - lastTriggered) : 0 : TIMEOUT::MAX;
+    }
+
+    void DescriptorEventReceiver::checkTimeout(const utils::Timeval& currentTime) {
+        if (maxInactivity > 0 && currentTime - lastTriggered >= maxInactivity) {
+            timeoutEvent();
+        }
     }
 
     void DescriptorEventReceiver::onEvent(const utils::Timeval& currentTime) {
@@ -183,10 +179,14 @@ namespace core {
         lastTriggered = currentTime;
     }
 
-    void DescriptorEventReceiver::checkTimeout(const utils::Timeval& currentTime) {
-        if (maxInactivity > 0 && currentTime - lastTriggered >= maxInactivity) {
-            timeoutEvent();
-        }
+    void DescriptorEventReceiver::setEnabled(const utils::Timeval& currentTime) {
+        lastTriggered = currentTime;
+
+        observed();
+    }
+
+    void DescriptorEventReceiver::setDisabled() {
+        unObserved();
     }
 
 } // namespace core
