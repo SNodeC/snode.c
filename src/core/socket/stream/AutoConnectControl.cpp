@@ -55,83 +55,85 @@ namespace core::socket::stream {
     AutoConnectControl::~AutoConnectControl() = default;
 
     void AutoConnectControl::stopRetry() {
-        retryEnabled.store(false);
-        retryGeneration.fetch_add(1);
+        retryEnabled = false;
+        ++retryGeneration;
         scheduleCancelRetry();
     }
 
     void AutoConnectControl::stopReconnect() {
-        reconnectEnabled.store(false);
-        reconnectGeneration.fetch_add(1);
+        reconnectEnabled = false;
+        ++reconnectGeneration;
         scheduleCancelReconnect();
     }
 
     void AutoConnectControl::stopAll() {
-        retryEnabled.store(false);
-        reconnectEnabled.store(false);
+        retryEnabled = false;
+        reconnectEnabled = false;
 
-        retryGeneration.fetch_add(1);
-        reconnectGeneration.fetch_add(1);
+        ++retryGeneration;
+        ++reconnectGeneration;
 
         scheduleCancelRetry();
         scheduleCancelReconnect();
     }
 
     bool AutoConnectControl::retryIsEnabled() const {
-        return retryEnabled.load();
+        return retryEnabled;
     }
 
     bool AutoConnectControl::reconnectIsEnabled() const {
-        return reconnectEnabled.load();
+        return reconnectEnabled;
     }
 
     std::uint64_t AutoConnectControl::getRetryGeneration() const {
-        return retryGeneration.load();
+        return retryGeneration;
     }
 
     std::uint64_t AutoConnectControl::getReconnectGeneration() const {
-        return reconnectGeneration.load();
+        return reconnectGeneration;
     }
 
     bool AutoConnectControl::isRetryGeneration(std::uint64_t generation) const {
-        return retryGeneration.load() == generation;
+        return retryGeneration == generation;
     }
 
     bool AutoConnectControl::isReconnectGeneration(std::uint64_t generation) const {
-        return reconnectGeneration.load() == generation;
+        return reconnectGeneration == generation;
     }
 
     void AutoConnectControl::armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {
         cancelRetryTimerInLoop();
-        if (retryEnabled.load()) {
+        if (retryEnabled) {
             retryTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(dispatcher, timeoutSeconds));
         }
     }
 
     void AutoConnectControl::armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {
         cancelReconnectTimerInLoop();
-        if (reconnectEnabled.load()) {
+        if (reconnectEnabled) {
             reconnectTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(dispatcher, timeoutSeconds));
         }
     }
 
     void AutoConnectControl::scheduleCancelRetry() {
-        if (cancelRetryScheduled.exchange(true)) {
+        if (cancelRetryScheduled) {
             return;
         }
+        cancelRetryScheduled = true;
         core::EventReceiver::atNextTick([self = shared_from_this()] {
             self->cancelRetryTimerInLoop();
-            self->cancelRetryScheduled.store(false);
+            self->cancelRetryScheduled = false;
         });
     }
 
     void AutoConnectControl::scheduleCancelReconnect() {
-        if (cancelReconnectScheduled.exchange(true)) {
+        if (cancelReconnectScheduled) {
             return;
         }
+        cancelReconnectScheduled = true;
         core::EventReceiver::atNextTick([self = shared_from_this()] {
             self->cancelReconnectTimerInLoop();
-            self->cancelReconnectScheduled.store(false);
+            self->cancelReconnectScheduled = false;
         });
     }
 

@@ -59,7 +59,6 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <atomic>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -104,14 +103,14 @@ namespace core::socket::stream {
         void cancelRetryTimerInLoop();
         void cancelReconnectTimerInLoop();
 
-        std::atomic<bool> retryEnabled{true};
-        std::atomic<bool> reconnectEnabled{true};
+        bool retryEnabled{true};
+        bool reconnectEnabled{true};
 
-        std::atomic<std::uint64_t> retryGeneration{1};
-        std::atomic<std::uint64_t> reconnectGeneration{1};
+        std::uint64_t retryGeneration{1};
+        std::uint64_t reconnectGeneration{1};
 
-        std::atomic<bool> cancelRetryScheduled{false};
-        std::atomic<bool> cancelReconnectScheduled{false};
+        bool cancelRetryScheduled{false};
+        bool cancelReconnectScheduled{false};
 
         std::unique_ptr<core::timer::Timer> retryTimer;
         std::unique_ptr<core::timer::Timer> reconnectTimer;
