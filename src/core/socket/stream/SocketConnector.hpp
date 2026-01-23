@@ -333,7 +333,9 @@ namespace core::socket::stream {
               typename Config,
               template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::destruct() {
-        onInitState(this);
+        if (!config->getDisabled()) {
+            onInitState(this);
+        }
 
         delete this;
     }
