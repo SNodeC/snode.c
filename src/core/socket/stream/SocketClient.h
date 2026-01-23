@@ -353,8 +353,6 @@ namespace core::socket::stream {
         const SocketClient&
         setOnAutoConnectControl(const std::function<void(const std::shared_ptr<AutoConnectControl>&)>& onAutoConnectControl,
                                 bool initialize = false) const {
-            const auto localSharedContext = sharedContext;
-
             sharedContext->onAutoConnectControl = initialize ? onAutoConnectControl
                                                              : [oldOnAutoConnectControl = sharedContext->onAutoConnectControl,
                                                                 onAutoConnectControl](const std::shared_ptr<AutoConnectControl>& control) {
@@ -363,8 +361,8 @@ namespace core::socket::stream {
                                                                };
 
             if (sharedContext->autoConnectControl && onAutoConnectControl) {
-                core::EventReceiver::atNextTick([localSharedContext, onAutoConnectControl] {
-                    onAutoConnectControl(localSharedContext->autoConnectControl);
+                core::EventReceiver::atNextTick([sharedContext = this->sharedContext, onAutoConnectControl] {
+                    onAutoConnectControl(sharedContext->autoConnectControl);
                 });
             }
 
