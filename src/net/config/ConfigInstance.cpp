@@ -175,6 +175,8 @@ namespace net::config {
 
     void ConfigInstance::configurable(bool configurable) {
         disableOpt->configurable(configurable);
+
+        disableOpt->group(instanceSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
     }
 
     CLI::App* ConfigInstance::getSection(const std::string& name, bool onlyGot, bool recursive) const {

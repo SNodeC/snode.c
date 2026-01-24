@@ -856,7 +856,7 @@ namespace utils {
                },
                "Print help message and exit\n"
                "* standard: display help for the last command processed\n"
-               "* exact: display help for the command directly preceding --help\n")
+               "* exact: display help for the command directly preceding --help")
             ->group(app->get_formatter()->get_label("Nonpersistent Options"))
             ->check(CLI::IsMember({"standard", "exact"}));
 

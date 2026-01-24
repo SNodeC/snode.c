@@ -124,8 +124,8 @@ namespace net::l2::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     void ConfigAddress<ConfigAddressTypeT>::configurable(bool configurable) {
-        btAddressOpt->configurable(configurable);
-        psmOpt->configurable(configurable);
+        Super::setConfigurable(btAddressOpt, configurable);
+        Super::setConfigurable(psmOpt, configurable);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

@@ -127,6 +127,8 @@ namespace net::config {
         bool required() const;
 
     protected:
+        void setConfigurable(CLI::Option* option, bool configurable);
+
         CLI::App* section = nullptr;
 
     private:

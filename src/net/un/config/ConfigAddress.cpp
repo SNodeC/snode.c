@@ -112,7 +112,7 @@ namespace net::un::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     void ConfigAddress<ConfigAddressTypeT>::configurable(bool configurable) {
-        sunPathOpt->configurable(configurable);
+        Super::setConfigurable(sunPathOpt, configurable);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

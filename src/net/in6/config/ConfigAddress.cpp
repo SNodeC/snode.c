@@ -237,8 +237,8 @@ namespace net::in6::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     void ConfigAddress<ConfigAddressTypeT>::configurable(bool configurable) {
-        hostOpt->configurable(configurable);
-        portOpt->configurable(configurable);
+        Super::setConfigurable(hostOpt, configurable);
+        Super::setConfigurable(portOpt, configurable);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

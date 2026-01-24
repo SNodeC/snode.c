@@ -106,6 +106,11 @@ namespace net::config {
         return requiredCount > 0;
     }
 
+    void ConfigSection::setConfigurable(CLI::Option* option, bool configurable) {
+        option->configurable(configurable);
+        option->group(section->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
+    }
+
     CLI::Option* ConfigSection::addOption(const std::string& name, const std::string& description) {
         if (!instance->getInstanceName().empty() && !section->get_display_name().empty()) {
             section->disabled(false);
