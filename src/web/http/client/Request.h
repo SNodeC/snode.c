@@ -59,6 +59,10 @@ namespace web::http::client {
         class EndCommand;
         class SseCommand;
     } // namespace commands
+    namespace tools {
+        template <typename Client>
+        class EventSourceT; // IWYU pragma: keep
+    }
 } // namespace web::http::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -182,12 +186,12 @@ namespace web::http::client {
         bool end(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
                  const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError);
 
+    private:
         bool requestEventSource(const std::string& url,
                                 const std::function<std::size_t()>& onServerSentEvent,
                                 const std::function<void()>& onOpen,
                                 const std::function<void()>& onError);
 
-    private:
         bool initiate(const std::shared_ptr<MasterRequest>& request);
 
         friend class commands::SendFileCommand;
@@ -223,6 +227,9 @@ namespace web::http::client {
         std::function<void(const std::shared_ptr<Request>&, const std::string& message)> onResponseParseError;
 
         friend class SocketContext;
+
+        template <typename Client>
+        friend class tools::EventSourceT;
     };
 
 } // namespace web::http::client
