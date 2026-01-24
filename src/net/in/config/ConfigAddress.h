@@ -115,6 +115,8 @@ namespace net::in::config {
         ConfigAddress& setNumericReverse(bool numeric = true);
         bool getNumericReverse() const;
 
+        void configurable(bool configurable = true) final;
+
     protected:
         ConfigAddress& setAiFlags(int aiFlags);
         int getAiFlags() const;

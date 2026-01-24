@@ -69,6 +69,8 @@ namespace net::config {
 
         ~ConfigAddress() override;
 
+        virtual void configurable(bool configurable) = 0;
+
     public:
         using Super::getSocketAddress;
         SocketAddress& getSocketAddress();

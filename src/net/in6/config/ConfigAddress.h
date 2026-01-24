@@ -117,6 +117,8 @@ namespace net::in6::config {
         ConfigAddress& setNumericReverse(bool numeric = true);
         bool getNumericReverse() const;
 
+        void configurable(bool configurable = true) final;
+
     protected:
         ConfigAddress& setIpv4Mapped(bool ipv4Mapped = true);
         bool getIpv4Mapped() const;

@@ -95,6 +95,8 @@ namespace net::config {
 
         CLI::App* get() const;
 
+        void configurable(bool configurable = true);
+
     private:
         uint8_t requiredCount = 0;
 

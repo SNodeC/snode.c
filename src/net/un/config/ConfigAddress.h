@@ -91,6 +91,8 @@ namespace net::un::config {
         ConfigAddress& setSunPath(const std::string& sunPath);
         std::string getSunPath() const;
 
+        void configurable(bool configurable = true) final;
+
     protected:
         ConfigAddress& sunPathRequired(bool required = true);
 

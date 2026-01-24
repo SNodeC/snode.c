@@ -122,6 +122,12 @@ namespace net::l2::config {
         return psmOpt->as<uint16_t>();
     }
 
+    template <template <typename SocketAddressT> typename ConfigAddressTypeT>
+    void ConfigAddress<ConfigAddressTypeT>::configurable(bool configurable) {
+        btAddressOpt->configurable(configurable);
+        psmOpt->configurable(configurable);
+    }
+
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddressRequired(bool required) {
         Super::required(btAddressOpt, required);

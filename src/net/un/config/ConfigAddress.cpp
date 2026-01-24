@@ -110,6 +110,11 @@ namespace net::un::config {
         return sunPathOpt->as<std::string>();
     }
 
+    template <template <typename SocketAddressT> typename ConfigAddressTypeT>
+    void ConfigAddress<ConfigAddressTypeT>::configurable(bool configurable) {
+        sunPathOpt->configurable(configurable);
+    }
+
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::sunPathRequired(bool required) {
         Super::required(sunPathOpt, required);

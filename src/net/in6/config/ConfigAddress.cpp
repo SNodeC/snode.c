@@ -235,6 +235,12 @@ namespace net::in6::config {
         return numericOpt->as<bool>();
     }
 
+    template <template <typename SocketAddressT> typename ConfigAddressTypeT>
+    void ConfigAddress<ConfigAddressTypeT>::configurable(bool configurable) {
+        hostOpt->configurable(configurable);
+        portOpt->configurable(configurable);
+    }
+
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setNumericReverse(bool numeric) {
         numericReverseOpt //

@@ -246,6 +246,12 @@ namespace net::in::config {
         return numericReverseOpt->as<bool>();
     }
 
+    template <template <typename SocketAddressT> typename ConfigAddressTypeT>
+    void ConfigAddress<ConfigAddressTypeT>::configurable(bool configurable) {
+        hostOpt->configurable(configurable);
+        portOpt->configurable(configurable);
+    }
+
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
         this->aiFlags = aiFlags;

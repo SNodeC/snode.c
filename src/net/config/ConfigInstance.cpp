@@ -173,6 +173,10 @@ namespace net::config {
         return instanceSc;
     }
 
+    void ConfigInstance::configurable(bool configurable) {
+        disableOpt->configurable(configurable);
+    }
+
     CLI::App* ConfigInstance::getSection(const std::string& name, bool onlyGot, bool recursive) const {
         CLI::App* resultSc = nullptr;
 

@@ -95,6 +95,8 @@ namespace net::l2::config {
         ConfigAddress& setPsm(uint16_t psm);
         uint16_t getPsm() const;
 
+        void configurable(bool configurable = true) final;
+
     protected:
         ConfigAddress& setBtAddressRequired(bool required = true);
         ConfigAddress& setPsmRequired(bool required = true);
