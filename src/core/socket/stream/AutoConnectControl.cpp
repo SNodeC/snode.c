@@ -55,22 +55,19 @@ namespace core::socket::stream {
 
     void AutoConnectControl::stopRetry() {
         retryEnabled = false;
-        ++retryGeneration;
+
         cancelRetryTimer();
     }
 
     void AutoConnectControl::stopReconnect() {
         reconnectEnabled = false;
-        ++reconnectGeneration;
+
         cancelReconnectTimer();
     }
 
     void AutoConnectControl::stopAll() {
         retryEnabled = false;
         reconnectEnabled = false;
-
-        ++retryGeneration;
-        ++reconnectGeneration;
 
         cancelRetryTimer();
         cancelReconnectTimer();
@@ -82,22 +79,6 @@ namespace core::socket::stream {
 
     bool AutoConnectControl::reconnectIsEnabled() const {
         return reconnectEnabled;
-    }
-
-    std::uint64_t AutoConnectControl::getRetryGeneration() const {
-        return retryGeneration;
-    }
-
-    std::uint64_t AutoConnectControl::getReconnectGeneration() const {
-        return reconnectGeneration;
-    }
-
-    bool AutoConnectControl::isRetryGeneration(std::uint64_t generation) const {
-        return retryGeneration == generation;
-    }
-
-    bool AutoConnectControl::isReconnectGeneration(std::uint64_t generation) const {
-        return reconnectGeneration == generation;
     }
 
     void AutoConnectControl::armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {

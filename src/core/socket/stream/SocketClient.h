@@ -222,11 +222,9 @@ namespace core::socket::stream {
 
                                     LOG(INFO) << config->getInstanceName() << ": Reconnect in " << relativeReconnectTimeout << " seconds";
 
-                                    const std::uint64_t generation = autoConnectControl->getReconnectGeneration();
                                     autoConnectControl->armReconnectTimer(
-                                        relativeReconnectTimeout, [config, sharedContext, autoConnectControl, generation, onStatus]() {
-                                            if (!autoConnectControl->reconnectIsEnabled() ||
-                                                !autoConnectControl->isReconnectGeneration(generation)) {
+                                        relativeReconnectTimeout, [config, sharedContext, autoConnectControl, /*generation,*/ onStatus]() {
+                                            if (!autoConnectControl->reconnectIsEnabled()) {
                                                 return;
                                             }
                                             if (config->getReconnect()) {
@@ -259,12 +257,10 @@ namespace core::socket::stream {
 
                                     LOG(INFO) << config->getInstanceName() << ": Retry connect in " << relativeRetryTimeout << " seconds";
 
-                                    const std::uint64_t generation = autoConnectControl->getRetryGeneration();
                                     autoConnectControl->armRetryTimer(
                                         relativeRetryTimeout,
-                                        [config, sharedContext, autoConnectControl, generation, onStatus, tries, retryTimeoutScale]() {
-                                            if (!autoConnectControl->retryIsEnabled() ||
-                                                !autoConnectControl->isRetryGeneration(generation)) {
+                                        [config, sharedContext, autoConnectControl, /*generation,*/ onStatus, tries, retryTimeoutScale]() {
+                                            if (!autoConnectControl->retryIsEnabled()) {
                                                 return;
                                             }
                                             if (config->getRetry()) {

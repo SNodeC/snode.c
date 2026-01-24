@@ -87,12 +87,6 @@ namespace core::socket::stream {
         bool retryIsEnabled() const;
         bool reconnectIsEnabled() const;
 
-        std::uint64_t getRetryGeneration() const;
-        std::uint64_t getReconnectGeneration() const;
-
-        bool isRetryGeneration(std::uint64_t generation) const;
-        bool isReconnectGeneration(std::uint64_t generation) const;
-
     private:
         void armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
         void armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
@@ -102,9 +96,6 @@ namespace core::socket::stream {
 
         bool retryEnabled{true};
         bool reconnectEnabled{true};
-
-        std::uint64_t retryGeneration{1};
-        std::uint64_t reconnectGeneration{1};
 
         bool cancelRetryScheduled{false};
         bool cancelReconnectScheduled{false};
