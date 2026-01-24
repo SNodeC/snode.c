@@ -41,7 +41,6 @@
 
 #include "core/socket/stream/AutoConnectControl.h"
 
-#include "core/EventReceiver.h"
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -57,13 +56,13 @@ namespace core::socket::stream {
     void AutoConnectControl::stopRetry() {
         retryEnabled = false;
         ++retryGeneration;
-        scheduleCancelRetry();
+        cancelRetryTimer();
     }
 
     void AutoConnectControl::stopReconnect() {
         reconnectEnabled = false;
         ++reconnectGeneration;
-        scheduleCancelReconnect();
+        cancelReconnectTimer();
     }
 
     void AutoConnectControl::stopAll() {
@@ -73,8 +72,8 @@ namespace core::socket::stream {
         ++retryGeneration;
         ++reconnectGeneration;
 
-        scheduleCancelRetry();
-        scheduleCancelReconnect();
+        cancelRetryTimer();
+        cancelReconnectTimer();
     }
 
     bool AutoConnectControl::retryIsEnabled() const {
@@ -102,49 +101,25 @@ namespace core::socket::stream {
     }
 
     void AutoConnectControl::armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {
-        cancelRetryTimerInLoop();
         if (retryEnabled) {
             retryTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(dispatcher, timeoutSeconds));
         }
     }
 
     void AutoConnectControl::armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {
-        cancelReconnectTimerInLoop();
         if (reconnectEnabled) {
             reconnectTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(dispatcher, timeoutSeconds));
         }
     }
 
-    void AutoConnectControl::scheduleCancelRetry() {
-        if (cancelRetryScheduled) {
-            return;
-        }
-        cancelRetryScheduled = true;
-        core::EventReceiver::atNextTick([self = shared_from_this()] {
-            self->cancelRetryTimerInLoop();
-            self->cancelRetryScheduled = false;
-        });
-    }
-
-    void AutoConnectControl::scheduleCancelReconnect() {
-        if (cancelReconnectScheduled) {
-            return;
-        }
-        cancelReconnectScheduled = true;
-        core::EventReceiver::atNextTick([self = shared_from_this()] {
-            self->cancelReconnectTimerInLoop();
-            self->cancelReconnectScheduled = false;
-        });
-    }
-
-    void AutoConnectControl::cancelRetryTimerInLoop() {
+    void AutoConnectControl::cancelRetryTimer() {
         if (retryTimer) {
             retryTimer->cancel();
             retryTimer.reset();
         }
     }
 
-    void AutoConnectControl::cancelReconnectTimerInLoop() {
+    void AutoConnectControl::cancelReconnectTimer() {
         if (reconnectTimer) {
             reconnectTimer->cancel();
             reconnectTimer.reset();

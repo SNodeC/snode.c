@@ -97,11 +97,8 @@ namespace core::socket::stream {
         void armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
         void armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
 
-        void scheduleCancelRetry();
-        void scheduleCancelReconnect();
-
-        void cancelRetryTimerInLoop();
-        void cancelReconnectTimerInLoop();
+        void cancelRetryTimer();
+        void cancelReconnectTimer();
 
         bool retryEnabled{true};
         bool reconnectEnabled{true};
