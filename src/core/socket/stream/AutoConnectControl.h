@@ -81,10 +81,10 @@ namespace core::socket::stream {
 
         void stopRetry();
         void stopReconnect();
-        void stopAll();
+        void stopReconnectAndRetry();
 
-        bool retryIsEnabled() const;
-        bool reconnectIsEnabled() const;
+        bool isRetryEnabled() const;
+        bool isReconnectEnabled() const;
 
     private:
         void armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher);

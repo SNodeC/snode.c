@@ -65,7 +65,7 @@ namespace core::socket::stream {
         cancelReconnectTimer();
     }
 
-    void AutoConnectControl::stopAll() {
+    void AutoConnectControl::stopReconnectAndRetry() {
         retryEnabled = false;
         reconnectEnabled = false;
 
@@ -73,11 +73,11 @@ namespace core::socket::stream {
         cancelReconnectTimer();
     }
 
-    bool AutoConnectControl::retryIsEnabled() const {
+    bool AutoConnectControl::isRetryEnabled() const {
         return retryEnabled;
     }
 
-    bool AutoConnectControl::reconnectIsEnabled() const {
+    bool AutoConnectControl::isReconnectEnabled() const {
         return reconnectEnabled;
     }
 

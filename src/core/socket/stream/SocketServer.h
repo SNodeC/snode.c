@@ -216,7 +216,7 @@ namespace core::socket::stream {
                                 onStatus(socketAddress, state);
 
                                 if (retryFlag && config->getRetry() // Shall we potentially retry? In case are the ...
-                                    && autoConnectControl->retryIsEnabled() &&
+                                    && autoConnectControl->isRetryEnabled() &&
                                     (config->getRetryTries() == 0 ||
                                      tries < config->getRetryTries()) // ... limits not reached and has an ...
                                     && (state == core::socket::State::ERROR ||
@@ -233,7 +233,7 @@ namespace core::socket::stream {
                                     autoConnectControl->armRetryTimer(
                                         relativeRetryTimeout,
                                         [config, sharedContext, autoConnectControl, /*generation,*/ onStatus, tries, retryTimeoutScale]() {
-                                            if (!autoConnectControl->retryIsEnabled()) {
+                                            if (!autoConnectControl->isRetryEnabled()) {
                                                 return;
                                             }
                                             if (config->getRetry()) {
