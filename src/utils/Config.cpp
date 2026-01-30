@@ -451,7 +451,7 @@ namespace utils {
     }
 
     static void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
-        CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
+        const CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
         const bool disabled = disabledOpt != nullptr ? disabledOpt->as<bool>() : false;
         if (!disabled || mode == CLI::CallForCommandline::Mode::DEFAULT) {
             for (const CLI::Option* option : app->get_options()) {
