@@ -42,8 +42,9 @@
 #ifndef IOT_MQTT_CLIENT_SOCKETCONTEXT_H
 #define IOT_MQTT_CLIENT_SOCKETCONTEXT_H
 
-#include "iot/mqtt/Mqtt.h" // IWYU pragma: export
+#include "iot/mqtt/Mqtt.h"          // IWYU pragma: export
 #include "iot/mqtt/Session.h"
+#include "iot/mqtt/packets/Connect.h"
 
 // IWYU pra gma: no_include "iot/mqtt/ControlPacketDeserializer.h"
 
@@ -120,7 +121,8 @@ namespace iot::mqtt::client {
                          bool willRetain,
                          const std::string& username,
                          const std::string& password,
-                         bool loopPrevention = false) const;
+                         bool loopPrevention = false,
+                         uint8_t protocolLevel = MQTT_VERSION_3_1_1) const;
         void sendSubscribe(const std::list<Topic>& topics) const;
         void sendUnsubscribe(const std::list<std::string>& topics) const;
         void sendPingreq() const;

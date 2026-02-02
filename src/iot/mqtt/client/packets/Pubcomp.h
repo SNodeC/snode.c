@@ -44,6 +44,8 @@
 
 #include "iot/mqtt/client/ControlPacketDeserializer.h"
 #include "iot/mqtt/packets/Pubcomp.h"
+#include "iot/mqtt/types/UInt8.h" // IWYU pragma: export
+#include "iot/mqtt/types/UIntV.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -63,6 +65,11 @@ namespace iot::mqtt::client::packets {
     private:
         std::size_t deserializeVP(iot::mqtt::MqttContext* mqttContext) override;
         void deliverPacket(iot::mqtt::client::Mqtt* mqtt) override;
+
+        int state = 0;
+        iot::mqtt::types::UInt8 reasonCode;
+        iot::mqtt::types::UIntV propertiesLength;
+        std::size_t propertiesRemaining = 0;
     };
 
 } // namespace iot::mqtt::client::packets

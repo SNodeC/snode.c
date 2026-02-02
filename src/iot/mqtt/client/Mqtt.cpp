@@ -270,22 +270,25 @@ namespace iot::mqtt::client {
                            bool willRetain,
                            const std::string& username,
                            const std::string& password,
-                           bool loopPrevention) const { // Client
+                           bool loopPrevention,
+                           uint8_t protocolLevel) const { // Client
         LOG(INFO) << connectionName << " MQTT Client: CONNECT send: " << clientId;
 
+        this->protocolLevel = protocolLevel;
+
         send(iot::mqtt::packets::Connect(
-            clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password, loopPrevention));
+            clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password, loopPrevention, protocolLevel));
     }
 
     void Mqtt::sendSubscribe(const std::list<iot::mqtt::Topic>& topics) const { // Client
         if (!topics.empty()) {
-            send(iot::mqtt::packets::Subscribe(getPacketIdentifier(), topics));
+            send(iot::mqtt::packets::Subscribe(getPacketIdentifier(), topics, getProtocolLevel() == MQTT_VERSION_5_0));
         }
     }
 
     void Mqtt::sendUnsubscribe(const std::list<std::string>& topics) const { // Client
         if (!topics.empty()) {
-            send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
+            send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics, getProtocolLevel() == MQTT_VERSION_5_0));
         }
     }
 

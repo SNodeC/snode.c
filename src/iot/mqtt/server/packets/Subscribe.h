@@ -43,6 +43,7 @@
 
 #include "iot/mqtt/packets/Subscribe.h"                // IWYU pragma: export
 #include "iot/mqtt/server/ControlPacketDeserializer.h" // IWYU pragma: export
+#include "iot/mqtt/types/UIntV.h"                      // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -67,6 +68,7 @@ namespace iot::mqtt::server::packets {
         iot::mqtt::types::UInt8 qoS;
 
         int state = 0;
+        std::size_t propertiesRemaining = 0;
     };
 
 } // namespace iot::mqtt::server::packets

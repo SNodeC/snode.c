@@ -44,6 +44,7 @@
 
 #include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt8.h"   // IWYU pragma: export
+#include "iot/mqtt/types/UIntV.h"   // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,7 +67,7 @@ namespace iot::mqtt::packets {
     class Connack : public iot::mqtt::ControlPacket {
     public:
         Connack();
-        Connack(uint8_t returncode, uint8_t acknowledgeFlags);
+        Connack(uint8_t returncode, uint8_t acknowledgeFlags, bool includeProperties = false);
 
     private:
         std::vector<char> serializeVP() const override;
@@ -76,12 +77,17 @@ namespace iot::mqtt::packets {
         uint8_t getReturnCode() const;
 
         bool getSessionPresent() const;
+        bool hasProperties() const;
+        uint32_t getPropertiesLength() const;
 
     protected:
         iot::mqtt::types::UInt8 acknowledgeFlags;
         iot::mqtt::types::UInt8 returnCode;
+        iot::mqtt::types::UIntV propertiesLength;
 
         bool sessionPresent = false;
+        bool includeProperties = false;
+        bool hasPropertiesFlag = false;
     };
 
 } // namespace iot::mqtt::packets

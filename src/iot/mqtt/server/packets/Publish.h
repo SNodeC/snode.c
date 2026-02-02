@@ -64,6 +64,7 @@ namespace iot::mqtt::server::packets {
         void deliverPacket(iot::mqtt::server::Mqtt* mqtt) override;
 
         int state = 0;
+        std::size_t propertiesRemaining = 0;
     };
 
 } // namespace iot::mqtt::server::packets

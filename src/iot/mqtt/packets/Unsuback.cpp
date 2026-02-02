@@ -54,13 +54,22 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_UNSUBACK, "UNSUBACK") {
     }
 
-    Unsuback::Unsuback(const uint16_t packetIdentifier)
+    Unsuback::Unsuback(const uint16_t packetIdentifier, bool includeProperties)
         : Unsuback() {
         this->packetIdentifier = packetIdentifier;
+        this->includeProperties = includeProperties;
+        this->propertiesLength = 0;
     }
 
     std::vector<char> Unsuback::serializeVP() const {
-        return std::vector<char>(packetIdentifier.serialize());
+        std::vector<char> packet(packetIdentifier.serialize());
+
+        if (includeProperties) {
+            std::vector<char> tmpPacket = propertiesLength.serialize();
+            packet.insert(packet.end(), tmpPacket.begin(), tmpPacket.end());
+        }
+
+        return packet;
     }
 
     uint16_t Unsuback::getPacketIdentifier() const {

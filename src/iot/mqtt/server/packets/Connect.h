@@ -43,6 +43,7 @@
 
 #include "iot/mqtt/packets/Connect.h"                  // IWYU pragma: export
 #include "iot/mqtt/server/ControlPacketDeserializer.h" // IWYU pragma: export
+#include "iot/mqtt/types/UIntV.h"                      // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -60,6 +61,8 @@ namespace iot::mqtt::server::packets {
         Connect(uint32_t remainingLength, uint8_t flags);
 
         bool isFakedClientId() const;
+        bool hasProperties() const;
+        bool hasWillProperties() const;
 
     private:
         std::size_t deserializeVP(iot::mqtt::MqttContext* mqttContext) override;
@@ -68,6 +71,13 @@ namespace iot::mqtt::server::packets {
         int state = 0;
 
         bool fakedClientId = false;
+        bool hasPropertiesFlag = false;
+
+        iot::mqtt::types::UIntV propertiesLength;
+        std::size_t propertiesRemaining = 0;
+        iot::mqtt::types::UIntV willPropertiesLength;
+        std::size_t willPropertiesRemaining = 0;
+        bool hasWillPropertiesFlag = false;
     };
 
 } // namespace iot::mqtt::server::packets

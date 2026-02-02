@@ -40,6 +40,7 @@
  */
 
 #include "iot/mqtt/packets/Connect.h"
+#include "iot/mqtt/types/UIntV.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -62,11 +63,11 @@ namespace iot::mqtt::packets {
                      bool willRetain,
                      const std::string& username,
                      const std::string& password,
-                     bool loopPrevention)
+                     bool loopPrevention,
+                     uint8_t protocolLevel)
         : Connect() {
         this->protocol = "MQTT";
-        this->level =
-            MQTT_VERSION_3_1_1 | (loopPrevention ? 0x80 : 0x00); // msb 1 -> do not reflect messages to origin (try_private in mosquitto)
+        this->level = protocolLevel | (loopPrevention ? 0x80 : 0x00); // msb 1 -> do not reflect messages to origin (try_private in mosquitto)
         this->keepAlive = keepAlive;
         this->clientId = clientId;
         this->willTopic = willTopic;
@@ -95,10 +96,23 @@ namespace iot::mqtt::packets {
         tmpVector = keepAlive.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
+        if (level == MQTT_VERSION_5_0) {
+            iot::mqtt::types::UIntV propertiesLength;
+            propertiesLength = 0;
+            tmpVector = propertiesLength.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+
         tmpVector = clientId.serialize();
         packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 
         if (willFlag) {
+            if (level == MQTT_VERSION_5_0) {
+                iot::mqtt::types::UIntV willPropertiesLength;
+                willPropertiesLength = 0;
+                tmpVector = willPropertiesLength.serialize();
+                packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+            }
             tmpVector = willTopic.serialize();
             packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
 

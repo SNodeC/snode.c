@@ -129,6 +129,7 @@ namespace iot::mqtt::server {
 
         std::string getProtocol() const;
         uint8_t getLevel() const;
+        uint8_t getProtocolLevel() const override;
         uint8_t getConnectFlags() const;
         uint16_t getKeepAlive() const;
         std::string getClientId() const;

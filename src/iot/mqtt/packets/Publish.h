@@ -46,6 +46,7 @@
 #include "iot/mqtt/types/String.h"    // IWYU pragma: export
 #include "iot/mqtt/types/StringRaw.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h"    // IWYU pragma: export
+#include "iot/mqtt/types/UIntV.h"     // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -59,7 +60,13 @@ namespace iot::mqtt::packets {
     class Publish : public iot::mqtt::ControlPacket {
     public:
         Publish();
-        Publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message, uint8_t qoS, bool dup, bool retain);
+        Publish(uint16_t packetIdentifier,
+                const std::string& topic,
+                const std::string& message,
+                uint8_t qoS,
+                bool dup,
+                bool retain,
+                bool includeProperties = false);
 
     private:
         std::vector<char> serializeVP() const override;
@@ -81,6 +88,8 @@ namespace iot::mqtt::packets {
         bool dup = false;
         uint8_t qoS = 0;
         bool retain = false;
+        bool includeProperties = false;
+        iot::mqtt::types::UIntV propertiesLength;
     };
 
 } // namespace iot::mqtt::packets

@@ -55,11 +55,64 @@ namespace iot::mqtt::server::packets {
     }
 
     std::size_t Pubrec::deserializeVP(iot::mqtt::MqttContext* mqttContext) {
-        // V-Header
-        const std::size_t consumed = packetIdentifier.deserialize(mqttContext);
-        complete = packetIdentifier.isComplete();
+        std::size_t consumed = 0;
 
-        // no Payload
+        switch (state) {
+            case 0:
+                consumed += packetIdentifier.deserialize(mqttContext);
+                if (!packetIdentifier.isComplete()) {
+                    break;
+                }
+
+                if (mqttContext->getProtocolLevel() == MQTT_VERSION_5_0 && getRemainingLength() > 2) {
+                    state++;
+                } else {
+                    complete = true;
+                    break;
+                }
+                [[fallthrough]];
+            case 1:
+                consumed += reasonCode.deserialize(mqttContext);
+                if (!reasonCode.isComplete()) {
+                    break;
+                }
+
+                if (getRemainingLength() == 3) {
+                    complete = true;
+                    break;
+                }
+
+                state++;
+                [[fallthrough]];
+            case 2:
+                consumed += propertiesLength.deserialize(mqttContext);
+                if (!propertiesLength.isComplete()) {
+                    break;
+                }
+
+                propertiesRemaining = propertiesLength;
+
+                while (propertiesRemaining > 0) {
+                    char buffer[128];
+                    const std::size_t chunk =
+                        propertiesRemaining < sizeof(buffer) ? propertiesRemaining : sizeof(buffer);
+                    const std::size_t read = mqttContext->recv(buffer, chunk);
+                    consumed += read;
+
+                    if (read == 0) {
+                        break;
+                    }
+
+                    propertiesRemaining -= read;
+                }
+
+                if (propertiesRemaining > 0) {
+                    break;
+                }
+
+                complete = true;
+                break;
+        }
 
         return consumed;
     }

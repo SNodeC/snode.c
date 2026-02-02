@@ -53,7 +53,13 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_PUBLISH, "PUBLISH") {
     }
 
-    Publish::Publish(uint16_t packetIdentifier, const std::string& topic, const std::string& message, uint8_t qoS, bool dup, bool retain)
+    Publish::Publish(uint16_t packetIdentifier,
+                     const std::string& topic,
+                     const std::string& message,
+                     uint8_t qoS,
+                     bool dup,
+                     bool retain,
+                     bool includeProperties)
         : Publish() {
         this->flags = static_cast<uint8_t>((dup ? 0x08 : 0x00) | ((qoS << 1) & 0x06) | (retain ? 0x01 : 0x00));
         this->packetIdentifier = packetIdentifier;
@@ -62,6 +68,8 @@ namespace iot::mqtt::packets {
         this->dup = dup;
         this->qoS = qoS;
         this->retain = retain;
+        this->includeProperties = includeProperties;
+        this->propertiesLength = 0;
     }
 
     std::vector<char> Publish::serializeVP() const {
@@ -69,6 +77,11 @@ namespace iot::mqtt::packets {
 
         if (qoS > 0) {
             std::vector<char> tmpVector = packetIdentifier.serialize();
+            packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
+        }
+
+        if (includeProperties) {
+            std::vector<char> tmpVector = propertiesLength.serialize();
             packet.insert(packet.end(), tmpVector.begin(), tmpVector.end());
         }
 

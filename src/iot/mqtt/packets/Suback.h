@@ -45,6 +45,7 @@
 #include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
 #include "iot/mqtt/types/UInt8.h"   // IWYU pragma: export
+#include "iot/mqtt/types/UIntV.h"   // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -58,7 +59,7 @@ namespace iot::mqtt::packets {
     class Suback : public iot::mqtt::ControlPacket {
     public:
         Suback();
-        Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes);
+        Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes, bool includeProperties = false);
 
     private:
         std::vector<char> serializeVP() const override;
@@ -70,6 +71,8 @@ namespace iot::mqtt::packets {
     protected:
         iot::mqtt::types::UInt16 packetIdentifier;
         iot::mqtt::types::UInt8 returnCode;
+        iot::mqtt::types::UIntV propertiesLength;
+        bool includeProperties = false;
         std::list<uint8_t> returnCodes;
 
         int state = 0;
