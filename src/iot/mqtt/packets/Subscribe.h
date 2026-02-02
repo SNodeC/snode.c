@@ -47,6 +47,7 @@
 #include "iot/mqtt/types/String.h"  // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
 #include "iot/mqtt/types/UInt8.h"   // IWYU pragma: export
+#include "iot/mqtt/types/UIntV.h"   // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -60,7 +61,7 @@ namespace iot::mqtt::packets {
     class Subscribe : public iot::mqtt::ControlPacket {
     public:
         Subscribe();
-        Subscribe(uint16_t packetIdentifier, const std::list<iot::mqtt::Topic>& topics);
+        Subscribe(uint16_t packetIdentifier, const std::list<iot::mqtt::Topic>& topics, bool includeProperties = false);
 
     private:
         std::vector<char> serializeVP() const override;
@@ -71,6 +72,8 @@ namespace iot::mqtt::packets {
 
     protected:
         iot::mqtt::types::UInt16 packetIdentifier;
+        iot::mqtt::types::UIntV propertiesLength;
+        bool includeProperties = false;
 
         std::list<iot::mqtt::Topic> topics;
     };

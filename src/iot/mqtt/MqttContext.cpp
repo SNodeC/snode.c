@@ -74,4 +74,8 @@ namespace iot::mqtt {
         return mqtt->onSignal(sig);
     }
 
+    uint8_t MqttContext::getProtocolLevel() const {
+        return mqtt->getProtocolLevel();
+    }
+
 } // namespace iot::mqtt

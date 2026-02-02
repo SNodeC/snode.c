@@ -79,11 +79,44 @@ namespace iot::mqtt::server::packets {
                     }
                 }
 
-                message.setSize(static_cast<uint16_t>(getRemainingLength() - getConsumed() - consumed));
+                if (mqttContext->getProtocolLevel() == MQTT_VERSION_5_0) {
+                    state++;
+                } else {
+                    state = 3;
+                }
+                [[fallthrough]];
+            case 2:
+                if (mqttContext->getProtocolLevel() == MQTT_VERSION_5_0) {
+                    consumed += propertiesLength.deserialize(mqttContext);
+                    if (!propertiesLength.isComplete()) {
+                        break;
+                    }
+
+                    propertiesRemaining = propertiesLength;
+
+                    while (propertiesRemaining > 0) {
+                        char buffer[128];
+                        const std::size_t chunk =
+                            propertiesRemaining < sizeof(buffer) ? propertiesRemaining : sizeof(buffer);
+                        const std::size_t read = mqttContext->recv(buffer, chunk);
+                        consumed += read;
+
+                        if (read == 0) {
+                            break;
+                        }
+
+                        propertiesRemaining -= read;
+                    }
+
+                    if (propertiesRemaining > 0) {
+                        break;
+                    }
+                }
 
                 state++;
                 [[fallthrough]];
-            case 2: // Payload
+            case 3: // Payload
+                message.setSize(static_cast<uint16_t>(getRemainingLength() - getConsumed() - consumed));
                 consumed += message.deserialize(mqttContext);
                 if (!message.isComplete()) {
                     break;

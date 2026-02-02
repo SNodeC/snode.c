@@ -54,12 +54,64 @@ namespace iot::mqtt::server::packets {
         this->flags = flags;
     }
 
-    std::size_t Disconnect::deserializeVP([[maybe_unused]] iot::mqtt::MqttContext* mqttContext) {
-        // no V-Header
-        // no Payload
+    std::size_t Disconnect::deserializeVP(iot::mqtt::MqttContext* mqttContext) {
+        std::size_t consumed = 0;
 
-        complete = true;
-        return 0;
+        if (getRemainingLength() == 0) {
+            complete = true;
+            return consumed;
+        }
+
+        if (mqttContext->getProtocolLevel() != MQTT_VERSION_5_0) {
+            complete = true;
+            return consumed;
+        }
+
+        switch (state) {
+            case 0:
+                consumed += reasonCode.deserialize(mqttContext);
+                if (!reasonCode.isComplete()) {
+                    break;
+                }
+
+                if (getRemainingLength() == 1) {
+                    complete = true;
+                    break;
+                }
+
+                state++;
+                [[fallthrough]];
+            case 1:
+                consumed += propertiesLength.deserialize(mqttContext);
+                if (!propertiesLength.isComplete()) {
+                    break;
+                }
+
+                propertiesRemaining = propertiesLength;
+
+                while (propertiesRemaining > 0) {
+                    char buffer[128];
+                    const std::size_t chunk =
+                        propertiesRemaining < sizeof(buffer) ? propertiesRemaining : sizeof(buffer);
+                    const std::size_t read = mqttContext->recv(buffer, chunk);
+                    consumed += read;
+
+                    if (read == 0) {
+                        break;
+                    }
+
+                    propertiesRemaining -= read;
+                }
+
+                if (propertiesRemaining > 0) {
+                    break;
+                }
+
+                complete = true;
+                break;
+        }
+
+        return consumed;
     }
 
     void Disconnect::deliverPacket(iot::mqtt::server::Mqtt* mqtt) {

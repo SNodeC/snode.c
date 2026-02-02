@@ -53,6 +53,7 @@ namespace iot::mqtt {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <cstdint>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -79,6 +80,7 @@ namespace iot::mqtt {
         std::size_t onReceivedFromPeer();
         void onDisconnected();
         bool onSignal(int sig);
+        uint8_t getProtocolLevel() const;
 
     protected:
         Mqtt* mqtt;

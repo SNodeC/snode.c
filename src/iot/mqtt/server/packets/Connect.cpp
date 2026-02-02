@@ -102,9 +102,53 @@ namespace iot::mqtt::server::packets {
                     break;
                 }
 
+                if (level == MQTT_VERSION_5_0) {
+                    state++;
+                } else {
+                    state = 6;
+                }
+                [[fallthrough]];
+            case 4: // Properties length (MQTT 5.0)
+                if (level != MQTT_VERSION_5_0) {
+                    state = 6;
+                    [[fallthrough]];
+                } else {
+                    consumed += propertiesLength.deserialize(mqttContext);
+                    if (!propertiesLength.isComplete()) {
+                        break;
+                    }
+
+                    propertiesRemaining = propertiesLength;
+                    hasPropertiesFlag = propertiesRemaining > 0;
+
+                    state++;
+                    [[fallthrough]];
+                }
+            case 5: // Properties (MQTT 5.0)
+                if (level == MQTT_VERSION_5_0 && propertiesRemaining > 0) {
+                    char buffer[128];
+
+                    while (propertiesRemaining > 0) {
+                        const std::size_t chunk =
+                            propertiesRemaining < sizeof(buffer) ? propertiesRemaining : sizeof(buffer);
+                        const std::size_t read = mqttContext->recv(buffer, chunk);
+                        consumed += read;
+
+                        if (read == 0) {
+                            break;
+                        }
+
+                        propertiesRemaining -= read;
+                    }
+
+                    if (propertiesRemaining > 0) {
+                        break;
+                    }
+                }
+
                 state++;
                 [[fallthrough]];
-            case 4: // Payload
+            case 6: // Payload
                 consumed += clientId.deserialize(mqttContext);
                 if (!clientId.isComplete()) {
                     break;
@@ -117,7 +161,44 @@ namespace iot::mqtt::server::packets {
 
                 state++;
                 [[fallthrough]];
-            case 5:
+            case 7:
+                if (willFlag && level == MQTT_VERSION_5_0) {
+                    consumed += willPropertiesLength.deserialize(mqttContext);
+                    if (!willPropertiesLength.isComplete()) {
+                        break;
+                    }
+
+                    willPropertiesRemaining = willPropertiesLength;
+                    hasWillPropertiesFlag = willPropertiesRemaining > 0;
+                }
+
+                state++;
+                [[fallthrough]];
+            case 8:
+                if (willFlag && level == MQTT_VERSION_5_0 && willPropertiesRemaining > 0) {
+                    char buffer[128];
+
+                    while (willPropertiesRemaining > 0) {
+                        const std::size_t chunk =
+                            willPropertiesRemaining < sizeof(buffer) ? willPropertiesRemaining : sizeof(buffer);
+                        const std::size_t read = mqttContext->recv(buffer, chunk);
+                        consumed += read;
+
+                        if (read == 0) {
+                            break;
+                        }
+
+                        willPropertiesRemaining -= read;
+                    }
+
+                    if (willPropertiesRemaining > 0) {
+                        break;
+                    }
+                }
+
+                state++;
+                [[fallthrough]];
+            case 9:
                 if (willFlag) {
                     consumed += willTopic.deserialize(mqttContext);
                     if (!willTopic.isComplete()) {
@@ -127,7 +208,7 @@ namespace iot::mqtt::server::packets {
 
                 state++;
                 [[fallthrough]];
-            case 6:
+            case 10:
                 if (willFlag) {
                     consumed += willMessage.deserialize(mqttContext);
                     if (!willMessage.isComplete()) {
@@ -137,7 +218,7 @@ namespace iot::mqtt::server::packets {
 
                 state++;
                 [[fallthrough]];
-            case 7:
+            case 11:
                 if (usernameFlag) {
                     consumed += username.deserialize(mqttContext);
                     if (!username.isComplete()) {
@@ -147,7 +228,7 @@ namespace iot::mqtt::server::packets {
 
                 state++;
                 [[fallthrough]];
-            case 8:
+            case 12:
                 if (passwordFlag) {
                     consumed += password.deserialize(mqttContext);
                     if (!password.isComplete()) {
@@ -169,6 +250,14 @@ namespace iot::mqtt::server::packets {
 
     bool Connect::isFakedClientId() const {
         return fakedClientId;
+    }
+
+    bool Connect::hasProperties() const {
+        return hasPropertiesFlag;
+    }
+
+    bool Connect::hasWillProperties() const {
+        return hasWillPropertiesFlag;
     }
 
 } // namespace iot::mqtt::server::packets

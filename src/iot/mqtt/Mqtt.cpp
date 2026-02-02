@@ -171,6 +171,10 @@ namespace iot::mqtt {
         return connectionName;
     }
 
+    uint8_t Mqtt::getProtocolLevel() const {
+        return protocolLevel;
+    }
+
     void Mqtt::initSession(Session* session, utils::Timeval keepAlive) {
         this->session = session;
 
@@ -216,8 +220,9 @@ namespace iot::mqtt {
 
     void Mqtt::sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain) const {
         const uint16_t packetIdentifier = qoS != 0 ? getPacketIdentifier() : 0;
+        const bool includeProperties = getProtocolLevel() == MQTT_VERSION_5_0;
 
-        send(iot::mqtt::packets::Publish(packetIdentifier, topic, message, qoS, false, retain));
+        send(iot::mqtt::packets::Publish(packetIdentifier, topic, message, qoS, false, retain, includeProperties));
 
         LOG(INFO) << connectionName << " MQTT:   Topic: " << topic;
         LOG(INFO) << connectionName << " MQTT:   Message:\n" << toHexString(message);
@@ -228,7 +233,7 @@ namespace iot::mqtt {
 
         if (qoS >= 1) {
             session->outgoingPublishMap.insert_or_assign(packetIdentifier,
-                                                         iot::mqtt::packets::Publish(packetIdentifier, topic, message, qoS, true, retain));
+                                                         iot::mqtt::packets::Publish(packetIdentifier, topic, message, qoS, true, retain, includeProperties));
         }
     }
 

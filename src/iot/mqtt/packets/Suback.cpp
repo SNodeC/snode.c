@@ -54,14 +54,21 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_SUBACK, "SUBACK") {
     }
 
-    Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes)
+    Suback::Suback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes, bool includeProperties)
         : Suback() {
         this->packetIdentifier = packetIdentifier;
         this->returnCodes = returnCodes;
+        this->includeProperties = includeProperties;
+        this->propertiesLength = 0;
     }
 
     std::vector<char> Suback::serializeVP() const {
         std::vector<char> packet(packetIdentifier.serialize());
+
+        if (includeProperties) {
+            std::vector<char> tmpPacket = propertiesLength.serialize();
+            packet.insert(packet.end(), tmpPacket.begin(), tmpPacket.end());
+        }
 
         packet.insert(packet.end(), returnCodes.begin(), returnCodes.end());
 

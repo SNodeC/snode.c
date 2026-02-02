@@ -44,6 +44,7 @@
 
 #include "iot/mqtt/ControlPacket.h" // IWYU pragma: export
 #include "iot/mqtt/types/UInt16.h"  // IWYU pragma: export
+#include "iot/mqtt/types/UIntV.h"   // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -56,7 +57,7 @@ namespace iot::mqtt::packets {
     class Unsuback : public iot::mqtt::ControlPacket {
     public:
         Unsuback();
-        explicit Unsuback(uint16_t packetIdentifier);
+        explicit Unsuback(uint16_t packetIdentifier, bool includeProperties = false);
 
     private:
         std::vector<char> serializeVP() const override;
@@ -66,6 +67,8 @@ namespace iot::mqtt::packets {
 
     protected:
         iot::mqtt::types::UInt16 packetIdentifier;
+        iot::mqtt::types::UIntV propertiesLength;
+        bool includeProperties = false;
     };
 
 } // namespace iot::mqtt::packets

@@ -72,7 +72,8 @@ namespace iot::mqtt::packets {
                 bool willRetain,
                 const std::string& username,
                 const std::string& password,
-                bool loopPrevention);
+                bool loopPrevention,
+                uint8_t protocolLevel = MQTT_VERSION_3_1_1);
 
     private:
         std::vector<char> serializeVP() const override;

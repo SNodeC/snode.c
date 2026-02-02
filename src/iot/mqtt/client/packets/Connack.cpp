@@ -75,6 +75,47 @@ namespace iot::mqtt::client::packets {
                     break;
                 }
 
+                if (getRemainingLength() > 2) {
+                    state++;
+                } else {
+                    complete = true;
+                    break;
+                }
+
+                [[fallthrough]];
+            case 2:
+                consumed += propertiesLength.deserialize(mqttContext);
+                if (!propertiesLength.isComplete()) {
+                    break;
+                }
+
+                propertiesRemaining = propertiesLength;
+                hasPropertiesFlag = propertiesRemaining > 0;
+
+                state++;
+                [[fallthrough]];
+            case 3:
+                if (propertiesRemaining > 0) {
+                    char buffer[128];
+
+                    while (propertiesRemaining > 0) {
+                        const std::size_t chunk =
+                            propertiesRemaining < sizeof(buffer) ? propertiesRemaining : sizeof(buffer);
+                        const std::size_t read = mqttContext->recv(buffer, chunk);
+                        consumed += read;
+
+                        if (read == 0) {
+                            break;
+                        }
+
+                        propertiesRemaining -= read;
+                    }
+
+                    if (propertiesRemaining > 0) {
+                        break;
+                    }
+                }
+
                 complete = true;
                 break;
 

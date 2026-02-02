@@ -57,14 +57,21 @@ namespace iot::mqtt::packets {
         : iot::mqtt::ControlPacket(MQTT_SUBSCRIBE, "SUBSCRIBE") {
     }
 
-    Subscribe::Subscribe(uint16_t packetIdentifier, const std::list<Topic>& topics)
+    Subscribe::Subscribe(uint16_t packetIdentifier, const std::list<Topic>& topics, bool includeProperties)
         : Subscribe() {
         this->packetIdentifier = packetIdentifier;
         this->topics = topics;
+        this->includeProperties = includeProperties;
+        this->propertiesLength = 0;
     }
 
     std::vector<char> Subscribe::serializeVP() const {
         std::vector<char> packet(packetIdentifier.serialize());
+
+        if (includeProperties) {
+            std::vector<char> tmpPacket = propertiesLength.serialize();
+            packet.insert(packet.end(), tmpPacket.begin(), tmpPacket.end());
+        }
 
         for (const Topic& topic : topics) {
             iot::mqtt::types::String topicString;

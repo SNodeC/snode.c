@@ -218,6 +218,9 @@ namespace iot::mqtt::server {
         LOG(INFO) << connectionName << " MQTT Broker:   KeepAlive: " << connect.getKeepAlive();
         LOG(INFO) << connectionName << " MQTT Broker:   ClientID: " << connect.getClientId();
         LOG(INFO) << connectionName << " MQTT Broker:   CleanSession: " << connect.getCleanSession();
+        if (connect.getLevel() == MQTT_VERSION_5_0 && connect.hasProperties()) {
+            LOG(INFO) << connectionName << " MQTT Broker:   Properties: present";
+        }
 
         if (connect.getWillFlag()) {
             LOG(INFO) << connectionName << " MQTT Broker:   WillTopic: " << connect.getWillTopic();
@@ -235,8 +238,9 @@ namespace iot::mqtt::server {
         if (connect.getProtocol() != "MQTT") {
             LOG(ERROR) << connectionName << " MQTT Broker:   Wrong Protocol: " << connect.getProtocol();
             mqttContext->close();
-        } else if ((connect.getLevel()) != MQTT_VERSION_3_1_1) {
-            LOG(ERROR) << connectionName << " MQTT Broker:   Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
+        } else if ((connect.getLevel()) != MQTT_VERSION_3_1_1 && (connect.getLevel()) != MQTT_VERSION_5_0) {
+            LOG(ERROR) << connectionName << " MQTT Broker:   Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " or "
+                       << MQTT_VERSION_5_0 << " != " << connect.getLevel();
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
             mqttContext->close();
@@ -362,15 +366,15 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::sendConnack(uint8_t returnCode, uint8_t flags) const { // Server
-        send(iot::mqtt::packets::Connack(returnCode, flags));
+        send(iot::mqtt::packets::Connack(returnCode, flags, level == MQTT_VERSION_5_0));
     }
 
     void Mqtt::sendSuback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes) const { // Server
-        send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
+        send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes, getProtocolLevel() == MQTT_VERSION_5_0));
     }
 
     void Mqtt::sendUnsuback(uint16_t packetIdentifier) const { // Server
-        send(iot::mqtt::packets::Unsuback(packetIdentifier));
+        send(iot::mqtt::packets::Unsuback(packetIdentifier, getProtocolLevel() == MQTT_VERSION_5_0));
     }
 
     void Mqtt::sendPingresp() const { // Server
@@ -386,6 +390,10 @@ namespace iot::mqtt::server {
     }
 
     uint8_t Mqtt::getLevel() const {
+        return level;
+    }
+
+    uint8_t Mqtt::getProtocolLevel() const {
         return level;
     }
 

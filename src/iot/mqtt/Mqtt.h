@@ -42,8 +42,9 @@
 #ifndef IOT_MQTT_MQTT_H
 #define IOT_MQTT_MQTT_H
 
-#include "core/timer/Timer.h"     // IWYU pragma: export
-#include "iot/mqtt/FixedHeader.h" // IWYU pragma: export
+#include "core/timer/Timer.h"            // IWYU pragma: export
+#include "iot/mqtt/FixedHeader.h"        // IWYU pragma: export
+#include "iot/mqtt/packets/Connect.h"    // IWYU pragma: export
 
 namespace iot::mqtt {
     class ControlPacket;
@@ -89,6 +90,7 @@ namespace iot::mqtt {
         virtual bool onSignal(int sig) = 0;
 
         const std::string& getConnectionName() const;
+        virtual uint8_t getProtocolLevel() const;
 
     private:
         std::size_t onReceivedFromPeer();
@@ -158,6 +160,7 @@ namespace iot::mqtt {
 
     protected:
         MqttContext* mqttContext = nullptr;
+        mutable uint8_t protocolLevel = MQTT_VERSION_3_1_1;
 
         friend class MqttContext;
     };
