@@ -64,7 +64,9 @@ namespace express::middleware {
                 req, res, next) {
                 LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express " << req->method;
 
-                if (req->method == "GET") {
+                if (req->method != "GET") {
+                    res->sendStatus(405, "Unsupported method: " + req->method + "\n");
+                } else {
                     if (connectionState == web::http::ConnectionState::Close) {
                         res->set("Connection", "close");
                     } else if (connectionState == web::http::ConnectionState::Keep) {
@@ -75,14 +77,15 @@ namespace express::middleware {
                     for (auto& [value, options] : stdCookies) {
                         res->cookie(value, options.getValue(), options.getOptions());
                     }
+
                     next();
-                } else {
-                    res->sendStatus(405, "Unsupported method: " + req->method + "\n");
                 }
             },
             [&index = this->index] MIDDLEWARE(req, res, next) {
                 if (req->path == "/") {
-                    if (!index.empty()) {
+                    if (index.empty()) {
+                        res->status(404).send("Unsupported resource: " + req->url + "\n");
+                    } else {
                         LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
                                   << " Express StaticMiddleware Redirecting: " << req->url << " -> "
                                   << req->originalPath +
@@ -93,8 +96,6 @@ namespace express::middleware {
                             308,
                             req->originalPath +
                                 (!req->originalPath.empty() && req->originalPath.back() != '/' && index.front() != '/' ? "/" : "") + index);
-                    } else {
-                        res->status(404).send("Unsupported resource: " + req->url + "\n");
                     }
                 } else {
                     next();

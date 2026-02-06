@@ -115,18 +115,10 @@ namespace express::dispatcher {
                     } else {
                         LOG(TRACE) << "MiddlewareDispatcher: using precompiled regex";
                     }
-
-                    std::cmatch regexMatches;
-                    pathMatches = std::regex_search(requestPath.begin(), requestPath.end(), regexMatches, regex);
-                    if (pathMatches) {
-                        const std::size_t groups = !regexMatches.empty() ? (regexMatches.size() - 1) : 0;
-                        const std::size_t n = std::min(names.size(), groups);
-                        for (std::size_t i = 0; i < n; ++i) {
-                            controller.getRequest()->params[names[i]] = regexMatches[i + 1].str();
-                        }
-                        if (isPrefix) {
-                            consumedLength = static_cast<std::size_t>(regexMatches.length(0));
-                        }
+                    std::size_t matchLen = 0;
+                    pathMatches = matchAndFillParamsAndConsume(regex, names, requestPath, *controller.getRequest(), matchLen);
+                    if (pathMatches && isPrefix) {
+                        consumedLength = matchLen;
                     }
                 } else {
                     if (isPrefix) {

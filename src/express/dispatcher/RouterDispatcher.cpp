@@ -134,17 +134,10 @@ namespace express::dispatcher {
                                                              /*isPrefix*/ true,
                                                              controller.getStrictRouting(),
                                                              controller.getCaseInsensitiveRouting());
-
-                    std::cmatch m;
-                    pathMatches = std::regex_search(requestPath.begin(), requestPath.end(), m, rx);
+                    std::size_t matchLen = 0;
+                    pathMatches = matchAndFillParamsAndConsume(rx, paramNames, requestPath, *controller.getRequest(), matchLen);
                     if (pathMatches) {
-                        consumedLength = static_cast<std::size_t>(m.length(0));
-
-                        const std::size_t groups = (!m.empty()) ? (m.size() - 1) : 0;
-                        const std::size_t n = (paramNames.size() < groups) ? paramNames.size() : groups;
-                        for (std::size_t i = 0; i < n; ++i) {
-                            controller.getRequest()->params[paramNames[i]] = m[i + 1].str();
-                        }
+                        consumedLength = matchLen;
                     }
                 } else {
                     // Literal boundary prefix

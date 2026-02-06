@@ -118,6 +118,27 @@ namespace express::dispatcher {
         return true;
     }
 
+
+    template <typename RequestLike>
+    inline bool matchAndFillParamsAndConsume(const std::regex& rx,
+                                             const std::vector<std::string>& names,
+                                             std::string_view reqPath,
+                                             RequestLike& req,
+                                             std::size_t& consumedLength) {
+        std::cmatch m;
+        if (!std::regex_search(reqPath.begin(), reqPath.end(), m, rx)) {
+            consumedLength = 0;
+            return false;
+        }
+        consumedLength = static_cast<std::size_t>(m.length(0));
+        const size_t g = (!m.empty()) ? (m.size() - 1) : 0;
+        const size_t n = std::min(names.size(), g);
+        for (size_t i = 0; i < n; ++i) {
+            req.params[names[i]] = m[i + 1].str();
+        }
+        return true;
+    }
+
 } // namespace express::dispatcher
 
 #endif // EXPRESS_DISPATCHER_REGEX_UTILS_H
