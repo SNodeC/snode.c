@@ -165,7 +165,9 @@ namespace express::dispatcher {
             if (*s == ':') {
                 ++s;
                 const char* nstart = s;
-                while (s < e && (std::isalnum(static_cast<unsigned char>(*s)) > 0 || *s == '_' || *s == '-')) {
+                // Express-style param name: stop on the first non [A-Za-z0-9_] character.
+                // This enables patterns like ":from-:to" ("-" is a literal separator, not part of the param name).
+                while (s < e && (std::isalnum(static_cast<unsigned char>(*s)) > 0 || *s == '_')) {
                     ++s;
                 }
                 std::string name(nstart, s);

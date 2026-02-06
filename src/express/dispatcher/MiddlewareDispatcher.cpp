@@ -75,18 +75,20 @@ namespace express::dispatcher {
 
         if (controller.getRequest()->method == mountPoint.method || mountPoint.method == "use" || mountPoint.method == "all") {
             const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
+            const bool isUse = (mountPoint.method == "use");
+            const bool isPrefix = isUse; // Express: only app.use() is prefix-based
 
             if ((controller.getFlags() & Controller::NEXT) == 0) {
                 // Split mount & request into path + query
                 std::string_view mountPath;
                 std::string_view mountQueryString;
                 splitPathAndQuery(absoluteMountPath, mountPath, mountQueryString);
-                auto requiredQueryPairs = parseQuery(mountQueryString);
+                const auto requiredQueryPairs = parseQuery(mountQueryString);
 
                 std::string_view requestPath;
                 std::string_view requestQueryString;
                 splitPathAndQuery(controller.getRequest()->originalUrl, requestPath, requestQueryString);
-                auto requestQueryPairs = parseQuery(requestQueryString);
+                const auto requestQueryPairs = parseQuery(requestQueryString);
 
                 // Normalize single trailing slash if not strict
                 if (!controller.getStrictRouting()) {
@@ -97,40 +99,45 @@ namespace express::dispatcher {
                     mountPath = "/";
                 }
 
-                // Middleware is **prefix** with boundary (Express: app.use)
+                // Matching is independent of callback arity:
+                //   - use() => prefix with boundary
+                //   - verbs/all() => end-anchored equality
                 bool pathMatches = false;
                 std::size_t consumedLength = 0;
-                if (absoluteMountPath.find(':') != std::string::npos) {
-                    // Param mount: compile once, match once, fill params, and record matched prefix length
+                if (mountPath.find(':') != std::string::npos) {
+                    // Param mount: compile once, match once, fill params, and record matched prefix length (use only)
                     if (regex.mark_count() == 0) {
-                        if (regex.mark_count() == 0) {
-                            LOG(TRACE) << "MiddlewarDispatchere: precompiled regex";
-                            std::tie(regex, names) = compileParamRegex(mountPath,
-                                                                       /*isPrefix*/ true,
-                                                                       controller.getStrictRouting(),
-                                                                       controller.getCaseInsensitiveRouting());
-                        } else {
-                            LOG(TRACE) << "MiddlewareDispatcher: using precompiled regex";
-                        }
+                        LOG(TRACE) << "MiddlewareDispatcher: precompiled regex";
+                        std::tie(regex, names) = compileParamRegex(mountPath,
+                                                                   /*isPrefix*/ isPrefix,
+                                                                   controller.getStrictRouting(),
+                                                                   controller.getCaseInsensitiveRouting());
+                    } else {
+                        LOG(TRACE) << "MiddlewareDispatcher: using precompiled regex";
                     }
+
                     std::cmatch regexMatches;
                     pathMatches = std::regex_search(requestPath.begin(), requestPath.end(), regexMatches, regex);
                     if (pathMatches) {
-                        // regexMatches[0] = full matched prefix starting at 0 (anchored by compile_param_regex)
-                        consumedLength = static_cast<std::size_t>(regexMatches.length(0));
-
-                        // fill named params
                         const std::size_t groups = !regexMatches.empty() ? (regexMatches.size() - 1) : 0;
                         const std::size_t n = std::min(names.size(), groups);
                         for (std::size_t i = 0; i < n; ++i) {
                             controller.getRequest()->params[names[i]] = regexMatches[i + 1].str();
                         }
+                        if (isPrefix) {
+                            consumedLength = static_cast<std::size_t>(regexMatches.length(0));
+                        }
                     }
                 } else {
-                    // Literal boundary prefix
-                    pathMatches = boundaryPrefix(requestPath, mountPath, controller.getCaseInsensitiveRouting());
-                    if (pathMatches) {
-                        consumedLength = mountPath.size(); // IMPORTANT: literal consumes exactly its base length
+                    if (isPrefix) {
+                        // Literal boundary prefix
+                        pathMatches = boundaryPrefix(requestPath, mountPath, controller.getCaseInsensitiveRouting());
+                        if (pathMatches) {
+                            consumedLength = mountPath.size();
+                        }
+                    } else {
+                        // End-anchored equality
+                        pathMatches = equalPath(requestPath, mountPath, controller.getCaseInsensitiveRouting());
                     }
                 }
 
@@ -149,24 +156,23 @@ namespace express::dispatcher {
                 LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
 
                 if (requestMatched) {
-                    // Compute remainder and temporarily **rewrite req.path**
-                    std::string_view remainderPath{};
-                    if (requestPath.size() > consumedLength) {
-                        remainderPath = requestPath.substr(consumedLength);
-                        if (!remainderPath.empty() && remainderPath.front() == '/') {
-                            remainderPath.remove_prefix(1);
-                        }
-                    }
                     auto& req = *controller.getRequest();
-                    const std::string previousPathBackup = req.path;
-                    req.path = remainderPath.empty() ? "/" : ("/" + std::string(remainderPath));
-
                     req.queries.insert(requestQueryPairs.begin(), requestQueryPairs.end());
 
-                    if (hasResult(absoluteMountPath)) {
-                        setParams(absoluteMountPath, *controller.getRequest());
+                    // Express-style mount path stripping is only applied for use()
+                    const std::string previousPathBackup = req.path;
+                    if (isPrefix) {
+                        std::string_view remainderPath{};
+                        if (requestPath.size() > consumedLength) {
+                            remainderPath = requestPath.substr(consumedLength);
+                            if (!remainderPath.empty() && remainderPath.front() == '/') {
+                                remainderPath.remove_prefix(1);
+                            }
+                        }
+                        req.path = remainderPath.empty() ? "/" : ("/" + std::string(remainderPath));
                     }
 
+                    // NOTE: do not run legacy setParams() here; it can overwrite regex-extracted params
                     Next next(controller);
                     lambda(controller.getRequest(), controller.getResponse(), next);
 
@@ -178,7 +184,9 @@ namespace express::dispatcher {
                     }
 
                     // Restore
-                    req.path = previousPathBackup;
+                    if (isPrefix) {
+                        req.path = previousPathBackup;
+                    }
                 }
             } else {
                 LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
