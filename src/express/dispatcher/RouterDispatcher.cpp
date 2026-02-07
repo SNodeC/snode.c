@@ -53,9 +53,6 @@
 
 #include "log/Logger.h"
 
-#include <cstddef>
-#include <string_view>
-#include <tuple>
 #include <unordered_map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -88,7 +85,9 @@ namespace express::dispatcher {
 
     bool RouterDispatcher::getCaseInsensitiveRouting() const {
         return caseInsensitiveRouting;
-    }    bool
+    }
+
+    bool
     RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
@@ -118,7 +117,7 @@ namespace express::dispatcher {
                 req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
                 // Express-style mount path stripping is only applied for use()
-                ScopedPathStrip pathStrip(req, match.requestPath, match.isPrefix, match.consumedLength);
+                const ScopedPathStrip pathStrip(req, match.requestPath, match.isPrefix, match.consumedLength);
 
                 const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
                 const bool oldCaseInsensitiveRouting = controller.setCaseInsensitiveRouting(caseInsensitiveRouting);
@@ -150,7 +149,6 @@ namespace express::dispatcher {
 
         return dispatched;
     }
-
 
     std::list<std::string> RouterDispatcher::getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint) const {
         return getRoutes(parentMountPath, mountPoint, strictRouting);

@@ -47,85 +47,32 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
 #include <cstddef>
+#include <memory>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
-    std::vector<std::string> explode(const std::string& input, char delim) {
-        std::vector<std::string> result;
-        std::string current;
-        int parenDepth = 0;
-
-        for (const char ch : input) {
-            if (ch == '(') {
-                parenDepth++;
-                current += ch;
-            } else if (ch == ')') {
-                parenDepth--;
-                current += ch;
-            } else if (ch == delim && parenDepth == 0) {
-                result.push_back(current);
-                current.clear();
-            } else {
-                current += ch;
-            }
+    static bool matchAndFillParamsAndConsume(const std::regex& rx,
+                                             const std::vector<std::string>& names,
+                                             std::string_view reqPath,
+                                             express::Request& req,
+                                             std::size_t& consumedLength) {
+        std::cmatch m;
+        if (!std::regex_search(reqPath.begin(), reqPath.end(), m, rx)) {
+            consumedLength = 0;
+            return false;
         }
-
-        if (!current.empty()) {
-            result.push_back(current);
+        consumedLength = static_cast<std::size_t>(m.length(0));
+        const size_t g = (!m.empty()) ? (m.size() - 1) : 0;
+        const size_t n = std::min(names.size(), g);
+        for (size_t i = 0; i < n; ++i) {
+            req.params[names[i]] = m[i + 1].str();
         }
-
-        return result;
-    }
-
-#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+\\))?"
-    const std::regex& pathRegex() {
-        static const std::regex pathregex(PATH_REGEX);
-
-        return pathregex;
-    }
-
-    std::smatch matchResult(const std::string& cpath) {
-        std::smatch smatch;
-
-        std::regex_search(cpath, smatch, pathRegex());
-
-        return smatch;
-    }
-
-    bool hasResult(const std::string& cpath) {
-        std::smatch smatch;
-
-        return std::regex_search(cpath, smatch, pathRegex());
-    }
-
-    void setParams(const std::string& cpath, Request& req) {
-        std::vector<std::string> explodedString = explode(cpath, '/');
-        std::vector<std::string> explodedReqString = explode(req.url, '/');
-
-        for (std::vector<std::string>::size_type i = 0; i < explodedString.size() && i < explodedReqString.size(); i++) {
-            if (!explodedString[i].empty() && explodedString[i].front() == ':') {
-                const std::smatch smatch = matchResult(explodedString[i]);
-                std::string regex = "(.*)";
-
-                if (smatch.size() > 1) {
-                    if (smatch[1] != "") {
-                        regex = smatch[1];
-                    }
-                }
-
-                if (std::regex_match(explodedReqString[i], std::regex(regex))) {
-                    std::string attributeName = smatch[0];
-                    attributeName.erase(0, 1);
-                    attributeName.erase((attributeName.length() - static_cast<std::size_t>(smatch[1].length())),
-                                        static_cast<std::size_t>(smatch[1].length()));
-
-                    req.params[attributeName] = explodedReqString[i];
-                }
-            }
-        }
+        return true;
     }
 
     std::unordered_map<std::string, std::string> parseQuery(std::string_view qs) {
@@ -154,7 +101,7 @@ namespace express::dispatcher {
         return m;
     }
 
-    std::pair<std::regex, std::vector<std::string>>
+    static std::pair<std::regex, std::vector<std::string>>
     compileParamRegex(std::string_view mountPath, bool isPrefix, bool strictRouting, bool caseInsensitive) {
         std::string pat;
         pat.reserve(mountPath.size() * 2);
@@ -223,8 +170,8 @@ namespace express::dispatcher {
         return {std::regex(pat, flags), std::move(names)};
     }
 
-    bool querySupersetMatches(const std::unordered_map<std::string, std::string>& rq,
-                              const std::unordered_map<std::string, std::string>& need) {
+    static bool querySupersetMatches(const std::unordered_map<std::string, std::string>& rq,
+                                     const std::unordered_map<std::string, std::string>& need) {
         for (const auto& kv : need) {
             auto it = rq.find(kv.first);
             if (it == rq.end() || it->second != kv.second) {
@@ -234,7 +181,7 @@ namespace express::dispatcher {
         return true;
     }
 
-    bool boundaryPrefix(std::string_view path, std::string_view base, bool caseInsensitive) {
+    static bool boundaryPrefix(std::string_view path, std::string_view base, bool caseInsensitive) {
         // Normalize: an empty base is equivalent to "/"
         if (base.empty()) {
             base = "/";
@@ -266,7 +213,7 @@ namespace express::dispatcher {
         return (path.size() == base.size()) || (path[base.size()] == '/');
     }
 
-    bool equalPath(std::string_view a, std::string_view b, bool caseInsensitive) {
+    static bool equalPath(std::string_view a, std::string_view b, bool caseInsensitive) {
         if (a.size() != b.size()) {
             return false;
         }
@@ -278,7 +225,7 @@ namespace express::dispatcher {
         return true;
     }
 
-    std::string_view trimOneTrailingSlash(std::string_view s) {
+    static std::string_view trimOneTrailingSlash(std::string_view s) {
         if (s.size() > 1 && s.back() == '/') {
             return std::string_view(s.data(), s.size() - 1);
         }
@@ -296,16 +243,15 @@ namespace express::dispatcher {
         }
     }
 
-
     bool methodMatches(std::string_view requestMethod, const std::string& mountMethod) {
         return (mountMethod == "use") || (mountMethod == "all") || (requestMethod == mountMethod);
     }
 
     static MountMatchResult matchMountPointImpl(express::Controller& controller,
-                                               const std::string& absoluteMountPath,
-                                               const express::MountPoint& mountPoint,
-                                               std::regex* cachedRegex,
-                                               std::vector<std::string>* cachedNames) {
+                                                const std::string& absoluteMountPath,
+                                                const express::MountPoint& mountPoint,
+                                                std::regex* cachedRegex,
+                                                std::vector<std::string>* cachedNames) {
         MountMatchResult result;
         result.isPrefix = (mountPoint.method == "use");
 
@@ -339,22 +285,18 @@ namespace express::dispatcher {
             if (cachedRegex != nullptr && cachedNames != nullptr) {
                 if (cachedRegex->mark_count() == 0) {
                     auto compiled = compileParamRegex(mountPath,
-                                                     /*isPrefix*/ result.isPrefix,
-                                                     controller.getStrictRouting(),
-                                                     controller.getCaseInsensitiveRouting());
+                                                      /*isPrefix*/ result.isPrefix,
+                                                      controller.getStrictRouting(),
+                                                      controller.getCaseInsensitiveRouting());
                     *cachedRegex = std::move(compiled.first);
                     *cachedNames = std::move(compiled.second);
                 }
-                pathMatches = matchAndFillParamsAndConsume(*cachedRegex,
-                                                          *cachedNames,
-                                                          requestPath,
-                                                          *controller.getRequest(),
-                                                          matchLen);
+                pathMatches = matchAndFillParamsAndConsume(*cachedRegex, *cachedNames, requestPath, *controller.getRequest(), matchLen);
             } else {
                 auto [rx, names] = compileParamRegex(mountPath,
-                                                    /*isPrefix*/ result.isPrefix,
-                                                    controller.getStrictRouting(),
-                                                    controller.getCaseInsensitiveRouting());
+                                                     /*isPrefix*/ result.isPrefix,
+                                                     controller.getStrictRouting(),
+                                                     controller.getCaseInsensitiveRouting());
                 pathMatches = matchAndFillParamsAndConsume(rx, names, requestPath, *controller.getRequest(), matchLen);
             }
 
@@ -380,24 +322,20 @@ namespace express::dispatcher {
         return result;
     }
 
-    MountMatchResult matchMountPoint(express::Controller& controller,
-                                    const std::string& absoluteMountPath,
-                                    const express::MountPoint& mountPoint) {
+    MountMatchResult
+    matchMountPoint(express::Controller& controller, const std::string& absoluteMountPath, const express::MountPoint& mountPoint) {
         return matchMountPointImpl(controller, absoluteMountPath, mountPoint, nullptr, nullptr);
     }
 
     MountMatchResult matchMountPoint(express::Controller& controller,
-                                    const std::string& absoluteMountPath,
-                                    const express::MountPoint& mountPoint,
-                                    std::regex& cachedRegex,
-                                    std::vector<std::string>& cachedNames) {
+                                     const std::string& absoluteMountPath,
+                                     const express::MountPoint& mountPoint,
+                                     std::regex& cachedRegex,
+                                     std::vector<std::string>& cachedNames) {
         return matchMountPointImpl(controller, absoluteMountPath, mountPoint, &cachedRegex, &cachedNames);
     }
 
-    ScopedPathStrip::ScopedPathStrip(express::Request& req,
-                                     std::string_view requestPath,
-                                     bool enabled,
-                                     std::size_t consumedLength)
+    ScopedPathStrip::ScopedPathStrip(express::Request& req, std::string_view requestPath, bool enabled, std::size_t consumedLength)
         : req_(&req)
         , enabled_(enabled) {
         if (!enabled_) {

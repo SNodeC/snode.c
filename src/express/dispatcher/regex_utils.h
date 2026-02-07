@@ -50,61 +50,21 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>
 #include <cctype>
 #include <cstddef>
-#include <iterator>
 #include <regex>
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::dispatcher {
 
-    std::vector<std::string> explode(const std::string& s, char delim);
-
-    const std::regex& pathRegex();
-
-    std::smatch matchResult(const std::string& cpath);
-
-    bool hasResult(const std::string& cpath);
-
-    void setParams(const std::string& cpath, express::Request& req);
-
-    // ---------- URL split & query parsing ----------
-    void splitPathAndQuery(std::string_view url, std::string_view& path, std::string_view& query);
-
-    std::unordered_map<std::string, std::string> parseQuery(std::string_view qs);
-
-    // ---------- path normalization & comparisons ----------
-    std::string_view trimOneTrailingSlash(std::string_view s);
-
     inline bool ieq(char a, char b) {
         return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
     }
-
-    bool equalPath(std::string_view a, std::string_view b, bool caseInsensitive);
-
-    // prefix with **segment boundary** (so "/api" won't match "/apix")
-    bool boundaryPrefix(std::string_view path, std::string_view base, bool caseInsensitive);
-
-    bool querySupersetMatches(const std::unordered_map<std::string, std::string>& rq,
-                              const std::unordered_map<std::string, std::string>& need);
-
-    // ---------- param path → regex compiler ----------
-    // Converts "/api/:id(\\d+)/files/:rest(.*)" into:
-    //   ^/api/(\d+)/files/(.*)(?:/|$)        (prefix mode, router/middleware)
-    //   ^/api/(\d+)/files/(.*)/?$            (end-anchored (strict=false), application)
-    // and returns capture group names in order: ["id","rest"]
-    std::pair<std::regex, std::vector<std::string>> compileParamRegex(std::string_view mountPath,
-                                                                      bool isPrefix, // router/middleware=true, application=false
-                                                                      bool strictRouting,
-                                                                      bool caseInsensitive);
-
 
     // ---------- shared mount-point matching (used by Router/Application/Middleware dispatchers) ----------
 
@@ -114,13 +74,12 @@ namespace express::dispatcher {
         bool requestMatched{false};
         bool isPrefix{false};
         std::size_t consumedLength{0};
-        std::string_view requestPath{};
-        std::unordered_map<std::string, std::string> requestQueryPairs{};
+        std::string_view requestPath;
+        std::unordered_map<std::string, std::string> requestQueryPairs;
     };
 
-    MountMatchResult matchMountPoint(express::Controller& controller,
-                                     const std::string& absoluteMountPath,
-                                     const express::MountPoint& mountPoint);
+    MountMatchResult
+    matchMountPoint(express::Controller& controller, const std::string& absoluteMountPath, const express::MountPoint& mountPoint);
 
     MountMatchResult matchMountPoint(express::Controller& controller,
                                      const std::string& absoluteMountPath,
@@ -143,42 +102,6 @@ namespace express::dispatcher {
         std::string backup_;
         bool enabled_{false};
     };
-
-    template <typename RequestLike>
-    inline bool
-    matchAndFillParams(const std::regex& rx, const std::vector<std::string>& names, std::string_view reqPath, RequestLike& req) {
-        std::cmatch m;
-        if (!std::regex_search(reqPath.begin(), reqPath.end(), m, rx)) {
-            return false;
-        }
-        const size_t g = (!m.empty()) ? (m.size() - 1) : 0;
-        const size_t n = std::min(names.size(), g);
-        for (size_t i = 0; i < n; ++i) {
-            req.params[names[i]] = m[i + 1].str();
-        }
-        return true;
-    }
-
-
-    template <typename RequestLike>
-    inline bool matchAndFillParamsAndConsume(const std::regex& rx,
-                                             const std::vector<std::string>& names,
-                                             std::string_view reqPath,
-                                             RequestLike& req,
-                                             std::size_t& consumedLength) {
-        std::cmatch m;
-        if (!std::regex_search(reqPath.begin(), reqPath.end(), m, rx)) {
-            consumedLength = 0;
-            return false;
-        }
-        consumedLength = static_cast<std::size_t>(m.length(0));
-        const size_t g = (!m.empty()) ? (m.size() - 1) : 0;
-        const size_t n = std::min(names.size(), g);
-        for (size_t i = 0; i < n; ++i) {
-            req.params[names[i]] = m[i + 1].str();
-        }
-        return true;
-    }
 
 } // namespace express::dispatcher
 

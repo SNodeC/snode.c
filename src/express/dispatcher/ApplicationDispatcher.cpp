@@ -53,11 +53,7 @@
 
 #include "log/Logger.h"
 
-#include <algorithm>
-#include <cstddef>
 #include <list>
-#include <string_view>
-#include <tuple>
 #include <unordered_map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -101,7 +97,7 @@ namespace express::dispatcher {
                 req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
                 // Express-style mount path stripping is only applied for use()
-                ScopedPathStrip pathStrip(req, match.requestPath, match.isPrefix, match.consumedLength);
+                const ScopedPathStrip pathStrip(req, match.requestPath, match.isPrefix, match.consumedLength);
 
                 // NOTE: do not run legacy setParams() here; it can overwrite regex-extracted params
                 lambda(controller.getRequest(), controller.getResponse());
@@ -117,7 +113,6 @@ namespace express::dispatcher {
 
         return requestMatched;
     }
-
 
     std::list<std::string>
     ApplicationDispatcher::getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const {
