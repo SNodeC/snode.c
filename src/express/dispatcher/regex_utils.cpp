@@ -249,6 +249,31 @@ namespace express::dispatcher {
 
         return out;
     }
+
+    inline std::string decodeQueryComponent(std::string_view in) {
+        std::string out;
+        out.reserve(in.size());
+
+        for (std::size_t i = 0; i < in.size(); ++i) {
+            const char c = in[i];
+            if (c == '+') {
+                out.push_back(' ');
+                continue;
+            }
+            if (c == '%' && i + 2 < in.size()) {
+                const int hi = hexToInt(in[i + 1]);
+                const int lo = hexToInt(in[i + 2]);
+                if (hi >= 0 && lo >= 0) {
+                    out.push_back(static_cast<char>((hi << 4) | lo));
+                    i += 2;
+                    continue;
+                }
+            }
+            out.push_back(c);
+        }
+
+        return out;
+    }
     static bool matchAndFillParamsAndConsume(const std::regex& rx,
                                              const std::vector<std::string>& names,
                                              std::string_view reqPath,
@@ -277,17 +302,17 @@ namespace express::dispatcher {
             const std::size_t amp = qs.find('&', i);
             const std::string_view pair = (amp == std::string_view::npos) ? qs.substr(i) : qs.substr(i, amp - i);
             const std::size_t eq = pair.find('=');
-            std::string key;
-            std::string val;
-            if (eq == std::string_view::npos) {
-                key.assign(pair);
-            } else {
-                key.assign(pair.substr(0, eq));
-                val.assign(pair.substr(eq + 1));
-            }
+
+            const std::string_view rawKey = (eq == std::string_view::npos) ? pair : pair.substr(0, eq);
+            const std::string_view rawVal = (eq == std::string_view::npos) ? std::string_view{} : pair.substr(eq + 1);
+
+            const std::string key = decodeQueryComponent(rawKey);
+            const std::string val = decodeQueryComponent(rawVal);
+
             if (!key.empty()) {
-                m.emplace(std::move(key), std::move(val));
+                m[key] = val; // last value wins
             }
+
             if (amp == std::string_view::npos) {
                 break;
             }

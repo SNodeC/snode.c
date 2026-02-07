@@ -105,7 +105,12 @@ namespace web::http::server {
                         std::string query;
 
                         std::tie(query, queriesLine) = httputils::str_split(queriesLine, '&');
-                        request.queries.insert(httputils::str_split(query, '='));
+                        const auto [rawKey, rawVal] = httputils::str_split(query, '=');
+                        const std::string key = httputils::url_decode(rawKey);
+                        const std::string val = httputils::url_decode(rawVal);
+                        if (!key.empty()) {
+                            request.queries.insert_or_assign(key, val); // last value wins
+                        }
                     }
                 }
             }
