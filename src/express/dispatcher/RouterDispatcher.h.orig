@@ -69,9 +69,6 @@ namespace express::dispatcher {
         bool setCaseInsensitiveRouting(bool caseInsensitiveRouting);
         bool getCaseInsensitiveRouting() const;
 
-        bool setMergeParams(bool mergeParams);
-        bool getMergeParams() const;
-
     private:
         bool dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
         std::list<std::string>
@@ -81,7 +78,6 @@ namespace express::dispatcher {
 
         bool strictRouting = false;
         bool caseInsensitiveRouting = false;
-        bool mergeParams = false;
     };
 
 } // namespace express::dispatcher

@@ -87,6 +87,12 @@ namespace express {
         return *this;
     }
 
+    const Router& Router::setMergeParams(bool mergeParams) const {
+        rootRoute->setMergeParams(mergeParams);
+
+        return *this;
+    }
+
     std::list<std::string> Router::getRoutes() const {
         return rootRoute->getRoutes();
     }

@@ -109,6 +109,12 @@ namespace express {
         return oldCaseInsensitiveRouting;
     }
 
+    bool RootRoute::setMergeParams(bool mergeParams) {
+        const bool oldMergeParams = std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->getMergeParams();
+        std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher)->setMergeParams(mergeParams);
+        return oldMergeParams;
+    }
+
     void RootRoute::dispatch(Controller&& controller) {
         controller.setRootRoute(this);
 

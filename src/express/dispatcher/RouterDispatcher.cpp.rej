@@ -1,0 +1,11 @@
+--- src/express/dispatcher/RouterDispatcher.cpp
++++ src/express/dispatcher/RouterDispatcher.cpp
+@@ -131,7 +141,7 @@ namespace express::dispatcher {
+ 
+                 // Express-style mount path stripping is only applied for use()
+                 const ScopedPathStrip pathStrip(req, match.requestPath, match.isPrefix, match.consumedLength);
+-                const ScopedParams scopedParams(req, match.params, false);
++                const ScopedParams scopedParams(req, match.params, mergeParams);
+ 
+                 const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
+                 const bool oldCaseInsensitiveRouting = controller.setCaseInsensitiveRouting(caseInsensitiveRouting);

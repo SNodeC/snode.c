@@ -230,29 +230,24 @@ namespace express::dispatcher {
         return -1;
     }
 
-    inline bool decodeURIComponent(std::string_view in, std::string& out) {
-        out.clear();
+    inline std::string decodeURIComponent(std::string_view in) {
+        std::string out;
         out.reserve(in.size());
 
         for (std::size_t i = 0; i < in.size(); ++i) {
-            if (in[i] == '%') {
-                if (i + 2 >= in.size()) {
-                    return false;
-                }
-
+            if (in[i] == '%' && i + 2 < in.size()) {
                 const int hi = hexToInt(in[i + 1]);
                 const int lo = hexToInt(in[i + 2]);
-                if (hi < 0 || lo < 0) {
-                    return false;
+                if (hi >= 0 && lo >= 0) {
+                    out.push_back(static_cast<char>((hi << 4) | lo));
+                    i += 2;
+                    continue;
                 }
-                out.push_back(static_cast<char>((hi << 4) | lo));
-                i += 2;
-                continue;
             }
             out.push_back(in[i]);
         }
 
-        return true;
+        return out;
     }
 
     inline std::string decodeQueryComponent(std::string_view in) {
@@ -283,9 +278,7 @@ namespace express::dispatcher {
                                              const std::vector<std::string>& names,
                                              std::string_view reqPath,
                                              std::map<std::string, std::string>& params,
-                                             std::size_t& consumedLength,
-                                             bool& decodeError) {
-        decodeError = false;
+                                             std::size_t& consumedLength) {
         std::cmatch m;
         if (!std::regex_search(reqPath.begin(), reqPath.end(), m, rx)) {
             consumedLength = 0;
@@ -294,15 +287,9 @@ namespace express::dispatcher {
         consumedLength = static_cast<std::size_t>(m.length(0));
         const size_t g = (!m.empty()) ? (m.size() - 1) : 0;
         const size_t n = std::min(names.size(), g);
-        std::string decoded;
         for (size_t i = 0; i < n; ++i) {
             if (!names[i].empty() && m[i + 1].matched) {
-                if (!decodeURIComponent(m[i + 1].str(), decoded)) {
-                    decodeError = true;
-                    params.clear();
-                    return true;
-                }
-                params[names[i]] = decoded;
+                params[names[i]] = decodeURIComponent(m[i + 1].str());
             }
         }
         return true;
@@ -622,7 +609,6 @@ namespace express::dispatcher {
         result.requestPath = requestPath;
 
         bool pathMatches = false;
-        bool decodeError = false;
         std::size_t matchLen = 0;
 
         if (routeNeedsRegex(mountPath)) {
@@ -636,17 +622,13 @@ namespace express::dispatcher {
                     *cachedRegex = std::move(compiled.first);
                     *cachedNames = std::move(compiled.second);
                 }
-                pathMatches = matchAndFillParamsAndConsume(*cachedRegex, *cachedNames, requestPath, result.params, matchLen, decodeError);
+                pathMatches = matchAndFillParamsAndConsume(*cachedRegex, *cachedNames, requestPath, result.params, matchLen);
             } else {
                 auto [rx, names] = compileParamRegex(mountPath,
                                                      /*isPrefix*/ result.isPrefix,
                                                      controller.getStrictRouting(),
                                                      controller.getCaseInsensitiveRouting());
-                pathMatches = matchAndFillParamsAndConsume(rx, names, requestPath, result.params, matchLen, decodeError);
-            }
-
-            if (pathMatches) {
-                result.decodeError = decodeError;
+                pathMatches = matchAndFillParamsAndConsume(rx, names, requestPath, result.params, matchLen);
             }
 
             if (pathMatches && result.isPrefix) {

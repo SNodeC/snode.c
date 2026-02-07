@@ -81,6 +81,11 @@ namespace express::dispatcher {
             const MountMatchResult match = matchMountPoint(controller, absoluteMountPath, mountPoint, regex, names);
             requestMatched = match.requestMatched;
 
+            if (requestMatched && match.decodeError) {
+                controller.getResponse()->sendStatus(400);
+                return true;
+            }
+
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " HTTP Express: application -> " << (requestMatched ? "MATCH" : "NO MATCH");
             LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;

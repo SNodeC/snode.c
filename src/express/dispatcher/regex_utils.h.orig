@@ -76,7 +76,6 @@ namespace express::dispatcher {
 
     struct MountMatchResult {
         bool requestMatched{false};
-        bool decodeError{false};
         bool isPrefix{false};
         std::size_t consumedLength{0};
         std::string_view requestPath;

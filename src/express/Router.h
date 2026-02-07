@@ -102,6 +102,7 @@ namespace express {
 
         const Router& setStrictRouting(bool strictRouting = true) const;
         const Router& setCaseInsensitiveRouting(bool caseInsensitiveRouting = true) const;
+        const Router& setMergeParams(bool mergeParams = true) const;
 
         std::list<std::string> getRoutes() const;
 

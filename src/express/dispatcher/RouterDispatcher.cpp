@@ -87,6 +87,16 @@ namespace express::dispatcher {
         return caseInsensitiveRouting;
     }
 
+    bool RouterDispatcher::setMergeParams(bool mergeParams) {
+        const bool oldMergeParams = this->mergeParams;
+        this->mergeParams = mergeParams;
+        return oldMergeParams;
+    }
+
+    bool RouterDispatcher::getMergeParams() const {
+        return mergeParams;
+    }
+
     bool
     RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
@@ -112,13 +122,18 @@ namespace express::dispatcher {
             LOG(TRACE) << "           StrictRouting: " << controller.getStrictRouting();
             LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
 
+            if (match.requestMatched && match.decodeError) {
+                controller.getResponse()->sendStatus(400);
+                return true;
+            }
+
             if (match.requestMatched) {
                 auto& req = *controller.getRequest();
                 req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
                 // Express-style mount path stripping is only applied for use()
                 const ScopedPathStrip pathStrip(req, req.originalUrl, match.isPrefix, match.consumedLength);
-                const ScopedParams scopedParams(req, match.params, false);
+                const ScopedParams scopedParams(req, match.params, mergeParams);
 
                 const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
                 const bool oldCaseInsensitiveRouting = controller.setCaseInsensitiveRouting(caseInsensitiveRouting);

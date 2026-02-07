@@ -1,0 +1,48 @@
+--- src/express/dispatcher/regex_utils.cpp
++++ src/express/dispatcher/regex_utils.cpp
+@@ -230,30 +230,36 @@ namespace express::dispatcher {
+         return -1;
+     }
+ 
+-    inline std::string decodeURIComponent(std::string_view in) {
+-        std::string out;
++    inline bool decodeURIComponent(std::string_view in, std::string& out) {
++        out.clear();
+         out.reserve(in.size());
+ 
+         for (std::size_t i = 0; i < in.size(); ++i) {
+-            if (in[i] == '%' && i + 2 < in.size()) {
++            if (in[i] == '%') {
++                if (i + 2 >= in.size()) {
++                    return false;
++                }
+                 const int hi = hexToInt(in[i + 1]);
+                 const int lo = hexToInt(in[i + 2]);
+-                if (hi >= 0 && lo >= 0) {
+-                    out.push_back(static_cast<char>((hi << 4) | lo));
+-                    i += 2;
+-                    continue;
++                if (hi < 0 || lo < 0) {
++                    return false;
+                 }
++                out.push_back(static_cast<char>((hi << 4) | lo));
++                i += 2;
++                continue;
+             }
+             out.push_back(in[i]);
+         }
+ 
+-        return out;
++        return true;
+     }
+     static bool matchAndFillParamsAndConsume(const std::regex& rx,
+                                              const std::vector<std::string>& names,
+                                              std::string_view reqPath,
+                                              std::map<std::string, std::string>& params,
+-                                             std::size_t& consumedLength) {
++                                             std::size_t& consumedLength,
++                                             bool& decodeError) {
++        decodeError = false;
+         std::cmatch m;
+         if (!std::regex_search(reqPath.begin(), reqPath.end(), m, rx)) {
+             consumedLength = 0;
