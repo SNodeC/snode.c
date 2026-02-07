@@ -548,6 +548,10 @@ namespace express::dispatcher {
     }
 
     bool methodMatches(std::string_view requestMethod, const std::string& mountMethod) {
+        // Express v4: HEAD falls back to GET handlers if no explicit HEAD was mounted before.
+        if (requestMethod == "HEAD" && mountMethod == "GET") {
+            return true;
+        }
         return (mountMethod == "use") || (mountMethod == "all") || (requestMethod == mountMethod);
     }
 

@@ -402,6 +402,10 @@ namespace web::http::server {
     }
 
     Response& Response::sendFragment(const char* chunk, std::size_t chunkLen) {
+        // RFC 9110 / Express semantics: HEAD responses must not include a message body.
+        if (requestMethod == "HEAD") {
+            return *this;
+        }
         if (isConnected()) {
             if (transferEncoding == TransferEncoding::Chunked) {
                 socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
@@ -437,7 +441,12 @@ namespace web::http::server {
                 }
             }
 
-            socketContext->responseCompleted(*this, contentSent == contentLength || (httpMajor == 1 && httpMinor == 0));
+            const bool isHead = (requestMethod == "HEAD");
+            if (isHead) {
+                // Pretend we sent the full body length; this prevents keep-alive logic from treating HEAD as incomplete.
+                contentSent = contentLength;
+            }
+            socketContext->responseCompleted(*this, isHead || contentSent == contentLength || (httpMajor == 1 && httpMinor == 0));
         }
     }
 
