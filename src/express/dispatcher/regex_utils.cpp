@@ -610,7 +610,7 @@ namespace express::dispatcher {
                 // Literal boundary prefix
                 pathMatches = boundaryPrefix(requestPath, mountPath, controller.getCaseInsensitiveRouting());
                 if (pathMatches) {
-                    result.consumedLength = mountPath.size();
+                    result.consumedLength = (mountPath.size() == 1 && mountPath[0] == '/') ? 0 : mountPath.size();
                 }
             } else {
                 // End-anchored equality
