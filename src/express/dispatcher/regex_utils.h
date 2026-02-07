@@ -67,6 +67,9 @@ namespace express::dispatcher {
     }
 
     // ---------- shared mount-point matching (used by Router/Application/Middleware dispatchers) ----------
+    //
+    // Supports Express v4 *string* route wildcards/operators: '*', '?', '+', and grouping '()',
+    // plus ':param', ':param(<re>)' and ':param' modifiers ('?', '+', '*').
 
     bool methodMatches(std::string_view requestMethod, const std::string& mountMethod);
 
