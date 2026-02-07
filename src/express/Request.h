@@ -100,7 +100,7 @@ namespace express {
         int httpMajor = 0;
         int httpMinor = 0;
 
-        web::http::CiStringMap<std::string> queries;
+        std::map<std::string, std::string> queries;
         web::http::CiStringMap<std::string> headers;
         web::http::CiStringMap<std::string> trailer;
         web::http::CiStringMap<std::string> cookies;

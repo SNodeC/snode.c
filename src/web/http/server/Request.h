@@ -82,7 +82,7 @@ namespace web::http::server {
         int httpMajor = 0;
         int httpMinor = 0;
 
-        CiStringMap<std::string> queries;
+        std::map<std::string, std::string> queries;
         CiStringMap<std::string> headers;
         CiStringMap<std::string> cookies;
         std::vector<char> body;

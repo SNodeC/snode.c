@@ -238,7 +238,7 @@ namespace web::http::client {
         return fieldElement != headers.end() ? fieldElement->second : "";
     }
 
-    const CiStringMap<std::string>& Request::getQueries() const {
+    const std::map<std::string, std::string>& Request::getQueries() const {
         return queries;
     }
 

@@ -53,6 +53,7 @@ namespace web::http {
 #include <time.h>
 #include <utility>
 #include <vector>
+#include <map>
 
 // IWYU pragma: no_include <bits/types/struct_tm.h>
 
@@ -81,7 +82,7 @@ namespace httputils {
     std::string toString(const std::string& method,
                          const std::string& url,
                          const std::string& version,
-                         const web::http::CiStringMap<std::string>& queries,
+                         const std::map<std::string, std::string>& queries,
                          const web::http::CiStringMap<std::string>& header,
                          const web::http::CiStringMap<std::string>& trailer,
                          const web::http::CiStringMap<std::string>& cookies,

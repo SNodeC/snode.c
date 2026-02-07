@@ -182,7 +182,7 @@ namespace httputils {
     std::string toString(const std::string& method,
                          const std::string& url,
                          const std::string& version,
-                         const web::http::CiStringMap<std::string>& queries,
+                         const std::map<std::string, std::string>& queries,
                          const web::http::CiStringMap<std::string>& header,
                          const web::http::CiStringMap<std::string>& trailer,
                          const web::http::CiStringMap<std::string>& cookies,

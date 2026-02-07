@@ -116,7 +116,7 @@ namespace web::http::client {
         Request& setTrailer(const std::string& field, const std::string& value, bool overwrite = true);
 
         std::string header(const std::string& field) const;
-        const CiStringMap<std::string>& getQueries() const;
+        const std::map<std::string, std::string>& getQueries() const;
         const CiStringMap<std::string>& getHeaders() const;
         const CiStringMap<std::string>& getTrailer() const;
         const CiStringMap<std::string>& getCookies() const;
@@ -132,7 +132,7 @@ namespace web::http::client {
     protected:
         void upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status);
 
-        CiStringMap<std::string> queries;
+        std::map<std::string, std::string> queries;
         CiStringMap<std::string> headers;
         CiStringMap<std::string> cookies;
         CiStringMap<std::string> trailer;
