@@ -44,6 +44,8 @@
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/server/SocketContext.h"
 
+#include "web/http/http_utils.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -104,13 +106,14 @@ namespace express::middleware {
             [&root = this->root] MIDDLEWARE(req, res, next) {
                 const bool fileAllowed = true;
                 if (fileAllowed) {
-                    res->sendFile(root + req->path, [&root, req, res](int ret) {
+                    const std::string decodedPath = web::http::httputils::url_decode(req->path);
+                    res->sendFile(root + decodedPath, [&root, decodedPath, req, res](int ret) {
                         if (ret == 0) {
                             LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                                      << " Express StaticMiddleware: GET " << req->url + " -> " << root + req->path;
+                                      << " Express StaticMiddleware: GET " << req->url + " -> " << root + decodedPath;
                         } else {
                             PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                                        << " Express StaticMiddleware " << req->url + " -> " << root + req->path;
+                                        << " Express StaticMiddleware " << req->url + " -> " << root + decodedPath;
 
                             res->sendStatus(404);
                         }

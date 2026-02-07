@@ -76,20 +76,19 @@ namespace express {
 
     Request& Request::extend() {
         originalUrl = url;
-        originalPath = httputils::url_decode(httputils::str_split_last(originalUrl, '?').first);
+        const std::string rawPath = httputils::str_split_last(originalUrl, '?').first;
 
-        if (originalPath.length() == 1) {
-            path = originalPath;
-        } else if (!originalPath.ends_with("/")) {
-            std::tie(path, file) = httputils::str_split_last(originalPath, '/');
-
-            if (path.empty()) {
-                path = "/";
-            }
-        } else if (originalPath.ends_with("/")) {
-            path = originalPath;
-            path.pop_back();
+        // Express semantics: req.path is the *pathname* (no query string) and is based on the raw url.
+        path = rawPath.empty() ? "/" : rawPath;
+        if (!path.empty() && path.front() != '/') {
+            path.insert(path.begin(), '/');
         }
+
+        // Keep a decoded variant for middleware that needs filesystem mapping etc.
+        originalPath = httputils::url_decode(path);
+
+        // Legacy field; not part of Express API.
+        file.clear();
 
         return *this;
     }
