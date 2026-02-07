@@ -94,7 +94,7 @@ namespace express::dispatcher {
 
     class ScopedPathStrip {
     public:
-        ScopedPathStrip(express::Request& req, std::string_view requestPath, bool enabled, std::size_t consumedLength);
+        ScopedPathStrip(express::Request& req, std::string_view requestUrl, bool enabled, std::size_t consumedLength);
         ~ScopedPathStrip();
 
         ScopedPathStrip(const ScopedPathStrip&) = delete;
@@ -104,7 +104,10 @@ namespace express::dispatcher {
 
     private:
         express::Request* req_{nullptr};
-        std::string backup_;
+        std::string backupUrl_;
+        std::string backupBaseUrl_;
+        std::string backupPath_;
+        std::string backupFile_;
         bool enabled_{false};
     };
 

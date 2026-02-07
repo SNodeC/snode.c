@@ -640,29 +640,63 @@ namespace express::dispatcher {
         return matchMountPointImpl(controller, absoluteMountPath, mountPoint, &cachedRegex, &cachedNames);
     }
 
-    ScopedPathStrip::ScopedPathStrip(express::Request& req, std::string_view requestPath, bool enabled, std::size_t consumedLength)
+    ScopedPathStrip::ScopedPathStrip(express::Request& req, std::string_view requestUrl, bool enabled, std::size_t consumedLength)
         : req_(&req)
         , enabled_(enabled) {
         if (!enabled_) {
             return;
         }
 
-        backup_ = req.path;
+        backupUrl_ = req.url;
+        backupBaseUrl_ = req.baseUrl;
+        backupPath_ = req.path;
+        backupFile_ = req.file;
 
-        std::string_view remainderPath{};
-        if (requestPath.size() > consumedLength) {
-            remainderPath = requestPath.substr(consumedLength);
-            if (!remainderPath.empty() && remainderPath.front() == '/') {
-                remainderPath.remove_prefix(1);
-            }
+        // Express semantics:
+        //  - req.originalUrl stays constant
+        //  - req.baseUrl is the consumed mount path (root mount -> empty string)
+        //  - req.url and req.path become the remainder (path + query / path)
+        std::string_view fullPath;
+        std::string_view fullQuery;
+        splitPathAndQuery(requestUrl, fullPath, fullQuery);
+
+        // Compute consumed part and remainder (consumedLength refers to the matched prefix in the path).
+        const std::size_t cl = std::min<std::size_t>(consumedLength, fullPath.size());
+        std::string_view consumed = fullPath.substr(0, cl);
+        std::string_view remainder = (fullPath.size() > cl) ? fullPath.substr(cl) : std::string_view{};
+
+        // baseUrl never ends with a trailing slash and is empty for the root mount.
+        consumed = trimOneTrailingSlash(consumed);
+        if (consumed.size() == 1 && consumed[0] == '/') {
+            consumed = {};
+        }
+        req.baseUrl.assign(consumed.begin(), consumed.end());
+
+        // Ensure remainder starts with '/'.
+        std::string remPath;
+        if (remainder.empty()) {
+            remPath = "/";
+        } else if (remainder.front() == '/') {
+            remPath.assign(remainder.begin(), remainder.end());
+        } else {
+            remPath = "/";
+            remPath.append(remainder.begin(), remainder.end());
         }
 
-        req.path = remainderPath.empty() ? "/" : ("/" + std::string(remainderPath));
+        req.path = remPath;
+        req.url = remPath;
+        if (!fullQuery.empty()) {
+            req.url.push_back('?');
+            req.url.append(fullQuery.begin(), fullQuery.end());
+        }
     }
 
     ScopedPathStrip::~ScopedPathStrip() {
         if (enabled_ && req_ != nullptr) {
-            req_->path = backup_;
+            req_->url = backupUrl_;
+            req_->baseUrl = backupBaseUrl_;
+            req_->path = backupPath_;
+            req_->file = backupFile_;
         }
     }
 

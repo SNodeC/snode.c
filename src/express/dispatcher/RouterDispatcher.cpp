@@ -117,7 +117,7 @@ namespace express::dispatcher {
                 req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
                 // Express-style mount path stripping is only applied for use()
-                const ScopedPathStrip pathStrip(req, match.requestPath, match.isPrefix, match.consumedLength);
+                const ScopedPathStrip pathStrip(req, req.originalUrl, match.isPrefix, match.consumedLength);
                 const ScopedParams scopedParams(req, match.params, false);
 
                 const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
