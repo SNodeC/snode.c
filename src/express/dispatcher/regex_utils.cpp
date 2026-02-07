@@ -217,8 +217,6 @@ namespace express::dispatcher {
         return out;
     }
 
-
-
     inline int hexToInt(const char c) {
         if (c >= '0' && c <= '9') {
             return c - '0';
@@ -272,7 +270,7 @@ namespace express::dispatcher {
         return true;
     }
 
-    std::unordered_map<std::string, std::string> parseQuery(std::string_view qs) {
+    inline std::unordered_map<std::string, std::string> parseQuery(std::string_view qs) {
         std::unordered_map<std::string, std::string> m;
         std::size_t i = 0;
         while (i < qs.size()) {
@@ -298,7 +296,7 @@ namespace express::dispatcher {
         return m;
     }
 
-    static std::pair<std::regex, std::vector<std::string>>
+    inline std::pair<std::regex, std::vector<std::string>>
     compileParamRegex(std::string_view mountPath, bool isPrefix, bool strictRouting, bool caseInsensitive) {
         // Express v4 string route patterns support:
         //  - named params:           /users/:id
@@ -487,7 +485,7 @@ namespace express::dispatcher {
         }
     }
 
-    static bool boundaryPrefix(std::string_view path, std::string_view base, bool caseInsensitive) {
+    inline bool boundaryPrefix(std::string_view path, std::string_view base, bool caseInsensitive) {
         // Normalize: an empty base is equivalent to "/"
         if (base.empty()) {
             base = "/";
@@ -519,7 +517,7 @@ namespace express::dispatcher {
         return (path.size() == base.size()) || (path[base.size()] == '/');
     }
 
-    static bool equalPath(std::string_view a, std::string_view b, bool caseInsensitive) {
+    inline bool equalPath(std::string_view a, std::string_view b, bool caseInsensitive) {
         if (a.size() != b.size()) {
             return false;
         }
@@ -531,14 +529,14 @@ namespace express::dispatcher {
         return true;
     }
 
-    static std::string_view trimOneTrailingSlash(std::string_view s) {
+    inline std::string_view trimOneTrailingSlash(std::string_view s) {
         if (s.size() > 1 && s.back() == '/') {
             return std::string_view(s.data(), s.size() - 1);
         }
         return s;
     }
 
-    void splitPathAndQuery(std::string_view url, std::string_view& path, std::string_view& query) {
+    inline void splitPathAndQuery(std::string_view url, std::string_view& path, std::string_view& query) {
         const std::size_t qpos = url.find('?');
         if (qpos == std::string_view::npos) {
             path = url;
@@ -663,7 +661,6 @@ namespace express::dispatcher {
             req_->path = backup_;
         }
     }
-
 
     ScopedParams::ScopedParams(express::Request& req, const std::map<std::string, std::string>& params, const bool mergeWithParent)
         : req_(&req)
