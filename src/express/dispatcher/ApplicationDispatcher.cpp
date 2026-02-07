@@ -98,6 +98,7 @@ namespace express::dispatcher {
 
                 // Express-style mount path stripping is only applied for use()
                 const ScopedPathStrip pathStrip(req, match.requestPath, match.isPrefix, match.consumedLength);
+                const ScopedParams scopedParams(req, match.params, false);
 
                 // NOTE: do not run legacy setParams() here; it can overwrite regex-extracted params
                 lambda(controller.getRequest(), controller.getResponse());

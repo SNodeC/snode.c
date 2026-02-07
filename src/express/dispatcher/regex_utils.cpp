@@ -217,10 +217,44 @@ namespace express::dispatcher {
         return out;
     }
 
+
+
+    inline int hexToInt(const char c) {
+        if (c >= '0' && c <= '9') {
+            return c - '0';
+        }
+        if (c >= 'a' && c <= 'f') {
+            return c - 'a' + 10;
+        }
+        if (c >= 'A' && c <= 'F') {
+            return c - 'A' + 10;
+        }
+        return -1;
+    }
+
+    inline std::string decodeURIComponent(std::string_view in) {
+        std::string out;
+        out.reserve(in.size());
+
+        for (std::size_t i = 0; i < in.size(); ++i) {
+            if (in[i] == '%' && i + 2 < in.size()) {
+                const int hi = hexToInt(in[i + 1]);
+                const int lo = hexToInt(in[i + 2]);
+                if (hi >= 0 && lo >= 0) {
+                    out.push_back(static_cast<char>((hi << 4) | lo));
+                    i += 2;
+                    continue;
+                }
+            }
+            out.push_back(in[i]);
+        }
+
+        return out;
+    }
     static bool matchAndFillParamsAndConsume(const std::regex& rx,
                                              const std::vector<std::string>& names,
                                              std::string_view reqPath,
-                                             express::Request& req,
+                                             std::map<std::string, std::string>& params,
                                              std::size_t& consumedLength) {
         std::cmatch m;
         if (!std::regex_search(reqPath.begin(), reqPath.end(), m, rx)) {
@@ -232,7 +266,7 @@ namespace express::dispatcher {
         const size_t n = std::min(names.size(), g);
         for (size_t i = 0; i < n; ++i) {
             if (!names[i].empty() && m[i + 1].matched) {
-                req.params[names[i]] = m[i + 1].str();
+                params[names[i]] = decodeURIComponent(m[i + 1].str());
             }
         }
         return true;
@@ -453,17 +487,6 @@ namespace express::dispatcher {
         }
     }
 
-    static bool querySupersetMatches(const std::unordered_map<std::string, std::string>& rq,
-                                     const std::unordered_map<std::string, std::string>& need) {
-        for (const auto& kv : need) {
-            auto it = rq.find(kv.first);
-            if (it == rq.end() || it->second != kv.second) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     static bool boundaryPrefix(std::string_view path, std::string_view base, bool caseInsensitive) {
         // Normalize: an empty base is equivalent to "/"
         if (base.empty()) {
@@ -515,29 +538,6 @@ namespace express::dispatcher {
         return s;
     }
 
-    static void splitMountPathAndQuery(std::string_view url, std::string_view& path, std::string_view& query) {
-        // Mount points can optionally specify required query pairs (e.g. "/foo?x=1&y=2").
-        // Express-style route wildcards also use '?' as an operator (e.g. "/ab?cd").
-        // Heuristic: only treat '?' as query delimiter if the tail looks like a query string.
-        const std::size_t qpos = url.find('?');
-        if (qpos == std::string_view::npos) {
-            path = url;
-            query = {};
-            return;
-        }
-
-        const std::string_view tail = url.substr(qpos + 1);
-        if (tail.find('=') == std::string_view::npos && tail.find('&') == std::string_view::npos) {
-            // Treat as route pattern (not a query-string spec)
-            path = url;
-            query = {};
-            return;
-        }
-
-        path = url.substr(0, qpos);
-        query = tail;
-    }
-
     void splitPathAndQuery(std::string_view url, std::string_view& path, std::string_view& query) {
         const std::size_t qpos = url.find('?');
         if (qpos == std::string_view::npos) {
@@ -563,10 +563,8 @@ namespace express::dispatcher {
 
         // Split mount & request into path + query
         std::string_view mountPath;
-        std::string_view mountQueryString;
-        splitMountPathAndQuery(absoluteMountPath, mountPath, mountQueryString);
-        const auto requiredQueryPairs = parseQuery(mountQueryString);
-
+        std::string_view ignoredMountQuery;
+        splitPathAndQuery(absoluteMountPath, mountPath, ignoredMountQuery);
         std::string_view requestPath;
         std::string_view requestQueryString;
         splitPathAndQuery(controller.getRequest()->originalUrl, requestPath, requestQueryString);
@@ -597,13 +595,13 @@ namespace express::dispatcher {
                     *cachedRegex = std::move(compiled.first);
                     *cachedNames = std::move(compiled.second);
                 }
-                pathMatches = matchAndFillParamsAndConsume(*cachedRegex, *cachedNames, requestPath, *controller.getRequest(), matchLen);
+                pathMatches = matchAndFillParamsAndConsume(*cachedRegex, *cachedNames, requestPath, result.params, matchLen);
             } else {
                 auto [rx, names] = compileParamRegex(mountPath,
                                                      /*isPrefix*/ result.isPrefix,
                                                      controller.getStrictRouting(),
                                                      controller.getCaseInsensitiveRouting());
-                pathMatches = matchAndFillParamsAndConsume(rx, names, requestPath, *controller.getRequest(), matchLen);
+                pathMatches = matchAndFillParamsAndConsume(rx, names, requestPath, result.params, matchLen);
             }
 
             if (pathMatches && result.isPrefix) {
@@ -622,8 +620,7 @@ namespace express::dispatcher {
             }
         }
 
-        const bool queryMatches = querySupersetMatches(result.requestQueryPairs, requiredQueryPairs);
-        result.requestMatched = (pathMatches && queryMatches);
+        result.requestMatched = pathMatches;
 
         return result;
     }
@@ -664,6 +661,23 @@ namespace express::dispatcher {
     ScopedPathStrip::~ScopedPathStrip() {
         if (enabled_ && req_ != nullptr) {
             req_->path = backup_;
+        }
+    }
+
+
+    ScopedParams::ScopedParams(express::Request& req, const std::map<std::string, std::string>& params, const bool mergeWithParent)
+        : req_(&req)
+        , backup_(req.params) {
+        req.params.clear();
+        if (mergeWithParent) {
+            req.params.insert(backup_.begin(), backup_.end());
+        }
+        req.params.insert(params.begin(), params.end());
+    }
+
+    ScopedParams::~ScopedParams() {
+        if (req_ != nullptr) {
+            req_->params = std::move(backup_);
         }
     }
 

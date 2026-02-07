@@ -118,6 +118,7 @@ namespace express::dispatcher {
 
                 // Express-style mount path stripping is only applied for use()
                 const ScopedPathStrip pathStrip(req, match.requestPath, match.isPrefix, match.consumedLength);
+                const ScopedParams scopedParams(req, match.params, false);
 
                 const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
                 const bool oldCaseInsensitiveRouting = controller.setCaseInsensitiveRouting(caseInsensitiveRouting);
