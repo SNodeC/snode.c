@@ -41,6 +41,8 @@
 
 #include "express/dispatcher/regex_utils.h"
 
+#include "express/Controller.h"
+#include "express/MountPoint.h"
 #include "express/Request.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -291,6 +293,133 @@ namespace express::dispatcher {
         } else {
             path = url.substr(0, qpos);
             query = url.substr(qpos + 1);
+        }
+    }
+
+
+    bool methodMatches(std::string_view requestMethod, const std::string& mountMethod) {
+        return (mountMethod == "use") || (mountMethod == "all") || (requestMethod == mountMethod);
+    }
+
+    static MountMatchResult matchMountPointImpl(express::Controller& controller,
+                                               const std::string& absoluteMountPath,
+                                               const express::MountPoint& mountPoint,
+                                               std::regex* cachedRegex,
+                                               std::vector<std::string>* cachedNames) {
+        MountMatchResult result;
+        result.isPrefix = (mountPoint.method == "use");
+
+        // Split mount & request into path + query
+        std::string_view mountPath;
+        std::string_view mountQueryString;
+        splitPathAndQuery(absoluteMountPath, mountPath, mountQueryString);
+        const auto requiredQueryPairs = parseQuery(mountQueryString);
+
+        std::string_view requestPath;
+        std::string_view requestQueryString;
+        splitPathAndQuery(controller.getRequest()->originalUrl, requestPath, requestQueryString);
+        result.requestQueryPairs = parseQuery(requestQueryString);
+
+        // Normalize single trailing slash if not strict
+        if (!controller.getStrictRouting()) {
+            mountPath = trimOneTrailingSlash(mountPath);
+            requestPath = trimOneTrailingSlash(requestPath);
+        }
+        if (mountPath.empty()) {
+            mountPath = "/";
+        }
+
+        result.requestPath = requestPath;
+
+        bool pathMatches = false;
+        std::size_t matchLen = 0;
+
+        if (mountPath.find(':') != std::string_view::npos) {
+            // Param mount: optionally compile once, match once, fill params, and record matched prefix length
+            if (cachedRegex != nullptr && cachedNames != nullptr) {
+                if (cachedRegex->mark_count() == 0) {
+                    auto compiled = compileParamRegex(mountPath,
+                                                     /*isPrefix*/ result.isPrefix,
+                                                     controller.getStrictRouting(),
+                                                     controller.getCaseInsensitiveRouting());
+                    *cachedRegex = std::move(compiled.first);
+                    *cachedNames = std::move(compiled.second);
+                }
+                pathMatches = matchAndFillParamsAndConsume(*cachedRegex,
+                                                          *cachedNames,
+                                                          requestPath,
+                                                          *controller.getRequest(),
+                                                          matchLen);
+            } else {
+                auto [rx, names] = compileParamRegex(mountPath,
+                                                    /*isPrefix*/ result.isPrefix,
+                                                    controller.getStrictRouting(),
+                                                    controller.getCaseInsensitiveRouting());
+                pathMatches = matchAndFillParamsAndConsume(rx, names, requestPath, *controller.getRequest(), matchLen);
+            }
+
+            if (pathMatches && result.isPrefix) {
+                result.consumedLength = matchLen;
+            }
+        } else {
+            if (result.isPrefix) {
+                // Literal boundary prefix
+                pathMatches = boundaryPrefix(requestPath, mountPath, controller.getCaseInsensitiveRouting());
+                if (pathMatches) {
+                    result.consumedLength = mountPath.size();
+                }
+            } else {
+                // End-anchored equality
+                pathMatches = equalPath(requestPath, mountPath, controller.getCaseInsensitiveRouting());
+            }
+        }
+
+        const bool queryMatches = querySupersetMatches(result.requestQueryPairs, requiredQueryPairs);
+        result.requestMatched = (pathMatches && queryMatches);
+
+        return result;
+    }
+
+    MountMatchResult matchMountPoint(express::Controller& controller,
+                                    const std::string& absoluteMountPath,
+                                    const express::MountPoint& mountPoint) {
+        return matchMountPointImpl(controller, absoluteMountPath, mountPoint, nullptr, nullptr);
+    }
+
+    MountMatchResult matchMountPoint(express::Controller& controller,
+                                    const std::string& absoluteMountPath,
+                                    const express::MountPoint& mountPoint,
+                                    std::regex& cachedRegex,
+                                    std::vector<std::string>& cachedNames) {
+        return matchMountPointImpl(controller, absoluteMountPath, mountPoint, &cachedRegex, &cachedNames);
+    }
+
+    ScopedPathStrip::ScopedPathStrip(express::Request& req,
+                                     std::string_view requestPath,
+                                     bool enabled,
+                                     std::size_t consumedLength)
+        : req_(&req)
+        , enabled_(enabled) {
+        if (!enabled_) {
+            return;
+        }
+
+        backup_ = req.path;
+
+        std::string_view remainderPath{};
+        if (requestPath.size() > consumedLength) {
+            remainderPath = requestPath.substr(consumedLength);
+            if (!remainderPath.empty() && remainderPath.front() == '/') {
+                remainderPath.remove_prefix(1);
+            }
+        }
+
+        req.path = remainderPath.empty() ? "/" : ("/" + std::string(remainderPath));
+    }
+
+    ScopedPathStrip::~ScopedPathStrip() {
+        if (enabled_ && req_ != nullptr) {
+            req_->path = backup_;
         }
     }
 

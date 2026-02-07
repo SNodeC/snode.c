@@ -73,125 +73,58 @@ namespace express::dispatcher {
     bool MiddlewareDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const MountPoint& mountPoint) {
         bool requestMatched = false;
 
-        if (controller.getRequest()->method == mountPoint.method || mountPoint.method == "use" || mountPoint.method == "all") {
-            const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
-            const bool isUse = (mountPoint.method == "use");
-            const bool isPrefix = isUse; // Express: only app.use() is prefix-based
+        const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
+        if (!methodMatchesResult) {
+            return false;
+        }
 
-            if ((controller.getFlags() & Controller::NEXT) == 0) {
-                // Split mount & request into path + query
-                std::string_view mountPath;
-                std::string_view mountQueryString;
-                splitPathAndQuery(absoluteMountPath, mountPath, mountQueryString);
-                const auto requiredQueryPairs = parseQuery(mountQueryString);
+        const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
 
-                std::string_view requestPath;
-                std::string_view requestQueryString;
-                splitPathAndQuery(controller.getRequest()->originalUrl, requestPath, requestQueryString);
-                const auto requestQueryPairs = parseQuery(requestQueryString);
+        if ((controller.getFlags() & Controller::NEXT) == 0) {
+            const MountMatchResult match = matchMountPoint(controller, absoluteMountPath, mountPoint, regex, names);
+            requestMatched = match.requestMatched;
 
-                // Normalize single trailing slash if not strict
-                if (!controller.getStrictRouting()) {
-                    mountPath = trimOneTrailingSlash(mountPath);
-                    requestPath = trimOneTrailingSlash(requestPath);
+            LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
+                       << " HTTP Express: middleware -> " << (requestMatched ? "MATCH" : "NO MATCH");
+            LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
+            LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
+            LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
+            LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
+            LOG(TRACE) << " Mountpoint RelativePath: " << mountPoint.relativeMountPath;
+            LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
+            LOG(TRACE) << "           StrictRouting: " << controller.getStrictRouting();
+            LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
+
+            if (requestMatched) {
+                auto& req = *controller.getRequest();
+                req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
+
+                // Express-style mount path stripping is only applied for use()
+                ScopedPathStrip pathStrip(req, match.requestPath, match.isPrefix, match.consumedLength);
+
+                // NOTE: do not run legacy setParams() here; it can overwrite regex-extracted params
+                Next next(controller);
+                lambda(controller.getRequest(), controller.getResponse(), next);
+
+                // If next() was called synchronously continue current route-tree traversal
+                if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
+                    LOG(TRACE) << "Express: M - Next called - set to NO MATCH";
+                    requestMatched = false;
+                    controller = next.controller;
                 }
-                if (mountPath.empty()) {
-                    mountPath = "/";
-                }
-
-                // Matching is independent of callback arity:
-                //   - use() => prefix with boundary
-                //   - verbs/all() => end-anchored equality
-                bool pathMatches = false;
-                std::size_t consumedLength = 0;
-                if (mountPath.find(':') != std::string::npos) {
-                    // Param mount: compile once, match once, fill params, and record matched prefix length (use only)
-                    if (regex.mark_count() == 0) {
-                        LOG(TRACE) << "MiddlewareDispatcher: precompiled regex";
-                        std::tie(regex, names) = compileParamRegex(mountPath,
-                                                                   /*isPrefix*/ isPrefix,
-                                                                   controller.getStrictRouting(),
-                                                                   controller.getCaseInsensitiveRouting());
-                    } else {
-                        LOG(TRACE) << "MiddlewareDispatcher: using precompiled regex";
-                    }
-                    std::size_t matchLen = 0;
-                    pathMatches = matchAndFillParamsAndConsume(regex, names, requestPath, *controller.getRequest(), matchLen);
-                    if (pathMatches && isPrefix) {
-                        consumedLength = matchLen;
-                    }
-                } else {
-                    if (isPrefix) {
-                        // Literal boundary prefix
-                        pathMatches = boundaryPrefix(requestPath, mountPath, controller.getCaseInsensitiveRouting());
-                        if (pathMatches) {
-                            consumedLength = mountPath.size();
-                        }
-                    } else {
-                        // End-anchored equality
-                        pathMatches = equalPath(requestPath, mountPath, controller.getCaseInsensitiveRouting());
-                    }
-                }
-
-                const bool queryMatches = querySupersetMatches(requestQueryPairs, requiredQueryPairs);
-                requestMatched = (pathMatches && queryMatches);
-
-                LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
-                           << " HTTP Express: middleware -> " << (requestMatched ? "MATCH" : "NO MATCH");
-                LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
-                LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
-                LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
-                LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
-                LOG(TRACE) << " Mountpoint RelativePath: " << mountPoint.relativeMountPath;
-                LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
-                LOG(TRACE) << "           StrictRouting: " << controller.getStrictRouting();
-                LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
-
-                if (requestMatched) {
-                    auto& req = *controller.getRequest();
-                    req.queries.insert(requestQueryPairs.begin(), requestQueryPairs.end());
-
-                    // Express-style mount path stripping is only applied for use()
-                    const std::string previousPathBackup = req.path;
-                    if (isPrefix) {
-                        std::string_view remainderPath{};
-                        if (requestPath.size() > consumedLength) {
-                            remainderPath = requestPath.substr(consumedLength);
-                            if (!remainderPath.empty() && remainderPath.front() == '/') {
-                                remainderPath.remove_prefix(1);
-                            }
-                        }
-                        req.path = remainderPath.empty() ? "/" : ("/" + std::string(remainderPath));
-                    }
-
-                    // NOTE: do not run legacy setParams() here; it can overwrite regex-extracted params
-                    Next next(controller);
-                    lambda(controller.getRequest(), controller.getResponse(), next);
-
-                    // If next() was called synchronously continue current route-tree traversal
-                    if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
-                        LOG(TRACE) << "Express: M - Next called - set to NO MATCH";
-                        requestMatched = false;
-                        controller = next.controller;
-                    }
-
-                    // Restore
-                    if (isPrefix) {
-                        req.path = previousPathBackup;
-                    }
-                }
-            } else {
-                LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
-                           << " HTTP Express: middleware -> next(...) called";
-                LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
-                LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
-                LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
-                LOG(TRACE) << "       AbsoluteMountPath: " << absoluteMountPath;
             }
+        } else {
+            LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
+                       << " HTTP Express: middleware -> next(...) called";
+            LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
+            LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
+            LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
+            LOG(TRACE) << "       AbsoluteMountPath: " << absoluteMountPath;
         }
 
         return requestMatched;
     }
+
 
     std::list<std::string>
     MiddlewareDispatcher::getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const {

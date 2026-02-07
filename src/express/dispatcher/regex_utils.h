@@ -44,6 +44,8 @@
 
 namespace express {
     class Request;
+    class Controller;
+    struct MountPoint;
 } // namespace express
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -102,6 +104,45 @@ namespace express::dispatcher {
                                                                       bool isPrefix, // router/middleware=true, application=false
                                                                       bool strictRouting,
                                                                       bool caseInsensitive);
+
+
+    // ---------- shared mount-point matching (used by Router/Application/Middleware dispatchers) ----------
+
+    bool methodMatches(std::string_view requestMethod, const std::string& mountMethod);
+
+    struct MountMatchResult {
+        bool requestMatched{false};
+        bool isPrefix{false};
+        std::size_t consumedLength{0};
+        std::string_view requestPath{};
+        std::unordered_map<std::string, std::string> requestQueryPairs{};
+    };
+
+    MountMatchResult matchMountPoint(express::Controller& controller,
+                                     const std::string& absoluteMountPath,
+                                     const express::MountPoint& mountPoint);
+
+    MountMatchResult matchMountPoint(express::Controller& controller,
+                                     const std::string& absoluteMountPath,
+                                     const express::MountPoint& mountPoint,
+                                     std::regex& cachedRegex,
+                                     std::vector<std::string>& cachedNames);
+
+    class ScopedPathStrip {
+    public:
+        ScopedPathStrip(express::Request& req, std::string_view requestPath, bool enabled, std::size_t consumedLength);
+        ~ScopedPathStrip();
+
+        ScopedPathStrip(const ScopedPathStrip&) = delete;
+        ScopedPathStrip& operator=(const ScopedPathStrip&) = delete;
+        ScopedPathStrip(ScopedPathStrip&&) = delete;
+        ScopedPathStrip& operator=(ScopedPathStrip&&) = delete;
+
+    private:
+        express::Request* req_{nullptr};
+        std::string backup_;
+        bool enabled_{false};
+    };
 
     template <typename RequestLike>
     inline bool
