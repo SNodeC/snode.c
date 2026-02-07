@@ -152,21 +152,84 @@ namespace express::dispatcher {
         return m;
     }
 
+    RouteMatchResult matchMountPath(std::string_view absoluteMountPath,
+                                    std::string_view requestUrl,
+                                    bool isPrefix,
+                                    bool strictRouting,
+                                    bool caseInsensitive,
+                                    express::Request& req) {
+        RouteMatchResult result;
+
+        std::string_view mountPath;
+        std::string_view mountQueryString;
+        splitPathAndQuery(absoluteMountPath, mountPath, mountQueryString);
+        const auto requiredQueryPairs = parseQuery(mountQueryString);
+
+        std::string_view requestPath;
+        std::string_view requestQueryString;
+        splitPathAndQuery(requestUrl, requestPath, requestQueryString);
+        result.requestPath = requestPath;
+        result.requestQueryPairs = parseQuery(requestQueryString);
+
+        if (!strictRouting) {
+            mountPath = trimOneTrailingSlash(mountPath);
+            requestPath = trimOneTrailingSlash(requestPath);
+        }
+        if (mountPath.empty()) {
+            mountPath = "/";
+        }
+
+        if (mountPath.find(':') != std::string_view::npos || mountPath.find('*') != std::string_view::npos) {
+            auto [rx, paramNames] = compileParamRegex(mountPath, isPrefix, strictRouting, caseInsensitive);
+            if (isPrefix) {
+                std::size_t matchLen = 0;
+                result.pathMatched = matchAndFillParamsAndConsume(rx, paramNames, requestPath, req, matchLen);
+                if (result.pathMatched) {
+                    result.consumedLength = matchLen;
+                }
+            } else {
+                result.pathMatched = matchAndFillParams(rx, paramNames, requestPath, req);
+            }
+        } else if (isPrefix) {
+            result.pathMatched = boundaryPrefix(requestPath, mountPath, caseInsensitive);
+            if (result.pathMatched) {
+                result.consumedLength = mountPath.size();
+            }
+        } else {
+            result.pathMatched = equalPath(requestPath, mountPath, caseInsensitive);
+        }
+
+        result.queryMatched = querySupersetMatches(result.requestQueryPairs, requiredQueryPairs);
+        result.matched = result.pathMatched && result.queryMatched;
+        return result;
+    }
+
     std::pair<std::regex, std::vector<std::string>>
     compileParamRegex(std::string_view mountPath, bool isPrefix, bool strictRouting, bool caseInsensitive) {
         std::string pat;
         pat.reserve(mountPath.size() * 2);
         std::vector<std::string> names;
+        std::size_t wildcardIndex = 0;
         pat += '^';
 
         const char* s = mountPath.data();
         const char* e = s + mountPath.size();
         while (s < e) {
-            if (*s == ':') {
+            if (*s == '\\' && (s + 1) < e) {
+                ++s;
+                static const std::string meta = R"(\.^$|()[]{}*+?!)";
+                if (meta.find(*s) != std::string::npos) {
+                    pat += '\\';
+                }
+                pat += *s;
+                ++s;
+            } else if (*s == '*') {
+                names.push_back(std::to_string(wildcardIndex++));
+                pat += "(.*)";
+                ++s;
+            } else if (*s == ':') {
                 ++s;
                 const char* nstart = s;
-                // Express-style param name: stop on the first non [A-Za-z0-9_] character.
-                // This enables patterns like ":from-:to" ("-" is a literal separator, not part of the param name).
                 while (s < e && (std::isalnum(static_cast<unsigned char>(*s)) > 0 || *s == '_')) {
                     ++s;
                 }
@@ -196,7 +259,7 @@ namespace express::dispatcher {
                     pat += ')';
                 } else {
                     pat += "([^/]+)";
-                } // default: single segment
+                }
             } else {
                 static const std::string meta = R"(\.^$|()[]{}*+?!)";
                 if (meta.find(*s) != std::string::npos) {
@@ -208,10 +271,10 @@ namespace express::dispatcher {
         }
 
         if (isPrefix) {
-            pat += "(?:/|$)"; // boundary
+            pat += "(?:/|$)";
         } else {
             if (!strictRouting) {
-                pat += "/?"; // allow single trailing slash
+                pat += "/?";
             }
             pat += '$';
         }

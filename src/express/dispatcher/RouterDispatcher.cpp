@@ -55,7 +55,6 @@
 
 #include <cstddef>
 #include <string_view>
-#include <tuple>
 #include <unordered_map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -94,7 +93,8 @@ namespace express::dispatcher {
     RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
 
-        const bool methodMatches = (mountPoint.method == "use" || mountPoint.method == "all" || controller.getRequest()->method == mountPoint.method);
+        const bool methodMatches =
+            (mountPoint.method == "use" || mountPoint.method == "all" || controller.getRequest()->method == mountPoint.method);
         if (!methodMatches) {
             return false;
         }
@@ -102,75 +102,14 @@ namespace express::dispatcher {
         const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
-            // Split mount & request into path + query
-            std::string_view mountPath;
-            std::string_view mountQueryString;
-            splitPathAndQuery(absoluteMountPath, mountPath, mountQueryString);
-            const std::unordered_map<std::string, std::string> requiredQueryPairs = parseQuery(mountQueryString);
-
-            std::string_view requestPath;
-            std::string_view requestQueryString;
-            splitPathAndQuery(controller.getRequest()->originalUrl, requestPath, requestQueryString);
-            const std::unordered_map<std::string, std::string> requestQueryPairs = parseQuery(requestQueryString);
-
             const bool isPrefix = (mountPoint.method == "use");
-
-            bool pathMatches = false;
-            std::size_t consumedLength = 0;
-
-            if (isPrefix) {
-                // Prefix match (use): normalize single trailing slash when !strict
-                if (!controller.getStrictRouting()) {
-                    mountPath = trimOneTrailingSlash(mountPath);
-                    requestPath = trimOneTrailingSlash(requestPath);
-                }
-                if (mountPath.empty()) {
-                    mountPath = "/";
-                }
-
-                if (mountPath.find(':') != std::string_view::npos) {
-                    // Param mount: compile, match once, fill params and record matched prefix length
-                    auto [rx, paramNames] = compileParamRegex(mountPath,
-                                                             /*isPrefix*/ true,
-                                                             controller.getStrictRouting(),
-                                                             controller.getCaseInsensitiveRouting());
-                    std::size_t matchLen = 0;
-                    pathMatches = matchAndFillParamsAndConsume(rx, paramNames, requestPath, *controller.getRequest(), matchLen);
-                    if (pathMatches) {
-                        consumedLength = matchLen;
-                    }
-                } else {
-                    // Literal boundary prefix
-                    pathMatches = boundaryPrefix(requestPath, mountPath, controller.getCaseInsensitiveRouting());
-                    if (pathMatches) {
-                        consumedLength = mountPath.size();
-                    }
-                }
-            } else {
-                // End-anchored match (verbs + all): relax one trailing slash when !strict
-                std::string_view normalizedMountPath = mountPath;
-                std::string_view normalizedRequestPath = requestPath;
-                if (!controller.getStrictRouting()) {
-                    normalizedMountPath = trimOneTrailingSlash(normalizedMountPath);
-                    normalizedRequestPath = trimOneTrailingSlash(normalizedRequestPath);
-                }
-                if (normalizedMountPath.empty()) {
-                    normalizedMountPath = "/";
-                }
-
-                if (mountPath.find(':') != std::string_view::npos) {
-                    auto [rx, paramNames] = compileParamRegex(mountPath,
-                                                             /*isPrefix*/ false,
-                                                             controller.getStrictRouting(),
-                                                             controller.getCaseInsensitiveRouting());
-                    pathMatches = matchAndFillParams(rx, paramNames, requestPath, *controller.getRequest());
-                } else {
-                    pathMatches = equalPath(normalizedRequestPath, normalizedMountPath, controller.getCaseInsensitiveRouting());
-                }
-            }
-
-            const bool queryMatches = querySupersetMatches(requestQueryPairs, requiredQueryPairs);
-            const bool requestMatched = (pathMatches && queryMatches);
+            const RouteMatchResult matchResult = matchMountPath(absoluteMountPath,
+                                                                controller.getRequest()->originalUrl,
+                                                                isPrefix,
+                                                                controller.getStrictRouting(),
+                                                                controller.getCaseInsensitiveRouting(),
+                                                                *controller.getRequest());
+            const bool requestMatched = matchResult.matched;
 
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " HTTP Express: router -> " << (requestMatched ? "MATCH" : "NO MATCH");
@@ -184,7 +123,7 @@ namespace express::dispatcher {
             LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
 
             if (requestMatched) {
-                controller.getRequest()->queries.insert(requestQueryPairs.begin(), requestQueryPairs.end());
+                controller.getRequest()->queries.insert(matchResult.requestQueryPairs.begin(), matchResult.requestQueryPairs.end());
 
                 auto& req = *controller.getRequest();
                 const std::string previousPathBackup = req.path;
@@ -192,8 +131,8 @@ namespace express::dispatcher {
                 if (isPrefix) {
                     // Compute remainder and temporarily rewrite req.path for the subtree
                     std::string_view remainderPath{};
-                    if (requestPath.size() > consumedLength) {
-                        remainderPath = requestPath.substr(consumedLength);
+                    if (matchResult.requestPath.size() > matchResult.consumedLength) {
+                        remainderPath = matchResult.requestPath.substr(matchResult.consumedLength);
                         if (!remainderPath.empty() && remainderPath.front() == '/') {
                             remainderPath.remove_prefix(1);
                         }

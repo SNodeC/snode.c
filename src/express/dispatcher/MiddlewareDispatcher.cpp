@@ -58,7 +58,6 @@
 #include <list>
 #include <regex>
 #include <string_view>
-#include <tuple>
 #include <unordered_map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -79,62 +78,13 @@ namespace express::dispatcher {
             const bool isPrefix = isUse; // Express: only app.use() is prefix-based
 
             if ((controller.getFlags() & Controller::NEXT) == 0) {
-                // Split mount & request into path + query
-                std::string_view mountPath;
-                std::string_view mountQueryString;
-                splitPathAndQuery(absoluteMountPath, mountPath, mountQueryString);
-                const auto requiredQueryPairs = parseQuery(mountQueryString);
-
-                std::string_view requestPath;
-                std::string_view requestQueryString;
-                splitPathAndQuery(controller.getRequest()->originalUrl, requestPath, requestQueryString);
-                const auto requestQueryPairs = parseQuery(requestQueryString);
-
-                // Normalize single trailing slash if not strict
-                if (!controller.getStrictRouting()) {
-                    mountPath = trimOneTrailingSlash(mountPath);
-                    requestPath = trimOneTrailingSlash(requestPath);
-                }
-                if (mountPath.empty()) {
-                    mountPath = "/";
-                }
-
-                // Matching is independent of callback arity:
-                //   - use() => prefix with boundary
-                //   - verbs/all() => end-anchored equality
-                bool pathMatches = false;
-                std::size_t consumedLength = 0;
-                if (mountPath.find(':') != std::string::npos) {
-                    // Param mount: compile once, match once, fill params, and record matched prefix length (use only)
-                    if (regex.mark_count() == 0) {
-                        LOG(TRACE) << "MiddlewareDispatcher: precompiled regex";
-                        std::tie(regex, names) = compileParamRegex(mountPath,
-                                                                   /*isPrefix*/ isPrefix,
-                                                                   controller.getStrictRouting(),
-                                                                   controller.getCaseInsensitiveRouting());
-                    } else {
-                        LOG(TRACE) << "MiddlewareDispatcher: using precompiled regex";
-                    }
-                    std::size_t matchLen = 0;
-                    pathMatches = matchAndFillParamsAndConsume(regex, names, requestPath, *controller.getRequest(), matchLen);
-                    if (pathMatches && isPrefix) {
-                        consumedLength = matchLen;
-                    }
-                } else {
-                    if (isPrefix) {
-                        // Literal boundary prefix
-                        pathMatches = boundaryPrefix(requestPath, mountPath, controller.getCaseInsensitiveRouting());
-                        if (pathMatches) {
-                            consumedLength = mountPath.size();
-                        }
-                    } else {
-                        // End-anchored equality
-                        pathMatches = equalPath(requestPath, mountPath, controller.getCaseInsensitiveRouting());
-                    }
-                }
-
-                const bool queryMatches = querySupersetMatches(requestQueryPairs, requiredQueryPairs);
-                requestMatched = (pathMatches && queryMatches);
+                const RouteMatchResult matchResult = matchMountPath(absoluteMountPath,
+                                                                    controller.getRequest()->originalUrl,
+                                                                    isPrefix,
+                                                                    controller.getStrictRouting(),
+                                                                    controller.getCaseInsensitiveRouting(),
+                                                                    *controller.getRequest());
+                requestMatched = matchResult.matched;
 
                 LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                            << " HTTP Express: middleware -> " << (requestMatched ? "MATCH" : "NO MATCH");
@@ -149,14 +99,14 @@ namespace express::dispatcher {
 
                 if (requestMatched) {
                     auto& req = *controller.getRequest();
-                    req.queries.insert(requestQueryPairs.begin(), requestQueryPairs.end());
+                    req.queries.insert(matchResult.requestQueryPairs.begin(), matchResult.requestQueryPairs.end());
 
                     // Express-style mount path stripping is only applied for use()
                     const std::string previousPathBackup = req.path;
                     if (isPrefix) {
                         std::string_view remainderPath{};
-                        if (requestPath.size() > consumedLength) {
-                            remainderPath = requestPath.substr(consumedLength);
+                        if (matchResult.requestPath.size() > matchResult.consumedLength) {
+                            remainderPath = matchResult.requestPath.substr(matchResult.consumedLength);
                             if (!remainderPath.empty() && remainderPath.front() == '/') {
                                 remainderPath.remove_prefix(1);
                             }

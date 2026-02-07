@@ -63,6 +63,15 @@ namespace express {
 
 namespace express::dispatcher {
 
+    struct RouteMatchResult {
+        bool pathMatched = false;
+        bool queryMatched = false;
+        bool matched = false;
+        std::size_t consumedLength = 0;
+        std::unordered_map<std::string, std::string> requestQueryPairs;
+        std::string_view requestPath;
+    };
+
     std::vector<std::string> explode(const std::string& s, char delim);
 
     const std::regex& pathRegex();
@@ -103,6 +112,13 @@ namespace express::dispatcher {
                                                                       bool strictRouting,
                                                                       bool caseInsensitive);
 
+    RouteMatchResult matchMountPath(std::string_view absoluteMountPath,
+                                    std::string_view requestUrl,
+                                    bool isPrefix,
+                                    bool strictRouting,
+                                    bool caseInsensitive,
+                                    express::Request& req);
+
     template <typename RequestLike>
     inline bool
     matchAndFillParams(const std::regex& rx, const std::vector<std::string>& names, std::string_view reqPath, RequestLike& req) {
@@ -117,7 +133,6 @@ namespace express::dispatcher {
         }
         return true;
     }
-
 
     template <typename RequestLike>
     inline bool matchAndFillParamsAndConsume(const std::regex& rx,
