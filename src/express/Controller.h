@@ -101,7 +101,7 @@ namespace express {
         Route* currentRoute = nullptr;
 
         bool strictRouting = false;
-        bool caseInsensitiveRouting = false;
+        bool caseInsensitiveRouting = true;
 
         unsigned long lastTick = 0;
 
