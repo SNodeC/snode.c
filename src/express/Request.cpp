@@ -69,7 +69,9 @@ namespace express {
     }
 
     const std::string& Request::param(const std::string& id, const std::string& fallBack) {
-        return params.contains(id) ? params[id] : fallBack;
+        const static std::string empty;
+
+        return params.contains(id) ? params[id] : (!fallBack.empty() ? fallBack : empty);
     }
 
     Request& Request::extend() {
