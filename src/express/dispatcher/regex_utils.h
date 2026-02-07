@@ -52,6 +52,7 @@ namespace express {
 
 #include <cctype>
 #include <cstddef>
+#include <map>
 #include <regex>
 #include <string>
 #include <string_view>
@@ -78,6 +79,7 @@ namespace express::dispatcher {
         bool isPrefix{false};
         std::size_t consumedLength{0};
         std::string_view requestPath;
+        std::map<std::string, std::string> params;
         std::unordered_map<std::string, std::string> requestQueryPairs;
     };
 
@@ -104,6 +106,21 @@ namespace express::dispatcher {
         express::Request* req_{nullptr};
         std::string backup_;
         bool enabled_{false};
+    };
+
+    class ScopedParams {
+    public:
+        ScopedParams(express::Request& req, const std::map<std::string, std::string>& params, bool mergeWithParent);
+        ~ScopedParams();
+
+        ScopedParams(const ScopedParams&) = delete;
+        ScopedParams& operator=(const ScopedParams&) = delete;
+        ScopedParams(ScopedParams&&) = delete;
+        ScopedParams& operator=(ScopedParams&&) = delete;
+
+    private:
+        express::Request* req_{nullptr};
+        std::map<std::string, std::string> backup_;
     };
 
 } // namespace express::dispatcher
