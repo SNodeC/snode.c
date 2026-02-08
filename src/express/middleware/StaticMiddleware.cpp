@@ -103,23 +103,18 @@ namespace express::middleware {
                 }
             },
             [&root = this->root] MIDDLEWARE(req, res, next) {
-                const bool fileAllowed = true;
-                if (fileAllowed) {
-                    const std::string decodedPath = httputils::url_decode(req->path);
-                    res->sendFile(root + decodedPath, [&root, decodedPath, req, res](int ret) {
-                        if (ret == 0) {
-                            LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                                      << " Express StaticMiddleware: GET " << req->url + " -> " << root + decodedPath;
-                        } else {
-                            PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                                        << " Express StaticMiddleware " << req->url + " -> " << root + decodedPath;
+                const std::string decodedPath = httputils::url_decode(req->path);
+                res->sendFile(root + decodedPath, [&root, decodedPath, req, res, &next](int ret) {
+                    if (ret == 0) {
+                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                                  << " Express StaticMiddleware: GET " << req->url + " -> " << root + decodedPath;
+                    } else {
+                        PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
+                                    << req->url + " -> " << root + decodedPath;
 
-                            res->sendStatus(404);
-                        }
-                    });
-                } else {
-                    next();
-                }
+                        next();
+                    }
+                });
             });
     }
 
