@@ -632,7 +632,7 @@ namespace express::dispatcher {
         splitPathAndQuery(absoluteMountPath, mountPath, ignoredMountQuery);
         std::string_view requestPath;
         std::string_view requestQueryString;
-        splitPathAndQuery(controller.getRequest()->originalUrl, requestPath, requestQueryString);
+        splitPathAndQuery(controller.getRequest()->url, requestPath, requestQueryString);
         result.requestQueryPairs = parseQuery(requestQueryString);
 
         // Normalize single trailing slash if not strict
@@ -728,6 +728,15 @@ namespace express::dispatcher {
         std::string_view fullQuery;
         splitPathAndQuery(requestUrl, fullPath, fullQuery);
 
+        // IMPORTANT:
+        // requestUrl may alias req.url. We mutate req.url below, which can reallocate
+        // and invalidate fullQuery/fullPath string_views. Keep an owning copy of the
+        // query part before touching req.url.
+        std::string fullQueryCopy;
+        if (!fullQuery.empty()) {
+            fullQueryCopy.assign(fullQuery.begin(), fullQuery.end());
+        }
+
         // Compute consumed part and remainder (consumedLength refers to the matched prefix in the path).
         const std::size_t cl = std::min<std::size_t>(consumedLength, fullPath.size());
         std::string_view consumed = fullPath.substr(0, cl);
@@ -738,7 +747,7 @@ namespace express::dispatcher {
         if (consumed.size() == 1 && consumed[0] == '/') {
             consumed = {};
         }
-        req.baseUrl.assign(consumed.begin(), consumed.end());
+        req.baseUrl = joinMountPath(backupBaseUrl_, consumed);
 
         // Ensure remainder starts with '/'.
         std::string remPath;
@@ -753,9 +762,9 @@ namespace express::dispatcher {
 
         req.path = remPath;
         req.url = remPath;
-        if (!fullQuery.empty()) {
+        if (!fullQueryCopy.empty()) {
             req.url.push_back('?');
-            req.url.append(fullQuery.begin(), fullQuery.end());
+            req.url.append(fullQueryCopy);
         }
     }
 
@@ -772,10 +781,15 @@ namespace express::dispatcher {
         : req_(&req)
         , backup_(req.params) {
         req.params.clear();
+
         if (mergeWithParent) {
-            req.params.insert(backup_.begin(), backup_.end());
+            for (const auto& [k, v] : backup_) {
+                req.params[k] = v;
+            }
         }
-        req.params.insert(params.begin(), params.end());
+        for (const auto& [k, v] : params) {
+            req.params[k] = v;
+        }
     }
 
     ScopedParams::~ScopedParams() {

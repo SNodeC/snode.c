@@ -109,7 +109,7 @@ namespace express::dispatcher {
         const std::string absoluteMountPath = joinMountPath(parentMountPath, mountPoint.relativeMountPath);
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
-            const MountMatchResult match = matchMountPoint(controller, absoluteMountPath, mountPoint);
+            const MountMatchResult match = matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint);
 
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " HTTP Express: router -> " << (match.requestMatched ? "MATCH" : "NO MATCH");
@@ -132,7 +132,7 @@ namespace express::dispatcher {
                 req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
                 // Express-style mount path stripping is only applied for use()
-                const ScopedPathStrip pathStrip(req, req.originalUrl, match.isPrefix, match.consumedLength);
+                const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
                 const ScopedParams scopedParams(req, match.params, mergeParams);
 
                 const bool oldStrictRouting = controller.setStrictRouting(strictRouting);

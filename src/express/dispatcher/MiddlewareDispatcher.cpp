@@ -76,7 +76,7 @@ namespace express::dispatcher {
         const std::string absoluteMountPath = joinMountPath(parentMountPath, mountPoint.relativeMountPath);
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
-            const MountMatchResult match = matchMountPoint(controller, absoluteMountPath, mountPoint, regex, names);
+            const MountMatchResult match = matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names);
             requestMatched = match.requestMatched;
 
             if (requestMatched && match.decodeError) {
@@ -100,8 +100,8 @@ namespace express::dispatcher {
                 req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
                 // Express-style mount path stripping is only applied for use()
-                const ScopedPathStrip pathStrip(req, req.originalUrl, match.isPrefix, match.consumedLength);
-                const ScopedParams scopedParams(req, match.params, false);
+                const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
+                const ScopedParams scopedParams(req, match.params, true);
 
                 // NOTE: do not run legacy setParams() here; it can overwrite regex-extracted params
                 Next next(controller);
