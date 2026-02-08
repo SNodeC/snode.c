@@ -335,6 +335,7 @@ namespace web::http::server {
                         onStatus(errno);
 
                         if (fd >= 0) {
+                            status(200);
                             set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
                             set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
                             if (httpMajor == 1) {
