@@ -80,7 +80,7 @@ namespace express::dispatcher {
         std::list<express::Route> routes;
 
         bool strictRouting = false;
-        bool caseInsensitiveRouting = false;
+        bool caseInsensitiveRouting = true;
         bool mergeParams = false;
     };
 

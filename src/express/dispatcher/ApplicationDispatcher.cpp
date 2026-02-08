@@ -75,7 +75,7 @@ namespace express::dispatcher {
             return false;
         }
 
-        const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
+        const std::string absoluteMountPath = joinMountPath(parentMountPath, mountPoint.relativeMountPath);
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
             const MountMatchResult match = matchMountPoint(controller, absoluteMountPath, mountPoint, regex, names);
@@ -122,7 +122,7 @@ namespace express::dispatcher {
 
     std::list<std::string>
     ApplicationDispatcher::getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const {
-        std::list<std::string> routes{"A " + parentMountPath + mountPoint.relativeMountPath + (!strictRouting ? "*" : "")};
+        std::list<std::string> routes{"A " + joinMountPath(parentMountPath, mountPoint.relativeMountPath) + (!strictRouting ? "*" : "")};
         routes.push_back("  " + mountPoint.method + " " + mountPoint.relativeMountPath);
 
         if (nextRoute) {

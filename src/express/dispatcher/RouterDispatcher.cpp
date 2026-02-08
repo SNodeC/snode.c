@@ -106,7 +106,7 @@ namespace express::dispatcher {
             return false;
         }
 
-        const std::string absoluteMountPath = parentMountPath + mountPoint.relativeMountPath;
+        const std::string absoluteMountPath = joinMountPath(parentMountPath, mountPoint.relativeMountPath);
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
             const MountMatchResult match = matchMountPoint(controller, absoluteMountPath, mountPoint);

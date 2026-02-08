@@ -593,6 +593,31 @@ namespace express::dispatcher {
         return (mountMethod == "use") || (mountMethod == "all") || (requestMethod == mountMethod);
     }
 
+    std::string joinMountPath(std::string_view parentMountPath, std::string_view relativeMountPath) {
+        if (parentMountPath.empty()) {
+            return std::string(relativeMountPath);
+        }
+        if (relativeMountPath.empty()) {
+            return std::string(parentMountPath);
+        }
+
+        const bool parentSlash = (!parentMountPath.empty() && parentMountPath.back() == '/');
+        const bool relSlash = (!relativeMountPath.empty() && relativeMountPath.front() == '/');
+
+        if (parentSlash && relSlash) {
+            // Special-case root: "/" + "/x" must become "/x", not "//x".
+            if (parentMountPath.size() == 1) {
+                return std::string(relativeMountPath);
+            }
+            return std::string(parentMountPath) + std::string(relativeMountPath.substr(1));
+        }
+        if (!parentSlash && !relSlash) {
+            return std::string(parentMountPath) + "/" + std::string(relativeMountPath);
+        }
+        return std::string(parentMountPath) + std::string(relativeMountPath);
+    }
+
+
     static MountMatchResult matchMountPointImpl(express::Controller& controller,
                                                 const std::string& absoluteMountPath,
                                                 const express::MountPoint& mountPoint,
