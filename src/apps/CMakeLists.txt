@@ -57,6 +57,19 @@ install(TARGETS snode.c RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                 COMPONENT apps
 )
 
+add_executable(express-compat-server express_compat_server.cpp)
+target_link_libraries(
+    express-compat-server PUBLIC core http-server-express net-in-stream-legacy
+)
+set_target_properties(
+    express-compat-server PROPERTIES INSTALL_RPATH
+                                 "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+)
+install(TARGETS express-compat-server RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                     COMPONENT apps
+)
+
+
 add_executable(testpost testpost.cpp)
 target_link_libraries(
     testpost PRIVATE http-server-express net-in-stream-legacy net-in-stream-tls
