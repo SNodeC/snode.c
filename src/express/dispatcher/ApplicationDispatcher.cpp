@@ -101,9 +101,17 @@ namespace express::dispatcher {
                 auto& req = *controller.getRequest();
                 req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
+                for (auto& param : req.params) {
+                    VLOG(0) << " Application first ---+++ " << param.first << " - " << param.second;
+                }
+
                 // Express-style mount path stripping is only applied for use()
                 const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
-                const ScopedParams scopedParams(req, match.params, true);
+                const ScopedParams scopedParams(req, match.params, controller.getMergeParams());
+
+                for (auto& param : req.params) {
+                    VLOG(0) << " Application second ---+++ " << param.first << " - " << param.second;
+                }
 
                 // NOTE: do not run legacy setParams() here; it can overwrite regex-extracted params
                 lambda(controller.getRequest(), controller.getResponse());

@@ -172,4 +172,16 @@ namespace express {
         return caseInsensitiveRouting;
     }
 
+    bool Controller::setMergeParams(bool mergeParams) {
+        const bool oldMergeParams = this->mergeParams;
+
+        this->mergeParams = mergeParams;
+
+        return oldMergeParams;
+    }
+
+    bool Controller::getMergeParams() const {
+        return mergeParams;
+    }
+
 } // namespace express

@@ -84,21 +84,15 @@ namespace express {
     bool Route::dispatch(Controller& controller, const std::string& parentMountPath) {
         controller.setCurrentRoute(this);
 
-        const bool originalIsInherit = strictRouting == StrictRouting::INHERIT;
-
-        if (originalIsInherit) {
-            strictRouting = controller.getStrictRouting() ? StrictRouting::STRICT : StrictRouting::LAX;
-        }
-
-        const bool oldStrictRouting = controller.setStrictRouting(strictRouting == StrictRouting::STRICT);
+        const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
+        const bool oldCaseInsensitiveRouting = controller.setCaseInsensitiveRouting(caseInsensitiveRouting);
+        const bool oldMergeParams = controller.setMergeParams(mergeParams);
 
         bool dispatched = dispatcher->dispatch(controller, parentMountPath, mountPoint);
 
         controller.setStrictRouting(oldStrictRouting);
-
-        if (originalIsInherit) {
-            strictRouting = StrictRouting::INHERIT;
-        }
+        controller.setCaseInsensitiveRouting(oldCaseInsensitiveRouting);
+        controller.setMergeParams(oldMergeParams);
 
         if (!dispatched) { // TODO: only call if parent route matched
             dispatched = controller.dispatchNext(parentMountPath);
@@ -112,20 +106,37 @@ namespace express {
     }
 
     std::list<std::string> Route::getRoute(const std::string& parentMountPath, bool strictRouting) const {
-        const bool concreteStrictRouting =
-            this->strictRouting == StrictRouting::INHERIT ? strictRouting : this->strictRouting == StrictRouting::STRICT;
-
-        return dispatcher->getRoutes(parentMountPath, mountPoint, concreteStrictRouting);
+        return dispatcher->getRoutes(parentMountPath, mountPoint, strictRouting);
     }
 
-    Route& Route::setStrictRouting(bool strict) {
-        this->strictRouting = strict ? StrictRouting::STRICT : StrictRouting::LAX;
+    Route& Route::setStrictRouting(bool strictRouting) {
+        this->strictRouting = strictRouting;
 
         return *this;
     }
 
-    const Route::StrictRouting& Route::getStrictRouting() const {
+    bool Route::getStrictRouting() const {
         return strictRouting;
+    }
+
+    Route& Route::setCaseInsensitiveRouting(bool caseInsensitiveRouting) {
+        this->caseInsensitiveRouting = caseInsensitiveRouting;
+
+        return *this;
+    }
+
+    bool Route::getCaseInsensitiveRouting() const {
+        return caseInsensitiveRouting;
+    }
+
+    Route& Route::setMergeParams(bool mergeParams) {
+        this->mergeParams = mergeParams;
+
+        return *this;
+    }
+
+    bool Route::getMergeParams() const {
+        return mergeParams;
     }
 
     DEFINE_ROUTE_REQUESTMETHOD(use, "use")

@@ -279,7 +279,8 @@ namespace express::dispatcher {
 
         return out;
     }
-    static bool matchAndFillParamsAndConsume(const std::regex& rx,
+
+    inline bool matchAndFillParamsAndConsume(const std::regex& rx,
                                              const std::vector<std::string>& names,
                                              std::string_view reqPath,
                                              std::map<std::string, std::string>& params,
@@ -616,7 +617,6 @@ namespace express::dispatcher {
         }
         return std::string(parentMountPath) + std::string(relativeMountPath);
     }
-
 
     static MountMatchResult matchMountPointImpl(express::Controller& controller,
                                                 const std::string& absoluteMountPath,

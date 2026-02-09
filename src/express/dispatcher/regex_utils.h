@@ -87,7 +87,6 @@ namespace express::dispatcher {
     MountMatchResult
     matchMountPoint(express::Controller& controller, const std::string& absoluteMountPath, const express::MountPoint& mountPoint);
 
-
     // Join parent + relative mount paths without producing double slashes.
     // Examples:
     //   joinMountPath("", "/api") -> "/api"

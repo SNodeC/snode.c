@@ -63,40 +63,6 @@ namespace express::dispatcher {
         return routes;
     }
 
-    bool RouterDispatcher::setStrictRouting(bool strictRouting) {
-        const bool oldStrictRouting = this->strictRouting;
-
-        this->strictRouting = strictRouting;
-
-        return oldStrictRouting;
-    }
-
-    bool RouterDispatcher::getStrictRouting() const {
-        return strictRouting;
-    }
-
-    bool RouterDispatcher::setCaseInsensitiveRouting(bool caseInsensitiveRouting) {
-        const bool oldCaseInsensitiveRouting = this->caseInsensitiveRouting;
-
-        this->caseInsensitiveRouting = caseInsensitiveRouting;
-
-        return oldCaseInsensitiveRouting;
-    }
-
-    bool RouterDispatcher::getCaseInsensitiveRouting() const {
-        return caseInsensitiveRouting;
-    }
-
-    bool RouterDispatcher::setMergeParams(bool mergeParams) {
-        const bool oldMergeParams = this->mergeParams;
-        this->mergeParams = mergeParams;
-        return oldMergeParams;
-    }
-
-    bool RouterDispatcher::getMergeParams() const {
-        return mergeParams;
-    }
-
     bool
     RouterDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) {
         bool dispatched = false;
@@ -131,12 +97,20 @@ namespace express::dispatcher {
                 auto& req = *controller.getRequest();
                 req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
+                for (auto& param : req.params) {
+                    VLOG(0) << " RouterDispatcher second ---+++ " << param.first << " - " << param.second;
+                }
+
                 // Express-style mount path stripping is only applied for use()
                 const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
-                const ScopedParams scopedParams(req, match.params, mergeParams);
+                const ScopedParams scopedParams(req, match.params, controller.getMergeParams());
 
-                const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
-                const bool oldCaseInsensitiveRouting = controller.setCaseInsensitiveRouting(caseInsensitiveRouting);
+                for (auto& param : req.params) {
+                    VLOG(0) << " RouterDispatcher second ---+++ " << param.first << " - " << param.second;
+                }
+
+                //                const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
+                //                const bool oldCaseInsensitiveRouting = controller.setCaseInsensitiveRouting(caseInsensitiveRouting);
 
                 for (Route& route : routes) {
                     dispatched = route.dispatch(controller, absoluteMountPath);
@@ -151,8 +125,8 @@ namespace express::dispatcher {
                     }
                 }
 
-                controller.setCaseInsensitiveRouting(oldCaseInsensitiveRouting);
-                controller.setStrictRouting(oldStrictRouting);
+                //                controller.setCaseInsensitiveRouting(oldCaseInsensitiveRouting);
+                //                controller.setStrictRouting(oldStrictRouting);
             }
         } else {
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
@@ -167,7 +141,7 @@ namespace express::dispatcher {
     }
 
     std::list<std::string> RouterDispatcher::getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint) const {
-        return getRoutes(parentMountPath, mountPoint, strictRouting);
+        return getRoutes(parentMountPath, mountPoint, false);
     }
 
     std::list<std::string>
@@ -175,9 +149,8 @@ namespace express::dispatcher {
         std::list<std::string> collectedRoutes;
 
         for (const Route& route : routes) {
-            collectedRoutes.splice(
-                collectedRoutes.end(),
-                route.getRoute(parentMountPath + "$" + mountPoint.relativeMountPath + "$", this->strictRouting ? true : strictRouting));
+            collectedRoutes.splice(collectedRoutes.end(),
+                                   route.getRoute(parentMountPath + "$" + mountPoint.relativeMountPath + "$", strictRouting));
         }
 
         return collectedRoutes;
