@@ -55,14 +55,22 @@
 #define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                    \
     Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda)      \
         const {                                                                                                                            \
-        return *(dispatcher->nextRoute = std::make_shared<Route>(                                                                          \
-                     HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)))               \
-                    .get();                                                                                                                \
+        return (dispatcher->nextRoute = std::make_shared<Route>(                                                                           \
+                    HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)))                \
+            .get()                                                                                                                         \
+            ->setStrictRouting(strictRouting)                                                                                              \
+            .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
+            .setMergeParams(mergeParams);                                                                                                  \
+        ;                                                                                                                                  \
     }                                                                                                                                      \
     Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda) const {     \
-        return *(dispatcher->nextRoute = std::make_shared<Route>(                                                                          \
-                     HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda)))              \
-                    .get();                                                                                                                \
+        return (dispatcher->nextRoute = std::make_shared<Route>(                                                                           \
+                    HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda)))               \
+            .get()                                                                                                                         \
+            ->setStrictRouting(strictRouting)                                                                                              \
+            .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
+            .setMergeParams(mergeParams);                                                                                                  \
+        ;                                                                                                                                  \
     }
 
 namespace express {
