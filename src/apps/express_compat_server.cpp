@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
 
     const express::legacy::in::WebApp app("express-compat");
 
-#ifdef DO
+    // #ifdef DO
     // Meta
     app.get("/__meta", [] APPLICATION(req, res) {
         res->json({{"ok", true}, {"server", "snodec"}, {"express", true}});
@@ -199,11 +199,12 @@ int main(int argc, char* argv[]) {
     });
     app.use("/mp/nomerge/t/:tenant", mpNoMerge);
 
-#endif
+    // #endif
 
     // Params scoping trace: merge vs no-merge
     auto makeScope = [](bool merge) {
         const Router parent;
+        parent.setMergeParams();
         parent.use([merge](auto const& req, auto const&, auto& next) {
             tracePush(req, merge ? "scopeMerge.parent" : "scopeNoMerge.parent");
             VLOG(0) << "############# 1";
