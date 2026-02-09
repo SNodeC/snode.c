@@ -1,0 +1,16 @@
+[
+  {
+    "id": "merge_params_disabled",
+    "method": "GET",
+    "path": "/mp/nomerge/t/acme/users/42",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "mp_nomerge",
+        "params": {
+          "id": "42"
+        }
+      }
+    }
+  }
+]

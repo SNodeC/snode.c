@@ -1,0 +1,408 @@
+[
+  {
+    "id": "health",
+    "method": "GET",
+    "path": "/health",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "health",
+        "ok": true
+      }
+    }
+  },
+  {
+    "id": "case_insensitive",
+    "method": "GET",
+    "path": "/case/path?x=1",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "case",
+        "path": "/case/path",
+        "query": {
+          "x": "1"
+        }
+      }
+    }
+  },
+  {
+    "id": "trail_no_slash",
+    "method": "GET",
+    "path": "/trail",
+    "map_to": "/trail",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "trail"
+      }
+    }
+  },
+  {
+    "id": "trail_with_slash",
+    "method": "GET",
+    "path": "/trail/",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "trail"
+      }
+    }
+  },
+  {
+    "id": "wildcard_single",
+    "method": "GET",
+    "path": "/file/a/b/c",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "file",
+        "params": {
+          "0": "a/b/c"
+        }
+      }
+    }
+  },
+  {
+    "id": "wildcard_multi",
+    "method": "GET",
+    "path": "/a/one/two/b/three/four",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "multi_wild",
+        "params": {
+          "0": "one/two",
+          "1": "three/four"
+        }
+      }
+    }
+  },
+  {
+    "id": "param_decode_slash",
+    "method": "GET",
+    "path": "/p/a%2Fb",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "param",
+        "params": {
+          "x": "a/b"
+        }
+      }
+    }
+  },
+  {
+    "id": "param_decode_space",
+    "method": "GET",
+    "path": "/p/hello%20world",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "param",
+        "params": {
+          "x": "hello world"
+        }
+      }
+    }
+  },
+  {
+    "id": "query_decode_plus",
+    "method": "GET",
+    "path": "/query/echo?q=hello+world",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "query_echo",
+        "query": {
+          "q": "hello world"
+        }
+      }
+    }
+  },
+  {
+    "id": "query_decode_percent",
+    "method": "GET",
+    "path": "/query/echo?raw=a%2Fb",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "query_echo",
+        "query": {
+          "raw": "a/b"
+        }
+      }
+    }
+  },
+  {
+    "id": "query_key_casing",
+    "method": "GET",
+    "path": "/query/echo?A=1&a=2",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "query_echo",
+        "query": {
+          "A": "1",
+          "a": "2"
+        }
+      }
+    }
+  },
+  {
+    "id": "get_head_demo",
+    "method": "GET",
+    "path": "/head-demo",
+    "expect": {
+      "status": 200,
+      "headers": {
+        "x-demo": "1"
+      },
+      "body": "head body"
+    }
+  },
+  {
+    "id": "head_head_demo",
+    "method": "HEAD",
+    "path": "/head-demo",
+    "expect": {
+      "status": 200,
+      "headers": {
+        "x-demo": "1"
+      },
+      "body": ""
+    }
+  },
+  {
+    "id": "next_route_primary",
+    "method": "GET",
+    "path": "/nr/1",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "nr_primary",
+        "params": {
+          "id": "1"
+        }
+      }
+    }
+  },
+  {
+    "id": "next_route_fallback",
+    "method": "GET",
+    "path": "/nr/0",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "nr_fallback",
+        "params": {
+          "id": "0"
+        }
+      }
+    }
+  },
+  {
+    "id": "next_router_skipped",
+    "method": "GET",
+    "path": "/guarded/stats",
+    "expect": {
+      "status": 403,
+      "json": {
+        "label": "guarded_fallback",
+        "status": 403
+      }
+    }
+  },
+  {
+    "id": "next_router_allowed",
+    "method": "GET",
+    "path": "/guarded/stats?allow=true",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "guarded_stats",
+        "query": {
+          "allow": "true"
+        }
+      }
+    }
+  },
+  {
+    "id": "root_mount_baseurl",
+    "method": "GET",
+    "path": "/root/test?x=1",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "root_mount",
+        "baseUrl": "",
+        "url": "/root/test?x=1",
+        "originalUrl": "/root/test?x=1",
+        "path": "/root/test",
+        "query": {
+          "x": "1"
+        }
+      }
+    }
+  },
+  {
+    "id": "nested_router_trace",
+    "method": "GET",
+    "path": "/api/v1/users/42?x=1&X=2",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "nested_trace",
+        "trace": [
+          {
+            "label": "api.use",
+            "baseUrl": "/api",
+            "url": "/v1/users/42?x=1&X=2",
+            "originalUrl": "/api/v1/users/42?x=1&X=2",
+            "path": "/v1/users/42",
+            "params": {},
+            "query": {
+              "x": "1",
+              "X": "2"
+            }
+          },
+          {
+            "label": "v1.use",
+            "baseUrl": "/api/v1",
+            "url": "/users/42?x=1&X=2",
+            "originalUrl": "/api/v1/users/42?x=1&X=2",
+            "path": "/users/42",
+            "params": {},
+            "query": {
+              "x": "1",
+              "X": "2"
+            }
+          },
+          {
+            "label": "handler",
+            "baseUrl": "/api/v1",
+            "url": "/users/42?x=1&X=2",
+            "originalUrl": "/api/v1/users/42?x=1&X=2",
+            "path": "/users/42",
+            "params": {
+              "id": "42"
+            },
+            "query": {
+              "x": "1",
+              "X": "2"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "merge_params_enabled",
+    "method": "GET",
+    "path": "/mp/merge/t/acme/users/42",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "mp_merge",
+        "params": {
+          "tenant": "acme",
+          "id": "42"
+        }
+      }
+    }
+  },
+  {
+    "id": "merge_params_disabled",
+    "method": "GET",
+    "path": "/mp/nomerge/t/acme/users/42",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "mp_nomerge",
+        "params": {
+          "id": "42"
+        }
+      }
+    }
+  },
+  {
+    "id": "scope_trace_nomerge",
+    "method": "GET",
+    "path": "/scope/nomerge/AAA/b/BBB/end",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "scope_nomerge",
+        "trace": [
+          {
+            "label": "scopeNoMerge.parent",
+            "params": {
+              "a": "AAA"
+            }
+          },
+          {
+            "label": "scopeNoMerge.child",
+            "params": {}
+          },
+          {
+            "label": "scopeNoMerge.handler",
+            "params": {}
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "scope_trace_merge",
+    "method": "GET",
+    "path": "/scope/merge/AAA/b/BBB/end",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "scope_merge",
+        "trace": [
+          {
+            "label": "scopeMerge.parent",
+            "params": {
+              "a": "AAA"
+            }
+          },
+          {
+            "label": "scopeMerge.child",
+            "params": {
+              "a": "AAA",
+              "b": "BBB"
+            }
+          },
+          {
+            "label": "scopeMerge.handler",
+            "params": {
+              "a": "AAA",
+              "b": "BBB"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "decode_invalid_percent",
+    "method": "GET",
+    "path": "/decode/%E0%A4%A",
+    "expect": {
+      "status": 400
+    }
+  },
+  {
+    "id": "not_found",
+    "method": "GET",
+    "path": "/no-such-route",
+    "expect": {
+      "status": 404,
+      "json": {
+        "label": "not_found",
+        "path": "/no-such-route"
+      }
+    }
+  }
+]

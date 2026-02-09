@@ -1,0 +1,29 @@
+[
+  {
+    "id": "scope_trace_merge",
+    "method": "GET",
+    "path": "/scope/nomerge/AAA/b/BBB/end",
+    "expect": {
+      "status": 200,
+      "json": {
+        "label": "scope_nomerge",
+        "trace": [
+          {
+            "label": "scopeNoMerge.parent",
+            "params": {
+              "a": "AAA"
+            }
+          },
+          {
+            "label": "scopeNoMerge.child",
+            "params": {}
+          },
+          {
+            "label": "scopeNoMerge.handler",
+            "params": {}
+          }
+        ]
+      }
+    }
+  }
+]
