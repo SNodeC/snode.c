@@ -66,9 +66,9 @@ namespace express::dispatcher {
     bool RouterDispatcher::dispatch(express::Controller& controller,
                                     const std::string& parentMountPath,
                                     const express::MountPoint& mountPointm,
-                                    [[maybe_unused]] bool strictRouting,
-                                    [[maybe_unused]] bool caseInsensitiveRouting,
-                                    [[maybe_unused]] bool mergeParams) {
+                                    bool strictRouting,
+                                    bool caseInsensitiveRouting,
+                                    bool mergeParams) {
         bool dispatched = false;
 
         const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPointm.method);
@@ -82,6 +82,7 @@ namespace express::dispatcher {
             const MountMatchResult match =
                 matchMountPoint(controller, mountPointm.relativeMountPath, mountPointm, strictRouting, caseInsensitiveRouting);
 
+            LOG(TRACE) << "========================= Router      =========================";
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " HTTP Express: router -> " << (match.requestMatched ? "MATCH" : "NO MATCH");
             LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
@@ -92,6 +93,7 @@ namespace express::dispatcher {
             LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
             LOG(TRACE) << "           StrictRouting: " << strictRouting;
             LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
+            LOG(TRACE) << "             MergeParams: " << mergeParams;
 
             if (match.requestMatched && match.decodeError) {
                 controller.getResponse()->sendStatus(400);
@@ -102,20 +104,9 @@ namespace express::dispatcher {
                 auto& req = *controller.getRequest();
                 req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
-                for (auto& param : req.params) {
-                    VLOG(0) << " RouterDispatcher second ---+++ " << param.first << " - " << param.second;
-                }
-
                 // Express-style mount path stripping is only applied for use()
                 const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
                 const ScopedParams scopedParams(req, match.params, mergeParams);
-
-                for (auto& param : req.params) {
-                    VLOG(0) << " RouterDispatcher second ---+++ " << param.first << " - " << param.second;
-                }
-
-                //                const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
-                //                const bool oldCaseInsensitiveRouting = controller.setCaseInsensitiveRouting(caseInsensitiveRouting);
 
                 for (Route& route : routes) {
                     dispatched = route.dispatch(controller, absoluteMountPath);
@@ -129,11 +120,9 @@ namespace express::dispatcher {
                         break;
                     }
                 }
-
-                //                controller.setCaseInsensitiveRouting(oldCaseInsensitiveRouting);
-                //                controller.setStrictRouting(oldStrictRouting);
             }
         } else {
+            LOG(TRACE) << "========================= Router      =========================";
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " HTTP Express: router -> next(...) called";
             LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;

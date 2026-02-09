@@ -84,15 +84,7 @@ namespace express {
     bool Route::dispatch(Controller& controller, const std::string& parentMountPath) {
         controller.setCurrentRoute(this);
 
-        //        const bool oldStrictRouting = controller.setStrictRouting(strictRouting);
-        //        const bool oldCaseInsensitiveRouting = controller.setCaseInsensitiveRouting(caseInsensitiveRouting);
-        //        const bool oldMergeParams = controller.setMergeParams(mergeParams);
-
         bool dispatched = dispatcher->dispatch(controller, parentMountPath, mountPoint, strictRouting, caseInsensitiveRouting, mergeParams);
-
-        //        controller.setStrictRouting(oldStrictRouting);
-        //        controller.setCaseInsensitiveRouting(oldCaseInsensitiveRouting);
-        //        controller.setMergeParams(oldMergeParams);
 
         if (!dispatched) { // TODO: only call if parent route matched
             dispatched = controller.dispatchNext(parentMountPath);

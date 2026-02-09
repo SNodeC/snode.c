@@ -147,42 +147,5 @@ namespace express {
 
         return dispatched;
     }
-    /*
-        bool Controller::setStrictRouting(bool strictRouting) {
-            const bool oldStrictRouting = this->strictRouting;
-
-            this->strictRouting = strictRouting;
-
-            return oldStrictRouting;
-        }
-
-        bool Controller::getStrictRouting() const {
-            return strictRouting;
-        }
-
-        bool Controller::setCaseInsensitiveRouting(bool caseInsensitiveRouting) {
-            const bool oldCaseInsensitiveRouting = this->caseInsensitiveRouting;
-
-            this->caseInsensitiveRouting = caseInsensitiveRouting;
-
-            return oldCaseInsensitiveRouting;
-        }
-
-        bool Controller::getCaseInsensitiveRouting() const {
-            return caseInsensitiveRouting;
-        }
-
-        bool Controller::setMergeParams(bool mergeParams) {
-            const bool oldMergeParams = this->mergeParams;
-
-            this->mergeParams = mergeParams;
-
-            return oldMergeParams;
-        }
-
-        bool Controller::getMergeParams() const {
-            return mergeParams;
-        }
-    */
 
 } // namespace express

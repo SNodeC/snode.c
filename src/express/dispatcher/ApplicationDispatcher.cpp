@@ -68,9 +68,9 @@ namespace express::dispatcher {
     bool ApplicationDispatcher::dispatch(express::Controller& controller,
                                          const std::string& parentMountPath,
                                          const express::MountPoint& mountPoint,
-                                         [[maybe_unused]] bool strictRouting,
-                                         [[maybe_unused]] bool caseInsensitiveRouting,
-                                         [[maybe_unused]] bool mergeParams) {
+                                         bool strictRouting,
+                                         bool caseInsensitiveRouting,
+                                         bool mergeParams) {
         bool requestMatched = false;
 
         const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
@@ -90,6 +90,7 @@ namespace express::dispatcher {
                 return true;
             }
 
+            LOG(TRACE) << "========================= APPLICATION =========================";
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " HTTP Express: application -> " << (requestMatched ? "MATCH" : "NO MATCH");
             LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
@@ -100,27 +101,21 @@ namespace express::dispatcher {
             LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
             LOG(TRACE) << "           StrictRouting: " << strictRouting;
             LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
+            LOG(TRACE) << "             MergeParams: " << mergeParams;
 
             if (requestMatched) {
                 auto& req = *controller.getRequest();
                 req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
-                for (auto& param : req.params) {
-                    VLOG(0) << " Application first ---+++ " << param.first << " - " << param.second;
-                }
-
                 // Express-style mount path stripping is only applied for use()
                 const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
                 const ScopedParams scopedParams(req, match.params, mergeParams);
-
-                for (auto& param : req.params) {
-                    VLOG(0) << " Application second ---+++ " << param.first << " - " << param.second;
-                }
 
                 // NOTE: do not run legacy setParams() here; it can overwrite regex-extracted params
                 lambda(controller.getRequest(), controller.getResponse());
             }
         } else {
+            LOG(TRACE) << "========================= APPLICATION =========================";
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " HTTP Express: application -> next(...) called";
             LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;

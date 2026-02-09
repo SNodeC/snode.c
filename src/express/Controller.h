@@ -82,16 +82,7 @@ namespace express {
         void next(const std::string& how) const;
         bool nextRouterCalled();
         bool dispatchNext(const std::string& parentMountPath);
-        /*
-                bool setStrictRouting(bool strictRouting);
-                bool getStrictRouting() const;
 
-                bool setCaseInsensitiveRouting(bool caseInsensitiveRouting);
-                bool getCaseInsensitiveRouting() const;
-
-                bool setMergeParams(bool mergeParams);
-                bool getMergeParams() const;
-        */
         enum Flags { NONE = 0, NEXT = 1 << 0, NEXT_ROUTE = 1 << 1, NEXT_ROUTER = 1 << 2 };
 
     private:
@@ -102,10 +93,6 @@ namespace express {
 
         mutable Route* lastRoute = nullptr;
         Route* currentRoute = nullptr;
-
-        bool strictRouting = false;
-        bool caseInsensitiveRouting = true;
-        bool mergeParams = false;
 
         unsigned long lastTick = 0;
 

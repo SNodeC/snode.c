@@ -60,14 +60,14 @@
             .emplace_back(HTTP_METHOD, "", rootRoute.getDispatcher())                                                                      \
             .setStrictRouting(strictRouting)                                                                                               \
             .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
-            .setMergeParams(mergeParams);                                                                                                  \
+            .setMergeParams(rootRoute.mergeParams);                                                                                        \
     }                                                                                                                                      \
     Route& RootRoute::METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute) const {                                     \
         return routes()                                                                                                                    \
             .emplace_back(HTTP_METHOD, relativeMountPath, rootRoute.getDispatcher())                                                       \
             .setStrictRouting(strictRouting)                                                                                               \
             .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
-            .setMergeParams(mergeParams);                                                                                                  \
+            .setMergeParams(rootRoute.mergeParams);                                                                                        \
     }                                                                                                                                      \
     Route& RootRoute::METHOD(const std::string& relativeMountPath,                                                                         \
                              const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda)  \
