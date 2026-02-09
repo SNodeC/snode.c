@@ -65,7 +65,12 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    bool MiddlewareDispatcher::dispatch(express::Controller& controller, const std::string& parentMountPath, const MountPoint& mountPoint) {
+    bool MiddlewareDispatcher::dispatch(express::Controller& controller,
+                                        const std::string& parentMountPath,
+                                        const MountPoint& mountPoint,
+                                        [[maybe_unused]] bool strictRouting,
+                                        [[maybe_unused]] bool caseInsensitiveRouting,
+                                        [[maybe_unused]] bool mergeParams) {
         bool requestMatched = false;
 
         const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
@@ -76,7 +81,8 @@ namespace express::dispatcher {
         const std::string absoluteMountPath = joinMountPath(parentMountPath, mountPoint.relativeMountPath);
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
-            const MountMatchResult match = matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names);
+            const MountMatchResult match =
+                matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
             requestMatched = match.requestMatched;
 
             if (requestMatched && match.decodeError) {
@@ -92,8 +98,8 @@ namespace express::dispatcher {
             LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
             LOG(TRACE) << " Mountpoint RelativePath: " << mountPoint.relativeMountPath;
             LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
-            LOG(TRACE) << "           StrictRouting: " << controller.getStrictRouting();
-            LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
+            LOG(TRACE) << "           StrictRouting: " << strictRouting;
+            LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
 
             if (requestMatched) {
                 auto& req = *controller.getRequest();
@@ -105,7 +111,7 @@ namespace express::dispatcher {
 
                 // Express-style mount path stripping is only applied for use()
                 const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
-                const ScopedParams scopedParams(req, match.params, controller.getMergeParams());
+                const ScopedParams scopedParams(req, match.params, mergeParams);
 
                 for (auto& param : req.params) {
                     VLOG(0) << " Middleware second ---+++ " << param.first << " - " << param.second;

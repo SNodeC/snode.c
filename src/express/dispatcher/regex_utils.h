@@ -84,8 +84,11 @@ namespace express::dispatcher {
         std::unordered_map<std::string, std::string> requestQueryPairs;
     };
 
-    MountMatchResult
-    matchMountPoint(express::Controller& controller, const std::string& absoluteMountPath, const express::MountPoint& mountPoint);
+    MountMatchResult matchMountPoint(express::Controller& controller,
+                                     const std::string& absoluteMountPath,
+                                     const express::MountPoint& mountPoint,
+                                     bool strictRouting,
+                                     bool caseInsensitiveRouting);
 
     // Join parent + relative mount paths without producing double slashes.
     // Examples:
@@ -98,7 +101,9 @@ namespace express::dispatcher {
                                      const std::string& absoluteMountPath,
                                      const express::MountPoint& mountPoint,
                                      std::regex& cachedRegex,
-                                     std::vector<std::string>& cachedNames);
+                                     std::vector<std::string>& cachedNames,
+                                     bool strictRouting,
+                                     bool caseInsensitiveRouting);
 
     class ScopedPathStrip {
     public:

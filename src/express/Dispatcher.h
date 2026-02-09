@@ -70,7 +70,12 @@ namespace express {
 
         virtual ~Dispatcher();
 
-        virtual bool dispatch(Controller& controller, const std::string& parentMountPath, const MountPoint& mountPoint) = 0;
+        virtual bool dispatch(Controller& controller,
+                              const std::string& parentMountPath,
+                              const MountPoint& mountPoint,
+                              bool strictRouting,
+                              bool caseInsensitiveRouting,
+                              bool mergeParams) = 0;
         bool dispatchNext(Controller& controller, const std::string& parentMountPath);
 
         virtual std::list<std::string>

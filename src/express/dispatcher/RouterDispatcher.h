@@ -64,7 +64,12 @@ namespace express::dispatcher {
         std::list<std::string> getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint) const;
 
     private:
-        bool dispatch(express::Controller& controller, const std::string& parentMountPath, const express::MountPoint& mountPoint) override;
+        bool dispatch(express::Controller& controller,
+                      const std::string& parentMountPath,
+                      const express::MountPoint& mountPointm,
+                      bool strictRouting,
+                      bool caseInsensitiveRouting,
+                      bool mergeParams) override;
         std::list<std::string>
         getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const override;
 

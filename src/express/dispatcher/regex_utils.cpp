@@ -622,7 +622,9 @@ namespace express::dispatcher {
                                                 const std::string& absoluteMountPath,
                                                 const express::MountPoint& mountPoint,
                                                 std::regex* cachedRegex,
-                                                std::vector<std::string>* cachedNames) {
+                                                std::vector<std::string>* cachedNames,
+                                                bool strictRouting,
+                                                bool caseInsensitiveRouting) {
         MountMatchResult result;
         result.isPrefix = (mountPoint.method == "use");
 
@@ -636,7 +638,7 @@ namespace express::dispatcher {
         result.requestQueryPairs = parseQuery(requestQueryString);
 
         // Normalize single trailing slash if not strict
-        if (!controller.getStrictRouting()) {
+        if (!strictRouting) {
             mountPath = trimOneTrailingSlash(mountPath);
             requestPath = trimOneTrailingSlash(requestPath);
         }
@@ -656,8 +658,8 @@ namespace express::dispatcher {
                 if (cachedNames->empty()) {
                     auto compiled = compileParamRegex(mountPath,
                                                       /*isPrefix*/ result.isPrefix,
-                                                      controller.getStrictRouting(),
-                                                      controller.getCaseInsensitiveRouting());
+                                                      strictRouting,
+                                                      caseInsensitiveRouting);
                     *cachedRegex = std::move(compiled.first);
                     *cachedNames = std::move(compiled.second);
                 }
@@ -665,8 +667,8 @@ namespace express::dispatcher {
             } else {
                 auto [rx, names] = compileParamRegex(mountPath,
                                                      /*isPrefix*/ result.isPrefix,
-                                                     controller.getStrictRouting(),
-                                                     controller.getCaseInsensitiveRouting());
+                                                     strictRouting,
+                                                     caseInsensitiveRouting);
                 pathMatches = matchAndFillParamsAndConsume(rx, names, requestPath, result.params, matchLen, decodeError);
             }
 
@@ -680,13 +682,13 @@ namespace express::dispatcher {
         } else {
             if (result.isPrefix) {
                 // Literal boundary prefix
-                pathMatches = boundaryPrefix(requestPath, mountPath, controller.getCaseInsensitiveRouting());
+                pathMatches = boundaryPrefix(requestPath, mountPath, caseInsensitiveRouting);
                 if (pathMatches) {
                     result.consumedLength = (mountPath.size() == 1 && mountPath[0] == '/') ? 0 : mountPath.size();
                 }
             } else {
                 // End-anchored equality
-                pathMatches = equalPath(requestPath, mountPath, controller.getCaseInsensitiveRouting());
+                pathMatches = equalPath(requestPath, mountPath, caseInsensitiveRouting);
             }
         }
 
@@ -695,17 +697,23 @@ namespace express::dispatcher {
         return result;
     }
 
-    MountMatchResult
-    matchMountPoint(express::Controller& controller, const std::string& absoluteMountPath, const express::MountPoint& mountPoint) {
-        return matchMountPointImpl(controller, absoluteMountPath, mountPoint, nullptr, nullptr);
+    MountMatchResult matchMountPoint(express::Controller& controller,
+                                     const std::string& absoluteMountPath,
+                                     const express::MountPoint& mountPoint,
+                                     bool strictRouting,
+                                     bool caseInsensitiveRouting) {
+        return matchMountPointImpl(controller, absoluteMountPath, mountPoint, nullptr, nullptr, strictRouting, caseInsensitiveRouting);
     }
 
     MountMatchResult matchMountPoint(express::Controller& controller,
                                      const std::string& absoluteMountPath,
                                      const express::MountPoint& mountPoint,
                                      std::regex& cachedRegex,
-                                     std::vector<std::string>& cachedNames) {
-        return matchMountPointImpl(controller, absoluteMountPath, mountPoint, &cachedRegex, &cachedNames);
+                                     std::vector<std::string>& cachedNames,
+                                     bool strictRouting,
+                                     bool caseInsensitiveRouting) {
+        return matchMountPointImpl(
+            controller, absoluteMountPath, mountPoint, &cachedRegex, &cachedNames, strictRouting, caseInsensitiveRouting);
     }
 
     ScopedPathStrip::ScopedPathStrip(express::Request& req, std::string_view requestUrl, bool enabled, std::size_t consumedLength)
