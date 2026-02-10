@@ -80,7 +80,6 @@ namespace express {
     protected:
         std::shared_ptr<Route> nextRoute = nullptr;
 
-    private:
         friend class Route;
     };
 

@@ -61,10 +61,6 @@ namespace express::dispatcher {
 
     class RouterDispatcher : public express::Dispatcher {
     public:
-        std::list<express::Route>& getRoutes();
-
-        std::list<std::string> getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint) const;
-
         RouterDispatcher& setStrictRouting(bool strictRouting);
         bool getStrictRouting() const;
 
@@ -73,6 +69,10 @@ namespace express::dispatcher {
 
         RouterDispatcher& setMergeParams(bool mergeParams);
         bool getMergeParams() const;
+
+        std::list<express::Route>& getRoutes();
+
+        std::list<std::string> getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint) const;
 
     private:
         bool dispatch(express::Controller& controller,
