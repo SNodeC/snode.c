@@ -66,9 +66,9 @@ namespace express::dispatcher {
     bool RouterDispatcher::dispatch(express::Controller& controller,
                                     const std::string& parentMountPath,
                                     const express::MountPoint& mountPointm,
-                                    [[maybe_unused]] bool strictRouting,
-                                    [[maybe_unused]] bool caseInsensitiveRouting,
-                                    [[maybe_unused]] bool mergeParams) {
+                                    [[maybe_unused]] bool strictRoutingUnused,
+                                    [[maybe_unused]] bool caseInsensitiveRoutingUnused,
+                                    [[maybe_unused]] bool mergeParamsUnused) {
         bool dispatched = false;
 
         const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPointm.method);
@@ -82,6 +82,11 @@ namespace express::dispatcher {
             const MountMatchResult match =
                 matchMountPoint(controller, mountPointm.relativeMountPath, mountPointm, this->strictRouting, this->caseInsensitiveRouting);
 
+            if (match.requestMatched && match.decodeError) {
+                controller.getResponse()->sendStatus(400);
+                return true;
+            }
+
             LOG(TRACE) << "========================= Router      =========================";
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " HTTP Express: router -> " << (match.requestMatched ? "MATCH" : "NO MATCH");
@@ -94,11 +99,6 @@ namespace express::dispatcher {
             LOG(TRACE) << "           StrictRouting: " << this->strictRouting;
             LOG(TRACE) << "  CaseInsensitiveRouting: " << this->caseInsensitiveRouting;
             LOG(TRACE) << "             MergeParams: " << this->mergeParams;
-
-            if (match.requestMatched && match.decodeError) {
-                controller.getResponse()->sendStatus(400);
-                return true;
-            }
 
             if (match.requestMatched) {
                 auto& req = *controller.getRequest();

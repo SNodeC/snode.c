@@ -76,9 +76,10 @@ namespace express::dispatcher {
         bool dispatch(express::Controller& controller,
                       const std::string& parentMountPath,
                       const express::MountPoint& mountPointm,
-                      bool strictRouting1,
-                      bool caseInsensitiveRouting1,
-                      bool mergeParams1) override;
+                      bool strictRoutingUnused,
+                      bool caseInsensitiveRoutingUnused,
+                      bool mergeParamsUnused) override;
+
         std::list<std::string>
         getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const override;
 
