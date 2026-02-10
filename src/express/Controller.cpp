@@ -129,10 +129,7 @@ namespace express {
         return breakDispatching;
     }
 
-    bool Controller::dispatchNext(const std::string& parentMountPath,
-                                  [[maybe_unused]] bool strictRouting,
-                                  [[maybe_unused]] bool caseInsensitiveRouting,
-                                  [[maybe_unused]] bool mergeParams) {
+    bool Controller::dispatchNext(const std::string& parentMountPath, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams) {
         bool dispatched = false;
 
         if (((flags & Controller::NEXT) != 0)) {
@@ -141,15 +138,10 @@ namespace express {
                 if ((flags & Controller::NEXT_ROUTE) != 0) {
                     flags &= ~Controller::NEXT_ROUTE;
                 } else if ((flags & Controller::NEXT_ROUTER) == 0) {
-                    dispatched = currentRoute->dispatchNext(*this,
-                                                            parentMountPath,
-                                                            currentRoute->strictRouting,
-                                                            currentRoute->caseInsensitiveRouting,
-                                                            currentRoute->mergeParams);
+                    dispatched = currentRoute->dispatchNext(*this, parentMountPath, strictRouting, caseInsensitiveRouting, mergeParams);
                 }
             } else { // ? Optimization: Dispatch only parent route matched path
-                dispatched = currentRoute->dispatchNext(
-                    *this, parentMountPath, currentRoute->strictRouting, currentRoute->caseInsensitiveRouting, currentRoute->mergeParams);
+                dispatched = currentRoute->dispatchNext(*this, parentMountPath, strictRouting, caseInsensitiveRouting, mergeParams);
             }
         }
 

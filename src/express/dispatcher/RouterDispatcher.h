@@ -63,17 +63,30 @@ namespace express::dispatcher {
 
         std::list<std::string> getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint) const;
 
+        RouterDispatcher& setStrictRouting(bool strictRouting);
+        bool getStrictRouting() const;
+
+        RouterDispatcher& setCaseInsensitiveRouting(bool caseInsensitiveRouting);
+        bool getCaseInsensitiveRouting() const;
+
+        RouterDispatcher& setMergeParams(bool mergeParams);
+        bool getMergeParams() const;
+
     private:
         bool dispatch(express::Controller& controller,
                       const std::string& parentMountPath,
                       const express::MountPoint& mountPointm,
-                      bool strictRouting,
-                      bool caseInsensitiveRouting,
-                      bool mergeParams) override;
+                      bool strictRouting1,
+                      bool caseInsensitiveRouting1,
+                      bool mergeParams1) override;
         std::list<std::string>
         getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const override;
 
         std::list<express::Route> routes;
+
+        bool strictRouting = false;
+        bool caseInsensitiveRouting = true;
+        bool mergeParams = false;
     };
 
 } // namespace express::dispatcher

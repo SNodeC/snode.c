@@ -82,15 +82,6 @@ namespace express {
     public:
         Route(const std::string& method, const std::string& relativeMountPath, const std::shared_ptr<Dispatcher>& dispatcher);
 
-        Route& setStrictRouting(bool strictRouting);
-        bool getStrictRouting() const;
-
-        Route& setCaseInsensitiveRouting(bool caseInsensitiveRouting);
-        bool getCaseInsensitiveRouting() const;
-
-        Route& setMergeParams(bool mergeParams);
-        bool getMergeParams() const;
-
         std::list<std::string> getRoute(const std::string& parentMountPath, bool strictRouting) const;
 
     private:
@@ -105,10 +96,6 @@ namespace express {
 
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
-
-        bool strictRouting = false;
-        bool caseInsensitiveRouting = true;
-        bool mergeParams = false;
 
     public:
         DECLARE_ROUTE_REQUESTMETHOD(use)

@@ -66,9 +66,9 @@ namespace express::dispatcher {
     bool RouterDispatcher::dispatch(express::Controller& controller,
                                     const std::string& parentMountPath,
                                     const express::MountPoint& mountPointm,
-                                    bool strictRouting,
-                                    bool caseInsensitiveRouting,
-                                    bool mergeParams) {
+                                    [[maybe_unused]] bool strictRouting,
+                                    [[maybe_unused]] bool caseInsensitiveRouting,
+                                    [[maybe_unused]] bool mergeParams) {
         bool dispatched = false;
 
         const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPointm.method);
@@ -80,7 +80,7 @@ namespace express::dispatcher {
 
         if ((controller.getFlags() & Controller::NEXT) == 0) {
             const MountMatchResult match =
-                matchMountPoint(controller, mountPointm.relativeMountPath, mountPointm, strictRouting, caseInsensitiveRouting);
+                matchMountPoint(controller, mountPointm.relativeMountPath, mountPointm, this->strictRouting, this->caseInsensitiveRouting);
 
             LOG(TRACE) << "========================= Router      =========================";
             LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
@@ -91,9 +91,9 @@ namespace express::dispatcher {
             LOG(TRACE) << "       Mountpoint Method: " << mountPointm.method;
             LOG(TRACE) << " Mountpoint RelativePath: " << mountPointm.relativeMountPath;
             LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
-            LOG(TRACE) << "           StrictRouting: " << strictRouting;
-            LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
-            LOG(TRACE) << "             MergeParams: " << mergeParams;
+            LOG(TRACE) << "           StrictRouting: " << this->strictRouting;
+            LOG(TRACE) << "  CaseInsensitiveRouting: " << this->caseInsensitiveRouting;
+            LOG(TRACE) << "             MergeParams: " << this->mergeParams;
 
             if (match.requestMatched && match.decodeError) {
                 controller.getResponse()->sendStatus(400);
@@ -106,10 +106,11 @@ namespace express::dispatcher {
 
                 // Express-style mount path stripping is only applied for use()
                 const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
-                const ScopedParams scopedParams(req, match.params, mergeParams);
+                const ScopedParams scopedParams(req, match.params, this->mergeParams);
 
                 for (Route& route : routes) {
-                    dispatched = route.dispatch(controller, absoluteMountPath, strictRouting, caseInsensitiveRouting, mergeParams);
+                    dispatched =
+                        route.dispatch(controller, absoluteMountPath, this->strictRouting, this->caseInsensitiveRouting, this->mergeParams);
 
                     if (dispatched) {
                         LOG(TRACE) << "Express: R - Dispatched";
@@ -148,6 +149,36 @@ namespace express::dispatcher {
         }
 
         return collectedRoutes;
+    }
+
+    RouterDispatcher& RouterDispatcher::setStrictRouting(bool strictRouting) {
+        this->strictRouting = strictRouting;
+
+        return *this;
+    }
+
+    bool RouterDispatcher::getStrictRouting() const {
+        return strictRouting;
+    }
+
+    RouterDispatcher& RouterDispatcher::setCaseInsensitiveRouting(bool caseInsensitiveRouting) {
+        this->caseInsensitiveRouting = caseInsensitiveRouting;
+
+        return *this;
+    }
+
+    bool RouterDispatcher::getCaseInsensitiveRouting() const {
+        return caseInsensitiveRouting;
+    }
+
+    RouterDispatcher& RouterDispatcher::setMergeParams(bool mergeParams) {
+        this->mergeParams = mergeParams;
+
+        return *this;
+    }
+
+    bool RouterDispatcher::getMergeParams() const {
+        return mergeParams;
     }
 
 } // namespace express::dispatcher

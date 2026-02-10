@@ -90,6 +90,15 @@ namespace express {
 
         std::list<std::string> getRoutes() const;
 
+        RootRoute& setStrictRouting(bool strictRouting);
+        bool getStrictRouting() const;
+
+        RootRoute& setCaseInsensitiveRouting(bool caseInsensitiveRouting);
+        bool getCaseInsensitiveRouting() const;
+
+        RootRoute& setMergeParams(bool mergeParams);
+        bool getMergeParams() const;
+
     public:
         DECLARE_ROOTROUTE_REQUESTMETHOD(use)
         DECLARE_ROOTROUTE_REQUESTMETHOD(all)
