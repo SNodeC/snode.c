@@ -10,10 +10,9 @@
 #include "express/legacy/in/WebApp.h"
 #include "log/Logger.h"
 
-#include <nlohmann/json.hpp>
-
 #include <map>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
@@ -239,24 +238,22 @@ int main(int argc, char* argv[]) {
         res->status(404).json({{"label", "not_found"}, {"path", req->path}});
     });
 
-    app.listen(
-        8080,
-        [](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
-            switch (state) {
-                case core::socket::State::OK:
-                    VLOG(1) << "express-compat listening on '" << socketAddress.toString() << "'";
-                    break;
-                case core::socket::State::DISABLED:
-                    VLOG(1) << "express-compat disabled";
-                    break;
-                case core::socket::State::ERROR:
-                    LOG(ERROR) << "express-compat " << socketAddress.toString() << ": " << state.what();
-                    break;
-                case core::socket::State::FATAL:
-                    LOG(FATAL) << "express-compat " << socketAddress.toString() << ": " << state.what();
-                    break;
-            }
-        });
+    app.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "express-compat listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "express-compat disabled";
+                break;
+            case core::socket::State::ERROR:
+                LOG(ERROR) << "express-compat " << socketAddress.toString() << ": " << state.what();
+                break;
+            case core::socket::State::FATAL:
+                LOG(FATAL) << "express-compat " << socketAddress.toString() << ": " << state.what();
+                break;
+        }
+    });
 
     return core::SNodeC::start();
 }
