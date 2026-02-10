@@ -380,7 +380,7 @@ namespace web::http::server {
                                                     .append("\r\n"));
             socketContext->sendToPeer("Date: " + httputils::to_http_date() + "\r\n");
 
-            set("X-Powered-By", "snode.c");
+            set("X-Powered-By", "SNode.C");
 
             for (const auto& [field, value] : headers) {
                 socketContext->sendToPeer(std::string(field).append(": ").append(value).append("\r\n"));

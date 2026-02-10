@@ -78,7 +78,7 @@ namespace web::http::client {
         : hostFieldValue(hostFieldValue)
         , socketContext(socketContext) {
         host(hostFieldValue);
-        set("X-Powered-By", "snode.c");
+        set("X-Powered-By", "SNode.C");
     }
 
     Request::Request(Request&& request) noexcept
@@ -100,7 +100,7 @@ namespace web::http::client {
         request.count++;
 
         host(hostFieldValue);
-        set("X-Powered-By", "snode.c");
+        set("X-Powered-By", "SNode.C");
     }
 
     void Request::setMasterRequest(const std::shared_ptr<MasterRequest>& masterRequest) {
