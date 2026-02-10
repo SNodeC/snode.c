@@ -54,25 +54,17 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                    \
-    Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda)      \
-        const {                                                                                                                            \
-        return (dispatcher->nextRoute = std::make_shared<Route>(                                                                           \
-                    HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)))                \
-            .get()                                                                                                                         \
-            ->setStrictRouting(strictRouting)                                                                                              \
-            .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
-            .setMergeParams(mergeParams);                                                                                                  \
-        ;                                                                                                                                  \
-    }                                                                                                                                      \
-    Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda) const {     \
-        return (dispatcher->nextRoute = std::make_shared<Route>(                                                                           \
-                    HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda)))               \
-            .get()                                                                                                                         \
-            ->setStrictRouting(strictRouting)                                                                                              \
-            .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
-            .setMergeParams(mergeParams);                                                                                                  \
-        ;                                                                                                                                  \
+#define DEFINE_ROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                   \
+    Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda)     \
+        const {                                                                                                                           \
+        return *(dispatcher->nextRoute = std::make_shared<Route>(                                                                         \
+                     HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda)))              \
+                    .get();                                                                                                               \
+    }                                                                                                                                     \
+    Route& Route::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda) const {    \
+        return *(dispatcher->nextRoute = std::make_shared<Route>(                                                                         \
+                     HTTP_METHOD, mountPoint.relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda)))             \
+                    .get();                                                                                                               \
     }
 
 namespace express {
@@ -96,14 +88,11 @@ namespace express {
 
     bool Route::dispatch(Controller& controller,
                          const std::string& parentMountPath,
-                         [[maybe_unused]] bool strictRouting1,
-                         [[maybe_unused]] bool caseInsensitiveRouting1,
-                         [[maybe_unused]] bool mergeParams1) {
-        //        VLOG(0) << "(1) ----------> this->strictRouting: " << strictRouting << " | strictRouting1: " << strictRouting1;
-        //        VLOG(0) << "(1) ----------> this->caseInsensitiveRouting: " << caseInsensitiveRouting << " | caseInsensitiveRouting1: " <<
-        //        caseInsensitiveRouting1;
-        VLOG(0) << "(3) ----------> this->mergeParams: " << parentMountPath << " --> " << mergeParams
-                << " | mergeParams1: " << mergeParams1;
+                         bool strictRouting,
+                         bool caseInsensitiveRouting,
+                         bool mergeParams) {
+        VLOG(0) << "(3) ----------> mergeParams(runtime): " << parentMountPath << " --> " << mergeParams
+                << " | mergeParams1: " << mergeParams;
 
         controller.setCurrentRoute(this);
 
@@ -128,34 +117,28 @@ namespace express {
         return dispatcher->getRoutes(parentMountPath, mountPoint, strictRouting);
     }
 
-    Route& Route::setStrictRouting(bool strictRouting) {
-        this->strictRouting = strictRouting;
-
+    Route& Route::setStrictRouting([[maybe_unused]] bool strictRouting) {
         return *this;
     }
 
     bool Route::getStrictRouting() const {
-        return strictRouting;
+        return false;
     }
 
-    Route& Route::setCaseInsensitiveRouting(bool caseInsensitiveRouting) {
-        this->caseInsensitiveRouting = caseInsensitiveRouting;
-
+    Route& Route::setCaseInsensitiveRouting([[maybe_unused]] bool caseInsensitiveRouting) {
         return *this;
     }
 
     bool Route::getCaseInsensitiveRouting() const {
-        return caseInsensitiveRouting;
+        return true;
     }
 
-    Route& Route::setMergeParams(bool mergeParams) {
-        this->mergeParams = mergeParams;
-
+    Route& Route::setMergeParams([[maybe_unused]] bool mergeParams) {
         return *this;
     }
 
     bool Route::getMergeParams() const {
-        return mergeParams;
+        return false;
     }
 
     DEFINE_ROUTE_REQUESTMETHOD(use, "use")

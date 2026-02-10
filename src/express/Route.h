@@ -106,9 +106,6 @@ namespace express {
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
 
-        bool strictRouting = false;
-        bool caseInsensitiveRouting = true;
-        bool mergeParams = false;
 
     public:
         DECLARE_ROUTE_REQUESTMETHOD(use)

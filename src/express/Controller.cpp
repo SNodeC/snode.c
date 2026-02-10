@@ -141,15 +141,10 @@ namespace express {
                 if ((flags & Controller::NEXT_ROUTE) != 0) {
                     flags &= ~Controller::NEXT_ROUTE;
                 } else if ((flags & Controller::NEXT_ROUTER) == 0) {
-                    dispatched = currentRoute->dispatchNext(*this,
-                                                            parentMountPath,
-                                                            currentRoute->strictRouting,
-                                                            currentRoute->caseInsensitiveRouting,
-                                                            currentRoute->mergeParams);
+                    dispatched = currentRoute->dispatchNext(*this, parentMountPath, strictRouting, caseInsensitiveRouting, mergeParams);
                 }
             } else { // ? Optimization: Dispatch only parent route matched path
-                dispatched = currentRoute->dispatchNext(
-                    *this, parentMountPath, currentRoute->strictRouting, currentRoute->caseInsensitiveRouting, currentRoute->mergeParams);
+                dispatched = currentRoute->dispatchNext(*this, parentMountPath, strictRouting, caseInsensitiveRouting, mergeParams);
             }
         }
 

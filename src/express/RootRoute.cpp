@@ -56,53 +56,59 @@
 
 #define DEFINE_ROOTROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                \
     Route& RootRoute::METHOD(const RootRoute& rootRoute) const {                                                                           \
-        return routes()                                                                                                                    \
-            .emplace_back(HTTP_METHOD, "", rootRoute.getDispatcher())                                                                      \
-            .setStrictRouting(strictRouting)                                                                                               \
-            .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
-            .setMergeParams(mergeParams);                                                                                                  \
+        return routes().emplace_back(HTTP_METHOD, "", rootRoute.getDispatcher());                                                        \
     }                                                                                                                                      \
-    Route& RootRoute::METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute) const {                                     \
-        return routes()                                                                                                                    \
-            .emplace_back(HTTP_METHOD, relativeMountPath, rootRoute.getDispatcher())                                                       \
-            .setStrictRouting(strictRouting)                                                                                               \
-            .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
-            .setMergeParams(mergeParams);                                                                                                  \
+    Route& RootRoute::METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute) const {                                    \
+        return routes().emplace_back(HTTP_METHOD, relativeMountPath, rootRoute.getDispatcher());                                           \
     }                                                                                                                                      \
     Route& RootRoute::METHOD(const std::string& relativeMountPath,                                                                         \
-                             const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda)  \
+                             const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda) \
         const {                                                                                                                            \
-        return routes()                                                                                                                    \
-            .emplace_back(HTTP_METHOD, relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda))                      \
-            .setStrictRouting(strictRouting)                                                                                               \
-            .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
-            .setMergeParams(mergeParams);                                                                                                  \
+        return routes().emplace_back(HTTP_METHOD, relativeMountPath, std::make_shared<dispatcher::MiddlewareDispatcher>(lambda));          \
     }                                                                                                                                      \
-    Route& RootRoute::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda)  \
+    Route& RootRoute::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, Next&)>& lambda) \
         const {                                                                                                                            \
-        return routes()                                                                                                                    \
-            .emplace_back(HTTP_METHOD, "", std::make_shared<dispatcher::MiddlewareDispatcher>(lambda))                                     \
-            .setStrictRouting(strictRouting)                                                                                               \
-            .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
-            .setMergeParams(mergeParams);                                                                                                  \
+        return routes().emplace_back(HTTP_METHOD, "", std::make_shared<dispatcher::MiddlewareDispatcher>(lambda));                       \
     }                                                                                                                                      \
     Route& RootRoute::METHOD(const std::string& relativeMountPath,                                                                         \
                              const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda) const { \
-        return routes()                                                                                                                    \
-            .emplace_back(HTTP_METHOD, relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda))                     \
-            .setStrictRouting(strictRouting)                                                                                               \
-            .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
-            .setMergeParams(mergeParams);                                                                                                  \
+        return routes().emplace_back(HTTP_METHOD, relativeMountPath, std::make_shared<dispatcher::ApplicationDispatcher>(lambda));         \
     }                                                                                                                                      \
     Route& RootRoute::METHOD(const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& lambda) const { \
-        return routes()                                                                                                                    \
-            .emplace_back(HTTP_METHOD, "", std::make_shared<dispatcher::ApplicationDispatcher>(lambda))                                    \
-            .setStrictRouting(strictRouting)                                                                                               \
-            .setCaseInsensitiveRouting(caseInsensitiveRouting)                                                                             \
-            .setMergeParams(mergeParams);                                                                                                  \
+        return routes().emplace_back(HTTP_METHOD, "", std::make_shared<dispatcher::ApplicationDispatcher>(lambda));                      \
     }
 
 namespace express {
+
+    Route& RootRoute::setStrictRouting(bool strictRouting) {
+        this->strictRouting = strictRouting;
+
+        return *this;
+    }
+
+    bool RootRoute::getStrictRouting() const {
+        return strictRouting;
+    }
+
+    Route& RootRoute::setCaseInsensitiveRouting(bool caseInsensitiveRouting) {
+        this->caseInsensitiveRouting = caseInsensitiveRouting;
+
+        return *this;
+    }
+
+    bool RootRoute::getCaseInsensitiveRouting() const {
+        return caseInsensitiveRouting;
+    }
+
+    Route& RootRoute::setMergeParams(bool mergeParams) {
+        this->mergeParams = mergeParams;
+
+        return *this;
+    }
+
+    bool RootRoute::getMergeParams() const {
+        return mergeParams;
+    }
 
     std::shared_ptr<dispatcher::RouterDispatcher> RootRoute::getDispatcher() const {
         return std::dynamic_pointer_cast<dispatcher::RouterDispatcher>(dispatcher);
