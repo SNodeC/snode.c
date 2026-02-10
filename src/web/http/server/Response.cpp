@@ -46,7 +46,6 @@
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/MimeTypes.h"
 #include "web/http/StatusCodes.h"
-#include "web/http/http_utils.h"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
