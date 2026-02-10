@@ -63,33 +63,29 @@ namespace express::dispatcher {
         return routes;
     }
 
-    bool RouterDispatcher::dispatch(express::Controller& controller,
-                                    const std::string& parentMountPath,
-                                    const express::MountPoint& mountPointm,
+    bool RouterDispatcher::dispatch(express::Controller& controller, //
+                                    const express::MountPoint& mountPoint,
                                     [[maybe_unused]] bool strictRoutingUnused,
                                     [[maybe_unused]] bool caseInsensitiveRoutingUnused,
                                     [[maybe_unused]] bool mergeParamsUnused) {
         bool dispatched = false;
 
-        const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPointm.method);
-
-        const std::string absoluteMountPath = joinMountPath(parentMountPath, mountPointm.relativeMountPath);
+        const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
 
         LOG(TRACE) << "========================= ROUTER      DISPATCH =========================";
         LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
-        LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
-        LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
-        LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
-        LOG(TRACE) << "       Mountpoint Method: " << mountPointm.method;
-        LOG(TRACE) << " Mountpoint RelativePath: " << mountPointm.relativeMountPath;
-        LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
-        LOG(TRACE) << "           StrictRouting: " << this->strictRouting;
-        LOG(TRACE) << "  CaseInsensitiveRouting: " << this->caseInsensitiveRouting;
-        LOG(TRACE) << "             MergeParams: " << this->mergeParams;
+        LOG(TRACE) << "          Reques tMethod: " << controller.getRequest()->method;
+        LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
+        LOG(TRACE) << "            Request Path: " << controller.getRequest()->path;
+        LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
+        LOG(TRACE) << "         Mountpoint Path: " << mountPoint.relativeMountPath;
+        LOG(TRACE) << "           StrictRouting: " << strictRouting;
+        LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
+        LOG(TRACE) << "             MergeParams: " << mergeParams;
 
         if (methodMatchesResult && (controller.getFlags() & Controller::NEXT) == 0) {
             const MountMatchResult match =
-                matchMountPoint(controller, mountPointm.relativeMountPath, mountPointm, this->strictRouting, this->caseInsensitiveRouting);
+                matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, this->strictRouting, this->caseInsensitiveRouting);
 
             if (match.requestMatched) {
                 LOG(TRACE) << "------------------------- ROUTER         MATCH -------------------------";
@@ -105,8 +101,7 @@ namespace express::dispatcher {
                     const ScopedParams scopedParams(req, match.params, this->mergeParams);
 
                     for (Route& route : routes) {
-                        dispatched = route.dispatch(
-                            controller, absoluteMountPath, this->strictRouting, this->caseInsensitiveRouting, this->mergeParams);
+                        dispatched = route.dispatch(controller, this->strictRouting, this->caseInsensitiveRouting, this->mergeParams);
 
                         if (dispatched || controller.nextRouterCalled()) {
                             break;

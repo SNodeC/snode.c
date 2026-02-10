@@ -74,8 +74,7 @@ namespace express::dispatcher {
 
     private:
         bool dispatch(express::Controller& controller,
-                      const std::string& parentMountPath,
-                      const express::MountPoint& mountPointm,
+                      const express::MountPoint& mountPoint,
                       bool strictRoutingUnused,
                       bool caseInsensitiveRoutingUnused,
                       bool mergeParamsUnused) override;

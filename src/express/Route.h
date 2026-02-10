@@ -88,11 +88,7 @@ namespace express {
         Route();
 
         bool dispatch(Controller& controller, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams);
-
-        bool dispatch(
-            Controller& controller, const std::string& parentMountPath, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams);
-        bool dispatchNext(
-            Controller& controller, const std::string& parentMountPath, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams);
+        bool dispatchNext(Controller& controller, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams);
 
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;

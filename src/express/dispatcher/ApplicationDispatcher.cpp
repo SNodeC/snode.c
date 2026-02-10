@@ -65,8 +65,7 @@ namespace express::dispatcher {
         : lambda(lambda) {
     }
 
-    bool ApplicationDispatcher::dispatch(express::Controller& controller,
-                                         const std::string& parentMountPath,
+    bool ApplicationDispatcher::dispatch(express::Controller& controller, //
                                          const express::MountPoint& mountPoint,
                                          bool strictRouting,
                                          bool caseInsensitiveRouting,
@@ -75,16 +74,13 @@ namespace express::dispatcher {
 
         const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
 
-        const std::string absoluteMountPath = joinMountPath(parentMountPath, mountPoint.relativeMountPath);
-
         LOG(TRACE) << "========================= APPLICATION DISPATCH =========================";
         LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
-        LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
-        LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
-        LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
+        LOG(TRACE) << "          Reques tMethod: " << controller.getRequest()->method;
+        LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
+        LOG(TRACE) << "            Request Path: " << controller.getRequest()->path;
         LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
-        LOG(TRACE) << " Mountpoint RelativePath: " << mountPoint.relativeMountPath;
-        LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
+        LOG(TRACE) << "         Mountpoint Path: " << mountPoint.relativeMountPath;
         LOG(TRACE) << "           StrictRouting: " << strictRouting;
         LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
         LOG(TRACE) << "             MergeParams: " << mergeParams;

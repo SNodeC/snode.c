@@ -80,25 +80,19 @@ namespace express {
     }
 
     bool Route::dispatch(Controller& controller, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams) {
-        return dispatch(controller, "", strictRouting, caseInsensitiveRouting, mergeParams);
-    }
-
-    bool Route::dispatch(
-        Controller& controller, const std::string& parentMountPath, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams) {
         controller.setCurrentRoute(this);
 
-        bool dispatched = dispatcher->dispatch(controller, parentMountPath, mountPoint, strictRouting, caseInsensitiveRouting, mergeParams);
+        bool dispatched = dispatcher->dispatch(controller, mountPoint, strictRouting, caseInsensitiveRouting, mergeParams);
 
         if (!dispatched) { // TODO: only call if parent route matched
-            dispatched = controller.dispatchNext(parentMountPath, strictRouting, caseInsensitiveRouting, mergeParams);
+            dispatched = controller.dispatchNext(strictRouting, caseInsensitiveRouting, mergeParams);
         }
 
         return dispatched;
     }
 
-    bool Route::dispatchNext(
-        Controller& controller, const std::string& parentMountPath, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams) {
-        return dispatcher->dispatchNext(controller, parentMountPath, strictRouting, caseInsensitiveRouting, mergeParams);
+    bool Route::dispatchNext(Controller& controller, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams) {
+        return dispatcher->dispatchNext(controller, strictRouting, caseInsensitiveRouting, mergeParams);
     }
 
     std::list<std::string> Route::getRoute(const std::string& parentMountPath, bool strictRouting) const {
