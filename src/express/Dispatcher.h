@@ -76,7 +76,8 @@ namespace express {
                               bool strictRouting,
                               bool caseInsensitiveRouting,
                               bool mergeParams) = 0;
-        bool dispatchNext(Controller& controller, const std::string& parentMountPath);
+        bool dispatchNext(
+            Controller& controller, const std::string& parentMountPath, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams);
 
         virtual std::list<std::string>
         getRoutes(const std::string& parentMountPath, const MountPoint& mountPoint, bool strictRouting) const = 0;

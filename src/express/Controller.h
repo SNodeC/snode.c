@@ -81,7 +81,7 @@ namespace express {
 
         void next(const std::string& how) const;
         bool nextRouterCalled();
-        bool dispatchNext(const std::string& parentMountPath);
+        bool dispatchNext(const std::string& parentMountPath, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams);
 
         enum Flags { NONE = 0, NEXT = 1 << 0, NEXT_ROUTE = 1 << 1, NEXT_ROUTER = 1 << 2 };
 

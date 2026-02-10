@@ -48,6 +48,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -85,24 +87,41 @@ namespace express {
         , dispatcher(dispatcher) {
     }
 
-    bool Route::dispatch(Controller& controller) {
-        return dispatch(controller, "");
+    bool Route::dispatch(Controller& controller,
+                         [[maybe_unused]] bool strictRouting,
+                         [[maybe_unused]] bool caseInsensitiveRouting,
+                         [[maybe_unused]] bool mergeParams) {
+        return dispatch(controller, "", strictRouting, caseInsensitiveRouting, mergeParams);
     }
 
-    bool Route::dispatch(Controller& controller, const std::string& parentMountPath) {
+    bool Route::dispatch(Controller& controller,
+                         const std::string& parentMountPath,
+                         [[maybe_unused]] bool strictRouting1,
+                         [[maybe_unused]] bool caseInsensitiveRouting1,
+                         [[maybe_unused]] bool mergeParams1) {
+        //        VLOG(0) << "(1) ----------> this->strictRouting: " << strictRouting << " | strictRouting1: " << strictRouting1;
+        //        VLOG(0) << "(1) ----------> this->caseInsensitiveRouting: " << caseInsensitiveRouting << " | caseInsensitiveRouting1: " <<
+        //        caseInsensitiveRouting1;
+        VLOG(0) << "(3) ----------> this->mergeParams: " << parentMountPath << " --> " << mergeParams
+                << " | mergeParams1: " << mergeParams1;
+
         controller.setCurrentRoute(this);
 
         bool dispatched = dispatcher->dispatch(controller, parentMountPath, mountPoint, strictRouting, caseInsensitiveRouting, mergeParams);
 
         if (!dispatched) { // TODO: only call if parent route matched
-            dispatched = controller.dispatchNext(parentMountPath);
+            dispatched = controller.dispatchNext(parentMountPath, strictRouting, caseInsensitiveRouting, mergeParams);
         }
 
         return dispatched;
     }
 
-    bool Route::dispatchNext(Controller& controller, const std::string& parentMountPath) {
-        return dispatcher->dispatchNext(controller, parentMountPath);
+    bool Route::dispatchNext(Controller& controller,
+                             const std::string& parentMountPath,
+                             [[maybe_unused]] bool strictRouting,
+                             [[maybe_unused]] bool caseInsensitiveRouting,
+                             [[maybe_unused]] bool mergeParams) {
+        return dispatcher->dispatchNext(controller, parentMountPath, strictRouting, caseInsensitiveRouting, mergeParams);
     }
 
     std::list<std::string> Route::getRoute(const std::string& parentMountPath, bool strictRouting) const {

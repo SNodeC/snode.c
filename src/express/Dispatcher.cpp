@@ -52,11 +52,12 @@ namespace express {
     Dispatcher::~Dispatcher() {
     }
 
-    bool Dispatcher::dispatchNext(Controller& controller, const std::string& parentMountPath) {
+    bool Dispatcher::dispatchNext(
+        Controller& controller, const std::string& parentMountPath, bool strictRouting, bool caseInsensitiveRouting, bool mergeParams) {
         bool dispatched = false;
 
         if (nextRoute != nullptr) {
-            dispatched = nextRoute->dispatch(controller, parentMountPath);
+            dispatched = nextRoute->dispatch(controller, parentMountPath, strictRouting, caseInsensitiveRouting, mergeParams);
         }
 
         return dispatched;

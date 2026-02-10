@@ -109,7 +109,7 @@ namespace express::dispatcher {
                 const ScopedParams scopedParams(req, match.params, mergeParams);
 
                 for (Route& route : routes) {
-                    dispatched = route.dispatch(controller, absoluteMountPath);
+                    dispatched = route.dispatch(controller, absoluteMountPath, strictRouting, caseInsensitiveRouting, mergeParams);
 
                     if (dispatched) {
                         LOG(TRACE) << "Express: R - Dispatched";

@@ -123,7 +123,7 @@ namespace express {
     }
 
     void RootRoute::dispatch(Controller& controller) {
-        if (!Route::dispatch(controller)) {
+        if (!Route::dispatch(controller, strictRouting, caseInsensitiveRouting, mergeParams)) {
             controller.getResponse()->sendStatus(404);
         }
     }
