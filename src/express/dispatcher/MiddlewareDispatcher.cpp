@@ -71,68 +71,61 @@ namespace express::dispatcher {
                                         bool strictRouting,
                                         bool caseInsensitiveRouting,
                                         bool mergeParams) {
-        bool requestMatched = false;
+        bool dispatched = false;
 
         const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
-        if (!methodMatchesResult) {
-            return false;
-        }
 
         const std::string absoluteMountPath = joinMountPath(parentMountPath, mountPoint.relativeMountPath);
 
-        if ((controller.getFlags() & Controller::NEXT) == 0) {
+        LOG(TRACE) << "========================= MIDDLEWARE  DISPATCH =========================";
+        LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
+        LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
+        LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
+        LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
+        LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
+        LOG(TRACE) << " Mountpoint RelativePath: " << mountPoint.relativeMountPath;
+        LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
+        LOG(TRACE) << "           StrictRouting: " << strictRouting;
+        LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
+        LOG(TRACE) << "             MergeParams: " << mergeParams;
+
+        if (methodMatchesResult && ((controller.getFlags() & Controller::NEXT) == 0)) {
             const MountMatchResult match =
                 matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
-            requestMatched = match.requestMatched;
 
-            if (requestMatched && match.decodeError) {
-                controller.getResponse()->sendStatus(400);
-                return true;
-            }
+            if (match.requestMatched) {
+                LOG(TRACE) << "------------------------- MIDDLEWARE     MATCH -------------------------";
 
-            LOG(TRACE) << "========================= MIDDLEWARE  =========================";
-            LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
-                       << " HTTP Express: middleware -> " << (requestMatched ? "MATCH" : "NO MATCH");
-            LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
-            LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
-            LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
-            LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
-            LOG(TRACE) << " Mountpoint RelativePath: " << mountPoint.relativeMountPath;
-            LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
-            LOG(TRACE) << "           StrictRouting: " << strictRouting;
-            LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
-            LOG(TRACE) << "             MergeParams: " << mergeParams;
+                dispatched = true;
 
-            if (requestMatched) {
-                auto& req = *controller.getRequest();
-                req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
+                if (!match.decodeError) {
+                    auto& req = *controller.getRequest();
+                    req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
-                // Express-style mount path stripping is only applied for use()
-                const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
-                const ScopedParams scopedParams(req, match.params, mergeParams);
+                    // Express-style mount path stripping is only applied for use()
+                    const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
+                    const ScopedParams scopedParams(req, match.params, mergeParams);
 
-                // NOTE: do not run legacy setParams() here; it can overwrite regex-extracted params
-                Next next(controller);
-                lambda(controller.getRequest(), controller.getResponse(), next);
+                    Next next(controller);
+                    lambda(controller.getRequest(), controller.getResponse(), next);
 
-                // If next() was called synchronously continue current route-tree traversal
-                if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
-                    LOG(TRACE) << "Express: M - Next called - set to NO MATCH";
-                    requestMatched = false;
-                    controller = next.controller;
+                    // If next() was called synchronously continue current route-tree traversal
+                    if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
+                        LOG(TRACE) << "Express: M - Next called - set to NO MATCH";
+                        dispatched = false;
+                        controller = next.controller;
+                    }
+                } else {
+                    controller.getResponse()->sendStatus(400);
                 }
+            } else {
+                LOG(TRACE) << "------------------------- MIDDLEWARE   NOMATCH -------------------------";
             }
         } else {
-            LOG(TRACE) << "========================= MIDDLEWARE  =========================";
-            LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
-                       << " HTTP Express: middleware -> next(...) called";
-            LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
-            LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
-            LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
-            LOG(TRACE) << "       AbsoluteMountPath: " << absoluteMountPath;
+            LOG(TRACE) << "------------------------- MIDDLEWARE   NOMATCH -------------------------";
         }
 
-        return requestMatched;
+        return dispatched;
     }
 
     std::list<std::string>
