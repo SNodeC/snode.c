@@ -54,8 +54,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define DEFINE_ROOTROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                \
-    Route& RootRoute::METHOD(const RootRoute& rootRoute) const {                                                                           \
+#define DEFINE_ROOTROUTE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                   \
+    Route& RootRoute::METHOD(const RootRoute& rootRoute) const {                                                               \
         return routes().emplace_back(HTTP_METHOD, "", rootRoute.getDispatcher());                                                        \
     }                                                                                                                                      \
     Route& RootRoute::METHOD(const std::string& relativeMountPath, const RootRoute& rootRoute) const {                                    \
