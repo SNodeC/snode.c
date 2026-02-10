@@ -74,7 +74,7 @@ namespace express::dispatcher {
 
         LOG(TRACE) << "========================= ROUTER      DISPATCH =========================";
         LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
-        LOG(TRACE) << "          Reques tMethod: " << controller.getRequest()->method;
+        LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
         LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
         LOG(TRACE) << "            Request Path: " << controller.getRequest()->path;
         LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
