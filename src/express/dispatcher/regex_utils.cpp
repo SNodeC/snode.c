@@ -700,14 +700,6 @@ namespace express::dispatcher {
     MountMatchResult matchMountPoint(express::Controller& controller,
                                      const std::string& absoluteMountPath,
                                      const express::MountPoint& mountPoint,
-                                     bool strictRouting,
-                                     bool caseInsensitiveRouting) {
-        return matchMountPointImpl(controller, absoluteMountPath, mountPoint, nullptr, nullptr, strictRouting, caseInsensitiveRouting);
-    }
-
-    MountMatchResult matchMountPoint(express::Controller& controller,
-                                     const std::string& absoluteMountPath,
-                                     const express::MountPoint& mountPoint,
                                      std::regex& cachedRegex,
                                      std::vector<std::string>& cachedNames,
                                      bool strictRouting,
@@ -716,7 +708,7 @@ namespace express::dispatcher {
             controller, absoluteMountPath, mountPoint, &cachedRegex, &cachedNames, strictRouting, caseInsensitiveRouting);
     }
 
-    ScopedPathStrip::ScopedPathStrip(express::Request& req, std::string_view requestUrl, bool enabled, std::size_t consumedLength)
+    ScopedPathStrip::ScopedPathStrip(express::Request& req, bool enabled, std::size_t consumedLength)
         : req_(&req)
         , enabled_(enabled) {
         if (!enabled_) {
@@ -734,12 +726,12 @@ namespace express::dispatcher {
         //  - req.url and req.path become the remainder (path + query / path)
         std::string_view fullPath;
         std::string_view fullQuery;
-        splitPathAndQuery(requestUrl, fullPath, fullQuery);
+        splitPathAndQuery(req.url, fullPath, fullQuery);
 
         // IMPORTANT:
-        // requestUrl may alias req.url. We mutate req.url below, which can reallocate
-        // and invalidate fullQuery/fullPath string_views. Keep an owning copy of the
-        // query part before touching req.url.
+        // We mutate req.url below, which can reallocate and invalidate fullQuery/fullPath
+        // string_views.
+        // Keep an owning copy of the query part before touching req.url.
         std::string fullQueryCopy;
         if (!fullQuery.empty()) {
             fullQueryCopy.assign(fullQuery.begin(), fullQuery.end());
@@ -748,7 +740,7 @@ namespace express::dispatcher {
         // Compute consumed part and remainder (consumedLength refers to the matched prefix in the path).
         const std::size_t cl = std::min<std::size_t>(consumedLength, fullPath.size());
         std::string_view consumed = fullPath.substr(0, cl);
-        std::string_view remainder = (fullPath.size() > cl) ? fullPath.substr(cl) : std::string_view{};
+        const std::string_view remainder = (fullPath.size() > cl) ? fullPath.substr(cl) : std::string_view{};
 
         // baseUrl never ends with a trailing slash and is empty for the root mount.
         consumed = trimOneTrailingSlash(consumed);

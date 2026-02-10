@@ -68,10 +68,6 @@ namespace express::dispatcher {
                                     [[maybe_unused]] bool strictRoutingUnused,
                                     [[maybe_unused]] bool caseInsensitiveRoutingUnused,
                                     [[maybe_unused]] bool mergeParamsUnused) {
-        bool dispatched = false;
-
-        const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
-
         LOG(TRACE) << "========================= ROUTER      DISPATCH =========================";
         LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
         LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
@@ -79,13 +75,17 @@ namespace express::dispatcher {
         LOG(TRACE) << "            Request Path: " << controller.getRequest()->path;
         LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
         LOG(TRACE) << "         Mountpoint Path: " << mountPoint.relativeMountPath;
-        LOG(TRACE) << "           StrictRouting: " << strictRouting;
-        LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
-        LOG(TRACE) << "             MergeParams: " << mergeParams;
+        LOG(TRACE) << "           StrictRouting: " << this->strictRouting;
+        LOG(TRACE) << "  CaseInsensitiveRouting: " << this->caseInsensitiveRouting;
+        LOG(TRACE) << "             MergeParams: " << this->mergeParams;
+
+        bool dispatched = false;
+
+        const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
 
         if (methodMatchesResult && (controller.getFlags() & Controller::NEXT) == 0) {
-            const MountMatchResult match =
-                matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, this->strictRouting, this->caseInsensitiveRouting);
+            const MountMatchResult match = matchMountPoint(
+                controller, mountPoint.relativeMountPath, mountPoint, regex, names, this->strictRouting, this->caseInsensitiveRouting);
 
             if (match.requestMatched) {
                 LOG(TRACE) << "------------------------- ROUTER         MATCH -------------------------";
@@ -93,12 +93,12 @@ namespace express::dispatcher {
                 dispatched = true;
 
                 if (!match.decodeError) {
-                    auto& req = *controller.getRequest();
-                    req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
+                    express::Request& request = *controller.getRequest();
+                    request.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
                     // Express-style mount path stripping is only applied for use()
-                    const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
-                    const ScopedParams scopedParams(req, match.params, this->mergeParams);
+                    const ScopedPathStrip pathStrip(request, match.isPrefix, match.consumedLength);
+                    const ScopedParams scopedParams(request, match.params, this->mergeParams);
 
                     for (Route& route : routes) {
                         dispatched = route.dispatch(controller, this->strictRouting, this->caseInsensitiveRouting, this->mergeParams);

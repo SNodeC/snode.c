@@ -49,7 +49,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
+#include <regex>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -87,6 +89,9 @@ namespace express::dispatcher {
         bool strictRouting = false;
         bool caseInsensitiveRouting = true;
         bool mergeParams = false;
+
+        std::regex regex;
+        std::vector<std::string> names;
     };
 
 } // namespace express::dispatcher

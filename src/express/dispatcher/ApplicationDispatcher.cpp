@@ -70,10 +70,6 @@ namespace express::dispatcher {
                                          bool strictRouting,
                                          bool caseInsensitiveRouting,
                                          bool mergeParams) {
-        bool dispatched = false;
-
-        const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
-
         LOG(TRACE) << "========================= APPLICATION DISPATCH =========================";
         LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
         LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
@@ -85,6 +81,10 @@ namespace express::dispatcher {
         LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
         LOG(TRACE) << "             MergeParams: " << mergeParams;
 
+        bool dispatched = false;
+
+        const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
+
         if (methodMatchesResult && ((controller.getFlags() & Controller::NEXT) == 0)) {
             const MountMatchResult match =
                 matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
@@ -95,17 +95,18 @@ namespace express::dispatcher {
                 dispatched = true;
 
                 if (!match.decodeError) {
-                    auto& req = *controller.getRequest();
-                    req.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
+                    express::Request& request = *controller.getRequest();
+                    request.queries.insert(match.requestQueryPairs.begin(), match.requestQueryPairs.end());
 
                     // Express-style mount path stripping is only applied for use()
-                    const ScopedPathStrip pathStrip(req, req.url, match.isPrefix, match.consumedLength);
-                    const ScopedParams scopedParams(req, match.params, mergeParams);
+                    const ScopedPathStrip pathStrip(request, match.isPrefix, match.consumedLength);
+                    const ScopedParams scopedParams(request, match.params, mergeParams);
 
                     lambda(controller.getRequest(), controller.getResponse());
                 } else {
                     controller.getResponse()->sendStatus(400);
                 }
+
             } else {
                 LOG(TRACE) << "------------------------- APPLICATION  NOMATCH -------------------------";
             }

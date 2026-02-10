@@ -84,12 +84,6 @@ namespace express::dispatcher {
         std::unordered_map<std::string, std::string> requestQueryPairs;
     };
 
-    MountMatchResult matchMountPoint(express::Controller& controller,
-                                     const std::string& absoluteMountPath,
-                                     const express::MountPoint& mountPoint,
-                                     bool strictRouting,
-                                     bool caseInsensitiveRouting);
-
     // Join parent + relative mount paths without producing double slashes.
     // Examples:
     //   joinMountPath("", "/api") -> "/api"
@@ -107,7 +101,7 @@ namespace express::dispatcher {
 
     class ScopedPathStrip {
     public:
-        ScopedPathStrip(express::Request& req, std::string_view requestUrl, bool enabled, std::size_t consumedLength);
+        ScopedPathStrip(express::Request& req, bool enabled, std::size_t consumedLength);
         ~ScopedPathStrip();
 
         ScopedPathStrip(const ScopedPathStrip&) = delete;
