@@ -1050,8 +1050,8 @@ RECURSIVE              = YES
 # run.
 
 EXCLUDE                = apps/main.cpp \
-                         apps/oauth2/authorization_server/vue-frontend-oauth2-auth-server \
-                         apps/oauth2/client_app/vue-frontend-oauth2-client \
+                         apps/oauth2 \
+                         express/express-compat-suite \
                          utils/CLI11.hpp \
                          ../supplement
 
