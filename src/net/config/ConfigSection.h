@@ -104,6 +104,8 @@ namespace net::config {
                                        const std::function<void(const std::string&)>& optionFunction,
                                        const std::string& description);
 
+        CLI::Option* addFlag(const std::string& name, const std::string& description);
+
         CLI::Option* addFlag(const std::string& name, const std::string& description, const std::string& typeName);
 
         CLI::Option* addFlag(const std::string& name,
