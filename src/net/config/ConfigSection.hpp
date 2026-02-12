@@ -89,6 +89,12 @@ namespace net::config {
         return addOption(name, description, typeName, defaultValue) //
             ->check(additionalValidator);
     }
+    template <typename ValueTypeT>
+    CLI::Option* ConfigSection::addOptionFunction(const std::string& name,
+                                                  const std::function<void(const std::string&)>& optionFunction,
+                                                  const std::string& description) {
+        return sectionSc->add_option_function<ValueTypeT>(name, optionFunction, description);
+    };
 
     template <typename ValueType>
     CLI::Option*
