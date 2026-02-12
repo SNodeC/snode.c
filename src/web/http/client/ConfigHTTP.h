@@ -74,8 +74,6 @@ namespace web::http::client {
         void setPipelinedRequests(bool pipelinedRequests);
         bool getPipelinedRequests() const;
 
-        CLI::Option* getOption(const std::string& name) const;
-
     private:
         CLI::Option* hostHeaderOpt = nullptr;
         CLI::Option* pipelinedRequestsOpt = nullptr;

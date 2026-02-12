@@ -83,21 +83,25 @@ namespace net::config {
     }
 
     template <typename SectionType>
-    SectionType* ConfigInstance::getSection([[maybe_unused]] const std::string& name) {
+    SectionType* ConfigInstance::getSection(const std::string& name, bool onlyGot, bool recursive) const {
+        utils::AppWithPtr<SectionType>* resultApp = nullptr;
+
         auto* appWithPtr = instanceSc->get_subcommand_no_throw(name);
 
         utils::AppWithPtr<SectionType>* sectionApp = dynamic_cast<utils::AppWithPtr<SectionType>*>(appWithPtr);
 
-        return sectionApp != nullptr ? sectionApp->getPtr() : nullptr;
-    }
+        if (sectionApp != nullptr) {
+            utils::AppWithPtr<SectionType>* parentApp =
+                dynamic_cast<utils::AppWithPtr<SectionType>*>(sectionApp->get_parent()->get_subcommand_no_throw(name));
 
-    template <typename SectionType>
-    const SectionType* ConfigInstance::getSection([[maybe_unused]] const std::string& name) const {
-        auto* appWithPtr = instanceSc->get_subcommand_no_throw(name);
+            if (sectionApp->count_all() > 0 || !onlyGot) {
+                resultApp = sectionApp;
+            } else if (recursive && parentApp != nullptr && (parentApp->count_all() > 0 || !onlyGot)) {
+                resultApp = parentApp;
+            }
+        }
 
-        utils::AppWithPtr<SectionType>* sectionApp = dynamic_cast<utils::AppWithPtr<SectionType>*>(appWithPtr);
-
-        return sectionApp != nullptr ? sectionApp->getPtr() : nullptr;
+        return resultApp != nullptr ? resultApp->getPtr() : nullptr;
     }
 
 } // namespace net::config

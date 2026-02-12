@@ -98,10 +98,7 @@ namespace net::config {
 
     public:
         template <typename SectionTypeT>
-        SectionTypeT* getSection(const std::string& name);
-
-        template <typename SectionTypeT>
-        const SectionTypeT* getSection(const std::string& name) const;
+        SectionTypeT* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
 
         bool gotSection(const std::string& name, bool recursive = false) const;
 

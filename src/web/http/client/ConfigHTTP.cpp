@@ -93,8 +93,4 @@ namespace web::http::client {
         return pipelinedRequestsOpt->as<bool>();
     }
 
-    CLI::Option* ConfigHTTP::getOption(const std::string& name) const {
-        return sectionSc->get_option(name);
-    }
-
 } // namespace web::http::client

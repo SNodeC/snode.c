@@ -129,6 +129,8 @@ namespace net::config {
                                      const std::string& defaultValue,
                                      const CLI::Validator& validator);
 
+        CLI::Option* getOption(const std::string& name) const;
+
         void required(CLI::Option* opt, bool req = true);
 
         bool required() const;

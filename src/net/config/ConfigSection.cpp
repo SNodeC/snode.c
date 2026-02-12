@@ -213,4 +213,8 @@ namespace net::config {
             ->check(validator);
     }
 
+    CLI::Option* ConfigSection::getOption(const std::string& name) const {
+        return sectionSc->get_option(name);
+    }
+
 } // namespace net::config
