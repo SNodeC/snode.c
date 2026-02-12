@@ -41,16 +41,23 @@
 
 #include "net/config/ConfigConnection.h"
 
+#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
+#include "net/config/ConfigPhysicalSocket.h"
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
 
     ConfigConnection::ConfigConnection(ConfigInstance* instance)
-        : net::config::ConfigSection(instance, "connection", "Configuration of established connections") {
+        : net::config::ConfigSection(instance,
+                                     std::make_shared<utils::Config::AppWithPtr<ConfigConnection>>(
+                                         "Configuration of established connections", "connection", this)) {
         readTimeoutOpt = addOption( //
             "--read-timeout",
             "Read timeout in seconds",
@@ -85,6 +92,11 @@ namespace net::config {
             "timeout",
             TERMINATE_TIMEOUT,
             CLI::PositiveNumber);
+
+        ConfigInstance* configInstance = utils::Config::getInstance<ConfigInstance>(instance->getInstanceName());
+
+        VLOG(0) << " ++++++++++++++++++++ From ConfigConnection: "
+                << (configInstance != nullptr ? configInstance->getInstanceName() : "<anonymous>");
     }
 
     utils::Timeval ConfigConnection::getReadTimeout() const {
@@ -100,6 +112,18 @@ namespace net::config {
     }
 
     utils::Timeval ConfigConnection::getWriteTimeout() const {
+        ConfigInstance* configInstance = utils::Config::getInstance<ConfigInstance>("httpserver");
+        if (configInstance != nullptr) {
+            VLOG(0) << " ++++++++++++++++++++ From ConfigConnection: " << configInstance->getInstanceName();
+
+            VLOG(0) << " ++++++++++++++++++++ "
+                    << configInstance->getSection<net::config::ConfigConnection>("connection")->getReadBlockSize();
+
+            configInstance->getSection<net::config::ConfigConnection>("connection")->setReadBlockSize(100);
+
+            VLOG(0) << " ++++++++++++++++++++ "
+                    << configInstance->getSection<net::config::ConfigConnection>("connection")->getReadBlockSize();
+        }
         return writeTimeoutOpt->as<utils::Timeval>();
     }
 

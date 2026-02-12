@@ -69,6 +69,8 @@ namespace net::config {
         explicit ConfigConnection(ConfigInstance* instance);
 
     public:
+        constexpr static std::string name{"connection"};
+
         utils::Timeval getReadTimeout() const;
         ConfigConnection& setReadTimeout(const utils::Timeval& newReadTimeoutSet);
 

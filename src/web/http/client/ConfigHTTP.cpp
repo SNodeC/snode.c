@@ -45,15 +45,27 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #define XSTR(s) STR(s)
 #define STR(s) #s
 
+/*
+
+net::config::ConfigSection(instance,
+                           std::make_shared<utils::Config::AppWithPtr<ConfigConnection>>(
+                               "Configuration of established connections", "connection", this)) {
+
+*/
+
 namespace web::http::client {
 
     ConfigHTTP::ConfigHTTP(net::config::ConfigInstance& configInstance) {
-        hostHeaderOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
+        hostHeaderOpt = net::config::ConfigSection(&configInstance,
+                                                   std::make_shared<utils::Config::AppWithPtr<ConfigHTTP>>("HTTP behavior", "http", this))
+
                             .addOption( //
                                 "--host",
                                 "HTTP request 'Host' header field",

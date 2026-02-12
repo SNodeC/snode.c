@@ -54,7 +54,7 @@ namespace net::config {
 
     ConfigTlsServer::ConfigTlsServer(ConfigInstance* instance)
         : Super(instance) {
-        sniCertsOpt = section //
+        sniCertsOpt = sectionSc //
                           ->add_option("--sni-cert",
                                        configuredSniCerts,
                                        "Server Name Indication (SNI) Certificates:\n"
@@ -72,7 +72,7 @@ namespace net::config {
                           ->type_name("sni <key> value [<key> value] ... [%% sni <key> value [<key> value] ...]")
                           ->default_str("[\"\" \"\" \"\" \"\"]");
         if (sniCertsOpt->get_configurable()) {
-            sniCertsOpt->group(section->get_formatter()->get_label("Persistent Options"));
+            sniCertsOpt->group(sectionSc->get_formatter()->get_label("Persistent Options"));
         }
 
         sniCertsOpt->default_function([this]() -> std::string {
@@ -116,7 +116,7 @@ namespace net::config {
             "false",
             CLI::IsMember({"true", "false"}));
 
-        section->final_callback([this]() {
+        sectionSc->final_callback([this]() {
             for (auto& [domain, sniMap] : configuredSniCerts) {
                 if (domain.empty()) {
                     sniCertsOpt //
@@ -133,8 +133,8 @@ namespace net::config {
                         key != "CaCertUseDefaultDir" && //
                         key != "CipherList" &&          //
                         key != "SslOptions") {
-                        throw CLI::ConversionError("'" + key + "' of option '--" + section->get_parent()->get_name() + "." +
-                                                       section->get_name() + ".sni-cert'",
+                        throw CLI::ConversionError("'" + key + "' of option '--" + sectionSc->get_parent()->get_name() + "." +
+                                                       sectionSc->get_name() + ".sni-cert'",
                                                    "<key>");
                     }
                 }

@@ -42,6 +42,7 @@
 #ifndef NET_CONFIG_CONFIGINSTANCE_H
 #define NET_CONFIG_CONFIGINSTANCE_H
 
+#include <easylogging++.h>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
@@ -53,7 +54,10 @@ namespace net::config {
     class ConfigSection;
 }
 
+#include "utils/Config.h"
+
 #include <cstdint>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -87,7 +91,20 @@ namespace net::config {
         void setDisabled(bool disabled = true);
 
         CLI::App* addSection(const std::string& name, const std::string& description, const std::string& group = "Sections");
+
+        CLI::App* addSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group = "Sections");
+
         CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
+
+        template <typename SectionTypeT>
+        SectionTypeT* getSection([[maybe_unused]] const std::string& name) {
+            auto* appWithPtr = instanceSc->get_subcommand_no_throw(name);
+
+            utils::Config::AppWithPtr<SectionTypeT>* sectionApp = dynamic_cast<utils::Config::AppWithPtr<SectionTypeT>*>(appWithPtr);
+
+            return sectionApp != nullptr ? sectionApp->getPtr() : nullptr;
+        }
+
         bool gotSection(const std::string& name, bool recursive = false) const;
 
         void required(CLI::App* section, bool req = true);

@@ -43,6 +43,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
 #include "utils/Config.h"
 
 #include <cstddef>
@@ -81,13 +82,27 @@ namespace net::config {
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
         : instanceName(instanceName)
         , role(role) {
-        instanceSc = utils::Config::addInstance(instanceName,
-                                                std::string("Configuration for ")
-                                                    .append(role == Role::SERVER ? "server" : "client")
-                                                    .append(" instance '")
-                                                    .append(instanceName)
-                                                    .append("'"),
-                                                "Instances");
+        auto configInstanceApp =
+            std::make_shared<utils::Config::AppWithPtr<ConfigInstance>>(std::string("Configuration for ")
+                                                                            .append(role == Role::SERVER ? "server" : "client")
+                                                                            .append(" instance '")
+                                                                            .append(instanceName)
+                                                                            .append("'"),
+                                                                        instanceName,
+                                                                        this);
+        /*
+                instanceSc = utils::Config::addInstance(instanceName,
+                                                        std::string("Configuration for ")
+                                                            .append(role == Role::SERVER ? "server" : "client")
+                                                            .append(" instance '")
+                                                            .append(instanceName)
+                                                            .append("'"),
+                                                        "Instances");
+        */
+        instanceSc = utils::Config::addInstance(configInstanceApp, "Instances");
+
+        ConfigInstance* configInstance = utils::Config::getInstance<ConfigInstance>(instanceName);
+        VLOG(0) << " ++++++++++++++++++++ From ConfigInstance" << configInstance->instanceName;
 
         disableOpt = instanceSc
                          ->add_flag_function(
@@ -129,6 +144,27 @@ namespace net::config {
                                   ->group(group)
                                   ->ignore_case(false)
                                   ->disabled(this->instanceName.empty() || name.empty());
+
+        sectionSc //
+            ->option_defaults()
+            ->configurable(!sectionSc->get_disabled());
+
+        if (!sectionSc->get_disabled()) {
+            utils::Config::addStandardFlags(sectionSc);
+            utils::Config::addSimpleHelp(sectionSc);
+        }
+
+        return sectionSc;
+    }
+
+    CLI::App* ConfigInstance::addSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group) {
+        CLI::App* sectionSc = instanceSc->add_subcommand(appWithPtr)
+                                  ->fallthrough()
+                                  ->configurable(false)
+                                  ->allow_extras(false)
+                                  ->group(group)
+                                  ->ignore_case(false)
+                                  ->disabled(appWithPtr->get_name().empty());
 
         sectionSc //
             ->option_defaults()

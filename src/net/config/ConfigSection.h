@@ -48,8 +48,11 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Config.h"
+
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <string> // IWYU pragma: export
 
 namespace CLI {
@@ -65,6 +68,10 @@ namespace net::config {
     class ConfigSection {
     public:
         ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description);
+
+        ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp);
+
+        virtual ~ConfigSection() = default;
 
         ConfigSection(const ConfigSection&) = delete;
         ConfigSection(ConfigSection&&) = delete;
@@ -129,10 +136,10 @@ namespace net::config {
     protected:
         void setConfigurable(CLI::Option* option, bool configurable);
 
-        CLI::App* section = nullptr;
+        CLI::App* sectionSc = nullptr;
 
     private:
-        ConfigInstance* instance = nullptr;
+        ConfigInstance* instanceSc = nullptr;
 
         uint8_t requiredCount = 0;
     };
