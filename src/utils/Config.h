@@ -94,7 +94,7 @@ namespace utils {
         //        static CLI::App* addInstance(const std::string& name, const std::string& description, const std::string& group, bool final
         //        = false);
 
-        static CLI::App* getInstance(const std::string& name);
+        //        static CLI::App* getInstance(const std::string& name);
 
         static bool removeInstance(CLI::App* instance);
 

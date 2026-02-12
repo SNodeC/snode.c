@@ -803,10 +803,11 @@ namespace utils {
 
         return instanceSc;
     }
-
-    CLI::App* Config::getInstance(const std::string& name) {
-        return app->get_subcommand(name);
-    }
+    /*
+        CLI::App* Config::getInstance(const std::string& name) {
+            return app->get_subcommand(name);
+        }
+    */
 
     CLI::App* Config::addStandardFlags(CLI::App* app) {
         app //
