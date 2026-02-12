@@ -134,28 +134,6 @@ namespace net::config {
         this->instanceName = instanceName;
     }
 
-    CLI::App* ConfigInstance::addSection(const std::string& name, const std::string& description, const std::string& group) {
-        CLI::App* sectionSc = instanceSc //
-                                  ->add_subcommand(name, description)
-                                  ->fallthrough()
-                                  ->configurable(false)
-                                  ->allow_extras(false)
-                                  ->group(group)
-                                  ->ignore_case(false)
-                                  ->disabled(this->instanceName.empty() || name.empty());
-
-        sectionSc //
-            ->option_defaults()
-            ->configurable(!sectionSc->get_disabled());
-
-        if (!sectionSc->get_disabled()) {
-            utils::Config::addStandardFlags(sectionSc);
-            utils::Config::addSimpleHelp(sectionSc);
-        }
-
-        return sectionSc;
-    }
-
     CLI::App* ConfigInstance::addSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group) {
         CLI::App* sectionSc = instanceSc->add_subcommand(appWithPtr)
                                   ->fallthrough()

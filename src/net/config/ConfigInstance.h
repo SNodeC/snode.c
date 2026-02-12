@@ -89,11 +89,12 @@ namespace net::config {
         bool getDisabled() const;
         void setDisabled(bool disabled = true);
 
-        CLI::App* addSection(const std::string& name, const std::string& description, const std::string& group = "Sections");
-
-        CLI::App* addSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group = "Sections");
+        CLI::App* addSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
 
         void addSection(std::shared_ptr<net::config::ConfigSection> configSection);
+
+        template <typename ConcreteConfigSection>
+        void addSection();
 
     private:
         CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;

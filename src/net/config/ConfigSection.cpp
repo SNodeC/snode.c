@@ -96,12 +96,12 @@ namespace net::config {
     }
 #endif
 
-    ConfigSection::ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp)
+    ConfigSection::ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group)
         : instanceSc(instanceSc) {
         //        sectionSc = instanceSc->getSection(sectionApp->get_name());
 
         //        if (sectionSc == nullptr) {
-        sectionSc = instanceSc->addSection(sectionApp);
+        sectionSc = instanceSc->addSection(sectionApp, group);
         sectionSc->description(sectionSc->get_description() + " for instance '" + instanceSc->getInstanceName() + "'");
         //        }
     }
