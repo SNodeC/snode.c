@@ -93,6 +93,8 @@ namespace net::config {
 
         CLI::App* addSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group = "Sections");
 
+        void addSection(std::shared_ptr<net::config::ConfigSection> configSection);
+
     private:
         CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
 
@@ -119,6 +121,8 @@ namespace net::config {
 
         CLI::App* instanceSc = nullptr;
         CLI::Option* disableOpt = nullptr;
+
+        std::vector<std::shared_ptr<net::config::ConfigSection>> configSections;
 
         friend class net::config::ConfigSection;
     };

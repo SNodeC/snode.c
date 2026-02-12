@@ -177,6 +177,10 @@ namespace net::config {
         return sectionSc;
     }
 
+    void ConfigInstance::addSection(std::shared_ptr<ConfigSection> configSection) {
+        configSections.push_back(configSection);
+    }
+
     void ConfigInstance::required(CLI::App* section, bool req) {
         if (req != section->get_required()) {
             if (req) {
