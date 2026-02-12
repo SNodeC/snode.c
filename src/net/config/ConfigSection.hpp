@@ -39,6 +39,9 @@
  * THE SOFTWARE.
  */
 
+#ifndef NET_CONFIG_CONFIGSECTION_HPP
+#define NET_CONFIG_CONFIGSECTION_HPP
+
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -105,3 +108,5 @@ namespace net::config {
     }
 
 } // namespace net::config
+
+#endif // NET_CONFIG_CONFIGSECTION_HPP

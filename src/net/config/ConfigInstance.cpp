@@ -82,13 +82,13 @@ namespace net::config {
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
         : instanceName(instanceName)
         , role(role) {
-        auto configInstanceApp = std::make_shared<utils::AppWithPtr<ConfigInstance>>(std::string("Configuration for ")
-                                                                                         .append(role == Role::SERVER ? "server" : "client")
-                                                                                         .append(" instance '")
-                                                                                         .append(instanceName)
-                                                                                         .append("'"),
-                                                                                     instanceName,
-                                                                                     this);
+        auto configInstanceApp = net::config::Instance(instanceName,
+                                                       std::string("Configuration for ")
+                                                           .append(role == Role::SERVER ? "server" : "client")
+                                                           .append(" instance '")
+                                                           .append(instanceName)
+                                                           .append("'"),
+                                                       this);
         /*
                 instanceSc = utils::Config::addInstance(instanceName,
                                                         std::string("Configuration for ")

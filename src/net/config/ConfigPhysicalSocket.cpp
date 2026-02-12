@@ -41,7 +41,7 @@
 
 #include "ConfigPhysicalSocket.h"
 
-#include "net/config/ConfigSection.hpp"
+#include "net/config/ConfigSectionAPI.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -57,7 +57,7 @@
 namespace net::config {
 
     ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
-        : ConfigSection(instance, "socket", "Configuration of socket behavior") {
+        : ConfigSection(instance, net::config::Section("socket", "Configuration of socket behavior", this)) {
         retryOpt = addFlag( //
             "--retry{true}",
             "Automatically retry listen|connect",

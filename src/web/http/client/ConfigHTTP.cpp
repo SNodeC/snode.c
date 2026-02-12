@@ -62,22 +62,19 @@ net::config::ConfigSection(instance,
 
 namespace web::http::client {
 
-    ConfigHTTP::ConfigHTTP(net::config::ConfigInstance& configInstance) {
-        hostHeaderOpt =
-            net::config::ConfigSection(&configInstance, std::make_shared<utils::AppWithPtr<ConfigHTTP>>("HTTP behavior", "http", this))
+    ConfigHTTP::ConfigHTTP(net::config::ConfigInstance& configInstance)
+        : net::config::ConfigSection(&configInstance, net::config::Section("http", "HTTP behavior", this)) {
+        hostHeaderOpt = addOption( //
+            "--host",
+            "HTTP request 'Host' header field",
+            "string");
 
-                .addOption( //
-                    "--host",
-                    "HTTP request 'Host' header field",
-                    "string");
-
-        pipelinedRequestsOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
-                                   .addFlag( //
-                                       "--pipelined-requests",
-                                       "Pipelined requests",
-                                       "bool",
-                                       XSTR(HTTP_REQUEST_PIPELINED),
-                                       CLI::IsMember({"true", "false"}));
+        pipelinedRequestsOpt = addFlag( //
+            "--pipelined-requests",
+            "Pipelined requests",
+            "bool",
+            XSTR(HTTP_REQUEST_PIPELINED),
+            CLI::IsMember({"true", "false"}));
     }
 
     void ConfigHTTP::setHostHeader(const std::string& hostHeader) {

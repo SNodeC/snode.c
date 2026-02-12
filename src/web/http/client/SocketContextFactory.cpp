@@ -41,7 +41,12 @@
 
 #include "web/http/client/SocketContextFactory.h"
 
+// #include "net/config/ConfigInstanceAPI.hpp"
+#include "net/config/ConfigSectionAPI.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -52,24 +57,32 @@ namespace web::http::client {
                                                const std::function<net::config::ConfigInstance&()>& getConfigInstance)
         : onHttpConnected(onHttpConnected)
         , onHttpDisconnected(onHttpDisconnected)
-        , configHttp(web::http::client::ConfigHTTP(getConfigInstance())) {
+        , configInstance(getConfigInstance()) {
     }
 
-    void SocketContextFactory::setHostHeader(const std::string& hostHeader) {
-        configHttp.setHostHeader(hostHeader);
-    }
+    /*
+        void SocketContextFactory::setHostHeader(const std::string& hostHeader) {
+            configInstance.getSection<ConfigHTTP>("http")->setHostHeader(hostHeader);
+        }
 
-    std::string SocketContextFactory::getHostHeader() const {
-        return configHttp.getHostHeader();
-    }
+        std::string SocketContextFactory::getHostHeader() const {
+            return configInstance.getSection<ConfigHTTP>("http")->getHostHeader();
+        }
 
-    void SocketContextFactory::setPipelinedRequests(bool pipelinedRequests) {
-        configHttp.setPipelinedRequests(pipelinedRequests);
-    }
+        void SocketContextFactory::setPipelinedRequests(bool pipelinedRequests) {
+            configInstance.getSection<ConfigHTTP>("http")->setPipelinedRequests(pipelinedRequests);
+        }
+    */
 
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
-        return new web::http::client::SocketContext(
-            socketConnection, onHttpConnected, onHttpDisconnected, configHttp.getHostHeader(), configHttp.getPipelinedRequests());
+        configInstance.getSection<ConfigHTTP>("http")->getHostHeader();
+        configInstance.getSection<ConfigHTTP>("http")->getPipelinedRequests();
+
+        return new web::http::client::SocketContext(socketConnection,
+                                                    onHttpConnected,
+                                                    onHttpDisconnected,
+                                                    configInstance.getSection<ConfigHTTP>("http")->getHostHeader(),
+                                                    configInstance.getSection<ConfigHTTP>("http")->getPipelinedRequests());
     }
 
 } // namespace web::http::client

@@ -42,6 +42,7 @@
 #ifndef WEB_HTTP_CLIENT_HTTPCONFIG_H
 #define WEB_HTTP_CLIENT_HTTPCONFIG_H
 
+#include "net/config/ConfigSection.h"
 namespace net::config {
     class ConfigInstance;
 } // namespace net::config
@@ -58,13 +59,13 @@ namespace CLI {
 
 namespace web::http::client {
 
-    class ConfigHTTP {
+    class ConfigHTTP : public net::config::ConfigSection {
     public:
         explicit ConfigHTTP(net::config::ConfigInstance& configInstance);
         ConfigHTTP(ConfigHTTP&) = delete;
         ConfigHTTP& operator=(ConfigHTTP&) = delete;
 
-        ConfigHTTP(ConfigHTTP&&) noexcept = default;
+        ConfigHTTP(ConfigHTTP&&) noexcept = delete;
         ConfigHTTP& operator=(ConfigHTTP&&) = delete;
 
         void setHostHeader(const std::string& hostHeader);

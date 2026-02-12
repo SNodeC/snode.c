@@ -40,7 +40,7 @@
  */
 
 #include "net/config/ConfigInstanceAPI.hpp"
-#include "net/config/ConfigSection.h"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -77,18 +77,27 @@
 
 namespace net::config {
 
-    template <typename SectionTypeT>
-    SectionTypeT* ConfigInstance::getSection([[maybe_unused]] const std::string& name) {
+    template <typename T>
+    std::shared_ptr<CLI::App> Section(const std::string& name, const std::string& description, T* section) {
+        return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+    }
+
+    template <typename SectionType>
+    SectionType* ConfigInstance::getSection([[maybe_unused]] const std::string& name) {
         auto* appWithPtr = instanceSc->get_subcommand_no_throw(name);
 
-        utils::AppWithPtr<SectionTypeT>* sectionApp = dynamic_cast<utils::AppWithPtr<SectionTypeT>*>(appWithPtr);
+        utils::AppWithPtr<SectionType>* sectionApp = dynamic_cast<utils::AppWithPtr<SectionType>*>(appWithPtr);
 
         return sectionApp != nullptr ? sectionApp->getPtr() : nullptr;
     }
 
-    template <typename T>
-    std::shared_ptr<CLI::App> Section(const std::string& name, const std::string& description, T* section) {
-        return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+    template <typename SectionType>
+    const SectionType* ConfigInstance::getSection([[maybe_unused]] const std::string& name) const {
+        auto* appWithPtr = instanceSc->get_subcommand_no_throw(name);
+
+        utils::AppWithPtr<SectionType>* sectionApp = dynamic_cast<utils::AppWithPtr<SectionType>*>(appWithPtr);
+
+        return sectionApp != nullptr ? sectionApp->getPtr() : nullptr;
     }
 
 } // namespace net::config

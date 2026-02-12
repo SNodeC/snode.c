@@ -91,8 +91,8 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::setOnConnected([socketContextFactory = Super::getSocketContextFactory(), onConnect](SocketConnection* socketConnection) {
-                socketContextFactory->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
+            Super::setOnConnected([configHttp = this->configHttp](SocketConnection* socketConnection) {
+                configHttp->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }
 
@@ -118,8 +118,8 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::setOnConnect([socketContextFactory = Super::getSocketContextFactory()](SocketConnection* socketConnection) {
-                socketContextFactory->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
+            Super::setOnConnect([configHttp = this->configHttp](SocketConnection* socketConnection) {
+                configHttp->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }
 
@@ -131,10 +131,12 @@ namespace web::http::client {
         }
 
         const Client& setPipelinedRequests(bool pipelinedRequests) const {
-            Super::getSocketContextFactory()->setPipelinedRequests(pipelinedRequests);
+            configHttp->setPipelinedRequests(pipelinedRequests);
 
             return *this;
         }
+
+        std::shared_ptr<ConfigHTTP> configHttp = std::make_shared<ConfigHTTP>(this->getConfig());
     };
 
 } // namespace web::http::client

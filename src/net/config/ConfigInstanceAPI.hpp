@@ -60,7 +60,7 @@ namespace net::config {
 } // namespace net::config
 
 template <typename T>
-T* ::utils::Config::getInstance(const std::string& name) {
+T* utils::Config::getInstance(const std::string& name) {
     auto* appWithPtr = app->get_subcommand_no_throw(name);
 
     utils::AppWithPtr<T>* instanceApp = dynamic_cast<utils::AppWithPtr<T>*>(appWithPtr);

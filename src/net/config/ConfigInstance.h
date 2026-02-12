@@ -93,10 +93,15 @@ namespace net::config {
 
         CLI::App* addSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group = "Sections");
 
+    private:
         CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
 
+    public:
         template <typename SectionTypeT>
-        SectionTypeT* getSection([[maybe_unused]] const std::string& name);
+        SectionTypeT* getSection(const std::string& name);
+
+        template <typename SectionTypeT>
+        const SectionTypeT* getSection(const std::string& name) const;
 
         bool gotSection(const std::string& name, bool recursive = false) const;
 

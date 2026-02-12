@@ -67,7 +67,7 @@ namespace net::config {
 
     class ConfigSection {
     public:
-        ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description);
+        //        ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description);
 
         ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp);
 

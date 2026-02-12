@@ -74,7 +74,7 @@ namespace utils {
                     T* ptr = nullptr;
                 };
         */
-        static CLI::App* addInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
+        static CLI::App* addInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
 
         template <typename T>
         static T* getInstance(const std::string& name);
@@ -91,7 +91,8 @@ namespace utils {
         static bool bootstrap();
         static void terminate();
 
-        static CLI::App* addInstance(const std::string& name, const std::string& description, const std::string& group, bool final = false);
+        //        static CLI::App* addInstance(const std::string& name, const std::string& description, const std::string& group, bool final
+        //        = false);
 
         static CLI::App* getInstance(const std::string& name);
 

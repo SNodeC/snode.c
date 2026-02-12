@@ -41,7 +41,7 @@
 
 #include "apps/http/model/servers.h"
 #include "express/middleware/StaticMiddleware.h"
-#include "net/config/ConfigSection.hpp"
+#include "net/config/ConfigSectionAPI.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,7 +66,8 @@ int main(int argc, char* argv[]) {
 
     const WebApp webApp(apps::http::STREAM::getWebApp("httpserver"));
 
-    net::config::ConfigSection configWeb = net::config::ConfigSection(&webApp.getConfig(), "www", "Web behavior of httpserver");
+    net::config::ConfigSection configWeb =
+        net::config::ConfigSection(&webApp.getConfig(), net::config::Section("www", "Web behavior of httpserver", &webApp.getConfig()));
     CLI::Option* htmlRoot = configWeb.addOption("--html-root", "HTML root directory", "path", "");
     configWeb.required(htmlRoot);
 

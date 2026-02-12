@@ -77,6 +77,7 @@
 
 namespace net::config {
 
+#ifdef NOT
     ConfigSection::ConfigSection(ConfigInstance* instanceSc, const std::string& name, const std::string& description)
         : instanceSc(instanceSc) {
         CLI::App* existingSection = instanceSc->getSection(name);
@@ -93,6 +94,7 @@ namespace net::config {
                 sectionSc = instanceSc->addSection(configInstanceApp, "Section")->disabled();
         */
     }
+#endif
 
     ConfigSection::ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp)
         : instanceSc(instanceSc) {

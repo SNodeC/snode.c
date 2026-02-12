@@ -68,10 +68,9 @@ namespace web::http::client {
                              const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpDisconnected,
                              const std::function<net::config::ConfigInstance&()>& getConfigInstance);
 
-        void setHostHeader(const std::string& hostHeader);
-        std::string getHostHeader() const;
-
-        void setPipelinedRequests(bool pipelinedRequests);
+        //        void setHostHeader(const std::string& hostHeader);
+        //        std::string getHostHeader() const;
+        //        void setPipelinedRequests(bool pipelinedRequests);
 
     private:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
@@ -79,7 +78,7 @@ namespace web::http::client {
         std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpConnected;
         std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpDisconnected;
 
-        ConfigHTTP configHttp;
+        net::config::ConfigInstance& configInstance;
     };
 
 } // namespace web::http::client
