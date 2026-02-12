@@ -61,29 +61,25 @@ namespace utils {
 
     class Config {
     public:
-        template <class T>
-        struct AppWithPtr : CLI::App {
-            AppWithPtr(const std::string& description, const std::string& name, T* t)
-                : CLI::App(description, name)
-                , ptr(t) {
-            }
+        /*
+                template <class T>
+                struct AppWithPtr : CLI::App {
+                    AppWithPtr(const std::string& description, const std::string& name, T* t);
 
-            const T* getPtr() const {
-                return ptr;
-            }
+                    const T* getPtr() const;
 
-            T* getPtr() {
-                return ptr;
-            }
+                    T* getPtr();
 
-        private:
-            T* ptr = nullptr;
-        };
+                private:
+                    T* ptr = nullptr;
+                };
+        */
+        static CLI::App* addInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
 
-        template <typename ConcreteSection>
-        static std::shared_ptr<CLI::App> App(const std::string& name, const std::string& description, ConcreteSection* section) {
-            return std::make_shared<utils::Config::AppWithPtr<ConcreteSection>>(description, name, section);
-        }
+        template <typename T>
+        static T* getInstance(const std::string& name);
+
+        //////////////////
 
         Config() = delete;
         Config(const Config&) = delete;
@@ -97,18 +93,7 @@ namespace utils {
 
         static CLI::App* addInstance(const std::string& name, const std::string& description, const std::string& group, bool final = false);
 
-        static CLI::App* addInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
-
         static CLI::App* getInstance(const std::string& name);
-
-        template <typename T>
-        static T* getInstance(const std::string& name) {
-            auto* appWithPtr = app->get_subcommand_no_throw(name);
-
-            AppWithPtr<T>* instanceApp = dynamic_cast<AppWithPtr<T>*>(appWithPtr);
-
-            return instanceApp != nullptr ? instanceApp->getPtr() : nullptr;
-        }
 
         static bool removeInstance(CLI::App* instance);
 
@@ -198,6 +183,18 @@ namespace utils {
         static std::map<std::string, CLI::Option*> applicationOptions; // keep all user options in memory
     };
 
+    //////////////////
+
+    /*
+        template <typename T>
+        T* Config::getInstance(const std::string& name) {
+            auto* appWithPtr = app->get_subcommand_no_throw(name);
+
+            AppWithPtr<T>* instanceApp = dynamic_cast<AppWithPtr<T>*>(appWithPtr);
+
+            return instanceApp != nullptr ? instanceApp->getPtr() : nullptr;
+        }
+    */
 } // namespace utils
 
 #endif // UTILS_CONFIG_H

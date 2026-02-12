@@ -42,7 +42,6 @@
 #ifndef NET_CONFIG_CONFIGINSTANCE_H
 #define NET_CONFIG_CONFIGINSTANCE_H
 
-#include <easylogging++.h>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
@@ -66,7 +65,7 @@ namespace net::config {
 
     class ConfigInstance {
     public:
-        using Instance = ConfigInstance;
+        //        using Instance = ConfigInstance;
 
         enum class Role { SERVER, CLIENT };
 
@@ -97,13 +96,7 @@ namespace net::config {
         CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
 
         template <typename SectionTypeT>
-        SectionTypeT* getSection([[maybe_unused]] const std::string& name) {
-            auto* appWithPtr = instanceSc->get_subcommand_no_throw(name);
-
-            utils::Config::AppWithPtr<SectionTypeT>* sectionApp = dynamic_cast<utils::Config::AppWithPtr<SectionTypeT>*>(appWithPtr);
-
-            return sectionApp != nullptr ? sectionApp->getPtr() : nullptr;
-        }
+        SectionTypeT* getSection([[maybe_unused]] const std::string& name);
 
         bool gotSection(const std::string& name, bool recursive = false) const;
 

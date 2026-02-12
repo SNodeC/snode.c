@@ -39,61 +39,49 @@
  * THE SOFTWARE.
  */
 
-#include "ConfigHTTP.h"
-
-#include "net/config/ConfigSectionAPI.hpp"
-
+#include "utils/CLI11.hpp"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+namespace CLI {
+    class App;
+    class Option;
+    class Formatter;
+} // namespace CLI
+
+#include <map>
 #include <memory>
+#include <string>
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define XSTR(s) STR(s)
-#define STR(s) #s
+namespace utils {
 
-/*
+    template <class T>
+    struct AppWithPtr : CLI::App {
+        AppWithPtr(const std::string& description, const std::string& name, T* t);
 
-net::config::ConfigSection(instance,
-                           std::make_shared<utils::AppWithPtr<ConfigConnection>>(
-                               "Configuration of established connections", "connection", this)) {
+        const T* getPtr() const;
 
-*/
+        T* getPtr();
 
-namespace web::http::client {
+    private:
+        T* ptr = nullptr;
+    };
 
-    ConfigHTTP::ConfigHTTP(net::config::ConfigInstance& configInstance) {
-        hostHeaderOpt =
-            net::config::ConfigSection(&configInstance, std::make_shared<utils::AppWithPtr<ConfigHTTP>>("HTTP behavior", "http", this))
-
-                .addOption( //
-                    "--host",
-                    "HTTP request 'Host' header field",
-                    "string");
-
-        pipelinedRequestsOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
-                                   .addFlag( //
-                                       "--pipelined-requests",
-                                       "Pipelined requests",
-                                       "bool",
-                                       XSTR(HTTP_REQUEST_PIPELINED),
-                                       CLI::IsMember({"true", "false"}));
+    template <class T>
+    AppWithPtr<T>::AppWithPtr(const std::string& description, const std::string& name, T* t)
+        : CLI::App(description, name)
+        , ptr(t) {
     }
 
-    void ConfigHTTP::setHostHeader(const std::string& hostHeader) {
-        hostHeaderOpt->default_str(hostHeader);
+    template <class T>
+    const T* AppWithPtr<T>::getPtr() const {
+        return ptr;
     }
 
-    std::string ConfigHTTP::getHostHeader() const {
-        return hostHeaderOpt->as<std::string>();
+    template <class T>
+    T* AppWithPtr<T>::getPtr() {
+        return ptr;
     }
 
-    void ConfigHTTP::setPipelinedRequests(bool pipelinedRequests) {
-        pipelinedRequestsOpt->default_val(pipelinedRequests ? "true" : "false");
-    }
-
-    bool ConfigHTTP::getPipelinedRequests() const {
-        return pipelinedRequestsOpt->as<bool>();
-    }
-
-} // namespace web::http::client
+} // namespace utils

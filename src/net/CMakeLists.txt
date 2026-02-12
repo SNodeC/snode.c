@@ -68,6 +68,7 @@ set(NET_H
     config/ConfigAddressReverse.h
     config/ConfigAddressReverse.hpp
     config/ConfigInstance.h
+    config/ConfigInstanceAPI.hpp
     config/ConfigConnection.h
     config/ConfigLegacy.h
     config/ConfigPhysicalSocket.h
@@ -75,6 +76,7 @@ set(NET_H
     config/ConfigPhysicalSocketServer.h
     config/ConfigSection.h
     config/ConfigSection.hpp
+    config/ConfigSectionAPI.hpp
     config/ConfigTls.h
     config/ConfigTlsServer.h
     config/ConfigTlsClient.h

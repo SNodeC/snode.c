@@ -39,61 +39,31 @@
  * THE SOFTWARE.
  */
 
-#include "ConfigHTTP.h"
-
-#include "net/config/ConfigSectionAPI.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "net/config/ConfigInstance.h"
+#include "utils/ConfigApp.hpp"
+
+#include <cstdint>
 #include <memory>
+#include <string>
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define XSTR(s) STR(s)
-#define STR(s) #s
+namespace net::config {
 
-/*
-
-net::config::ConfigSection(instance,
-                           std::make_shared<utils::AppWithPtr<ConfigConnection>>(
-                               "Configuration of established connections", "connection", this)) {
-
-*/
-
-namespace web::http::client {
-
-    ConfigHTTP::ConfigHTTP(net::config::ConfigInstance& configInstance) {
-        hostHeaderOpt =
-            net::config::ConfigSection(&configInstance, std::make_shared<utils::AppWithPtr<ConfigHTTP>>("HTTP behavior", "http", this))
-
-                .addOption( //
-                    "--host",
-                    "HTTP request 'Host' header field",
-                    "string");
-
-        pipelinedRequestsOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
-                                   .addFlag( //
-                                       "--pipelined-requests",
-                                       "Pipelined requests",
-                                       "bool",
-                                       XSTR(HTTP_REQUEST_PIPELINED),
-                                       CLI::IsMember({"true", "false"}));
+    template <typename T>
+    std::shared_ptr<CLI::App> Instance(const std::string& name, const std::string& description, T* section) {
+        return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
     }
 
-    void ConfigHTTP::setHostHeader(const std::string& hostHeader) {
-        hostHeaderOpt->default_str(hostHeader);
-    }
+} // namespace net::config
 
-    std::string ConfigHTTP::getHostHeader() const {
-        return hostHeaderOpt->as<std::string>();
-    }
+template <typename T>
+T* ::utils::Config::getInstance(const std::string& name) {
+    auto* appWithPtr = app->get_subcommand_no_throw(name);
 
-    void ConfigHTTP::setPipelinedRequests(bool pipelinedRequests) {
-        pipelinedRequestsOpt->default_val(pipelinedRequests ? "true" : "false");
-    }
+    utils::AppWithPtr<T>* instanceApp = dynamic_cast<utils::AppWithPtr<T>*>(appWithPtr);
 
-    bool ConfigHTTP::getPipelinedRequests() const {
-        return pipelinedRequestsOpt->as<bool>();
-    }
-
-} // namespace web::http::client
+    return instanceApp != nullptr ? instanceApp->getPtr() : nullptr;
+}

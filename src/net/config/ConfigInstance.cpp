@@ -39,7 +39,7 @@
  * THE SOFTWARE.
  */
 
-#include "net/config/ConfigInstance.h"
+#include "net/config/ConfigInstanceAPI.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -82,14 +82,13 @@ namespace net::config {
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
         : instanceName(instanceName)
         , role(role) {
-        auto configInstanceApp =
-            std::make_shared<utils::Config::AppWithPtr<ConfigInstance>>(std::string("Configuration for ")
-                                                                            .append(role == Role::SERVER ? "server" : "client")
-                                                                            .append(" instance '")
-                                                                            .append(instanceName)
-                                                                            .append("'"),
-                                                                        instanceName,
-                                                                        this);
+        auto configInstanceApp = std::make_shared<utils::AppWithPtr<ConfigInstance>>(std::string("Configuration for ")
+                                                                                         .append(role == Role::SERVER ? "server" : "client")
+                                                                                         .append(" instance '")
+                                                                                         .append(instanceName)
+                                                                                         .append("'"),
+                                                                                     instanceName,
+                                                                                     this);
         /*
                 instanceSc = utils::Config::addInstance(instanceName,
                                                         std::string("Configuration for ")
@@ -101,8 +100,8 @@ namespace net::config {
         */
         instanceSc = utils::Config::addInstance(configInstanceApp, "Instances");
 
-        ConfigInstance* configInstance = utils::Config::getInstance<ConfigInstance>(instanceName);
-        VLOG(0) << " ++++++++++++++++++++ From ConfigInstance" << configInstance->instanceName;
+        //        ConfigInstance* configInstance = utils::Config::getInstance<ConfigInstance>(instanceName);
+        //        VLOG(0) << " ++++++++++++++++++++ From ConfigInstance" << configInstance->instanceName;
 
         disableOpt = instanceSc
                          ->add_flag_function(

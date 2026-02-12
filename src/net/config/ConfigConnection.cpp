@@ -43,6 +43,7 @@
 
 #include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.hpp"
+#include "net/config/ConfigSectionAPI.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -55,7 +56,7 @@
 namespace net::config {
 
     ConfigConnection::ConfigConnection(ConfigInstance* instance)
-        : net::config::ConfigSection(instance, utils::Config::App("connection", "Configuration of established connections", this)) {
+        : net::config::ConfigSection(instance, net::config::Section("connection", "Configuration of established connections", this)) {
         readTimeoutOpt = addOption( //
             "--read-timeout",
             "Read timeout in seconds",
