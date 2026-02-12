@@ -80,6 +80,11 @@ namespace utils {
             T* ptr = nullptr;
         };
 
+        template <typename ConcreteSection>
+        static std::shared_ptr<CLI::App> App(const std::string& name, const std::string& description, ConcreteSection* section) {
+            return std::make_shared<utils::Config::AppWithPtr<ConcreteSection>>(description, name, section);
+        }
+
         Config() = delete;
         Config(const Config&) = delete;
         ~Config() = delete;

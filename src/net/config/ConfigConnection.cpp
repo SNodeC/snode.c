@@ -55,9 +55,7 @@
 namespace net::config {
 
     ConfigConnection::ConfigConnection(ConfigInstance* instance)
-        : net::config::ConfigSection(instance,
-                                     std::make_shared<utils::Config::AppWithPtr<ConfigConnection>>(
-                                         "Configuration of established connections", "connection", this)) {
+        : net::config::ConfigSection(instance, utils::Config::App("connection", "Configuration of established connections", this)) {
         readTimeoutOpt = addOption( //
             "--read-timeout",
             "Read timeout in seconds",
