@@ -49,10 +49,10 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddressBase<SocketAddress>::ConfigAddressBase(ConfigInstance* instance,
-                                                        const std::string& addressOptionName,
-                                                        const std::string& addressOptionDescription)
-        : net::config::ConfigSection(instance, net::config::Section(addressOptionName, addressOptionDescription, this)) {
+    template <typename ConfigAddressSectionT>
+    ConfigAddressBase<SocketAddress>::ConfigAddressBase(ConfigInstance* instance, ConfigAddressSectionT*)
+        : net::config::ConfigSection(instance,
+                                     net::config::Section(ConfigAddressSectionT::name, ConfigAddressSectionT::description, this)) {
     }
 
     template <typename SocketAddress>

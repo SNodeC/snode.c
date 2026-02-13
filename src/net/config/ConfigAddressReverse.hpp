@@ -45,4 +45,11 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config {} // namespace net::config
+namespace net::config {
+
+    template <typename SocketAddress>
+    ConfigAddressReverse<SocketAddress>::ConfigAddressReverse(ConfigInstance* instance)
+        : Super(instance, static_cast<ConfigAddressReverse<SocketAddress>*>(nullptr)) {
+    }
+
+} // namespace net::config

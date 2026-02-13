@@ -56,7 +56,11 @@ namespace net::config {
         using Super = net::config::ConfigAddress<SocketAddressT>;
 
     protected:
-        using Super::Super;
+        explicit ConfigAddressRemote(ConfigInstance* instance);
+
+    public:
+        constexpr static const char* name{"remote"};
+        constexpr static const char* description{"Remote side of connection"};
     };
 
 } // namespace net::config

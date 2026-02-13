@@ -60,9 +60,8 @@ namespace net::config {
         using Super = ConfigSection;
 
     protected:
-        explicit ConfigAddressBase(ConfigInstance* instance,
-                                   const std::string& addressOptionName = "",
-                                   const std::string& addressOptionDescription = "");
+        template <typename ConfigAddressSectionT>
+        explicit ConfigAddressBase(ConfigInstance* instance, ConfigAddressSectionT*);
 
         virtual ~ConfigAddressBase() = default;
 

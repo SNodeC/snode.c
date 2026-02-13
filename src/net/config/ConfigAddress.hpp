@@ -51,10 +51,9 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddress<SocketAddress>::ConfigAddress(ConfigInstance* instance,
-                                                const std::string& addressOptionName,
-                                                const std::string& addressOptionDescription)
-        : Super(instance, addressOptionName, addressOptionDescription) {
+    template <typename ConfigAddressSectionT>
+    ConfigAddress<SocketAddress>::ConfigAddress(ConfigInstance* instance, ConfigAddressSectionT*)
+        : Super(instance, static_cast<ConfigAddressSectionT*>(nullptr)) {
     }
 
     template <typename SocketAddress>
