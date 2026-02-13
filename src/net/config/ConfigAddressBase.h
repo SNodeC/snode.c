@@ -64,8 +64,6 @@ namespace net::config {
                                    const std::string& addressOptionName = "",
                                    const std::string& addressOptionDescription = "");
 
-        virtual ~ConfigAddressBase() = default;
-
     public:
         SocketAddressT getSocketAddress(const typename SocketAddressT::SockAddr& sockAddr, typename SocketAddressT::SockLen sockAddrLen);
     };

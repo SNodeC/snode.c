@@ -53,7 +53,7 @@
 namespace web::http::client {
 
     ConfigHTTP::ConfigHTTP(net::config::ConfigInstance* configInstance)
-        : net::config::ConfigSection(configInstance, net::config::Section("http", "HTTP behavior", this)) {
+        : net::config::ConfigSection(configInstance, net::config::Section(ConfigHTTP::name, "HTTP behavior", this)) {
         hostHeaderOpt = addOption( //
             "--host",
             "HTTP request 'Host' header field",

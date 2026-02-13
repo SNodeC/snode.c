@@ -94,7 +94,7 @@ namespace web::http::client {
                         return Super::getConfig();
                     }) {
             Super::getConfig().template addSection<ConfigHTTP>();
-            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>("http")](SocketConnection* socketConnection) {
+            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>()](SocketConnection* socketConnection) {
                 config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }
@@ -122,7 +122,7 @@ namespace web::http::client {
                         return Super::getConfig();
                     }) {
             Super::getConfig().template addSection<ConfigHTTP>();
-            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>("http")](SocketConnection* socketConnection) {
+            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>()](SocketConnection* socketConnection) {
                 config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }

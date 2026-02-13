@@ -60,6 +60,8 @@ namespace web::http::client {
 
     class ConfigHTTP : public net::config::ConfigSection {
     public:
+        constexpr static std::string name{"http"};
+
         explicit ConfigHTTP(net::config::ConfigInstance* configInstance);
         ConfigHTTP(ConfigHTTP&) = delete;
         ConfigHTTP& operator=(ConfigHTTP&) = delete;

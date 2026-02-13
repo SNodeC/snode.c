@@ -60,29 +60,12 @@ namespace web::http::client {
         , configInstance(getConfigInstance()) {
     }
 
-    /*
-        void SocketContextFactory::setHostHeader(const std::string& hostHeader) {
-            configInstance.getSection<ConfigHTTP>("http")->setHostHeader(hostHeader);
-        }
-
-        std::string SocketContextFactory::getHostHeader() const {
-            return configInstance.getSection<ConfigHTTP>("http")->getHostHeader();
-        }
-
-        void SocketContextFactory::setPipelinedRequests(bool pipelinedRequests) {
-            configInstance.getSection<ConfigHTTP>("http")->setPipelinedRequests(pipelinedRequests);
-        }
-    */
-
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
-        configInstance.getSection<ConfigHTTP>("http")->getHostHeader();
-        configInstance.getSection<ConfigHTTP>("http")->getPipelinedRequests();
-
         return new web::http::client::SocketContext(socketConnection,
                                                     onHttpConnected,
                                                     onHttpDisconnected,
-                                                    configInstance.getSection<ConfigHTTP>("http")->getHostHeader(),
-                                                    configInstance.getSection<ConfigHTTP>("http")->getPipelinedRequests());
+                                                    configInstance.getSection<ConfigHTTP>()->getHostHeader(),
+                                                    configInstance.getSection<ConfigHTTP>()->getPipelinedRequests());
     }
 
 } // namespace web::http::client

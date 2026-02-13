@@ -78,9 +78,9 @@ namespace net::un::config {
         using Super = ConfigAddressTypeT<net::un::SocketAddress>;
 
     protected:
-        explicit ConfigAddress(net::config::ConfigInstance* instance,
-                               const std::string& addressOptionName,
-                               const std::string& addressOptionDescription);
+        ConfigAddress(net::config::ConfigInstance* instance,
+                      const std::string& addressOptionName,
+                      const std::string& addressOptionDescription);
 
     private:
         SocketAddress* init() final;

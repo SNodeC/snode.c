@@ -50,7 +50,7 @@
 namespace net::config {
 
     ConfigLegacy::ConfigLegacy(ConfigInstance* instance)
-        : net::config::ConfigSection(instance, net::config::Section("legacy", "Configuration of legacy behavior", this)) {
+        : net::config::ConfigSection(instance, net::config::Section(ConfigLegacy::name, "Configuration of legacy behavior", this)) {
     }
 
 } // namespace net::config
