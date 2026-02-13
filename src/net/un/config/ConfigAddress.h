@@ -69,7 +69,7 @@ namespace net::un::config {
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     protected:
-        using Super::Super;
+        explicit ConfigAddressReverse(net::config::ConfigInstance* instance);
     };
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
@@ -78,9 +78,7 @@ namespace net::un::config {
         using Super = ConfigAddressTypeT<net::un::SocketAddress>;
 
     protected:
-        explicit ConfigAddress(net::config::ConfigInstance* instance,
-                               const std::string& addressOptionName,
-                               const std::string& addressOptionDescription);
+        explicit ConfigAddress(net::config::ConfigInstance* instance);
 
     private:
         SocketAddress* init() final;
