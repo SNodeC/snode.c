@@ -67,6 +67,9 @@ namespace net::config {
     protected:
         ConfigAddress(ConfigInstance* instance, const std::string& addressOptionName, const std::string& addressOptionDescription);
 
+        template <typename ConfigAddressSectionT>
+        ConfigAddress(ConfigInstance* instance, ConfigAddressSectionT*);
+
         ~ConfigAddress() override;
 
         virtual void configurable(bool configurable) = 0;

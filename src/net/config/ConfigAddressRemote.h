@@ -59,8 +59,8 @@ namespace net::config {
         explicit ConfigAddressRemote(ConfigInstance* instance);
 
     public:
-        constexpr static std::string name{"remote"};
-        constexpr static std::string description{"Remote side of connection"};
+        constexpr static const char* name{"remote"};
+        constexpr static const char* description{"Remote side of connection"};
     };
 
 } // namespace net::config

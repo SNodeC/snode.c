@@ -58,6 +58,12 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
+    template <typename ConfigAddressSectionT>
+    ConfigAddress<SocketAddress>::ConfigAddress(ConfigInstance* instance, ConfigAddressSectionT*)
+        : Super(instance, static_cast<ConfigAddressSectionT*>(nullptr)) {
+    }
+
+    template <typename SocketAddress>
     ConfigAddress<SocketAddress>::~ConfigAddress() {
         delete socketAddress;
     }

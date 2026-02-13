@@ -59,8 +59,8 @@ namespace net::config {
         explicit ConfigAddressLocal(ConfigInstance* instance);
 
     public:
-        constexpr static std::string name{"local"};
-        constexpr static std::string description{"Local side of connection"};
+        constexpr static const char* name{"local"};
+        constexpr static const char* description{"Local side of connection"};
     };
 
 } // namespace net::config
