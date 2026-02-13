@@ -141,7 +141,9 @@ namespace net::config {
                                   ->allow_extras(false)
                                   ->group(group)
                                   ->ignore_case(false)
-                                  ->disabled(appWithPtr->get_name().empty());
+                                  ->disabled(appWithPtr->get_name().empty())
+                                  ->formatter(instanceSc->get_formatter())
+                                  ->config_formatter(instanceSc->get_config_formatter());
 
         sectionSc //
             ->option_defaults()
