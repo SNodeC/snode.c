@@ -77,33 +77,10 @@
 
 namespace net::config {
 
-#ifdef NOT
-    ConfigSection::ConfigSection(ConfigInstance* instanceSc, const std::string& name, const std::string& description)
-        : instanceSc(instanceSc) {
-        CLI::App* existingSection = instanceSc->getSection(name);
-        sectionSc = existingSection != nullptr
-                        ? existingSection
-                        : instanceSc //
-                              ->addSection(name, description + " for instance '" + instanceSc->getInstanceName() + "'")
-                              ->disabled()
-                              ->group("Sections");
-        /*
-                auto configInstanceApp = std::make_shared<utils::Config::AppWithPtr<ConfigSection>>(
-                    description + " for instance '" + instanceSc->getInstanceName() + "'", name, this);
-
-                sectionSc = instanceSc->addSection(configInstanceApp, "Section")->disabled();
-        */
-    }
-#endif
-
     ConfigSection::ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group)
         : instanceSc(instanceSc) {
-        //        sectionSc = instanceSc->getSection(sectionApp->get_name());
-
-        //        if (sectionSc == nullptr) {
         sectionSc = instanceSc->addSection(sectionApp, group);
         sectionSc->description(sectionSc->get_description() + " for instance '" + instanceSc->getInstanceName() + "'");
-        //        }
     }
 
     void ConfigSection::required(CLI::Option* opt, bool req) {
