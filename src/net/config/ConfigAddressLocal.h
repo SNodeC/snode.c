@@ -56,7 +56,11 @@ namespace net::config {
         using Super = net::config::ConfigAddress<SocketAddressT>;
 
     protected:
-        using Super::Super;
+        explicit ConfigAddressLocal(ConfigInstance* instance);
+
+    public:
+        constexpr static std::string name{"local"};
+        constexpr static std::string description{"Local side of connection"};
     };
 
 } // namespace net::config

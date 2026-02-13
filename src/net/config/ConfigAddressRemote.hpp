@@ -46,6 +46,12 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config {} // namespace net::config
+namespace net::config {
 
-// "remote", "Remote side of connection for instance '" + instance->getInstanceName() + "'"
+    template <typename SocketAddress>
+    ConfigAddressRemote<SocketAddress>::ConfigAddressRemote(ConfigInstance* instance)
+        : Super(instance, static_cast<ConfigAddressRemote<SocketAddress>*>(nullptr)) {
+    }
+
+
+} // namespace net::config

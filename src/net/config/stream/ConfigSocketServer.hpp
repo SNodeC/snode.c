@@ -50,8 +50,8 @@ namespace net::config::stream {
     template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddressLocal,
               template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddressRemote>
     ConfigSocketServer<ConfigAddressLocal, ConfigAddressRemote>::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : ConfigAddressLocal<net::config::ConfigAddressLocal>(instance, "local", "Local side of connection")
-        , ConfigAddressRemote<net::config::ConfigAddressReverse>(instance, "remote", "Remote side of connection")
+        : ConfigAddressLocal<net::config::ConfigAddressLocal>(instance)
+        , ConfigAddressRemote<net::config::ConfigAddressReverse>(instance)
         , net::config::ConfigConnection(instance)
         , net::config::ConfigPhysicalSocketServer(instance) {
     }

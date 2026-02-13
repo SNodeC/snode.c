@@ -64,6 +64,9 @@ namespace net::config {
                                    const std::string& addressOptionName = "",
                                    const std::string& addressOptionDescription = "");
 
+        template <typename ConfigAddressSectionT>
+        explicit ConfigAddressBase(ConfigInstance* instance, ConfigAddressSectionT*);
+
         virtual ~ConfigAddressBase() = default;
 
     public:

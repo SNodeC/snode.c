@@ -56,6 +56,13 @@ namespace net::config {
     }
 
     template <typename SocketAddress>
+    template <typename ConfigAddressSectionT>
+    ConfigAddressBase<SocketAddress>::ConfigAddressBase(ConfigInstance* instance, ConfigAddressSectionT*)
+        : net::config::ConfigSection(instance,
+                                     net::config::Section(ConfigAddressSectionT::name, ConfigAddressSectionT::description, this)) {
+    }
+
+    template <typename SocketAddress>
     SocketAddress ConfigAddressBase<SocketAddress>::getSocketAddress(const typename SocketAddress::SockAddr& sockAddr,
                                                                      typename SocketAddress::SockLen sockAddrLen) {
         return SocketAddress(sockAddr, sockAddrLen);

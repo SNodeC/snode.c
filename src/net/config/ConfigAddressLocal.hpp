@@ -46,6 +46,12 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::config {} // namespace net::config
+namespace net::config {
 
-// "local", "Local side of connection for instance '" + instance->getInstanceName() + "'"
+    template <typename SocketAddress>
+    ConfigAddressLocal<SocketAddress>::ConfigAddressLocal(ConfigInstance* instance)
+        : Super(instance, static_cast<ConfigAddressLocal<SocketAddress>*>(nullptr)) {
+    }
+
+
+} // namespace net::config
