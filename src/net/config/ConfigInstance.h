@@ -53,11 +53,10 @@ namespace net::config {
     class ConfigSection;
 }
 
-#include "utils/Config.h"
-
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

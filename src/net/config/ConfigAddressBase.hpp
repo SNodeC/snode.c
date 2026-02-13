@@ -40,7 +40,7 @@
  */
 
 #include "net/config/ConfigAddressBase.h"
-#include "net/config/ConfigSectionAPI.hpp"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

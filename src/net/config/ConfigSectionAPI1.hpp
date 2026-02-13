@@ -82,31 +82,4 @@ namespace net::config {
         return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
     }
 
-    template <typename SectionType>
-    SectionType* ConfigInstance::getSection(const std::string& name, bool onlyGot, bool recursive) const {
-        utils::AppWithPtr<SectionType>* resultApp = nullptr;
-
-        auto* appWithPtr = instanceSc->get_subcommand_no_throw(name);
-
-        utils::AppWithPtr<SectionType>* sectionApp = dynamic_cast<utils::AppWithPtr<SectionType>*>(appWithPtr);
-
-        if (sectionApp != nullptr) {
-            utils::AppWithPtr<SectionType>* parentApp =
-                dynamic_cast<utils::AppWithPtr<SectionType>*>(sectionApp->get_parent()->get_subcommand_no_throw(name));
-
-            if (sectionApp->count_all() > 0 || !onlyGot) {
-                resultApp = sectionApp;
-            } else if (recursive && parentApp != nullptr && (parentApp->count_all() > 0 || !onlyGot)) {
-                resultApp = parentApp;
-            }
-        }
-
-        return resultApp != nullptr ? resultApp->getPtr() : nullptr;
-    }
-
-    template <typename ConcreteConfigSection>
-    void ConfigInstance::addSection() {
-        addSection(std::make_shared<ConcreteConfigSection>(this));
-    }
-
 } // namespace net::config

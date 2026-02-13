@@ -42,7 +42,6 @@
 #ifndef UTILS_CONFIG_H
 #define UTILS_CONFIG_H
 
-#include "utils/CLI11.hpp"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
@@ -61,19 +60,6 @@ namespace utils {
 
     class Config {
     public:
-        /*
-                template <class T>
-                struct AppWithPtr : CLI::App {
-                    AppWithPtr(const std::string& description, const std::string& name, T* t);
-
-                    const T* getPtr() const;
-
-                    T* getPtr();
-
-                private:
-                    T* ptr = nullptr;
-                };
-        */
         static CLI::App* addInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
 
         template <typename T>
@@ -90,11 +76,6 @@ namespace utils {
         static bool init(int argc, char* argv[]);
         static bool bootstrap();
         static void terminate();
-
-        //        static CLI::App* addInstance(const std::string& name, const std::string& description, const std::string& group, bool final
-        //        = false);
-
-        //        static CLI::App* getInstance(const std::string& name);
 
         static bool removeInstance(CLI::App* instance);
 
@@ -185,17 +166,6 @@ namespace utils {
     };
 
     //////////////////
-
-    /*
-        template <typename T>
-        T* Config::getInstance(const std::string& name) {
-            auto* appWithPtr = app->get_subcommand_no_throw(name);
-
-            AppWithPtr<T>* instanceApp = dynamic_cast<AppWithPtr<T>*>(appWithPtr);
-
-            return instanceApp != nullptr ? instanceApp->getPtr() : nullptr;
-        }
-    */
 } // namespace utils
 
 #endif // UTILS_CONFIG_H

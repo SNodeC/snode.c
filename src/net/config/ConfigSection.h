@@ -48,8 +48,6 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Config.h"
-
 #include <cstdint>
 #include <functional>
 #include <memory>

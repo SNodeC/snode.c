@@ -41,7 +41,7 @@
 
 #include "apps/http/model/servers.h"
 #include "express/middleware/StaticMiddleware.h"
-#include "net/config/ConfigSectionAPI.hpp"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

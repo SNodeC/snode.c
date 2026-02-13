@@ -41,14 +41,20 @@
 
 #include "net/config/ConfigInstanceAPI.hpp"
 
+namespace net::config {
+    class ConfigSection;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include "net/config/ConfigInstance.h"
 #include "utils/Config.h"
 
 #include <cstddef>
 #include <functional>
 #include <memory>
+#include <string>
+#include <vector>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push

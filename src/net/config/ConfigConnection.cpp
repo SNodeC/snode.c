@@ -41,13 +41,9 @@
 
 #include "net/config/ConfigConnection.h"
 
-#include "net/config/ConfigSectionAPI.hpp"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
-#include "net/config/ConfigPhysicalSocket.h"
-#include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

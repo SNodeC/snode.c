@@ -43,7 +43,6 @@
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 
 #include "core/socket/stream//SocketContextFactory.h"
-#include "web/http/client/ConfigHTTP.h"
 #include "web/http/client/SocketContext.h" // IWYU pragma: export
 
 namespace net::config {
@@ -53,7 +52,6 @@ namespace net::config {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

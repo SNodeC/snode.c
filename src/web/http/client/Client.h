@@ -42,6 +42,7 @@
 #ifndef WEB_HTTP_CLIENT_CLIENT_H
 #define WEB_HTTP_CLIENT_CLIENT_H
 
+#include "web/http/client/ConfigHTTP.h"
 #include "web/http/client/SocketContextFactory.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -128,12 +129,6 @@ namespace web::http::client {
             : Client("",
                      std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpConnected),
                      std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected)) {
-        }
-
-        const Client& setPipelinedRequests(bool pipelinedRequests) const {
-            this->getConfig().template getSection<ConfigHTTP>("http")->setPipelinedRequests(pipelinedRequests);
-
-            return *this;
         }
 
         std::shared_ptr<ConfigHTTP> configHTTP = std::make_shared<ConfigHTTP>(this->getConfig());

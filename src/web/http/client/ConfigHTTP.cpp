@@ -41,24 +41,14 @@
 
 #include "ConfigHTTP.h"
 
-#include "net/config/ConfigSectionAPI.hpp"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <memory>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #define XSTR(s) STR(s)
 #define STR(s) #s
-
-/*
-
-net::config::ConfigSection(instance,
-                           std::make_shared<utils::AppWithPtr<ConfigConnection>>(
-                               "Configuration of established connections", "connection", this)) {
-
-*/
 
 namespace web::http::client {
 

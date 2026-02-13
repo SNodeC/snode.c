@@ -41,7 +41,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "net/config/ConfigInstance.h"
+#include "net/config/ConfigInstance.h" // IWYU pragma: export
+#include "utils/Config.h"
 #include "utils/ConfigApp.hpp"
 
 #include <cstdint>
@@ -57,13 +58,44 @@ namespace net::config {
         return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
     }
 
+    template <typename SectionType>
+    SectionType* ConfigInstance::getSection(const std::string& name, bool onlyGot, bool recursive) const {
+        utils::AppWithPtr<SectionType>* resultApp = nullptr;
+
+        auto* appWithPtr = instanceSc->get_subcommand_no_throw(name);
+
+        utils::AppWithPtr<SectionType>* sectionApp = dynamic_cast<utils::AppWithPtr<SectionType>*>(appWithPtr);
+
+        if (sectionApp != nullptr) {
+            utils::AppWithPtr<SectionType>* parentApp =
+                dynamic_cast<utils::AppWithPtr<SectionType>*>(sectionApp->get_parent()->get_subcommand_no_throw(name));
+
+            if (sectionApp->count_all() > 0 || !onlyGot) {
+                resultApp = sectionApp;
+            } else if (recursive && parentApp != nullptr && (parentApp->count_all() > 0 || !onlyGot)) {
+                resultApp = parentApp;
+            }
+        }
+
+        return resultApp != nullptr ? resultApp->getPtr() : nullptr;
+    }
+
+    template <typename ConcreteConfigSection>
+    void ConfigInstance::addSection() {
+        addSection(std::make_shared<ConcreteConfigSection>(this));
+    }
+
 } // namespace net::config
 
-template <typename T>
-T* utils::Config::getInstance(const std::string& name) {
-    auto* appWithPtr = app->get_subcommand_no_throw(name);
+namespace utils {
 
-    utils::AppWithPtr<T>* instanceApp = dynamic_cast<utils::AppWithPtr<T>*>(appWithPtr);
+    template <typename T>
+    T* Config::getInstance(const std::string& name) {
+        auto* appWithPtr = app->get_subcommand_no_throw(name);
 
-    return instanceApp != nullptr ? instanceApp->getPtr() : nullptr;
-}
+        AppWithPtr<T>* instanceApp = dynamic_cast<utils::AppWithPtr<T>*>(appWithPtr);
+
+        return instanceApp != nullptr ? instanceApp->getPtr() : nullptr;
+    }
+
+} // namespace utils
