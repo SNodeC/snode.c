@@ -42,6 +42,7 @@
 #ifndef WEB_HTTP_CLIENT_CLIENT_H
 #define WEB_HTTP_CLIENT_CLIENT_H
 
+#include "net/config/ConfigInstanceAPI.hpp" // IWYU pragma: export
 #include "web/http/client/ConfigHTTP.h"
 #include "web/http/client/SocketContextFactory.h" // IWYU pragma: export
 
@@ -92,8 +93,9 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::setOnConnected([configHTTP = this->configHTTP](SocketConnection* socketConnection) {
-                configHTTP->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
+            Super::getConfig().template addSection<ConfigHTTP>();
+            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>("http")](SocketConnection* socketConnection) {
+                config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }
 
@@ -119,8 +121,9 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::setOnConnect([configHTTP = this->configHTTP](SocketConnection* socketConnection) {
-                configHTTP->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
+            Super::getConfig().template addSection<ConfigHTTP>();
+            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>("http")](SocketConnection* socketConnection) {
+                config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }
 
@@ -130,8 +133,6 @@ namespace web::http::client {
                      std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpConnected),
                      std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected)) {
         }
-
-        std::shared_ptr<ConfigHTTP> configHTTP = std::make_shared<ConfigHTTP>(this->getConfig());
     };
 
 } // namespace web::http::client

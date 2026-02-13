@@ -43,6 +43,7 @@
 #define WEB_HTTP_CLIENT_HTTPCONFIG_H
 
 #include "net/config/ConfigSection.h"
+
 namespace net::config {
     class ConfigInstance;
 } // namespace net::config
@@ -59,7 +60,7 @@ namespace web::http::client {
 
     class ConfigHTTP : public net::config::ConfigSection {
     public:
-        explicit ConfigHTTP(net::config::ConfigInstance& configInstance);
+        explicit ConfigHTTP(net::config::ConfigInstance* configInstance);
         ConfigHTTP(ConfigHTTP&) = delete;
         ConfigHTTP& operator=(ConfigHTTP&) = delete;
 
