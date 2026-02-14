@@ -64,8 +64,6 @@ namespace net::config {
 
     class ConfigInstance {
     public:
-        //        using Instance = ConfigInstance;
-
         enum class Role { SERVER, CLIENT };
 
     protected:
@@ -88,7 +86,7 @@ namespace net::config {
         bool getDisabled() const;
         void setDisabled(bool disabled = true);
 
-        CLI::App* addSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
+        CLI::App* newSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
 
         void addSection(std::shared_ptr<net::config::ConfigSection> configSection);
 
@@ -122,7 +120,7 @@ namespace net::config {
         CLI::App* instanceSc = nullptr;
         CLI::Option* disableOpt = nullptr;
 
-        std::vector<std::shared_ptr<net::config::ConfigSection>> configSections;
+        std::vector<std::shared_ptr<net::config::ConfigSection>> configSections; // Store anything
 
         friend class net::config::ConfigSection;
     };

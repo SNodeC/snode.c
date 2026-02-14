@@ -69,7 +69,7 @@ namespace net::config {
                                                            .append(instanceName)
                                                            .append("'"),
                                                        this);
-        instanceSc = utils::Config::addInstance(configInstanceApp, "Instances");
+        instanceSc = utils::Config::newInstance(configInstanceApp, "Instances");
 
         disableOpt = instanceSc
                          ->add_flag_function(
@@ -102,7 +102,7 @@ namespace net::config {
         this->instanceName = instanceName;
     }
 
-    CLI::App* ConfigInstance::addSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group) {
+    CLI::App* ConfigInstance::newSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group) {
         CLI::App* sectionSc = instanceSc->add_subcommand(appWithPtr)
                                   ->fallthrough()
                                   ->configurable(false)
@@ -125,7 +125,7 @@ namespace net::config {
         return sectionSc;
     }
 
-    void ConfigInstance::addSection(std::shared_ptr<ConfigSection> configSection) {
+    void ConfigInstance::addSection(std::shared_ptr<net::config::ConfigSection> configSection) {
         configSections.push_back(configSection);
     }
 

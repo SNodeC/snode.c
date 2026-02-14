@@ -93,12 +93,17 @@ namespace net::config {
 namespace utils {
 
     template <typename T>
-    T* Config::getInstance(const std::string& name) {
-        auto* appWithPtr = app->get_subcommand_no_throw(name);
+    T* Config::getInstance() {
+        auto* appWithPtr = app->get_subcommand_no_throw(T::name);
 
         AppWithPtr<T>* instanceApp = dynamic_cast<utils::AppWithPtr<T>*>(appWithPtr);
 
         return instanceApp != nullptr ? instanceApp->getPtr() : nullptr;
+    }
+
+    template <typename T>
+    void Config::addInstance() {
+        configSections.push_back(std::make_shared<T>());
     }
 
 } // namespace utils

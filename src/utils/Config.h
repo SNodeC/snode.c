@@ -53,6 +53,7 @@ namespace CLI {
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -60,10 +61,13 @@ namespace utils {
 
     class Config {
     public:
-        static CLI::App* addInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
+        static CLI::App* newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
 
         template <typename T>
-        static T* getInstance(const std::string& name);
+        static void addInstance();
+
+        template <typename T>
+        static T* getInstance();
 
         //////////////////
 
@@ -163,6 +167,8 @@ namespace utils {
     private:
         static std::map<std::string, std::string> aliases;             // from -> to
         static std::map<std::string, CLI::Option*> applicationOptions; // keep all user options in memory
+
+        static std::vector<std::shared_ptr<void>> configSections; // Store anything
     };
 
     //////////////////

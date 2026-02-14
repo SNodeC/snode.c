@@ -98,6 +98,8 @@
 
 namespace utils {
 
+    std::vector<std::shared_ptr<void>> Config::configSections;
+
     static std::shared_ptr<CLI::App> makeApp() { // NO_LINT
         const std::shared_ptr<CLI::App> app = std::make_shared<CLI::App>();
 
@@ -402,6 +404,7 @@ namespace utils {
             app->parse(argc, argv);
         } catch (const CLI::ParseError&) {
             // Do not process ParseError here but on second parse pass
+            VLOG(0) << "############################# error";
         }
 
         if ((*app)["--kill"]->count() > 0) {
@@ -733,47 +736,7 @@ namespace utils {
 
     std::shared_ptr<CLI::Formatter> Config::sectionFormatter = makeSectionFormatter();
 
-#ifdef NO
-    CLI::App* Config::addInstance(const std::string& name, const std::string& description, const std::string& group, bool final) {
-        /*
-                CLI::App* instanceSc = app->add_subcommand(name, description) //
-                                           ->group(group)
-                                           ->fallthrough()
-                                           ->formatter(sectionFormatter)
-                                           ->configurable(false)
-                                           ->allow_extras(false)
-                                           ->disabled(name.empty());
-        */
-
-        const std::shared_ptr<CLI::App> subApp = std::make_shared<CLI::App>(description, name);
-        subApp->group(group)->fallthrough()->formatter(sectionFormatter)->configurable(false)->allow_extras(false)->disabled(name.empty());
-
-        CLI::App* instanceSc = app->add_subcommand(subApp);
-
-        instanceSc //
-            ->option_defaults()
-            ->configurable(!instanceSc->get_disabled());
-
-        if (!instanceSc->get_disabled()) {
-            if (aliases.contains(name)) {
-                instanceSc //
-                    ->alias(aliases[name]);
-            }
-        }
-
-        utils::Config::addStandardFlags(instanceSc);
-
-        if (!final) {
-            utils::Config::addHelp(instanceSc);
-        } else {
-            utils::Config::addSimpleHelp(instanceSc);
-        }
-
-        return instanceSc;
-    }
-#endif
-
-    CLI::App* Config::addInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final) {
+    CLI::App* Config::newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final) {
         CLI::App* instanceSc = app->add_subcommand(appWithPtr)
                                    ->group(group)
                                    ->fallthrough()
@@ -803,11 +766,6 @@ namespace utils {
 
         return instanceSc;
     }
-    /*
-        CLI::App* Config::getInstance(const std::string& name) {
-            return app->get_subcommand(name);
-        }
-    */
 
     CLI::App* Config::addStandardFlags(CLI::App* app) {
         app //
