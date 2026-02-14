@@ -96,7 +96,7 @@ namespace net::config {
         void addSection();
 
     private:
-        CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
+        const CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
 
     public:
         template <typename SectionTypeT>
