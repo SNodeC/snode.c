@@ -39,45 +39,19 @@
  * THE SOFTWARE.
  */
 
-#include "net/config/ConfigInstanceAPI.hpp"
-
 namespace net::config {
     class ConfigSection;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "net/config/ConfigInstance.h"
-#include "utils/Config.h"
+#include "net/config/ConfigInstanceAPI.hpp"
 
 #include <cstddef>
 #include <functional>
 #include <memory>
 #include <string>
 #include <vector>
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#if __has_warning("-Wmissing-noreturn")
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif
-#if __has_warning("-Wnrvo")
-#pragma GCC diagnostic ignored "-Wnrvo"
-#endif
-#endif
-#endif
-#include "utils/CLI11.hpp"
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -95,19 +69,7 @@ namespace net::config {
                                                            .append(instanceName)
                                                            .append("'"),
                                                        this);
-        /*
-                instanceSc = utils::Config::addInstance(instanceName,
-                                                        std::string("Configuration for ")
-                                                            .append(role == Role::SERVER ? "server" : "client")
-                                                            .append(" instance '")
-                                                            .append(instanceName)
-                                                            .append("'"),
-                                                        "Instances");
-        */
         instanceSc = utils::Config::addInstance(configInstanceApp, "Instances");
-
-        //        ConfigInstance* configInstance = utils::Config::getInstance<ConfigInstance>(instanceName);
-        //        VLOG(0) << " ++++++++++++++++++++ From ConfigInstance" << configInstance->instanceName;
 
         disableOpt = instanceSc
                          ->add_flag_function(

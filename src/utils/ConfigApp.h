@@ -39,7 +39,10 @@
  * THE SOFTWARE.
  */
 
-#include "utils/CLI11.hpp"
+#ifndef UTILS_CONFIGAPP_H
+#define UTILS_CONFIGAPP_H
+
+#include "utils/CLI11.hpp" // IWYU pragma: export
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
@@ -85,3 +88,5 @@ namespace utils {
     }
 
 } // namespace utils
+
+#endif // UTILS_CONFIGAPP_H

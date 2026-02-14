@@ -39,11 +39,14 @@
  * THE SOFTWARE.
  */
 
+#ifndef NET_CONFIG_CONFIGINSTANCE_HPP
+#define NET_CONFIG_CONFIGINSTANCE_HPP
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "net/config/ConfigInstance.h" // IWYU pragma: export
-#include "utils/Config.h"
-#include "utils/ConfigApp.hpp"
+#include "utils/Config.h"              // IWYU pragma: export
+#include "utils/ConfigApp.h"           // IWYU pragma: export
 
 #include <cstdint>
 #include <memory>
@@ -99,3 +102,5 @@ namespace utils {
     }
 
 } // namespace utils
+
+#endif // NET_CONFIG_CONFIGINSTANCE_HPP

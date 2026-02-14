@@ -59,7 +59,7 @@ set(UTILS_H
     AttributeInjector.h
     CLI11.hpp
     Config.h
-    ConfigApp.hpp
+    ConfigApp.h
     Daemon.h
     Exceptions.h
     Formatter.h

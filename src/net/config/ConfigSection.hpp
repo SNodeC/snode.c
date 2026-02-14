@@ -43,7 +43,7 @@
 #define NET_CONFIG_CONFIGSECTION_HPP
 
 #include "net/config/ConfigSection.h" // IWYU pragma: export
-#include "utils/ConfigApp.hpp"
+#include "utils/ConfigApp.h"          // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
