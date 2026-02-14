@@ -39,38 +39,19 @@
  * THE SOFTWARE.
  */
 
-#include "net/config/ConfigInstance.h"
+namespace net::config {
+    class ConfigSection;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Config.h"
+#include "net/config/ConfigInstanceAPI.hpp"
 
 #include <cstddef>
 #include <functional>
 #include <memory>
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#if __has_warning("-Wmissing-noreturn")
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif
-#if __has_warning("-Wnrvo")
-#pragma GCC diagnostic ignored "-Wnrvo"
-#endif
-#endif
-#endif
-#include "utils/CLI11.hpp"
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+#include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -81,13 +62,14 @@ namespace net::config {
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
         : instanceName(instanceName)
         , role(role) {
-        instanceSc = utils::Config::addInstance(instanceName,
-                                                std::string("Configuration for ")
-                                                    .append(role == Role::SERVER ? "server" : "client")
-                                                    .append(" instance '")
-                                                    .append(instanceName)
-                                                    .append("'"),
-                                                "Instances");
+        auto configInstanceApp = net::config::Instance(instanceName,
+                                                       std::string("Configuration for ")
+                                                           .append(role == Role::SERVER ? "server" : "client")
+                                                           .append(" instance '")
+                                                           .append(instanceName)
+                                                           .append("'"),
+                                                       this);
+        instanceSc = utils::Config::addInstance(configInstanceApp, "Instances");
 
         disableOpt = instanceSc
                          ->add_flag_function(
@@ -120,15 +102,16 @@ namespace net::config {
         this->instanceName = instanceName;
     }
 
-    CLI::App* ConfigInstance::addSection(const std::string& name, const std::string& description, const std::string& group) {
-        CLI::App* sectionSc = instanceSc //
-                                  ->add_subcommand(name, description)
+    CLI::App* ConfigInstance::addSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group) {
+        CLI::App* sectionSc = instanceSc->add_subcommand(appWithPtr)
                                   ->fallthrough()
                                   ->configurable(false)
                                   ->allow_extras(false)
                                   ->group(group)
                                   ->ignore_case(false)
-                                  ->disabled(this->instanceName.empty() || name.empty());
+                                  ->disabled(appWithPtr->get_name().empty())
+                                  ->formatter(instanceSc->get_formatter())
+                                  ->config_formatter(instanceSc->get_config_formatter());
 
         sectionSc //
             ->option_defaults()
@@ -140,6 +123,10 @@ namespace net::config {
         }
 
         return sectionSc;
+    }
+
+    void ConfigInstance::addSection(std::shared_ptr<ConfigSection> configSection) {
+        configSections.push_back(configSection);
     }
 
     void ConfigInstance::required(CLI::App* section, bool req) {
@@ -179,11 +166,11 @@ namespace net::config {
         disableOpt->group(instanceSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
     }
 
-    CLI::App* ConfigInstance::getSection(const std::string& name, bool onlyGot, bool recursive) const {
-        CLI::App* resultSc = nullptr;
+    const CLI::App* ConfigInstance::getSection(const std::string& name, bool onlyGot, bool recursive) const {
+        const CLI::App* resultSc = nullptr;
 
-        CLI::App* sectionSc = instanceSc->get_subcommand_no_throw(name);
-        CLI::App* parentSectionSc = instanceSc->get_parent()->get_subcommand_no_throw(name);
+        const CLI::App* sectionSc = instanceSc->get_subcommand_no_throw(name);
+        const CLI::App* parentSectionSc = instanceSc->get_parent()->get_subcommand_no_throw(name);
 
         if (sectionSc != nullptr && (sectionSc->count_all() > 0 || !onlyGot)) {
             resultSc = sectionSc;

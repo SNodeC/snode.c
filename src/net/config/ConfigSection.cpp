@@ -75,30 +75,26 @@
 
 namespace net::config {
 
-    ConfigSection::ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description)
-        : instance(instance) {
-        CLI::App* existingSection = instance->getSection(name);
-        section = existingSection != nullptr ? existingSection
-                                             : instance //
-                                                   ->addSection(name, description + " for instance '" + instance->getInstanceName() + "'")
-                                                   ->disabled()
-                                                   ->group("Sections");
+    ConfigSection::ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group)
+        : instanceSc(instanceSc) {
+        sectionSc = instanceSc->addSection(sectionApp, group);
+        sectionSc->description(sectionSc->get_description() + " for instance '" + instanceSc->getInstanceName() + "'");
     }
 
     void ConfigSection::required(CLI::Option* opt, bool req) {
         if (req != opt->get_required()) {
             if (req) {
                 ++requiredCount;
-                section->needs(opt);
+                sectionSc->needs(opt);
                 opt->default_str("");
             } else {
                 --requiredCount;
-                section->remove_needs(opt);
+                sectionSc->remove_needs(opt);
             }
 
             opt->required(req);
 
-            instance->required(section, requiredCount > 0);
+            instanceSc->required(sectionSc, requiredCount > 0);
         }
     }
 
@@ -108,19 +104,19 @@ namespace net::config {
 
     void ConfigSection::setConfigurable(CLI::Option* option, bool configurable) {
         option->configurable(configurable);
-        option->group(section->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
+        option->group(sectionSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
     }
 
     CLI::Option* ConfigSection::addOption(const std::string& name, const std::string& description) {
-        if (!instance->getInstanceName().empty() && !section->get_display_name().empty()) {
-            section->disabled(false);
+        if (!instanceSc->getInstanceName().empty() && !sectionSc->get_display_name().empty()) {
+            sectionSc->disabled(false);
         }
 
-        CLI::Option* opt = section //
+        CLI::Option* opt = sectionSc //
                                ->add_option(name, description);
 
         if (opt->get_configurable()) {
-            opt->group(section->get_formatter()->get_label("Persistent Options"));
+            opt->group(sectionSc->get_formatter()->get_label("Persistent Options"));
         }
 
         return opt;
@@ -139,17 +135,21 @@ namespace net::config {
             ->check(additionalValidator);
     }
 
-    CLI::Option* ConfigSection::addFlag(const std::string& name, const std::string& description, const std::string& typeName) {
-        section->disabled(false);
+    CLI::Option* ConfigSection::addFlag(const std::string& name, const std::string& description) {
+        sectionSc->disabled(false);
 
-        CLI::Option* opt = section //
-                               ->add_flag(name, description)
-                               ->type_name(typeName);
+        CLI::Option* opt = sectionSc //
+                               ->add_flag(name, description);
+
         if (opt->get_configurable()) {
-            opt->group(section->get_formatter()->get_label("Persistent Options"));
+            opt->group(sectionSc->get_formatter()->get_label("Persistent Options"));
         }
 
         return opt;
+    }
+
+    CLI::Option* ConfigSection::addFlag(const std::string& name, const std::string& description, const std::string& typeName) {
+        return addFlag(name, description)->type_name(typeName);
     }
 
     CLI::Option* ConfigSection::addFlag(const std::string& name,
@@ -165,9 +165,9 @@ namespace net::config {
                                                 const std::string& description,
                                                 const std::string& typeName,
                                                 const std::string& defaultValue) {
-        section->disabled(false);
+        sectionSc->disabled(false);
 
-        CLI::Option* opt = section //
+        CLI::Option* opt = sectionSc //
                                ->add_flag_function(
                                    name,
                                    [callback](std::int64_t) {
@@ -178,7 +178,7 @@ namespace net::config {
                                ->type_name(typeName)
                                ->take_last();
         if (opt->get_configurable()) {
-            opt->group(section->get_formatter()->get_label("Persistent Options"));
+            opt->group(sectionSc->get_formatter()->get_label("Persistent Options"));
         }
 
         return opt;
@@ -192,6 +192,10 @@ namespace net::config {
                                                 const CLI::Validator& validator) {
         return addFlagFunction(name, callback, description, typeName, defaultValue) //
             ->check(validator);
+    }
+
+    CLI::Option* ConfigSection::getOption(const std::string& name) const {
+        return sectionSc->get_option(name);
     }
 
 } // namespace net::config

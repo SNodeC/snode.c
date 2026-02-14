@@ -54,7 +54,9 @@ namespace net::config {
 }
 
 #include <cstdint>
+#include <memory>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -62,7 +64,7 @@ namespace net::config {
 
     class ConfigInstance {
     public:
-        using Instance = ConfigInstance;
+        //        using Instance = ConfigInstance;
 
         enum class Role { SERVER, CLIENT };
 
@@ -86,8 +88,20 @@ namespace net::config {
         bool getDisabled() const;
         void setDisabled(bool disabled = true);
 
-        CLI::App* addSection(const std::string& name, const std::string& description, const std::string& group = "Sections");
-        CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
+        CLI::App* addSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
+
+        void addSection(std::shared_ptr<net::config::ConfigSection> configSection);
+
+        template <typename ConcreteConfigSection>
+        void addSection();
+
+    private:
+        const CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
+
+    public:
+        template <typename SectionTypeT>
+        SectionTypeT* getSection(bool onlyGot = false, bool recursive = false) const;
+
         bool gotSection(const std::string& name, bool recursive = false) const;
 
         void required(CLI::App* section, bool req = true);
@@ -107,6 +121,8 @@ namespace net::config {
 
         CLI::App* instanceSc = nullptr;
         CLI::Option* disableOpt = nullptr;
+
+        std::vector<std::shared_ptr<net::config::ConfigSection>> configSections;
 
         friend class net::config::ConfigSection;
     };

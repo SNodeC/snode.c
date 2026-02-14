@@ -39,7 +39,11 @@
  * THE SOFTWARE.
  */
 
+#ifndef NET_CONFIG_CONFIGSECTION_HPP
+#define NET_CONFIG_CONFIGSECTION_HPP
+
 #include "net/config/ConfigSection.h" // IWYU pragma: export
+#include "utils/ConfigApp.h"          // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,6 +70,8 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include <memory>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
@@ -86,6 +92,12 @@ namespace net::config {
         return addOption(name, description, typeName, defaultValue) //
             ->check(additionalValidator);
     }
+    template <typename ValueTypeT>
+    CLI::Option* ConfigSection::addOptionFunction(const std::string& name,
+                                                  const std::function<void(const std::string&)>& optionFunction,
+                                                  const std::string& description) {
+        return sectionSc->add_option_function<ValueTypeT>(name, optionFunction, description);
+    };
 
     template <typename ValueType>
     CLI::Option*
@@ -104,4 +116,11 @@ namespace net::config {
             ->check(additionalValidator);
     }
 
+    template <typename T>
+    std::shared_ptr<CLI::App> Section(const std::string& name, const std::string& description, T* section) {
+        return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+    }
+
 } // namespace net::config
+
+#endif // NET_CONFIG_CONFIGSECTION_HPP

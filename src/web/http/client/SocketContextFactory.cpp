@@ -41,7 +41,12 @@
 
 #include "web/http/client/SocketContextFactory.h"
 
+#include "net/config/ConfigInstanceAPI.hpp"
+#include "web/http/client/ConfigHTTP.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -52,24 +57,15 @@ namespace web::http::client {
                                                const std::function<net::config::ConfigInstance&()>& getConfigInstance)
         : onHttpConnected(onHttpConnected)
         , onHttpDisconnected(onHttpDisconnected)
-        , configHttp(web::http::client::ConfigHTTP(getConfigInstance())) {
-    }
-
-    void SocketContextFactory::setHostHeader(const std::string& hostHeader) {
-        configHttp.setHostHeader(hostHeader);
-    }
-
-    std::string SocketContextFactory::getHostHeader() const {
-        return configHttp.getHostHeader();
-    }
-
-    void SocketContextFactory::setPipelinedRequests(bool pipelinedRequests) {
-        configHttp.setPipelinedRequests(pipelinedRequests);
+        , configInstance(getConfigInstance()) {
     }
 
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
-        return new web::http::client::SocketContext(
-            socketConnection, onHttpConnected, onHttpDisconnected, configHttp.getHostHeader(), configHttp.getPipelinedRequests());
+        return new web::http::client::SocketContext(socketConnection,
+                                                    onHttpConnected,
+                                                    onHttpDisconnected,
+                                                    configInstance.getSection<ConfigHTTP>()->getHostHeader(),
+                                                    configInstance.getSection<ConfigHTTP>()->getPipelinedRequests());
     }
 
 } // namespace web::http::client

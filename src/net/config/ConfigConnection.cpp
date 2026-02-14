@@ -50,7 +50,8 @@
 namespace net::config {
 
     ConfigConnection::ConfigConnection(ConfigInstance* instance)
-        : net::config::ConfigSection(instance, "connection", "Configuration of established connections") {
+        : net::config::ConfigSection(instance,
+                                     net::config::Section(ConfigConnection::name, "Configuration of established connections", this)) {
         readTimeoutOpt = addOption( //
             "--read-timeout",
             "Read timeout in seconds",

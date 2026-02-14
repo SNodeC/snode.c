@@ -50,6 +50,7 @@ namespace net::config {
 
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <string> // IWYU pragma: export
 
 namespace CLI {
@@ -64,7 +65,9 @@ namespace net::config {
 
     class ConfigSection {
     public:
-        ConfigSection(ConfigInstance* instance, const std::string& name, const std::string& description);
+        ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group = "Sections");
+
+        virtual ~ConfigSection() = default;
 
         ConfigSection(const ConfigSection&) = delete;
         ConfigSection(ConfigSection&&) = delete;
@@ -91,6 +94,13 @@ namespace net::config {
                                const std::string& typeName,
                                ValueTypeT defaultValue,
                                const CLI::Validator& additionalValidator);
+
+        template <typename ValueTypeT>
+        CLI::Option* addOptionFunction(const std::string& name,
+                                       const std::function<void(const std::string&)>& optionFunction,
+                                       const std::string& description);
+
+        CLI::Option* addFlag(const std::string& name, const std::string& description);
 
         CLI::Option* addFlag(const std::string& name, const std::string& description, const std::string& typeName);
 
@@ -122,6 +132,8 @@ namespace net::config {
                                      const std::string& defaultValue,
                                      const CLI::Validator& validator);
 
+        CLI::Option* getOption(const std::string& name) const;
+
         void required(CLI::Option* opt, bool req = true);
 
         bool required() const;
@@ -129,10 +141,10 @@ namespace net::config {
     protected:
         void setConfigurable(CLI::Option* option, bool configurable);
 
-        CLI::App* section = nullptr;
+        CLI::App* sectionSc = nullptr;
 
     private:
-        ConfigInstance* instance = nullptr;
+        ConfigInstance* instanceSc = nullptr;
 
         uint8_t requiredCount = 0;
     };

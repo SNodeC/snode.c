@@ -42,6 +42,8 @@
 #ifndef WEB_HTTP_CLIENT_CLIENT_H
 #define WEB_HTTP_CLIENT_CLIENT_H
 
+#include "net/config/ConfigInstanceAPI.hpp"
+#include "web/http/client/ConfigHTTP.h"
 #include "web/http/client/SocketContextFactory.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -91,8 +93,9 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::setOnConnected([socketContextFactory = Super::getSocketContextFactory(), onConnect](SocketConnection* socketConnection) {
-                socketContextFactory->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
+            Super::getConfig().template addSection<ConfigHTTP>();
+            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>()](SocketConnection* socketConnection) {
+                config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }
 
@@ -118,8 +121,9 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::setOnConnect([socketContextFactory = Super::getSocketContextFactory()](SocketConnection* socketConnection) {
-                socketContextFactory->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
+            Super::getConfig().template addSection<ConfigHTTP>();
+            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>()](SocketConnection* socketConnection) {
+                config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }
 
@@ -128,12 +132,6 @@ namespace web::http::client {
             : Client("",
                      std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpConnected),
                      std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected)) {
-        }
-
-        const Client& setPipelinedRequests(bool pipelinedRequests) const {
-            Super::getSocketContextFactory()->setPipelinedRequests(pipelinedRequests);
-
-            return *this;
         }
     };
 

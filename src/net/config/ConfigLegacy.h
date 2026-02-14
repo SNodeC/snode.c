@@ -56,6 +56,8 @@ namespace net::config {
 
     class ConfigLegacy : protected ConfigSection {
     public:
+        constexpr static std::string name{"legacy"};
+
         using Legacy = ConfigLegacy;
 
     protected:

@@ -67,6 +67,8 @@ namespace net::config {
         explicit ConfigTls(ConfigInstance* instance);
 
     public:
+        constexpr static std::string name{"tls"};
+
         ConfigTls& setInitTimeout(const utils::Timeval& newInitTimeout);
         utils::Timeval getInitTimeout() const;
 

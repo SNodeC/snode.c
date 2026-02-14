@@ -57,7 +57,7 @@
 namespace net::config {
 
     ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
-        : ConfigSection(instance, "socket", "Configuration of socket behavior") {
+        : ConfigSection(instance, net::config::Section(ConfigPhysicalSocket::name, "Configuration of socket behavior", this)) {
         retryOpt = addFlag( //
             "--retry{true}",
             "Automatically retry listen|connect",
@@ -135,8 +135,8 @@ namespace net::config {
                    [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]() {
                        try {
                            try {
-                               if (section->get_option(strippedName)->as<bool>()) {
-                                   addSocketOption(optLevel, optName, section->get_option(strippedName)->as<bool>() ? 1 : 0);
+                               if (sectionSc->get_option(strippedName)->as<bool>()) {
+                                   addSocketOption(optLevel, optName, sectionSc->get_option(strippedName)->as<bool>() ? 1 : 0);
                                } else {
                                    addSocketOption(optLevel, optName, 0);
                                }

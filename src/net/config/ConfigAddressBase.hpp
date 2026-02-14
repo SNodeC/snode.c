@@ -39,7 +39,8 @@
  * THE SOFTWARE.
  */
 
-#include "ConfigAddressBase.h"
+#include "net/config/ConfigAddressBase.h"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -51,7 +52,7 @@ namespace net::config {
     ConfigAddressBase<SocketAddress>::ConfigAddressBase(ConfigInstance* instance,
                                                         const std::string& addressOptionName,
                                                         const std::string& addressOptionDescription)
-        : net::config::ConfigSection(instance, addressOptionName, addressOptionDescription) {
+        : net::config::ConfigSection(instance, net::config::Section(addressOptionName, addressOptionDescription, this)) {
     }
 
     template <typename SocketAddress>

@@ -60,6 +60,13 @@ namespace utils {
 
     class Config {
     public:
+        static CLI::App* addInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
+
+        template <typename T>
+        static T* getInstance(const std::string& name);
+
+        //////////////////
+
         Config() = delete;
         Config(const Config&) = delete;
         ~Config() = delete;
@@ -69,9 +76,6 @@ namespace utils {
         static bool init(int argc, char* argv[]);
         static bool bootstrap();
         static void terminate();
-
-        static CLI::App* addInstance(const std::string& name, const std::string& description, const std::string& group, bool final = false);
-        static CLI::App* getInstance(const std::string& name);
 
         static bool removeInstance(CLI::App* instance);
 
@@ -161,6 +165,7 @@ namespace utils {
         static std::map<std::string, CLI::Option*> applicationOptions; // keep all user options in memory
     };
 
+    //////////////////
 } // namespace utils
 
 #endif // UTILS_CONFIG_H

@@ -39,61 +39,68 @@
  * THE SOFTWARE.
  */
 
-#ifndef NET_CONFIG_CONFIGCONN_H
-#define NET_CONFIG_CONFIGCONN_H
+#ifndef NET_CONFIG_CONFIGINSTANCE_HPP
+#define NET_CONFIG_CONFIGINSTANCE_HPP
 
-#include "net/config/ConfigSection.h"
-
-namespace net::config {
-    class ConfigInstance;
-}
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-} // namespace CLI
+#include "net/config/ConfigInstance.h" // IWYU pragma: export
+#include "utils/Config.h"              // IWYU pragma: export
+#include "utils/ConfigApp.h"           // IWYU pragma: export
 
-#include "utils/Timeval.h"
-
-#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
 
-    class ConfigConnection : protected ConfigSection {
-    public:
-        using Connection = ConfigConnection;
+    template <typename T>
+    std::shared_ptr<CLI::App> Instance(const std::string& name, const std::string& description, T* section) {
+        return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+    }
 
-    protected:
-        explicit ConfigConnection(ConfigInstance* instance);
+    template <typename SectionType>
+    SectionType* ConfigInstance::getSection(bool onlyGot, bool recursive) const {
+        utils::AppWithPtr<SectionType>* resultApp = nullptr;
 
-    public:
-        constexpr static std::string name{"connection"};
+        auto* appWithPtr = instanceSc->get_subcommand_no_throw(SectionType::name);
 
-        utils::Timeval getReadTimeout() const;
-        ConfigConnection& setReadTimeout(const utils::Timeval& newReadTimeoutSet);
+        utils::AppWithPtr<SectionType>* sectionApp = dynamic_cast<utils::AppWithPtr<SectionType>*>(appWithPtr);
 
-        utils::Timeval getWriteTimeout() const;
-        ConfigConnection& setWriteTimeout(const utils::Timeval& newWriteTimeoutSet);
+        if (sectionApp != nullptr) {
+            utils::AppWithPtr<SectionType>* parentApp =
+                dynamic_cast<utils::AppWithPtr<SectionType>*>(sectionApp->get_parent()->get_subcommand_no_throw(SectionType::name));
 
-        std::size_t getReadBlockSize() const;
-        ConfigConnection& setReadBlockSize(std::size_t newReadBlockSize);
+            if (sectionApp->count_all() > 0 || !onlyGot) {
+                resultApp = sectionApp;
+            } else if (recursive && parentApp != nullptr && (parentApp->count_all() > 0 || !onlyGot)) {
+                resultApp = parentApp;
+            }
+        }
 
-        std::size_t getWriteBlockSize() const;
-        ConfigConnection& setWriteBlockSize(std::size_t newWriteBlockSize);
+        return resultApp != nullptr ? resultApp->getPtr() : nullptr;
+    }
 
-        utils::Timeval getTerminateTimeout() const;
-        ConfigConnection& setTerminateTimeout(const utils::Timeval& newTerminateTimeout);
-
-    private:
-        CLI::Option* readTimeoutOpt = nullptr;
-        CLI::Option* writeTimeoutOpt = nullptr;
-        CLI::Option* readBlockSizeOpt = nullptr;
-        CLI::Option* writeBlockSizeOpt = nullptr;
-        CLI::Option* terminateTimeoutOpt = nullptr;
-    };
+    template <typename ConcreteConfigSection>
+    void ConfigInstance::addSection() {
+        addSection(std::make_shared<ConcreteConfigSection>(this));
+    }
 
 } // namespace net::config
 
-#endif // NET_CONFIG_CONFIGCONN_H
+namespace utils {
+
+    template <typename T>
+    T* Config::getInstance(const std::string& name) {
+        auto* appWithPtr = app->get_subcommand_no_throw(name);
+
+        AppWithPtr<T>* instanceApp = dynamic_cast<utils::AppWithPtr<T>*>(appWithPtr);
+
+        return instanceApp != nullptr ? instanceApp->getPtr() : nullptr;
+    }
+
+} // namespace utils
+
+#endif // NET_CONFIG_CONFIGINSTANCE_HPP

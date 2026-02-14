@@ -39,42 +39,47 @@
  * THE SOFTWARE.
  */
 
-#ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
-#define WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
-
-#include "core/socket/stream//SocketContextFactory.h"
-#include "web/http/client/SocketContext.h" // IWYU pragma: export
-
-namespace net::config {
-    class ConfigInstance;
-}
+#include "net/config/ConfigInstanceAPI.hpp"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include "utils/Config.h"
+
+#include <cstdint>
+#include <memory>
+#include <string>
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#ifdef __has_warning
+#if __has_warning("-Wweak-vtables")
+#pragma GCC diagnostic ignored "-Wweak-vtables"
+#endif
+#if __has_warning("-Wcovered-switch-default")
+#pragma GCC diagnostic ignored "-Wcovered-switch-default"
+#endif
+#if __has_warning("-Wmissing-noreturn")
+#pragma GCC diagnostic ignored "-Wmissing-noreturn"
+#endif
+#if __has_warning("-Wnrvo")
+#pragma GCC diagnostic ignored "-Wnrvo"
+#endif
+#endif
+#endif
+#include "utils/CLI11.hpp"
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::client {
+namespace net::config {
 
-    class SocketContextFactory : public core::socket::stream::SocketContextFactory {
-    public:
-        using MasterRequest = web::http::client::MasterRequest;
-        using Response = web::http::client::Response;
+    template <typename T>
+    std::shared_ptr<CLI::App> Section(const std::string& name, const std::string& description, T* section) {
+        return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+    }
 
-        SocketContextFactory(const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpConnected,
-                             const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpDisconnected,
-                             const std::function<net::config::ConfigInstance&()>& getConfigInstance);
-
-    private:
-        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
-
-        std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpConnected;
-        std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpDisconnected;
-
-        net::config::ConfigInstance& configInstance;
-    };
-
-} // namespace web::http::client
-
-#endif // WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
+} // namespace net::config

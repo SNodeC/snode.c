@@ -68,6 +68,8 @@ namespace net::config {
         explicit ConfigPhysicalSocket(ConfigInstance* instance);
 
     public:
+        constexpr static std::string name{"socket"};
+
         const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& getSocketOptions();
 
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, int optValue);

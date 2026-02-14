@@ -52,24 +52,23 @@
 
 namespace web::http::client {
 
-    ConfigHTTP::ConfigHTTP(net::config::ConfigInstance& configInstance) {
-        hostHeaderOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
-                            .addOption( //
-                                "--host",
-                                "HTTP request 'Host' header field",
-                                "string");
+    ConfigHTTP::ConfigHTTP(net::config::ConfigInstance* configInstance)
+        : net::config::ConfigSection(configInstance, net::config::Section(ConfigHTTP::name, "HTTP behavior", this)) {
+        hostHeaderOpt = addOption( //
+            "--host",
+            "HTTP request 'Host' header field",
+            "string");
 
-        pipelinedRequestsOpt = net::config::ConfigSection(&configInstance, "http", "HTTP behavior")
-                                   .addFlag( //
-                                       "--pipelined-requests",
-                                       "Pipelined requests",
-                                       "bool",
-                                       XSTR(HTTP_REQUEST_PIPELINED),
-                                       CLI::IsMember({"true", "false"}));
+        pipelinedRequestsOpt = addFlag( //
+            "--pipelined-requests",
+            "Pipelined requests",
+            "bool",
+            XSTR(HTTP_REQUEST_PIPELINED),
+            CLI::IsMember({"true", "false"}));
     }
 
     void ConfigHTTP::setHostHeader(const std::string& hostHeader) {
-        hostHeaderOpt->default_str(hostHeader);
+        hostHeaderOpt->default_str(hostHeader)->clear();
     }
 
     std::string ConfigHTTP::getHostHeader() const {
@@ -77,7 +76,7 @@ namespace web::http::client {
     }
 
     void ConfigHTTP::setPipelinedRequests(bool pipelinedRequests) {
-        pipelinedRequestsOpt->default_val(pipelinedRequests ? "true" : "false");
+        pipelinedRequestsOpt->default_val(pipelinedRequests ? "true" : "false")->clear();
     }
 
     bool ConfigHTTP::getPipelinedRequests() const {

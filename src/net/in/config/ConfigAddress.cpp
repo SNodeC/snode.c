@@ -251,8 +251,8 @@ namespace net::in::config {
         hostOpt->configurable(configurable);
         portOpt->configurable(configurable);
 
-        hostOpt->group(this->section->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
-        portOpt->group(this->section->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
+        hostOpt->group(this->sectionSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
+        portOpt->group(this->sectionSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

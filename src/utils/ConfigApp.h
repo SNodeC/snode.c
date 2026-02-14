@@ -39,42 +39,54 @@
  * THE SOFTWARE.
  */
 
-#ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
-#define WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
+#ifndef UTILS_CONFIGAPP_H
+#define UTILS_CONFIGAPP_H
 
-#include "core/socket/stream//SocketContextFactory.h"
-#include "web/http/client/SocketContext.h" // IWYU pragma: export
-
-namespace net::config {
-    class ConfigInstance;
-}
-
+#include "utils/CLI11.hpp" // IWYU pragma: export
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+namespace CLI {
+    class App;
+    class Option;
+    class Formatter;
+} // namespace CLI
+
+#include <map>
+#include <memory>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::client {
+namespace utils {
 
-    class SocketContextFactory : public core::socket::stream::SocketContextFactory {
-    public:
-        using MasterRequest = web::http::client::MasterRequest;
-        using Response = web::http::client::Response;
+    template <class T>
+    struct AppWithPtr : CLI::App {
+        AppWithPtr(const std::string& description, const std::string& name, T* t);
 
-        SocketContextFactory(const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpConnected,
-                             const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpDisconnected,
-                             const std::function<net::config::ConfigInstance&()>& getConfigInstance);
+        const T* getPtr() const;
+
+        T* getPtr();
 
     private:
-        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
-
-        std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpConnected;
-        std::function<void(const std::shared_ptr<MasterRequest>&)> onHttpDisconnected;
-
-        net::config::ConfigInstance& configInstance;
+        T* ptr = nullptr;
     };
 
-} // namespace web::http::client
+    template <class T>
+    AppWithPtr<T>::AppWithPtr(const std::string& description, const std::string& name, T* t)
+        : CLI::App(description, name)
+        , ptr(t) {
+    }
 
-#endif // WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
+    template <class T>
+    const T* AppWithPtr<T>::getPtr() const {
+        return ptr;
+    }
+
+    template <class T>
+    T* AppWithPtr<T>::getPtr() {
+        return ptr;
+    }
+
+} // namespace utils
+
+#endif // UTILS_CONFIGAPP_H
