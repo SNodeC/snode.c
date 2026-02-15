@@ -60,9 +60,14 @@ namespace net::config {
         using Super = ConfigSection;
 
     protected:
-        explicit ConfigAddressBase(ConfigInstance* instance,
-                                   const std::string& addressOptionName = "",
-                                   const std::string& addressOptionDescription = "");
+        using Super::lateConstruct;
+
+    protected:
+        ConfigAddressBase() = default;
+
+        void lateConstruct(ConfigInstance* instance,
+                           const std::string& addressOptionName = "",
+                           const std::string& addressOptionDescription = "");
 
     public:
         SocketAddressT getSocketAddress(const typename SocketAddressT::SockAddr& sockAddr, typename SocketAddressT::SockLen sockAddrLen);

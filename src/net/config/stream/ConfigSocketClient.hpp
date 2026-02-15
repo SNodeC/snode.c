@@ -49,11 +49,11 @@ namespace net::config::stream {
 
     template <template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddressLocal,
               template <template <typename SocketAddress> typename ConfigAddressType> typename ConfigAddressRemote>
-    ConfigSocketClient<ConfigAddressLocal, ConfigAddressRemote>::ConfigSocketClient(net::config::ConfigInstance* instance)
-        : ConfigAddressRemote<net::config::ConfigAddressRemote>(instance, "remote", "Remote side of connection")
-        , ConfigAddressLocal<net::config::ConfigAddressLocal>(instance, "local", "Local side of connection")
-        , net::config::ConfigConnection(instance)
-        , net::config::ConfigPhysicalSocketClient(instance) {
+    void ConfigSocketClient<ConfigAddressLocal, ConfigAddressRemote>::lateConstruct(net::config::ConfigInstance* instance) {
+        ConfigAddressRemote<net::config::ConfigAddressRemote>::lateConstruct(instance, "remote", "Remote side of connection");
+        ConfigAddressLocal<net::config::ConfigAddressLocal>::lateConstruct(instance, "local", "Local side of connection");
+        net::config::ConfigConnection::lateConstruct(instance);
+        net::config::ConfigPhysicalSocketClient::lateConstruct(instance);
     }
 
 } // namespace net::config::stream

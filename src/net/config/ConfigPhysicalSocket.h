@@ -65,7 +65,12 @@ namespace net::config {
 
     class ConfigPhysicalSocket : protected ConfigSection {
     protected:
-        explicit ConfigPhysicalSocket(ConfigInstance* instance);
+        using ConfigSection::lateConstruct;
+
+    protected:
+        ConfigPhysicalSocket() = default;
+
+        virtual void lateConstruct(ConfigInstance* instance);
 
     public:
         constexpr static std::string name{"socket"};

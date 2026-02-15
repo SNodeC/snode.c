@@ -79,12 +79,16 @@ namespace net::rc::config {
         using Super = ConfigAddressTypeT<net::rc::SocketAddress>;
 
     protected:
-        ConfigAddress(net::config::ConfigInstance* instance,
-                      const std::string& addressOptionName,
-                      const std::string& addressOptionDescription);
+        using Super::lateConstruct;
+
+        ConfigAddress() = default;
+
+        void lateConstruct(net::config::ConfigInstance* instance,
+                           const std::string& addressOptionName,
+                           const std::string& addressOptionDescription) override;
 
     private:
-        SocketAddress* init() final;
+        SocketAddress* init() override final;
 
     public:
         ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
@@ -95,7 +99,7 @@ namespace net::rc::config {
         ConfigAddress& setChannel(uint8_t channel);
         uint8_t getChannel() const;
 
-        void configurable(bool configurable = true) final;
+        void configurable(bool configurable = true) override;
 
     protected:
         ConfigAddress& setBtAddressRequired(bool required = true);

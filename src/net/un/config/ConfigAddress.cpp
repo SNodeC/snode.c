@@ -59,10 +59,11 @@
 namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance,
-                                                    const std::string& addressOptionName,
-                                                    const std::string& addressOptionDescription)
-        : Super(instance, addressOptionName, addressOptionDescription) {
+    void ConfigAddress<ConfigAddressType>::lateConstruct(net::config::ConfigInstance* instance,
+                                                           const std::string& addressOptionName,
+                                                           const std::string& addressOptionDescription) {
+        Super::lateConstruct(instance, addressOptionName, addressOptionDescription);
+
         sunPathOpt = Super::addOption( //
             "--sun-path",
             "Unix domain bind path",

@@ -67,7 +67,9 @@ namespace net::config {
         using Socket = ConfigPhysicalSocketServer;
 
     protected:
-        explicit ConfigPhysicalSocketServer(ConfigInstance* instance);
+        ConfigPhysicalSocketServer() = default;
+
+        void lateConstruct(ConfigInstance* instance) override;
 
     public:
         ConfigPhysicalSocketServer& setBacklog(int newBacklog);

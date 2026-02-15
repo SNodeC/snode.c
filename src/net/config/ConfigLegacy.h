@@ -61,7 +61,9 @@ namespace net::config {
         using Legacy = ConfigLegacy;
 
     protected:
-        explicit ConfigLegacy(ConfigInstance* instance);
+        ConfigLegacy() = default;
+
+        void lateConstruct(ConfigInstance* instance);
     };
 
 } // namespace net::config

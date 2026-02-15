@@ -72,9 +72,13 @@ namespace net::in6::config {
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     protected:
-        explicit ConfigAddressReverse(net::config::ConfigInstance* instance,
-                                      const std::string& addressOptionName,
-                                      const std::string& addressOptionDescription);
+        using Super::lateConstruct;
+
+        ConfigAddressReverse() = default;
+
+        void lateConstruct(net::config::ConfigInstance* instance,
+                           const std::string& addressOptionName,
+                           const std::string& addressOptionDescription);
 
     public:
         SocketAddress getSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
@@ -92,12 +96,16 @@ namespace net::in6::config {
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     protected:
-        ConfigAddress(net::config::ConfigInstance* instance,
-                      const std::string& addressOptionName,
-                      const std::string& addressOptionDescription);
+        using Super::lateConstruct;
+
+        ConfigAddress() = default;
+
+        void lateConstruct(net::config::ConfigInstance* instance,
+                           const std::string& addressOptionName,
+                           const std::string& addressOptionDescription) override;
 
     private:
-        SocketAddress* init() final;
+        SocketAddress* init() override final;
 
     public:
         using Super::getSocketAddress;
@@ -117,7 +125,7 @@ namespace net::in6::config {
         ConfigAddress& setNumericReverse(bool numeric = true);
         bool getNumericReverse() const;
 
-        void configurable(bool configurable = true) final;
+        void configurable(bool configurable = true) override;
 
     protected:
         ConfigAddress& setIpv4Mapped(bool ipv4Mapped = true);

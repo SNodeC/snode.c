@@ -79,12 +79,16 @@ namespace net::l2::config {
         using Super = ConfigAddressTypeT<net::l2::SocketAddress>;
 
     protected:
-        ConfigAddress(net::config::ConfigInstance* instance,
-                      const std::string& addressOptionName,
-                      const std::string& addressOptionDescription);
+        using Super::lateConstruct;
+
+        ConfigAddress() = default;
+
+        void lateConstruct(net::config::ConfigInstance* instance,
+                           const std::string& addressOptionName,
+                           const std::string& addressOptionDescription) override;
 
     private:
-        SocketAddress* init() final;
+        SocketAddress* init() override final;
 
     public:
         ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
@@ -95,7 +99,7 @@ namespace net::l2::config {
         ConfigAddress& setPsm(uint16_t psm);
         uint16_t getPsm() const;
 
-        void configurable(bool configurable = true) final;
+        void configurable(bool configurable = true) override;
 
     protected:
         ConfigAddress& setBtAddressRequired(bool required = true);

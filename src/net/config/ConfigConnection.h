@@ -66,7 +66,12 @@ namespace net::config {
         using Connection = ConfigConnection;
 
     protected:
-        explicit ConfigConnection(ConfigInstance* instance);
+        using ConfigSection::lateConstruct;
+
+    protected:
+        ConfigConnection() = default;
+
+        void lateConstruct(ConfigInstance* instance);
 
     public:
         constexpr static std::string name{"connection"};

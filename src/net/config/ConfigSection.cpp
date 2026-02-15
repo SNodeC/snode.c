@@ -75,8 +75,8 @@
 
 namespace net::config {
 
-    ConfigSection::ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group)
-        : instanceSc(instanceSc) {
+    void ConfigSection::lateConstruct(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group) {
+        this->instanceSc = instanceSc;
         sectionSc = instanceSc->newSection(sectionApp, group);
         sectionSc->description(sectionSc->get_description() + " for instance '" + instanceSc->getInstanceName() + "'");
     }

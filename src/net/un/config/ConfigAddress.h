@@ -78,12 +78,16 @@ namespace net::un::config {
         using Super = ConfigAddressTypeT<net::un::SocketAddress>;
 
     protected:
-        ConfigAddress(net::config::ConfigInstance* instance,
-                      const std::string& addressOptionName,
-                      const std::string& addressOptionDescription);
+        using Super::lateConstruct;
+
+        ConfigAddress() = default;
+
+        void lateConstruct(net::config::ConfigInstance* instance,
+                           const std::string& addressOptionName,
+                           const std::string& addressOptionDescription) override;
 
     private:
-        SocketAddress* init() final;
+        SocketAddress* init() override final;
 
     public:
         ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
@@ -91,7 +95,7 @@ namespace net::un::config {
         ConfigAddress& setSunPath(const std::string& sunPath);
         std::string getSunPath() const;
 
-        void configurable(bool configurable = true) final;
+        void configurable(bool configurable = true) override;
 
     protected:
         ConfigAddress& sunPathRequired(bool required = true);

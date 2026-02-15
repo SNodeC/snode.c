@@ -56,8 +56,8 @@
 
 namespace net::config {
 
-    ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
-        : ConfigSection(instance, net::config::Section(ConfigPhysicalSocket::name, "Configuration of socket behavior", this)) {
+    void ConfigPhysicalSocket::lateConstruct(ConfigInstance* instance) {
+        ConfigSection::lateConstruct(instance, net::config::Section(ConfigPhysicalSocket::name, "Configuration of socket behavior", this));
         retryOpt = addFlag( //
             "--retry{true}",
             "Automatically retry listen|connect",

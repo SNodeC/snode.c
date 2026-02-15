@@ -68,7 +68,9 @@ namespace net::config {
         using Tls = ConfigTlsClient;
 
     protected:
-        explicit ConfigTlsClient(ConfigInstance* instance);
+        ConfigTlsClient() = default;
+
+        void lateConstruct(ConfigInstance* instance) override;
 
     public:
         ConfigTlsClient& setSni(const std::string& sni);

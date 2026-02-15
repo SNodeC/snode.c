@@ -65,7 +65,11 @@ namespace net::config {
 
     class ConfigSection {
     public:
-        ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group = "Sections");
+        ConfigSection() = default;
+
+        virtual void lateConstruct(ConfigInstance* instanceSc,
+                                   std::shared_ptr<CLI::App> sectionApp,
+                                   const std::string& group = "Sections");
 
         virtual ~ConfigSection() = default;
 

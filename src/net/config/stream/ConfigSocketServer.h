@@ -65,7 +65,9 @@ namespace net::config::stream {
         using Remote = ConfigAddressRemoteT<net::config::ConfigAddressReverse>;
 
     protected:
-        explicit ConfigSocketServer(net::config::ConfigInstance* instance);
+        ConfigSocketServer() = default;
+
+        void lateConstruct(net::config::ConfigInstance* instance);
     };
 
 } // namespace net::config::stream

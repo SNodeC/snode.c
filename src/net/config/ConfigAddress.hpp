@@ -51,10 +51,10 @@
 namespace net::config {
 
     template <typename SocketAddress>
-    ConfigAddress<SocketAddress>::ConfigAddress(ConfigInstance* instance,
-                                                const std::string& addressOptionName,
-                                                const std::string& addressOptionDescription)
-        : Super(instance, addressOptionName, addressOptionDescription) {
+    void ConfigAddress<SocketAddress>::lateConstruct(ConfigInstance* instance,
+                                                     const std::string& addressOptionName,
+                                                     const std::string& addressOptionDescription) {
+        Super::lateConstruct(instance, addressOptionName, addressOptionDescription);
     }
 
     template <typename SocketAddress>

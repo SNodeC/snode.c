@@ -56,10 +56,11 @@
 namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance,
-                                                    const std::string& addressOptionName,
-                                                    const std::string& addressOptionDescription)
-        : Super(instance, addressOptionName, addressOptionDescription) {
+    void ConfigAddress<ConfigAddressType>::lateConstruct(net::config::ConfigInstance* instance,
+                                                           const std::string& addressOptionName,
+                                                           const std::string& addressOptionDescription) {
+        Super::lateConstruct(instance, addressOptionName, addressOptionDescription);
+
         btAddressOpt = Super::addOption( //
             "--host",
             "Bluetooth address",
