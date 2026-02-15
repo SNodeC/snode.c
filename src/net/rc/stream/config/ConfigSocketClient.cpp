@@ -72,8 +72,8 @@
 
 namespace net::rc::stream::config {
 
-    ConfigSocketClient::ConfigSocketClient(net::config::ConfigInstance* instance)
-        : net::config::stream::ConfigSocketClient<net::rc::config::ConfigAddress>(instance) {
+    void ConfigSocketClient::init(net::config::ConfigInstance* instance) {
+        this->net::config::stream::ConfigSocketClient<net::rc::config::ConfigAddress>::init(instance);
         net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::setBtAddressRequired();
         net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::setChannelRequired();
 

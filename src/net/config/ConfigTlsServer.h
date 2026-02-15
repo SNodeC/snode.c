@@ -70,7 +70,9 @@ namespace net::config {
         using Tls = ConfigTlsServer;
 
     protected:
-        explicit ConfigTlsServer(ConfigInstance* instance);
+        ConfigTlsServer() = default;
+
+        void init(ConfigInstance* instance) override;
 
     public:
         ConfigTlsServer& setForceSni(bool forceSni = true);

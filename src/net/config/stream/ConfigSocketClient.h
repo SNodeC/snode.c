@@ -65,7 +65,9 @@ namespace net::config::stream {
         using Local = ConfigAddressLocalT<net::config::ConfigAddressLocal>;
 
     protected:
-        explicit ConfigSocketClient(net::config::ConfigInstance* instance);
+        ConfigSocketClient() = default;
+
+        void init(net::config::ConfigInstance* instance);
     };
 
 } // namespace net::config::stream

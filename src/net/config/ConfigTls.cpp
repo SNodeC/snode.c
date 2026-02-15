@@ -49,8 +49,8 @@
 
 namespace net::config {
 
-    ConfigTls::ConfigTls(ConfigInstance* instance)
-        : ConfigSection(instance, net::config::Section(ConfigTls::name, "Configuration of SSL/TLS behavior", this)) {
+    void ConfigTls::init(ConfigInstance* instance) {
+        ConfigSection::init(instance, net::config::Section(ConfigTls::name, "Configuration of SSL/TLS behavior", this));
         certOpt = addOption( //
             "--cert",
             "Certificate chain file",

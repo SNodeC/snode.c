@@ -81,8 +81,8 @@
 
 namespace net::in6::stream::config {
 
-    ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress, net::in6::config::ConfigAddressReverse>(instance) {
+    void ConfigSocketServer::init(net::config::ConfigInstance* instance) {
+        this->net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress, net::in6::config::ConfigAddressReverse>::init(instance);
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setPortRequired();
 
         net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);

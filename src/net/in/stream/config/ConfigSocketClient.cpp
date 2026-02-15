@@ -81,8 +81,8 @@
 
 namespace net::in::stream::config {
 
-    ConfigSocketClient::ConfigSocketClient(net::config::ConfigInstance* instance)
-        : net::config::stream::ConfigSocketClient<net::in::config::ConfigAddress>(instance) {
+    void ConfigSocketClient::init(net::config::ConfigInstance* instance) {
+        this->net::config::stream::ConfigSocketClient<net::in::config::ConfigAddress>::init(instance);
         net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setHostRequired();
         net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setPortRequired();
         net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiSockType(SOCK_STREAM);

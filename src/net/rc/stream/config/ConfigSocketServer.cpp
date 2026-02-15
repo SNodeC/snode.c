@@ -76,8 +76,8 @@ namespace net::config {
 
 namespace net::rc::stream::config {
 
-    ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress, net::rc::config::ConfigAddressReverse>(instance) {
+    void ConfigSocketServer::init(net::config::ConfigInstance* instance) {
+        this->net::config::stream::ConfigSocketServer<net::rc::config::ConfigAddress, net::rc::config::ConfigAddressReverse>::init(instance);
         net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::setChannelRequired();
 
         net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelOpt //

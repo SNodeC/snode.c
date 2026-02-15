@@ -75,10 +75,19 @@
 
 namespace net::config {
 
-    ConfigSection::ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group)
-        : instanceSc(instanceSc) {
+    ConfigSection::ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group) {
+        init(instanceSc, sectionApp, group);
+    }
+
+    void ConfigSection::init(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group) {
+        if (initialized) {
+            return;
+        }
+
+        this->instanceSc = instanceSc;
         sectionSc = instanceSc->newSection(sectionApp, group);
         sectionSc->description(sectionSc->get_description() + " for instance '" + instanceSc->getInstanceName() + "'");
+        initialized = true;
     }
 
     void ConfigSection::required(CLI::Option* opt, bool req) {

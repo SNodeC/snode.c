@@ -57,7 +57,9 @@ namespace net::rc::stream::config {
 
     class ConfigSocketClient : public net::config::stream::ConfigSocketClient<net::rc::config::ConfigAddress> {
     protected:
-        explicit ConfigSocketClient(net::config::ConfigInstance* instance);
+        ConfigSocketClient() = default;
+
+        void init(net::config::ConfigInstance* instance);
 
         ~ConfigSocketClient() override;
     };

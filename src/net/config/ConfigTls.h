@@ -64,7 +64,9 @@ namespace net::config {
 
     class ConfigTls : protected ConfigSection {
     protected:
-        explicit ConfigTls(ConfigInstance* instance);
+        ConfigTls() = default;
+
+        virtual void init(ConfigInstance* instance);
 
     public:
         constexpr static std::string name{"tls"};

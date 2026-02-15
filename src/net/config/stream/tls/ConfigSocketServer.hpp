@@ -56,9 +56,9 @@ namespace net::config::stream::tls {
 
     template <typename ConfigSocketServerBase>
     ConfigSocketServer<ConfigSocketServerBase>::ConfigSocketServer(const std::string& name)
-        : net::config::ConfigInstance(name, net::config::ConfigInstance::Role::SERVER)
-        , ConfigSocketServerBase(this)
-        , net::config::ConfigTlsServer(this) {
+        : net::config::ConfigInstance(name, net::config::ConfigInstance::Role::SERVER) {
+        ConfigSocketServerBase::init(this);
+        net::config::ConfigTlsServer::init(this);
     }
 
     template <typename ConfigSocketServerBase>

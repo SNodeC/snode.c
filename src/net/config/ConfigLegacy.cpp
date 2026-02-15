@@ -49,8 +49,8 @@
 
 namespace net::config {
 
-    ConfigLegacy::ConfigLegacy(ConfigInstance* instance)
-        : net::config::ConfigSection(instance, net::config::Section(ConfigLegacy::name, "Configuration of legacy behavior", this)) {
+    void ConfigLegacy::init(ConfigInstance* instance) {
+        net::config::ConfigSection::init(instance, net::config::Section(ConfigLegacy::name, "Configuration of legacy behavior", this));
     }
 
 } // namespace net::config

@@ -49,9 +49,9 @@ namespace net::config::stream::legacy {
 
     template <typename ConfigSocketServerBase>
     ConfigSocketServer<ConfigSocketServerBase>::ConfigSocketServer(const std::string& name)
-        : net::config::ConfigInstance(name, net::config::ConfigInstance::Role::SERVER)
-        , ConfigSocketServerBase(this)
-        , net::config::ConfigLegacy(this) {
+        : net::config::ConfigInstance(name, net::config::ConfigInstance::Role::SERVER) {
+        ConfigSocketServerBase::init(this);
+        net::config::ConfigLegacy::init(this);
     }
 
 } // namespace net::config::stream::legacy

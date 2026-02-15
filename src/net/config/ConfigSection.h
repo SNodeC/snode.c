@@ -65,6 +65,7 @@ namespace net::config {
 
     class ConfigSection {
     public:
+        ConfigSection() = default;
         ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group = "Sections");
 
         virtual ~ConfigSection() = default;
@@ -139,6 +140,8 @@ namespace net::config {
         bool required() const;
 
     protected:
+        void init(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group = "Sections");
+
         void setConfigurable(CLI::Option* option, bool configurable);
 
         CLI::App* sectionSc = nullptr;
@@ -147,6 +150,7 @@ namespace net::config {
         ConfigInstance* instanceSc = nullptr;
 
         uint8_t requiredCount = 0;
+        bool initialized = false;
     };
 
 } // namespace net::config

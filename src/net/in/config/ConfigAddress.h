@@ -70,9 +70,11 @@ namespace net::in::config {
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     protected:
-        ConfigAddressReverse(net::config::ConfigInstance* instance,
-                             const std::string& addressOptionName,
-                             const std::string& addressOptionDescription);
+        ConfigAddressReverse() = default;
+
+        void init(net::config::ConfigInstance* instance,
+                  const std::string& addressOptionName,
+                  const std::string& addressOptionDescription) override;
 
     public:
         SocketAddress getSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
@@ -90,9 +92,11 @@ namespace net::in::config {
         using Super = ConfigAddressTypeT<net::in::SocketAddress>;
 
     protected:
-        explicit ConfigAddress(net::config::ConfigInstance* instance,
-                               const std::string& addressOptionName,
-                               const std::string& addressOptionDescription);
+        ConfigAddress() = default;
+
+        void init(net::config::ConfigInstance* instance,
+                  const std::string& addressOptionName,
+                  const std::string& addressOptionDescription) override;
 
     private:
         SocketAddress* init() final;

@@ -52,8 +52,8 @@
 
 namespace net::config {
 
-    ConfigTlsServer::ConfigTlsServer(ConfigInstance* instance)
-        : Super(instance) {
+    void ConfigTlsServer::init(ConfigInstance* instance) {
+        Super::init(instance);
         sniCertsOpt = sectionSc //
                           ->add_option("--sni-cert",
                                        configuredSniCerts,

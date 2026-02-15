@@ -66,7 +66,9 @@ namespace net::config {
         using Connection = ConfigConnection;
 
     protected:
-        explicit ConfigConnection(ConfigInstance* instance);
+        ConfigConnection() = default;
+
+        virtual void init(ConfigInstance* instance);
 
     public:
         constexpr static std::string name{"connection"};

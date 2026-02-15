@@ -58,7 +58,9 @@ namespace net::l2::stream::config {
     class ConfigSocketServer
         : public net::config::stream::ConfigSocketServer<net::l2::config::ConfigAddress, net::l2::config::ConfigAddressReverse> {
     protected:
-        explicit ConfigSocketServer(net::config::ConfigInstance* instance);
+        ConfigSocketServer() = default;
+
+        void init(net::config::ConfigInstance* instance);
 
         ~ConfigSocketServer() override;
     };

@@ -62,10 +62,11 @@
 namespace net::in6::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddressReverse<ConfigAddressType>::ConfigAddressReverse(net::config::ConfigInstance* instance,
-                                                                  const std::string& addressOptionName,
-                                                                  const std::string& addressOptionDescription)
-        : Super(instance, addressOptionName, addressOptionDescription) {
+    void ConfigAddressReverse<ConfigAddressType>::init(net::config::ConfigInstance* instance,
+                                                       const std::string& addressOptionName,
+                                                       const std::string& addressOptionDescription) {
+        Super::init(instance, addressOptionName, addressOptionDescription);
+
         numericReverseOpt = Super::addFlag( //
             "--numeric-reverse",
             "Suppress reverse host name lookup",
@@ -106,10 +107,11 @@ namespace net::in6::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance,
-                                                    const std::string& addressOptionName,
-                                                    const std::string& addressOptionDescription)
-        : Super(instance, addressOptionName, addressOptionDescription) {
+    void ConfigAddress<ConfigAddressType>::init(net::config::ConfigInstance* instance,
+                                                const std::string& addressOptionName,
+                                                const std::string& addressOptionDescription) {
+        Super::init(instance, addressOptionName, addressOptionDescription);
+
         hostOpt = Super::addOption( //
             "--host",
             "Host name or IPv6 address",

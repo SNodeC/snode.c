@@ -49,8 +49,8 @@
 
 namespace net::un::stream::config {
 
-    ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
-        : net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress, net::un::config::ConfigAddressReverse>(instance) {
+    void ConfigSocketServer::init(net::config::ConfigInstance* instance) {
+        this->net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress, net::un::config::ConfigAddressReverse>::init(instance);
         net::un::config::ConfigAddress<net::config::ConfigAddressLocal>::sunPathRequired();
     }
 

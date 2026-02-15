@@ -65,9 +65,11 @@ namespace net::config {
         using SocketAddress = SocketAddressT;
 
     protected:
-        ConfigAddress(ConfigInstance* instance, const std::string& addressOptionName, const std::string& addressOptionDescription);
+        ConfigAddress();
 
         ~ConfigAddress() override;
+
+        void init(ConfigInstance* instance, const std::string& addressOptionName, const std::string& addressOptionDescription) override;
 
         virtual void configurable(bool configurable) = 0;
 
