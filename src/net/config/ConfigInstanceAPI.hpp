@@ -65,13 +65,13 @@ namespace net::config {
     SectionType* ConfigInstance::getSection(bool onlyGot, bool recursive) const {
         utils::AppWithPtr<SectionType>* resultApp = nullptr;
 
-        auto* appWithPtr = instanceSc->get_subcommand_no_throw(SectionType::name);
+        auto* appWithPtr = instanceSc->get_subcommand_no_throw(std::string(SectionType::name));
 
         utils::AppWithPtr<SectionType>* sectionApp = dynamic_cast<utils::AppWithPtr<SectionType>*>(appWithPtr);
 
         if (sectionApp != nullptr) {
-            utils::AppWithPtr<SectionType>* parentApp =
-                dynamic_cast<utils::AppWithPtr<SectionType>*>(sectionApp->get_parent()->get_subcommand_no_throw(SectionType::name));
+            utils::AppWithPtr<SectionType>* parentApp = dynamic_cast<utils::AppWithPtr<SectionType>*>(
+                sectionApp->get_parent()->get_subcommand_no_throw(std::string(SectionType::name)));
 
             if (sectionApp->count_all() > 0 || !onlyGot) {
                 resultApp = sectionApp;

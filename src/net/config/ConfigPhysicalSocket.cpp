@@ -56,16 +56,16 @@
 
 namespace net::config {
 
-    ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance)
-        : ConfigSection(instance, net::config::Section(ConfigPhysicalSocket::name, "Configuration of socket behavior", this)) {
-        retryOpt = addFlag( //
+    ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigSection* section)
+        : section(section) {
+        retryOpt = section->addFlag( //
             "--retry{true}",
             "Automatically retry listen|connect",
             "bool",
             XSTR(RETRY),
             CLI::IsMember({"true", "false"}));
 
-        retryOnFatalOpt = addFlagFunction( //
+        retryOnFatalOpt = section->addFlagFunction( //
             "--retry-on-fatal{true}",
             [this]() {
                 if (retryOnFatalOpt->as<bool>() && !retryOpt->as<bool>()) {
@@ -78,7 +78,7 @@ namespace net::config {
             CLI::IsMember({"true", "false"}));
         retryOnFatalOpt->needs(retryOpt);
 
-        retryTimeoutOpt = addOption( //
+        retryTimeoutOpt = section->addOption( //
             "--retry-timeout",
             "Timeout of the retry timer",
             "sec",
@@ -86,7 +86,7 @@ namespace net::config {
             CLI::NonNegativeNumber);
         retryTimeoutOpt->needs(retryOpt);
 
-        retryTriesOpt = addOption( //
+        retryTriesOpt = section->addOption( //
             "--retry-tries",
             "Number of retry attempts before giving up (0 = unlimited)",
             "tries",
@@ -94,7 +94,7 @@ namespace net::config {
             CLI::TypeValidator<unsigned int>());
         retryTriesOpt->needs(retryOpt);
 
-        retryBaseOpt = addOption( //
+        retryBaseOpt = section->addOption( //
             "--retry-base",
             "Base of exponential backoff",
             "base",
@@ -102,7 +102,7 @@ namespace net::config {
             CLI::PositiveNumber);
         retryBaseOpt->needs(retryOpt);
 
-        retryJitterOpt = addOption( //
+        retryJitterOpt = section->addOption( //
             "--retry-jitter",
             "Maximum jitter in percent to apply randomly to calculated retry timeout (0 to disable)",
             "jitter",
@@ -110,7 +110,7 @@ namespace net::config {
             CLI::Range(0., 100.));
         retryJitterOpt->needs(retryOpt);
 
-        retryLimitOpt = addOption( //
+        retryLimitOpt = section->addOption( //
             "--retry-limit",
             "Upper limit in seconds of retry timeout (0 for infinite)",
             "sec",
@@ -130,27 +130,28 @@ namespace net::config {
                                                        const std::string& typeName,
                                                        const std::string& defaultValue,
                                                        const CLI::Validator& validator) {
-        return addFlagFunction(
-                   name,
-                   [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]() {
-                       try {
-                           try {
-                               if (sectionSc->get_option(strippedName)->as<bool>()) {
-                                   addSocketOption(optLevel, optName, sectionSc->get_option(strippedName)->as<bool>() ? 1 : 0);
-                               } else {
-                                   addSocketOption(optLevel, optName, 0);
-                               }
-                           } catch ([[maybe_unused]] CLI::ConversionError& err) {
-                               removeSocketOption(optLevel, optName);
-                           }
-                       } catch (CLI::OptionNotFound& err) {
-                           LOG(ERROR) << err.what();
-                       }
-                   },
-                   description,
-                   typeName,
-                   defaultValue,
-                   validator)
+        return section
+            ->addFlagFunction(
+                name,
+                [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]() {
+                    try {
+                        try {
+                            if (section->getOption(strippedName)->as<bool>()) {
+                                addSocketOption(optLevel, optName, section->getOption(strippedName)->as<bool>() ? 1 : 0);
+                            } else {
+                                addSocketOption(optLevel, optName, 0);
+                            }
+                        } catch ([[maybe_unused]] CLI::ConversionError& err) {
+                            removeSocketOption(optLevel, optName);
+                        }
+                    } catch (CLI::OptionNotFound& err) {
+                        LOG(ERROR) << err.what();
+                    }
+                },
+                description,
+                typeName,
+                defaultValue,
+                validator)
             ->force_callback();
     }
 

@@ -62,12 +62,13 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigTls : protected ConfigSection {
+    class ConfigTls {
     protected:
-        explicit ConfigTls(ConfigInstance* instance);
+        explicit ConfigTls(net::config::ConfigSection* section);
 
     public:
-        constexpr static std::string name{"tls"};
+        constexpr static std::string_view name{"tls"};
+        constexpr static std::string_view description{"Configuration of SSL/TLS behavior"};
 
         ConfigTls& setInitTimeout(const utils::Timeval& newInitTimeout);
         utils::Timeval getInitTimeout() const;

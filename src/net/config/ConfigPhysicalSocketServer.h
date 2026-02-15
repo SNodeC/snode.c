@@ -59,7 +59,9 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigPhysicalSocketServer : public ConfigPhysicalSocket {
+    class ConfigPhysicalSocketServer
+        : private ConfigSection
+        , public ConfigPhysicalSocket {
     private:
         using Super = ConfigPhysicalSocket;
 

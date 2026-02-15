@@ -63,12 +63,13 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigPhysicalSocket : protected ConfigSection {
+    class ConfigPhysicalSocket {
     protected:
-        explicit ConfigPhysicalSocket(ConfigInstance* instance);
+        explicit ConfigPhysicalSocket(net::config::ConfigSection* section);
 
     public:
-        constexpr static std::string name{"socket"};
+        constexpr static std::string_view name{"socket"};
+        constexpr static std::string_view description{"Configuration of socket behavior"};
 
         const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& getSocketOptions();
 
@@ -109,6 +110,7 @@ namespace net::config {
                                      const CLI::Validator& validator);
 
     private:
+        net::config::ConfigSection* section;
         CLI::Option* retryOpt = nullptr;
         CLI::Option* retryOnFatalOpt = nullptr;
         CLI::Option* retryTriesOpt = nullptr;

@@ -50,7 +50,8 @@
 namespace net::config {
 
     ConfigTlsClient::ConfigTlsClient(ConfigInstance* instance)
-        : Super(instance) {
+        : ConfigSection(instance, net::config::Section(std::string(name), std::string(description), this))
+        , ConfigTls(this) {
         sniOpt = addOption( //
             "--sni",
             "Server Name Indication",

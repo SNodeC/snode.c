@@ -60,7 +60,9 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigTlsClient : public ConfigTls {
+    class ConfigTlsClient
+        : private ConfigSection
+        , public ConfigTls {
     private:
         using Super = ConfigTls;
 
