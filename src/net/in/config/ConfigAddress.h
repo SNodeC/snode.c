@@ -45,6 +45,7 @@
 #include "net/config/ConfigAddressLocal.h"
 #include "net/config/ConfigAddressRemote.h"
 #include "net/config/ConfigAddressReverse.h"
+#include "net/config/ConfigSection.h"
 #include "net/in/SocketAddress.h"
 
 namespace net::config {
@@ -54,7 +55,6 @@ namespace net::config {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <string>
 
 namespace CLI {
     class Option;

@@ -50,6 +50,8 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string_view>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {

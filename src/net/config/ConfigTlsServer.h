@@ -42,6 +42,7 @@
 #ifndef NET_CONFIG_CONFIGTLSSERVER_H
 #define NET_CONFIG_CONFIGTLSSERVER_H
 
+#include "net/config/ConfigSection.hpp"
 #include "net/config/ConfigTls.h" // IWYU pragma: export
 
 namespace net::config {
@@ -51,12 +52,7 @@ namespace net::config {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
-#include <string>
 #include <variant>
-
-namespace CLI {
-    class Option;
-}
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

@@ -45,13 +45,10 @@
 #include "net/config/ConfigSection.h"
 #include "net/phy/PhysicalSocketOption.h" // IWYU pragma: export
 
-namespace net::config {
-    class ConfigInstance;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
+#include <string_view>
 #include <vector>
 
 namespace CLI {

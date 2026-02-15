@@ -54,6 +54,8 @@ namespace CLI {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string_view>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace web::http::client {
@@ -61,6 +63,7 @@ namespace web::http::client {
     class ConfigHTTP : public net::config::ConfigSection {
     public:
         constexpr static std::string_view name{"http"};
+        constexpr static std::string_view description{"HTTP behavior"};
 
         explicit ConfigHTTP(net::config::ConfigInstance* configInstance);
         ConfigHTTP(ConfigHTTP&) = delete;

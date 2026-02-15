@@ -42,13 +42,14 @@
 #ifndef NET_CONFIG_CONFIGADDRESSBASE_H
 #define NET_CONFIG_CONFIGADDRESSBASE_H
 
-#include "net/config/ConfigSection.h"
-
 namespace net::config {
     class ConfigInstance;
-}
+    class ConfigSection;
+} // namespace net::config
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

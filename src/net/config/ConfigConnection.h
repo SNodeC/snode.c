@@ -56,6 +56,7 @@ namespace CLI {
 #include "utils/Timeval.h"
 
 #include <cstddef>
+#include <string_view>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
