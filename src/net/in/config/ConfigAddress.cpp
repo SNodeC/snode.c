@@ -63,10 +63,14 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddressReverse<ConfigAddressType>::ConfigAddressReverse(net::config::ConfigInstance* instance,
-                                                                  const std::string& addressOptionName,
-                                                                  const std::string& addressOptionDescription)
-        : Super(instance, addressOptionName, addressOptionDescription) {
-        numericReverseOpt = Super::addFlag( //
+                                                                  [[maybe_unused]] const std::string& addressOptionName,
+                                                                  [[maybe_unused]] const std::string& addressOptionDescription)
+        : ConfigSection(instance,
+                        net::config::Section(std::string(ConfigAddressType<net::in::SocketAddress>::name),
+                                             std::string(ConfigAddressType<net::in::SocketAddress>::description),
+                                             this))
+        , ConfigAddressType<net::in::SocketAddress>(this) {
+        numericReverseOpt = addFlag( //
             "--numeric-reverse{true}",
             "Suppress reverse host name lookup",
             "bool",
@@ -107,31 +111,35 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance,
-                                                    const std::string& addressOptionName,
-                                                    const std::string& addressOptionDescription)
-        : Super(instance, addressOptionName, addressOptionDescription) {
-        hostOpt = Super::addOption( //
+                                                    [[maybe_unused]] const std::string& addressOptionName,
+                                                    [[maybe_unused]] const std::string& addressOptionDescription)
+        : ConfigSection(instance,
+                        net::config::Section(std::string(ConfigAddressType<net::in::SocketAddress>::name),
+                                             std::string(ConfigAddressType<net::in::SocketAddress>::description),
+                                             this))
+        , ConfigAddressType<net::in::SocketAddress>(this) {
+        hostOpt = addOption( //
             "--host",
             "Host name or IPv4 address",
             "hostname|IPv4",
             "0.0.0.0",
             CLI::TypeValidator<std::string>());
 
-        portOpt = Super::addOption( //
+        portOpt = addOption( //
             "--port",
             "Port number",
             "port",
             0,
             CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
 
-        numericOpt = Super::addFlag( //
+        numericOpt = addFlag( //
             "--numeric{true}",
             "Suppress host name lookup",
             "bool",
             XSTR(IN_NUMERIC),
             CLI::IsMember({"true", "false"}));
 
-        numericReverseOpt = Super::addFlag( //
+        numericReverseOpt = addFlag( //
             "--numeric-reverse{true}",
             "Suppress reverse host name lookup",
             "bool",
@@ -189,7 +197,7 @@ namespace net::in::config {
         hostOpt //
             ->default_val(ipOrHostname)
             ->clear();
-        Super::required(hostOpt, false);
+        required(hostOpt, false);
 
         return *this;
     }
@@ -206,7 +214,7 @@ namespace net::in::config {
         portOpt //
             ->default_val(port)
             ->clear();
-        Super::required(portOpt, false);
+        required(portOpt, false);
 
         return *this;
     }
@@ -293,14 +301,14 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setHostRequired(bool required) {
-        Super::required(hostOpt, required);
+        this->required(hostOpt, required);
 
         return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPortRequired(bool required) {
-        Super::required(portOpt, required);
+        this->required(portOpt, required);
 
         return *this;
     }

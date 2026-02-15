@@ -52,6 +52,10 @@ namespace net::config {
 
     template <typename SocketAddressT>
     class ConfigAddressLocal : public net::config::ConfigAddress<SocketAddressT> {
+    public:
+        constexpr static std::string_view name{"local"};
+        constexpr static std::string_view description{"Local side of connection"};
+
     private:
         using Super = net::config::ConfigAddress<SocketAddressT>;
 

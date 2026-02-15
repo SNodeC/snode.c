@@ -55,14 +55,18 @@ namespace net::config {
 namespace net::config {
 
     template <typename SocketAddressT>
-    class ConfigAddressBase : protected ConfigSection {
+    class ConfigAddressBase {
     private:
         using Super = ConfigSection;
 
     protected:
-        explicit ConfigAddressBase(ConfigInstance* instance,
-                                   const std::string& addressOptionName = "",
-                                   const std::string& addressOptionDescription = "");
+        ConfigAddressBase(ConfigInstance* instance,
+                          const std::string& addressOptionName = "",
+                          const std::string& addressOptionDescription = "");
+
+        explicit ConfigAddressBase(net::config::ConfigSection* section);
+
+        virtual ~ConfigAddressBase() = default;
 
     public:
         SocketAddressT getSocketAddress(const typename SocketAddressT::SockAddr& sockAddr, typename SocketAddressT::SockLen sockAddrLen);

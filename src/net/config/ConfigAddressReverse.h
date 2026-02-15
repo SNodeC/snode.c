@@ -52,6 +52,10 @@ namespace net::config {
 
     template <typename SocketAddressT>
     class ConfigAddressReverse : public net::config::ConfigAddressBase<SocketAddressT> {
+    public:
+        constexpr static std::string_view name{"remote"};
+        constexpr static std::string_view description{"Remote side of connection"};
+
     private:
         using Super = net::config::ConfigAddressBase<SocketAddressT>;
 
