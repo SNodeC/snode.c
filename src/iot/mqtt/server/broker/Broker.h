@@ -54,7 +54,7 @@ namespace iot::mqtt::server {
 
 #include <cstdint>
 #include <list>
-#include <map>
+#include <map> // IWYU pragma: keep
 #include <memory>
 #include <string>
 #include <utility>

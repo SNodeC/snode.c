@@ -70,6 +70,8 @@ namespace net::config {
     protected:
         explicit ConfigTlsServer(ConfigInstance* instance);
 
+        ~ConfigTlsServer() override;
+
     public:
         ConfigTlsServer& setForceSni(bool forceSni = true);
         bool getForceSni() const;

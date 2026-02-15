@@ -147,6 +147,9 @@ namespace net::config {
         });
     }
 
+    ConfigTlsServer::~ConfigTlsServer() {
+    }
+
     ConfigTlsServer& ConfigTlsServer::setForceSni(bool forceSni) {
         forceSniOpt //
             ->default_val(forceSni ? "true" : "false")

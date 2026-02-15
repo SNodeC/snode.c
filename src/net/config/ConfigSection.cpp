@@ -81,6 +81,9 @@ namespace net::config {
         sectionSc->description(sectionSc->get_description() + " for instance '" + instanceSc->getInstanceName() + "'");
     }
 
+    ConfigSection::~ConfigSection() {
+    }
+
     void ConfigSection::required(CLI::Option* opt, bool req) {
         if (req != opt->get_required()) {
             if (req) {

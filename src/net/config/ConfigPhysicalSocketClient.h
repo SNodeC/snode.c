@@ -72,6 +72,8 @@ namespace net::config {
     protected:
         explicit ConfigPhysicalSocketClient(ConfigInstance* instance);
 
+        ~ConfigPhysicalSocketClient() override;
+
     public:
         ConfigPhysicalSocketClient& setReconnect(bool reconnect = true);
         bool getReconnect() const;

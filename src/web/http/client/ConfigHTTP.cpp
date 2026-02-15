@@ -67,6 +67,9 @@ namespace web::http::client {
             CLI::IsMember({"true", "false"}));
     }
 
+    ConfigHTTP::~ConfigHTTP() {
+    }
+
     void ConfigHTTP::setHostHeader(const std::string& hostHeader) {
         hostHeaderOpt->default_str(hostHeader)->clear();
     }

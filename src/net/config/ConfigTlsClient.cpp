@@ -64,6 +64,9 @@ namespace net::config {
             CLI::TypeValidator<std::string>());
     }
 
+    ConfigTlsClient::~ConfigTlsClient() {
+    }
+
     ConfigTlsClient& ConfigTlsClient::setSni(const std::string& sni) {
         sniOpt //
             ->default_val(sni)

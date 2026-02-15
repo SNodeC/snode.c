@@ -87,6 +87,9 @@ namespace net::config {
             CLI::PositiveNumber);
     }
 
+    ConfigConnection::~ConfigConnection() {
+    }
+
     utils::Timeval ConfigConnection::getReadTimeout() const {
         return readTimeoutOpt->as<utils::Timeval>();
     }

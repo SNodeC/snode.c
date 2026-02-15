@@ -76,6 +76,9 @@ namespace net::config {
             CLI::NonNegativeNumber);
     }
 
+    ConfigPhysicalSocketServer::~ConfigPhysicalSocketServer() {
+    }
+
     int ConfigPhysicalSocketServer::getBacklog() const {
         return backlogOpt->as<int>();
     }

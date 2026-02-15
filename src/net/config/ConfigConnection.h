@@ -69,6 +69,8 @@ namespace net::config {
     protected:
         explicit ConfigConnection(ConfigInstance* instance);
 
+        ~ConfigConnection() override;
+
     public:
         constexpr static std::string_view name{"connection"};
 

@@ -67,7 +67,7 @@ namespace net::config {
     public:
         ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group = "Sections");
 
-        virtual ~ConfigSection() = default;
+        virtual ~ConfigSection();
 
         ConfigSection(const ConfigSection&) = delete;
         ConfigSection(ConfigSection&&) = delete;

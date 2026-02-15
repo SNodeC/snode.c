@@ -87,6 +87,9 @@ namespace net::config {
             CLI::NonNegativeNumber);
     }
 
+    ConfigPhysicalSocketClient::~ConfigPhysicalSocketClient() {
+    }
+
     ConfigPhysicalSocketClient& ConfigPhysicalSocketClient::setReconnect(bool reconnect) {
         reconnectOpt //
             ->default_val(reconnect ? "true" : "false")

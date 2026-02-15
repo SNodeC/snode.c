@@ -66,6 +66,9 @@ namespace web::http::client {
         constexpr static std::string_view description{"HTTP behavior"};
 
         explicit ConfigHTTP(net::config::ConfigInstance* configInstance);
+
+        ~ConfigHTTP() override;
+
         ConfigHTTP(ConfigHTTP&) = delete;
         ConfigHTTP& operator=(ConfigHTTP&) = delete;
 

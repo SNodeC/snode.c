@@ -72,6 +72,8 @@ namespace net::config {
     protected:
         explicit ConfigPhysicalSocketServer(ConfigInstance* instance);
 
+        ~ConfigPhysicalSocketServer() override;
+
     public:
         ConfigPhysicalSocketServer& setBacklog(int newBacklog);
         int getBacklog() const;

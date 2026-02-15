@@ -59,11 +59,12 @@ namespace net::config {
     class ConfigLegacy : protected ConfigSection {
     public:
         constexpr static std::string_view name{"legacy"};
-
-        using Legacy = ConfigLegacy;
+        constexpr static std::string_view description{"Configuration of legacy behavior"};
 
     protected:
         explicit ConfigLegacy(ConfigInstance* instance);
+
+        ~ConfigLegacy() override;
     };
 
 } // namespace net::config

@@ -67,6 +67,8 @@ namespace net::config {
     protected:
         explicit ConfigTlsClient(ConfigInstance* instance);
 
+        ~ConfigTlsClient() override;
+
     public:
         ConfigTlsClient& setSni(const std::string& sni);
         std::string getSni() const;
