@@ -56,17 +56,32 @@
 namespace net::l2::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddressReverse<ConfigAddressType>::ConfigAddressReverse(net::config::ConfigInstance* instance,
+                                                                  [[maybe_unused]] const std::string& addressOptionName,
+                                                                  [[maybe_unused]] const std::string& addressOptionDescription)
+        : ConfigSection(instance,
+                        net::config::Section(std::string(ConfigAddressType<net::l2::SocketAddress>::name),
+                                             std::string(ConfigAddressType<net::l2::SocketAddress>::description),
+                                             this))
+        , ConfigAddressType<net::l2::SocketAddress>(this) {
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance,
-                                                    const std::string& addressOptionName,
-                                                    const std::string& addressOptionDescription)
-        : Super(instance, addressOptionName, addressOptionDescription) {
-        btAddressOpt = Super::addOption( //
+                                                    [[maybe_unused]] const std::string& addressOptionName,
+                                                    [[maybe_unused]] const std::string& addressOptionDescription)
+        : ConfigSection(instance,
+                        net::config::Section(std::string(ConfigAddressType<net::l2::SocketAddress>::name),
+                                             std::string(ConfigAddressType<net::l2::SocketAddress>::description),
+                                             this))
+        , ConfigAddressType<net::l2::SocketAddress>(this) {
+        btAddressOpt = addOption( //
             "--host",
             "Bluetooth address",
             "xx:xx:xx:xx:xx:xx",
             "00:00:00:00:00:00",
             CLI::TypeValidator<std::string>());
-        psmOpt = Super::addOption( //
+        psmOpt = addOption( //
             "--psm",
             "Protocol service multiplexer",
             "psm");
@@ -95,7 +110,7 @@ namespace net::l2::config {
         btAddressOpt //
             ->default_val(btAddress)
             ->clear();
-        Super::required(btAddressOpt, false);
+        this->required(btAddressOpt, false);
 
         return *this;
     }
@@ -112,7 +127,7 @@ namespace net::l2::config {
         psmOpt //
             ->default_val(psm)
             ->clear();
-        Super::required(psmOpt, false);
+        this->required(psmOpt, false);
 
         return *this;
     }
@@ -124,20 +139,20 @@ namespace net::l2::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     void ConfigAddress<ConfigAddressTypeT>::configurable(bool configurable) {
-        Super::setConfigurable(btAddressOpt, configurable);
-        Super::setConfigurable(psmOpt, configurable);
+        this->setConfigurable(btAddressOpt, configurable);
+        this->setConfigurable(psmOpt, configurable);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddressRequired(bool required) {
-        Super::required(btAddressOpt, required);
+        this->required(btAddressOpt, required);
 
         return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPsmRequired(bool required) {
-        Super::required(psmOpt, required);
+        this->required(psmOpt, required);
 
         return *this;
     }

@@ -64,16 +64,22 @@ namespace CLI {
 namespace net::un::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
-    class ConfigAddressReverse : public ConfigAddressTypeT<net::un::SocketAddress> {
+    class ConfigAddressReverse
+        : private net::config::ConfigSection
+        , public ConfigAddressTypeT<net::un::SocketAddress> {
     private:
         using Super = ConfigAddressTypeT<SocketAddress>;
 
     protected:
-        using Super::Super;
+        ConfigAddressReverse(net::config::ConfigInstance* instance,
+                             const std::string& addressOptionName,
+                             const std::string& addressOptionDescription);
     };
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
-    class ConfigAddress : public ConfigAddressTypeT<net::un::SocketAddress> {
+    class ConfigAddress
+        : private net::config::ConfigSection
+        , public ConfigAddressTypeT<net::un::SocketAddress> {
     private:
         using Super = ConfigAddressTypeT<net::un::SocketAddress>;
 

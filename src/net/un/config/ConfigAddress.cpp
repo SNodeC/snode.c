@@ -59,11 +59,26 @@
 namespace net::un::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddressReverse<ConfigAddressType>::ConfigAddressReverse(net::config::ConfigInstance* instance,
+                                                                  [[maybe_unused]] const std::string& addressOptionName,
+                                                                  [[maybe_unused]] const std::string& addressOptionDescription)
+        : ConfigSection(instance,
+                        net::config::Section(std::string(ConfigAddressType<net::un::SocketAddress>::name),
+                                             std::string(ConfigAddressType<net::un::SocketAddress>::description),
+                                             this))
+        , ConfigAddressType<net::un::SocketAddress>(this) {
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance,
-                                                    const std::string& addressOptionName,
-                                                    const std::string& addressOptionDescription)
-        : Super(instance, addressOptionName, addressOptionDescription) {
-        sunPathOpt = Super::addOption( //
+                                                    [[maybe_unused]] const std::string& addressOptionName,
+                                                    [[maybe_unused]] const std::string& addressOptionDescription)
+        : ConfigSection(instance,
+                        net::config::Section(std::string(ConfigAddressType<net::un::SocketAddress>::name),
+                                             std::string(ConfigAddressType<net::un::SocketAddress>::description),
+                                             this))
+        , ConfigAddressType<net::un::SocketAddress>(this) {
+        sunPathOpt = addOption( //
             "--sun-path",
             "Unix domain bind path",
             "filename:FILE",
@@ -100,7 +115,7 @@ namespace net::un::config {
         sunPathOpt //
             ->default_val(sunPath)
             ->clear();
-        Super::required(sunPathOpt, false);
+        this->required(sunPathOpt, false);
 
         return *this;
     }
@@ -112,12 +127,12 @@ namespace net::un::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     void ConfigAddress<ConfigAddressTypeT>::configurable(bool configurable) {
-        Super::setConfigurable(sunPathOpt, configurable);
+        this->setConfigurable(sunPathOpt, configurable);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::sunPathRequired(bool required) {
-        Super::required(sunPathOpt, required);
+        this->required(sunPathOpt, required);
 
         return *this;
     }

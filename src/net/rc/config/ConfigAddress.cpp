@@ -56,17 +56,32 @@
 namespace net::rc::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
+    ConfigAddressReverse<ConfigAddressType>::ConfigAddressReverse(net::config::ConfigInstance* instance,
+                                                                  [[maybe_unused]] const std::string& addressOptionName,
+                                                                  [[maybe_unused]] const std::string& addressOptionDescription)
+        : ConfigSection(instance,
+                        net::config::Section(std::string(ConfigAddressType<net::rc::SocketAddress>::name),
+                                             std::string(ConfigAddressType<net::rc::SocketAddress>::description),
+                                             this))
+        , ConfigAddressType<net::rc::SocketAddress>(this) {
+    }
+
+    template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance,
-                                                    const std::string& addressOptionName,
-                                                    const std::string& addressOptionDescription)
-        : Super(instance, addressOptionName, addressOptionDescription) {
-        btAddressOpt = Super::addOption( //
+                                                    [[maybe_unused]] const std::string& addressOptionName,
+                                                    [[maybe_unused]] const std::string& addressOptionDescription)
+        : ConfigSection(instance,
+                        net::config::Section(std::string(ConfigAddressType<net::rc::SocketAddress>::name),
+                                             std::string(ConfigAddressType<net::rc::SocketAddress>::description),
+                                             this))
+        , ConfigAddressType<net::rc::SocketAddress>(this) {
+        btAddressOpt = addOption( //
             "--host",
             "Bluetooth address",
             "xx:xx:xx:xx:xx:xx",
             "00:00:00:00:00:00",
             CLI::TypeValidator<std::string>());
-        channelOpt = Super::addOption( //
+        channelOpt = addOption( //
             "--channel",
             "Channel number",
             "channel");
@@ -95,7 +110,7 @@ namespace net::rc::config {
         btAddressOpt //
             ->default_val(btAddress)
             ->clear();
-        Super::required(btAddressOpt, false);
+        this->required(btAddressOpt, false);
 
         return *this;
     }
@@ -112,7 +127,7 @@ namespace net::rc::config {
         channelOpt //
             ->default_val<int>(channel)
             ->clear();
-        Super::required(channelOpt, false);
+        this->required(channelOpt, false);
 
         return *this;
     }
@@ -124,20 +139,20 @@ namespace net::rc::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     void ConfigAddress<ConfigAddressTypeT>::configurable(bool configurable) {
-        Super::setConfigurable(btAddressOpt, configurable);
-        Super::setConfigurable(channelOpt, configurable);
+        this->setConfigurable(btAddressOpt, configurable);
+        this->setConfigurable(channelOpt, configurable);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddressRequired(bool required) {
-        Super::required(btAddressOpt, required);
+        this->required(btAddressOpt, required);
 
         return *this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setChannelRequired(bool required) {
-        Super::required(channelOpt, required);
+        this->required(channelOpt, required);
 
         return *this;
     }
