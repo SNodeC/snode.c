@@ -57,7 +57,7 @@
 namespace net::config {
 
     template <typename T>
-    std::shared_ptr<CLI::App> Instance(const std::string& name, const std::string& description, T* section) {
+    std::shared_ptr<utils::AppWithPtr<T>> Instance(const std::string& name, const std::string& description, T* section) {
         return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
     }
 
