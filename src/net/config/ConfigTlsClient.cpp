@@ -54,7 +54,7 @@ namespace net::config {
 namespace net::config {
 
     ConfigTlsClient::ConfigTlsClient(ConfigInstance* instance)
-        : ConfigSection(instance, net::config::Section(std::string(name), std::string(description), this))
+        : ConfigSection(instance, this)
         , ConfigTls(this) {
         sniOpt = addOption( //
             "--sni",

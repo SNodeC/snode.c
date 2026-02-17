@@ -65,10 +65,7 @@ namespace net::in6::config {
     ConfigAddressReverse<ConfigAddressType>::ConfigAddressReverse(net::config::ConfigInstance* instance,
                                                                   [[maybe_unused]] const std::string& addressOptionName,
                                                                   [[maybe_unused]] const std::string& addressOptionDescription)
-        : ConfigSection(instance,
-                        net::config::Section(std::string(ConfigAddressType<net::in6::SocketAddress>::name),
-                                             std::string(ConfigAddressType<net::in6::SocketAddress>::description),
-                                             this))
+        : ConfigSection(instance, this)
         , ConfigAddressType<net::in6::SocketAddress>(this) {
         numericReverseOpt = addFlag( //
             "--numeric-reverse",
@@ -113,10 +110,7 @@ namespace net::in6::config {
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance,
                                                     [[maybe_unused]] const std::string& addressOptionName,
                                                     [[maybe_unused]] const std::string& addressOptionDescription)
-        : ConfigSection(instance,
-                        net::config::Section(std::string(ConfigAddressType<net::in6::SocketAddress>::name),
-                                             std::string(ConfigAddressType<net::in6::SocketAddress>::description),
-                                             this))
+        : ConfigSection(instance, this)
         , ConfigAddressType<net::in6::SocketAddress>(this) {
         hostOpt = addOption( //
             "--host",

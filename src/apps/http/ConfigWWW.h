@@ -39,65 +39,32 @@
  * THE SOFTWARE.
  */
 
-#ifndef NET_CONFIG_CONFIGCONN_H
-#define NET_CONFIG_CONFIGCONN_H
+#ifndef CONFIGWWW_H
+#define CONFIGWWW_H
 
-#include "net/config/ConfigSection.h"
+#include "net/config/ConfigSection.hpp"
 
 namespace net::config {
     class ConfigInstance;
 }
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
-#include "utils/Timeval.h"
-
-#include <cstddef>
 #include <string_view>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::config {
+class ConfigWWW : public net::config::ConfigSection {
+public:
+    constexpr static std::string_view name{"www"};
+    constexpr static std::string_view description{"Web behavior of httpserver"};
 
-    class ConfigConnection : protected ConfigSection {
-    public:
-        using Connection = ConfigConnection;
+    ConfigWWW(net::config::ConfigInstance* instance);
 
-    protected:
-        explicit ConfigConnection(ConfigInstance* instance);
+    std::string getHtmlRoot();
 
-        ~ConfigConnection() override;
+private:
+    CLI::Option* htmlRoot;
+};
 
-    public:
-        constexpr static std::string_view name{"connection"};
-        constexpr static std::string_view description{"Configuration of established connections"};
-
-        utils::Timeval getReadTimeout() const;
-        ConfigConnection& setReadTimeout(const utils::Timeval& newReadTimeoutSet);
-
-        utils::Timeval getWriteTimeout() const;
-        ConfigConnection& setWriteTimeout(const utils::Timeval& newWriteTimeoutSet);
-
-        std::size_t getReadBlockSize() const;
-        ConfigConnection& setReadBlockSize(std::size_t newReadBlockSize);
-
-        std::size_t getWriteBlockSize() const;
-        ConfigConnection& setWriteBlockSize(std::size_t newWriteBlockSize);
-
-        utils::Timeval getTerminateTimeout() const;
-        ConfigConnection& setTerminateTimeout(const utils::Timeval& newTerminateTimeout);
-
-    private:
-        CLI::Option* readTimeoutOpt = nullptr;
-        CLI::Option* writeTimeoutOpt = nullptr;
-        CLI::Option* readBlockSizeOpt = nullptr;
-        CLI::Option* writeBlockSizeOpt = nullptr;
-        CLI::Option* terminateTimeoutOpt = nullptr;
-    };
-
-} // namespace net::config
-
-#endif // NET_CONFIG_CONFIGCONN_H
+#endif // CONFIGWWW_H

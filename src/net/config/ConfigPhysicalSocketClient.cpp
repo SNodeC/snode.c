@@ -57,7 +57,7 @@
 namespace net::config {
 
     ConfigPhysicalSocketClient::ConfigPhysicalSocketClient(ConfigInstance* instance)
-        : ConfigSection(instance, net::config::Section(std::string(name), std::string(description), this))
+        : ConfigSection(instance, this)
         , ConfigPhysicalSocket(this) {
         reconnectOpt = addFlagFunction( //
             "--reconnect{true}",

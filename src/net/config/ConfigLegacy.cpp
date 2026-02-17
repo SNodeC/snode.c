@@ -50,7 +50,7 @@
 namespace net::config {
 
     ConfigLegacy::ConfigLegacy(ConfigInstance* instance)
-        : net::config::ConfigSection(instance, net::config::Section(std::string(name), std::string(description), this)) {
+        : ConfigSection(instance, this) {
     }
 
     ConfigLegacy::~ConfigLegacy() {

@@ -57,7 +57,7 @@ namespace net::config {
 namespace net::config {
 
     ConfigTlsServer::ConfigTlsServer(ConfigInstance* instance)
-        : ConfigSection(instance, net::config::Section(std::string(name), std::string(description), this))
+        : ConfigSection(instance, this)
         , ConfigTls(this) {
         sniCertsOpt = sectionSc //
                           ->add_option("--sni-cert",

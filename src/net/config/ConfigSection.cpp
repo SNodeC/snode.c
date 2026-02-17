@@ -39,7 +39,7 @@
  * THE SOFTWARE.
  */
 
-#include "net/config/ConfigSection.h"
+#include "net/config/ConfigSection.hpp"
 
 #include "net/config/ConfigInstance.h"
 
@@ -74,12 +74,6 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
-
-    ConfigSection::ConfigSection(ConfigInstance* instance, std::shared_ptr<CLI::App> sectionApp, const std::string& group)
-        : instance(instance) {
-        sectionSc = instance->newSection(sectionApp, group);
-        sectionSc->description(sectionSc->get_description() + " for instance '" + instance->getInstanceName() + "'");
-    }
 
     ConfigSection::~ConfigSection() {
     }

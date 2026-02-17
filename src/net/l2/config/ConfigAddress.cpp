@@ -59,10 +59,7 @@ namespace net::l2::config {
     ConfigAddressReverse<ConfigAddressType>::ConfigAddressReverse(net::config::ConfigInstance* instance,
                                                                   [[maybe_unused]] const std::string& addressOptionName,
                                                                   [[maybe_unused]] const std::string& addressOptionDescription)
-        : ConfigSection(instance,
-                        net::config::Section(std::string(ConfigAddressType<net::l2::SocketAddress>::name),
-                                             std::string(ConfigAddressType<net::l2::SocketAddress>::description),
-                                             this))
+        : ConfigSection(instance, this)
         , ConfigAddressType<net::l2::SocketAddress>(this) {
     }
 
@@ -70,10 +67,7 @@ namespace net::l2::config {
     ConfigAddress<ConfigAddressType>::ConfigAddress(net::config::ConfigInstance* instance,
                                                     [[maybe_unused]] const std::string& addressOptionName,
                                                     [[maybe_unused]] const std::string& addressOptionDescription)
-        : ConfigSection(instance,
-                        net::config::Section(std::string(ConfigAddressType<net::l2::SocketAddress>::name),
-                                             std::string(ConfigAddressType<net::l2::SocketAddress>::description),
-                                             this))
+        : ConfigSection(instance, this)
         , ConfigAddressType<net::l2::SocketAddress>(this) {
         btAddressOpt = addOption( //
             "--host",

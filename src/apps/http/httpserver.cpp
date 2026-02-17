@@ -39,9 +39,10 @@
  * THE SOFTWARE.
  */
 
+#include "ConfigWWW.h"
 #include "apps/http/model/servers.h"
 #include "express/middleware/StaticMiddleware.h"
-#include "net/config/ConfigSection.hpp"
+#include "net/config/ConfigInstanceAPI.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -56,6 +57,7 @@
 
 #include <algorithm>
 #include <list>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -66,14 +68,11 @@ int main(int argc, char* argv[]) {
 
     const WebApp webApp(apps::http::STREAM::getWebApp("httpserver"));
 
-    net::config::ConfigSection configWeb =
-        net::config::ConfigSection(&webApp.getConfig(), net::config::Section("www", "Web behavior of httpserver", &webApp.getConfig()));
-    CLI::Option* htmlRoot = configWeb.addOption("--html-root", "HTML root directory", "path", "");
-    configWeb.required(htmlRoot);
+    webApp.getConfig().addSection<ConfigWWW>();
 
     WebApp::init(argc, argv);
 
-    webApp.use(express::middleware::StaticMiddleware(htmlRoot->as<std::string>()));
+    webApp.use(express::middleware::StaticMiddleware(webApp.getConfig().getSection<ConfigWWW>()->getHtmlRoot()));
 
     {
 #if (STREAM_TYPE == TLS)

@@ -52,7 +52,7 @@
 namespace net::config {
 
     ConfigPhysicalSocketServer::ConfigPhysicalSocketServer(ConfigInstance* instance)
-        : ConfigSection(instance, net::config::Section(std::string(name), std::string(description), this))
+        : ConfigSection(instance, this)
         , ConfigPhysicalSocket(this) {
         backlogOpt = addOption( //
             "--backlog",

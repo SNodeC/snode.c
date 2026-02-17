@@ -42,6 +42,7 @@
 #ifndef NET_CONFIG_CONFIGSECTION_HPP
 #define NET_CONFIG_CONFIGSECTION_HPP
 
+#include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.h" // IWYU pragma: export
 #include "utils/ConfigApp.h"          // IWYU pragma: export
 
@@ -75,6 +76,22 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
+
+    template <typename T>
+    std::shared_ptr<CLI::App> Section(const std::string& name, const std::string& description, T* section) {
+        return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+    }
+
+    template <typename T>
+    std::shared_ptr<CLI::App> Section(T* section) {
+        return std::make_shared<utils::AppWithPtr<T>>(std::string(T::description), std::string(T::name), section);
+    }
+
+    ConfigSection::ConfigSection(ConfigInstance* instance, auto* sectionPtr, const std::string& group)
+        : instance(instance) {
+        sectionSc = instance->newSection(net::config::Section(sectionPtr), group);
+        sectionSc->description(sectionSc->get_description() + " for instance '" + instance->getInstanceName() + "'");
+    }
 
     template <typename ValueType>
     CLI::Option*
@@ -114,11 +131,6 @@ namespace net::config {
                                         const CLI::Validator& additionalValidator) {
         return addFlag(name, description, typeName, defaultValue) //
             ->check(additionalValidator);
-    }
-
-    template <typename T>
-    std::shared_ptr<CLI::App> Section(const std::string& name, const std::string& description, T* section) {
-        return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
     }
 
 } // namespace net::config

@@ -404,7 +404,6 @@ namespace utils {
             app->parse(argc, argv);
         } catch (const CLI::ParseError&) {
             // Do not process ParseError here but on second parse pass
-            VLOG(0) << "############################# error";
         }
 
         if ((*app)["--kill"]->count() > 0) {

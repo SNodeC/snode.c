@@ -94,7 +94,7 @@ namespace utils {
 
     template <typename T>
     T* Config::getInstance() {
-        auto* appWithPtr = app->get_subcommand_no_throw(T::name);
+        auto* appWithPtr = app->get_subcommand_no_throw(std::string(T::name));
 
         AppWithPtr<T>* instanceApp = dynamic_cast<utils::AppWithPtr<T>*>(appWithPtr);
 
