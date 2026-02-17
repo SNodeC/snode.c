@@ -150,3 +150,44 @@ target_link_libraries(
 install(TARGETS httplowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                            COMPONENT apps
 )
+
+add_executable(verysimpleserver verysimpleserver.cpp ConfigWWW.cpp)
+target_link_libraries(
+    verysimpleserver PRIVATE http-server-express net-in-stream-legacy
+                             net-in-stream-tls
+)
+set_target_properties(
+    verysimpleserver PROPERTIES INSTALL_RPATH
+                                "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+)
+install(TARGETS verysimpleserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                         COMPONENT apps
+)
+
+add_executable(vhostserver vhostserver.cpp ConfigWWW.cpp)
+target_link_libraries(
+    vhostserver PRIVATE http-server-express net-in6-stream-legacy
+                        net-in6-stream-tls
+)
+set_target_properties(
+    vhostserver PROPERTIES INSTALL_RPATH
+                           "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+)
+install(TARGETS vhostserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                    COMPONENT apps
+)
+
+add_executable(
+    testbasicauthentication testbasicauthentication.cpp ConfigWWW.cpp
+)
+target_link_libraries(
+    testbasicauthentication PRIVATE http-server-express net-in6-stream-legacy
+                                    net-in6-stream-tls
+)
+set_target_properties(
+    testbasicauthentication
+    PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+)
+install(TARGETS testbasicauthentication
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
+)

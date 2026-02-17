@@ -126,9 +126,7 @@ namespace utils {
                             const std::string& description,
                             bool required,
                             bool configurable = true,
-                            const std::string& groupName = "Application Options");
-
-        static std::shared_ptr<CLI::App> app;
+                            const std::string& groupName = "Options (application)");
 
     private:
         static bool parse1();
@@ -137,13 +135,11 @@ namespace utils {
         static bool parse2();
 
     private:
-        static std::shared_ptr<CLI::Formatter> sectionFormatter;
-
-    public:
         static int argc;
         static char** argv;
 
-    private:
+        static std::shared_ptr<CLI::App> app;
+
         static bool subParse;
         static std::string applicationName;
 
@@ -165,6 +161,8 @@ namespace utils {
         static CLI::App* showConfigTriggerApp;
 
     private:
+        static std::shared_ptr<CLI::Formatter> sectionFormatter;
+
         static std::map<std::string, std::string> aliases;             // from -> to
         static std::map<std::string, CLI::Option*> applicationOptions; // keep all user options in memory
 

@@ -41,16 +41,56 @@
 
 #include "ConfigWWW.h"
 
+#include "net/config/ConfigInstanceAPI.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-ConfigWWW::ConfigWWW(net::config::ConfigInstance* instance)
-    : net::config::ConfigSection(instance, this) {
-    htmlRoot = addOption("--html-root", "HTML root directory", "path", "");
-    required(htmlRoot);
-}
+namespace section {
 
-std::string ConfigWWW::getHtmlRoot() {
-    return htmlRoot->as<std::string>();
-}
+    ConfigWWW::ConfigWWW(net::config::ConfigInstance* instance)
+        : net::config::ConfigSection(instance, this) {
+        htmlRootOpt = addOption("--html-root", "HTML root directory", "path", "");
+        required(htmlRootOpt);
+    }
+
+    section::ConfigWWW& section::ConfigWWW::setHtmlRoot(const std::string& htmlRoot) {
+        htmlRootOpt->default_str(htmlRoot)->clear();
+
+        return *this;
+    }
+
+    std::string ConfigWWW::getHtmlRoot() {
+        return htmlRootOpt->as<std::string>();
+    }
+
+} // namespace section
+
+namespace instance {
+
+    ConfigWWW::ConfigWWW() {
+        configWWWSc =
+            utils::Config::newInstance(net::config::Instance(std::string(name), std::string(description), this), "Applications", true);
+
+        htmlRootOpt = configWWWSc->add_option("--html-root", "HTML root directory")
+                          ->group(configWWWSc->get_formatter()->get_label("Persistent Options"))
+                          ->type_name("path")
+                          ->configurable()
+                          ->required();
+
+        configWWWSc->needs(htmlRootOpt);
+        configWWWSc->get_parent()->needs(configWWWSc);
+    }
+
+    ConfigWWW& ConfigWWW::setHtmlRoot(const std::string& htmlRoot) {
+        htmlRootOpt->default_str(htmlRoot)->clear();
+
+        return *this;
+    }
+
+    std::string ConfigWWW::getHtmlRoot() {
+        return htmlRootOpt->as<std::string>();
+    }
+
+} // namespace instance

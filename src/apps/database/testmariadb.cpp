@@ -44,6 +44,7 @@
 #include "core/timer/Timer.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/MariaDBCommandSequence.h"
+#include "net/config/ConfigInstanceAPI.hpp"
 #include "utils/Config.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -57,14 +58,48 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+class ConfigDb {
+public:
+    constexpr static std::string_view name{"db"};
+    constexpr static std::string_view description{"Database connection"};
+
+    ConfigDb() {
+        configDbSc = utils::Config::newInstance(net::config::Instance(std::string(name), std::string(description), this), "Database", true);
+
+        hostOpt = configDbSc->add_option("--db-host", "Hostname of IP-Address of Server")
+                      ->group(configDbSc->get_formatter()->get_label("Persistent Options"))
+                      ->type_name("[hostname|IP-address]")
+                      ->default_str("localhost")
+                      ->configurable()
+                      ->required();
+
+        configDbSc->needs(hostOpt);
+        configDbSc->get_parent()->needs(configDbSc);
+    }
+
+    ConfigDb& setHost(const std::string& host) {
+        hostOpt->default_str(host)->clear();
+
+        return *this;
+    }
+
+    std::string getHost() {
+        return hostOpt->as<std::string>();
+    }
+
+private:
+    CLI::App* configDbSc;
+    CLI::Option* hostOpt;
+};
+
 int main(int argc, char* argv[]) {
-    utils::Config::addStringOption("--db-host", "Hostname of IP-Address of Server", "[hostname|IP-address]", "localhost", true);
+    utils::Config::addInstance<ConfigDb>();
 
     core::SNodeC::init(argc, argv);
 
     const database::mariadb::MariaDBConnectionDetails details = {
         .connectionName = "testconnection",
-        .hostname = utils::Config::getStringOptionValue("--db-host"),
+        .hostname = utils::Config::getInstance<ConfigDb>()->getHost(),
         .username = "snodec",
         .password = "pentium5",
         .database = "snodec",

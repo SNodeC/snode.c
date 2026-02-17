@@ -54,17 +54,41 @@ namespace net::config {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class ConfigWWW : public net::config::ConfigSection {
-public:
-    constexpr static std::string_view name{"www"};
-    constexpr static std::string_view description{"Web behavior of httpserver"};
+namespace section {
 
-    ConfigWWW(net::config::ConfigInstance* instance);
+    class ConfigWWW : public net::config::ConfigSection {
+    public:
+        constexpr static std::string_view name{"www"};
+        constexpr static std::string_view description{"Web behavior of httpserver"};
 
-    std::string getHtmlRoot();
+        ConfigWWW(net::config::ConfigInstance* instance);
 
-private:
-    CLI::Option* htmlRoot;
-};
+        ConfigWWW& setHtmlRoot(const std::string& htmlRoot);
+        std::string getHtmlRoot();
+
+    private:
+        CLI::Option* htmlRootOpt;
+    };
+
+} // namespace section
+
+namespace instance {
+
+    class ConfigWWW {
+    public:
+        constexpr static std::string_view name{"www"};
+        constexpr static std::string_view description{"Web behavior of httpserver"};
+
+        ConfigWWW();
+
+        ConfigWWW& setHtmlRoot(const std::string& htmlRoot);
+        std::string getHtmlRoot();
+
+    private:
+        CLI::App* configWWWSc;
+        CLI::Option* htmlRootOpt;
+    };
+
+} // namespace instance
 
 #endif // CONFIGWWW_H

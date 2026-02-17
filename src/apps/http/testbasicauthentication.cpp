@@ -39,12 +39,13 @@
  * THE SOFTWARE.
  */
 
+#include "ConfigWWW.h"
 #include "express/legacy/in6/WebApp.h"
 #include "express/middleware/BasicAuthentication.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "express/middleware/VHost.h"
 #include "express/tls/in6/WebApp.h"
-#include "utils/Config.h"
+#include "net/config/ConfigInstanceAPI.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,7 +67,7 @@ Router getRouter(const std::string& webRoot) {
 }
 
 int main(int argc, char* argv[]) {
-    utils::Config::addStringOption("--web-root", "Root directory of the web site", "[path]");
+    utils::Config::addInstance<instance::ConfigWWW>();
 
     WebApp::init(argc, argv);
 
@@ -76,7 +77,7 @@ int main(int argc, char* argv[]) {
         const Router& router1 = middleware::VHost("localhost:8080");
 
         const Router& ba = middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password");
-        ba.use(middleware::StaticMiddleware(utils::Config::getStringOptionValue("--web-root")));
+        ba.use(middleware::StaticMiddleware(utils::Config::getInstance<instance::ConfigWWW>()->getHtmlRoot()));
 
         router1.use(ba);
         legacyApp.use(router1);
@@ -114,7 +115,7 @@ int main(int argc, char* argv[]) {
             const express::tls::in6::WebApp tlsApp("tls");
 
             const Router& vh1 = middleware::VHost("localhost:8088");
-            vh1.use(getRouter(utils::Config::getStringOptionValue("--web-root")));
+            vh1.use(getRouter(utils::Config::getInstance<instance::ConfigWWW>()->getHtmlRoot()));
             tlsApp.use(vh1);
 
             const Router& vh2 = middleware::VHost("jupiter.home.vchrist.at:8088");

@@ -924,7 +924,7 @@ namespace utils {
                                        ->type_name(typeName)
                                        ->configurable()
                                        ->required()
-                                       ->group("Application Options");
+                                       ->group("Options (application)");
 
         app->needs(applicationOptions[name]);
 

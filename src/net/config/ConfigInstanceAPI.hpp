@@ -49,7 +49,7 @@
 #include "utils/ConfigApp.h"           // IWYU pragma: export
 
 #include <cstdint>
-#include <memory>
+#include <memory> // IWYU pragma: export
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
