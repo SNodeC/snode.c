@@ -83,9 +83,9 @@ namespace net::config {
         return resultApp != nullptr ? resultApp->getPtr() : nullptr;
     }
 
-    template <typename ConcreteConfigSection>
-    void ConfigInstance::addSection() {
-        addSection(std::make_shared<ConcreteConfigSection>(this));
+    template <typename ConcreteConfigSection, typename... Args>
+    void ConfigInstance::addSection(Args&&... args) {
+        addSection(std::make_shared<ConcreteConfigSection>(this, std::forward<Args>(args)...));
     }
 
 } // namespace net::config

@@ -90,8 +90,8 @@ namespace net::config {
 
         void addSection(std::shared_ptr<net::config::ConfigSection> configSection);
 
-        template <typename ConcreteConfigSection>
-        void addSection();
+        template <typename ConcreteConfigSection, typename... Args>
+        void addSection(Args&&... args);
 
     private:
         const CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
