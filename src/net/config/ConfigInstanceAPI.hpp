@@ -102,8 +102,8 @@ namespace utils {
     }
 
     template <typename T>
-    void Config::addInstance() {
-        configSections.push_back(std::make_shared<T>());
+    T* Config::addInstance() {
+        return std::static_pointer_cast<T>(configSections.emplace_back(std::make_shared<T>())).get();
     }
 
 } // namespace utils

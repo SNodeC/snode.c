@@ -64,7 +64,7 @@ namespace utils {
         static CLI::App* newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
 
         template <typename T>
-        static void addInstance();
+        static T* addInstance();
 
         template <typename T>
         static T* getInstance();
@@ -93,40 +93,6 @@ namespace utils {
         static std::string getApplicationName();
         static int getLogLevel();
         static int getVerboseLevel();
-
-        static CLI::Option* addStringOption(const std::string& name, const std::string& description, const std::string& typeName);
-
-        static CLI::Option*
-        addStringOption(const std::string& name, const std::string& description, const std::string& typeName, bool configurable);
-
-        static CLI::Option* addStringOption(const std::string& name,
-                                            const std::string& description,
-                                            const std::string& typeName,
-                                            const std::string& defaultValue);
-
-        static CLI::Option* addStringOption(const std::string& name,
-                                            const std::string& description,
-                                            const std::string& typeName,
-                                            const std::string& defaultValue,
-                                            bool configurable);
-
-        static CLI::Option*
-        addStringOption(const std::string& name, const std::string& description, const std::string& typeName, const char* defaultValue);
-
-        static CLI::Option* addStringOption(const std::string& name,
-                                            const std::string& description,
-                                            const std::string& typeName,
-                                            const char* defaultValue,
-                                            bool configurable);
-
-        static std::string getStringOptionValue(const std::string& name);
-
-        static void addFlag(const std::string& name,
-                            bool& variable,
-                            const std::string& description,
-                            bool required,
-                            bool configurable = true,
-                            const std::string& groupName = "Options (application)");
 
     private:
         static bool parse1();
