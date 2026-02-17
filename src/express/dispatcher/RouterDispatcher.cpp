@@ -68,7 +68,7 @@ namespace express::dispatcher {
                                     [[maybe_unused]] bool strictRoutingUnused,
                                     [[maybe_unused]] bool caseInsensitiveRoutingUnused,
                                     [[maybe_unused]] bool mergeParamsUnused) {
-        LOG(TRACE) << "========================= ROUTER      DISPATCH =========================";
+        LOG(TRACE) << "======================= ROUTER      DISPATCH =======================";
         LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
         LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
         LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
@@ -88,7 +88,7 @@ namespace express::dispatcher {
                 controller, mountPoint.relativeMountPath, mountPoint, regex, names, this->strictRouting, this->caseInsensitiveRouting);
 
             if (match.requestMatched) {
-                LOG(TRACE) << "------------------------- ROUTER         MATCH -------------------------";
+                LOG(TRACE) << "----------------------- ROUTER         MATCH -----------------------";
 
                 dispatched = true;
 
@@ -111,10 +111,10 @@ namespace express::dispatcher {
                     controller.getResponse()->sendStatus(400);
                 }
             } else {
-                LOG(TRACE) << "------------------------- ROUTER       NOMATCH -------------------------";
+                LOG(TRACE) << "----------------------- ROUTER       NOMATCH -----------------------";
             }
         } else {
-            LOG(TRACE) << "------------------------- ROUTER       NOMATCH -------------------------";
+            LOG(TRACE) << "----------------------- ROUTER       NOMATCH -----------------------";
         }
 
         return dispatched;

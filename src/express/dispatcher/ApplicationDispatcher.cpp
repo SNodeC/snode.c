@@ -70,7 +70,7 @@ namespace express::dispatcher {
                                          bool strictRouting,
                                          bool caseInsensitiveRouting,
                                          bool mergeParams) {
-        LOG(TRACE) << "========================= APPLICATION DISPATCH =========================";
+        LOG(TRACE) << "======================= APPLICATION DISPATCH =======================";
         LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
         LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
         LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
@@ -90,7 +90,7 @@ namespace express::dispatcher {
                 matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
 
             if (match.requestMatched) {
-                LOG(TRACE) << "------------------------- APPLICATION    MATCH -------------------------";
+                LOG(TRACE) << "----------------------- APPLICATION    MATCH -----------------------";
 
                 dispatched = true;
 
@@ -108,10 +108,10 @@ namespace express::dispatcher {
                 }
 
             } else {
-                LOG(TRACE) << "------------------------- APPLICATION  NOMATCH -------------------------";
+                LOG(TRACE) << "----------------------- APPLICATION  NOMATCH -----------------------";
             }
         } else {
-            LOG(TRACE) << "------------------------- APPLICATION  NOMATCH -------------------------";
+            LOG(TRACE) << "----------------------- APPLICATION  NOMATCH -----------------------";
         }
 
         return dispatched;

@@ -70,7 +70,7 @@ namespace express::dispatcher {
                                         bool strictRouting,
                                         bool caseInsensitiveRouting,
                                         bool mergeParams) {
-        LOG(TRACE) << "========================= MIDDLEWARE  DISPATCH =========================";
+        LOG(TRACE) << "======================= MIDDLEWARE  DISPATCH =======================";
         LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
         LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
         LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
@@ -90,7 +90,7 @@ namespace express::dispatcher {
                 matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
 
             if (match.requestMatched) {
-                LOG(TRACE) << "------------------------- MIDDLEWARE     MATCH -------------------------";
+                LOG(TRACE) << "----------------------- MIDDLEWARE     MATCH -----------------------";
 
                 dispatched = true;
 
@@ -116,10 +116,10 @@ namespace express::dispatcher {
                 }
 
             } else {
-                LOG(TRACE) << "------------------------- MIDDLEWARE   NOMATCH -------------------------";
+                LOG(TRACE) << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
             }
         } else {
-            LOG(TRACE) << "------------------------- MIDDLEWARE   NOMATCH -------------------------";
+            LOG(TRACE) << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
         }
 
         return dispatched;
