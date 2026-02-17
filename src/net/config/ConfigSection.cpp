@@ -75,10 +75,10 @@
 
 namespace net::config {
 
-    ConfigSection::ConfigSection(ConfigInstance* instanceSc, std::shared_ptr<CLI::App> sectionApp, const std::string& group)
-        : instanceSc(instanceSc) {
-        sectionSc = instanceSc->newSection(sectionApp, group);
-        sectionSc->description(sectionSc->get_description() + " for instance '" + instanceSc->getInstanceName() + "'");
+    ConfigSection::ConfigSection(ConfigInstance* instance, std::shared_ptr<CLI::App> sectionApp, const std::string& group)
+        : instance(instance) {
+        sectionSc = instance->newSection(sectionApp, group);
+        sectionSc->description(sectionSc->get_description() + " for instance '" + instance->getInstanceName() + "'");
     }
 
     ConfigSection::~ConfigSection() {
@@ -97,7 +97,7 @@ namespace net::config {
 
             opt->required(req);
 
-            instanceSc->required(sectionSc, requiredCount > 0);
+            instance->required(sectionSc, requiredCount > 0);
         }
     }
 
@@ -111,7 +111,7 @@ namespace net::config {
     }
 
     CLI::Option* ConfigSection::addOption(const std::string& name, const std::string& description) {
-        if (!instanceSc->getInstanceName().empty() && !sectionSc->get_display_name().empty()) {
+        if (!instance->getInstanceName().empty() && !sectionSc->get_display_name().empty()) {
             sectionSc->disabled(false);
         }
 

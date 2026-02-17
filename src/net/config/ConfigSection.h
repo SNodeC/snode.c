@@ -144,7 +144,7 @@ namespace net::config {
         CLI::App* sectionSc = nullptr;
 
     private:
-        ConfigInstance* instanceSc = nullptr;
+        ConfigInstance* instance = nullptr;
 
         uint8_t requiredCount = 0;
     };
