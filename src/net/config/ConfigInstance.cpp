@@ -106,6 +106,7 @@ namespace net::config {
                                   ->fallthrough()
                                   ->configurable(false)
                                   ->allow_extras(false)
+                                  ->allow_config_extras()
                                   ->group(group)
                                   ->ignore_case(false)
                                   ->disabled(appWithPtr->get_name().empty())
