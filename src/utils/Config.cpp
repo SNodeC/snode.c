@@ -418,8 +418,6 @@ namespace utils {
 
             proceed = false;
         } else {
-            app->allow_extras((*app)["--show-config"]->count() != 0);
-
             if (!quietOpt->as<bool>()) {
                 logger::Logger::setLogLevel(logLevelOpt->as<int>());
                 logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
@@ -738,10 +736,13 @@ namespace utils {
     CLI::App* Config::newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final) {
         CLI::App* instanceSc = app->add_subcommand(appWithPtr)
                                    ->group(group)
+                                   ->ignore_case(false)
                                    ->fallthrough()
                                    ->formatter(sectionFormatter)
                                    ->configurable(false)
+                                   ->config_formatter(app->get_config_formatter())
                                    ->allow_extras(false)
+                                   ->allow_config_extras()
                                    ->disabled(appWithPtr->get_name().empty());
 
         instanceSc //
@@ -916,83 +917,6 @@ namespace utils {
         Config::required(instance, false);
 
         return app->remove_subcommand(instance);
-    }
-
-    CLI::Option* Config::addStringOption(const std::string& name, const std::string& description, const std::string& typeName) {
-        applicationOptions[name] = app //
-                                       ->add_option(name, description)
-                                       ->type_name(typeName)
-                                       ->configurable()
-                                       ->required()
-                                       ->group("Options (application)");
-
-        app->needs(applicationOptions[name]);
-
-        return applicationOptions[name];
-    }
-
-    CLI::Option*
-    Config::addStringOption(const std::string& name, const std::string& description, const std::string& typeName, bool configurable) {
-        addStringOption(name, description, typeName);
-        return applicationOptions[name] //
-            ->configurable(configurable);
-    }
-
-    CLI::Option* Config::addStringOption(const std::string& name,
-                                         const std::string& description,
-                                         const std::string& typeName,
-                                         const std::string& defaultValue) {
-        addStringOption(name, description, typeName);
-
-        applicationOptions[name] //
-            ->required(false)
-            ->default_str(defaultValue);
-
-        app->remove_needs(applicationOptions[name]);
-
-        return applicationOptions[name];
-    }
-
-    CLI::Option* Config::addStringOption(const std::string& name,
-                                         const std::string& description,
-                                         const std::string& typeName,
-                                         const std::string& defaultValue,
-                                         bool configurable) {
-        addStringOption(name, description, typeName, defaultValue);
-        return applicationOptions[name] //
-            ->configurable(configurable);
-    }
-
-    CLI::Option* Config::addStringOption(const std::string& name,
-                                         const std::string& description,
-                                         const std::string& typeName,
-                                         const char* defaultValue) {
-        return addStringOption(name, description, typeName, std::string(defaultValue));
-    }
-
-    CLI::Option* Config::addStringOption(
-        const std::string& name, const std::string& description, const std::string& typeName, const char* defaultValue, bool configurable) {
-        return addStringOption(name, description, typeName, std::string(defaultValue), configurable);
-    }
-
-    std::string Config::getStringOptionValue(const std::string& name) {
-        if (app->get_option(name) == nullptr) {
-            throw CLI::OptionNotFound(name);
-        }
-
-        return (*app)[name]->as<std::string>();
-    }
-
-    void Config::addFlag(const std::string& name,
-                         bool& variable,
-                         const std::string& description,
-                         bool required,
-                         bool configurable,
-                         const std::string& groupName) {
-        app->add_flag(name, variable, description) //
-            ->required(required)                   //
-            ->configurable(configurable)           //
-            ->group(groupName);
     }
 
     std::string Config::getApplicationName() {
