@@ -71,6 +71,7 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include <functional>
 #include <memory>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -87,10 +88,11 @@ namespace net::config {
         return std::make_shared<utils::AppWithPtr<T>>(std::string(T::description), std::string(T::name), section);
     }
 
-    ConfigSection::ConfigSection(ConfigInstance* instance, auto* sectionPtr, const std::string& group)
+    template <typename T>
+    ConfigSection::ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group)
         : instance(instance) {
         sectionSc = instance->newSection(net::config::Section(sectionPtr), group);
-        sectionSc->description(sectionSc->get_description() + " for instance '" + instance->getInstanceName() + "'");
+        sectionSc->description(std::string(T::description) + " for instance '" + instance->getInstanceName() + "'");
     }
 
     template <typename ValueType>

@@ -50,7 +50,6 @@ namespace net::config {
 
 #include <cstdint>
 #include <functional>
-#include <memory>
 #include <string> // IWYU pragma: export
 
 namespace CLI {
@@ -65,7 +64,8 @@ namespace net::config {
 
     class ConfigSection {
     public:
-        ConfigSection(ConfigInstance* instance, auto* sectionPtr, const std::string& group = "Sections");
+        template <typename T>
+        ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group = "Sections");
 
         virtual ~ConfigSection();
 
