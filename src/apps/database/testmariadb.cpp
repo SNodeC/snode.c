@@ -45,7 +45,6 @@
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/MariaDBCommandSequence.h"
 #include "net/config/ConfigInstanceAPI.hpp"
-#include "utils/Config.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -55,6 +54,7 @@
 #include <functional>
 #include <mysql.h>
 #include <string>
+#include <string_view>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -69,16 +69,20 @@ public:
         hostOpt = configDbSc->add_option("--db-host", "Hostname of IP-Address of Server")
                       ->group(configDbSc->get_formatter()->get_label("Persistent Options"))
                       ->type_name("[hostname|IP-address]")
-                      ->default_str("localhost")
                       ->configurable()
                       ->required();
 
-        configDbSc->needs(hostOpt);
+        configDbSc->needs(hostOpt)->required();
         configDbSc->get_parent()->needs(configDbSc);
     }
 
     ConfigDb& setHost(const std::string& host) {
         hostOpt->default_str(host)->clear();
+        hostOpt->required(false);
+
+        configDbSc->remove_needs(hostOpt);
+        configDbSc->required(false);
+        configDbSc->get_parent()->remove_needs(configDbSc);
 
         return *this;
     }
@@ -93,7 +97,7 @@ private:
 };
 
 int main(int argc, char* argv[]) {
-    utils::Config::addInstance<ConfigDb>();
+    utils::Config::addInstance<ConfigDb>()->setHost("localhost");
 
     core::SNodeC::init(argc, argv);
 
