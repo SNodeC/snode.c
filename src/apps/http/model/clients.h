@@ -283,7 +283,7 @@ namespace apps::http::legacy {
                     [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
                 req->url = "/";
-                req->set("Connection", "keep-alive");
+                req->set("Connection", "close");
                 req->end(
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                         logResponse(req, res);
