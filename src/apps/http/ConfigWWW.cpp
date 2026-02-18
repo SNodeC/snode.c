@@ -79,7 +79,7 @@ namespace instance {
                           ->configurable()
                           ->required();
 
-        configWWWSc->needs(htmlRootOpt)->required();
+        configWWWSc->required()->needs(htmlRootOpt);
         configWWWSc->get_parent()->needs(configWWWSc);
     }
 
@@ -87,8 +87,7 @@ namespace instance {
         htmlRootOpt->default_str(htmlRoot)->clear();
         htmlRootOpt->required(false);
 
-        configWWWSc->remove_needs(htmlRootOpt);
-        configWWWSc->required(false);
+        configWWWSc->required(false)->remove_needs(htmlRootOpt);
         configWWWSc->get_parent()->remove_needs(configWWWSc);
 
         return *this;

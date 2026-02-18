@@ -41,13 +41,10 @@
 
 #include "web/http/client/SocketContextFactory.h"
 
-#include "net/config/ConfigConnection.h"
 #include "net/config/ConfigInstanceAPI.hpp"
 #include "web/http/client/ConfigHTTP.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
 
 #include <string>
 
@@ -64,8 +61,6 @@ namespace web::http::client {
     }
 
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
-        VLOG(0) << "-------------------: " << configInstance.getSection<net::config::ConfigConnection>()->getReadBlockSize();
-
         return new web::http::client::SocketContext(socketConnection,
                                                     onHttpConnected,
                                                     onHttpDisconnected,
