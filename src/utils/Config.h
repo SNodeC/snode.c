@@ -126,9 +126,9 @@ namespace utils {
         static CLI::App* helpTriggerApp;
         static CLI::App* showConfigTriggerApp;
 
-    private:
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
+    private:
         static std::map<std::string, std::string> aliases;             // from -> to
         static std::map<std::string, CLI::Option*> applicationOptions; // keep all user options in memory
 

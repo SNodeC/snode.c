@@ -44,7 +44,8 @@
 
 #include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.h" // IWYU pragma: export
-#include "utils/ConfigApp.h"          // IWYU pragma: export
+#include "utils/Config.h"
+#include "utils/ConfigApp.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -80,7 +81,13 @@ namespace net::config {
 
     template <typename T>
     std::shared_ptr<CLI::App> Section(const std::string& name, const std::string& description, T* section) {
-        return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+        std::shared_ptr<utils::AppWithPtr<T>> sectionSc = std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+
+        sectionSc->option_defaults()->take_last();
+        sectionSc->formatter(utils::Config::sectionFormatter);
+        sectionSc->option_defaults()->group(sectionSc->get_formatter()->get_label("Nonpersistent Options"));
+
+        return sectionSc;
     }
 
     template <typename T>

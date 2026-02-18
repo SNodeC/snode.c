@@ -58,7 +58,13 @@ namespace net::config {
 
     template <typename T>
     std::shared_ptr<utils::AppWithPtr<T>> Instance(const std::string& name, const std::string& description, T* section) {
-        return std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+        std::shared_ptr<utils::AppWithPtr<T>> instanceSc = std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+
+        instanceSc->option_defaults()->take_last();
+        instanceSc->formatter(utils::Config::sectionFormatter);
+        instanceSc->option_defaults()->group(instanceSc->get_formatter()->get_label("Nonpersistent Options"));
+
+        return instanceSc;
     }
 
     template <typename SectionType>
