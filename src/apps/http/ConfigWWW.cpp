@@ -70,10 +70,9 @@ namespace section {
 
 namespace instance {
 
-    ConfigWWW::ConfigWWW() {
-        configWWWSc =
-            utils::Config::newInstance(net::config::Instance(std::string(name), std::string(description), this), "Applications", true);
-
+    ConfigWWW::ConfigWWW()
+        : configWWWSc(
+              utils::Config::newInstance(net::config::Instance(std::string(name), std::string(description), this), "Applications", true)) {
         htmlRootOpt = configWWWSc->add_option("--html-root", "HTML root directory")
                           ->group(configWWWSc->get_formatter()->get_label("Persistent Options"))
                           ->type_name("path")

@@ -63,9 +63,9 @@ public:
     constexpr static std::string_view name{"db"};
     constexpr static std::string_view description{"Database connection"};
 
-    ConfigDb() {
-        configDbSc = utils::Config::newInstance(net::config::Instance(std::string(name), std::string(description), this), "Database", true);
-
+    ConfigDb()
+        : configDbSc(
+              utils::Config::newInstance(net::config::Instance(std::string(name), std::string(description), this), "Database", true)) {
         hostOpt = configDbSc->add_option("--db-host", "Hostname of IP-Address of Server")
                       ->group(configDbSc->get_formatter()->get_label("Persistent Options"))
                       ->type_name("[hostname|IP-address]")
