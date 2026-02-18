@@ -125,7 +125,7 @@ namespace web::http::client {
                        << " - QueueSize = " << pendingRequests.size() << " - Flags: " << flags << " - "
                        << web::http::ciContains(request->header("Connection"), "close");
 
-            if (pendingRequests.size() == 1) {
+            if (pendingRequests.size() == 1 && (deliveredRequests.empty() || pipelinedRequests)) {
                 initiateRequest();
             }
         } else {
