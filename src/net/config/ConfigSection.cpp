@@ -91,11 +91,15 @@ namespace net::config {
 
             opt->required(req);
 
-            instance->required(sectionSc, requiredCount > 0);
+            required(requiredCount > 0);
         }
     }
 
-    bool ConfigSection::required() const {
+    void ConfigSection::required(bool required) {
+        instance->required(sectionSc, required);
+    }
+
+    bool ConfigSection::getRequired() const {
         return requiredCount > 0;
     }
 

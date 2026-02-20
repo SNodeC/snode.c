@@ -88,10 +88,10 @@ namespace net::config {
 
         CLI::App* newSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
 
-        void addSection(std::shared_ptr<net::config::ConfigSection> configSection);
+        net::config::ConfigSection* addSection(std::shared_ptr<net::config::ConfigSection>&& configSection);
 
         template <typename ConcreteConfigSection, typename... Args>
-        void addSection(Args&&... args);
+        ConcreteConfigSection* addSection(Args&&... args);
 
     private:
         const CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;

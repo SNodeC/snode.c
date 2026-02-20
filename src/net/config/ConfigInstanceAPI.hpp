@@ -90,8 +90,8 @@ namespace net::config {
     }
 
     template <typename ConcreteConfigSection, typename... Args>
-    void ConfigInstance::addSection(Args&&... args) {
-        addSection(std::make_shared<ConcreteConfigSection>(this, std::forward<Args>(args)...));
+    ConcreteConfigSection* ConfigInstance::addSection(Args&&... args) {
+        return dynamic_cast<ConcreteConfigSection*>(addSection(std::make_shared<ConcreteConfigSection>(this, std::forward<Args>(args)...)));
     }
 
 } // namespace net::config

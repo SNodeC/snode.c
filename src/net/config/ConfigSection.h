@@ -136,7 +136,9 @@ namespace net::config {
 
         void required(CLI::Option* opt, bool req = true);
 
-        bool required() const;
+        void required(bool required = true);
+
+        bool getRequired() const;
 
     protected:
         void setConfigurable(CLI::Option* option, bool configurable);
