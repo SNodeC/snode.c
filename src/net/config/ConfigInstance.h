@@ -94,11 +94,11 @@ namespace net::config {
         ConcreteConfigSection* addSection(Args&&... args);
 
     private:
-        const CLI::App* getSection(const std::string& name, bool onlyGot = false, bool recursive = false) const;
+        const CLI::App* getSection(const std::string& name) const;
 
     public:
         template <typename SectionTypeT>
-        SectionTypeT* getSection(bool onlyGot = false, bool recursive = false) const;
+        SectionTypeT* getSection() const;
 
         bool gotSection(const std::string& name, bool recursive = false) const;
 

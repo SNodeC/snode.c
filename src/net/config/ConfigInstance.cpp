@@ -166,19 +166,8 @@ namespace net::config {
         disableOpt->group(instanceSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
     }
 
-    const CLI::App* ConfigInstance::getSection(const std::string& name, bool onlyGot, bool recursive) const {
-        const CLI::App* resultSc = nullptr;
-
-        const CLI::App* sectionSc = instanceSc->get_subcommand_no_throw(name);
-        const CLI::App* parentSectionSc = instanceSc->get_parent()->get_subcommand_no_throw(name);
-
-        if (sectionSc != nullptr && (sectionSc->count_all() > 0 || !onlyGot)) {
-            resultSc = sectionSc;
-        } else if (recursive && parentSectionSc != nullptr && (parentSectionSc->count_all() > 0 || !onlyGot)) {
-            resultSc = parentSectionSc;
-        }
-
-        return resultSc;
+    const CLI::App* ConfigInstance::getSection(const std::string& name) const {
+        return instanceSc->get_subcommand_no_throw(name);
     }
 
     bool ConfigInstance::gotSection(const std::string& name, bool recursive) const {

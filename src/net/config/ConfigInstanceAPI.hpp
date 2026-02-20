@@ -68,25 +68,11 @@ namespace net::config {
     }
 
     template <typename SectionType>
-    SectionType* ConfigInstance::getSection(bool onlyGot, bool recursive) const {
-        utils::AppWithPtr<SectionType>* resultApp = nullptr;
+    SectionType* ConfigInstance::getSection() const {
+        utils::AppWithPtr<SectionType>* sectionApp =
+            dynamic_cast<utils::AppWithPtr<SectionType>*>(instanceSc->get_subcommand_no_throw(std::string(SectionType::name)));
 
-        auto* appWithPtr = instanceSc->get_subcommand_no_throw(std::string(SectionType::name));
-
-        utils::AppWithPtr<SectionType>* sectionApp = dynamic_cast<utils::AppWithPtr<SectionType>*>(appWithPtr);
-
-        if (sectionApp != nullptr) {
-            utils::AppWithPtr<SectionType>* parentApp = dynamic_cast<utils::AppWithPtr<SectionType>*>(
-                sectionApp->get_parent()->get_subcommand_no_throw(std::string(SectionType::name)));
-
-            if (sectionApp->count_all() > 0 || !onlyGot) {
-                resultApp = sectionApp;
-            } else if (recursive && parentApp != nullptr && (parentApp->count_all() > 0 || !onlyGot)) {
-                resultApp = parentApp;
-            }
-        }
-
-        return resultApp != nullptr ? resultApp->getPtr() : nullptr;
+        return sectionApp != nullptr ? sectionApp->getPtr() : nullptr;
     }
 
     template <typename ConcreteConfigSection, typename... Args>
