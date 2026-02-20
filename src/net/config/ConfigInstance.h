@@ -102,6 +102,7 @@ namespace net::config {
 
         bool gotSection(const std::string& name, bool recursive = false) const;
 
+        void required(bool required = true);
         void required(CLI::App* section, bool req = true);
         bool getRequired() const;
 

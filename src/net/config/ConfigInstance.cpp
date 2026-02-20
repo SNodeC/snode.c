@@ -129,6 +129,12 @@ namespace net::config {
         return configSections.emplace_back(configSection).get();
     }
 
+    void ConfigInstance::required(bool required) {
+        if (!getDisabled()) {
+            utils::Config::required(instanceSc, required);
+        }
+    }
+
     void ConfigInstance::required(CLI::App* section, bool req) {
         if (req != section->get_required()) {
             if (req) {
@@ -146,9 +152,7 @@ namespace net::config {
             section //
                 ->ignore_case(req);
 
-            if (!getDisabled()) {
-                utils::Config::required(instanceSc, requiredCount > 0);
-            }
+            required(requiredCount > 0);
         }
     }
 
