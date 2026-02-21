@@ -42,6 +42,7 @@
 #include "ConfigWWW.h"
 
 #include "net/config/ConfigInstanceAPI.hpp"
+#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

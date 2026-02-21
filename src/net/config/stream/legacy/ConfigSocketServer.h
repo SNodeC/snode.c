@@ -42,8 +42,8 @@
 #ifndef NET_STREAM_CONFIG_LEGACY_CONFIGSOCKETSERVER_H
 #define NET_STREAM_CONFIG_LEGACY_CONFIGSOCKETSERVER_H
 
-#include "net/config/ConfigInstance.h" // IWYU pragma: export
-#include "net/config/ConfigLegacy.h"   // IWYU pragma: export
+#include "net/config/ConfigInstance.h"
+#include "net/config/ConfigLegacy.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

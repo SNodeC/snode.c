@@ -42,7 +42,7 @@
 #ifndef CONFIGWWW_H
 #define CONFIGWWW_H
 
-#include "net/config/ConfigSection.hpp"
+#include "net/config/ConfigSection.h"
 
 namespace net::config {
     class ConfigInstance;

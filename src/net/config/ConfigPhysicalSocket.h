@@ -42,12 +42,16 @@
 #ifndef NET_CONFIG_CONFIGPHYSICALSOCKET_H
 #define NET_CONFIG_CONFIGPHYSICALSOCKET_H
 
-#include "net/config/ConfigSection.h"
 #include "net/phy/PhysicalSocketOption.h" // IWYU pragma: export
+
+namespace net::config {
+    class ConfigSection;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -117,8 +121,6 @@ namespace net::config {
         CLI::Option* retryJitterOpt = nullptr;
 
         std::map<int, std::map<int, net::phy::PhysicalSocketOption>> socketOptionsMapMap;
-
-        //        std::map<int, const net::phy::PhysicalSocketOption> socketOptionsMap; // key is optName, value is optLevel
     };
 
 } // namespace net::config

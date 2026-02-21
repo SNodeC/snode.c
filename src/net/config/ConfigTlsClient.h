@@ -42,7 +42,7 @@
 #ifndef NET_CONFIG_CONFIGTLSCLIENT_H
 #define NET_CONFIG_CONFIGTLSCLIENT_H
 
-#include "net/config/ConfigSection.hpp"
+#include "net/config/ConfigSection.h"
 #include "net/config/ConfigTls.h" // IWYU pragma: export
 
 namespace net::config {
