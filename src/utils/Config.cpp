@@ -402,28 +402,33 @@ namespace utils {
 
         try {
             app->parse(argc, argv);
-        } catch (const CLI::ParseError&) {
-            // Do not process ParseError here but on second parse pass
-        }
 
-        if ((*app)["--kill"]->count() > 0) {
-            try {
-                const pid_t daemonPid = utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
-                std::cout << "Daemon terminated: Pid = " << daemonPid << std::endl;
-            } catch (const DaemonError& e) {
-                std::cout << "DaemonError: " << e.what() << std::endl;
-            } catch (const DaemonFailure& e) {
-                std::cout << "DaemonFailure: " << e.what() << std::endl;
+            if ((*app)["--kill"]->count() > 0) {
+                try {
+                    const pid_t daemonPid = utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
+                    std::cout << "Daemon terminated: Pid = " << daemonPid << std::endl;
+                } catch (const DaemonError& e) {
+                    std::cout << "DaemonError: " << e.what() << std::endl;
+                } catch (const DaemonFailure& e) {
+                    std::cout << "DaemonFailure: " << e.what() << std::endl;
+                }
+
+                proceed = false;
+            } else {
+                if (!quietOpt->as<bool>()) {
+                    logger::Logger::setLogLevel(logLevelOpt->as<int>());
+                    logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+                }
+
+                logger::Logger::setQuiet(quietOpt->as<bool>());
             }
+        } catch (const CLI::Success&) {
+        } catch (const CLI::ParseError& e) {
+            if (app->get_help_ptr()->count() == 0) {
+                std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
 
-            proceed = false;
-        } else {
-            if (!quietOpt->as<bool>()) {
-                logger::Logger::setLogLevel(logLevelOpt->as<int>());
-                logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+                proceed = false;
             }
-
-            logger::Logger::setQuiet(quietOpt->as<bool>());
         }
 
         return proceed;
@@ -587,6 +592,16 @@ namespace utils {
             try {
                 try {
                     app->parse(argc, argv);
+
+                    if (helpTriggerApp == nullptr) {
+                        if (showConfigTriggerApp != nullptr) {
+                            throw CLI::CallForShowConfig(showConfigTriggerApp);
+                        }
+                        if ((*app)["--write-config"]->count() > 0) {
+                            throw CLI::CallForWriteConfig((*app)["--write-config"]->as<std::string>());
+                        }
+                    }
+
                     success = true;
                 } catch (const CLI::ParseError&) {
                     if (helpTriggerApp == nullptr) {
@@ -602,16 +617,6 @@ namespace utils {
 
                     throw;
                 }
-                if (helpTriggerApp == nullptr) {
-                    if (showConfigTriggerApp != nullptr) {
-                        success = false;
-                        throw CLI::CallForShowConfig(showConfigTriggerApp);
-                    }
-                    if ((*app)["--write-config"]->count() > 0) {
-                        success = false;
-                        throw CLI::CallForWriteConfig((*app)["--write-config"]->as<std::string>());
-                    }
-                }
             } catch (const DaemonError& e) {
                 std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
                           << " ... exiting" << std::endl;
@@ -621,7 +626,7 @@ namespace utils {
             } catch (const DaemonSignaled& e) {
                 std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
             } catch (const CLI::CallForHelp&) {
-                const std::string helpMode = helpTriggerApp->get_option("--help")->as<std::string>();
+                const std::string helpMode = helpTriggerApp != nullptr ? helpTriggerApp->get_option("--help")->as<std::string>() : "exact";
                 const CLI::App* helpApp = nullptr;
                 CLI::AppFormatMode mode = CLI::AppFormatMode::Normal;
                 if (helpMode == "exact") {
@@ -791,8 +796,7 @@ namespace utils {
                             "* Required but not yet configured options show <REQUIRED> as value\n"
                             "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
                             CLI::CallForCommandline::Mode::STANDARD);
-                    }
-                    if (result == "active") {
+                    } else if (result == "active") {
                         throw CLI::CallForCommandline( //
                             app,
                             "Below is a command line viewing the active set of options with their default or configured values:\n"
@@ -800,8 +804,7 @@ namespace utils {
                             "* Required but not yet configured options show <REQUIRED> as value\n"
                             "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
                             CLI::CallForCommandline::Mode::FULL);
-                    }
-                    if (result == "complete") {
+                    } else if (result == "complete") {
                         throw CLI::CallForCommandline( //
                             app,
                             "Below is a command line viewing the complete set of options with their default values\n"
@@ -809,8 +812,7 @@ namespace utils {
                             "* Required but not yet configured options show <REQUIRED> as value\n"
                             "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
                             CLI::CallForCommandline::Mode::DEFAULT);
-                    }
-                    if (result == "required") {
+                    } else if (result == "required") {
                         throw CLI::CallForCommandline( //
                             app,
                             "Below is a command line viewing required options only:\n"
