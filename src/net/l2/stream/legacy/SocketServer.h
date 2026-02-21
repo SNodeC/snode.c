@@ -73,7 +73,7 @@ namespace net::l2::stream::legacy {
     template <typename SocketContextFactory, typename... SocketContextFactoryArgs>
     SocketServer<SocketContextFactory, SocketContextFactoryArgs...>
     Server(const std::string& instanceName,
-           const std::function<void(typename SocketServer<SocketContextFactory, SocketContextFactoryArgs...>::Config&)>& configurator,
+           const std::function<void(net::l2::stream::legacy::config::ConfigSocketServer&)>& configurator,
            SocketContextFactoryArgs&&... socketContextFactoryArgs) {
         return core::socket::stream::Server<SocketServer<SocketContextFactory, SocketContextFactoryArgs...>>(
             instanceName, configurator, std::forward<SocketContextFactoryArgs>(socketContextFactoryArgs)...);

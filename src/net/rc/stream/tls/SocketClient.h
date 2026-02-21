@@ -73,7 +73,7 @@ namespace net::rc::stream::tls {
     template <typename SocketContextFactory, typename... SocketContextFactoryArgs>
     SocketClient<SocketContextFactory, SocketContextFactoryArgs...>
     Client(const std::string& instanceName,
-           const std::function<void(typename SocketClient<SocketContextFactory, SocketContextFactoryArgs...>::Config&)>& configurator,
+           const std::function<void(net::rc::stream::tls::config::ConfigSocketClient&)>& configurator,
            SocketContextFactoryArgs&&... socketContextFactoryArgs) {
         return core::socket::stream::Client<SocketClient<SocketContextFactory, SocketContextFactoryArgs...>>(
             instanceName, configurator, std::forward<SocketContextFactoryArgs>(socketContextFactoryArgs)...);

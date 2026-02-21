@@ -73,7 +73,7 @@ namespace net::in6::stream::tls {
     template <typename SocketContextFactory, typename... SocketContextFactoryArgs>
     SocketServer<SocketContextFactory, SocketContextFactoryArgs...>
     Server(const std::string& instanceName,
-           const std::function<void(typename SocketServer<SocketContextFactory, SocketContextFactoryArgs...>::Config&)>& configurator,
+           const std::function<void(net::in6::stream::tls::config::ConfigSocketServer&)>& configurator,
            SocketContextFactoryArgs&&... socketContextFactoryArgs) {
         return core::socket::stream::Server<SocketServer<SocketContextFactory, SocketContextFactoryArgs...>>(
             instanceName, configurator, std::forward<SocketContextFactoryArgs>(socketContextFactoryArgs)...);
