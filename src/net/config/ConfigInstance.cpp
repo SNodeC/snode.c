@@ -125,17 +125,19 @@ namespace net::config {
         return sectionSc;
     }
 
-    net::config::ConfigSection* ConfigInstance::addSection(std::shared_ptr<net::config::ConfigSection>&& configSection) {
+    ConfigSection* ConfigInstance::addSection(std::shared_ptr<ConfigSection>&& configSection) {
         return configSections.emplace_back(configSection).get();
     }
 
-    void ConfigInstance::required(bool required) {
+    ConfigInstance& ConfigInstance::required(bool required) {
         if (!getDisabled()) {
             utils::Config::required(instanceSc, required);
         }
+
+        return *this;
     }
 
-    void ConfigInstance::required(CLI::App* section, bool req) {
+    ConfigInstance& ConfigInstance::required(CLI::App* section, bool req) {
         if (req != section->get_required()) {
             if (req) {
                 ++requiredCount;
@@ -154,6 +156,8 @@ namespace net::config {
 
             required(requiredCount > 0);
         }
+
+        return *this;
     }
 
     bool ConfigInstance::getRequired() const {
@@ -164,20 +168,21 @@ namespace net::config {
         return instanceSc;
     }
 
-    void ConfigInstance::configurable(bool configurable) {
+    ConfigInstance& ConfigInstance::configurable(bool configurable) {
         disableOpt->configurable(configurable);
 
         disableOpt->group(instanceSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
+
+        return *this;
     }
 
     const CLI::App* ConfigInstance::getSection(const std::string& name) const {
         return instanceSc->get_subcommand_no_throw(name);
     }
 
-    bool ConfigInstance::gotSection(const std::string& name, bool recursive) const {
+    bool ConfigInstance::gotSection(const std::string& name) const {
         return instanceSc //
-                   ->got_subcommand(name) ||
-               (recursive && instanceSc->get_parent()->got_subcommand(name));
+            ->got_subcommand(name);
     }
 
     bool ConfigInstance::getDisabled() const {
@@ -185,12 +190,14 @@ namespace net::config {
             ->as<bool>();
     }
 
-    void ConfigInstance::setDisabled(bool disabled) {
+    ConfigInstance& ConfigInstance::setDisabled(bool disabled) {
         disableOpt //
             ->default_str(disabled ? "true" : "false")
             ->clear();
 
         utils::Config::disabled(instanceSc, disabled);
+
+        return *this;
     }
 
 } // namespace net::config

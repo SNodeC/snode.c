@@ -84,11 +84,11 @@ namespace net::config {
         void setInstanceName(const std::string& instanceName);
 
         bool getDisabled() const;
-        void setDisabled(bool disabled = true);
+        ConfigInstance& setDisabled(bool disabled = true);
 
         CLI::App* newSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
 
-        net::config::ConfigSection* addSection(std::shared_ptr<net::config::ConfigSection>&& configSection);
+        ConfigSection* addSection(std::shared_ptr<ConfigSection>&& configSection);
 
         template <typename ConcreteConfigSection, typename... Args>
         ConcreteConfigSection* addSection(Args&&... args);
@@ -100,15 +100,15 @@ namespace net::config {
         template <typename SectionTypeT>
         SectionTypeT* getSection() const;
 
-        bool gotSection(const std::string& name, bool recursive = false) const;
+        bool gotSection(const std::string& name) const;
 
-        void required(bool required = true);
-        void required(CLI::App* section, bool req = true);
+        ConfigInstance& required(bool required = true);
+        ConfigInstance& required(CLI::App* section, bool req = true);
         bool getRequired() const;
 
         CLI::App* get() const;
 
-        void configurable(bool configurable = true);
+        ConfigInstance& configurable(bool configurable = true);
 
     private:
         uint8_t requiredCount = 0;
