@@ -101,11 +101,12 @@ namespace CLI {
                     if (default_also) {
                         static_assert(std::string::npos + static_cast<std::string::size_type>(1) == 0,
                                       "std::string::npos + static_cast<std::string::size_type>(1) != 0");
-                        if (!value.empty() && detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote) == value) {
+                        if (!value.empty() &&
+                            detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote, true) == "\"" + value + "\"") {
                             value.clear();
                         }
                         if (!opt->get_default_str().empty()) {
-                            defaultValue = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote);
+                            defaultValue = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote, true);
                             if (defaultValue == "'\"\"'") {
                                 defaultValue = "";
                             }
@@ -419,7 +420,13 @@ namespace CLI {
                 }
                 try {
                     if (opt->count() > 0 && opt->get_default_str() != opt->as<std::string>()) {
-                        out << " {" << opt->as<std::string>() << "}";
+                        out << " {";
+                        std::string completeResult;
+                        for (const auto& result : opt->reduced_results()) {
+                            completeResult += (!result.empty() ? result : "\"\"") + " ";
+                        }
+                        completeResult.pop_back();
+                        out << completeResult << "}";
                     }
                 } catch (CLI::ParseError& e) {
                     out << " <" << e.get_name() << ": " << e.what() << ">";

@@ -397,6 +397,8 @@ namespace utils {
         return parse2();
     }
 
+    static std::string createCommandLineTemplate(CLI::App* app, CLI::CallForCommandline::Mode mode);
+
     bool Config::parse1() {
         bool proceed = true;
 
@@ -425,22 +427,34 @@ namespace utils {
             }
         } catch (const CLI::Success&) {
         } catch (const CLI::ParseError& e) {
-            if (app->get_help_ptr()->count() > 0) {
-                std::cout << app->help(nullptr) << std::endl;
-            } else if (app->get_option_no_throw("--show-config")->count() > 0) {
-                try {
-                    std::cout << app->config_to_str(true, true);
-                } catch (const CLI::ParseError& e1) {
-                    std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                              << "] Showing config file: " << app->get_name() << " " << e1.get_name() << " " << e1.what() << std::endl;
-                    throw;
+            if (helpTriggerApp == nullptr || helpTriggerApp == app.get() || commandlineTriggerApp == nullptr ||
+                commandlineTriggerApp == app.get() || showConfigTriggerApp == nullptr || showConfigTriggerApp == app.get()) {
+                if (app->get_help_ptr()->count() > 0) {
+                    std::cout << app->help(helpTriggerApp) << std::endl;
+                } else if (app->get_option_no_throw("--show-config")->count() > 0) {
+                    try {
+                        std::cout << app->config_to_str(true, true) << std::endl;
+                    } catch (const CLI::ParseError& e1) {
+                        std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
+                                  << "] Showing config file: " << app->get_name() << " " << e1.get_name() << " " << e1.what() << std::endl;
+                    }
+                } else if (app->get_option_no_throw("--command-line")->count() > 0) {
+                    try {
+                        std::cout << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE
+                                  << "~/> " << Color::Code::FG_DEFAULT
+                                  << createCommandLineTemplate(app.get(), CLI::CallForCommandline::Mode::STANDARD) << std::endl
+                                  << std::endl;
+                    } catch (const CLI::ParseError& e1) {
+                        std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
+                                  << "] Showing config file: " << app->get_name() << " " << e1.get_name() << " " << e1.what() << std::endl;
+                    }
+                } else {
+                    std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
+                    std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
                 }
-            } else {
-                std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
-                std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
-            }
 
-            proceed = false;
+                proceed = false;
+            }
         }
 
         return proceed;
@@ -479,7 +493,10 @@ namespace utils {
                         case CLI::CallForCommandline::Mode::STANDARD:
                             if (option->count() > 0) {
                                 try {
-                                    value = option->as<std::string>();
+                                    for (const auto& result : option->reduced_results()) {
+                                        value += (!result.empty() ? result : "\"\"") + " ";
+                                    }
+                                    value.pop_back();
                                 } catch (CLI::ParseError& e) {
                                     value = "<" + e.get_name() + ": " + e.what() + ">";
                                 }
@@ -491,7 +508,10 @@ namespace utils {
                             if (option->get_required()) {
                                 if (option->count() > 0) {
                                     try {
-                                        value = option->as<std::string>();
+                                        for (const auto& result : option->reduced_results()) {
+                                            value += (!result.empty() ? result : "\"\"") + " ";
+                                        }
+                                        value.pop_back();
                                     } catch (CLI::ParseError& e) {
                                         value = "<" + e.get_name() + ": " + e.what() + ">";
                                     }
@@ -504,7 +524,10 @@ namespace utils {
                         case CLI::CallForCommandline::Mode::COMPLETE:
                             if (option->count() > 0) {
                                 try {
-                                    value = option->as<std::string>();
+                                    for (const auto& result : option->reduced_results()) {
+                                        value += (!result.empty() ? result : "\"\"") + " ";
+                                    }
+                                    value.pop_back();
                                 } catch (CLI::ParseError& e) {
                                     value = "<" + e.get_name() + ": " + e.what() + ">";
                                 }
@@ -741,7 +764,7 @@ namespace utils {
                     std::cout << e.getApp()->config_to_str(true, true);
                 } catch (const CLI::ParseError& e1) {
                     std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                              << "] Showing config file: " << e.getApp()->get_name() << " " << e1.get_name() << " " << e1.what()
+                              << "] Showing current config: " << e.getApp()->get_name() << " " << e1.get_name() << " " << e1.what()
                               << std::endl;
                     throw;
                 }
