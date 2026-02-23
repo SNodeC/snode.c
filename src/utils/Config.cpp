@@ -144,8 +144,8 @@ namespace utils {
         applicationName = std::filesystem::path(argv[0]).filename();
 
         uid_t euid = 0;
-        struct passwd* pw = nullptr;
-        struct group* gr = nullptr;
+        const struct passwd* pw = nullptr;
+        const struct group* gr = nullptr;
 
         if ((pw = getpwuid(getuid())) == nullptr) {
             proceed = false;
@@ -179,7 +179,7 @@ namespace utils {
                     (std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::group_exec) &
                         ~std::filesystem::perms::others_all);
                 if (geteuid() == 0) {
-                    struct group* gr = nullptr;
+                    const struct group* gr = nullptr;
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(configDirectory.c_str(), euid, gr->gr_gid) < 0) {
                             std::cout << "Warning: Can not set group ownership of '" << configDirectory
@@ -204,7 +204,7 @@ namespace utils {
                                              (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
                                                  ~std::filesystem::perms::others_all);
                 if (geteuid() == 0) {
-                    struct group* gr = nullptr;
+                    const struct group* gr = nullptr;
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(logDirectory.c_str(), euid, gr->gr_gid) < 0) {
                             std::cout << "Warning: Can not set group ownership of '" << logDirectory << "' to 'snodec':" << strerror(errno)
@@ -229,7 +229,7 @@ namespace utils {
                                              (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
                                                  ~std::filesystem::perms::others_all);
                 if (geteuid() == 0) {
-                    struct group* gr = nullptr;
+                    const struct group* gr = nullptr;
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
                         if (chown(pidDirectory.c_str(), euid, gr->gr_gid) < 0) {
                             std::cout << "Warning: Can not set group ownership of '" << pidDirectory << "' to 'snodec':" << strerror(errno)
@@ -470,7 +470,7 @@ namespace utils {
     static void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
         const CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
         const bool disabled = disabledOpt != nullptr ? disabledOpt->as<bool>() : false;
-        if (!disabled || mode == CLI::CallForCommandline::Mode::DEFAULT) {
+        if (!disabled || mode == CLI::CallForCommandline::Mode::COMPLETE) {
             for (const CLI::Option* option : app->get_options()) {
                 if (option->get_configurable()) {
                     std::string value;
@@ -500,7 +500,8 @@ namespace utils {
                                 }
                             }
                             break;
-                        case CLI::CallForCommandline::Mode::FULL:
+                        case CLI::CallForCommandline::Mode::ACTIVE:
+                        case CLI::CallForCommandline::Mode::COMPLETE:
                             if (option->count() > 0) {
                                 try {
                                     value = option->as<std::string>();
@@ -515,16 +516,6 @@ namespace utils {
                                 value = "<REQUIRED>";
                             }
                             break;
-                        case CLI::CallForCommandline::Mode::DEFAULT: {
-                            if (!option->get_default_str().empty()) {
-                                value = option->get_default_str();
-                            } else if (!option->get_required()) {
-                                value = "\"\"";
-                            } else {
-                                value = "<REQUIRED>";
-                            }
-                            break;
-                        }
                     }
 
                     if (!value.empty()) {
@@ -563,7 +554,7 @@ namespace utils {
         std::stringstream out;
 
         const CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
-        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::DEFAULT) {
+        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::COMPLETE) {
             for (CLI::App* subcommand : app->get_subcommands({})) {
                 if (!subcommand->get_name().empty()) {
                     createCommandLineTemplate(out, subcommand, mode);
@@ -642,7 +633,7 @@ namespace utils {
                                 "* Options show either their configured or default value\n"
                                 "* Required but not yet configured options show <REQUIRED> as value\n"
                                 "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                CLI::CallForCommandline::Mode::FULL);
+                                CLI::CallForCommandline::Mode::ACTIVE);
                         }
                         if (result == "complete") {
                             throw CLI::CallForCommandline( //
@@ -651,7 +642,7 @@ namespace utils {
                                 "* Options show their default value\n"
                                 "* Required but not yet configured options show <REQUIRED> as value\n"
                                 "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                CLI::CallForCommandline::Mode::DEFAULT);
+                                CLI::CallForCommandline::Mode::COMPLETE);
                         }
                         if (result == "required") {
                             throw CLI::CallForCommandline( //
@@ -691,7 +682,7 @@ namespace utils {
                                     "* Options show either their configured or default value\n"
                                     "* Required but not yet configured options show <REQUIRED> as value\n"
                                     "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                    CLI::CallForCommandline::Mode::FULL);
+                                    CLI::CallForCommandline::Mode::ACTIVE);
                             }
                             if (result == "complete") {
                                 throw CLI::CallForCommandline( //
@@ -700,7 +691,7 @@ namespace utils {
                                     "* Options show their default value\n"
                                     "* Required but not yet configured options show <REQUIRED> as value\n"
                                     "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                    CLI::CallForCommandline::Mode::DEFAULT);
+                                    CLI::CallForCommandline::Mode::COMPLETE);
                             }
                             if (result == "required") {
                                 throw CLI::CallForCommandline( //

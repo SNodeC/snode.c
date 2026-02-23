@@ -119,7 +119,14 @@ namespace net::in6::stream::config {
     }
 
     bool ConfigSocketClient::getDisableNagleAlgorithm() const {
-        return disableNagleAlgorithmOpt->as<bool>();
+        bool disableNagleAlgorithm = false;
+
+        try {
+            disableNagleAlgorithm = disableNagleAlgorithmOpt->as<bool>();
+        } catch (CLI::RuntimeError&) {
+        }
+
+        return disableNagleAlgorithm;
     }
 
 } // namespace net::in6::stream::config
