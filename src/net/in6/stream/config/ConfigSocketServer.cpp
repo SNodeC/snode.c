@@ -70,6 +70,7 @@
 
 #include "core/system/netdb.h"
 
+#include <fstream>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <string>
@@ -107,14 +108,28 @@ namespace net::in6::stream::config {
             XSTR(IN6_REUSE_PORT),
             CLI::IsMember({"true", "false"}));
 
+        std::string ipv6Only = XSTR(IN6_IPV6_ONLY);
+        if (ipv6Only == "default") {
+            std::ifstream in("/proc/sys/net/ipv6/bindv6only");
+            if (in) {
+                std::string s;
+                in >> s; // reads "0" or "1"
+
+                ipv6Only = s == "1" ? "true" : "false";
+            }
+            in.close();
+        }
         iPv6OnlyOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
             "--ipv6-only{true}",
             IPPROTO_IPV6,
             IPV6_V6ONLY,
             "Turn of IPv6 dual stack mode",
-            "tristat",
+            "bool",
             XSTR(IN6_IPV6_ONLY),
             CLI::IsMember({"true", "false", "default"}));
+        if (std::string(XSTR(IN6_IPV6_ONLY)) == "default") {
+            iPv6OnlyOpt->default_str(ipv6Only);
+        }
 
         disableNagleAlgorithmOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
             "--disable-nagle-algorithm{true}",
@@ -124,6 +139,9 @@ namespace net::in6::stream::config {
             "tristat",
             XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
+        if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {
+            disableNagleAlgorithmOpt->default_str("false");
+        }
     }
 
     ConfigSocketServer::~ConfigSocketServer() {
@@ -198,14 +216,7 @@ namespace net::in6::stream::config {
     }
 
     bool ConfigSocketServer::getDisableNagleAlgorithm() const {
-        bool disableNagleAlgorithm = false;
-
-        try {
-            disableNagleAlgorithm = disableNagleAlgorithmOpt->as<bool>();
-        } catch (CLI::RuntimeError&) {
-        }
-
-        return disableNagleAlgorithm;
+        return disableNagleAlgorithmOpt->as<bool>();
     }
 
 } // namespace net::in6::stream::config
