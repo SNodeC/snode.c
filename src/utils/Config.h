@@ -125,6 +125,7 @@ namespace utils {
     public:
         static CLI::App* helpTriggerApp;
         static CLI::App* showConfigTriggerApp;
+        static CLI::App* commandlineTriggerApp;
 
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 

@@ -116,7 +116,7 @@ namespace utils {
         helpFormatter->label("Nonpersistent Options", "Options (nonpersistent)");
         helpFormatter->label("Usage", "\nUsage");
         helpFormatter->label("bool:{true,false}", "{true,false}");
-        helpFormatter->label(":{standard,required,full,default}", "{standard,required,full,default}");
+        helpFormatter->label(":{standard,active,complete,required}", "{standard,active,complete,required}");
         helpFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
         helpFormatter->column_width(7);
 
@@ -272,6 +272,8 @@ namespace utils {
                 ->check(!CLI::ExistingDirectory)
                 ->expected(0, 1);
 
+            addStandardFlags(app.get());
+
             app->add_flag( //
                    "-k,--kill",
                    "Kill running daemon") //
@@ -292,10 +294,8 @@ namespace utils {
                     }
                 });
 
-            addStandardFlags(app.get());
-
             logLevelOpt = app->add_option( //
-                                 "-l,--log-level",
+                                 "--log-level",
                                  "Log level") //
                               ->default_val(4)
                               ->type_name("level")
@@ -303,31 +303,31 @@ namespace utils {
                               ->group(app->get_formatter()->get_label("Persistent Options"));
 
             verboseLevelOpt = app->add_option( //
-                                     "-v,--verbose-level",
+                                     "--verbose-level",
                                      "Verbose level") //
                                   ->default_val(2)
                                   ->type_name("level")
                                   ->check(CLI::Range(0, 10))
                                   ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            quietOpt = app->add_flag( //
-                              "-q{true},!-u,--quiet{true}",
-                              "Quiet mode") //
-                           ->default_val("false")
-                           ->type_name("bool")
-                           ->check(CLI::IsMember({"true", "false"}))
-                           ->group(app->get_formatter()->get_label("Persistent Options"));
-
             logFileOpt = app->add_option( //
-                                "--log-file",
+                                "-l,--log-file",
                                 "Log file path") //
                              ->default_val(logDirectory + "/" + applicationName + ".log")
                              ->type_name("logfile")
                              ->check(!CLI::ExistingDirectory)
                              ->group(app->get_formatter()->get_label("Persistent Options"));
 
+            quietOpt = app->add_flag( //
+                              "-q{true},--quiet{true}",
+                              "Quiet mode") //
+                           ->default_val("false")
+                           ->type_name("bool")
+                           ->check(CLI::IsMember({"true", "false"}))
+                           ->group(app->get_formatter()->get_label("Persistent Options"));
+
             enforceLogFileOpt = app->add_flag( //
-                                       "-e{true},!-n,--enforce-log-file{true}",
+                                       "-e{true},--enforce-log-file{true}",
                                        "Enforce writing of logs to file for foreground applications") //
                                     ->default_val("false")
                                     ->type_name("bool")
@@ -335,7 +335,7 @@ namespace utils {
                                     ->group(app->get_formatter()->get_label("Persistent Options"));
 
             daemonizeOpt = app->add_flag( //
-                                  "-d{true},!-f,--daemonize{true}",
+                                  "-d{true},--daemonize{true}",
                                   "Start application as daemon") //
                                ->default_val("false")
                                ->type_name("bool")
@@ -343,7 +343,7 @@ namespace utils {
                                ->group(app->get_formatter()->get_label("Persistent Options"));
 
             userNameOpt = app->add_option( //
-                                 "--user-name",
+                                 "-u,--user-name",
                                  "Run daemon under specific user permissions") //
                               ->default_val(pw->pw_name)
                               ->type_name("username")
@@ -351,17 +351,17 @@ namespace utils {
                               ->group(app->get_formatter()->get_label("Persistent Options"));
 
             groupNameOpt = app->add_option( //
-                                  "--group-name",
+                                  "-g,--group-name",
                                   "Run daemon under specific group permissions")
                                ->default_val(gr->gr_name)
                                ->type_name("groupname")
                                ->needs(daemonizeOpt)
                                ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            proceed = parse1(); // for stopDaemon and pre init application options
-
-            app->set_version_flag("--version", "1.0-rc1", "Framework version");
+            app->set_version_flag("-v,--version", "1.0-rc1", "Framework version");
             addHelp(app.get());
+
+            proceed = parse1(); // for stopDaemon and pre init application options
         }
 
         return proceed;
@@ -415,7 +415,8 @@ namespace utils {
 
                 proceed = false;
             } else {
-                if (!quietOpt->as<bool>()) {
+                if (!quietOpt->as<bool>() && app->get_option_no_throw("--show-config")->count() == 0 &&
+                    app->get_option_no_throw("--command-line")->count() == 0) {
                     logger::Logger::setLogLevel(logLevelOpt->as<int>());
                     logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
                 }
@@ -424,11 +425,22 @@ namespace utils {
             }
         } catch (const CLI::Success&) {
         } catch (const CLI::ParseError& e) {
-            if (app->get_help_ptr()->count() == 0) {
+            if (app->get_help_ptr()->count() > 0) {
+                std::cout << app->help(nullptr) << std::endl;
+            } else if (app->get_option_no_throw("--show-config")->count() > 0) {
+                try {
+                    std::cout << app->config_to_str(true, true);
+                } catch (const CLI::ParseError& e1) {
+                    std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
+                              << "] Showing config file: " << app->get_name() << " " << e1.get_name() << " " << e1.what() << std::endl;
+                    throw;
+                }
+            } else {
                 std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
-
-                proceed = false;
+                std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
             }
+
+            proceed = false;
         }
 
         return proceed;
@@ -466,7 +478,11 @@ namespace utils {
                     switch (mode) {
                         case CLI::CallForCommandline::Mode::STANDARD:
                             if (option->count() > 0) {
-                                value = option->as<std::string>();
+                                try {
+                                    value = option->as<std::string>();
+                                } catch (CLI::ParseError& e) {
+                                    value = "<" + e.get_name() + ": " + e.what() + ">";
+                                }
                             } else if (option->get_required()) {
                                 value = "<REQUIRED>";
                             }
@@ -474,7 +490,11 @@ namespace utils {
                         case CLI::CallForCommandline::Mode::REQUIRED:
                             if (option->get_required()) {
                                 if (option->count() > 0) {
-                                    value = option->as<std::string>();
+                                    try {
+                                        value = option->as<std::string>();
+                                    } catch (CLI::ParseError& e) {
+                                        value = "<" + e.get_name() + ": " + e.what() + ">";
+                                    }
                                 } else {
                                     value = "<REQUIRED>";
                                 }
@@ -482,7 +502,11 @@ namespace utils {
                             break;
                         case CLI::CallForCommandline::Mode::FULL:
                             if (option->count() > 0) {
-                                value = option->as<std::string>();
+                                try {
+                                    value = option->as<std::string>();
+                                } catch (CLI::ParseError& e) {
+                                    value = "<" + e.get_name() + ": " + e.what() + ">";
+                                }
                             } else if (!option->get_default_str().empty()) {
                                 value = option->get_default_str();
                             } else if (!option->get_required()) {
@@ -591,15 +615,55 @@ namespace utils {
         try {
             try {
                 try {
+                    helpTriggerApp = nullptr;
+                    showConfigTriggerApp = nullptr;
+                    commandlineTriggerApp = nullptr;
+
                     app->parse(argc, argv);
 
-                    if (helpTriggerApp == nullptr) {
-                        if (showConfigTriggerApp != nullptr) {
-                            throw CLI::CallForShowConfig(showConfigTriggerApp);
+                    if (showConfigTriggerApp != nullptr) {
+                        throw CLI::CallForShowConfig(showConfigTriggerApp);
+                    }
+                    if (commandlineTriggerApp != nullptr) {
+                        const std::string& result = commandlineTriggerApp->get_option("--command-line")->as<std::string>();
+                        if (result == "standard") {
+                            throw CLI::CallForCommandline( //
+                                commandlineTriggerApp,
+                                "Below is a command line viewing all non-default and required options:\n"
+                                "* Options show their configured value\n"
+                                "* Required but not yet configured options show <REQUIRED> as value\n"
+                                "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                                CLI::CallForCommandline::Mode::STANDARD);
                         }
-                        if ((*app)["--write-config"]->count() > 0) {
-                            throw CLI::CallForWriteConfig((*app)["--write-config"]->as<std::string>());
+                        if (result == "active") {
+                            throw CLI::CallForCommandline( //
+                                commandlineTriggerApp,
+                                "Below is a command line viewing the active set of options with their default or configured values:\n"
+                                "* Options show either their configured or default value\n"
+                                "* Required but not yet configured options show <REQUIRED> as value\n"
+                                "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                                CLI::CallForCommandline::Mode::FULL);
                         }
+                        if (result == "complete") {
+                            throw CLI::CallForCommandline( //
+                                commandlineTriggerApp,
+                                "Below is a command line viewing the complete set of options with their default values\n"
+                                "* Options show their default value\n"
+                                "* Required but not yet configured options show <REQUIRED> as value\n"
+                                "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                                CLI::CallForCommandline::Mode::DEFAULT);
+                        }
+                        if (result == "required") {
+                            throw CLI::CallForCommandline( //
+                                commandlineTriggerApp,
+                                "Below is a command line viewing required options only:\n"
+                                "* Options show either their configured or default value\n"
+                                "* Required but not yet configured options show <REQUIRED> as value\n"
+                                "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                                CLI::CallForCommandline::Mode::REQUIRED);
+                        }
+                    } else if (app->get_option("--write-config")->count() > 0) {
+                        throw CLI::CallForWriteConfig((*app)["--write-config"]->as<std::string>());
                     }
 
                     success = true;
@@ -609,10 +673,47 @@ namespace utils {
                             success = false;
                             throw CLI::CallForShowConfig(showConfigTriggerApp);
                         }
-                        if ((*app)["--write-config"]->count() > 0) {
-                            success = false;
-                            throw CLI::CallForWriteConfig((*app)["--write-config"]->as<std::string>());
+                        if (commandlineTriggerApp != nullptr) {
+                            const std::string& result = commandlineTriggerApp->get_option("--command-line")->as<std::string>();
+                            if (result == "standard") {
+                                throw CLI::CallForCommandline( //
+                                    commandlineTriggerApp,
+                                    "Below is a command line viewing all non-default and required options:\n"
+                                    "* Options show their configured value\n"
+                                    "* Required but not yet configured options show <REQUIRED> as value\n"
+                                    "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                                    CLI::CallForCommandline::Mode::STANDARD);
+                            }
+                            if (result == "active") {
+                                throw CLI::CallForCommandline( //
+                                    commandlineTriggerApp,
+                                    "Below is a command line viewing the active set of options with their default or configured values:\n"
+                                    "* Options show either their configured or default value\n"
+                                    "* Required but not yet configured options show <REQUIRED> as value\n"
+                                    "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                                    CLI::CallForCommandline::Mode::FULL);
+                            }
+                            if (result == "complete") {
+                                throw CLI::CallForCommandline( //
+                                    commandlineTriggerApp,
+                                    "Below is a command line viewing the complete set of options with their default values\n"
+                                    "* Options show their default value\n"
+                                    "* Required but not yet configured options show <REQUIRED> as value\n"
+                                    "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                                    CLI::CallForCommandline::Mode::DEFAULT);
+                            }
+                            if (result == "required") {
+                                throw CLI::CallForCommandline( //
+                                    commandlineTriggerApp,
+                                    "Below is a command line viewing required options only:\n"
+                                    "* Options show either their configured or default value\n"
+                                    "* Required but not yet configured options show <REQUIRED> as value\n"
+                                    "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
+                                    CLI::CallForCommandline::Mode::REQUIRED);
+                            }
                         }
+                    } else {
+                        throw CLI::CallForHelp();
                     }
 
                     throw;
@@ -648,8 +749,9 @@ namespace utils {
                 try {
                     std::cout << e.getApp()->config_to_str(true, true);
                 } catch (const CLI::ParseError& e1) {
-                    std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Showing config file: " << e.getApp()
-                              << " " << e1.get_name() << " " << e1.what() << std::endl;
+                    std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
+                              << "] Showing config file: " << e.getApp()->get_name() << " " << e1.get_name() << " " << e1.what()
+                              << std::endl;
                     throw;
                 }
             } catch (const CLI::CallForWriteConfig& e) {
@@ -729,7 +831,7 @@ namespace utils {
         sectionFormatter->label("Nonpersistent Options", "Options (nonpersistent)");
         sectionFormatter->label("Usage", "\nUsage");
         sectionFormatter->label("bool:{true,false}", "{true,false}");
-        sectionFormatter->label(":{standard,required,full,default}", "{standard,required,full,default}");
+        sectionFormatter->label(":{standard,active,complete,required}", "{standard,active,complete,required}");
         sectionFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
         sectionFormatter->column_width(7);
 
@@ -777,7 +879,9 @@ namespace utils {
             ->add_flag_function(
                 "-s,--show-config",
                 [app](std::size_t) {
-                    showConfigTriggerApp = app;
+                    if (showConfigTriggerApp == nullptr) {
+                        showConfigTriggerApp = app;
+                    }
                 },
                 "Show current configuration and exit") //
             ->configurable(false)
@@ -787,39 +891,8 @@ namespace utils {
             ->add_flag(
                 "--command-line{standard}",
                 [app]([[maybe_unused]] std::int64_t count) {
-                    const std::string& result = app->get_option("--command-line")->as<std::string>();
-                    if (result == "standard") {
-                        throw CLI::CallForCommandline( //
-                            app,
-                            "Below is a command line viewing all non-default and required options:\n"
-                            "* Options show their configured value\n"
-                            "* Required but not yet configured options show <REQUIRED> as value\n"
-                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                            CLI::CallForCommandline::Mode::STANDARD);
-                    } else if (result == "active") {
-                        throw CLI::CallForCommandline( //
-                            app,
-                            "Below is a command line viewing the active set of options with their default or configured values:\n"
-                            "* Options show either their configured or default value\n"
-                            "* Required but not yet configured options show <REQUIRED> as value\n"
-                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                            CLI::CallForCommandline::Mode::FULL);
-                    } else if (result == "complete") {
-                        throw CLI::CallForCommandline( //
-                            app,
-                            "Below is a command line viewing the complete set of options with their default values\n"
-                            "* Options show their default value\n"
-                            "* Required but not yet configured options show <REQUIRED> as value\n"
-                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                            CLI::CallForCommandline::Mode::DEFAULT);
-                    } else if (result == "required") {
-                        throw CLI::CallForCommandline( //
-                            app,
-                            "Below is a command line viewing required options only:\n"
-                            "* Options show either their configured or default value\n"
-                            "* Required but not yet configured options show <REQUIRED> as value\n"
-                            "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                            CLI::CallForCommandline::Mode::REQUIRED);
+                    if (commandlineTriggerApp == nullptr) {
+                        commandlineTriggerApp = app;
                     }
                 },
                 "Print command-line\n"
@@ -837,7 +910,9 @@ namespace utils {
         app->set_help_flag(
                "-h{exact},--help{exact}",
                [app](std::size_t) {
-                   helpTriggerApp = app;
+                   if (helpTriggerApp == nullptr) {
+                       helpTriggerApp = app;
+                   }
                },
                "Print help message and exit\n"
                "* standard: display help for the last command processed\n"
@@ -853,7 +928,9 @@ namespace utils {
         app->set_help_flag(
                "--help{exact},-h{exact}",
                [app](std::size_t) {
-                   helpTriggerApp = app;
+                   if (helpTriggerApp == nullptr) {
+                       helpTriggerApp = app;
+                   }
                },
                "Print help message and exit\n"
                "* standard: display help for the last command processed\n"
@@ -953,6 +1030,7 @@ namespace utils {
 
     CLI::App* Config::helpTriggerApp = nullptr;
     CLI::App* Config::showConfigTriggerApp = nullptr;
+    CLI::App* Config::commandlineTriggerApp = nullptr;
 
     std::map<std::string, std::string> Config::aliases;
     std::map<std::string, CLI::Option*> Config::applicationOptions;

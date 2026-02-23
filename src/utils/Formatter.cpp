@@ -90,8 +90,12 @@ namespace CLI {
                         }
                     }
                     const std::string name = prefix + opt->get_single_name();
-                    std::string value =
-                        detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
+                    std::string value;
+                    try {
+                        value = detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
+                    } catch (CLI::ParseError& e) {
+                        value = "<" + e.get_name() + ": " + e.what() + ">";
+                    }
 
                     std::string defaultValue{};
                     if (default_also) {
@@ -413,8 +417,12 @@ namespace CLI {
                 if (!opt->get_default_str().empty()) {
                     out << " [" << opt->get_default_str() << "]";
                 }
-                if (opt->count() > 0 && opt->get_default_str() != opt->as<std::string>()) {
-                    out << " {" << opt->as<std::string>() << "}";
+                try {
+                    if (opt->count() > 0 && opt->get_default_str() != opt->as<std::string>()) {
+                        out << " {" << opt->as<std::string>() << "}";
+                    }
+                } catch (CLI::ParseError& e) {
+                    out << " <" << e.get_name() << ": " << e.what() << ">";
                 }
                 if (opt->get_expected_max() == detail::expected_max_vector_size) {
                     out << " ... ";
