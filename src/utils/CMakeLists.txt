@@ -42,7 +42,6 @@ cmake_minimum_required(VERSION 3.18)
 set(UTILS_CPP
     Config.cpp
     Daemon.cpp
-    Exceptions.cpp
     Formatter.cpp
     PreserveErrno.cpp
     Random.cpp
@@ -61,7 +60,6 @@ set(UTILS_H
     Config.h
     ConfigApp.h
     Daemon.h
-    Exceptions.h
     Formatter.h
     PreserveErrno.h
     Random.h

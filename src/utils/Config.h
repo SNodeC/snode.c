@@ -61,16 +61,6 @@ namespace utils {
 
     class Config {
     public:
-        static CLI::App* newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
-
-        template <typename T>
-        static T* addInstance();
-
-        template <typename T>
-        static T* getInstance();
-
-        //////////////////
-
         Config() = delete;
         Config(const Config&) = delete;
         ~Config() = delete;
@@ -81,18 +71,32 @@ namespace utils {
         static bool bootstrap();
         static void terminate();
 
-        static bool removeInstance(CLI::App* instance);
+        static std::string getApplicationName();
+        static int getLogLevel();
+        static int getVerboseLevel();
 
-        static void required(CLI::App* instance, bool required = true);
-        static void disabled(CLI::App* instance, bool disabled = true);
+        //////////////////
 
         static CLI::App* addStandardFlags(CLI::App* app);
         static CLI::App* addSimpleHelp(CLI::App* app);
         static CLI::App* addHelp(CLI::App* app);
 
-        static std::string getApplicationName();
-        static int getLogLevel();
-        static int getVerboseLevel();
+        //////////////////
+
+        static CLI::App* newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
+
+        static void required(CLI::App* instance, bool required = true);
+        static void disabled(CLI::App* instance, bool disabled = true);
+
+        static bool removeInstance(CLI::App* instance);
+
+        template <typename T>
+        static T* addInstance();
+
+        template <typename T>
+        static T* getInstance();
+
+        //////////////////
 
     private:
         static bool parse1();
@@ -133,7 +137,7 @@ namespace utils {
         static std::map<std::string, std::string> aliases;             // from -> to
         static std::map<std::string, CLI::Option*> applicationOptions; // keep all user options in memory
 
-        static std::vector<std::shared_ptr<void>> configSections; // Store anything
+        static std::vector<std::shared_ptr<void>> configInstances; // Store anything
     };
 
     //////////////////

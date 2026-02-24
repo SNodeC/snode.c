@@ -42,7 +42,6 @@
 #include "utils/Config.h"
 
 #include "utils/Daemon.h"
-#include "utils/Exceptions.h"
 #include "utils/Formatter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -98,7 +97,7 @@
 
 namespace utils {
 
-    std::vector<std::shared_ptr<void>> Config::configSections;
+    std::vector<std::shared_ptr<void>> Config::configInstances;
 
     static std::shared_ptr<CLI::App> makeApp() { // NO_LINT
         const std::shared_ptr<CLI::App> app = std::make_shared<CLI::App>();
@@ -397,68 +396,11 @@ namespace utils {
         return parse2();
     }
 
-    static std::string createCommandLineTemplate(CLI::App* app, CLI::CallForCommandline::Mode mode);
-
-    bool Config::parse1() {
-        bool proceed = true;
-
-        try {
-            app->parse(argc, argv);
-
-            if ((*app)["--kill"]->count() > 0) {
-                try {
-                    const pid_t daemonPid = utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
-                    std::cout << "Daemon terminated: Pid = " << daemonPid << std::endl;
-                } catch (const DaemonError& e) {
-                    std::cout << "DaemonError: " << e.what() << std::endl;
-                } catch (const DaemonFailure& e) {
-                    std::cout << "DaemonFailure: " << e.what() << std::endl;
-                }
-
-                proceed = false;
-            } else {
-                if (!quietOpt->as<bool>() && app->get_option_no_throw("--show-config")->count() == 0 &&
-                    app->get_option_no_throw("--command-line")->count() == 0) {
-                    logger::Logger::setLogLevel(logLevelOpt->as<int>());
-                    logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
-                }
-
-                logger::Logger::setQuiet(quietOpt->as<bool>());
-            }
-        } catch (const CLI::Success&) {
-        } catch (const CLI::ParseError& e) {
-            if (helpTriggerApp == nullptr || helpTriggerApp == app.get() || commandlineTriggerApp == nullptr ||
-                commandlineTriggerApp == app.get() || showConfigTriggerApp == nullptr || showConfigTriggerApp == app.get()) {
-                if (app->get_help_ptr()->count() > 0) {
-                    std::cout << app->help(helpTriggerApp) << std::endl;
-                } else if (app->get_option_no_throw("--show-config")->count() > 0) {
-                    try {
-                        std::cout << app->config_to_str(true, true) << std::endl;
-                    } catch (const CLI::ParseError& e1) {
-                        std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                                  << "] Showing config file: " << app->get_name() << " " << e1.get_name() << " " << e1.what() << std::endl;
-                    }
-                } else if (app->get_option_no_throw("--command-line")->count() > 0) {
-                    try {
-                        std::cout << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE
-                                  << "~/> " << Color::Code::FG_DEFAULT
-                                  << createCommandLineTemplate(app.get(), CLI::CallForCommandline::Mode::STANDARD) << std::endl
-                                  << std::endl;
-                    } catch (const CLI::ParseError& e1) {
-                        std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                                  << "] Showing config file: " << app->get_name() << " " << e1.get_name() << " " << e1.what() << std::endl;
-                    }
-                } else {
-                    std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
-                    std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
-                }
-
-                proceed = false;
-            }
-        }
-
-        return proceed;
+    namespace CallForCommandline {
+        enum class Mode { REQUIRED, STANDARD, ACTIVE, COMPLETE };
     }
+
+    static std::string createCommandLineTemplate(CLI::App* app, utils::CallForCommandline::Mode mode);
 
     // Escape characters with special meaning in Bash (except whitespace).
     static std::string bash_backslash_escape_no_whitespace(std::string_view s) {
@@ -481,16 +423,16 @@ namespace utils {
         return out;
     }
 
-    static void createCommandLineOptions(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
+    static void createCommandLineOptions(std::stringstream& out, CLI::App* app, utils::CallForCommandline::Mode mode) {
         const CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
         const bool disabled = disabledOpt != nullptr ? disabledOpt->as<bool>() : false;
-        if (!disabled || mode == CLI::CallForCommandline::Mode::COMPLETE) {
+        if (!disabled || mode == utils::CallForCommandline::Mode::COMPLETE) {
             for (const CLI::Option* option : app->get_options()) {
                 if (option->get_configurable()) {
                     std::string value;
 
                     switch (mode) {
-                        case CLI::CallForCommandline::Mode::STANDARD:
+                        case utils::CallForCommandline::Mode::STANDARD:
                             if (option->count() > 0) {
                                 try {
                                     for (const auto& result : option->reduced_results()) {
@@ -504,7 +446,7 @@ namespace utils {
                                 value = "<REQUIRED>";
                             }
                             break;
-                        case CLI::CallForCommandline::Mode::REQUIRED:
+                        case utils::CallForCommandline::Mode::REQUIRED:
                             if (option->get_required()) {
                                 if (option->count() > 0) {
                                     try {
@@ -520,8 +462,8 @@ namespace utils {
                                 }
                             }
                             break;
-                        case CLI::CallForCommandline::Mode::ACTIVE:
-                        case CLI::CallForCommandline::Mode::COMPLETE:
+                        case utils::CallForCommandline::Mode::ACTIVE:
+                        case utils::CallForCommandline::Mode::COMPLETE:
                             if (option->count() > 0) {
                                 try {
                                     for (const auto& result : option->reduced_results()) {
@@ -558,7 +500,7 @@ namespace utils {
         }
     }
 
-    static std::string createCommandLineOptions(CLI::App* app, CLI::CallForCommandline::Mode mode) {
+    static std::string createCommandLineOptions(CLI::App* app, utils::CallForCommandline::Mode mode) {
         std::stringstream out;
 
         createCommandLineOptions(out, app, mode);
@@ -571,13 +513,13 @@ namespace utils {
         return optionString;
     }
 
-    static void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode);
+    static void createCommandLineTemplate(std::stringstream& out, CLI::App* app, utils::CallForCommandline::Mode mode);
 
-    static std::string createCommandLineSubcommands(CLI::App* app, CLI::CallForCommandline::Mode mode) {
+    static std::string createCommandLineSubcommands(CLI::App* app, utils::CallForCommandline::Mode mode) {
         std::stringstream out;
 
         const CLI::Option* disabledOpt = app->get_option_no_throw("--disabled");
-        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == CLI::CallForCommandline::Mode::COMPLETE) {
+        if (disabledOpt == nullptr || !disabledOpt->as<bool>() || mode == utils::CallForCommandline::Mode::COMPLETE) {
             for (CLI::App* subcommand : app->get_subcommands({})) {
                 if (!subcommand->get_name().empty()) {
                     createCommandLineTemplate(out, subcommand, mode);
@@ -588,7 +530,7 @@ namespace utils {
         return out.str();
     }
 
-    static void createCommandLineTemplate(std::stringstream& out, CLI::App* app, CLI::CallForCommandline::Mode mode) {
+    static void createCommandLineTemplate(std::stringstream& out, CLI::App* app, utils::CallForCommandline::Mode mode) {
         std::string outString;
 
         outString = createCommandLineOptions(app, mode);
@@ -603,7 +545,7 @@ namespace utils {
         }
     }
 
-    static std::string createCommandLineTemplate(CLI::App* app, CLI::CallForCommandline::Mode mode) {
+    static std::string createCommandLineTemplate(CLI::App* app, utils::CallForCommandline::Mode mode) {
         std::stringstream out;
 
         createCommandLineTemplate(out, app, mode);
@@ -623,6 +565,157 @@ namespace utils {
         return outString;
     }
 
+    static std::string getCommandLine(CLI::App* commandlineTriggerApp) {
+        const std::string modeString = commandlineTriggerApp->get_option("--command-line")->as<std::string>();
+
+        utils::CallForCommandline::Mode mode = utils::CallForCommandline::Mode::STANDARD;
+        std::ostringstream out;
+
+        if (modeString == "standard") {
+            out << "Below is a command line viewing all non-default and required options:\n"
+                   "* Options show their configured value\n"
+                   "* Required but not yet configured options show <REQUIRED> as value\n"
+                   "* Options marked as <REQUIRED> need to be configured for a successful bootstrap"
+                << std::endl;
+            mode = utils::CallForCommandline::Mode::STANDARD;
+
+        } else if (modeString == "active") {
+            out << "Below is a command line viewing the active set of options with their default or configured values:\n"
+                   "* Options show either their configured or default value\n"
+                   "* Required but not yet configured options show <REQUIRED> as value\n"
+                   "* Options marked as <REQUIRED> need to be configured for a successful bootstrap"
+                << std::endl;
+            mode = utils::CallForCommandline::Mode::ACTIVE;
+        } else if (modeString == "complete") {
+            out << "Below is a command line viewing the complete set of options with their default values\n"
+                   "* Options show their default value\n"
+                   "* Required but not yet configured options show <REQUIRED> as value\n"
+                   "* Options marked as <REQUIRED> need to be configured for a successful bootstrap"
+                << std::endl;
+            mode = utils::CallForCommandline::Mode::COMPLETE;
+        } else if (modeString == "required") {
+            out << "Below is a command line viewing required options only:\n"
+                   "* Options show either their configured or default value\n"
+                   "* Required but not yet configured options show <REQUIRED> as value\n"
+                   "* Options marked as <REQUIRED> need to be configured for a successful bootstrap"
+                << std::endl;
+            mode = utils::CallForCommandline::Mode::REQUIRED;
+        }
+
+        out << std::endl
+            << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE << "~/> "
+            << Color::Code::FG_DEFAULT << createCommandLineTemplate(commandlineTriggerApp, mode) << std::endl
+            << std::endl;
+
+        return out.str();
+    }
+
+    static std::string getConfig(CLI::App* configTriggeredApp) {
+        std::stringstream out;
+
+        try {
+            out << configTriggeredApp->config_to_str(true, true);
+        } catch (const CLI::ParseError& e) {
+            out << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
+                << "] Showing current config: " << configTriggeredApp->get_name() << " " << e.get_name() << " " << e.what();
+        }
+
+        return out.str();
+    }
+
+    static std::string doWriteConfig(CLI::App* app) {
+        std::stringstream out;
+
+        std::ofstream confFile((*app)["--write-config"]->as<std::string>());
+        if (confFile.is_open()) {
+            try {
+                confFile << app->config_to_str(true, true);
+                confFile.close();
+                out << Color::Code::FG_GREEN << "Error" << Color::Code::FG_DEFAULT
+                    << "Writing config file: " + app->get_option_no_throw("--write-config")->as<std::string>();
+            } catch (const CLI::ParseError& e) {
+                confFile.close();
+                out << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Writing config file: " << e.get_name() << " "
+                    << e.what();
+            }
+            confFile.close();
+        } else {
+            out << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Writing config file: " << std::strerror(errno);
+        }
+
+        return out.str();
+    }
+
+    static std::string getHelp(CLI::App* app, CLI::App* helpTriggerApp) {
+        std::stringstream out;
+
+        const std::string helpMode = (helpTriggerApp != nullptr ? helpTriggerApp : app)->get_option("--help")->as<std::string>();
+
+        const CLI::App* helpApp = nullptr;
+        CLI::AppFormatMode mode = CLI::AppFormatMode::Normal;
+        if (helpMode == "exact") {
+            helpApp = helpTriggerApp;
+        } else if (helpMode == "expanded") {
+            helpApp = helpTriggerApp;
+            mode = CLI::AppFormatMode::All;
+        }
+        try {
+            out << app->help(helpApp, "", mode);
+        } catch (CLI::ParseError& e) {
+            out << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Show help: " << e.get_name() << " " << e.what();
+        }
+
+        return out.str();
+    }
+
+    bool Config::parse1() {
+        bool proceed = true;
+
+        try {
+            app->parse(argc, argv);
+
+            if (app->get_option_no_throw("--kill")->count() > 0) {
+                try {
+                    const pid_t daemonPid = utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
+                    std::cout << "Daemon terminated: Pid = " << daemonPid << std::endl;
+                } catch (const DaemonError& e) {
+                    std::cout << "DaemonError: " << e.what() << std::endl;
+                } catch (const DaemonFailure& e) {
+                    std::cout << "DaemonFailure: " << e.what() << std::endl;
+                }
+
+                proceed = false;
+            } else {
+                if (!quietOpt->as<bool>() && app->get_option_no_throw("--show-config")->count() == 0 &&
+                    app->get_option_no_throw("--command-line")->count() == 0) {
+                    logger::Logger::setLogLevel(logLevelOpt->as<int>());
+                    logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+                }
+
+                logger::Logger::setQuiet(quietOpt->as<bool>());
+            }
+        } catch (const CLI::Success&) {
+        } catch (const CLI::ParseError& e) {
+            if (helpTriggerApp == nullptr || helpTriggerApp == app.get() || commandlineTriggerApp == nullptr ||
+                commandlineTriggerApp == app.get() || showConfigTriggerApp == nullptr || showConfigTriggerApp == app.get()) {
+                if (app->get_help_ptr()->count() > 0) {
+                    std::cout << getHelp(app.get(), nullptr) << std::endl;
+                } else if (app->get_option_no_throw("--show-config")->count() > 0) {
+                    std::cout << getConfig(app.get());
+                } else if (app->get_option_no_throw("--command-line")->count() > 0) {
+                    std::cout << getCommandLine(app.get()) << std::endl;
+                } else {
+                    std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
+                    std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
+                }
+
+                proceed = false;
+            }
+        }
+
+        return proceed;
+    }
+
     bool Config::parse2() {
         bool success = false;
 
@@ -636,101 +729,27 @@ namespace utils {
                     app->parse(argc, argv);
 
                     if (showConfigTriggerApp != nullptr) {
-                        throw CLI::CallForShowConfig(showConfigTriggerApp);
-                    }
-                    if (commandlineTriggerApp != nullptr) {
-                        const std::string& result = commandlineTriggerApp->get_option("--command-line")->as<std::string>();
-                        if (result == "standard") {
-                            throw CLI::CallForCommandline( //
-                                commandlineTriggerApp,
-                                "Below is a command line viewing all non-default and required options:\n"
-                                "* Options show their configured value\n"
-                                "* Required but not yet configured options show <REQUIRED> as value\n"
-                                "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                CLI::CallForCommandline::Mode::STANDARD);
-                        }
-                        if (result == "active") {
-                            throw CLI::CallForCommandline( //
-                                commandlineTriggerApp,
-                                "Below is a command line viewing the active set of options with their default or configured values:\n"
-                                "* Options show either their configured or default value\n"
-                                "* Required but not yet configured options show <REQUIRED> as value\n"
-                                "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                CLI::CallForCommandline::Mode::ACTIVE);
-                        }
-                        if (result == "complete") {
-                            throw CLI::CallForCommandline( //
-                                commandlineTriggerApp,
-                                "Below is a command line viewing the complete set of options with their default values\n"
-                                "* Options show their default value\n"
-                                "* Required but not yet configured options show <REQUIRED> as value\n"
-                                "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                CLI::CallForCommandline::Mode::COMPLETE);
-                        }
-                        if (result == "required") {
-                            throw CLI::CallForCommandline( //
-                                commandlineTriggerApp,
-                                "Below is a command line viewing required options only:\n"
-                                "* Options show either their configured or default value\n"
-                                "* Required but not yet configured options show <REQUIRED> as value\n"
-                                "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                CLI::CallForCommandline::Mode::REQUIRED);
-                        }
+                        std::cout << getConfig(showConfigTriggerApp) << std::endl;
+                    } else if (commandlineTriggerApp != nullptr) {
+                        std::cout << getCommandLine(commandlineTriggerApp) << std::endl;
                     } else if (app->get_option("--write-config")->count() > 0) {
-                        throw CLI::CallForWriteConfig((*app)["--write-config"]->as<std::string>());
-                    }
-
-                    success = true;
-                } catch (const CLI::ParseError&) {
-                    if (helpTriggerApp == nullptr) {
-                        if (showConfigTriggerApp != nullptr) {
-                            success = false;
-                            throw CLI::CallForShowConfig(showConfigTriggerApp);
-                        }
-                        if (commandlineTriggerApp != nullptr) {
-                            const std::string& result = commandlineTriggerApp->get_option("--command-line")->as<std::string>();
-                            if (result == "standard") {
-                                throw CLI::CallForCommandline( //
-                                    commandlineTriggerApp,
-                                    "Below is a command line viewing all non-default and required options:\n"
-                                    "* Options show their configured value\n"
-                                    "* Required but not yet configured options show <REQUIRED> as value\n"
-                                    "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                    CLI::CallForCommandline::Mode::STANDARD);
-                            }
-                            if (result == "active") {
-                                throw CLI::CallForCommandline( //
-                                    commandlineTriggerApp,
-                                    "Below is a command line viewing the active set of options with their default or configured values:\n"
-                                    "* Options show either their configured or default value\n"
-                                    "* Required but not yet configured options show <REQUIRED> as value\n"
-                                    "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                    CLI::CallForCommandline::Mode::ACTIVE);
-                            }
-                            if (result == "complete") {
-                                throw CLI::CallForCommandline( //
-                                    commandlineTriggerApp,
-                                    "Below is a command line viewing the complete set of options with their default values\n"
-                                    "* Options show their default value\n"
-                                    "* Required but not yet configured options show <REQUIRED> as value\n"
-                                    "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                    CLI::CallForCommandline::Mode::COMPLETE);
-                            }
-                            if (result == "required") {
-                                throw CLI::CallForCommandline( //
-                                    commandlineTriggerApp,
-                                    "Below is a command line viewing required options only:\n"
-                                    "* Options show either their configured or default value\n"
-                                    "* Required but not yet configured options show <REQUIRED> as value\n"
-                                    "* Options marked as <REQUIRED> need to be configured for a successful bootstrap",
-                                    CLI::CallForCommandline::Mode::REQUIRED);
-                            }
-                        }
+                        std::cout << doWriteConfig(app.get()) << std::endl;
                     } else {
+                        success = true;
+                    }
+                } catch (const CLI::CallForHelp&) {
+                    throw;
+                } catch (const CLI::ParseError&) {
+                    if (helpTriggerApp != nullptr) {
                         throw CLI::CallForHelp();
                     }
-
-                    throw;
+                    if (showConfigTriggerApp != nullptr) {
+                        std::cout << getConfig(showConfigTriggerApp) << std::endl;
+                    } else if (commandlineTriggerApp != nullptr) {
+                        std::cout << getCommandLine(commandlineTriggerApp) << std::endl;
+                    } else {
+                        throw;
+                    }
                 }
             } catch (const DaemonError& e) {
                 std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
@@ -741,49 +760,9 @@ namespace utils {
             } catch (const DaemonSignaled& e) {
                 std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
             } catch (const CLI::CallForHelp&) {
-                const std::string helpMode = helpTriggerApp != nullptr ? helpTriggerApp->get_option("--help")->as<std::string>() : "exact";
-                const CLI::App* helpApp = nullptr;
-                CLI::AppFormatMode mode = CLI::AppFormatMode::Normal;
-                if (helpMode == "exact") {
-                    helpApp = utils::Config::helpTriggerApp;
-                } else if (helpMode == "expanded") {
-                    helpApp = utils::Config::helpTriggerApp;
-                    mode = CLI::AppFormatMode::All;
-                }
-                std::cout << app->help(helpApp, "", mode) << std::endl;
+                std::cout << getHelp(app.get(), helpTriggerApp) << std::endl;
             } catch (const CLI::CallForVersion&) {
                 std::cout << app->version() << std::endl << std::endl;
-            } catch (const CLI::CallForCommandline& e) {
-                std::cout << e.what() << std::endl;
-                std::cout << std::endl
-                          << Color::Code::FG_GREEN << "command@line" << Color::Code::FG_DEFAULT << ":" << Color::Code::FG_BLUE << "~/> "
-                          << Color::Code::FG_DEFAULT << createCommandLineTemplate(e.getApp(), e.getMode()) << std::endl
-                          << std::endl;
-            } catch (const CLI::CallForShowConfig& e) {
-                try {
-                    std::cout << e.getApp()->config_to_str(true, true);
-                } catch (const CLI::ParseError& e1) {
-                    std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                              << "] Showing current config: " << e.getApp()->get_name() << " " << e1.get_name() << " " << e1.what()
-                              << std::endl;
-                    throw;
-                }
-            } catch (const CLI::CallForWriteConfig& e) {
-                std::cout << e.what() << std::endl;
-                std::ofstream confFile(e.getConfigFile());
-                if (confFile.is_open()) {
-                    try {
-                        confFile << app->config_to_str(true, true);
-                        confFile.close();
-                    } catch (const CLI::ParseError& e1) {
-                        confFile.close();
-                        std::cout << "Error writing config file: " << e1.get_name() << " " << e1.what() << std::endl;
-                        throw;
-                    }
-                } else {
-                    std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                              << "] Writing config file: " << std::strerror(errno) << std::endl;
-                }
             } catch (const CLI::ConversionError& e) {
                 std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
                 throw;
@@ -835,6 +814,18 @@ namespace utils {
         }
     }
 
+    std::string Config::getApplicationName() {
+        return applicationName;
+    }
+
+    int Config::getLogLevel() {
+        return logLevelOpt->as<int>();
+    }
+
+    int Config::getVerboseLevel() {
+        return verboseLevelOpt->as<int>();
+    }
+
     static std::shared_ptr<CLI::HelpFormatter> makeSectionFormatter() {
         const std::shared_ptr<CLI::HelpFormatter> sectionFormatter = std::make_shared<CLI::HelpFormatter>();
 
@@ -850,6 +841,76 @@ namespace utils {
         sectionFormatter->column_width(7);
 
         return sectionFormatter;
+    }
+
+    CLI::App* Config::addStandardFlags(CLI::App* app) {
+        app //
+            ->add_flag_function(
+                "-s,--show-config",
+                [app](std::size_t) {
+                    if (showConfigTriggerApp == nullptr) {
+                        showConfigTriggerApp = app;
+                    }
+                },
+                "Show current configuration and exit") //
+            ->configurable(false)
+            ->disable_flag_override();
+
+        app //
+            ->add_flag(
+                "--command-line{standard}",
+                [app]([[maybe_unused]] std::int64_t count) {
+                    if (commandlineTriggerApp == nullptr) {
+                        commandlineTriggerApp = app;
+                    }
+                },
+                "Print command-line\n"
+                "* standard (default): Show all non-default and required options\n"
+                "* active: Show all active options\n"
+                "* complete: Show the complete option set with default values\n"
+                "* required: Show only required options")
+            ->configurable(false)
+            ->take_first()
+            ->check(CLI::IsMember({"standard", "active", "complete", "required"}));
+
+        return app;
+    }
+
+    CLI::App* Config::addSimpleHelp(CLI::App* app) {
+        app->set_help_flag(
+               "--help{exact},-h{exact}",
+               [app](std::size_t) {
+                   if (helpTriggerApp == nullptr) {
+                       helpTriggerApp = app;
+                   }
+               },
+               "Print help message and exit\n"
+               "* standard: display help for the last command processed\n"
+               "* exact: display help for the command directly preceding --help")
+            ->group(app->get_formatter()->get_label("Nonpersistent Options"))
+            ->take_first()
+            ->check(CLI::IsMember({"standard", "exact"}));
+
+        return app;
+    }
+
+    CLI::App* Config::addHelp(CLI::App* app) {
+        app->set_help_flag(
+               "-h{exact},--help{exact}",
+               [app](std::size_t) {
+                   if (helpTriggerApp == nullptr) {
+                       helpTriggerApp = app;
+                   }
+               },
+               "Print help message and exit\n"
+               "* standard: display help for the last command processed\n"
+               "* exact: display help for the command directly preceding --help\n"
+               "* expanded: print help including all descendant command options")
+            ->group(app->get_formatter()->get_label("Nonpersistent Options"))
+            ->take_first()
+            ->check(CLI::IsMember({"standard", "exact", "expanded"}));
+
+        return app;
     }
 
     std::shared_ptr<CLI::Formatter> Config::sectionFormatter = makeSectionFormatter();
@@ -886,73 +947,6 @@ namespace utils {
         }
 
         return instanceSc;
-    }
-
-    CLI::App* Config::addStandardFlags(CLI::App* app) {
-        app //
-            ->add_flag_function(
-                "-s,--show-config",
-                [app](std::size_t) {
-                    if (showConfigTriggerApp == nullptr) {
-                        showConfigTriggerApp = app;
-                    }
-                },
-                "Show current configuration and exit") //
-            ->configurable(false)
-            ->disable_flag_override();
-
-        app //
-            ->add_flag(
-                "--command-line{standard}",
-                [app]([[maybe_unused]] std::int64_t count) {
-                    if (commandlineTriggerApp == nullptr) {
-                        commandlineTriggerApp = app;
-                    }
-                },
-                "Print command-line\n"
-                "* standard (default): Show all non-default and required options\n"
-                "* active: Show all active options\n"
-                "* complete: Show the complete option set with default values\n"
-                "* required: Show only required options")
-            ->configurable(false)
-            ->check(CLI::IsMember({"standard", "active", "complete", "required"}));
-
-        return app;
-    }
-
-    CLI::App* Config::addHelp(CLI::App* app) {
-        app->set_help_flag(
-               "-h{exact},--help{exact}",
-               [app](std::size_t) {
-                   if (helpTriggerApp == nullptr) {
-                       helpTriggerApp = app;
-                   }
-               },
-               "Print help message and exit\n"
-               "* standard: display help for the last command processed\n"
-               "* exact: display help for the command directly preceding --help\n"
-               "* expanded: print help including all descendant command options")
-            ->group(app->get_formatter()->get_label("Nonpersistent Options"))
-            ->check(CLI::IsMember({"standard", "exact", "expanded"}));
-
-        return app;
-    }
-
-    CLI::App* Config::addSimpleHelp(CLI::App* app) {
-        app->set_help_flag(
-               "--help{exact},-h{exact}",
-               [app](std::size_t) {
-                   if (helpTriggerApp == nullptr) {
-                       helpTriggerApp = app;
-                   }
-               },
-               "Print help message and exit\n"
-               "* standard: display help for the last command processed\n"
-               "* exact: display help for the command directly preceding --help")
-            ->group(app->get_formatter()->get_label("Nonpersistent Options"))
-            ->check(CLI::IsMember({"standard", "exact"}));
-
-        return app;
     }
 
     void Config::required(CLI::App* instance, bool required) {
@@ -1010,18 +1004,6 @@ namespace utils {
         Config::required(instance, false);
 
         return app->remove_subcommand(instance);
-    }
-
-    std::string Config::getApplicationName() {
-        return applicationName;
-    }
-
-    int Config::getLogLevel() {
-        return logLevelOpt->as<int>();
-    }
-
-    int Config::getVerboseLevel() {
-        return verboseLevelOpt->as<int>();
     }
 
     int Config::argc = 0;
