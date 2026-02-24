@@ -75,6 +75,12 @@ namespace utils {
         static int getLogLevel();
         static int getVerboseLevel();
 
+    private:
+        static bool parse1();
+
+    public:
+        static bool parse2();
+
         //////////////////
 
         static CLI::App* addStandardFlags(CLI::App* app);
@@ -97,12 +103,6 @@ namespace utils {
         static T* getInstance();
 
         //////////////////
-
-    private:
-        static bool parse1();
-
-    public:
-        static bool parse2();
 
     private:
         static int argc;

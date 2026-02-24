@@ -396,6 +396,37 @@ namespace utils {
         return parse2();
     }
 
+    void Config::terminate() {
+        if ((*app)["--daemonize"]->as<bool>()) {
+            std::ifstream pidFile(pidDirectory + "/" + applicationName + ".pid", std::ifstream::in);
+
+            if (pidFile.good()) {
+                pid_t pid = 0;
+                pidFile >> pid;
+
+                if (getpid() == pid) {
+                    Daemon::erasePidFile(pidDirectory + "/" + applicationName + ".pid");
+                }
+            }
+        } else if (fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) >= 0) {
+            char buf[1024];
+            while (read(STDIN_FILENO, buf, 1024) > 0) {
+            }
+        }
+    }
+
+    std::string Config::getApplicationName() {
+        return applicationName;
+    }
+
+    int Config::getLogLevel() {
+        return logLevelOpt->as<int>();
+    }
+
+    int Config::getVerboseLevel() {
+        return verboseLevelOpt->as<int>();
+    }
+
     namespace CallForCommandline {
         enum class Mode { REQUIRED, STANDARD, ACTIVE, COMPLETE };
     }
@@ -795,36 +826,7 @@ namespace utils {
         return success;
     }
 
-    void Config::terminate() {
-        if ((*app)["--daemonize"]->as<bool>()) {
-            std::ifstream pidFile(pidDirectory + "/" + applicationName + ".pid", std::ifstream::in);
-
-            if (pidFile.good()) {
-                pid_t pid = 0;
-                pidFile >> pid;
-
-                if (getpid() == pid) {
-                    Daemon::erasePidFile(pidDirectory + "/" + applicationName + ".pid");
-                }
-            }
-        } else if (fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) >= 0) {
-            char buf[1024];
-            while (read(STDIN_FILENO, buf, 1024) > 0) {
-            }
-        }
-    }
-
-    std::string Config::getApplicationName() {
-        return applicationName;
-    }
-
-    int Config::getLogLevel() {
-        return logLevelOpt->as<int>();
-    }
-
-    int Config::getVerboseLevel() {
-        return verboseLevelOpt->as<int>();
-    }
+    //////////////////
 
     static std::shared_ptr<CLI::HelpFormatter> makeSectionFormatter() {
         const std::shared_ptr<CLI::HelpFormatter> sectionFormatter = std::make_shared<CLI::HelpFormatter>();
@@ -912,6 +914,8 @@ namespace utils {
 
         return app;
     }
+
+    //////////////////
 
     std::shared_ptr<CLI::Formatter> Config::sectionFormatter = makeSectionFormatter();
 
