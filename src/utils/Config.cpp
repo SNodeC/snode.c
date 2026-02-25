@@ -104,7 +104,6 @@ namespace utils {
 
         app->configurable(false);
         app->allow_extras();
-        app->allow_config_extras();
 
         const std::shared_ptr<CLI::HelpFormatter> helpFormatter = std::make_shared<CLI::HelpFormatter>();
 
@@ -723,7 +722,6 @@ namespace utils {
 
                 logger::Logger::setQuiet(quietOpt->as<bool>());
                 app->allow_extras(false);
-                app->allow_config_extras();
             }
         }
 
@@ -755,8 +753,6 @@ namespace utils {
                     throw;
                 } catch (const CLI::ParseError& e) {
                     if (helpTriggerApp != nullptr || showConfigTriggerApp != nullptr || commandlineTriggerApp != nullptr) {
-                        std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl
-                                  << std::endl;
                         if (helpTriggerApp != nullptr) {
                             throw CLI::CallForHelp();
                         }
@@ -918,8 +914,7 @@ namespace utils {
                                    ->formatter(sectionFormatter)
                                    ->configurable(false)
                                    ->config_formatter(app->get_config_formatter())
-                                   ->allow_extras(false)
-                                   ->allow_config_extras()
+                                   ->allow_extras()
                                    ->disabled(appWithPtr->get_name().empty());
 
         instanceSc //
