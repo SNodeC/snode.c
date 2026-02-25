@@ -762,7 +762,14 @@ namespace utils {
 
                     success = true;
                 } catch (const CLI::ParseError& e) {
-                    if (helpTriggerApp != nullptr || showConfigTriggerApp != nullptr || commandlineTriggerApp != nullptr) {
+                    if (helpTriggerApp != nullptr || showConfigTriggerApp != nullptr || commandlineTriggerApp != nullptr ||
+                        versionOpt->count() > 0) {
+                        std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl
+                                  << std::endl;
+
+                        if (versionOpt->count() > 0) {
+                            throw CLI::CallForVersion();
+                        }
                         if (helpTriggerApp != nullptr) {
                             throw CLI::CallForHelp();
                         }
@@ -770,8 +777,6 @@ namespace utils {
                             std::cout << getConfig(showConfigTriggerApp) << std::endl;
                         } else if (commandlineTriggerApp != nullptr) {
                             std::cout << getCommandLine(commandlineTriggerApp) << std::endl;
-                        } else if (versionOpt->count() > 0) {
-                            throw CLI::CallForVersion();
                         }
                     } else {
                         logger::Logger::setQuiet();
