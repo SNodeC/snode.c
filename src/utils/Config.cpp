@@ -356,7 +356,8 @@ namespace utils {
                                ->needs(daemonizeOpt)
                                ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            app->set_version_flag("-v,--version", "1.0-rc1", "Framework version");
+            versionOpt = app->set_version_flag("-v,--version", "1.0-rc1", "Framework version");
+
             addHelp(app.get());
 
             proceed = parse1(); // for stopDaemon and pre init application options
@@ -699,7 +700,7 @@ namespace utils {
     }
 
     bool Config::parse1() {
-        bool proceed = parse2();
+        bool proceed = parse2(true);
 
         if (proceed) {
             if (app->get_option_no_throw("--kill")->count() > 0) {
@@ -714,8 +715,12 @@ namespace utils {
 
                 proceed = false;
             } else {
-                logger::Logger::setLogLevel(logLevelOpt->as<int>());
-                logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+                if (helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && commandlineTriggerApp == nullptr &&
+                    versionOpt->count() == 0) {
+                    logger::Logger::setLogLevel(logLevelOpt->as<int>());
+                    logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+                }
+
                 logger::Logger::setQuiet(quietOpt->as<bool>());
 
                 app->allow_extras(false);
@@ -725,7 +730,7 @@ namespace utils {
         return proceed;
     }
 
-    bool Config::parse2() {
+    bool Config::parse2(bool parse1) {
         bool success = false;
 
         try {
@@ -737,17 +742,25 @@ namespace utils {
 
                     app->parse(argc, argv);
 
-                    if (showConfigTriggerApp != nullptr) {
-                        std::cout << getConfig(showConfigTriggerApp) << std::endl;
-                    } else if (commandlineTriggerApp != nullptr) {
-                        std::cout << getCommandLine(commandlineTriggerApp) << std::endl;
-                    } else if (app->get_option("--write-config")->count() > 0) {
-                        std::cout << doWriteConfig(app.get()) << std::endl;
+                    if (!parse1) {
+                        if (showConfigTriggerApp != nullptr) {
+                            std::cout << getConfig(showConfigTriggerApp) << std::endl;
+                        } else if (commandlineTriggerApp != nullptr) {
+                            std::cout << getCommandLine(commandlineTriggerApp) << std::endl;
+                        } else if (app->get_option("--write-config")->count() > 0) {
+                            std::cout << doWriteConfig(app.get()) << std::endl;
+                        } else {
+                            success = true;
+                        }
                     } else {
                         success = true;
                     }
-                } catch (const CLI::CallForHelp&) {
-                    throw;
+                } catch (const CLI::Success&) {
+                    if (!parse1) {
+                        throw;
+                    }
+
+                    success = true;
                 } catch (const CLI::ParseError& e) {
                     if (helpTriggerApp != nullptr || showConfigTriggerApp != nullptr || commandlineTriggerApp != nullptr) {
                         if (helpTriggerApp != nullptr) {
@@ -757,8 +770,11 @@ namespace utils {
                             std::cout << getConfig(showConfigTriggerApp) << std::endl;
                         } else if (commandlineTriggerApp != nullptr) {
                             std::cout << getCommandLine(commandlineTriggerApp) << std::endl;
+                        } else if (versionOpt->count() > 0) {
+                            throw CLI::CallForVersion();
                         }
                     } else {
+                        logger::Logger::setQuiet();
                         throw;
                     }
                 }
@@ -1010,6 +1026,8 @@ namespace utils {
     CLI::Option* Config::logLevelOpt = nullptr;
     CLI::Option* Config::verboseLevelOpt = nullptr;
     CLI::Option* Config::quietOpt = nullptr;
+
+    CLI::Option* Config::versionOpt = nullptr;
 
     CLI::App* Config::helpTriggerApp = nullptr;
     CLI::App* Config::showConfigTriggerApp = nullptr;

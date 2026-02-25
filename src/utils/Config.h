@@ -79,7 +79,7 @@ namespace utils {
         static bool parse1();
 
     public:
-        static bool parse2();
+        static bool parse2(bool parse1 = false);
 
         //////////////////
 
@@ -125,6 +125,8 @@ namespace utils {
         static CLI::Option* logLevelOpt;
         static CLI::Option* verboseLevelOpt;
         static CLI::Option* quietOpt;
+
+        static CLI::Option* versionOpt;
 
     public:
         static CLI::App* helpTriggerApp;
