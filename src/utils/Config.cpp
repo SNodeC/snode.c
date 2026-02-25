@@ -700,9 +700,9 @@ namespace utils {
     }
 
     bool Config::parse1() {
-        bool proceed = true;
+        bool proceed = parse2();
 
-        if (parse2()) {
+        if (proceed) {
             if (app->get_option_no_throw("--kill")->count() > 0) {
                 try {
                     const pid_t daemonPid = utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
@@ -725,8 +725,6 @@ namespace utils {
                 app->allow_extras(false);
                 app->allow_config_extras();
             }
-        } else {
-            proceed = false;
         }
 
         return proceed;
