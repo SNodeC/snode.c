@@ -146,3 +146,7 @@ namespace logger {
 std::ostream& Color::operator<<(std::ostream& os, Code code) {
     return os << "\033[" << static_cast<int>(code) << "m";
 }
+
+std::string Color::operator+(const std::string& string, Code code) {
+    return string + "\033[" + std::to_string(static_cast<int>(code)) + "m";
+}

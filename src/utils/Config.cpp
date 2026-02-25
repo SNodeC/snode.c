@@ -471,7 +471,7 @@ namespace utils {
                                     }
                                     value.pop_back();
                                 } catch (CLI::ParseError& e) {
-                                    value = "<" + e.get_name() + ": " + e.what() + ">";
+                                    value = "<[" + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " + e.what() + ">";
                                 }
                             } else if (option->get_required()) {
                                 value = "<REQUIRED>";
@@ -486,7 +486,7 @@ namespace utils {
                                         }
                                         value.pop_back();
                                     } catch (CLI::ParseError& e) {
-                                        value = "<" + e.get_name() + ": " + e.what() + ">";
+                                        value = "<[" + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " + e.what() + ">";
                                     }
                                 } else {
                                     value = "<REQUIRED>";
@@ -502,7 +502,7 @@ namespace utils {
                                     }
                                     value.pop_back();
                                 } catch (CLI::ParseError& e) {
-                                    value = "<" + e.get_name() + ": " + e.what() + ">";
+                                    value = "<[" + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " + e.what() + ">";
                                 }
                             } else if (!option->get_default_str().empty()) {
                                 value = option->get_default_str();
@@ -519,7 +519,7 @@ namespace utils {
                             value = value.substr(1, value.size() - 2);
                         }
 
-                        if (value != "<REQUIRED>" && value != "\"\"") {
+                        if (value != "<REQUIRED>" && value != "\"\"" && !value.starts_with("<[")) {
                             value = bash_backslash_escape_no_whitespace(value);
                         }
                         out << "--" << option->get_single_name() << ((option->get_items_expected_max() == 0) ? "=" : " ") << value << " ";
@@ -702,9 +702,7 @@ namespace utils {
     bool Config::parse1() {
         bool proceed = true;
 
-        try {
-            app->parse(argc, argv);
-
+        if (parse2()) {
             if (app->get_option_no_throw("--kill")->count() > 0) {
                 try {
                     const pid_t daemonPid = utils::Daemon::stopDaemon(pidDirectory + "/" + applicationName + ".pid");
@@ -724,24 +722,11 @@ namespace utils {
                 }
 
                 logger::Logger::setQuiet(quietOpt->as<bool>());
+                app->allow_extras(false);
+                app->allow_config_extras();
             }
-        } catch (const CLI::Success&) {
-        } catch (const CLI::ParseError& e) {
-            if (helpTriggerApp == nullptr || helpTriggerApp == app.get() || commandlineTriggerApp == nullptr ||
-                commandlineTriggerApp == app.get() || showConfigTriggerApp == nullptr || showConfigTriggerApp == app.get()) {
-                if (app->get_help_ptr()->count() > 0) {
-                    std::cout << getHelp(app.get(), nullptr) << std::endl;
-                } else if (app->get_option_no_throw("--show-config")->count() > 0) {
-                    std::cout << getConfig(app.get());
-                } else if (app->get_option_no_throw("--command-line")->count() > 0) {
-                    std::cout << getCommandLine(app.get()) << std::endl;
-                } else {
-                    std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
-                    std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
-                }
-
-                proceed = false;
-            }
+        } else {
+            proceed = false;
         }
 
         return proceed;
@@ -770,14 +755,18 @@ namespace utils {
                     }
                 } catch (const CLI::CallForHelp&) {
                     throw;
-                } catch (const CLI::ParseError&) {
-                    if (helpTriggerApp != nullptr) {
-                        throw CLI::CallForHelp();
-                    }
-                    if (showConfigTriggerApp != nullptr) {
-                        std::cout << getConfig(showConfigTriggerApp) << std::endl;
-                    } else if (commandlineTriggerApp != nullptr) {
-                        std::cout << getCommandLine(commandlineTriggerApp) << std::endl;
+                } catch (const CLI::ParseError& e) {
+                    if (helpTriggerApp != nullptr || showConfigTriggerApp != nullptr || commandlineTriggerApp != nullptr) {
+                        std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl
+                                  << std::endl;
+                        if (helpTriggerApp != nullptr) {
+                            throw CLI::CallForHelp();
+                        }
+                        if (showConfigTriggerApp != nullptr) {
+                            std::cout << getConfig(showConfigTriggerApp) << std::endl;
+                        } else if (commandlineTriggerApp != nullptr) {
+                            std::cout << getCommandLine(commandlineTriggerApp) << std::endl;
+                        }
                     } else {
                         throw;
                     }
@@ -856,7 +845,8 @@ namespace utils {
                 },
                 "Show current configuration and exit") //
             ->configurable(false)
-            ->disable_flag_override();
+            ->disable_flag_override()
+            ->trigger_on_parse();
 
         app //
             ->add_flag(
@@ -873,7 +863,8 @@ namespace utils {
                 "* required: Show only required options")
             ->configurable(false)
             ->take_first()
-            ->check(CLI::IsMember({"standard", "active", "complete", "required"}));
+            ->check(CLI::IsMember({"standard", "active", "complete", "required"}))
+            ->trigger_on_parse();
 
         return app;
     }
@@ -891,7 +882,8 @@ namespace utils {
                "* exact: display help for the command directly preceding --help")
             ->group(app->get_formatter()->get_label("Nonpersistent Options"))
             ->take_first()
-            ->check(CLI::IsMember({"standard", "exact"}));
+            ->check(CLI::IsMember({"standard", "exact"}))
+            ->trigger_on_parse();
 
         return app;
     }
@@ -910,7 +902,8 @@ namespace utils {
                "* expanded: print help including all descendant command options")
             ->group(app->get_formatter()->get_label("Nonpersistent Options"))
             ->take_first()
-            ->check(CLI::IsMember({"standard", "exact", "expanded"}));
+            ->check(CLI::IsMember({"standard", "exact", "expanded"}))
+            ->trigger_on_parse();
 
         return app;
     }

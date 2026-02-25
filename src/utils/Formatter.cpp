@@ -43,6 +43,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <algorithm>
 #include <functional>
 #include <iomanip>
@@ -94,7 +96,7 @@ namespace CLI {
                     try {
                         value = detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
                     } catch (CLI::ParseError& e) {
-                        value = "<" + e.get_name() + ": " + e.what() + ">";
+                        value = "<[" + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " + e.what() + ">";
                     }
 
                     std::string defaultValue{};
@@ -360,10 +362,10 @@ namespace CLI {
 
     CLI11_INLINE std::string HelpFormatter::make_subcommand(const App* sub) const {
         std::stringstream out;
-        std::string name = "  " + sub->get_display_name(true) + (sub->get_required() ? " " + get_label("REQUIRED") : "");
+        const std::string name = "  " + sub->get_display_name(true) + (sub->get_required() ? " " + get_label("REQUIRED") : "");
 
         out << std::setw(static_cast<int>(column_width_)) << std::left << name;
-        std::string desc = sub->get_description();
+        const std::string desc = sub->get_description();
         if (!desc.empty()) {
             bool skipFirstLinePrefix = true;
             if (out.str().length() >= column_width_) {
@@ -429,7 +431,7 @@ namespace CLI {
                         out << completeResult << "}";
                     }
                 } catch (CLI::ParseError& e) {
-                    out << " <" << e.get_name() << ": " << e.what() << ">";
+                    out << " <[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << ">";
                 }
                 if (opt->get_expected_max() == detail::expected_max_vector_size) {
                     out << " ... ";

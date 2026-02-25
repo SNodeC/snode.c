@@ -91,6 +91,8 @@ namespace Color {
 
     std::ostream& operator<<(std::ostream& os, Code code);
 
+    std::string operator+(const std::string& string, Code code);
+
 } // namespace Color
 
 namespace logger {
