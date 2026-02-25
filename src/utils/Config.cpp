@@ -714,13 +714,10 @@ namespace utils {
 
                 proceed = false;
             } else {
-                if (!quietOpt->as<bool>() && app->get_option_no_throw("--show-config")->count() == 0 &&
-                    app->get_option_no_throw("--command-line")->count() == 0) {
-                    logger::Logger::setLogLevel(logLevelOpt->as<int>());
-                    logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
-                }
-
+                logger::Logger::setLogLevel(logLevelOpt->as<int>());
+                logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
                 logger::Logger::setQuiet(quietOpt->as<bool>());
+
                 app->allow_extras(false);
             }
         }
