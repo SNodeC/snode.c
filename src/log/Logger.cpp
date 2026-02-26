@@ -79,6 +79,20 @@ namespace logger {
         el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier(format, resolver));
     }
 
+    void Logger::setDisableColor(bool disableColorLog) {
+        if (disableColorLog) {
+            el::Loggers::removeFlag(el::LoggingFlag::ColoredTerminalOutput);
+        } else {
+            el::Loggers::addFlag(el::LoggingFlag::ColoredTerminalOutput);
+        }
+
+        Logger::disableColorLog = disableColorLog;
+    }
+
+    bool Logger::getDisableColor() {
+        return disableColorLog;
+    }
+
     // Application logging should be done with VLOG(loglevel)
     // Framework logging should use one of the following levels
     void Logger::setLogLevel(int level) {
@@ -141,12 +155,14 @@ namespace logger {
         el::Loggers::setDefaultConfigurations(conf, true);
     }
 
+    bool Logger::disableColorLog = false;
+
 } // namespace logger
 
 std::ostream& Color::operator<<(std::ostream& os, Code code) {
-    return os << "\033[" << static_cast<int>(code) << "m";
+    return os << (!logger::Logger::disableColorLog ? ("\033[" + std::to_string(static_cast<int>(code)) + "m") : "");
 }
 
 std::string Color::operator+(const std::string& string, Code code) {
-    return string + "\033[" + std::to_string(static_cast<int>(code)) + "m";
+    return string + (!logger::Logger::disableColorLog ? ("\033[" + std::to_string(static_cast<int>(code)) + "m") : "");
 }

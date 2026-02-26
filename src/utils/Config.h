@@ -119,6 +119,7 @@ namespace utils {
 
         static CLI::Option* daemonizeOpt;
         static CLI::Option* logFileOpt;
+        static CLI::Option* monochromLogOpt;
         static CLI::Option* userNameOpt;
         static CLI::Option* groupNameOpt;
         static CLI::Option* enforceLogFileOpt;

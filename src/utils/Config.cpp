@@ -61,6 +61,7 @@
 #include <memory>
 #include <pwd.h>
 #include <sstream>
+#include <stdio.h>
 #include <string_view>
 #include <sys/types.h>
 #include <unistd.h>
@@ -127,6 +128,8 @@ namespace utils {
         app->option_defaults()->group(app->get_formatter()->get_label("Nonpersistent Options"));
 
         logger::Logger::init();
+
+        logger::Logger::setDisableColor(!::isatty(::fileno(stdout)));
 
         return app;
     }
@@ -315,6 +318,22 @@ namespace utils {
                              ->type_name("logfile")
                              ->check(!CLI::ExistingDirectory)
                              ->group(app->get_formatter()->get_label("Persistent Options"));
+
+            monochromLogOpt = app->add_flag(
+                                     "-m{true},--monochrom-log{true}",
+                                     []([[maybe_unused]] std::size_t count) {
+                                         if (monochromLogOpt->as<bool>()) {
+                                             logger::Logger::setDisableColor(true);
+                                         } else {
+                                             logger::Logger::setDisableColor(false);
+                                         }
+                                     },
+                                     "Monochrom log output")
+                                  ->default_str(logger::Logger::getDisableColor() ? "true" : "false")
+                                  ->type_name("bool")
+                                  ->check(CLI::IsMember({"true", "false"}))
+                                  ->group(app->get_formatter()->get_label("Persistent Options"))
+                                  ->trigger_on_parse();
 
             quietOpt = app->add_flag( //
                               "-q{true},--quiet{true}",
@@ -1025,6 +1044,7 @@ namespace utils {
 
     CLI::Option* Config::daemonizeOpt = nullptr;
     CLI::Option* Config::logFileOpt = nullptr;
+    CLI::Option* Config::monochromLogOpt = nullptr;
     CLI::Option* Config::userNameOpt = nullptr;
     CLI::Option* Config::groupNameOpt = nullptr;
     CLI::Option* Config::enforceLogFileOpt = nullptr;

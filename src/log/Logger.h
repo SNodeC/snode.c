@@ -115,8 +115,16 @@ namespace logger {
 
         static void setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver);
 
+        static void setDisableColor(bool disableColorLog = true);
+
+        static bool getDisableColor();
+
     protected:
-        //        static el::Configurations conf;
+        static bool disableColorLog;
+
+        friend std::ostream& Color::operator<<(std::ostream& os, Color::Code code);
+
+        friend std::string Color::operator+(const std::string& string, Color::Code code);
     };
 
 } // namespace logger
