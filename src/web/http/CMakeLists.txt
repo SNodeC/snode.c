@@ -59,11 +59,11 @@ set(HTTP_CPP
     MimeTypes.cpp
     Parser.cpp
     StatusCodes.cpp
-    http_utils.cpp
     decoder/Chunked.cpp
     decoder/Fields.cpp
     decoder/HTTP10Response.cpp
     decoder/Identity.cpp
+    http_utils.cpp
 )
 
 set(HTTP_H
@@ -107,6 +107,7 @@ set(HTTP_H
     tls/un/Client.h
     tls/un/EventSource.h
     tls/un/Server.h
+    http_utils.h
 )
 
 add_library(http SHARED ${HTTP_CPP} ${HTTP_H})
