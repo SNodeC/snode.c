@@ -44,7 +44,7 @@
 
 // IWYU pragma: always_keep
 
-#include "core/socket/stream/legacy/SocketAcceptor.h"
+#include "core/socket/stream/legacy/SocketAcceptor.h"        // IWYU pragma: export
 #include "core/socket/stream/legacy/SocketConnection.h"      // IWYU pragma: export
 #include "net/in6/stream/SocketServer.h"                     // IWYU pragma: export
 #include "net/in6/stream/legacy/config/ConfigSocketServer.h" // IWYU pragma: export

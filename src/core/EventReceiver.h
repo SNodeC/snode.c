@@ -42,7 +42,7 @@
 #ifndef CORE_EVENTRECEIVER_H
 #define CORE_EVENTRECEIVER_H
 
-#include "core/Event.h"
+#include "core/Event.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

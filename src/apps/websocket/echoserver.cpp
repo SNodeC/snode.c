@@ -39,7 +39,6 @@
  * THE SOFTWARE.
  */
 
-#include "core/eventreceiver/AcceptEventReceiver.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/VerboseRequest.h"
 #include "express/tls/in/WebApp.h"

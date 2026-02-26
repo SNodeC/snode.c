@@ -42,7 +42,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETACCEPTOR_H
 #define CORE_SOCKET_STREAM_SOCKETACCEPTOR_H
 
-#include "core/eventreceiver/AcceptEventReceiver.h"
+#include "core/eventreceiver/AcceptEventReceiver.h" // IWYU pragma: export
 #include "core/socket/State.h"
 
 namespace core::socket::stream {

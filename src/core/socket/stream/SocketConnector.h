@@ -42,7 +42,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 
-#include "core/eventreceiver/ConnectEventReceiver.h"
+#include "core/eventreceiver/ConnectEventReceiver.h" // IWYU pragma: export
 #include "core/socket/State.h"
 
 namespace core::socket::stream {

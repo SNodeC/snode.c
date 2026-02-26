@@ -42,12 +42,11 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCLIENT_H
 #define CORE_SOCKET_STREAM_SOCKETCLIENT_H
 
+#include "core/EventReceiver.h"
 #include "core/SNodeC.h"
-#include "core/eventreceiver/ConnectEventReceiver.h"
-#include "core/socket/Socket.h" // IWYU pragma: export
-#include "core/socket/State.h"  // IWYU pragma: export
-#include "core/socket/stream/AutoConnectControl.h"
-#include "core/socket/stream/SocketContextFactory.h"
+#include "core/socket/Socket.h"                    // IWYU pragma: export
+#include "core/socket/State.h"                     // IWYU pragma: export
+#include "core/socket/stream/AutoConnectControl.h" // IWYU pragma: export
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
