@@ -80,7 +80,7 @@ set_source_files_properties(
 
 target_compile_definitions(
     logger PRIVATE ELPP_NO_DEFAULT_LOG_FILE ELPP_NO_LOG_TO_FILE
-                   ELPP_CUSTOM_COUT=std::cerr
+                   ELPP_CUSTOM_COUT=std::cout
 )
 
 target_include_directories(
