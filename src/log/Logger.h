@@ -89,9 +89,10 @@ namespace Color {
         BG_DEFAULT = 49
     };
 
-    std::ostream& operator<<(std::ostream& os, Code code);
+    std::ostream& operator<<(std::ostream& os, const Code& code);
 
-    std::string operator+(const std::string& string, Code code);
+    std::string operator+(const std::string& string, const Code& code);
+    std::string operator+(const Code& code, const std::string& string);
 
 } // namespace Color
 
@@ -122,9 +123,10 @@ namespace logger {
     protected:
         static bool disableColorLog;
 
-        friend std::ostream& Color::operator<<(std::ostream& os, Color::Code code);
+        friend std::ostream& Color::operator<<(std::ostream& os, const Color::Code& code);
 
-        friend std::string Color::operator+(const std::string& string, Color::Code code);
+        friend std::string Color::operator+(const std::string& string, const Color::Code& code);
+        friend std::string Color::operator+(const Color::Code& code, const std::string& string);
     };
 
 } // namespace logger

@@ -71,6 +71,8 @@ namespace logger {
 
         el::Loggers::setDefaultConfigurations(conf, true);
 
+        setDisableColor(::isatty(::fileno(stdout)) == 0);
+
         setVerboseLevel(0);
         setLogLevel(0);
     }
@@ -159,10 +161,14 @@ namespace logger {
 
 } // namespace logger
 
-std::ostream& Color::operator<<(std::ostream& os, Code code) {
+std::ostream& Color::operator<<(std::ostream& os, const Code& code) {
     return os << (!logger::Logger::disableColorLog ? ("\033[" + std::to_string(static_cast<int>(code)) + "m") : "");
 }
 
-std::string Color::operator+(const std::string& string, Code code) {
+std::string Color::operator+(const std::string& string, const Code& code) {
     return string + (!logger::Logger::disableColorLog ? ("\033[" + std::to_string(static_cast<int>(code)) + "m") : "");
+}
+
+std::string Color::operator+(const Code& code, const std::string& string) {
+    return (!logger::Logger::disableColorLog ? ("\033[" + std::to_string(static_cast<int>(code)) + "m") : "") + string;
 }

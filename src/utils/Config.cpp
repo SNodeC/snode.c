@@ -61,7 +61,6 @@
 #include <memory>
 #include <pwd.h>
 #include <sstream>
-#include <stdio.h>
 #include <string_view>
 #include <sys/types.h>
 #include <unistd.h>
@@ -128,8 +127,6 @@ namespace utils {
         app->option_defaults()->group(app->get_formatter()->get_label("Nonpersistent Options"));
 
         logger::Logger::init();
-
-        logger::Logger::setDisableColor(!::isatty(::fileno(stdout)));
 
         return app;
     }
