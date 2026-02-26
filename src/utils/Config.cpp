@@ -678,16 +678,18 @@ namespace utils {
             try {
                 confFile << app->config_to_str(true, true);
                 confFile.close();
-                out << Color::Code::FG_GREEN << "Error" << Color::Code::FG_DEFAULT
-                    << "Writing config file: " + app->get_option_no_throw("--write-config")->as<std::string>();
+                out << "[" << Color::Code::FG_GREEN << "SUCCESS" << Color::Code::FG_DEFAULT
+                    << "] Writing config file: " + app->get_option_no_throw("--write-config")->as<std::string>() << std::endl
+                    << std::endl;
             } catch (const CLI::ParseError& e) {
                 confFile.close();
-                out << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Writing config file: " << e.get_name() << " "
-                    << e.what();
+                out << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Writing config file: " << e.get_name() << " "
+                    << e.what() << std::endl;
             }
             confFile.close();
         } else {
-            out << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Writing config file: " << std::strerror(errno);
+            out << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Writing config file: " << std::strerror(errno)
+                << std::endl;
         }
 
         return out.str();
@@ -709,7 +711,7 @@ namespace utils {
         try {
             out << app->help(helpApp, "", mode);
         } catch (CLI::ParseError& e) {
-            out << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Show help: " << e.get_name() << " " << e.what();
+            out << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Show help: " << e.get_name() << " " << e.what();
         }
 
         return out.str();
@@ -747,7 +749,7 @@ namespace utils {
     }
 
     bool Config::parse2(bool parse1) {
-        bool success = false;
+        bool proceed = false;
 
         try {
             try {
@@ -760,23 +762,23 @@ namespace utils {
 
                     if (!parse1) {
                         if (showConfigTriggerApp != nullptr) {
-                            std::cout << getConfig(showConfigTriggerApp) << std::endl;
+                            std::cout << getConfig(showConfigTriggerApp);
                         } else if (commandlineTriggerApp != nullptr) {
-                            std::cout << getCommandLine(commandlineTriggerApp) << std::endl;
+                            std::cout << getCommandLine(commandlineTriggerApp);
                         } else if (app->get_option("--write-config")->count() > 0) {
-                            std::cout << doWriteConfig(app.get()) << std::endl;
+                            std::cout << doWriteConfig(app.get());
                         } else {
-                            success = true;
+                            proceed = true;
                         }
                     } else {
-                        success = true;
+                        proceed = true;
                     }
                 } catch (const CLI::Success&) {
                     if (!parse1) {
                         throw;
                     }
 
-                    success = true;
+                    proceed = true;
                 } catch (const CLI::ParseError& e) {
                     if (helpTriggerApp != nullptr || showConfigTriggerApp != nullptr || commandlineTriggerApp != nullptr ||
                         versionOpt->count() > 0) {
@@ -790,9 +792,9 @@ namespace utils {
                             throw CLI::CallForHelp();
                         }
                         if (showConfigTriggerApp != nullptr) {
-                            std::cout << getConfig(showConfigTriggerApp) << std::endl;
+                            std::cout << getConfig(showConfigTriggerApp);
                         } else if (commandlineTriggerApp != nullptr) {
-                            std::cout << getCommandLine(commandlineTriggerApp) << std::endl;
+                            std::cout << getCommandLine(commandlineTriggerApp);
                         }
                     } else {
                         logger::Logger::setQuiet();
@@ -808,7 +810,7 @@ namespace utils {
             } catch (const DaemonSignaled& e) {
                 std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
             } catch (const CLI::CallForHelp&) {
-                std::cout << getHelp(app.get(), helpTriggerApp) << std::endl;
+                std::cout << getHelp(app.get(), helpTriggerApp);
             } catch (const CLI::CallForVersion&) {
                 std::cout << app->version() << std::endl << std::endl;
             } catch (const CLI::ConversionError& e) {
@@ -840,7 +842,7 @@ namespace utils {
             std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
         }
 
-        return success;
+        return proceed;
     }
 
     //////////////////

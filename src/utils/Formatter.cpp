@@ -284,6 +284,14 @@ namespace CLI {
         return out.str();
     }
 
+    CLI11_INLINE std::string HelpFormatter::make_footer(const App* app) const {
+        std::string footer = app->get_footer();
+        if (footer.empty()) {
+            return std::string{"\n"};
+        }
+        return '\n' + footer + "\n\n";
+    }
+
     CLI11_INLINE std::string HelpFormatter::make_subcommands(const App* app, AppFormatMode mode) const {
         std::stringstream out;
 

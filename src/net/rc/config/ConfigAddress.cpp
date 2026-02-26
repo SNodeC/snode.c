@@ -96,7 +96,7 @@ namespace net::rc::config {
             "Channel number",
             "channel",
             "1",
-            CLI::Range(1, 30));
+            CLI::Range(static_cast<uint16_t>(1), static_cast<uint16_t>(30)));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
