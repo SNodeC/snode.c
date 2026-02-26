@@ -118,24 +118,28 @@ namespace net::in6::config {
             "hostname|IPv6",
             "::",
             CLI::TypeValidator<std::string>());
+
         portOpt = addOption( //
             "--port",
             "Port number",
             "port",
             0,
             CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
+
         numericOpt = addFlag( //
             "--numeric",
             "Suppress host name lookup",
             "bool",
             XSTR(IN6_NUMERIC),
             CLI::IsMember({"true", "false"}));
+
         numericReverseOpt = addFlag( //
             "--numeric-reverse",
             "Suppress reverse host name lookup",
             "bool",
             XSTR(IN6_NUMERIC_REVERSE),
             CLI::IsMember({"true", "false"}));
+
         ipv4MappedOpt = addFlag( //
             "--ipv4-mapped",
             "Resolve IPv4-mapped IPv6 addresses also",

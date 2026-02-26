@@ -123,7 +123,7 @@ namespace net::in6::stream::config {
             "--ipv6-only{true}",
             IPPROTO_IPV6,
             IPV6_V6ONLY,
-            "Turn of IPv6 dual stack mode",
+            "Turn off IPv6 dual stack mode",
             "bool",
             XSTR(IN6_IPV6_ONLY),
             CLI::IsMember({"true", "false", "default"}));

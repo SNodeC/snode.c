@@ -45,32 +45,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
-#include <limits>
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#if __has_warning("-Wmissing-noreturn")
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif
-#if __has_warning("-Wnrvo")
-#pragma GCC diagnostic ignored "-Wnrvo"
-#endif
-#endif
-#endif
-#include "utils/CLI11.hpp"
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::stream::config {
@@ -79,12 +53,6 @@ namespace net::l2::stream::config {
         : net::config::stream::ConfigSocketClient<net::l2::config::ConfigAddress>(instance) {
         net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::setBtAddressRequired();
         net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::setPsmRequired();
-
-        net::l2::config::ConfigAddress<net::config::ConfigAddressRemote>::psmOpt //
-            ->check(CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
-        net::l2::config::ConfigAddress<net::config::ConfigAddressLocal>::psmOpt //
-            ->default_val(0)
-            ->check(CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
     }
 
     ConfigSocketClient::~ConfigSocketClient() {

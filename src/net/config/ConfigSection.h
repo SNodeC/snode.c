@@ -48,9 +48,11 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <concepts> // IWYU pragma: export
 #include <cstdint>
 #include <functional>
-#include <string> // IWYU pragma: export
+#include <string>      // IWYU pragma: export
+#include <type_traits> // IWYU pragma: export
 
 namespace CLI {
     class App;
@@ -75,19 +77,24 @@ namespace net::config {
         ConfigSection& operator=(const ConfigSection&) = delete;
         ConfigSection& operator=(ConfigSection&&) = delete;
 
+    private:
         CLI::Option* addOption(const std::string& name, const std::string& description);
 
         CLI::Option* addOption(const std::string& name, const std::string& description, const std::string& typeName);
 
+    public:
         CLI::Option* addOption(const std::string& name,
                                const std::string& description,
                                const std::string& typeName,
                                const CLI::Validator& additionalValidator);
 
+    private:
         template <typename ValueTypeT>
+            requires(!std::derived_from<std::remove_cvref_t<ValueTypeT>, CLI::Validator>)
         CLI::Option*
         addOption(const std::string& name, const std::string& description, const std::string& typeName, ValueTypeT defaultValue);
 
+    public:
         template <typename ValueTypeT>
         CLI::Option* addOption(const std::string& name,
                                const std::string& description,
@@ -95,6 +102,7 @@ namespace net::config {
                                ValueTypeT defaultValue,
                                const CLI::Validator& additionalValidator);
 
+    private:
         template <typename ValueTypeT>
         CLI::Option* addOptionFunction(const std::string& name,
                                        const std::function<void(const std::string&)>& optionFunction,
@@ -104,14 +112,17 @@ namespace net::config {
 
         CLI::Option* addFlag(const std::string& name, const std::string& description, const std::string& typeName);
 
+    public:
         CLI::Option* addFlag(const std::string& name,
                              const std::string& description,
                              const std::string& typeName,
                              const CLI::Validator& additionalValidator);
 
+    private:
         template <typename ValueTypeT>
         CLI::Option* addFlag(const std::string& name, const std::string& description, const std::string& typeName, ValueTypeT defaultValue);
 
+    public:
         template <typename ValueTypeT>
         CLI::Option* addFlag(const std::string& name,
                              const std::string& description,
@@ -119,12 +130,14 @@ namespace net::config {
                              ValueTypeT defaultValue,
                              const CLI::Validator& additionalValidator);
 
+    private:
         CLI::Option* addFlagFunction(const std::string& name,
                                      const std::function<void()>& callback,
                                      const std::string& description,
                                      const std::string& typeName,
                                      const std::string& defaultValue);
 
+    public:
         CLI::Option* addFlagFunction(const std::string& name,
                                      const std::function<void()>& callback,
                                      const std::string& description,

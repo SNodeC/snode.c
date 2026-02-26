@@ -45,29 +45,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#if __has_warning("-Wmissing-noreturn")
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif
-#if __has_warning("-Wnrvo")
-#pragma GCC diagnostic ignored "-Wnrvo"
-#endif
-#endif
-#endif
-#include "utils/CLI11.hpp"
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rc::stream::config {
@@ -76,12 +53,6 @@ namespace net::rc::stream::config {
         : net::config::stream::ConfigSocketClient<net::rc::config::ConfigAddress>(instance) {
         net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::setBtAddressRequired();
         net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::setChannelRequired();
-
-        net::rc::config::ConfigAddress<net::config::ConfigAddressRemote>::channelOpt //
-            ->check(CLI::Range(1, 30));
-        net::rc::config::ConfigAddress<net::config::ConfigAddressLocal>::channelOpt //
-            ->default_val(0)
-            ->check(CLI::Range(0, 30));
     }
 
     ConfigSocketClient::~ConfigSocketClient() {

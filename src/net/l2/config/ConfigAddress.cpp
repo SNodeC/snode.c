@@ -51,6 +51,9 @@
 
 #include "utils/PreserveErrno.h"
 
+#include <limits>
+#include <regex>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::config {
@@ -71,14 +74,30 @@ namespace net::l2::config {
         , ConfigAddressType<net::l2::SocketAddress>(this) {
         btAddressOpt = addOption( //
             "--host",
-            "Bluetooth address",
-            "xx:xx:xx:xx:xx:xx",
+            "Bluetooth address (format 01:23:45:67:89:AB)",
+            "address",
             "00:00:00:00:00:00",
-            CLI::TypeValidator<std::string>());
+            CLI::Validator(
+                [](std::string& s) -> std::string {
+                    // Classic 48-bit Bluetooth/MAC style: "01:23:45:67:89:AB"
+                    static const std::regex re(R"(^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$)");
+
+                    if (std::regex_match(s, re)) {
+                        return {}; // OK
+                    }
+
+                    return "Invalid Bluetooth address. Expected format like \"01:23:45:67:89:AB\" "
+                           "(6 hex octets separated by ':').";
+                },
+                "BT_ADDR")
+                .name("BT_ADDR"));
+
         psmOpt = addOption( //
             "--psm",
             "Protocol service multiplexer",
-            "psm");
+            "psm",
+            "0",
+            CLI::Range(std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max()));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

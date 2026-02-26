@@ -51,6 +51,8 @@
 
 #include "utils/PreserveErrno.h"
 
+#include <regex>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rc::config {
@@ -71,14 +73,30 @@ namespace net::rc::config {
         , ConfigAddressType<net::rc::SocketAddress>(this) {
         btAddressOpt = addOption( //
             "--host",
-            "Bluetooth address",
-            "xx:xx:xx:xx:xx:xx",
+            "Bluetooth address (format 01:23:45:67:89:AB)",
+            "address",
             "00:00:00:00:00:00",
-            CLI::TypeValidator<std::string>());
+            CLI::Validator(
+                [](std::string& s) -> std::string {
+                    // Classic 48-bit Bluetooth/MAC style: "01:23:45:67:89:AB"
+                    static const std::regex re(R"(^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$)");
+
+                    if (std::regex_match(s, re)) {
+                        return {}; // OK
+                    }
+
+                    return "Invalid Bluetooth address. Expected format like \"01:23:45:67:89:AB\" "
+                           "(6 hex octets separated by ':').";
+                },
+                "BT_ADDR")
+                .name("BT_ADDR"));
+
         channelOpt = addOption( //
             "--channel",
             "Channel number",
-            "channel");
+            "channel",
+            "1",
+            CLI::Range(1, 30));
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

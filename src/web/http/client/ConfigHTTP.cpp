@@ -57,7 +57,9 @@ namespace web::http::client {
         hostHeaderOpt = addOption( //
             "--host",
             "HTTP request 'Host' header field",
-            "string");
+            "hostname|IP",
+            "",
+            CLI::TypeValidator<std::string>());
 
         pipelinedRequestsOpt = addFlag( //
             "--pipelined-requests",

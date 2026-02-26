@@ -98,6 +98,9 @@ namespace net::in::stream::config {
             "tristat",
             XSTR(IN_CLIENT_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
+        if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {
+            disableNagleAlgorithmOpt->default_str("false");
+        }
     }
 
     ConfigSocketClient::~ConfigSocketClient() {

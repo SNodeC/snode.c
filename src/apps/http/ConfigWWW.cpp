@@ -52,7 +52,7 @@ namespace section {
 
     ConfigWWW::ConfigWWW(net::config::ConfigInstance* instance)
         : net::config::ConfigSection(instance, this) {
-        htmlRootOpt = addOption("--html-root", "HTML root directory", "path", "");
+        htmlRootOpt = addOption("--html-root", "HTML root directory", "path", "", CLI::ExistingDirectory);
         required(htmlRootOpt);
     }
 
@@ -78,7 +78,8 @@ namespace instance {
                           ->group(configWWWSc->get_formatter()->get_label("Persistent Options"))
                           ->type_name("path")
                           ->configurable()
-                          ->required();
+                          ->required()
+                          ->check(CLI::ExistingDirectory);
 
         configWWWSc->required()->needs(htmlRootOpt);
         configWWWSc->get_parent()->needs(configWWWSc);

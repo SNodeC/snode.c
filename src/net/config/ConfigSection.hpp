@@ -44,7 +44,7 @@
 
 #include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.h" // IWYU pragma: export
-#include "utils/ConfigApp.h" // IWYU pragma: export
+#include "utils/ConfigApp.h"          // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -91,6 +91,7 @@ namespace net::config {
     }
 
     template <typename ValueType>
+        requires(!std::derived_from<std::remove_cvref_t<ValueType>, CLI::Validator>)
     CLI::Option*
     ConfigSection::addOption(const std::string& name, const std::string& description, const std::string& typeName, ValueType defaultValue) {
         return addOption(name, description, typeName) //

@@ -59,14 +59,14 @@ namespace net::config {
             "Listen backlog",
             "backlog",
             BACKLOG,
-            CLI::PositiveNumber);
+            CLI::TypeValidator<int>());
 
         acceptsPerTickOpt = addOption( //
             "--accepts-per-tick",
             "Accepts per tick",
             "number",
             ACCEPTS_PER_TICK,
-            CLI::PositiveNumber);
+            CLI::TypeValidator<int>());
 
         acceptTimeoutOpt = addOption( //
             "--accept-timeout",

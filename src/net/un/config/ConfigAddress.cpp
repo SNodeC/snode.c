@@ -75,8 +75,9 @@ namespace net::un::config {
         sunPathOpt = addOption( //
             "--sun-path",
             "Unix domain bind path",
-            "filename:FILE",
-            std::string('\0' + instance->getInstanceName() + std::to_string(getpid()) + "_" + utils::Uuid::getUuid()));
+            "filename",
+            std::string('\0' + instance->getInstanceName() + std::to_string(getpid()) + "_" + utils::Uuid::getUuid()),
+            !CLI::ExistingDirectory);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
