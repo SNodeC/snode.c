@@ -42,6 +42,8 @@
 #ifndef NET_CONFIG_CONFIGINSTANCE_H
 #define NET_CONFIG_CONFIGINSTANCE_H
 
+#include "utils/SubCommand.h" // IWYU pragma: export
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
@@ -62,7 +64,7 @@ namespace net::config {
 
 namespace net::config {
 
-    class ConfigInstance {
+    class ConfigInstance : public utils::SubCommand {
     public:
         enum class Role { SERVER, CLIENT };
 
@@ -118,7 +120,6 @@ namespace net::config {
 
         Role role;
 
-        CLI::App* instanceSc = nullptr;
         CLI::Option* disableOpt = nullptr;
 
         std::vector<std::shared_ptr<net::config::ConfigSection>> configSections; // Store anything

@@ -58,18 +58,18 @@ namespace net::config {
 
     template <typename T>
     std::shared_ptr<utils::AppWithPtr<T>> Instance(const std::string& name, const std::string& description, T* section) {
-        std::shared_ptr<utils::AppWithPtr<T>> instanceSc = std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+        std::shared_ptr<utils::AppWithPtr<T>> subCommandSc = std::make_shared<utils::AppWithPtr<T>>(description, name, section);
 
-        instanceSc->option_defaults()->take_last();
-        instanceSc->formatter(utils::Config::sectionFormatter);
+        subCommandSc->option_defaults()->take_last();
+        subCommandSc->formatter(utils::Config::sectionFormatter);
 
-        return instanceSc;
+        return subCommandSc;
     }
 
     template <typename SectionType>
     SectionType* ConfigInstance::getSection() const {
         utils::AppWithPtr<SectionType>* sectionApp =
-            dynamic_cast<utils::AppWithPtr<SectionType>*>(instanceSc->get_subcommand_no_throw(std::string(SectionType::name)));
+            dynamic_cast<utils::AppWithPtr<SectionType>*>(subCommandSc->get_subcommand_no_throw(std::string(SectionType::name)));
 
         return sectionApp != nullptr ? sectionApp->getPtr() : nullptr;
     }

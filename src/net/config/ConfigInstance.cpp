@@ -59,22 +59,21 @@ namespace net::config {
     const std::string ConfigInstance::nameAnonymous = "<anonymous>";
 
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
-        : instanceName(instanceName)
+        : utils::SubCommand(utils::Config::newInstance(net::config::Instance(instanceName,
+                                                                             std::string("Configuration for ")
+                                                                                 .append(role == Role::SERVER ? "server" : "client")
+                                                                                 .append(" instance '")
+                                                                                 .append(instanceName)
+                                                                                 .append("'"),
+                                                                             this),
+                                                       "Instances"))
+        , instanceName(instanceName)
         , role(role) {
-        auto configInstanceApp = net::config::Instance(instanceName,
-                                                       std::string("Configuration for ")
-                                                           .append(role == Role::SERVER ? "server" : "client")
-                                                           .append(" instance '")
-                                                           .append(instanceName)
-                                                           .append("'"),
-                                                       this);
-        instanceSc = utils::Config::newInstance(configInstanceApp, "Instances");
-
-        disableOpt = instanceSc
+        disableOpt = subCommandSc
                          ->add_flag_function(
                              "--disabled{true}",
                              [this](std::size_t) {
-                                 utils::Config::disabled(instanceSc, disableOpt->as<bool>());
+                                 utils::Config::disabled(subCommandSc, disableOpt->as<bool>());
                              },
                              "Disable this instance")
                          ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
@@ -82,11 +81,11 @@ namespace net::config {
                          ->default_str("false")
                          ->type_name("bool")
                          ->check(CLI::IsMember({"true", "false"}))
-                         ->group(instanceSc->get_formatter()->get_label("Persistent Options"));
+                         ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
     }
 
     ConfigInstance::~ConfigInstance() {
-        utils::Config::removeInstance(instanceSc);
+        utils::Config::removeInstance(subCommandSc);
     }
 
     ConfigInstance::Role ConfigInstance::getRole() const {
@@ -102,26 +101,26 @@ namespace net::config {
     }
 
     CLI::App* ConfigInstance::newSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group) {
-        CLI::App* subCommandSc = instanceSc->add_subcommand(appWithPtr)
+        CLI::App* sectionSc = subCommandSc->add_subcommand(appWithPtr)
                                   ->fallthrough()
                                   ->configurable(false)
                                   ->allow_extras()
                                   ->group(group)
                                   ->ignore_case(false)
                                   ->disabled(appWithPtr->get_name().empty())
-                                  ->formatter(instanceSc->get_formatter())
-                                  ->config_formatter(instanceSc->get_config_formatter());
+                                  ->formatter(subCommandSc->get_formatter())
+                                  ->config_formatter(subCommandSc->get_config_formatter());
 
-        subCommandSc //
+        sectionSc //
             ->option_defaults()
-            ->configurable(!subCommandSc->get_disabled());
+            ->configurable(!sectionSc->get_disabled());
 
-        if (!subCommandSc->get_disabled()) {
-            utils::Config::addStandardFlags(subCommandSc);
-            utils::Config::addSimpleHelp(subCommandSc);
+        if (!sectionSc->get_disabled()) {
+            utils::Config::addStandardFlags(sectionSc);
+            utils::Config::addSimpleHelp(sectionSc);
         }
 
-        return subCommandSc;
+        return sectionSc;
     }
 
     ConfigSection* ConfigInstance::addSection(std::shared_ptr<ConfigSection>&& configSection) {
@@ -130,7 +129,7 @@ namespace net::config {
 
     ConfigInstance& ConfigInstance::required(bool required) {
         if (!getDisabled()) {
-            utils::Config::required(instanceSc, required);
+            utils::Config::required(subCommandSc, required);
         }
 
         return *this;
@@ -140,11 +139,11 @@ namespace net::config {
         if (req != section->get_required()) {
             if (req) {
                 ++requiredCount;
-                instanceSc //
+                subCommandSc //
                     ->needs(section);
             } else {
                 --requiredCount;
-                instanceSc //
+                subCommandSc //
                     ->remove_needs(section);
             }
 
@@ -164,23 +163,23 @@ namespace net::config {
     }
 
     CLI::App* ConfigInstance::get() const {
-        return instanceSc;
+        return subCommandSc;
     }
 
     ConfigInstance& ConfigInstance::configurable(bool configurable) {
         disableOpt->configurable(configurable);
 
-        disableOpt->group(instanceSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
+        disableOpt->group(subCommandSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
 
         return *this;
     }
 
     const CLI::App* ConfigInstance::getSection(const std::string& name) const {
-        return instanceSc->get_subcommand_no_throw(name);
+        return subCommandSc->get_subcommand_no_throw(name);
     }
 
     bool ConfigInstance::gotSection(const std::string& name) const {
-        return instanceSc //
+        return subCommandSc //
             ->got_subcommand(name);
     }
 
@@ -194,7 +193,7 @@ namespace net::config {
             ->default_str(disabled ? "true" : "false")
             ->clear();
 
-        utils::Config::disabled(instanceSc, disabled);
+        utils::Config::disabled(subCommandSc, disabled);
 
         return *this;
     }
