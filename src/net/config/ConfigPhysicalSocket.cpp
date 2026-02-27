@@ -119,7 +119,7 @@ namespace net::config {
         retryLimitOpt->needs(retryOpt);
     }
 
-    const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& ConfigPhysicalSocket::getSocketOptions() {
+    const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& ConfigPhysicalSocket::getSocketOptions() const {
         return socketOptionsMapMap;
     }
 

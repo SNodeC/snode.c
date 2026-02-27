@@ -220,7 +220,7 @@ namespace web::http::decoder {
         return chunk.end();
     }
 
-    std::size_t Chunked::Chunk::size() {
+    std::size_t Chunked::Chunk::size() const {
         return chunk.size();
     }
 

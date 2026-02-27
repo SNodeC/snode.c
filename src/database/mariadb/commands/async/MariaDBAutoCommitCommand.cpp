@@ -74,7 +74,7 @@ namespace database::mariadb::commands::async {
         onError(errorString, errorNumber);
     }
 
-    std::string MariaDBAutoCommitCommand::commandInfo() {
+    std::string MariaDBAutoCommitCommand::commandInfo() const {
         return commandName() + ": AutoCommit = " + std::to_string(autoCommit);
     }
 

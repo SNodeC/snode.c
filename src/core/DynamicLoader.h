@@ -77,7 +77,7 @@ namespace core {
 
     private:
         static std::string canonicalizePath(const std::string& libFile);
-        static int dlClose(Library& library);
+        static int dlClose(const Library& library);
 
         static int realExecDlClose(const Library& library);
         static void execDlCloseDeleyed();

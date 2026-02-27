@@ -91,11 +91,11 @@ namespace express {
         this->currentRoute = currentRoute;
     }
 
-    const std::shared_ptr<Request>& Controller::getRequest() {
+    const std::shared_ptr<Request>& Controller::getRequest() const {
         return request;
     }
 
-    const std::shared_ptr<Response>& Controller::getResponse() {
+    const std::shared_ptr<Response>& Controller::getResponse() const {
         return response;
     }
 
@@ -119,7 +119,7 @@ namespace express {
         }
     }
 
-    bool Controller::nextRouterCalled() {
+    bool Controller::nextRouterCalled() const {
         const bool breakDispatching = lastRoute == currentRoute && (flags & Controller::NEXT_ROUTER) != 0;
 
         if (breakDispatching) {

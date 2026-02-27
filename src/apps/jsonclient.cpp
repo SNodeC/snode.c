@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
             req->type("application/json");
             req->set("Connection", "close");
             req->send(
-                "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}",
+                R"({"userId":1,"schnitzel":"good","hungry":false})",
                 []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
                     VLOG(1) << "-- OnResponse";
                     VLOG(1) << "     Status:";

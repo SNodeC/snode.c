@@ -154,7 +154,7 @@ namespace net::config {
         bool getRequired() const;
 
     protected:
-        void setConfigurable(CLI::Option* option, bool configurable);
+        void setConfigurable(CLI::Option* option, bool configurable) const;
 
         CLI::App* sectionSc = nullptr;
 

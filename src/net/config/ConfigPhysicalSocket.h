@@ -72,7 +72,7 @@ namespace net::config {
         constexpr static std::string_view name{"socket"};
         constexpr static std::string_view description{"Configuration of socket behavior"};
 
-        const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& getSocketOptions();
+        const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& getSocketOptions() const;
 
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, int optValue);
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, const std::string& optValue);

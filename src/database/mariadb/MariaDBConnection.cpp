@@ -105,7 +105,7 @@ namespace database::mariadb {
             [this]() {
                 LOG(DEBUG) << this->connectionName << " MariaDB connect: success";
 
-                this->onStateChanged({.connected = true});
+                this->onStateChanged({.error = 0, .errorMessage = "", .connected = true});
             },
             [this](const std::string& errorString, unsigned int errorNumber) {
                 LOG(WARNING) << this->connectionName << " MariaDB connect: error: " << errorString << " : " << errorNumber;

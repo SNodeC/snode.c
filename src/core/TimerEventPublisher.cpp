@@ -95,7 +95,7 @@ namespace core {
         timerList.insert(timer);
     }
 
-    bool TimerEventPublisher::empty() {
+    bool TimerEventPublisher::empty() const {
         return timerList.empty();
     }
 

@@ -72,7 +72,7 @@ namespace core::pipe {
         void pipe(Source* source);
 
     protected:
-        bool isStreaming();
+        bool isStreaming() const;
         void stop();
 
     private:

@@ -103,7 +103,7 @@ namespace net::config {
         return requiredCount > 0;
     }
 
-    void ConfigSection::setConfigurable(CLI::Option* option, bool configurable) {
+    void ConfigSection::setConfigurable(CLI::Option* option, bool configurable) const {
         option->configurable(configurable);
         option->group(sectionSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
     }

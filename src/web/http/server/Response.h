@@ -98,7 +98,7 @@ namespace web::http::server {
         void send(const std::string& chunk);
         void sendStatus(int statusCode);
         void upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string&)>& status);
-        void sendFile(const std::string& file, const std::function<void(int)>& callback);
+        void sendFile(const std::string& file, const std::function<void(int)>& onStatus);
         void end();
 
         Response& sendHeader();

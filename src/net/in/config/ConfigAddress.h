@@ -125,7 +125,7 @@ namespace net::in::config {
         ConfigAddress& setAiFlags(int aiFlags);
         int getAiFlags() const;
 
-        ConfigAddress& setAiSockType(int aiSocktype);
+        ConfigAddress& setAiSockType(int aiSockType);
         int getAiSockType() const;
 
         ConfigAddress& setAiProtocol(int aiProtocol);

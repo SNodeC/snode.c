@@ -62,7 +62,7 @@ namespace database::mariadb::commands::async {
         int commandContinue(int status) override;
         bool commandCompleted() override;
         void commandError(const std::string& errorString, unsigned int errorNumber) override;
-        std::string commandInfo() override;
+        std::string commandInfo() const override;
 
         int ret = 0;
 

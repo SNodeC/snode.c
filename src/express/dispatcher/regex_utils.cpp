@@ -649,10 +649,11 @@ namespace express::dispatcher {
         result.requestPath = requestPath;
 
         bool pathMatches = false;
-        bool decodeError = false;
-        std::size_t matchLen = 0;
 
         if (routeNeedsRegex(mountPath)) {
+            bool decodeError = false;
+            std::size_t matchLen = 0;
+
             // Param mount: optionally compile once, match once, fill params, and record matched prefix length
             if (cachedRegex != nullptr && cachedNames != nullptr) {
                 if (cachedNames->empty()) {

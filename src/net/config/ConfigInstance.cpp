@@ -89,7 +89,7 @@ namespace net::config {
         utils::Config::removeInstance(instanceSc);
     }
 
-    ConfigInstance::Role ConfigInstance::getRole() {
+    ConfigInstance::Role ConfigInstance::getRole() const {
         return role;
     }
 

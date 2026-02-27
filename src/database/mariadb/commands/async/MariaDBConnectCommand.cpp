@@ -88,7 +88,7 @@ namespace database::mariadb::commands::async {
         onError(errorString, errorNumber);
     }
 
-    std::string MariaDBConnectCommand::commandInfo() {
+    std::string MariaDBConnectCommand::commandInfo() const {
         return commandName() + " " + details.hostname + ":" + std::to_string(details.port) + " | " + details.socket;
     }
 

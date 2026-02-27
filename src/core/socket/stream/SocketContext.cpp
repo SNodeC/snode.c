@@ -164,7 +164,7 @@ namespace core::socket::stream {
 
     std::string SocketContext::timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint) {
         const std::time_t time = std::chrono::system_clock::to_time_t(timePoint);
-        std::tm* tm_ptr = std::gmtime(&time);
+        const std::tm* tm_ptr = std::gmtime(&time);
 
         char buffer[100];
         std::string onlineSince = "Formatting error";

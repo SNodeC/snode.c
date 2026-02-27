@@ -96,7 +96,7 @@ namespace web::websocket {
 
         uint8_t opCode = 0;
 
-        char maskingKey[4];
+        char maskingKey[4]{};
 
         union ELength8 {
             uint64_t asValue;

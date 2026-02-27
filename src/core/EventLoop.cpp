@@ -133,7 +133,7 @@ namespace core {
         return eventLoopState == State::INITIALIZED;
     }
 
-    TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
+    TickStatus EventLoop::_tick(const utils::Timeval& timeOut) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
         tickCounter++;
@@ -148,7 +148,7 @@ namespace core {
         sigprocmask(SIG_BLOCK, &newSet, &oldSet);
 
         if (eventLoopState == State::RUNNING || eventLoopState == State::STOPPING) {
-            tickStatus = eventMultiplexer.tick(tickTimeOut, oldSet);
+            tickStatus = eventMultiplexer.tick(timeOut, oldSet);
         }
 
         sigprocmask(SIG_SETMASK, &oldSet, nullptr);

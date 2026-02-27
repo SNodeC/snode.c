@@ -61,7 +61,7 @@ namespace iot::mqtt_fast::types {
         return error;
     }
 
-    std::size_t TypeBase::read(char* buf, std::size_t count) {
+    std::size_t TypeBase::read(char* buf, std::size_t count) const {
         std::size_t ret = 0;
 
         ret = socketContext->readFromPeer(buf, count);

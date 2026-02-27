@@ -96,7 +96,7 @@ namespace CLI {
                     try {
                         value = detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
                     } catch (CLI::ParseError& e) {
-                        value = "<[" + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " + e.what() + ">";
+                        value = std::string{"<["} + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " + e.what() + ">";
                     }
 
                     std::string defaultValue{};
@@ -285,7 +285,7 @@ namespace CLI {
     }
 
     CLI11_INLINE std::string HelpFormatter::make_footer(const App* app) const {
-        std::string footer = app->get_footer();
+        const std::string footer = app->get_footer();
         if (footer.empty()) {
             return std::string{"\n"};
         }

@@ -119,8 +119,8 @@ namespace utils {
             throw DaemonSignaled("Drop session lead", pid);
         }
 
-        struct passwd* pw = nullptr;
-        struct group* gr = nullptr;
+        const struct passwd* pw = nullptr;
+        const struct group* gr = nullptr;
 
         if (((void) (errno = 0), gr = getgrnam(groupName.c_str())) == nullptr) {
             if (errno != 0) {

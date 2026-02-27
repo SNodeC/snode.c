@@ -78,7 +78,7 @@ namespace net::config {
         ConfigInstance& operator=(ConfigInstance&) = delete;
         ConfigInstance& operator=(ConfigInstance&&) = delete;
 
-        Role getRole();
+        Role getRole() const;
 
         const std::string& getInstanceName() const;
         void setInstanceName(const std::string& instanceName);

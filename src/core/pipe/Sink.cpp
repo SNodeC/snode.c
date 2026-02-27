@@ -56,13 +56,14 @@ namespace core::pipe {
     }
 
     void Sink::pipe(Source* source) {
-        if (source->isOpen())
+        if (source->isOpen()) {
             this->source = source;
+        }
 
         onSourceConnect(source);
     }
 
-    bool Sink::isStreaming() {
+    bool Sink::isStreaming() const {
         return source != nullptr;
     }
 

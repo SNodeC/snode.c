@@ -177,7 +177,8 @@ namespace net::config {
         return *this;
     }
 
-    const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& ConfigTlsServer::getSniCerts() {
+    const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>&
+    ConfigTlsServer::getSniCerts() const {
         return configuredSniCerts.empty() ? defaultSniCerts : configuredSniCerts;
     }
 

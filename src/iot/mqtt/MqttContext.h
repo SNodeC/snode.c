@@ -61,9 +61,9 @@ namespace iot::mqtt {
     class MqttContext {
     public:
         explicit MqttContext(Mqtt* mqtt);
-        MqttContext(const MqttContext&) = default;
+        //        MqttContext(const MqttContext&) = default;
 
-        MqttContext& operator=(const MqttContext&) = default;
+        //        MqttContext& operator=(const MqttContext&) = default;
 
         virtual ~MqttContext();
 

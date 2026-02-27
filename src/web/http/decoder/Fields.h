@@ -77,7 +77,7 @@ namespace web::http::decoder {
         bool isError() const;
 
         int getErrorCode() const;
-        std::string getErrorReason();
+        std::string getErrorReason() const;
 
     private:
         void splitLine(const std::string& line);

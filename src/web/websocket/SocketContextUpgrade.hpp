@@ -124,8 +124,8 @@ namespace web::websocket {
     }
 
     template <typename SubProtocol, typename Request, typename Response>
-    void SocketContextUpgrade<SubProtocol, Request, Response>::sendFrameChunk(const char* message, std::size_t messageLength) const {
-        Super::sendToPeer(message, messageLength);
+    void SocketContextUpgrade<SubProtocol, Request, Response>::sendFrameChunk(const char* chunk, std::size_t chunkLen) const {
+        Super::sendToPeer(chunk, chunkLen);
     }
 
     template <typename SubProtocol, typename Request, typename Response>

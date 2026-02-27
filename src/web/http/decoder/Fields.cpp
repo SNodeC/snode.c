@@ -172,7 +172,7 @@ namespace web::http::decoder {
         return errorCode;
     }
 
-    std::string Fields::getErrorReason() {
+    std::string Fields::getErrorReason() const {
         return errorReason;
     }
 

@@ -73,11 +73,11 @@ namespace core::socket::stream::tls {
     }
 
     static int verify_callback(int preverify_ok, X509_STORE_CTX* ctx) {
-        SSL* ssl = static_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
+        const SSL* ssl = static_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
 
         const std::string connectionName = *static_cast<std::string*>(SSL_get_ex_data(ssl, 0));
 
-        X509* curr_cert = X509_STORE_CTX_get_current_cert(ctx);
+        const X509* curr_cert = X509_STORE_CTX_get_current_cert(ctx);
         const int depth = X509_STORE_CTX_get_error_depth(ctx);
 
         char subjectName[256];
@@ -222,7 +222,7 @@ namespace core::socket::stream::tls {
         std::map<std::string, SSL_CTX*> sans;
 
         if (sslCtx != nullptr) {
-            X509* x509 = SSL_CTX_get0_certificate(sslCtx);
+            const X509* x509 = SSL_CTX_get0_certificate(sslCtx);
             if (x509 != nullptr) {
                 GENERAL_NAMES* subjectAltNames =
                     static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(x509, NID_subject_alt_name, nullptr, nullptr));
@@ -230,7 +230,7 @@ namespace core::socket::stream::tls {
                 const int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 
                 for (int32_t i = 0; i < altNameCount; ++i) {
-                    GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
+                    const GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                     if (generalName->type == GEN_DNS || generalName->type == GEN_URI || generalName->type == GEN_EMAIL) {
                         const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),

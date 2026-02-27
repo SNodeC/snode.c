@@ -51,7 +51,7 @@
 namespace web::http::client {
 
     const std::string& Response::get(const std::string& key, int i) const {
-        if (headers.find(key) != headers.end()) {
+        if (headers.contains(key)) {
             std::pair<std::multimap<std::string, std::string>::const_iterator, std::multimap<std::string, std::string>::const_iterator>
                 range = headers.equal_range(key);
 

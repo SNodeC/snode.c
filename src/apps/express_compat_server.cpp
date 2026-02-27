@@ -63,7 +63,7 @@ static void tracePush(const std::shared_ptr<express::Request>& req, const std::s
 static json traceGet(const std::shared_ptr<express::Request>& req) {
     json arr = json::array();
     req->getAttribute<Trace>(
-        [&](Trace& t) {
+        [&](const Trace& t) {
             for (auto const& e : t) {
                 arr.push_back(e);
             }

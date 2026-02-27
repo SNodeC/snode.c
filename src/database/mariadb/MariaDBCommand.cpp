@@ -64,11 +64,11 @@ namespace database::mariadb {
         this->mariaDBConnection = mariaDBConnection;
     }
 
-    std::string MariaDBCommand::commandInfo() {
+    std::string MariaDBCommand::commandInfo() const {
         return commandName();
     }
 
-    const std::string& MariaDBCommand::commandName() {
+    const std::string& MariaDBCommand::commandName() const {
         return name;
     }
 

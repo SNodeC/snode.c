@@ -87,7 +87,7 @@ namespace core::multiplexer::poll {
     }
 
     void DescriptorEventPublisher::spanActiveEvents() {
-        pollfd* pollfds = pollFds.getEvents();
+        const pollfd* pollfds = pollFds.getEvents();
 
         const PollFdsManager::pollfdindex_map& pollFdsIndices = pollFds.getPollFdIndices();
 

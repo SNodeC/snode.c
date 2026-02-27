@@ -80,7 +80,7 @@ namespace web::http::decoder {
             std::vector<char>::iterator begin();
             std::vector<char>::iterator end();
 
-            std::size_t size();
+            std::size_t size() const;
 
         private:
             std::vector<char> chunk;

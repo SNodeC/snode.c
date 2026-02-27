@@ -72,7 +72,7 @@ namespace iot::mqtt_fast::types {
         bool isError() const;
 
     protected:
-        std::size_t read(char* buf, std::size_t count);
+        std::size_t read(char* buf, std::size_t count) const;
         virtual void reset();
 
         core::socket::SocketContext* socketContext;

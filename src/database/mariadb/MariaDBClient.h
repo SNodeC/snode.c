@@ -84,8 +84,8 @@ namespace database::mariadb {
 namespace database::mariadb {
 
     struct MariaDBState {
-        unsigned int error = 0;
-        std::string errorMessage{};
+        unsigned int error;
+        std::string errorMessage;
         bool connected = false;
     };
 

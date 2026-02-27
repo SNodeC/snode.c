@@ -487,7 +487,8 @@ namespace utils {
                                     }
                                     value.pop_back();
                                 } catch (CLI::ParseError& e) {
-                                    value = "<[" + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " + e.what() + ">";
+                                    value = std::string{"<["} + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " +
+                                            e.what() + ">";
                                 }
                             } else if (option->get_required()) {
                                 value = "<REQUIRED>";
@@ -502,7 +503,8 @@ namespace utils {
                                         }
                                         value.pop_back();
                                     } catch (CLI::ParseError& e) {
-                                        value = "<[" + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " + e.what() + ">";
+                                        value = std::string{"<["} + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " +
+                                                e.what() + ">";
                                     }
                                 } else {
                                     value = "<REQUIRED>";
@@ -518,7 +520,8 @@ namespace utils {
                                     }
                                     value.pop_back();
                                 } catch (CLI::ParseError& e) {
-                                    value = "<[" + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " + e.what() + ">";
+                                    value = std::string{"<["} + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " +
+                                            e.what() + ">";
                                 }
                             } else if (!option->get_default_str().empty()) {
                                 value = option->get_default_str();

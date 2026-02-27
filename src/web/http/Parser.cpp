@@ -62,9 +62,9 @@ namespace web::http {
     static bool parseContentLengthStrict(const std::string& s, std::size_t& out) {
         bool success = false;
 
-        unsigned long long value = 0;
-
         if (!s.empty()) {
+            unsigned long long value = 0;
+
             const char* first = s.data();
             const char* last = s.data() + s.size();
 

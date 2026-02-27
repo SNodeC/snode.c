@@ -84,7 +84,7 @@ namespace net::config {
         addSniCerts(const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCerts);
         ConfigTlsServer& addSniCert(const std::string& domain,
                                     const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert);
-        const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& getSniCerts();
+        const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& getSniCerts() const;
 
     private:
         std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>> defaultSniCerts;

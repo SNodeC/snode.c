@@ -149,7 +149,7 @@ namespace utils {
         constexpr bool setAttribute(const Attribute& attribute, const std::string& subKey = "", bool overwrite = false) {
             bool inserted = false;
 
-            if (attributes.find(typeid(Attribute).name() + std::string(key) + subKey) == attributes.end() || overwrite) {
+            if (!attributes.contains(typeid(Attribute).name() + std::string(key) + subKey) || overwrite) {
                 attributes[typeid(Attribute).name() + std::string(key) + subKey] =
                     std::shared_ptr<void>(new AttributeProxy<Attribute>(attribute));
                 inserted = true;
@@ -162,7 +162,7 @@ namespace utils {
         constexpr bool setAttribute(const Attribute&& attribute, const std::string& subKey = "", bool overwrite = false) {
             bool inserted = false;
 
-            if (attributes.find(typeid(Attribute).name() + std::string(key) + subKey) == attributes.end() || overwrite) {
+            if (!attributes.contains(typeid(Attribute).name() + std::string(key) + subKey) || overwrite) {
                 attributes[typeid(Attribute).name() + std::string(key) + subKey] =
                     std::shared_ptr<void>(new AttributeProxy<Attribute>(attribute));
                 inserted = true;

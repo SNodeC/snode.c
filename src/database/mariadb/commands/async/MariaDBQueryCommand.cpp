@@ -74,7 +74,7 @@ namespace database::mariadb::commands::async {
         onError(errorString, errorNumber);
     }
 
-    std::string MariaDBQueryCommand::commandInfo() {
+    std::string MariaDBQueryCommand::commandInfo() const {
         return commandName() + " " + sql;
     }
 

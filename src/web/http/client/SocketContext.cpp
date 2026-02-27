@@ -323,7 +323,7 @@ namespace web::http::client {
         if (!httpClose && (!deliveredRequests.empty() || onServerSentEvent)) {
             if (!onServerSentEvent) {
                 consumed = parser.parse();
-            } else if (onServerSentEvent) {
+            } else {
                 consumed = onServerSentEvent();
             }
         }

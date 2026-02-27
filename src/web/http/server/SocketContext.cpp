@@ -211,7 +211,7 @@ namespace web::http::server {
     void SocketContext::onConnected() {
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Connected";
 
-        for (auto& onConnectEventReceiver : onConnectEventReceiverList) {
+        for (const auto& onConnectEventReceiver : onConnectEventReceiverList) {
             onConnectEventReceiver();
         }
     }
@@ -231,7 +231,7 @@ namespace web::http::server {
 
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received disconnect";
 
-        for (auto& onDisconnectEventReceiver : onDisconnectEventReceiverList) {
+        for (const auto& onDisconnectEventReceiver : onDisconnectEventReceiverList) {
             onDisconnectEventReceiver();
         }
     }

@@ -71,7 +71,7 @@ namespace core {
         void erase(TimerEventReceiver* timer);
         void insert(TimerEventReceiver* timer);
 
-        bool empty();
+        bool empty() const;
 
         void stop();
 
