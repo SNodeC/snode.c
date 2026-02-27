@@ -67,7 +67,7 @@ namespace core {
     }
 
     EventMultiplexer::~EventMultiplexer() {
-        for (DescriptorEventPublisher* descriptorEventPublisher : descriptorEventPublishers) {
+        for (const DescriptorEventPublisher* descriptorEventPublisher : descriptorEventPublishers) {
             delete descriptorEventPublisher;
         }
         delete timerEventPublisher;

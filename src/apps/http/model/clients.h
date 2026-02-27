@@ -291,19 +291,6 @@ namespace apps::http::legacy {
                     [req](const std::shared_ptr<Request>&, const std::string&) {
                     });
 
-                /*
-                    const std::shared_ptr<web::http::client::tools::EventSource> eventStream_1 =
-                        web::http::legacy::NET::EventSource("http://localhost:8080/sse");
-                */
-                /*
-                const std::shared_ptr<web::http::client::tools::EventSource> eventStream_1 =
-                    web::http::legacy::NET::EventSource("localhost", 8080, "/sse");
-                */
-                /*
-                const std::shared_ptr<web::http::client::tools::EventSource> eventStream_1 =
-                    web::http::legacy::NET::EventSource("http://localhost:8080", "/sse");
-                */
-
                 const std::shared_ptr<web::http::client::tools::EventSource> eventStream_1 =
                     web::http::legacy::NET::EventSource("http://" + req->hostFieldValue, "/sse?hihi=3");
 
@@ -360,26 +347,6 @@ namespace apps::http::legacy {
                         VLOG(0) << "EventListener for 'myevent' 2:2: " << message.lastEventId << " : " << message.data;
                     });
                 }
-
-            /*
-                req->requestEventSource("/sse", [request = std::weak_ptr<MasterRequest>(req)]() -> std::size_t {
-                    std::size_t consumed = 0;
-
-                    if (!request.expired()) {
-                        char message[2048];
-                        consumed = request.lock()->getSocketContext()->readFromPeer(message, 2047);
-                        message[consumed] = 0;
-
-                        std::cout << "Message: " << message;
-                    } else {
-                        if (!request.expired()) {
-                            logResponse(request.lock(), std::shared_ptr<web::http::client::Response>());
-                        }
-                    }
-
-                    return consumed;
-                });
-            */
 
             /*
             req->httpMinor = 1;

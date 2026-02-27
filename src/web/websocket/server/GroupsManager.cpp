@@ -95,7 +95,7 @@ namespace web::websocket::server {
                                       std::size_t messageLength,
                                       const SubProtocol* excludedClient) {
         if (groups.contains(group)) {
-            for (SubProtocol* client : groups[group]) {
+            for (const SubProtocol* client : groups[group]) {
                 if (client != excludedClient) {
                     client->sendMessage(message, messageLength);
                 }

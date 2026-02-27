@@ -67,87 +67,88 @@ Router getRouter(const std::string& webRoot) {
 }
 
 int main(int argc, char* argv[]) {
+    // Add config entries for the server to the config system befor init so they are available immediately
     utils::Config::addInstance<instance::ConfigWWW>();
 
     WebApp::init(argc, argv);
 
-    {
-        const legacy::in6::WebApp legacyApp("legacy");
+    /////////////////////// LEGACY
 
-        const Router& router1 = middleware::VHost("localhost:8080");
+    const legacy::in6::WebApp legacyServer("legacy");
 
-        const Router& ba = middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password");
-        ba.use(middleware::StaticMiddleware(utils::Config::getInstance<instance::ConfigWWW>()->getHtmlRoot()));
+    const Router& router1 = middleware::VHost("localhost:8080");
 
-        router1.use(ba);
-        legacyApp.use(router1);
+    const Router& ba = middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password");
+    ba.use(middleware::StaticMiddleware(utils::Config::getInstance<instance::ConfigWWW>()->getHtmlRoot()));
 
-        const Router& router2 = middleware::VHost("jupiter.home.vchrist.at:8080");
-        router2.get("/", [] APPLICATION(req, res) {
-            res->send("Hello! I am VHOST jupiter.home.vchrist.at.");
-        });
-        legacyApp.use(router2);
+    router1.use(ba);
+    legacyServer.use(router1);
 
-        legacyApp.use([] APPLICATION(req, res) {
-            res->status(404).send("The requested resource is not found.");
-        });
+    const Router& router2 = middleware::VHost("jupiter.home.vchrist.at:8080");
+    router2.get("/", [] APPLICATION(req, res) {
+        res->send("Hello! I am VHOST jupiter.home.vchrist.at.");
+    });
+    legacyServer.use(router2);
 
-        legacyApp.listen(8080,
-                         [instanceName = legacyApp.getConfig().getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
-                                                                                  const core::socket::State& state) {
-                             switch (state) {
-                                 case core::socket::State::OK:
-                                     VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
-                                     break;
-                                 case core::socket::State::DISABLED:
-                                     VLOG(1) << instanceName << ": disabled";
-                                     break;
-                                 case core::socket::State::ERROR:
-                                     LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                     break;
-                                 case core::socket::State::FATAL:
-                                     LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                     break;
-                             }
-                         });
+    legacyServer.use([] APPLICATION(req, res) {
+        res->status(404).send("The requested resource is not found.");
+    });
 
-        {
-            const express::tls::in6::WebApp tlsApp("tls");
+    legacyServer.listen(8080,
+                        [instanceName = legacyServer.getConfig().getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
+                                                                                    const core::socket::State& state) {
+                            switch (state) {
+                                case core::socket::State::OK:
+                                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                                    break;
+                                case core::socket::State::DISABLED:
+                                    VLOG(1) << instanceName << ": disabled";
+                                    break;
+                                case core::socket::State::ERROR:
+                                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                    break;
+                                case core::socket::State::FATAL:
+                                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                    break;
+                            }
+                        });
 
-            const Router& vh1 = middleware::VHost("localhost:8088");
-            vh1.use(getRouter(utils::Config::getInstance<instance::ConfigWWW>()->getHtmlRoot()));
-            tlsApp.use(vh1);
+    /////////////////////// TLS
 
-            const Router& vh2 = middleware::VHost("jupiter.home.vchrist.at:8088");
-            vh2.get("/", [] APPLICATION(req, res) {
-                res->send("Hello! I am VHOST jupiter.home.vchrist.at.");
-            });
+    const express::tls::in6::WebApp tlsServer("tls");
 
-            tlsApp.use(vh2);
+    const Router& vh1 = middleware::VHost("localhost:8088");
+    vh1.use(getRouter(utils::Config::getInstance<instance::ConfigWWW>()->getHtmlRoot()));
+    tlsServer.use(vh1);
 
-            tlsApp.use([] APPLICATION(req, res) {
-                res->status(404).send("The requested resource is not found.");
-            });
+    const Router& vh2 = middleware::VHost("jupiter.home.vchrist.at:8088");
+    vh2.get("/", [] APPLICATION(req, res) {
+        res->send("Hello! I am VHOST jupiter.home.vchrist.at.");
+    });
 
-            tlsApp.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
-                switch (state) {
-                    case core::socket::State::OK:
-                        VLOG(1) << "tls: listening on '" << socketAddress.toString() << "'"
-                                << "'";
-                        break;
-                    case core::socket::State::DISABLED:
-                        VLOG(1) << "tls: disabled";
-                        break;
-                    case core::socket::State::ERROR:
-                        VLOG(1) << "tls: error occurred";
-                        break;
-                    case core::socket::State::FATAL:
-                        VLOG(1) << "tls: fatal error occurred";
-                        break;
-                }
-            });
+    tlsServer.use(vh2);
+
+    tlsServer.use([] APPLICATION(req, res) {
+        res->status(404).send("The requested resource is not found.");
+    });
+
+    tlsServer.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "tls: listening on '" << socketAddress.toString() << "'"
+                        << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "tls: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "tls: error occurred";
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "tls: fatal error occurred";
+                break;
         }
-    }
+    });
 
     WebApp::start();
 }
