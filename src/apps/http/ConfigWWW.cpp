@@ -52,7 +52,7 @@ namespace section {
 
     ConfigWWW::ConfigWWW(net::config::ConfigInstance* instance)
         : net::config::ConfigSection(instance, this) {
-        htmlRootOpt = addOption("--html-root", "HTML root directory", "path", "", CLI::ExistingDirectory);
+        htmlRootOpt = addOption("--html-root", "HTML root directory", "path", CLI::ExistingDirectory);
         required(htmlRootOpt);
     }
 

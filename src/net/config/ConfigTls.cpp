@@ -54,14 +54,12 @@ namespace net::config {
             "--cert",
             "Certificate chain file",
             "filename",
-            "",
             CLI::ExistingFile.description("PEM-FILE"));
 
         certKeyOpt = section->addOption( //
             "--cert-key",
             "Certificate key file",
             "filename",
-            "",
             CLI::ExistingFile.description("PEM-FILE"));
 
         certKeyPasswordOpt = section->addOption( //
@@ -75,14 +73,12 @@ namespace net::config {
             "--ca-cert",
             "CA-certificate file",
             "filename",
-            "",
             CLI::ExistingFile.description("PEM-FILE"));
 
         caCertDirOpt = section->addOption( //
             "--ca-cert-dir",
             "CA-certificate directory",
             "directory",
-            "",
             CLI::ExistingDirectory.description("PEM-CONTAINER-DIR"));
 
         caCertUseDefaultDirOpt = section->addFlag( //

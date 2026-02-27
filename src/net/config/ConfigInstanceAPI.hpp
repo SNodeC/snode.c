@@ -62,7 +62,6 @@ namespace net::config {
 
         instanceSc->option_defaults()->take_last();
         instanceSc->formatter(utils::Config::sectionFormatter);
-        instanceSc->option_defaults()->group(instanceSc->get_formatter()->get_label("Nonpersistent Options"));
 
         return instanceSc;
     }

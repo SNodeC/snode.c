@@ -71,6 +71,7 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 
@@ -90,45 +91,46 @@ namespace net::config {
         sectionSc->description(std::string(T::description) + " for instance '" + instance->getInstanceName() + "'");
     }
 
-    template <typename ValueType>
-        requires(!std::derived_from<std::remove_cvref_t<ValueType>, CLI::Validator>)
-    CLI::Option*
-    ConfigSection::addOption(const std::string& name, const std::string& description, const std::string& typeName, ValueType defaultValue) {
-        return addOption(name, description, typeName) //
+    template <typename ValueTypeT>
+    CLI::Option* ConfigSection::addOptionFunction(const std::string& name,
+                                                  std::function<void(const std::string&)>& callback,
+                                                  const std::string& description,
+                                                  const std::string& typeName,
+                                                  ValueTypeT defaultValue,
+                                                  const CLI::Validator& validator) {
+        return addOptionFunction(name, callback, description, typeName, validator) //
             ->default_val(defaultValue);
     }
 
-    template <typename ValueType>
+    template <typename ValueTypeT>
     CLI::Option* ConfigSection::addOption(const std::string& name,
                                           const std::string& description,
                                           const std::string& typeName,
-                                          ValueType defaultValue,
+                                          ValueTypeT defaultValue,
                                           const CLI::Validator& additionalValidator) {
-        return addOption(name, description, typeName, defaultValue) //
-            ->check(additionalValidator);
-    }
-    template <typename ValueTypeT>
-    CLI::Option* ConfigSection::addOptionFunction(const std::string& name,
-                                                  const std::function<void(const std::string&)>& optionFunction,
-                                                  const std::string& description) {
-        return sectionSc->add_option_function<ValueTypeT>(name, optionFunction, description);
-    };
-
-    template <typename ValueType>
-    CLI::Option*
-    ConfigSection::addFlag(const std::string& name, const std::string& description, const std::string& typeName, ValueType defaultValue) {
-        return addFlag(name, description, typeName) //
+        return addOption(name, description, typeName, additionalValidator) //
             ->default_val(defaultValue);
     }
 
-    template <typename ValueType>
+    template <typename ValueTypeT>
     CLI::Option* ConfigSection::addFlag(const std::string& name,
                                         const std::string& description,
                                         const std::string& typeName,
-                                        ValueType defaultValue,
+                                        ValueTypeT defaultValue,
                                         const CLI::Validator& additionalValidator) {
-        return addFlag(name, description, typeName, defaultValue) //
-            ->check(additionalValidator);
+        return addFlag(name, description, typeName, additionalValidator) //
+            ->default_val(defaultValue);
+    }
+
+    template <typename ValueTypeT>
+    CLI::Option* ConfigSection::addFlagFunction(const std::string& name,
+                                                const std::function<void(std::int64_t)>& callback,
+                                                const std::string& description,
+                                                const std::string& typeName,
+                                                ValueTypeT defaultValue,
+                                                const CLI::Validator& validator) {
+        return addFlagFunction(name, callback, description, typeName, validator) //
+            ->default_val(defaultValue);
     }
 
 } // namespace net::config

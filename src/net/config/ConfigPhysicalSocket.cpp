@@ -47,6 +47,7 @@
 
 #include "log/Logger.h"
 
+#include <cstdint>
 #include <functional>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -67,7 +68,7 @@ namespace net::config {
 
         retryOnFatalOpt = section->addFlagFunction( //
             "--retry-on-fatal{true}",
-            [this]() {
+            [this]([[maybe_unused]] std::uint64_t) {
                 if (retryOnFatalOpt->as<bool>() && !retryOpt->as<bool>()) {
                     throw CLI::RequiresError(retryOnFatalOpt->get_name(), retryOpt->get_name().append("=true"));
                 }
@@ -133,7 +134,7 @@ namespace net::config {
         return section
             ->addFlagFunction(
                 name,
-                [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]() {
+                [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]([[maybe_unused]] std::uint64_t) {
                     try {
                         try {
                             if (section->getOption(strippedName)->as<bool>()) {

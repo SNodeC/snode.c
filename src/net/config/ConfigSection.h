@@ -77,85 +77,67 @@ namespace net::config {
         ConfigSection& operator=(const ConfigSection&) = delete;
         ConfigSection& operator=(ConfigSection&&) = delete;
 
-    private:
-        CLI::Option* addOption(const std::string& name, const std::string& description);
+        void required(bool required = true);
+        void required(CLI::Option* opt, bool req = true);
+        bool getRequired() const;
 
-        CLI::Option* addOption(const std::string& name, const std::string& description, const std::string& typeName);
+        CLI::Option* getOption(const std::string& name) const;
 
-    public:
-        CLI::Option* addOption(const std::string& name,
-                               const std::string& description,
-                               const std::string& typeName,
-                               const CLI::Validator& additionalValidator);
-
-    private:
-        template <typename ValueTypeT>
-            requires(!std::derived_from<std::remove_cvref_t<ValueTypeT>, CLI::Validator>)
         CLI::Option*
-        addOption(const std::string& name, const std::string& description, const std::string& typeName, ValueTypeT defaultValue);
+        addOption(const std::string& name, const std::string& description, const std::string& typeName, const CLI::Validator& validator);
 
-    public:
+        CLI::Option* addOptionFunction(const std::string& name,
+                                       std::function<void(const std::string&)>& callback,
+                                       const std::string& description,
+                                       const std::string& typeName,
+                                       const CLI::Validator& validator);
+
+        CLI::Option*
+        addFlag(const std::string& name, const std::string& description, const std::string& typeName, const CLI::Validator& validator);
+
+        CLI::Option* addFlagFunction(const std::string& name,
+                                     const std::function<void(std::int64_t)>& callback,
+                                     const std::string& description,
+                                     const std::string& typeName,
+                                     const CLI::Validator& validator);
+
         template <typename ValueTypeT>
         CLI::Option* addOption(const std::string& name,
                                const std::string& description,
                                const std::string& typeName,
                                ValueTypeT defaultValue,
-                               const CLI::Validator& additionalValidator);
+                               const CLI::Validator& validator);
 
-    private:
         template <typename ValueTypeT>
         CLI::Option* addOptionFunction(const std::string& name,
-                                       const std::function<void(const std::string&)>& optionFunction,
-                                       const std::string& description);
+                                       std::function<void(const std::string&)>& callback,
+                                       const std::string& description,
+                                       const std::string& typeName,
+                                       ValueTypeT defaultValue,
+                                       const CLI::Validator& validator);
 
-        CLI::Option* addFlag(const std::string& name, const std::string& description);
-
-        CLI::Option* addFlag(const std::string& name, const std::string& description, const std::string& typeName);
-
-    public:
-        CLI::Option* addFlag(const std::string& name,
-                             const std::string& description,
-                             const std::string& typeName,
-                             const CLI::Validator& additionalValidator);
-
-    private:
-        template <typename ValueTypeT>
-        CLI::Option* addFlag(const std::string& name, const std::string& description, const std::string& typeName, ValueTypeT defaultValue);
-
-    public:
         template <typename ValueTypeT>
         CLI::Option* addFlag(const std::string& name,
                              const std::string& description,
                              const std::string& typeName,
                              ValueTypeT defaultValue,
-                             const CLI::Validator& additionalValidator);
+                             const CLI::Validator& validator);
 
-    private:
+        template <typename ValueTypeT>
         CLI::Option* addFlagFunction(const std::string& name,
-                                     const std::function<void()>& callback,
+                                     const std::function<void(std::int64_t)>& callback,
                                      const std::string& description,
                                      const std::string& typeName,
-                                     const std::string& defaultValue);
-
-    public:
-        CLI::Option* addFlagFunction(const std::string& name,
-                                     const std::function<void()>& callback,
-                                     const std::string& description,
-                                     const std::string& typeName,
-                                     const std::string& defaultValue,
+                                     ValueTypeT defaultValue,
                                      const CLI::Validator& validator);
 
-        CLI::Option* getOption(const std::string& name) const;
+    protected:
+        CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
 
-        void required(CLI::Option* opt, bool req = true);
-
-        void required(bool required = true);
-
-        bool getRequired() const;
+    private:
+        CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
 
     protected:
-        void setConfigurable(CLI::Option* option, bool configurable) const;
-
         CLI::App* sectionSc = nullptr;
 
     private:
