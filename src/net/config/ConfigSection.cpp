@@ -68,9 +68,6 @@
 #pragma GCC diagnostic pop
 #endif
 
-#include <cstdint>
-#include <memory>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
@@ -82,11 +79,11 @@ namespace net::config {
         if (req != opt->get_required()) {
             if (req) {
                 ++requiredCount;
-                sectionSc->needs(opt);
+                subCommandSc->needs(opt);
                 opt->default_str("");
             } else {
                 --requiredCount;
-                sectionSc->remove_needs(opt);
+                subCommandSc->remove_needs(opt);
             }
 
             opt->required(req);
@@ -96,78 +93,11 @@ namespace net::config {
     }
 
     void ConfigSection::required(bool required) {
-        instance->required(sectionSc, required);
+        instance->required(subCommandSc, required);
     }
 
     bool ConfigSection::getRequired() const {
-        return requiredCount > 0;
-    }
-
-    CLI::Option* ConfigSection::getOption(const std::string& name) const {
-        return sectionSc->get_option(name);
-    }
-
-    CLI::Option* ConfigSection::addOption(const std::string& name,
-                                          const std::string& description,
-                                          const std::string& typeName,
-                                          const CLI::Validator& validator) {
-        return initialize(sectionSc //
-                              ->add_option(name, description),
-                          typeName,
-                          validator,
-                          !sectionSc->get_disabled());
-    }
-
-    CLI::Option* ConfigSection::addOptionFunction(const std::string& name,
-                                                  std::function<void(const std::string&)>& callback,
-                                                  const std::string& description,
-                                                  const std::string& typeName,
-                                                  const CLI::Validator& validator) {
-        return initialize(sectionSc //
-                              ->add_option_function(name, callback, description),
-                          typeName,
-                          validator,
-                          !sectionSc->get_disabled());
-    }
-
-    CLI::Option* ConfigSection::addFlag(const std::string& name,
-                                        const std::string& description,
-                                        const std::string& typeName,
-                                        const CLI::Validator& validator) {
-        return initialize(sectionSc //
-                              ->add_flag(name, description),
-                          typeName,
-                          validator,
-                          !sectionSc->get_disabled());
-    }
-
-    CLI::Option* ConfigSection::addFlagFunction(const std::string& name,
-                                                const std::function<void(std::int64_t)>& callback,
-                                                const std::string& description,
-                                                const std::string& typeName,
-                                                const CLI::Validator& validator) {
-        return initialize(sectionSc //
-                              ->add_flag_function(name, callback, description),
-                          typeName,
-                          validator,
-                          !sectionSc->get_disabled());
-    }
-
-    CLI::Option* ConfigSection::setConfigurable(CLI::Option* option, bool configurable) const {
-        option //
-            ->configurable(configurable)
-            ->group(sectionSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
-
-        return option;
-    }
-
-    CLI::Option*
-    ConfigSection::initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const {
-        return setConfigurable(option, configurable) //
-            ->type_name(typeName)
-            ->check(validator);
-
-        return option;
+        return subCommandSc->get_required();
     }
 
 } // namespace net::config

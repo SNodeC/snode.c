@@ -250,11 +250,8 @@ namespace net::in::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     void ConfigAddress<ConfigAddressTypeT>::configurable(bool configurable) {
-        hostOpt->configurable(configurable);
-        portOpt->configurable(configurable);
-
-        hostOpt->group(this->sectionSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
-        portOpt->group(this->sectionSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
+        this->setConfigurable(hostOpt, configurable);
+        this->setConfigurable(portOpt, configurable);
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>

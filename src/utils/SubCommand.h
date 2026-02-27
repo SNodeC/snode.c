@@ -79,10 +79,6 @@ namespace utils {
     public:
         SubCommand(CLI::App* subCommandSc);
 
-        void required(bool required = true);
-        void required(CLI::Option* opt, bool req = true);
-        bool getRequired() const;
-
         CLI::Option* getOption(const std::string& name) const;
 
         CLI::Option*

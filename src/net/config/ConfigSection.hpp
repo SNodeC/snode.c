@@ -71,8 +71,6 @@
 #pragma GCC diagnostic pop
 #endif
 
-#include <cstdint>
-#include <functional>
 #include <memory>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -86,51 +84,9 @@ namespace net::config {
 
     template <typename T>
     ConfigSection::ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group)
-        : instance(instance) {
-        sectionSc = instance->newSection(net::config::Section(sectionPtr), group);
-        sectionSc->description(std::string(T::description) + " for instance '" + instance->getInstanceName() + "'");
-    }
-
-    template <typename ValueTypeT>
-    CLI::Option* ConfigSection::addOptionFunction(const std::string& name,
-                                                  std::function<void(const std::string&)>& callback,
-                                                  const std::string& description,
-                                                  const std::string& typeName,
-                                                  ValueTypeT defaultValue,
-                                                  const CLI::Validator& validator) {
-        return addOptionFunction(name, callback, description, typeName, validator) //
-            ->default_val(defaultValue);
-    }
-
-    template <typename ValueTypeT>
-    CLI::Option* ConfigSection::addOption(const std::string& name,
-                                          const std::string& description,
-                                          const std::string& typeName,
-                                          ValueTypeT defaultValue,
-                                          const CLI::Validator& additionalValidator) {
-        return addOption(name, description, typeName, additionalValidator) //
-            ->default_val(defaultValue);
-    }
-
-    template <typename ValueTypeT>
-    CLI::Option* ConfigSection::addFlag(const std::string& name,
-                                        const std::string& description,
-                                        const std::string& typeName,
-                                        ValueTypeT defaultValue,
-                                        const CLI::Validator& additionalValidator) {
-        return addFlag(name, description, typeName, additionalValidator) //
-            ->default_val(defaultValue);
-    }
-
-    template <typename ValueTypeT>
-    CLI::Option* ConfigSection::addFlagFunction(const std::string& name,
-                                                const std::function<void(std::int64_t)>& callback,
-                                                const std::string& description,
-                                                const std::string& typeName,
-                                                ValueTypeT defaultValue,
-                                                const CLI::Validator& validator) {
-        return addFlagFunction(name, callback, description, typeName, validator) //
-            ->default_val(defaultValue);
+        : SubCommand(instance->newSection(net::config::Section(sectionPtr), group))
+        , instance(instance) {
+        subCommandSc->description(std::string(T::description) + " for instance '" + instance->getInstanceName() + "'");
     }
 
 } // namespace net::config

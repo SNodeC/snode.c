@@ -42,6 +42,8 @@
 #ifndef NET_CONFIG_CONFIGSECTION_H
 #define NET_CONFIG_CONFIGSECTION_H
 
+#include "utils/SubCommand.h" // IWYU pragma: export
+
 namespace net::config {
     class ConfigInstance;
 }
@@ -50,21 +52,18 @@ namespace net::config {
 
 #include <concepts> // IWYU pragma: export
 #include <cstdint>
-#include <functional>
 #include <string>      // IWYU pragma: export
 #include <type_traits> // IWYU pragma: export
 
 namespace CLI {
-    class App;
     class Option;
-    class Validator;
-} // namespace CLI
+}
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
 
-    class ConfigSection {
+    class ConfigSection : public utils::SubCommand {
     public:
         template <typename T>
         ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group = "Sections");
@@ -80,65 +79,6 @@ namespace net::config {
         void required(bool required = true);
         void required(CLI::Option* opt, bool req = true);
         bool getRequired() const;
-
-        CLI::Option* getOption(const std::string& name) const;
-
-        CLI::Option*
-        addOption(const std::string& name, const std::string& description, const std::string& typeName, const CLI::Validator& validator);
-
-        CLI::Option* addOptionFunction(const std::string& name,
-                                       std::function<void(const std::string&)>& callback,
-                                       const std::string& description,
-                                       const std::string& typeName,
-                                       const CLI::Validator& validator);
-
-        CLI::Option*
-        addFlag(const std::string& name, const std::string& description, const std::string& typeName, const CLI::Validator& validator);
-
-        CLI::Option* addFlagFunction(const std::string& name,
-                                     const std::function<void(std::int64_t)>& callback,
-                                     const std::string& description,
-                                     const std::string& typeName,
-                                     const CLI::Validator& validator);
-
-        template <typename ValueTypeT>
-        CLI::Option* addOption(const std::string& name,
-                               const std::string& description,
-                               const std::string& typeName,
-                               ValueTypeT defaultValue,
-                               const CLI::Validator& validator);
-
-        template <typename ValueTypeT>
-        CLI::Option* addOptionFunction(const std::string& name,
-                                       std::function<void(const std::string&)>& callback,
-                                       const std::string& description,
-                                       const std::string& typeName,
-                                       ValueTypeT defaultValue,
-                                       const CLI::Validator& validator);
-
-        template <typename ValueTypeT>
-        CLI::Option* addFlag(const std::string& name,
-                             const std::string& description,
-                             const std::string& typeName,
-                             ValueTypeT defaultValue,
-                             const CLI::Validator& validator);
-
-        template <typename ValueTypeT>
-        CLI::Option* addFlagFunction(const std::string& name,
-                                     const std::function<void(std::int64_t)>& callback,
-                                     const std::string& description,
-                                     const std::string& typeName,
-                                     ValueTypeT defaultValue,
-                                     const CLI::Validator& validator);
-
-    protected:
-        CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
-
-    private:
-        CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
-
-    protected:
-        CLI::App* sectionSc = nullptr;
 
     private:
         ConfigInstance* instance = nullptr;

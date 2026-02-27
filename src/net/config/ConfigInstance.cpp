@@ -102,7 +102,7 @@ namespace net::config {
     }
 
     CLI::App* ConfigInstance::newSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group) {
-        CLI::App* sectionSc = instanceSc->add_subcommand(appWithPtr)
+        CLI::App* subCommandSc = instanceSc->add_subcommand(appWithPtr)
                                   ->fallthrough()
                                   ->configurable(false)
                                   ->allow_extras()
@@ -112,16 +112,16 @@ namespace net::config {
                                   ->formatter(instanceSc->get_formatter())
                                   ->config_formatter(instanceSc->get_config_formatter());
 
-        sectionSc //
+        subCommandSc //
             ->option_defaults()
-            ->configurable(!sectionSc->get_disabled());
+            ->configurable(!subCommandSc->get_disabled());
 
-        if (!sectionSc->get_disabled()) {
-            utils::Config::addStandardFlags(sectionSc);
-            utils::Config::addSimpleHelp(sectionSc);
+        if (!subCommandSc->get_disabled()) {
+            utils::Config::addStandardFlags(subCommandSc);
+            utils::Config::addSimpleHelp(subCommandSc);
         }
 
-        return sectionSc;
+        return subCommandSc;
     }
 
     ConfigSection* ConfigInstance::addSection(std::shared_ptr<ConfigSection>&& configSection) {

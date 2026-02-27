@@ -59,7 +59,7 @@ namespace net::config {
     ConfigTlsServer::ConfigTlsServer(ConfigInstance* instance)
         : ConfigSection(instance, this)
         , ConfigTls(this) {
-        sniCertsOpt = sectionSc //
+        sniCertsOpt = subCommandSc //
                           ->add_option("--sni-cert",
                                        configuredSniCerts,
                                        "Server Name Indication (SNI) Certificates:\n"
@@ -76,7 +76,7 @@ namespace net::config {
                                        "}") //
                           ->type_name("sni <key> value [<key> value] ... [%% sni <key> value [<key> value] ...]");
         if (sniCertsOpt->get_configurable()) {
-            sniCertsOpt->group(sectionSc->get_formatter()->get_label("Persistent Options"));
+            sniCertsOpt->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
         }
 
         sniCertsOpt->default_function([this]() -> std::string {
@@ -120,7 +120,7 @@ namespace net::config {
             "false",
             CLI::IsMember({"true", "false"}));
 
-        sectionSc->final_callback([this]() {
+        subCommandSc->final_callback([this]() {
             for (auto& [domain, sniMap] : configuredSniCerts) {
                 if (domain.empty()) {
                     sniCertsOpt //
@@ -137,8 +137,8 @@ namespace net::config {
                         key != "CaCertUseDefaultDir" && //
                         key != "CipherList" &&          //
                         key != "SslOptions") {
-                        throw CLI::ConversionError("'" + key + "' of option '--" + sectionSc->get_parent()->get_name() + "." +
-                                                       sectionSc->get_name() + ".sni-cert'",
+                        throw CLI::ConversionError("'" + key + "' of option '--" + subCommandSc->get_parent()->get_name() + "." +
+                                                       subCommandSc->get_name() + ".sni-cert'",
                                                    "<key>");
                     }
                 }
