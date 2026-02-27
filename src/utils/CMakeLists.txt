@@ -45,6 +45,7 @@ set(UTILS_CPP
     Formatter.cpp
     PreserveErrno.cpp
     Random.cpp
+    SubCommand.cpp
     Timeval.cpp
     Uuid.cpp
     base64.cpp
@@ -63,6 +64,7 @@ set(UTILS_H
     Formatter.h
     PreserveErrno.h
     Random.h
+    SubCommand.h
     Timeval.h
     Uuid.h
     base64.h
