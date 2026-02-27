@@ -73,7 +73,7 @@ namespace web::http::client {
     }
 
     ConfigHTTP& ConfigHTTP::setHostHeader(const std::string& hostHeader, bool force) {
-        hostHeaderOpt->default_str(hostHeader);
+        hostHeaderOpt->default_val(hostHeader);
         if (force) {
             hostHeaderOpt->clear();
         }

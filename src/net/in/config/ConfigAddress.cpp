@@ -78,7 +78,7 @@ namespace net::in::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddressReverse<ConfigAddressType>& ConfigAddressReverse<ConfigAddressType>::setNumericReverse(bool numeric) {
         numericReverseOpt //
-            ->default_str(numeric ? "true" : "false")
+            ->default_val(numeric ? "true" : "false")
             ->clear();
 
         return *this;
@@ -223,7 +223,7 @@ namespace net::in::config {
         const utils::PreserveErrno preserveErrno;
 
         numericOpt //
-            ->default_str(numeric ? "true" : "false")
+            ->default_val(numeric ? "true" : "false")
             ->clear();
 
         return *this;
@@ -237,7 +237,7 @@ namespace net::in::config {
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setNumericReverse(bool numeric) {
         numericReverseOpt //
-            ->default_str(numeric ? "true" : "false")
+            ->default_val(numeric ? "true" : "false")
             ->clear();
 
         return *this;

@@ -77,7 +77,7 @@ public:
     }
 
     ConfigDb& setHost(const std::string& host) {
-        hostOpt->default_str(host)->clear();
+        hostOpt->default_val(host)->clear();
         hostOpt->required(false);
 
         configDbSc->remove_needs(hostOpt);

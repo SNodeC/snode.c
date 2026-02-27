@@ -78,7 +78,7 @@ namespace net::config {
                              "Disable this instance")
                          ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
                          ->trigger_on_parse()
-                         ->default_str("false")
+                         ->default_val("false")
                          ->type_name("bool")
                          ->check(CLI::IsMember({"true", "false"}))
                          ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
@@ -190,7 +190,7 @@ namespace net::config {
 
     ConfigInstance& ConfigInstance::setDisabled(bool disabled) {
         disableOpt //
-            ->default_str(disabled ? "true" : "false")
+            ->default_val(disabled ? "true" : "false")
             ->clear();
 
         utils::Config::disabled(subCommandSc, disabled);

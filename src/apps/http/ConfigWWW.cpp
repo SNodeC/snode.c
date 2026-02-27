@@ -57,7 +57,7 @@ namespace section {
     }
 
     section::ConfigWWW& section::ConfigWWW::setHtmlRoot(const std::string& htmlRoot) {
-        htmlRootOpt->default_str(htmlRoot)->clear();
+        htmlRootOpt->default_val(htmlRoot)->clear();
         required(htmlRootOpt, false);
 
         return *this;
@@ -86,7 +86,7 @@ namespace instance {
     }
 
     ConfigWWW& ConfigWWW::setHtmlRoot(const std::string& htmlRoot) {
-        htmlRootOpt->default_str(htmlRoot)->clear();
+        htmlRootOpt->default_val(htmlRoot)->clear();
         htmlRootOpt->required(false);
 
         configWWWSc->required(false)->remove_needs(htmlRootOpt);

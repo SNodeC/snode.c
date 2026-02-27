@@ -115,7 +115,7 @@ namespace net::in::stream::config {
             XSTR(IN_SERVER_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {
-            disableNagleAlgorithmOpt->default_str("false");
+            disableNagleAlgorithmOpt->default_val("false");
         }
     }
 

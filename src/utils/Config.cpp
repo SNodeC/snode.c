@@ -326,7 +326,7 @@ namespace utils {
                                          }
                                      },
                                      "Monochrom log output")
-                                  ->default_str(logger::Logger::getDisableColor() ? "true" : "false")
+                                  ->default_val(logger::Logger::getDisableColor() ? "true" : "false")
                                   ->type_name("bool")
                                   ->check(CLI::IsMember({"true", "false"}))
                                   ->group(app->get_formatter()->get_label("Persistent Options"))
