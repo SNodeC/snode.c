@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
             {"snodec.home.vchrist.at", {{"Cert", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}},
             {"www.vchrist.at", {{"Cert", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}}};
 
-        // webApp.getConfig().addSniCerts(sniCerts);
+        webApp.getConfig().addSniCerts(sniCerts);
 #endif
 
         VLOG(1) << "Routes:";
