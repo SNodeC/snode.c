@@ -45,12 +45,14 @@
 #include "net/config/ConfigSection.h"
 #include "net/phy/PhysicalSocketOption.h" // IWYU pragma: export
 
-#include <cstdint>
+namespace net::config {
+    class ConfigInstance;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
 #include <map>
-#include <string>
 #include <string_view>
 #include <vector>
 

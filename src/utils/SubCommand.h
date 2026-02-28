@@ -67,7 +67,7 @@
 #endif
 #endif
 #endif
-#include "utils/CLI11.hpp" // IWYU pragma: keep
+#include "utils/CLI11.hpp"
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
