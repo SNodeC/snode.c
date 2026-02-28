@@ -95,6 +95,14 @@
 #define XSTR(s) STR(s)
 #define STR(s) #s
 
+namespace utils::config {
+
+    config::ConfigRoot::ConfigRoot()
+        : utils::SubCommand(new CLI::App()) {
+    }
+
+} // namespace utils::config
+
 namespace utils {
 
     std::vector<std::shared_ptr<void>> Config::configInstances;
@@ -885,6 +893,7 @@ namespace utils {
                 },
                 "Show current configuration and exit") //
             ->configurable(false)
+            ->take_first()
             ->disable_flag_override()
             ->trigger_on_parse();
 
@@ -1044,6 +1053,8 @@ namespace utils {
 
     int Config::argc = 0;
     char** Config::argv = nullptr;
+
+    utils::config::ConfigRoot Config::configRoot;
 
     std::string Config::applicationName;
 

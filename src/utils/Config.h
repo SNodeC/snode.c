@@ -42,6 +42,8 @@
 #ifndef UTILS_CONFIG_H
 #define UTILS_CONFIG_H
 
+#include "utils/SubCommand.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
@@ -56,6 +58,15 @@ namespace CLI {
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+namespace utils::config {
+
+    class ConfigRoot : public utils::SubCommand {
+    public:
+        ConfigRoot();
+    };
+
+} // namespace utils::config
 
 namespace utils {
 
@@ -107,6 +118,8 @@ namespace utils {
     private:
         static int argc;
         static char** argv;
+
+        static utils::config::ConfigRoot configRoot;
 
         static std::shared_ptr<CLI::App> app;
 

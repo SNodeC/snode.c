@@ -42,6 +42,14 @@
 #ifndef UTILS_SUBCOMMAND_H
 #define UTILS_SUBCOMMAND_H
 
+#include <map>    // for map
+#include <memory> // for shared_ptr
+
+namespace utils {
+    template <class T>
+    struct AppWithPtr;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
@@ -74,6 +82,8 @@
 
 #include "log/Logger.h"
 
+#include <vector>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
@@ -81,6 +91,42 @@ namespace utils {
     class SubCommand {
     public:
         SubCommand(CLI::App* subCommandSc);
+
+        SubCommand* required(bool required = true, bool force = true);
+
+        SubCommand* setRequireCallback(const std::function<void(void)>& callback);
+
+        CLI::App* getParent() const;
+
+        SubCommand* addStandardFlags();
+        SubCommand* addSimpleHelp();
+        SubCommand* addHelp();
+
+        CLI::App* getHelpTriggerApp();
+        CLI::App* getShowConfigTriggerApp();
+        CLI::App* getCommandlineTriggerApp();
+
+        SubCommand* required(SubCommand* instance, bool required = true);
+        SubCommand* required(CLI::Option* option, bool required = true);
+
+        SubCommand* disabled(SubCommand* instance, bool disabled = true);
+
+        utils::SubCommand*
+        newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr, const std::string& group, bool final = false);
+        SubCommand* removeInstance(utils::SubCommand* instance);
+
+    protected:
+        CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
+
+    private:
+        CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
+
+    public:
+        template <typename T>
+        T* addInstance();
+
+        template <typename T>
+        T* getInstance();
 
         CLI::Option* getOption(const std::string& name) const;
 
@@ -150,19 +196,35 @@ namespace utils {
         template <typename ValueTypeT>
         static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true);
 
-        SubCommand* setRequireCallback(const std::function<void(void)>& callback);
-
-        CLI::App* getParent() const;
-
-    protected:
-        CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
-
-    private:
-        CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
-
     protected:
         CLI::App* subCommandSc = nullptr;
+
+    private:
+        static std::shared_ptr<CLI::Formatter> sectionFormatter;
+        std::map<std::string, std::string> aliases;
+
+        CLI::App* helpTriggerApp = nullptr;
+        CLI::App* showConfigTriggerApp = nullptr;
+        CLI::App* commandlineTriggerApp = nullptr;
+
+        std::vector<std::shared_ptr<SubCommand>> configInstances; // Store anything
+
+        int requiredCount = 0;
     };
+
+    template <typename T>
+    T* SubCommand::addInstance() {
+        return std::static_pointer_cast<T>(configInstances.emplace_back(std::make_shared<T>())).get();
+    }
+
+    template <typename T>
+    T* SubCommand::getInstance() {
+        auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(T::name));
+
+        AppWithPtr<T>* instanceApp = dynamic_cast<utils::AppWithPtr<T>*>(appWithPtr);
+
+        return instanceApp != nullptr ? instanceApp->getPtr() : nullptr;
+    }
 
     template <typename ValueTypeT>
     CLI::Option* SubCommand::addOptionFunction(const std::string& name,
