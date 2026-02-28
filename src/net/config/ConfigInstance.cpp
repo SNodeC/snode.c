@@ -84,16 +84,8 @@ namespace net::config {
         utils::Config::removeInstance(subCommandSc);
     }
 
-    ConfigInstance::Role ConfigInstance::getRole() const {
-        return role;
-    }
-
     const std::string& ConfigInstance::getInstanceName() const {
         return instanceName.empty() ? nameAnonymous : instanceName;
-    }
-
-    void ConfigInstance::setInstanceName(const std::string& instanceName) {
-        this->instanceName = instanceName;
     }
 
     CLI::App* ConfigInstance::newSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group) {
@@ -157,11 +149,11 @@ namespace net::config {
     bool ConfigInstance::getRequired() const {
         return requiredCount > 0;
     }
-
-    CLI::App* ConfigInstance::get() const {
-        return subCommandSc;
-    }
-
+    /*
+        CLI::App* ConfigInstance::get() const {
+            return subCommandSc;
+        }
+    */
     ConfigInstance& ConfigInstance::configurable(bool configurable) {
         disableOpt->configurable(configurable);
 
@@ -172,11 +164,6 @@ namespace net::config {
 
     const CLI::App* ConfigInstance::getSection(const std::string& name) const {
         return subCommandSc->get_subcommand_no_throw(name);
-    }
-
-    bool ConfigInstance::gotSection(const std::string& name) const {
-        return subCommandSc //
-            ->got_subcommand(name);
     }
 
     bool ConfigInstance::getDisabled() const {

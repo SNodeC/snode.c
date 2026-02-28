@@ -80,39 +80,31 @@ namespace net::config {
         ConfigInstance& operator=(ConfigInstance&) = delete;
         ConfigInstance& operator=(ConfigInstance&&) = delete;
 
-        Role getRole() const;
-
         const std::string& getInstanceName() const;
-        void setInstanceName(const std::string& instanceName);
 
         bool getDisabled() const;
         ConfigInstance& setDisabled(bool disabled = true);
-
-        CLI::App* newSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
 
         ConfigSection* addSection(std::shared_ptr<ConfigSection>&& configSection);
 
         template <typename ConcreteConfigSection, typename... Args>
         ConcreteConfigSection* addSection(Args&&... args);
 
-    private:
-        const CLI::App* getSection(const std::string& name) const;
-
-    public:
         template <typename SectionTypeT>
         SectionTypeT* getSection() const;
 
-        bool gotSection(const std::string& name) const;
+        ConfigInstance& configurable(bool configurable = true);
+
+        //        CLI::App* get() const;
+
+    private:
+        CLI::App* newSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
+        const CLI::App* getSection(const std::string& name) const;
 
         ConfigInstance& required(bool required = true);
         ConfigInstance& required(CLI::App* section, bool req = true);
         bool getRequired() const;
 
-        CLI::App* get() const;
-
-        ConfigInstance& configurable(bool configurable = true);
-
-    private:
         uint8_t requiredCount = 0;
 
         std::string instanceName;
