@@ -64,6 +64,25 @@ namespace utils::config {
     class ConfigRoot : public utils::SubCommand {
     public:
         ConfigRoot();
+
+        ConfigRoot* addRootOptions(const std::string& applicationName,
+                                   const std::string& userName,
+                                   const std::string& groupName,
+                                   const std::string& configDirectory,
+                                   const std::string& logDirectory);
+
+    private:
+        CLI::Option* daemonizeOpt;
+        CLI::Option* logFileOpt;
+        CLI::Option* monochromLogOpt;
+        CLI::Option* userNameOpt;
+        CLI::Option* groupNameOpt;
+        CLI::Option* enforceLogFileOpt;
+        CLI::Option* logLevelOpt;
+        CLI::Option* verboseLevelOpt;
+        CLI::Option* quietOpt;
+
+        CLI::Option* versionOpt;
     };
 
 } // namespace utils::config
@@ -92,34 +111,35 @@ namespace utils {
     public:
         static bool parse2(bool parse1 = false);
 
-        //////////////////
+        static utils::config::ConfigRoot configRoot;
 
-        static CLI::App* addStandardFlags(CLI::App* app);
-        static CLI::App* addSimpleHelp(CLI::App* app);
-        static CLI::App* addHelp(CLI::App* app);
+        /*
+                //////////////////
 
-        //////////////////
+                static CLI::App* addStandardFlags(CLI::App* app);
+                static CLI::App* addSimpleHelp(CLI::App* app);
+                static CLI::App* addHelp(CLI::App* app);
 
-        static CLI::App* newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
+                //////////////////
 
-        static void required(CLI::App* instance, bool required = true);
-        static void disabled(CLI::App* instance, bool disabled = true);
+                static CLI::App* newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
 
-        static bool removeInstance(CLI::App* instance);
+                static void required(CLI::App* instance, bool required = true);
+                static void disabled(CLI::App* instance, bool disabled = true);
 
-        template <typename T>
-        static T* addInstance();
+                static bool removeInstance(CLI::App* instance);
 
-        template <typename T>
-        static T* getInstance();
+                template <typename T>
+                static T* addInstance();
 
-        //////////////////
+                template <typename T>
+                static T* getInstance();
 
+                //////////////////
+        */
     private:
         static int argc;
         static char** argv;
-
-        static utils::config::ConfigRoot configRoot;
 
         static std::shared_ptr<CLI::App> app;
 

@@ -57,11 +57,12 @@
 namespace net::config {
 
     template <typename T>
-    std::shared_ptr<utils::AppWithPtr<T>> Instance(const std::string& name, const std::string& description, T* section) {
-        std::shared_ptr<utils::AppWithPtr<T>> subCommandSc = std::make_shared<utils::AppWithPtr<T>>(description, name, section);
+    std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> Instance(const std::string& name, const std::string& description, T* section) {
+        std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> subCommandSc =
+            std::make_shared<utils::AppWithPtr<utils::SubCommand>>(description, name, section);
 
         subCommandSc->option_defaults()->take_last();
-        subCommandSc->formatter(utils::Config::sectionFormatter);
+        subCommandSc->formatter(utils::SubCommand::sectionFormatter);
 
         return subCommandSc;
     }
@@ -80,23 +81,5 @@ namespace net::config {
     }
 
 } // namespace net::config
-
-namespace utils {
-
-    template <typename T>
-    T* Config::getInstance() {
-        auto* appWithPtr = app->get_subcommand_no_throw(std::string(T::name));
-
-        AppWithPtr<T>* instanceApp = dynamic_cast<utils::AppWithPtr<T>*>(appWithPtr);
-
-        return instanceApp != nullptr ? instanceApp->getPtr() : nullptr;
-    }
-
-    template <typename T>
-    T* Config::addInstance() {
-        return std::static_pointer_cast<T>(utils::Config::configInstances.emplace_back(std::make_shared<T>())).get();
-    }
-
-} // namespace utils
 
 #endif // NET_CONFIG_CONFIGINSTANCE_HPP

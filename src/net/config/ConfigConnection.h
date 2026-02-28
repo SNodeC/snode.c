@@ -62,7 +62,7 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigConnection : protected ConfigSection {
+    class ConfigConnection : public ConfigSection {
     public:
         using Connection = ConfigConnection;
 

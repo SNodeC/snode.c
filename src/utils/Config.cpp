@@ -98,7 +98,156 @@
 namespace utils::config {
 
     config::ConfigRoot::ConfigRoot()
-        : utils::SubCommand(new CLI::App()) {
+        : utils::SubCommand(utils::Config::configRoot) {
+    }
+
+    ConfigRoot* ConfigRoot::addRootOptions(const std::string& applicationName,
+                                           const std::string& userName,
+                                           const std::string& groupName,
+                                           const std::string& configDirectory,
+                                           const std::string& logDirectory) {
+        subCommandSc->description("Configuration for Application '" + applicationName + "'");
+
+        subCommandSc->footer("Application '" + applicationName +
+                             "' powered by SNode.C\n"
+                             "(C) 2020-2025 Volker Christian <me@vchrist.at>\n"
+                             "https://github.com/SNodeC/snode.c");
+
+        subCommandSc
+            ->set_config( //
+                "-c,--config-file",
+                configDirectory + "/" + applicationName + ".conf",
+                "Read a config file",
+                false) //
+            ->take_all()
+            ->type_name("configfile")
+            ->check(!CLI::ExistingDirectory);
+
+        subCommandSc->add_option("-w,--write-config", "Write config file and exit")
+            ->configurable(false)
+            ->default_val(configDirectory + "/" + applicationName + ".conf")
+            ->type_name("configfile")
+            ->check(!CLI::ExistingDirectory)
+            ->expected(0, 1);
+
+        addStandardFlags();
+
+        subCommandSc
+            ->add_flag( //
+                "-k,--kill",
+                "Kill running daemon") //
+            ->configurable(false)
+            ->disable_flag_override();
+
+        subCommandSc
+            ->add_option( //
+                "-i,--instance-alias",
+                "Make an instance also known as an alias in configuration files")
+            ->configurable(false)
+            ->type_name("instance=instance_alias [instance=instance_alias [...]]")
+            ->each([&aliases = this->aliases](const std::string& item) {
+                const auto it = item.find('=');
+                if (it != std::string::npos) {
+                    aliases[item.substr(0, it)] = item.substr(it + 1);
+                } else {
+                    throw CLI::ConversionError("Can not convert '" + item + "' to a 'instance=instance_alias' pair");
+                }
+            });
+
+        logLevelOpt = subCommandSc
+                          ->add_option( //
+                              "--log-level",
+                              "Log level") //
+                          ->default_val(4)
+                          ->type_name("level")
+                          ->check(CLI::Range(0, 6))
+                          ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+
+        verboseLevelOpt = subCommandSc
+                              ->add_option( //
+                                  "--verbose-level",
+                                  "Verbose level") //
+                              ->default_val(2)
+                              ->type_name("level")
+                              ->check(CLI::Range(0, 10))
+                              ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+
+        logFileOpt = subCommandSc
+                         ->add_option( //
+                             "-l,--log-file",
+                             "Log file path") //
+                         ->default_val(logDirectory + "/" + applicationName + ".log")
+                         ->type_name("logfile")
+                         ->check(!CLI::ExistingDirectory)
+                         ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+
+        monochromLogOpt = subCommandSc
+                              ->add_flag(
+                                  "-m{true},--monochrom-log{true}",
+                                  [&monochromLogOpt = this->monochromLogOpt]([[maybe_unused]] std::size_t count) {
+                                      if (monochromLogOpt->as<bool>()) {
+                                          logger::Logger::setDisableColor(true);
+                                      } else {
+                                          logger::Logger::setDisableColor(false);
+                                      }
+                                  },
+                                  "Monochrom log output")
+                              ->default_val(logger::Logger::getDisableColor() ? "true" : "false")
+                              ->type_name("bool")
+                              ->check(CLI::IsMember({"true", "false"}))
+                              ->group(subCommandSc->get_formatter()->get_label("Persistent Options"))
+                              ->trigger_on_parse();
+
+        quietOpt = subCommandSc
+                       ->add_flag( //
+                           "-q{true},--quiet{true}",
+                           "Quiet mode") //
+                       ->default_val("false")
+                       ->type_name("bool")
+                       ->check(CLI::IsMember({"true", "false"}))
+                       ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+
+        enforceLogFileOpt = subCommandSc
+                                ->add_flag( //
+                                    "-e{true},--enforce-log-file{true}",
+                                    "Enforce writing of logs to file for foreground applications") //
+                                ->default_val("false")
+                                ->type_name("bool")
+                                ->check(CLI::IsMember({"true", "false"}))
+                                ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+
+        daemonizeOpt = subCommandSc
+                           ->add_flag( //
+                               "-d{true},--daemonize{true}",
+                               "Start application as daemon") //
+                           ->default_val("false")
+                           ->type_name("bool")
+                           ->check(CLI::IsMember({"true", "false"}))
+                           ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+
+        userNameOpt = subCommandSc
+                          ->add_option( //
+                              "-u,--user-name",
+                              "Run daemon under specific user permissions") //
+                          ->default_val(userName)
+                          ->type_name("username")
+                          ->needs(daemonizeOpt)
+                          ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+
+        groupNameOpt = subCommandSc
+                           ->add_option( //
+                               "-g,--group-name",
+                               "Run daemon under specific group permissions")
+                           ->default_val(groupName)
+                           ->type_name("groupname")
+                           ->needs(daemonizeOpt)
+                           ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+
+        versionOpt = subCommandSc->set_version_flag("-v,--version", "1.0-rc1", "Framework version");
+
+        addHelp();
+
+        return this;
     }
 
 } // namespace utils::config
@@ -255,135 +404,137 @@ namespace utils {
         }
 
         if (proceed) {
-            app->description("Configuration for Application '" + applicationName + "'");
+            configRoot.addRootOptions(applicationName, pw->pw_name, gr->gr_name, configDirectory, logDirectory);
+            /*
+                        app->description("Configuration for Application '" + applicationName + "'");
 
-            app->footer("Application '" + applicationName +
-                        "' powered by SNode.C\n"
-                        "(C) 2020-2025 Volker Christian <me@vchrist.at>\n"
-                        "https://github.com/SNodeC/snode.c");
+                        app->footer("Application '" + applicationName +
+                                    "' powered by SNode.C\n"
+                                    "(C) 2020-2025 Volker Christian <me@vchrist.at>\n"
+                                    "https://github.com/SNodeC/snode.c");
 
-            app->set_config( //
-                   "-c,--config-file",
-                   configDirectory + "/" + applicationName + ".conf",
-                   "Read a config file",
-                   false) //
-                ->take_all()
-                ->type_name("configfile")
-                ->check(!CLI::ExistingDirectory);
+                        app->set_config( //
+                               "-c,--config-file",
+                               configDirectory + "/" + applicationName + ".conf",
+                               "Read a config file",
+                               false) //
+                            ->take_all()
+                            ->type_name("configfile")
+                            ->check(!CLI::ExistingDirectory);
 
-            app->add_option("-w,--write-config", "Write config file and exit")
-                ->configurable(false)
-                ->default_val(configDirectory + "/" + applicationName + ".conf")
-                ->type_name("configfile")
-                ->check(!CLI::ExistingDirectory)
-                ->expected(0, 1);
+                        app->add_option("-w,--write-config", "Write config file and exit")
+                            ->configurable(false)
+                            ->default_val(configDirectory + "/" + applicationName + ".conf")
+                            ->type_name("configfile")
+                            ->check(!CLI::ExistingDirectory)
+                            ->expected(0, 1);
 
-            addStandardFlags(app.get());
+                        addStandardFlags(app.get());
 
-            app->add_flag( //
-                   "-k,--kill",
-                   "Kill running daemon") //
-                ->configurable(false)
-                ->disable_flag_override();
+                        app->add_flag( //
+                               "-k,--kill",
+                               "Kill running daemon") //
+                            ->configurable(false)
+                            ->disable_flag_override();
 
-            app->add_option( //
-                   "-i,--instance-alias",
-                   "Make an instance also known as an alias in configuration files")
-                ->configurable(false)
-                ->type_name("instance=instance_alias [instance=instance_alias [...]]")
-                ->each([](const std::string& item) {
-                    const auto it = item.find('=');
-                    if (it != std::string::npos) {
-                        aliases[item.substr(0, it)] = item.substr(it + 1);
-                    } else {
-                        throw CLI::ConversionError("Can not convert '" + item + "' to a 'instance=instance_alias' pair");
-                    }
-                });
+                        app->add_option( //
+                               "-i,--instance-alias",
+                               "Make an instance also known as an alias in configuration files")
+                            ->configurable(false)
+                            ->type_name("instance=instance_alias [instance=instance_alias [...]]")
+                            ->each([](const std::string& item) {
+                                const auto it = item.find('=');
+                                if (it != std::string::npos) {
+                                    aliases[item.substr(0, it)] = item.substr(it + 1);
+                                } else {
+                                    throw CLI::ConversionError("Can not convert '" + item + "' to a 'instance=instance_alias' pair");
+                                }
+                            });
 
-            logLevelOpt = app->add_option( //
-                                 "--log-level",
-                                 "Log level") //
-                              ->default_val(4)
-                              ->type_name("level")
-                              ->check(CLI::Range(0, 6))
-                              ->group(app->get_formatter()->get_label("Persistent Options"));
+                        logLevelOpt = app->add_option( //
+                                             "--log-level",
+                                             "Log level") //
+                                          ->default_val(4)
+                                          ->type_name("level")
+                                          ->check(CLI::Range(0, 6))
+                                          ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            verboseLevelOpt = app->add_option( //
-                                     "--verbose-level",
-                                     "Verbose level") //
-                                  ->default_val(2)
-                                  ->type_name("level")
-                                  ->check(CLI::Range(0, 10))
-                                  ->group(app->get_formatter()->get_label("Persistent Options"));
+                        verboseLevelOpt = app->add_option( //
+                                                 "--verbose-level",
+                                                 "Verbose level") //
+                                              ->default_val(2)
+                                              ->type_name("level")
+                                              ->check(CLI::Range(0, 10))
+                                              ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            logFileOpt = app->add_option( //
-                                "-l,--log-file",
-                                "Log file path") //
-                             ->default_val(logDirectory + "/" + applicationName + ".log")
-                             ->type_name("logfile")
-                             ->check(!CLI::ExistingDirectory)
-                             ->group(app->get_formatter()->get_label("Persistent Options"));
+                        logFileOpt = app->add_option( //
+                                            "-l,--log-file",
+                                            "Log file path") //
+                                         ->default_val(logDirectory + "/" + applicationName + ".log")
+                                         ->type_name("logfile")
+                                         ->check(!CLI::ExistingDirectory)
+                                         ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            monochromLogOpt = app->add_flag(
-                                     "-m{true},--monochrom-log{true}",
-                                     []([[maybe_unused]] std::size_t count) {
-                                         if (monochromLogOpt->as<bool>()) {
-                                             logger::Logger::setDisableColor(true);
-                                         } else {
-                                             logger::Logger::setDisableColor(false);
-                                         }
-                                     },
-                                     "Monochrom log output")
-                                  ->default_val(logger::Logger::getDisableColor() ? "true" : "false")
-                                  ->type_name("bool")
-                                  ->check(CLI::IsMember({"true", "false"}))
-                                  ->group(app->get_formatter()->get_label("Persistent Options"))
-                                  ->trigger_on_parse();
+                        monochromLogOpt = app->add_flag(
+                                                 "-m{true},--monochrom-log{true}",
+                                                 []([[maybe_unused]] std::size_t count) {
+                                                     if (monochromLogOpt->as<bool>()) {
+                                                         logger::Logger::setDisableColor(true);
+                                                     } else {
+                                                         logger::Logger::setDisableColor(false);
+                                                     }
+                                                 },
+                                                 "Monochrom log output")
+                                              ->default_val(logger::Logger::getDisableColor() ? "true" : "false")
+                                              ->type_name("bool")
+                                              ->check(CLI::IsMember({"true", "false"}))
+                                              ->group(app->get_formatter()->get_label("Persistent Options"))
+                                              ->trigger_on_parse();
 
-            quietOpt = app->add_flag( //
-                              "-q{true},--quiet{true}",
-                              "Quiet mode") //
-                           ->default_val("false")
-                           ->type_name("bool")
-                           ->check(CLI::IsMember({"true", "false"}))
-                           ->group(app->get_formatter()->get_label("Persistent Options"));
+                        quietOpt = app->add_flag( //
+                                          "-q{true},--quiet{true}",
+                                          "Quiet mode") //
+                                       ->default_val("false")
+                                       ->type_name("bool")
+                                       ->check(CLI::IsMember({"true", "false"}))
+                                       ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            enforceLogFileOpt = app->add_flag( //
-                                       "-e{true},--enforce-log-file{true}",
-                                       "Enforce writing of logs to file for foreground applications") //
-                                    ->default_val("false")
-                                    ->type_name("bool")
-                                    ->check(CLI::IsMember({"true", "false"}))
-                                    ->group(app->get_formatter()->get_label("Persistent Options"));
+                        enforceLogFileOpt = app->add_flag( //
+                                                   "-e{true},--enforce-log-file{true}",
+                                                   "Enforce writing of logs to file for foreground applications") //
+                                                ->default_val("false")
+                                                ->type_name("bool")
+                                                ->check(CLI::IsMember({"true", "false"}))
+                                                ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            daemonizeOpt = app->add_flag( //
-                                  "-d{true},--daemonize{true}",
-                                  "Start application as daemon") //
-                               ->default_val("false")
-                               ->type_name("bool")
-                               ->check(CLI::IsMember({"true", "false"}))
-                               ->group(app->get_formatter()->get_label("Persistent Options"));
+                        daemonizeOpt = app->add_flag( //
+                                              "-d{true},--daemonize{true}",
+                                              "Start application as daemon") //
+                                           ->default_val("false")
+                                           ->type_name("bool")
+                                           ->check(CLI::IsMember({"true", "false"}))
+                                           ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            userNameOpt = app->add_option( //
-                                 "-u,--user-name",
-                                 "Run daemon under specific user permissions") //
-                              ->default_val(pw->pw_name)
-                              ->type_name("username")
-                              ->needs(daemonizeOpt)
-                              ->group(app->get_formatter()->get_label("Persistent Options"));
+                        userNameOpt = app->add_option( //
+                                             "-u,--user-name",
+                                             "Run daemon under specific user permissions") //
+                                          ->default_val(pw->pw_name)
+                                          ->type_name("username")
+                                          ->needs(daemonizeOpt)
+                                          ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            groupNameOpt = app->add_option( //
-                                  "-g,--group-name",
-                                  "Run daemon under specific group permissions")
-                               ->default_val(gr->gr_name)
-                               ->type_name("groupname")
-                               ->needs(daemonizeOpt)
-                               ->group(app->get_formatter()->get_label("Persistent Options"));
+                        groupNameOpt = app->add_option( //
+                                              "-g,--group-name",
+                                              "Run daemon under specific group permissions")
+                                           ->default_val(gr->gr_name)
+                                           ->type_name("groupname")
+                                           ->needs(daemonizeOpt)
+                                           ->group(app->get_formatter()->get_label("Persistent Options"));
 
-            versionOpt = app->set_version_flag("-v,--version", "1.0-rc1", "Framework version");
+                        versionOpt = app->set_version_flag("-v,--version", "1.0-rc1", "Framework version");
 
-            addHelp(app.get());
-
+                        addHelp(app.get());
+            */
             proceed = parse1(); // for stopDaemon and pre init application options
         }
 
@@ -862,194 +1013,195 @@ namespace utils {
 
         return proceed;
     }
+    /*
+        //////////////////
 
-    //////////////////
+        static std::shared_ptr<CLI::HelpFormatter> makeSectionFormatter() {
+            const std::shared_ptr<CLI::HelpFormatter> sectionFormatter = std::make_shared<CLI::HelpFormatter>();
 
-    static std::shared_ptr<CLI::HelpFormatter> makeSectionFormatter() {
-        const std::shared_ptr<CLI::HelpFormatter> sectionFormatter = std::make_shared<CLI::HelpFormatter>();
+            sectionFormatter->label("SUBCOMMAND", "SECTION");
+            sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
+            sectionFormatter->label("PERSISTENT", "");
+            sectionFormatter->label("Persistent Options", "Options (persistent)");
+            sectionFormatter->label("Nonpersistent Options", "Options (nonpersistent)");
+            sectionFormatter->label("Usage", "\nUsage");
+            sectionFormatter->label("bool:{true,false}", "{true,false}");
+            sectionFormatter->label(":{standard,active,complete,required}", "{standard,active,complete,required}");
+            sectionFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
+            sectionFormatter->column_width(7);
 
-        sectionFormatter->label("SUBCOMMAND", "SECTION");
-        sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
-        sectionFormatter->label("PERSISTENT", "");
-        sectionFormatter->label("Persistent Options", "Options (persistent)");
-        sectionFormatter->label("Nonpersistent Options", "Options (nonpersistent)");
-        sectionFormatter->label("Usage", "\nUsage");
-        sectionFormatter->label("bool:{true,false}", "{true,false}");
-        sectionFormatter->label(":{standard,active,complete,required}", "{standard,active,complete,required}");
-        sectionFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
-        sectionFormatter->column_width(7);
-
-        return sectionFormatter;
-    }
-
-    CLI::App* Config::addStandardFlags(CLI::App* app) {
-        app //
-            ->add_flag_function(
-                "-s,--show-config",
-                [app](std::size_t) {
-                    if (showConfigTriggerApp == nullptr) {
-                        showConfigTriggerApp = app;
-                    }
-                },
-                "Show current configuration and exit") //
-            ->configurable(false)
-            ->take_first()
-            ->disable_flag_override()
-            ->trigger_on_parse();
-
-        app //
-            ->add_flag(
-                "--command-line{standard}",
-                [app]([[maybe_unused]] std::int64_t count) {
-                    if (commandlineTriggerApp == nullptr) {
-                        commandlineTriggerApp = app;
-                    }
-                },
-                "Print command-line\n"
-                "* standard (default): Show all non-default and required options\n"
-                "* active: Show all active options\n"
-                "* complete: Show the complete option set with default values\n"
-                "* required: Show only required options")
-            ->configurable(false)
-            ->take_first()
-            ->check(CLI::IsMember({"standard", "active", "complete", "required"}))
-            ->trigger_on_parse();
-
-        return app;
-    }
-
-    CLI::App* Config::addSimpleHelp(CLI::App* app) {
-        app->set_help_flag(
-               "--help{exact},-h{exact}",
-               [app](std::size_t) {
-                   if (helpTriggerApp == nullptr) {
-                       helpTriggerApp = app;
-                   }
-               },
-               "Print help message and exit\n"
-               "* standard: display help for the last command processed\n"
-               "* exact: display help for the command directly preceding --help")
-            ->group(app->get_formatter()->get_label("Nonpersistent Options"))
-            ->take_first()
-            ->check(CLI::IsMember({"standard", "exact"}))
-            ->trigger_on_parse();
-
-        return app;
-    }
-
-    CLI::App* Config::addHelp(CLI::App* app) {
-        app->set_help_flag(
-               "-h{exact},--help{exact}",
-               [app](std::size_t) {
-                   if (helpTriggerApp == nullptr) {
-                       helpTriggerApp = app;
-                   }
-               },
-               "Print help message and exit\n"
-               "* standard: display help for the last command processed\n"
-               "* exact: display help for the command directly preceding --help\n"
-               "* expanded: print help including all descendant command options")
-            ->group(app->get_formatter()->get_label("Nonpersistent Options"))
-            ->take_first()
-            ->check(CLI::IsMember({"standard", "exact", "expanded"}))
-            ->trigger_on_parse();
-
-        return app;
-    }
-
-    //////////////////
-
-    std::shared_ptr<CLI::Formatter> Config::sectionFormatter = makeSectionFormatter();
-
-    CLI::App* Config::newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final) {
-        CLI::App* instanceSc = app->add_subcommand(appWithPtr)
-                                   ->group(group)
-                                   ->ignore_case(false)
-                                   ->fallthrough()
-                                   ->formatter(sectionFormatter)
-                                   ->configurable(false)
-                                   ->config_formatter(app->get_config_formatter())
-                                   ->allow_extras()
-                                   ->disabled(appWithPtr->get_name().empty());
-
-        instanceSc //
-            ->option_defaults()
-            ->configurable(!instanceSc->get_disabled());
-
-        if (!instanceSc->get_disabled()) {
-            if (aliases.contains(instanceSc->get_name())) {
-                instanceSc //
-                    ->alias(aliases[instanceSc->get_name()]);
-            }
+            return sectionFormatter;
         }
 
-        utils::Config::addStandardFlags(instanceSc);
+        CLI::App* Config::addStandardFlags(CLI::App* app) {
+            app //
+                ->add_flag_function(
+                    "-s,--show-config",
+                    [app](std::size_t) {
+                        if (showConfigTriggerApp == nullptr) {
+                            showConfigTriggerApp = app;
+                        }
+                    },
+                    "Show current configuration and exit") //
+                ->configurable(false)
+                ->take_first()
+                ->disable_flag_override()
+                ->trigger_on_parse();
 
-        if (!final) {
-            utils::Config::addHelp(instanceSc);
-        } else {
-            utils::Config::addSimpleHelp(instanceSc);
+            app //
+                ->add_flag(
+                    "--command-line{standard}",
+                    [app]([[maybe_unused]] std::int64_t count) {
+                        if (commandlineTriggerApp == nullptr) {
+                            commandlineTriggerApp = app;
+                        }
+                    },
+                    "Print command-line\n"
+                    "* standard (default): Show all non-default and required options\n"
+                    "* active: Show all active options\n"
+                    "* complete: Show the complete option set with default values\n"
+                    "* required: Show only required options")
+                ->configurable(false)
+                ->take_first()
+                ->check(CLI::IsMember({"standard", "active", "complete", "required"}))
+                ->trigger_on_parse();
+
+            return app;
         }
 
-        return instanceSc;
-    }
+        CLI::App* Config::addSimpleHelp(CLI::App* app) {
+            app->set_help_flag(
+                   "--help{exact},-h{exact}",
+                   [app](std::size_t) {
+                       if (helpTriggerApp == nullptr) {
+                           helpTriggerApp = app;
+                       }
+                   },
+                   "Print help message and exit\n"
+                   "* standard: display help for the last command processed\n"
+                   "* exact: display help for the command directly preceding --help")
+                ->group(app->get_formatter()->get_label("Nonpersistent Options"))
+                ->take_first()
+                ->check(CLI::IsMember({"standard", "exact"}))
+                ->trigger_on_parse();
 
-    void Config::required(CLI::App* instance, bool required) {
-        if (required) {
-            app->needs(instance);
-
-            for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
-                     return sc->get_required();
-                 })) {
-                instance->needs(sub);
-            }
-        } else {
-            app->remove_needs(instance);
-
-            for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
-                     return sc->get_required();
-                 })) {
-                instance->remove_needs(sub);
-            }
+            return app;
         }
 
-        instance->required(required);
-        instance->ignore_case(required);
-    }
+        CLI::App* Config::addHelp(CLI::App* app) {
+            app->set_help_flag(
+                   "-h{exact},--help{exact}",
+                   [app](std::size_t) {
+                       if (helpTriggerApp == nullptr) {
+                           helpTriggerApp = app;
+                       }
+                   },
+                   "Print help message and exit\n"
+                   "* standard: display help for the last command processed\n"
+                   "* exact: display help for the command directly preceding --help\n"
+                   "* expanded: print help including all descendant command options")
+                ->group(app->get_formatter()->get_label("Nonpersistent Options"))
+                ->take_first()
+                ->check(CLI::IsMember({"standard", "exact", "expanded"}))
+                ->trigger_on_parse();
 
-    void Config::disabled(CLI::App* instance, bool disabled) {
-        if (disabled) {
-            if (instance->get_ignore_case()) {
-                app->remove_needs(instance);
-            }
+            return app;
+        }
 
-            for (const auto& sub : instance->get_subcommands({})) {
-                if (sub->get_ignore_case()) {
-                    instance->remove_needs(sub);
-                    sub->required(false); // ### must be stored in ConfigInstance
+        //////////////////
+
+        std::shared_ptr<CLI::Formatter> Config::sectionFormatter = makeSectionFormatter();
+
+        CLI::App* Config::newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final) {
+            CLI::App* instanceSc = app->add_subcommand(appWithPtr)
+                                       ->group(group)
+                                       ->ignore_case(false)
+                                       ->fallthrough()
+                                       ->formatter(sectionFormatter)
+                                       ->configurable(false)
+                                       ->config_formatter(app->get_config_formatter())
+                                       ->allow_extras()
+                                       ->disabled(appWithPtr->get_name().empty());
+
+            instanceSc //
+                ->option_defaults()
+                ->configurable(!instanceSc->get_disabled());
+
+            if (!instanceSc->get_disabled()) {
+                if (aliases.contains(instanceSc->get_name())) {
+                    instanceSc //
+                        ->alias(aliases[instanceSc->get_name()]);
                 }
             }
-        } else {
-            if (instance->get_ignore_case()) {
+
+            utils::Config::addStandardFlags(instanceSc);
+
+            if (!final) {
+                utils::Config::addHelp(instanceSc);
+            } else {
+                utils::Config::addSimpleHelp(instanceSc);
+            }
+
+            return instanceSc;
+        }
+
+        void Config::required(CLI::App* instance, bool required) {
+            if (required) {
                 app->needs(instance);
-            }
 
-            for (const auto& sub : instance->get_subcommands({})) {
-                if (sub->get_ignore_case()) { // ### must be recalled from ConfigInstance
+                for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
+                         return sc->get_required();
+                     })) {
                     instance->needs(sub);
-                    sub->required();
+                }
+            } else {
+                app->remove_needs(instance);
+
+                for (const auto& sub : instance->get_subcommands([](const CLI::App* sc) -> bool {
+                         return sc->get_required();
+                     })) {
+                    instance->remove_needs(sub);
                 }
             }
+
+            instance->required(required);
+            instance->ignore_case(required);
         }
 
-        instance->required(disabled ? false : instance->get_ignore_case());
-    }
+        void Config::disabled(CLI::App* instance, bool disabled) {
+            if (disabled) {
+                if (instance->get_ignore_case()) {
+                    app->remove_needs(instance);
+                }
 
-    bool Config::removeInstance(CLI::App* instance) {
-        Config::required(instance, false);
+                for (const auto& sub : instance->get_subcommands({})) {
+                    if (sub->get_ignore_case()) {
+                        instance->remove_needs(sub);
+                        sub->required(false); // ### must be stored in ConfigInstance
+                    }
+                }
+            } else {
+                if (instance->get_ignore_case()) {
+                    app->needs(instance);
+                }
 
-        return app->remove_subcommand(instance);
-    }
+                for (const auto& sub : instance->get_subcommands({})) {
+                    if (sub->get_ignore_case()) { // ### must be recalled from ConfigInstance
+                        instance->needs(sub);
+                        sub->required();
+                    }
+                }
+            }
+
+            instance->required(disabled ? false : instance->get_ignore_case());
+        }
+
+        bool Config::removeInstance(CLI::App* instance) {
+            Config::required(instance, false);
+
+            return app->remove_subcommand(instance);
+        }
+    */
 
     int Config::argc = 0;
     char** Config::argv = nullptr;

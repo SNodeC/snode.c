@@ -78,13 +78,19 @@
 namespace net::config {
 
     template <typename T>
-    std::shared_ptr<CLI::App> Section(T* section) {
-        return std::make_shared<utils::AppWithPtr<T>>(std::string(T::description), std::string(T::name), section);
+    std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> Section(T* section) {
+        std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> subCommandSc =
+            std::make_shared<utils::AppWithPtr<utils::SubCommand>>(std::string(T::description), std::string(T::name), section);
+
+        subCommandSc->option_defaults()->take_last();
+        subCommandSc->formatter(utils::SubCommand::sectionFormatter);
+
+        return subCommandSc;
     }
 
     template <typename T>
     ConfigSection::ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group)
-        : SubCommand(instance->newSection(net::config::Section(sectionPtr), group))
+        : SubCommand(instance->newInstance(net::config::Section(sectionPtr), group))
         , instance(instance) {
         subCommandSc->description(std::string{T::description} + " for instance '" + instance->getInstanceName() + "'");
     }

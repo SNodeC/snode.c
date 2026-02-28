@@ -83,7 +83,7 @@ namespace instance {
         constexpr static std::string_view name{"www"};
         constexpr static std::string_view description{"Web behavior of httpserver"};
 
-        ConfigWWW();
+        ConfigWWW(utils::SubCommand* parent);
 
         ConfigWWW& setHtmlRoot(const std::string& htmlRoot);
         std::string getHtmlRoot();

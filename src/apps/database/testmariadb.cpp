@@ -58,14 +58,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class ConfigDb : utils::SubCommand {
+class ConfigDb : public utils::SubCommand {
 public:
     constexpr static std::string_view name{"db"};
     constexpr static std::string_view description{"Database connection"};
 
-    ConfigDb()
-        : SubCommand(
-              utils::Config::newInstance(net::config::Instance(std::string(name), std::string(description), this), "Database", true)) {
+    ConfigDb(SubCommand* parent)
+        : SubCommand(parent->newInstance(net::config::Instance(std::string(name), std::string(description), this), "Database", true)) {
         hostOpt = subCommandSc->add_option("--db-host", "Hostname of IP-Address of Server")
                       ->group(subCommandSc->get_formatter()->get_label("Persistent Options"))
                       ->type_name("[hostname|IP-address]")
@@ -96,13 +95,13 @@ private:
 };
 
 int main(int argc, char* argv[]) {
-    utils::Config::addInstance<ConfigDb>()->setHost("localhost");
+    utils::Config::configRoot.addInstance<ConfigDb>()->setHost("localhost");
 
     core::SNodeC::init(argc, argv);
 
     const database::mariadb::MariaDBConnectionDetails details = {
         .connectionName = "testconnection",
-        .hostname = utils::Config::getInstance<ConfigDb>()->getHost(),
+        .hostname = utils::Config::configRoot.getInstance<ConfigDb>()->getHost(),
         .username = "snodec",
         .password = "pentium5",
         .database = "snodec",

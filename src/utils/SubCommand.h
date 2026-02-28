@@ -90,7 +90,7 @@ namespace utils {
 
     class SubCommand {
     public:
-        SubCommand(CLI::App* subCommandSc);
+        SubCommand(SubCommand* subCommand);
 
         SubCommand* required(bool required = true, bool force = true);
 
@@ -198,11 +198,12 @@ namespace utils {
 
     protected:
         CLI::App* subCommandSc = nullptr;
-
-    private:
-        static std::shared_ptr<CLI::Formatter> sectionFormatter;
         std::map<std::string, std::string> aliases;
 
+    public:
+        static std::shared_ptr<CLI::Formatter> sectionFormatter;
+
+    private:
         CLI::App* helpTriggerApp = nullptr;
         CLI::App* showConfigTriggerApp = nullptr;
         CLI::App* commandlineTriggerApp = nullptr;
@@ -214,7 +215,7 @@ namespace utils {
 
     template <typename T>
     T* SubCommand::addInstance() {
-        return std::static_pointer_cast<T>(configInstances.emplace_back(std::make_shared<T>())).get();
+        return std::static_pointer_cast<T>(configInstances.emplace_back(std::make_shared<T>(this))).get();
     }
 
     template <typename T>

@@ -98,7 +98,7 @@ namespace net::config {
         //        CLI::App* get() const;
 
     private:
-        CLI::App* newSection(std::shared_ptr<CLI::App> appWithPtr, const std::string& group);
+        CLI::App* newSection(std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> appWithPtr, const std::string& group);
         const CLI::App* getSection(const std::string& name) const;
 
         ConfigInstance& required(bool required = true);

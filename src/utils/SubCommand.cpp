@@ -53,8 +53,8 @@
 
 namespace utils {
 
-    SubCommand::SubCommand(CLI::App* subCommandSc)
-        : subCommandSc(subCommandSc) {
+    SubCommand::SubCommand(SubCommand* subCommand)
+        : subCommandSc(subCommand->subCommandSc) {
         setConfigurable(addOption( //
                             "-i,--instance-alias",
                             "Make an instance also known as an alias in configuration files",
@@ -304,17 +304,15 @@ namespace utils {
             }
         }
 
-        SubCommand* newSubCommandSc = appWithPtr->getPtr();
-
-        newSubCommandSc->addStandardFlags();
+        appWithPtr->getPtr()->addStandardFlags();
 
         if (!final) {
-            newSubCommandSc->addHelp();
+            appWithPtr->getPtr()->addHelp();
         } else {
-            newSubCommandSc->addSimpleHelp();
+            appWithPtr->getPtr()->addSimpleHelp();
         }
 
-        return newSubCommandSc;
+        return appWithPtr->getPtr();
     }
 
     SubCommand* SubCommand::removeInstance(utils::SubCommand* instance) {

@@ -63,7 +63,7 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigTls : protected ConfigSection {
+    class ConfigTls : public ConfigSection {
     protected:
         template <typename ConcretConfigTls>
         explicit ConfigTls(ConfigInstance* instance, ConcretConfigTls section);

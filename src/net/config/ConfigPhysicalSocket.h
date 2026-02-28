@@ -65,7 +65,7 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigPhysicalSocket : protected ConfigSection {
+    class ConfigPhysicalSocket : public ConfigSection {
     protected:
         template <typename ConcretConfigPhysicalSocketT>
         ConfigPhysicalSocket(ConfigInstance* instance, ConcretConfigPhysicalSocketT* section);
