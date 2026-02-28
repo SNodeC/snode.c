@@ -60,7 +60,6 @@ namespace net::config {
             "--sni",
             "Server Name Indication",
             "sni",
-            "",
             CLI::TypeValidator<std::string>());
     }
 

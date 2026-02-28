@@ -51,7 +51,6 @@ namespace net::config {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <memory>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -59,25 +58,22 @@ namespace net::config {
 
     ConfigTlsServer::ConfigTlsServer(ConfigInstance* instance)
         : ConfigTls(instance, this) {
-        sniCertsOpt = subCommandSc //
-                          ->add_option("--sni-cert",
-                                       configuredSniCerts,
-                                       "Server Name Indication (SNI) Certificates:\n"
-                                       "sni = SNI of the virtual server\n"
-                                       "<key> = {\n"
-                                       "  Cert -> value:PEM-FILE                  [\"\"]\n"
-                                       "  CertKey -> value:PEM-FILE               [\"\"]\n"
-                                       "  CertKeyPassword -> value:TEXT           [\"\"]\n"
-                                       "  CaCert -> value:PEM-FILE                [\"\"]\n"
-                                       "  CaCertDir -> value:PEM-CONTAINER-DIR    [\"\"]\n"
-                                       "  CaCertUseDefaultDir -> value:BOOLEAN    [false]\n"
-                                       "  CipherList -> value:CIPHER              [\"\"]\n"
-                                       "  SslOptions -> value:UINT                [0]\n"
-                                       "}") //
-                          ->type_name("sni <key> value [<key> value] ... [%% sni <key> value [<key> value] ...]");
-        if (sniCertsOpt->get_configurable()) {
-            sniCertsOpt->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
-        }
+        sniCertsOpt = addOptionVariable("--sni-cert",
+                                        configuredSniCerts,
+                                        "Server Name Indication (SNI) Certificates:\n"
+                                        "sni = SNI of the virtual server\n"
+                                        "<key> = {\n"
+                                        "  Cert -> value:PEM-FILE                  [\"\"]\n"
+                                        "  CertKey -> value:PEM-FILE               [\"\"]\n"
+                                        "  CertKeyPassword -> value:TEXT           [\"\"]\n"
+                                        "  CaCert -> value:PEM-FILE                [\"\"]\n"
+                                        "  CaCertDir -> value:PEM-CONTAINER-DIR    [\"\"]\n"
+                                        "  CaCertUseDefaultDir -> value:BOOLEAN    [false]\n"
+                                        "  CipherList -> value:CIPHER              [\"\"]\n"
+                                        "  SslOptions -> value:UINT                [0]\n"
+                                        "}",
+                                        "sni <key> value [<key> value] ... [%% sni <key> value [<key> value] ...]",
+                                        CLI::TypeValidator<std::string>());
 
         sniCertsOpt->default_function([this]() -> std::string {
             std::string defaultValue;

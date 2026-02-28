@@ -45,6 +45,8 @@
 #include "net/config/ConfigPhysicalSocket.h" // IWYU pragma: export
 #include "utils/Timeval.h"                   // IWYU pragma: export
 
+// IWYU pragma: no_include "net/config/ConfigPhysicalSocket.hpp"
+
 namespace net::config {
     class ConfigInstance;
 }

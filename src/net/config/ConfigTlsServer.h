@@ -42,14 +42,17 @@
 #ifndef NET_CONFIG_CONFIGTLSSERVER_H
 #define NET_CONFIG_CONFIGTLSSERVER_H
 
-#include "net/config/ConfigSection.h"
 #include "net/config/ConfigTls.h" // IWYU pragma: export
+
+// IWYU pragma: no_include "net/config/ConfigTls.hpp"
 
 namespace net::config {
     class ConfigInstance;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string>
 
 namespace CLI {
     class Option;

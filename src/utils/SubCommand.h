@@ -110,6 +110,21 @@ namespace utils {
                                const CLI::Validator& validator);
 
         template <typename ValueTypeT>
+        CLI::Option* addOptionVariable(const std::string& name,
+                                       ValueTypeT& variable,
+                                       const std::string& description,
+                                       const std::string& typeName,
+                                       const CLI::Validator& additionalValidator);
+
+        template <typename ValueTypeT>
+        CLI::Option* addOptionVariable(const std::string& name,
+                                       ValueTypeT& variable,
+                                       const std::string& description,
+                                       const std::string& typeName,
+                                       ValueTypeT defaultValue,
+                                       const CLI::Validator& additionalValidator);
+
+        template <typename ValueTypeT>
         CLI::Option* addOptionFunction(const std::string& name,
                                        std::function<void(const std::string&)>& callback,
                                        const std::string& description,
@@ -133,7 +148,7 @@ namespace utils {
                                      const CLI::Validator& validator);
 
         template <typename ValueTypeT>
-        static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool force = true);
+        static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true);
 
     protected:
         CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
@@ -163,6 +178,27 @@ namespace utils {
                                        ValueTypeT defaultValue,
                                        const CLI::Validator& additionalValidator) {
         return addOption(name, description, typeName, additionalValidator) //
+            ->default_val(defaultValue);
+    }
+
+    template <typename ValueTypeT>
+    CLI::Option* SubCommand::addOptionVariable(const std::string& name,
+                                               ValueTypeT& variable,
+                                               const std::string& description,
+                                               const std::string& typeName,
+                                               const CLI::Validator& additionalValidator) {
+        return initialize(
+            subCommandSc->add_option(name, variable, description), typeName, additionalValidator, !subCommandSc->get_disabled());
+    }
+
+    template <typename ValueTypeT>
+    CLI::Option* SubCommand::addOptionVariable(const std::string& name,
+                                               ValueTypeT& variable,
+                                               const std::string& description,
+                                               const std::string& typeName,
+                                               ValueTypeT defaultValue,
+                                               const CLI::Validator& additionalValidator) {
+        return addOption(name, variable, description, typeName, additionalValidator) //
             ->default_val(defaultValue);
     }
 
