@@ -41,6 +41,7 @@
 
 #include "net/config/ConfigTlsServer.h"
 
+#include "ConfigTls.hpp"
 #include "net/config/ConfigSection.hpp"
 
 namespace net::config {
@@ -57,8 +58,7 @@ namespace net::config {
 namespace net::config {
 
     ConfigTlsServer::ConfigTlsServer(ConfigInstance* instance)
-        : ConfigSection(instance, this)
-        , ConfigTls(this) {
+        : ConfigTls(instance, this) {
         sniCertsOpt = subCommandSc //
                           ->add_option("--sni-cert",
                                        configuredSniCerts,
@@ -150,9 +150,7 @@ namespace net::config {
     }
 
     ConfigTlsServer& ConfigTlsServer::setForceSni(bool forceSni) {
-        forceSniOpt //
-            ->default_val(forceSni ? "true" : "false")
-            ->clear();
+        setDefaultValue(forceSniOpt, forceSni ? "true" : "false");
 
         return *this;
     }

@@ -69,6 +69,7 @@
 #endif
 
 #include "core/system/socket.h"
+#include "utils/PreserveErrno.h"
 
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -100,7 +101,7 @@ namespace net::in6::stream::config {
             XSTR(IN6_CLIENT_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {
-            disableNagleAlgorithmOpt->default_val("false");
+            setDefaultValue(disableNagleAlgorithmOpt, "false");
         }
     }
 
@@ -108,15 +109,15 @@ namespace net::in6::stream::config {
     }
 
     ConfigSocketClient& ConfigSocketClient::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
+        const utils::PreserveErrno preserveErrno;
+
         if (disableNagleAlgorithm) {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 1);
         } else {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 0);
         }
 
-        disableNagleAlgorithmOpt //
-            ->default_val(disableNagleAlgorithm ? "true" : "false")
-            ->clear();
+        setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
 
         return *this;
     }

@@ -42,9 +42,7 @@
 #ifndef NET_CONFIG_CONFIGTLS_H
 #define NET_CONFIG_CONFIGTLS_H
 
-namespace net::config {
-    class ConfigSection;
-}
+#include "net/config/ConfigSection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -62,9 +60,10 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigTls {
+    class ConfigTls : protected ConfigSection {
     protected:
-        explicit ConfigTls(net::config::ConfigSection* section);
+        template <typename ConcretConfigTls>
+        explicit ConfigTls(ConfigInstance* instance, ConcretConfigTls section);
 
     public:
         constexpr static std::string_view name{"tls"};
@@ -119,6 +118,9 @@ namespace net::config {
         CLI::Option* initTimeoutOpt = nullptr;
         CLI::Option* shutdownTimeoutOpt = nullptr;
         bool noCloseNotifyIsEOFOpt = false;
+
+        static float tlsInitTimeout;
+        static float tlsShutdownTimeout;
     };
 
 } // namespace net::config

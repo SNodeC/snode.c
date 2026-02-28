@@ -77,9 +77,7 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddressReverse<ConfigAddressType>& ConfigAddressReverse<ConfigAddressType>::setNumericReverse(bool numeric) {
-        numericReverseOpt //
-            ->default_val(numeric ? "true" : "false")
-            ->clear();
+        setDefaultValue(numericReverseOpt, numeric ? "true" : "false");
 
         return *this;
     }
@@ -188,9 +186,7 @@ namespace net::in::config {
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setHost(const std::string& ipOrHostname) {
         const utils::PreserveErrno preserveErrno;
 
-        hostOpt //
-            ->default_val(ipOrHostname)
-            ->clear();
+        setDefaultValue(hostOpt, ipOrHostname);
         required(hostOpt, false);
 
         return *this;
@@ -205,9 +201,7 @@ namespace net::in::config {
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPort(uint16_t port) {
         const utils::PreserveErrno preserveErrno;
 
-        portOpt //
-            ->default_val(port)
-            ->clear();
+        setDefaultValue(portOpt, port);
         required(portOpt, false);
 
         return *this;
@@ -222,9 +216,7 @@ namespace net::in::config {
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setNumeric(bool numeric) {
         const utils::PreserveErrno preserveErrno;
 
-        numericOpt //
-            ->default_val(numeric ? "true" : "false")
-            ->clear();
+        setDefaultValue(numericOpt, numeric ? "true" : "false");
 
         return *this;
     }
@@ -236,9 +228,9 @@ namespace net::in::config {
 
     template <template <typename SocketAddress> typename ConfigAddressType>
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setNumericReverse(bool numeric) {
-        numericReverseOpt //
-            ->default_val(numeric ? "true" : "false")
-            ->clear();
+        const utils::PreserveErrno preserveErrno;
+
+        setDefaultValue(numericReverseOpt, numeric ? "true" : "false");
 
         return *this;
     }

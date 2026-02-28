@@ -69,19 +69,15 @@ namespace net::config {
                                                        "Instances"))
         , instanceName(instanceName)
         , role(role) {
-        disableOpt = subCommandSc
-                         ->add_flag_function(
-                             "--disabled{true}",
-                             [this](std::size_t) {
-                                 utils::Config::disabled(subCommandSc, disableOpt->as<bool>());
-                             },
-                             "Disable this instance")
-                         ->multi_option_policy(CLI::MultiOptionPolicy::TakeLast)
-                         ->trigger_on_parse()
-                         ->default_val("false")
-                         ->type_name("bool")
-                         ->check(CLI::IsMember({"true", "false"}))
-                         ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+        disableOpt = addFlagFunction(
+            "--disabled{true}",
+            [this](std::size_t) {
+                utils::Config::disabled(subCommandSc, disableOpt->as<bool>());
+            },
+            "Disable this instance",
+            "bool",
+            "false",
+            CLI::IsMember({"true", "false"}));
     }
 
     ConfigInstance::~ConfigInstance() {
@@ -189,9 +185,7 @@ namespace net::config {
     }
 
     ConfigInstance& ConfigInstance::setDisabled(bool disabled) {
-        disableOpt //
-            ->default_val(disabled ? "true" : "false")
-            ->clear();
+        setDefaultValue(disableOpt, disabled ? "true" : "false");
 
         utils::Config::disabled(subCommandSc, disabled);
 

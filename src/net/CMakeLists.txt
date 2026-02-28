@@ -72,11 +72,13 @@ set(NET_H
     config/ConfigConnection.h
     config/ConfigLegacy.h
     config/ConfigPhysicalSocket.h
+    config/ConfigPhysicalSocket.hpp
     config/ConfigPhysicalSocketClient.h
     config/ConfigPhysicalSocketServer.h
     config/ConfigSection.h
     config/ConfigSection.hpp
     config/ConfigTls.h
+    config/ConfigTls.hpp
     config/ConfigTlsServer.h
     config/ConfigTlsClient.h
     config/stream/ConfigSocketClient.h

@@ -42,11 +42,10 @@
 #ifndef NET_CONFIG_CONFIGPHYSICALSOCKET_H
 #define NET_CONFIG_CONFIGPHYSICALSOCKET_H
 
+#include "net/config/ConfigSection.h"
 #include "net/phy/PhysicalSocketOption.h" // IWYU pragma: export
 
-namespace net::config {
-    class ConfigSection;
-}
+#include <cstdint>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -64,9 +63,10 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigPhysicalSocket {
+    class ConfigPhysicalSocket : protected ConfigSection {
     protected:
-        explicit ConfigPhysicalSocket(net::config::ConfigSection* section);
+        template <typename ConcretConfigPhysicalSocketT>
+        ConfigPhysicalSocket(ConfigInstance* instance, ConcretConfigPhysicalSocketT* section);
 
     public:
         constexpr static std::string_view name{"socket"};
@@ -111,7 +111,14 @@ namespace net::config {
                                      const CLI::Validator& validator);
 
     private:
-        net::config::ConfigSection* section;
+        static const std::string retry;
+        static const std::string retryOnFatal;
+        static float retryTimeout;
+        static uint16_t retryTries;
+        static double retryBase;
+        static float retryJitter;
+        static float retryLimit;
+
         CLI::Option* retryOpt = nullptr;
         CLI::Option* retryOnFatalOpt = nullptr;
         CLI::Option* retryTriesOpt = nullptr;

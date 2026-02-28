@@ -115,7 +115,7 @@ namespace net::in::stream::config {
             XSTR(IN_SERVER_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {
-            disableNagleAlgorithmOpt->default_val("false");
+            setDefaultValue(disableNagleAlgorithmOpt, "false");
         }
     }
 
@@ -129,9 +129,7 @@ namespace net::in::stream::config {
             addSocketOption(SOL_SOCKET, SO_REUSEADDR, 0);
         }
 
-        reuseAddressOpt //
-            ->default_val(reuseAddress ? "true" : "false")
-            ->clear();
+        setDefaultValue(reuseAddressOpt, reuseAddress ? "true" : "false");
 
         return *this;
     }
@@ -147,9 +145,7 @@ namespace net::in::stream::config {
             addSocketOption(SOL_SOCKET, SO_REUSEPORT, 0);
         }
 
-        reusePortOpt //
-            ->default_val(reusePort ? "true" : "false")
-            ->clear();
+        setDefaultValue(reusePortOpt, reusePort ? "true" : "false");
 
         return *this;
     }
@@ -165,9 +161,7 @@ namespace net::in::stream::config {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 0);
         }
 
-        disableNagleAlgorithmOpt //
-            ->default_val(disableNagleAlgorithm ? "true" : "false")
-            ->clear();
+        setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
 
         return *this;
     }

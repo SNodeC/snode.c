@@ -49,81 +49,6 @@
 
 namespace net::config {
 
-    ConfigTls::ConfigTls(net::config::ConfigSection* section) {
-        certOpt = section->addOption( //
-            "--cert",
-            "Certificate chain file",
-            "filename",
-            CLI::ExistingFile.description("PEM-FILE"));
-
-        certKeyOpt = section->addOption( //
-            "--cert-key",
-            "Certificate key file",
-            "filename",
-            CLI::ExistingFile.description("PEM-FILE"));
-
-        certKeyPasswordOpt = section->addOption( //
-            "--cert-key-password",
-            "Password for the certificate key file",
-            "password",
-            "",
-            CLI::TypeValidator<std::string>());
-
-        caCertOpt = section->addOption( //
-            "--ca-cert",
-            "CA-certificate file",
-            "filename",
-            CLI::ExistingFile.description("PEM-FILE"));
-
-        caCertDirOpt = section->addOption( //
-            "--ca-cert-dir",
-            "CA-certificate directory",
-            "directory",
-            CLI::ExistingDirectory.description("PEM-CONTAINER-DIR"));
-
-        caCertUseDefaultDirOpt = section->addFlag( //
-            "--ca-cert-use-default-dir{true}",
-            "Use default CA-certificate directory",
-            "bool",
-            "false",
-            CLI::IsMember({"true", "false"}));
-
-        caCertAcceptUnknownOpt = section->addFlag( //
-            "--ca-cert-accept-unknown{true}",
-            "Accept unknown certificates (unsecure)",
-            "bool",
-            "false",
-            CLI::IsMember({"true", "false"}));
-
-        cipherListOpt = section->addOption( //
-            "--cipher-list",
-            "Cipher list (OpenSSL syntax)",
-            "cipher_list",
-            "",
-            CLI::TypeValidator<std::string>("CIPHER"));
-
-        sslOptionsOpt = section->addOption( //
-            "--ssl-options",
-            "OR combined SSL/TLS options (OpenSSL values)",
-            "options",
-            0,
-            CLI::TypeValidator<ssl_option_t>());
-
-        initTimeoutOpt = section->addOption( //
-            "--init-timeout",
-            "SSL/TLS initialization timeout in seconds",
-            "timeout",
-            TLS_INIT_TIMEOUT,
-            CLI::PositiveNumber);
-
-        shutdownTimeoutOpt = section->addOption( //
-            "--shutdown-timeout",
-            "SSL/TLS shutdown timeout in seconds",
-            "timeout",
-            TLS_SHUTDOWN_TIMEOUT,
-            CLI::PositiveNumber);
-    }
-
     ConfigTls& ConfigTls::setCert(const std::string& cert) {
         certOpt //
             ->default_val(cert)
@@ -266,5 +191,8 @@ namespace net::config {
         return shutdownTimeoutOpt //
             ->as<utils::Timeval>();
     }
+
+    float ConfigTls::tlsInitTimeout = TLS_INIT_TIMEOUT;
+    float ConfigTls::tlsShutdownTimeout = TLS_SHUTDOWN_TIMEOUT;
 
 } // namespace net::config

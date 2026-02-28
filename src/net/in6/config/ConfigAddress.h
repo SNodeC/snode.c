@@ -68,7 +68,7 @@ namespace net::in6::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddressReverse
-        : private net::config::ConfigSection
+        : protected net::config::ConfigSection
         , public ConfigAddressTypeT<net::in6::SocketAddress> {
     private:
         using Super = ConfigAddressTypeT<SocketAddress>;
@@ -90,7 +90,7 @@ namespace net::in6::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress
-        : private net::config::ConfigSection
+        : protected net::config::ConfigSection
         , public ConfigAddressTypeT<net::in6::SocketAddress> {
     private:
         using Super = ConfigAddressTypeT<SocketAddress>;

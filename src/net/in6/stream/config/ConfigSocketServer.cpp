@@ -69,6 +69,7 @@
 #endif
 
 #include "core/system/netdb.h"
+#include "utils/PreserveErrno.h"
 
 #include <fstream>
 #include <netinet/in.h>
@@ -128,7 +129,7 @@ namespace net::in6::stream::config {
             XSTR(IN6_IPV6_ONLY),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_IPV6_ONLY)) == "default") {
-            iPv6OnlyOpt->default_val(ipv6Only);
+            setDefaultValue(iPv6OnlyOpt, "false");
         }
 
         disableNagleAlgorithmOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
@@ -140,7 +141,7 @@ namespace net::in6::stream::config {
             XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {
-            disableNagleAlgorithmOpt->default_val("false");
+            setDefaultValue(disableNagleAlgorithmOpt, "false");
         }
     }
 
@@ -148,15 +149,15 @@ namespace net::in6::stream::config {
     }
 
     ConfigSocketServer& ConfigSocketServer::setReuseAddress(bool reuseAddress) {
+        const utils::PreserveErrno preserveErrno;
+
         if (reuseAddress) {
             addSocketOption(SOL_SOCKET, SO_REUSEADDR, 1);
         } else {
             addSocketOption(SOL_SOCKET, SO_REUSEADDR, 0);
         }
 
-        reuseAddressOpt //
-            ->default_val(reuseAddress ? "true" : "false")
-            ->clear();
+        setDefaultValue(reuseAddressOpt, reuseAddress ? "true" : "false");
 
         return *this;
     }
@@ -166,15 +167,15 @@ namespace net::in6::stream::config {
     }
 
     ConfigSocketServer& ConfigSocketServer::setReusePort(bool reusePort) {
+        const utils::PreserveErrno preserveErrno;
+
         if (reusePort) {
             addSocketOption(SOL_SOCKET, SO_REUSEPORT, 1);
         } else {
             addSocketOption(SOL_SOCKET, SO_REUSEPORT, 0);
         }
 
-        reusePortOpt //
-            ->default_val(reusePort ? "true" : "false")
-            ->clear();
+        setDefaultValue(reusePortOpt, reusePort ? "true" : "false");
 
         return *this;
     }
@@ -184,15 +185,15 @@ namespace net::in6::stream::config {
     }
 
     ConfigSocketServer& ConfigSocketServer::setIPv6Only(bool iPv6Only) {
+        const utils::PreserveErrno preserveErrno;
+
         if (iPv6Only) {
             addSocketOption(IPPROTO_IPV6, IPV6_V6ONLY, 1);
         } else {
             addSocketOption(IPPROTO_IPV6, IPV6_V6ONLY, 0);
         }
 
-        iPv6OnlyOpt //
-            ->default_val(iPv6Only ? "true" : "false")
-            ->clear();
+        setDefaultValue(iPv6OnlyOpt, iPv6Only ? "true" : "false");
 
         return *this;
     }
@@ -202,15 +203,16 @@ namespace net::in6::stream::config {
     }
 
     ConfigSocketServer& ConfigSocketServer::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
+        const utils::PreserveErrno preserveErrno;
+
         if (disableNagleAlgorithm) {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 1);
         } else {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 0);
         }
 
-        disableNagleAlgorithmOpt //
-            ->default_val(disableNagleAlgorithm ? "true" : "false")
-            ->clear();
+        setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
+        this->Local::required(disableNagleAlgorithmOpt, false);
 
         return *this;
     }

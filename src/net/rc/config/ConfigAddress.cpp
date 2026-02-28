@@ -119,9 +119,7 @@ namespace net::rc::config {
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
         const utils::PreserveErrno preserveErrno;
 
-        btAddressOpt //
-            ->default_val(btAddress)
-            ->clear();
+        setDefaultValue(btAddressOpt, btAddress);
         this->required(btAddressOpt, false);
 
         return *this;
@@ -136,9 +134,7 @@ namespace net::rc::config {
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setChannel(uint8_t channel) {
         const utils::PreserveErrno preserveErrno;
 
-        channelOpt //
-            ->default_val<int>(channel)
-            ->clear();
+        setDefaultValue<int>(channelOpt, channel);
         this->required(channelOpt, false);
 
         return *this;

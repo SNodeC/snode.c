@@ -57,69 +57,6 @@
 
 namespace net::config {
 
-    ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigSection* section)
-        : section(section) {
-        retryOpt = section->addFlag( //
-            "--retry{true}",
-            "Automatically retry listen|connect",
-            "bool",
-            XSTR(RETRY),
-            CLI::IsMember({"true", "false"}));
-
-        retryOnFatalOpt = section->addFlagFunction( //
-            "--retry-on-fatal{true}",
-            [this]([[maybe_unused]] std::uint64_t) {
-                if (retryOnFatalOpt->as<bool>() && !retryOpt->as<bool>()) {
-                    throw CLI::RequiresError(retryOnFatalOpt->get_name(), retryOpt->get_name().append("=true"));
-                }
-            },
-            "Retry also on fatal errors",
-            "bool",
-            XSTR(RETRY_ON_FATAL),
-            CLI::IsMember({"true", "false"}));
-        retryOnFatalOpt->needs(retryOpt);
-
-        retryTimeoutOpt = section->addOption( //
-            "--retry-timeout",
-            "Timeout of the retry timer",
-            "sec",
-            RETRY_TIMEOUT,
-            CLI::NonNegativeNumber);
-        retryTimeoutOpt->needs(retryOpt);
-
-        retryTriesOpt = section->addOption( //
-            "--retry-tries",
-            "Number of retry attempts before giving up (0 = unlimited)",
-            "tries",
-            RETRY_TRIES,
-            CLI::TypeValidator<unsigned int>());
-        retryTriesOpt->needs(retryOpt);
-
-        retryBaseOpt = section->addOption( //
-            "--retry-base",
-            "Base of exponential backoff",
-            "base",
-            RETRY_BASE,
-            CLI::PositiveNumber);
-        retryBaseOpt->needs(retryOpt);
-
-        retryJitterOpt = section->addOption( //
-            "--retry-jitter",
-            "Maximum jitter in percent to apply randomly to calculated retry timeout (0 to disable)",
-            "jitter",
-            RETRY_JITTER,
-            CLI::Range(0., 100.));
-        retryJitterOpt->needs(retryOpt);
-
-        retryLimitOpt = section->addOption( //
-            "--retry-limit",
-            "Upper limit in seconds of retry timeout (0 for infinite)",
-            "sec",
-            RETRY_LIMIT,
-            CLI::NonNegativeNumber);
-        retryLimitOpt->needs(retryOpt);
-    }
-
     const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& ConfigPhysicalSocket::getSocketOptions() const {
         return socketOptionsMapMap;
     }
@@ -131,28 +68,27 @@ namespace net::config {
                                                        const std::string& typeName,
                                                        const std::string& defaultValue,
                                                        const CLI::Validator& validator) {
-        return section
-            ->addFlagFunction(
-                name,
-                [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]([[maybe_unused]] std::uint64_t) {
-                    try {
-                        try {
-                            if (section->getOption(strippedName)->as<bool>()) {
-                                addSocketOption(optLevel, optName, section->getOption(strippedName)->as<bool>() ? 1 : 0);
-                            } else {
-                                addSocketOption(optLevel, optName, 0);
-                            }
-                        } catch ([[maybe_unused]] CLI::ConversionError& err) {
-                            removeSocketOption(optLevel, optName);
-                        }
-                    } catch (CLI::OptionNotFound& err) {
-                        LOG(ERROR) << err.what();
-                    }
-                },
-                description,
-                typeName,
-                defaultValue,
-                validator)
+        return addFlagFunction(
+                   name,
+                   [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]([[maybe_unused]] std::uint64_t) {
+                       try {
+                           try {
+                               if (getOption(strippedName)->as<bool>()) {
+                                   addSocketOption(optLevel, optName, getOption(strippedName)->as<bool>() ? 1 : 0);
+                               } else {
+                                   addSocketOption(optLevel, optName, 0);
+                               }
+                           } catch ([[maybe_unused]] CLI::ConversionError& err) {
+                               removeSocketOption(optLevel, optName);
+                           }
+                       } catch (CLI::OptionNotFound& err) {
+                           LOG(ERROR) << err.what();
+                       }
+                   },
+                   description,
+                   typeName,
+                   defaultValue,
+                   validator)
             ->force_callback();
     }
 
@@ -282,5 +218,13 @@ namespace net::config {
     double ConfigPhysicalSocket::getRetryJitter() const {
         return retryJitterOpt->as<double>();
     }
+
+    const std::string ConfigPhysicalSocket::retry = XSTR(RETRY);
+    const std::string ConfigPhysicalSocket::retryOnFatal = XSTR(RETRY_ON_FATAL);
+    float ConfigPhysicalSocket::retryTimeout = RETRY_TIMEOUT;
+    uint16_t ConfigPhysicalSocket::retryTries = RETRY_TRIES;
+    double ConfigPhysicalSocket::retryBase = RETRY_BASE;
+    float ConfigPhysicalSocket::retryJitter = RETRY_JITTER;
+    float ConfigPhysicalSocket::retryLimit = RETRY_LIMIT;
 
 } // namespace net::config

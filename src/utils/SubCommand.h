@@ -46,6 +46,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <ostream>
 #include <string>
 
 #ifdef __GNUC__
@@ -70,6 +71,8 @@
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
+
+#include "log/Logger.h"
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -129,6 +132,9 @@ namespace utils {
                                      ValueTypeT defaultValue,
                                      const CLI::Validator& validator);
 
+        template <typename ValueTypeT>
+        static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool force = true);
+
     protected:
         CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
 
@@ -179,6 +185,22 @@ namespace utils {
                                              const CLI::Validator& validator) {
         return addFlagFunction(name, callback, description, typeName, validator) //
             ->default_val(defaultValue);
+    }
+
+    template <typename ValueTypeT>
+    CLI::Option* SubCommand::setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear) {
+        try {
+            option->default_val(value);
+
+            if (clear) {
+                option->clear();
+            }
+        } catch (const CLI::ParseError& e) {
+            LOG(ERROR) << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
+                       << std::endl;
+        }
+
+        return option;
     }
 
 } // namespace utils

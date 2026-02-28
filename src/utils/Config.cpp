@@ -534,7 +534,7 @@ namespace utils {
                     }
 
                     if (!value.empty()) {
-                        if (value.starts_with("[") && value.ends_with("]")) {
+                        if (value.starts_with(std::string{"["}) && value.ends_with("]")) {
                             value = value.substr(1, value.size() - 2);
                         }
 
@@ -666,7 +666,7 @@ namespace utils {
         try {
             out << configTriggeredApp->config_to_str(true, true);
         } catch (const CLI::ParseError& e) {
-            out << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
+            out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
                 << "] Showing current config: " << configTriggeredApp->get_name() << " " << e.get_name() << " " << e.what();
         }
 
@@ -681,18 +681,18 @@ namespace utils {
             try {
                 confFile << app->config_to_str(true, true);
                 confFile.close();
-                out << "[" << Color::Code::FG_GREEN << "SUCCESS" << Color::Code::FG_DEFAULT
+                out << std::string{"["} << Color::Code::FG_GREEN << "SUCCESS" << Color::Code::FG_DEFAULT
                     << "] Writing config file: " + app->get_option_no_throw("--write-config")->as<std::string>() << std::endl
                     << std::endl;
             } catch (const CLI::ParseError& e) {
                 confFile.close();
-                out << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Writing config file: " << e.get_name() << " "
-                    << e.what() << std::endl;
+                out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
+                    << "] Writing config file: " << e.get_name() << " " << e.what() << std::endl;
             }
             confFile.close();
         } else {
-            out << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Writing config file: " << std::strerror(errno)
-                << std::endl;
+            out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
+                << "] Writing config file: " << std::strerror(errno) << std::endl;
         }
 
         return out.str();
@@ -714,7 +714,8 @@ namespace utils {
         try {
             out << app->help(helpApp, "", mode);
         } catch (CLI::ParseError& e) {
-            out << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Show help: " << e.get_name() << " " << e.what();
+            out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Show help: " << e.get_name() << " "
+                << e.what();
         }
 
         return out.str();
@@ -785,7 +786,8 @@ namespace utils {
                 } catch (const CLI::ParseError& e) {
                     if (helpTriggerApp != nullptr || showConfigTriggerApp != nullptr || commandlineTriggerApp != nullptr ||
                         versionOpt->count() > 0) {
-                        std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl
+                        std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
+                                  << std::endl
                                   << std::endl;
 
                         if (versionOpt->count() > 0) {
@@ -805,10 +807,10 @@ namespace utils {
                     }
                 }
             } catch (const DaemonError& e) {
-                std::cout << "[" << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
+                std::cout << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
                           << " ... exiting" << std::endl;
             } catch (const DaemonFailure& e) {
-                std::cout << "[" << Color::Code::FG_RED << "Failure" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
+                std::cout << std::string{"["} << Color::Code::FG_RED << "Failure" << Color::Code::FG_DEFAULT << "] Daemonize: " << e.what()
                           << " ... exiting" << std::endl;
             } catch (const DaemonSignaled& e) {
                 std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
@@ -817,13 +819,16 @@ namespace utils {
             } catch (const CLI::CallForVersion&) {
                 std::cout << app->version() << std::endl << std::endl;
             } catch (const CLI::ConversionError& e) {
-                std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
+                std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
+                          << std::endl;
                 throw;
             } catch (const CLI::ArgumentMismatch& e) {
-                std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
+                std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
+                          << std::endl;
                 throw;
             } catch (const CLI::ConfigError& e) {
-                std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
+                std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
+                          << std::endl;
                 std::cout << "              Adding '-w' on the command line may solve this problem" << std::endl;
                 throw;
             } catch (const CLI::ParseError& e) {
@@ -833,14 +838,16 @@ namespace utils {
                     std::cout << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT
                               << " Anonymous instance(s) not configured in source code " << std::endl;
                 } else {
-                    std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << what << std::endl;
+                    std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << what
+                              << std::endl;
                 }
                 throw;
             }
         } catch ([[maybe_unused]] const CLI::ParseError& e) {
             std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
         } catch (const CLI::Error& e) {
-            std::cout << "[" << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what() << std::endl;
+            std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
+                      << std::endl;
 
             std::cout << std::endl << "Append -h or --help to your command line for more information." << std::endl;
         }

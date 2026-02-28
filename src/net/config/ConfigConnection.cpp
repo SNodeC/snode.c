@@ -95,9 +95,7 @@ namespace net::config {
     }
 
     ConfigConnection& ConfigConnection::setReadTimeout(const utils::Timeval& newReadTimeoutSet) {
-        readTimeoutOpt //
-            ->default_val(newReadTimeoutSet)
-            ->clear();
+        setDefaultValue(readTimeoutOpt, newReadTimeoutSet);
 
         return *this;
     }
@@ -107,9 +105,7 @@ namespace net::config {
     }
 
     ConfigConnection& ConfigConnection::setWriteTimeout(const utils::Timeval& newWriteTimeoutSet) {
-        writeTimeoutOpt //
-            ->default_val(newWriteTimeoutSet)
-            ->clear();
+        setDefaultValue(writeTimeoutOpt, newWriteTimeoutSet);
 
         return *this;
     }
@@ -119,9 +115,7 @@ namespace net::config {
     }
 
     ConfigConnection& ConfigConnection::setReadBlockSize(std::size_t newReadBlockSize) {
-        readBlockSizeOpt //
-            ->default_val(newReadBlockSize)
-            ->clear();
+        setDefaultValue(readBlockSizeOpt, newReadBlockSize);
 
         return *this;
     }
@@ -131,9 +125,7 @@ namespace net::config {
     }
 
     ConfigConnection& ConfigConnection::setWriteBlockSize(std::size_t newWriteBlockSize) {
-        writeBlockSizeOpt //
-            ->default_val(newWriteBlockSize)
-            ->clear();
+        setDefaultValue(writeBlockSizeOpt, newWriteBlockSize);
 
         return *this;
     }
@@ -143,9 +135,7 @@ namespace net::config {
     }
 
     ConfigConnection& ConfigConnection::setTerminateTimeout(const utils::Timeval& newTerminateTimeout) {
-        terminateTimeoutOpt //
-            ->default_val(newTerminateTimeout)
-            ->clear();
+        setDefaultValue(terminateTimeoutOpt, newTerminateTimeout);
 
         return *this;
     }

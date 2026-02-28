@@ -58,31 +58,31 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class ConfigDb {
+class ConfigDb : utils::SubCommand {
 public:
     constexpr static std::string_view name{"db"};
     constexpr static std::string_view description{"Database connection"};
 
     ConfigDb()
-        : configDbSc(
+        : SubCommand(
               utils::Config::newInstance(net::config::Instance(std::string(name), std::string(description), this), "Database", true)) {
-        hostOpt = configDbSc->add_option("--db-host", "Hostname of IP-Address of Server")
-                      ->group(configDbSc->get_formatter()->get_label("Persistent Options"))
+        hostOpt = subCommandSc->add_option("--db-host", "Hostname of IP-Address of Server")
+                      ->group(subCommandSc->get_formatter()->get_label("Persistent Options"))
                       ->type_name("[hostname|IP-address]")
                       ->configurable()
                       ->required();
 
-        configDbSc->needs(hostOpt)->required();
-        configDbSc->get_parent()->needs(configDbSc);
+        subCommandSc->needs(hostOpt)->required();
+        subCommandSc->get_parent()->needs(subCommandSc);
     }
 
     ConfigDb& setHost(const std::string& host) {
-        hostOpt->default_val(host)->clear();
+        setDefaultValue(hostOpt, host);
         hostOpt->required(false);
 
-        configDbSc->remove_needs(hostOpt);
-        configDbSc->required(false);
-        configDbSc->get_parent()->remove_needs(configDbSc);
+        subCommandSc->remove_needs(hostOpt);
+        subCommandSc->required(false);
+        subCommandSc->get_parent()->remove_needs(subCommandSc);
 
         return *this;
     }
@@ -92,7 +92,6 @@ public:
     }
 
 private:
-    CLI::App* configDbSc;
     CLI::Option* hostOpt;
 };
 

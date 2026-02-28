@@ -86,7 +86,7 @@ namespace net::config {
     ConfigSection::ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group)
         : SubCommand(instance->newSection(net::config::Section(sectionPtr), group))
         , instance(instance) {
-        subCommandSc->description(std::string(T::description) + " for instance '" + instance->getInstanceName() + "'");
+        subCommandSc->description(std::string{T::description} + " for instance '" + instance->getInstanceName() + "'");
     }
 
 } // namespace net::config

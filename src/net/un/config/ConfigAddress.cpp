@@ -107,9 +107,7 @@ namespace net::un::config {
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSunPath(const std::string& sunPath) {
         const utils::PreserveErrno preserveErrno;
 
-        sunPathOpt //
-            ->default_val(sunPath)
-            ->clear();
+        setDefaultValue(sunPathOpt, sunPath);
         this->required(sunPathOpt, false);
 
         return *this;

@@ -64,7 +64,7 @@ namespace net::un::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddressReverse
-        : private net::config::ConfigSection
+        : protected net::config::ConfigSection
         , public ConfigAddressTypeT<net::un::SocketAddress> {
     private:
         using Super = ConfigAddressTypeT<SocketAddress>;
@@ -77,7 +77,7 @@ namespace net::un::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress
-        : private net::config::ConfigSection
+        : protected net::config::ConfigSection
         , public ConfigAddressTypeT<net::un::SocketAddress> {
     private:
         using Super = ConfigAddressTypeT<net::un::SocketAddress>;

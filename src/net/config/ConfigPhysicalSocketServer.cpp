@@ -41,6 +41,7 @@
 
 #include "ConfigPhysicalSocketServer.h"
 
+#include "net/config/ConfigPhysicalSocket.hpp"
 #include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -52,8 +53,7 @@
 namespace net::config {
 
     ConfigPhysicalSocketServer::ConfigPhysicalSocketServer(ConfigInstance* instance)
-        : ConfigSection(instance, this)
-        , ConfigPhysicalSocket(this) {
+        : ConfigPhysicalSocket(instance, this) {
         backlogOpt = addOption( //
             "--backlog",
             "Listen backlog",
@@ -84,9 +84,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocketServer& ConfigPhysicalSocketServer::setBacklog(int newBacklog) {
-        backlogOpt //
-            ->default_val(newBacklog)
-            ->clear();
+        setDefaultValue(backlogOpt, newBacklog);
 
         return *this;
     }
@@ -96,17 +94,13 @@ namespace net::config {
     }
 
     ConfigPhysicalSocketServer& ConfigPhysicalSocketServer::setAcceptsPerTick(int acceptsPerTickSet) {
-        acceptsPerTickOpt //
-            ->default_val(acceptsPerTickSet)
-            ->clear();
+        setDefaultValue(acceptsPerTickOpt, acceptsPerTickSet);
 
         return *this;
     }
 
     ConfigPhysicalSocketServer& ConfigPhysicalSocketServer::setAcceptTimeout(const utils::Timeval& acceptTimeout) {
-        acceptTimeoutOpt //
-            ->default_val(acceptTimeout)
-            ->clear();
+        setDefaultValue(acceptTimeoutOpt, acceptTimeout);
 
         return *this;
     }

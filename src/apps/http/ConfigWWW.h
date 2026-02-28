@@ -51,7 +51,6 @@ namespace net::config {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
-    class App;
     class Option;
 } // namespace CLI
 
@@ -79,7 +78,7 @@ namespace section {
 
 namespace instance {
 
-    class ConfigWWW {
+    class ConfigWWW : public utils::SubCommand {
     public:
         constexpr static std::string_view name{"www"};
         constexpr static std::string_view description{"Web behavior of httpserver"};
@@ -90,7 +89,6 @@ namespace instance {
         std::string getHtmlRoot();
 
     private:
-        CLI::App* configWWWSc;
         CLI::Option* htmlRootOpt;
     };
 

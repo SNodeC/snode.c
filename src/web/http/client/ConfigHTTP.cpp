@@ -72,11 +72,8 @@ namespace web::http::client {
     ConfigHTTP::~ConfigHTTP() {
     }
 
-    ConfigHTTP& ConfigHTTP::setHostHeader(const std::string& hostHeader, bool force) {
-        hostHeaderOpt->default_val(hostHeader);
-        if (force) {
-            hostHeaderOpt->clear();
-        }
+    ConfigHTTP& ConfigHTTP::setHostHeader(const std::string& hostHeader) {
+        setDefaultValue(hostHeaderOpt, hostHeader);
 
         return *this;
     }
@@ -85,11 +82,8 @@ namespace web::http::client {
         return hostHeaderOpt->as<std::string>();
     }
 
-    ConfigHTTP& ConfigHTTP::setPipelinedRequests(bool pipelinedRequests, bool force) {
-        pipelinedRequestsOpt->default_val(pipelinedRequests ? "true" : "false");
-        if (force) {
-            pipelinedRequestsOpt->clear();
-        }
+    ConfigHTTP& ConfigHTTP::setPipelinedRequests(bool pipelinedRequests) {
+        setDefaultValue(pipelinedRequestsOpt, pipelinedRequests ? "true" : "false");
 
         return *this;
     }

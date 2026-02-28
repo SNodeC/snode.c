@@ -41,6 +41,7 @@
 
 #include "net/config/ConfigTlsClient.h"
 
+#include "ConfigTls.hpp"
 #include "net/config/ConfigSection.hpp"
 
 namespace net::config {
@@ -54,8 +55,7 @@ namespace net::config {
 namespace net::config {
 
     ConfigTlsClient::ConfigTlsClient(ConfigInstance* instance)
-        : ConfigSection(instance, this)
-        , ConfigTls(this) {
+        : ConfigTls(instance, this) {
         sniOpt = addOption( //
             "--sni",
             "Server Name Indication",
@@ -68,9 +68,7 @@ namespace net::config {
     }
 
     ConfigTlsClient& ConfigTlsClient::setSni(const std::string& sni) {
-        sniOpt //
-            ->default_val(sni)
-            ->clear();
+        setDefaultValue(sniOpt, sni);
 
         return *this;
     }

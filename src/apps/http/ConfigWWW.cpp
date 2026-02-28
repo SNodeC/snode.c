@@ -57,7 +57,7 @@ namespace section {
     }
 
     section::ConfigWWW& section::ConfigWWW::setHtmlRoot(const std::string& htmlRoot) {
-        htmlRootOpt->default_val(htmlRoot)->clear();
+        setDefaultValue(htmlRootOpt, htmlRoot);
         required(htmlRootOpt, false);
 
         return *this;
@@ -72,25 +72,20 @@ namespace section {
 namespace instance {
 
     ConfigWWW::ConfigWWW()
-        : configWWWSc(
+        : utils::SubCommand(
               utils::Config::newInstance(net::config::Instance(std::string(name), std::string(description), this), "Applications", true)) {
-        htmlRootOpt = configWWWSc->add_option("--html-root", "HTML root directory")
-                          ->group(configWWWSc->get_formatter()->get_label("Persistent Options"))
-                          ->type_name("path")
-                          ->configurable()
-                          ->required()
-                          ->check(CLI::ExistingDirectory);
+        htmlRootOpt = addOption("--html-root", "HTML root directory", "directory", "path", CLI::ExistingDirectory);
 
-        configWWWSc->required()->needs(htmlRootOpt);
-        configWWWSc->get_parent()->needs(configWWWSc);
+        subCommandSc->required()->needs(htmlRootOpt);
+        subCommandSc->get_parent()->needs(subCommandSc);
     }
 
     ConfigWWW& ConfigWWW::setHtmlRoot(const std::string& htmlRoot) {
-        htmlRootOpt->default_val(htmlRoot)->clear();
+        setDefaultValue(htmlRootOpt, htmlRoot);
         htmlRootOpt->required(false);
 
-        configWWWSc->required(false)->remove_needs(htmlRootOpt);
-        configWWWSc->get_parent()->remove_needs(configWWWSc);
+        subCommandSc->required(false)->remove_needs(htmlRootOpt);
+        subCommandSc->get_parent()->remove_needs(subCommandSc);
 
         return *this;
     }

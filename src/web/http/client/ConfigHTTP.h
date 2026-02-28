@@ -75,10 +75,10 @@ namespace web::http::client {
         ConfigHTTP(ConfigHTTP&&) noexcept = delete;
         ConfigHTTP& operator=(ConfigHTTP&&) = delete;
 
-        ConfigHTTP& setHostHeader(const std::string& hostHeader, bool force = false);
+        ConfigHTTP& setHostHeader(const std::string& hostHeader);
         std::string getHostHeader() const;
 
-        ConfigHTTP& setPipelinedRequests(bool pipelinedRequests, bool force = false);
+        ConfigHTTP& setPipelinedRequests(bool pipelinedRequests);
         bool getPipelinedRequests() const;
 
     private:

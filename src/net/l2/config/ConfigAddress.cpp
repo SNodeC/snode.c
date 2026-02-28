@@ -120,9 +120,7 @@ namespace net::l2::config {
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
         const utils::PreserveErrno preserveErrno;
 
-        btAddressOpt //
-            ->default_val(btAddress)
-            ->clear();
+        setDefaultValue(btAddressOpt, btAddress);
         this->required(btAddressOpt, false);
 
         return *this;
@@ -137,9 +135,7 @@ namespace net::l2::config {
     ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPsm(uint16_t psm) {
         const utils::PreserveErrno preserveErrno;
 
-        psmOpt //
-            ->default_val(psm)
-            ->clear();
+        setDefaultValue(psmOpt, psm);
         this->required(psmOpt, false);
 
         return *this;

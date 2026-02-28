@@ -99,7 +99,7 @@ namespace net::in::stream::config {
             XSTR(IN_CLIENT_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {
-            disableNagleAlgorithmOpt->default_val("false");
+            setDefaultValue(disableNagleAlgorithmOpt, "false");
         }
     }
 
@@ -113,9 +113,7 @@ namespace net::in::stream::config {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 0);
         }
 
-        disableNagleAlgorithmOpt //
-            ->default_val(disableNagleAlgorithm ? "true" : "false")
-            ->clear();
+        setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
 
         return *this;
     }

@@ -39,16 +39,11 @@
  * THE SOFTWARE.
  */
 
-#include "ConfigPhysicalSocketClient.h"
-
-#include "net/config/ConfigPhysicalSocket.hpp"
+#include "ConfigPhysicalSocket.h"
 #include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/Timeval.h"
-
-#include <cstdint>
 #include <functional>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -58,73 +53,68 @@
 
 namespace net::config {
 
-    ConfigPhysicalSocketClient::ConfigPhysicalSocketClient(ConfigInstance* instance)
-        : ConfigPhysicalSocket(instance, this) {
-        reconnectOpt = addFlagFunction( //
-            "--reconnect{true}",
-            [this]([[maybe_unused]] std::int64_t) {
-                if (!this->reconnectOpt->as<bool>()) {
-                    this->reconnectTimeOpt->clear();
-                }
-            },
-            "Auto-reconnection in the event of a connection interruption",
+    template <typename ConcretConfigPhysicalSocket>
+    ConfigPhysicalSocket::ConfigPhysicalSocket(ConfigInstance* instance, ConcretConfigPhysicalSocket* section)
+        : ConfigSection(instance, section) {
+        retryOpt = addFlag( //
+            "--retry{true}",
+            "Automatically retry listen|connect",
             "bool",
-            XSTR(RECONNECT),
+            retry,
             CLI::IsMember({"true", "false"}));
 
-        reconnectTimeOpt = addOption( //
-            "--reconnect-time",
-            "Duration after disconnect before reconnect",
+        retryOnFatalOpt = addFlagFunction( //
+            "--retry-on-fatal{true}",
+            [this]([[maybe_unused]] std::uint64_t) {
+                if (retryOnFatalOpt->as<bool>() && !retryOpt->as<bool>()) {
+                    throw CLI::RequiresError(retryOnFatalOpt->get_name(), retryOpt->get_name().append("=true"));
+                }
+            },
+            "Retry also on fatal errors",
+            "bool",
+            retryOnFatal,
+            CLI::IsMember({"true", "false"}));
+        retryOnFatalOpt->needs(retryOpt);
+
+        retryTimeoutOpt = addOption( //
+            "--retry-timeout",
+            "Timeout of the retry timer",
             "sec",
-            RECONNECT_TIME,
+            retryTimeout,
             CLI::NonNegativeNumber);
-        reconnectTimeOpt->needs(reconnectOpt);
+        retryTimeoutOpt->needs(retryOpt);
 
-        connectTimeoutOpt = addOption( //
-            "--connect-timeout",
-            "Connect timeout",
-            "timeout",
-            CONNECT_TIMEOUT,
+        retryTriesOpt = addOption( //
+            "--retry-tries",
+            "Number of retry attempts before giving up (0 = unlimited)",
+            "tries",
+            retryTries,
+            CLI::TypeValidator<unsigned int>());
+        retryTriesOpt->needs(retryOpt);
+
+        retryBaseOpt = addOption( //
+            "--retry-base",
+            "Base of exponential backoff",
+            "base",
+            retryBase,
+            CLI::PositiveNumber);
+        retryBaseOpt->needs(retryOpt);
+
+        retryJitterOpt = addOption( //
+            "--retry-jitter",
+            "Maximum jitter in percent to apply randomly to calculated retry timeout (0 to disable)",
+            "jitter",
+            retryJitter,
+            CLI::Range(0., 100.));
+        retryJitterOpt->needs(retryOpt);
+
+        retryLimitOpt = addOption( //
+            "--retry-limit",
+            "Upper limit in seconds of retry timeout (0 for infinite)",
+            "sec",
+            retryLimit,
             CLI::NonNegativeNumber);
-    }
-
-    ConfigPhysicalSocketClient::~ConfigPhysicalSocketClient() {
-    }
-
-    ConfigPhysicalSocketClient& ConfigPhysicalSocketClient::setReconnect(bool reconnect) {
-        setDefaultValue(reconnectOpt, reconnect ? "true" : "false");
-
-        if (reconnect) {
-            reconnectTimeOpt->remove_needs(reconnectOpt);
-        } else {
-            reconnectTimeOpt->needs(reconnectOpt);
-        }
-
-        return *this;
-    }
-
-    bool ConfigPhysicalSocketClient::getReconnect() const {
-        return reconnectOpt->as<bool>();
-    }
-
-    ConfigPhysicalSocketClient& ConfigPhysicalSocketClient::setReconnectTime(double time) {
-        setDefaultValue(reconnectTimeOpt, time);
-
-        return *this;
-    }
-
-    double ConfigPhysicalSocketClient::getReconnectTime() const {
-        return reconnectTimeOpt->as<double>();
-    }
-
-    ConfigPhysicalSocketClient& ConfigPhysicalSocketClient::setConnectTimeout(const utils::Timeval& connectTimeout) {
-        setDefaultValue(connectTimeoutOpt, connectTimeout);
-
-        return *this;
-    }
-
-    utils::Timeval ConfigPhysicalSocketClient::getConnectTimeout() const {
-        return utils::Timeval(connectTimeoutOpt->as<double>());
+        retryLimitOpt->needs(retryOpt);
     }
 
 } // namespace net::config
