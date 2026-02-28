@@ -150,6 +150,10 @@ namespace utils {
         template <typename ValueTypeT>
         static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true);
 
+        SubCommand* setRequireCallback(const std::function<void(void)>& callback);
+
+        CLI::App* getParent() const;
+
     protected:
         CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
 

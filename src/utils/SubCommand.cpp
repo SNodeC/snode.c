@@ -103,6 +103,16 @@ namespace utils {
                           !subCommandSc->get_disabled());
     }
 
+    SubCommand* SubCommand::setRequireCallback(const std::function<void()>& callback) {
+        subCommandSc->require_callback(callback);
+
+        return this;
+    }
+
+    CLI::App* SubCommand::getParent() const {
+        return subCommandSc->get_parent();
+    }
+
     CLI::Option* SubCommand::setConfigurable(CLI::Option* option, bool configurable) const {
         option //
             ->configurable(configurable)
