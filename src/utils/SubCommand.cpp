@@ -41,7 +41,7 @@
 
 #include "SubCommand.h"
 
-#include "ConfigApp.h"
+#include "utils/ConfigApp.h"
 #include "utils/Formatter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -53,8 +53,8 @@
 
 namespace utils {
 
-    SubCommand::SubCommand(SubCommand* subCommand)
-        : subCommandSc(subCommand->subCommandSc) {
+    SubCommand::SubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr)
+        : subCommandSc(appWithPtr) {
         setConfigurable(addOption( //
                             "-i,--instance-alias",
                             "Make an instance also known as an alias in configuration files",
@@ -98,9 +98,9 @@ namespace utils {
     SubCommand* SubCommand::addStandardFlags() {
         setConfigurable(addFlagFunction(
                             "-s,--show-config",
-                            [subCommandSc = this->subCommandSc, &showConfigTriggerApp = this->showConfigTriggerApp](std::size_t) {
-                                if (showConfigTriggerApp == nullptr) {
-                                    showConfigTriggerApp = subCommandSc;
+                            [this](std::size_t) {
+                                if (showConfigTriggerSubCommand == nullptr) {
+                                    showConfigTriggerSubCommand = this;
                                 }
                             },
                             "Show current configuration and exit",
@@ -114,10 +114,9 @@ namespace utils {
 
         setConfigurable(addFlagFunction(
                             "--command-line{standard}",
-                            [subCommandSc = this->subCommandSc,
-                             &commandlineTriggerApp = this->commandlineTriggerApp]([[maybe_unused]] std::int64_t count) {
-                                if (commandlineTriggerApp == nullptr) {
-                                    commandlineTriggerApp = subCommandSc;
+                            [this]([[maybe_unused]] std::int64_t count) {
+                                if (commandlineTriggerSubCommand == nullptr) {
+                                    commandlineTriggerSubCommand = this;
                                 }
                             },
                             "Print command-line\n"
@@ -139,9 +138,9 @@ namespace utils {
         setConfigurable(subCommandSc
                             ->set_help_flag(
                                 "--help{exact},-h{exact}",
-                                [subCommandSc = this->subCommandSc, &helpTriggerApp = this->helpTriggerApp](std::size_t) {
-                                    if (helpTriggerApp == nullptr) {
-                                        helpTriggerApp = subCommandSc;
+                                [this](std::size_t) {
+                                    if (helpTriggerSubCommand == nullptr) {
+                                        helpTriggerSubCommand = this;
                                     }
                                 },
                                 "Print help message and exit\n"
@@ -159,9 +158,9 @@ namespace utils {
         subCommandSc
             ->set_help_flag(
                 "-h{exact},--help{exact}",
-                [subCommandSc = this->subCommandSc, &helpTriggerApp = this->helpTriggerApp](std::size_t) {
-                    if (helpTriggerApp == nullptr) {
-                        helpTriggerApp = subCommandSc;
+                [this](std::size_t) {
+                    if (helpTriggerSubCommand == nullptr) {
+                        helpTriggerSubCommand = this;
                     }
                 },
                 "Print help message and exit\n"
@@ -175,22 +174,22 @@ namespace utils {
         return this;
     }
 
-    CLI::App* SubCommand::getCommandlineTriggerApp() {
-        return commandlineTriggerApp;
+    SubCommand* SubCommand::getCommandlineTriggerApp() {
+        return commandlineTriggerSubCommand;
     }
 
-    CLI::App* SubCommand::getShowConfigTriggerApp() {
-        return showConfigTriggerApp;
+    SubCommand* SubCommand::getShowConfigTriggerApp() {
+        return showConfigTriggerSubCommand;
     }
 
-    CLI::App* SubCommand::getHelpTriggerApp() {
-        return helpTriggerApp;
+    SubCommand* SubCommand::getHelpTriggerApp() {
+        return helpTriggerSubCommand;
     }
 
     SubCommand* SubCommand::required(SubCommand* instance, bool required) {
         if (required != instance->subCommandSc->get_required()) {
             if (required) {
-                subCommandSc->needs(instance->subCommandSc);
+                subCommandSc->needs(instance->subCommandSc.get());
 
                 for (const auto& sub : instance->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
                          return sc->get_required();
@@ -198,7 +197,7 @@ namespace utils {
                     instance->subCommandSc->needs(sub);
                 }
             } else {
-                subCommandSc->remove_needs(instance->subCommandSc);
+                subCommandSc->remove_needs(instance->subCommandSc.get());
 
                 for (const auto& sub : instance->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
                          return sc->get_required();
@@ -235,7 +234,7 @@ namespace utils {
     SubCommand* SubCommand::disabled(SubCommand* instance, bool disabled) {
         if (disabled) {
             if (instance->subCommandSc->get_ignore_case()) {
-                subCommandSc->remove_needs(instance->subCommandSc);
+                subCommandSc->remove_needs(instance->subCommandSc.get());
             }
 
             for (const auto& sub : instance->subCommandSc->get_subcommands({})) {
@@ -246,7 +245,7 @@ namespace utils {
             }
         } else {
             if (instance->subCommandSc->get_ignore_case()) {
-                subCommandSc->needs(instance->subCommandSc);
+                subCommandSc->needs(instance->subCommandSc.get());
             }
 
             for (const auto& sub : instance->subCommandSc->get_subcommands({})) {
@@ -281,7 +280,7 @@ namespace utils {
 
     std::shared_ptr<CLI::Formatter> SubCommand::sectionFormatter = makeSectionFormatter();
 
-    utils::SubCommand*
+    std::shared_ptr<utils::AppWithPtr<SubCommand>>
     SubCommand::newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr, const std::string& group, bool final) {
         CLI::App* instanceSc = subCommandSc->add_subcommand(appWithPtr)
                                    ->group(group)
@@ -312,7 +311,7 @@ namespace utils {
             appWithPtr->getPtr()->addSimpleHelp();
         }
 
-        return appWithPtr->getPtr();
+        return appWithPtr;
     }
 
     SubCommand* SubCommand::removeInstance(utils::SubCommand* instance) {
@@ -387,5 +386,9 @@ namespace utils {
 
         return option;
     }
+
+    SubCommand* SubCommand::helpTriggerSubCommand = nullptr;
+    SubCommand* SubCommand::showConfigTriggerSubCommand = nullptr;
+    SubCommand* SubCommand::commandlineTriggerSubCommand = nullptr;
 
 } // namespace utils

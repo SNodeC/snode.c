@@ -64,8 +64,8 @@ namespace web::http::client {
         return new web::http::client::SocketContext(socketConnection,
                                                     onHttpConnected,
                                                     onHttpDisconnected,
-                                                    configInstance.getSection<ConfigHTTP>()->getHostHeader(),
-                                                    configInstance.getSection<ConfigHTTP>()->getPipelinedRequests());
+                                                    configInstance.getInstance<ConfigHTTP>()->getHostHeader(),
+                                                    configInstance.getInstance<ConfigHTTP>()->getPipelinedRequests());
     }
 
 } // namespace web::http::client

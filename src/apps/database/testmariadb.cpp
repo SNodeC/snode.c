@@ -72,7 +72,7 @@ public:
                       ->required();
 
         subCommandSc->needs(hostOpt)->required();
-        subCommandSc->get_parent()->needs(subCommandSc);
+        subCommandSc->get_parent()->needs(subCommandSc.get());
     }
 
     ConfigDb& setHost(const std::string& host) {
@@ -81,7 +81,7 @@ public:
 
         subCommandSc->remove_needs(hostOpt);
         subCommandSc->required(false);
-        subCommandSc->get_parent()->remove_needs(subCommandSc);
+        subCommandSc->get_parent()->remove_needs(subCommandSc.get());
 
         return *this;
     }

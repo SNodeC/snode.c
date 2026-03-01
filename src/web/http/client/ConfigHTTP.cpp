@@ -41,7 +41,7 @@
 
 #include "ConfigHTTP.h"
 
-#include "net/config/ConfigSection.hpp"
+#include "net/config/ConfigInstanceAPI.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -52,8 +52,9 @@
 
 namespace web::http::client {
 
-    ConfigHTTP::ConfigHTTP(net::config::ConfigInstance* configInstance)
-        : net::config::ConfigSection(configInstance, this) {
+    ConfigHTTP::ConfigHTTP(utils::SubCommand* configInstance)
+        : utils::SubCommand(
+              configInstance->newInstance(net::config::Instance(std::string(name), std::string(description), this), "Applications", true)) {
         hostHeaderOpt = addOption( //
             "--host",
             "HTTP request 'Host' header field",
@@ -67,9 +68,6 @@ namespace web::http::client {
             "bool",
             XSTR(HTTP_REQUEST_PIPELINED),
             CLI::IsMember({"true", "false"}));
-    }
-
-    ConfigHTTP::~ConfigHTTP() {
     }
 
     ConfigHTTP& ConfigHTTP::setHostHeader(const std::string& hostHeader) {

@@ -41,32 +41,7 @@
 
 #include "net/config/ConfigSection.hpp"
 
-#include "net/config/ConfigInstance.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#if __has_warning("-Wmissing-noreturn")
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif
-#if __has_warning("-Wnrvo")
-#pragma GCC diagnostic ignored "-Wnrvo"
-#endif
-#endif
-#endif
-#include "utils/CLI11.hpp"
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -74,30 +49,30 @@ namespace net::config {
 
     ConfigSection::~ConfigSection() {
     }
+    /*
+        void ConfigSection::required(CLI::Option* opt, bool req) {
+            if (req != opt->get_required()) {
+                if (req) {
+                    ++requiredCount;
+                    subCommandSc->needs(opt);
+                    opt->default_str("");
+                } else {
+                    --requiredCount;
+                    subCommandSc->remove_needs(opt);
+                }
 
-    void ConfigSection::required(CLI::Option* opt, bool req) {
-        if (req != opt->get_required()) {
-            if (req) {
-                ++requiredCount;
-                subCommandSc->needs(opt);
-                opt->default_str("");
-            } else {
-                --requiredCount;
-                subCommandSc->remove_needs(opt);
+                opt->required(req);
+
+                required(requiredCount > 0);
             }
-
-            opt->required(req);
-
-            required(requiredCount > 0);
         }
-    }
 
-    void ConfigSection::required(bool required) {
-        instance->required(subCommandSc, required);
-    }
+        void ConfigSection::required(bool required) {
+            instance->required(subCommandSc, required);
+        }
 
-    bool ConfigSection::getRequired() const {
-        return subCommandSc->get_required();
-    }
-
+        bool ConfigSection::getRequired() const {
+            return subCommandSc->get_required();
+        }
+    */
 } // namespace net::config

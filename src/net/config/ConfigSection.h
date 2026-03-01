@@ -55,10 +55,6 @@ namespace net::config {
 #include <string>      // IWYU pragma: export
 #include <type_traits> // IWYU pragma: export
 
-namespace CLI {
-    class Option;
-}
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
@@ -75,11 +71,11 @@ namespace net::config {
 
         ConfigSection& operator=(const ConfigSection&) = delete;
         ConfigSection& operator=(ConfigSection&&) = delete;
-
-        void required(bool required = true);
-        void required(CLI::Option* opt, bool req = true);
-        bool getRequired() const;
-
+        /*
+                void required(bool required = true);
+                void required(CLI::Option* opt, bool req = true);
+                bool getRequired() const;
+        */
     private:
         ConfigInstance* instance = nullptr;
 

@@ -67,18 +67,21 @@ namespace net::config {
         return subCommandSc;
     }
 
-    template <typename SectionType>
-    SectionType* ConfigInstance::getSection() const {
-        utils::AppWithPtr<SectionType>* sectionApp =
-            dynamic_cast<utils::AppWithPtr<SectionType>*>(subCommandSc->get_subcommand_no_throw(std::string(SectionType::name)));
+    /*
+        template <typename SectionType>
+        SectionType* ConfigInstance::getSection() const {
+            utils::AppWithPtr<SectionType>* sectionApp =
+                dynamic_cast<utils::AppWithPtr<SectionType>*>(subCommandSc->get_subcommand_no_throw(std::string(SectionType::name)));
 
-        return sectionApp != nullptr ? sectionApp->getPtr() : nullptr;
-    }
+            return sectionApp != nullptr ? sectionApp->getPtr() : nullptr;
+        }
 
-    template <typename ConcreteConfigSection, typename... Args>
-    ConcreteConfigSection* ConfigInstance::addSection(Args&&... args) {
-        return dynamic_cast<ConcreteConfigSection*>(addSection(std::make_shared<ConcreteConfigSection>(this, std::forward<Args>(args)...)));
-    }
+        template <typename ConcreteConfigSection, typename... Args>
+        ConcreteConfigSection* ConfigInstance::addSection(Args&&... args) {
+            return dynamic_cast<ConcreteConfigSection*>(addSection(std::make_shared<ConcreteConfigSection>(this,
+       std::forward<Args>(args)...)));
+        }
+    */
 
 } // namespace net::config
 

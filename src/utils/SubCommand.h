@@ -42,46 +42,18 @@
 #ifndef UTILS_SUBCOMMAND_H
 #define UTILS_SUBCOMMAND_H
 
-#include <map>    // for map
-#include <memory> // for shared_ptr
-
-namespace utils {
-    template <class T>
-    struct AppWithPtr;
-}
+#include "ConfigApp.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
-#include <functional>
-#include <ostream>
-#include <string>
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#if __has_warning("-Wmissing-noreturn")
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif
-#if __has_warning("-Wnrvo")
-#pragma GCC diagnostic ignored "-Wnrvo"
-#endif
-#endif
-#endif
-#include "utils/CLI11.hpp"
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
 #include "log/Logger.h"
 
+#include <cstdint>
+#include <functional>
+#include <map>
+#include <memory>
+#include <ostream>
+#include <string>
 #include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -89,8 +61,15 @@ namespace utils {
 namespace utils {
 
     class SubCommand {
+    protected:
+        SubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr);
+
     public:
-        SubCommand(SubCommand* subCommand);
+        SubCommand(const SubCommand&) = delete;
+        SubCommand(SubCommand&&) = delete;
+
+        SubCommand& operator=(const SubCommand&) = delete;
+        SubCommand& operator=(SubCommand&&) = delete;
 
         SubCommand* required(bool required = true, bool force = true);
 
@@ -102,17 +81,24 @@ namespace utils {
         SubCommand* addSimpleHelp();
         SubCommand* addHelp();
 
-        CLI::App* getHelpTriggerApp();
-        CLI::App* getShowConfigTriggerApp();
-        CLI::App* getCommandlineTriggerApp();
+        SubCommand* getHelpTriggerApp();
+        SubCommand* getShowConfigTriggerApp();
+        SubCommand* getCommandlineTriggerApp();
 
         SubCommand* required(SubCommand* instance, bool required = true);
         SubCommand* required(CLI::Option* option, bool required = true);
 
         SubCommand* disabled(SubCommand* instance, bool disabled = true);
 
-        utils::SubCommand*
+        std::shared_ptr<utils::AppWithPtr<SubCommand>>
         newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr, const std::string& group, bool final = false);
+
+        template <typename T>
+        T* addInstance(const std::string& group = "Application", bool final = false);
+
+        template <typename T>
+        T* getInstance();
+
         SubCommand* removeInstance(utils::SubCommand* instance);
 
     protected:
@@ -122,12 +108,6 @@ namespace utils {
         CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
 
     public:
-        template <typename T>
-        T* addInstance();
-
-        template <typename T>
-        T* getInstance();
-
         CLI::Option* getOption(const std::string& name) const;
 
         CLI::Option*
@@ -197,34 +177,41 @@ namespace utils {
         static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true);
 
     protected:
-        CLI::App* subCommandSc = nullptr;
+        SubCommand* parent;
+
+        std::shared_ptr<utils::AppWithPtr<SubCommand>> subCommandSc;
         std::map<std::string, std::string> aliases;
 
     public:
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
     private:
-        CLI::App* helpTriggerApp = nullptr;
-        CLI::App* showConfigTriggerApp = nullptr;
-        CLI::App* commandlineTriggerApp = nullptr;
+        static SubCommand* helpTriggerSubCommand;
+        static SubCommand* showConfigTriggerSubCommand;
+        static SubCommand* commandlineTriggerSubCommand;
 
         std::vector<std::shared_ptr<SubCommand>> configInstances; // Store anything
 
         int requiredCount = 0;
     };
 
-    template <typename T>
-    T* SubCommand::addInstance() {
-        return std::static_pointer_cast<T>(configInstances.emplace_back(std::make_shared<T>(this))).get();
+    template <typename ConcreteSubCommand>
+    ConcreteSubCommand* SubCommand::addInstance([[maybe_unused]] const std::string& group, [[maybe_unused]] bool final) {
+        /*
+        return configInstances
+            .emplace_back(newInstance(net::config::Instance(std::string(ConcreteSubCommand::name),
+                                                            std::string(ConcreteSubCommand::description),
+                                                            new ConcreteSubCommand()),
+                                      group,
+                                      final))
+            ->getPtr();
+        */
+        return nullptr;
     }
 
-    template <typename T>
-    T* SubCommand::getInstance() {
-        auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(T::name));
-
-        AppWithPtr<T>* instanceApp = dynamic_cast<utils::AppWithPtr<T>*>(appWithPtr);
-
-        return instanceApp != nullptr ? instanceApp->getPtr() : nullptr;
+    template <typename ConcreteSubCommand>
+    ConcreteSubCommand* SubCommand::getInstance() {
+        return nullptr;
     }
 
     template <typename ValueTypeT>

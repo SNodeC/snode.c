@@ -94,8 +94,9 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::getConfig().template addSection<ConfigHTTP>();
-            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>()](SocketConnection* socketConnection) {
+            Super::getConfig().net::config::ConfigInstance::template addInstance<ConfigHTTP>();
+            Super::setOnConnect([config = Super::getConfig().net::config::ConfigInstance::template getInstance<ConfigHTTP>()](
+                                    SocketConnection* socketConnection) {
                 config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }
@@ -122,8 +123,9 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::getConfig().template addSection<ConfigHTTP>();
-            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>()](SocketConnection* socketConnection) {
+            Super::getConfig().net::config::ConfigInstance::template addInstance<ConfigHTTP>();
+            Super::setOnConnect([config = Super::getConfig().net::config::ConfigInstance::template getInstance<ConfigHTTP>()](
+                                    SocketConnection* socketConnection) {
                 config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }

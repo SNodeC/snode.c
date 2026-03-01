@@ -42,13 +42,11 @@
 #ifndef CONFIGWWW_H
 #define CONFIGWWW_H
 
-#include "net/config/ConfigSection.h"
-
-namespace net::config {
-    class ConfigInstance;
-}
+#include "utils/SubCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string>
 
 namespace CLI {
     class Option;
@@ -57,7 +55,7 @@ namespace CLI {
 #include <string_view>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
+/*
 namespace section {
 
     class ConfigWWW : public net::config::ConfigSection {
@@ -75,6 +73,7 @@ namespace section {
     };
 
 } // namespace section
+*/
 
 namespace instance {
 

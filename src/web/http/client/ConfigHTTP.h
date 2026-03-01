@@ -44,10 +44,6 @@
 
 #include "net/config/ConfigSection.h"
 
-namespace net::config {
-    class ConfigInstance;
-} // namespace net::config
-
 namespace CLI {
     class Option;
 } // namespace CLI
@@ -60,14 +56,12 @@ namespace CLI {
 
 namespace web::http::client {
 
-    class ConfigHTTP : public net::config::ConfigSection {
+    class ConfigHTTP : public utils::SubCommand {
     public:
         constexpr static std::string_view name{"http"};
         constexpr static std::string_view description{"HTTP behavior"};
 
-        explicit ConfigHTTP(net::config::ConfigInstance* configInstance);
-
-        ~ConfigHTTP() override;
+        explicit ConfigHTTP(utils::SubCommand* configInstance);
 
         ConfigHTTP(ConfigHTTP&) = delete;
         ConfigHTTP& operator=(ConfigHTTP&) = delete;
