@@ -215,7 +215,11 @@ namespace utils {
 
     template <typename ConcreteSubCommand>
     ConcreteSubCommand* SubCommand::getInstance() {
-        return nullptr;
+        auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(ConcreteSubCommand::name));
+
+        AppWithPtr<SubCommand>* instanceApp = dynamic_cast<utils::AppWithPtr<SubCommand>*>(appWithPtr);
+
+        return instanceApp != nullptr ? dynamic_cast<ConcreteSubCommand*>(instanceApp->getPtr()) : nullptr;
     }
 
     template <typename ValueTypeT>
