@@ -71,6 +71,9 @@ namespace utils {
                         false);
     }
 
+    SubCommand::~SubCommand() {
+    }
+
     SubCommand* SubCommand::required(bool required, bool force) {
         requiredCount += !force ? (required ? 1 : -1) : 0;
 

@@ -55,18 +55,18 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
+    /*
+        template <typename T>
+        std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> Instance(const std::string& name, const std::string& description, T* section)
+       { std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> subCommandSc =
+                std::make_shared<utils::AppWithPtr<utils::SubCommand>>(description, name, section);
 
-    template <typename T>
-    std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> Instance(const std::string& name, const std::string& description, T* section) {
-        std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> subCommandSc =
-            std::make_shared<utils::AppWithPtr<utils::SubCommand>>(description, name, section);
+            subCommandSc->option_defaults()->take_last();
+            subCommandSc->formatter(utils::SubCommand::sectionFormatter);
 
-        subCommandSc->option_defaults()->take_last();
-        subCommandSc->formatter(utils::SubCommand::sectionFormatter);
-
-        return subCommandSc;
-    }
-
+            return subCommandSc;
+        }
+    */
     /*
         template <typename SectionType>
         SectionType* ConfigInstance::getSection() const {

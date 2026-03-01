@@ -41,7 +41,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "net/config/ConfigInstanceAPI.hpp"
+#include "net/config/ConfigInstance.h"
+
+#include "utils/Config.h"
 
 #include <cstddef>
 #include <functional>

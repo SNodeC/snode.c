@@ -80,7 +80,7 @@ namespace net::config {
     template <typename T>
     std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> Section(T* section) {
         std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> subCommandSc =
-            std::make_shared<utils::AppWithPtr<utils::SubCommand>>(std::string(T::description), std::string(T::name), section);
+            std::make_shared<utils::AppWithPtr<utils::SubCommand>>(std::string(T::description), std::string(T::name), section, false);
 
         subCommandSc->option_defaults()->take_last();
         subCommandSc->formatter(utils::SubCommand::sectionFormatter);

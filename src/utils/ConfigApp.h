@@ -83,20 +83,31 @@ namespace utils {
 
     template <class T>
     struct AppWithPtr : CLI::App {
-        AppWithPtr(const std::string& description, const std::string& name, T* t);
+        AppWithPtr(const std::string& description, const std::string& name, T* t, bool manage);
 
         const T* getPtr() const;
+
+        ~AppWithPtr() override;
 
         T* getPtr();
 
     private:
-        T* ptr = nullptr;
+        T* ptr;
+        bool manage;
     };
 
     template <class T>
-    AppWithPtr<T>::AppWithPtr(const std::string& description, const std::string& name, T* t)
+    AppWithPtr<T>::AppWithPtr(const std::string& description, const std::string& name, T* t, bool manage)
         : CLI::App(description, name)
-        , ptr(t) {
+        , ptr(t)
+        , manage(manage) {
+    }
+
+    template <class T>
+    AppWithPtr<T>::~AppWithPtr() {
+        if (manage) {
+            delete ptr;
+        }
     }
 
     template <class T>

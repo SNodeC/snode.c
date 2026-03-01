@@ -75,7 +75,7 @@
 namespace utils::config {
 
     config::ConfigRoot::ConfigRoot()
-        : utils::SubCommand(std::make_shared<utils::AppWithPtr<utils::SubCommand>>("Root Config", "root", this)) {
+        : utils::SubCommand(std::make_shared<utils::AppWithPtr<utils::SubCommand>>("Root Config", "root", this, false)) {
     }
 
     ConfigRoot* ConfigRoot::addRootOptions(const std::string& applicationName,

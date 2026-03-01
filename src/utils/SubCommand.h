@@ -59,6 +59,18 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
+    class SubCommand;
+}
+
+namespace net::config {
+
+    template <typename T>
+    std::shared_ptr<utils::AppWithPtr<utils::SubCommand>>
+    Instance(const std::string& name, const std::string& description, T* section, bool manage = false);
+
+}
+
+namespace utils {
 
     class SubCommand {
     protected:
@@ -67,6 +79,8 @@ namespace utils {
     public:
         SubCommand(const SubCommand&) = delete;
         SubCommand(SubCommand&&) = delete;
+
+        virtual ~SubCommand();
 
         SubCommand& operator=(const SubCommand&) = delete;
         SubCommand& operator=(SubCommand&&) = delete;
@@ -190,23 +204,22 @@ namespace utils {
         static SubCommand* showConfigTriggerSubCommand;
         static SubCommand* commandlineTriggerSubCommand;
 
-        std::vector<std::shared_ptr<SubCommand>> configInstances; // Store anything
+        std::vector<std::shared_ptr<utils::AppWithPtr<SubCommand>>> configInstances; // Store anything
 
         int requiredCount = 0;
     };
 
     template <typename ConcreteSubCommand>
-    ConcreteSubCommand* SubCommand::addInstance([[maybe_unused]] const std::string& group, [[maybe_unused]] bool final) {
-        /*
-        return configInstances
-            .emplace_back(newInstance(net::config::Instance(std::string(ConcreteSubCommand::name),
-                                                            std::string(ConcreteSubCommand::description),
-                                                            new ConcreteSubCommand()),
-                                      group,
-                                      final))
-            ->getPtr();
-        */
-        return nullptr;
+    ConcreteSubCommand* SubCommand::addInstance(const std::string& group, bool final) {
+        return dynamic_cast<ConcreteSubCommand*>(
+            configInstances
+                .emplace_back(newInstance(net::config::Instance(std::string(ConcreteSubCommand::name),
+                                                                std::string(ConcreteSubCommand::description),
+                                                                new ConcreteSubCommand(this),
+                                                                true),
+                                          group,
+                                          final))
+                ->getPtr());
     }
 
     template <typename ConcreteSubCommand>
@@ -294,5 +307,20 @@ namespace utils {
     }
 
 } // namespace utils
+
+namespace net::config {
+
+    template <typename T>
+    std::shared_ptr<utils::AppWithPtr<utils::SubCommand>>
+    Instance(const std::string& name, const std::string& description, T* section, bool manage) {
+        std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> subCommandSc =
+            std::make_shared<utils::AppWithPtr<utils::SubCommand>>(description, name, section, manage);
+
+        subCommandSc->option_defaults()->take_last();
+        subCommandSc->formatter(utils::SubCommand::sectionFormatter);
+
+        return subCommandSc;
+    }
+} // namespace net::config
 
 #endif // UTILS_SUBCOMMAND_H
