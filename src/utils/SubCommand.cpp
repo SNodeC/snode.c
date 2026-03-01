@@ -46,7 +46,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
 #include <memory>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -98,95 +97,16 @@ namespace utils {
         return subCommandSc->get_parent();
     }
 
-    SubCommand* SubCommand::addStandardFlags() {
-        setConfigurable(addFlagFunction(
-                            "-s,--show-config",
-                            [this](std::size_t) {
-                                if (showConfigTriggerSubCommand == nullptr) {
-                                    showConfigTriggerSubCommand = this;
-                                }
-                            },
-                            "Show current configuration and exit",
-                            "",
-                            CLI::TypeValidator<bool>())
-                            ->take_first()
-                            ->disable_flag_override()
-                            ->configurable(false)
-                            ->trigger_on_parse(),
-                        false);
-
-        setConfigurable(addFlagFunction(
-                            "--command-line{standard}",
-                            [this]([[maybe_unused]] std::int64_t count) {
-                                if (commandlineTriggerSubCommand == nullptr) {
-                                    commandlineTriggerSubCommand = this;
-                                }
-                            },
-                            "Print command-line\n"
-                            "* standard (default): Show all non-default and required options\n"
-                            "* active: Show all active options\n"
-                            "* complete: Show the complete option set with default values\n"
-                            "* required: Show only required options",
-                            "",
-                            CLI::TypeValidator<bool>())
-                            ->take_first()
-                            ->disable_flag_override()
-                            ->trigger_on_parse(),
-                        false);
-
-        return this;
+    CLI::App* SubCommand::getCommandlineTriggerApp() {
+        return commandlineTriggerApp;
     }
 
-    SubCommand* SubCommand::addSimpleHelp() {
-        setConfigurable(subCommandSc
-                            ->set_help_flag(
-                                "--help{exact},-h{exact}",
-                                [this](std::size_t) {
-                                    if (helpTriggerSubCommand == nullptr) {
-                                        helpTriggerSubCommand = this;
-                                    }
-                                },
-                                "Print help message and exit\n"
-                                "* standard: display help for the last command processed\n"
-                                "* exact: display help for the command directly preceding --help")
-                            ->take_first()
-                            ->check(CLI::IsMember({"standard", "exact"}))
-                            ->trigger_on_parse(),
-                        false);
-
-        return this;
+    CLI::App* SubCommand::getShowConfigTriggerApp() {
+        return showConfigTriggerApp;
     }
 
-    SubCommand* SubCommand::addHelp() {
-        subCommandSc
-            ->set_help_flag(
-                "-h{exact},--help{exact}",
-                [this](std::size_t) {
-                    if (helpTriggerSubCommand == nullptr) {
-                        helpTriggerSubCommand = this;
-                    }
-                },
-                "Print help message and exit\n"
-                "* standard: display help for the last command processed\n"
-                "* exact: display help for the command directly preceding --help\n"
-                "* expanded: print help including all descendant command options")
-            ->take_first()
-            ->check(CLI::IsMember({"standard", "exact", "expanded"}))
-            ->trigger_on_parse();
-
-        return this;
-    }
-
-    SubCommand* SubCommand::getCommandlineTriggerApp() {
-        return commandlineTriggerSubCommand;
-    }
-
-    SubCommand* SubCommand::getShowConfigTriggerApp() {
-        return showConfigTriggerSubCommand;
-    }
-
-    SubCommand* SubCommand::getHelpTriggerApp() {
-        return helpTriggerSubCommand;
+    CLI::App* SubCommand::getHelpTriggerApp() {
+        return helpTriggerApp;
     }
 
     SubCommand* SubCommand::required(SubCommand* instance, bool required) {
@@ -285,6 +205,12 @@ namespace utils {
 
     std::shared_ptr<utils::AppWithPtr<SubCommand>>
     SubCommand::newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr, const std::string& group, bool final) {
+        VLOG(0) << "---------- AppWithPtr Name: " << appWithPtr->get_name();
+
+        if (appWithPtr->get_name() == "www") {
+            VLOG(0) << "              ---";
+        }
+
         CLI::App* instanceSc = subCommandSc->add_subcommand(appWithPtr)
                                    ->group(group)
                                    ->ignore_case(false)
@@ -306,12 +232,22 @@ namespace utils {
             }
         }
 
-        appWithPtr->getPtr()->addStandardFlags();
+        appWithPtr->addStandardFlags(
+            [](CLI::App* app) {
+                helpTriggerApp = app;
+            },
+            [](CLI::App* app) {
+                commandlineTriggerApp = app;
+            });
 
         if (!final) {
-            appWithPtr->getPtr()->addHelp();
+            appWithPtr->addHelp([](CLI::App* app) {
+                helpTriggerApp = app;
+            });
         } else {
-            appWithPtr->getPtr()->addSimpleHelp();
+            appWithPtr->addSimpleHelp([](CLI::App* app) {
+                helpTriggerApp = app;
+            });
         }
 
         return appWithPtr;
@@ -390,8 +326,8 @@ namespace utils {
         return option;
     }
 
-    SubCommand* SubCommand::helpTriggerSubCommand = nullptr;
-    SubCommand* SubCommand::showConfigTriggerSubCommand = nullptr;
-    SubCommand* SubCommand::commandlineTriggerSubCommand = nullptr;
+    CLI::App* SubCommand::helpTriggerApp = nullptr;
+    CLI::App* SubCommand::showConfigTriggerApp = nullptr;
+    CLI::App* SubCommand::commandlineTriggerApp = nullptr;
 
 } // namespace utils

@@ -91,13 +91,9 @@ namespace utils {
 
         CLI::App* getParent() const;
 
-        SubCommand* addStandardFlags();
-        SubCommand* addSimpleHelp();
-        SubCommand* addHelp();
-
-        SubCommand* getHelpTriggerApp();
-        SubCommand* getShowConfigTriggerApp();
-        SubCommand* getCommandlineTriggerApp();
+        static CLI::App* getHelpTriggerApp();
+        static CLI::App* getShowConfigTriggerApp();
+        static CLI::App* getCommandlineTriggerApp();
 
         SubCommand* required(SubCommand* instance, bool required = true);
         SubCommand* required(CLI::Option* option, bool required = true);
@@ -108,7 +104,7 @@ namespace utils {
         newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr, const std::string& group, bool final = false);
 
         template <typename T>
-        T* addInstance(const std::string& group = "Application", bool final = false);
+        T* addInstance();
 
         template <typename T>
         T* getInstance();
@@ -190,19 +186,17 @@ namespace utils {
         template <typename ValueTypeT>
         static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true);
 
+        static std::shared_ptr<CLI::Formatter> sectionFormatter;
+
     protected:
         SubCommand* parent;
 
         std::shared_ptr<utils::AppWithPtr<SubCommand>> subCommandSc;
         std::map<std::string, std::string> aliases;
 
-    public:
-        static std::shared_ptr<CLI::Formatter> sectionFormatter;
-
-    private:
-        static SubCommand* helpTriggerSubCommand;
-        static SubCommand* showConfigTriggerSubCommand;
-        static SubCommand* commandlineTriggerSubCommand;
+        static CLI::App* helpTriggerApp;
+        static CLI::App* showConfigTriggerApp;
+        static CLI::App* commandlineTriggerApp;
 
         std::vector<std::shared_ptr<utils::AppWithPtr<SubCommand>>> configInstances; // Store anything
 
@@ -210,16 +204,13 @@ namespace utils {
     };
 
     template <typename ConcreteSubCommand>
-    ConcreteSubCommand* SubCommand::addInstance(const std::string& group, bool final) {
-        return dynamic_cast<ConcreteSubCommand*>(
-            configInstances
-                .emplace_back(newInstance(net::config::Instance(std::string(ConcreteSubCommand::name),
-                                                                std::string(ConcreteSubCommand::description),
-                                                                new ConcreteSubCommand(this),
-                                                                true),
-                                          group,
-                                          final))
-                ->getPtr());
+    ConcreteSubCommand* SubCommand::addInstance() {
+        return dynamic_cast<ConcreteSubCommand*>(configInstances
+                                                     .emplace_back(net::config::Instance(std::string(ConcreteSubCommand::name),
+                                                                                         std::string(ConcreteSubCommand::description),
+                                                                                         new ConcreteSubCommand(this),
+                                                                                         true))
+                                                     ->getPtr());
     }
 
     template <typename ConcreteSubCommand>

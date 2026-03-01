@@ -82,12 +82,18 @@ namespace CLI {
 namespace utils {
 
     template <class T>
-    struct AppWithPtr : CLI::App {
+    class AppWithPtr : public CLI::App {
+    public:
         AppWithPtr(const std::string& description, const std::string& name, T* t, bool manage);
 
         const T* getPtr() const;
 
         ~AppWithPtr() override;
+
+        AppWithPtr* addStandardFlags(const std::function<void(CLI::App*)>& setShowConfigTriggerApp,
+                                     const std::function<void(CLI::App*)>& setCommandlineTriggerApp);
+        AppWithPtr* addSimpleHelp(const std::function<void(CLI::App*)>& setHelpTriggerApp);
+        AppWithPtr* addHelp(const std::function<void(CLI::App*)>& setHelpTriggerApp);
 
         T* getPtr();
 
@@ -108,6 +114,75 @@ namespace utils {
         if (manage) {
             delete ptr;
         }
+    }
+
+    template <class T>
+    inline AppWithPtr<T>* AppWithPtr<T>::addStandardFlags(const std::function<void(CLI::App*)>& setShowConfigTriggerApp,
+                                                          const std::function<void(CLI::App*)>& setCommandlineTriggerApp) {
+        add_flag_function(
+            "-s,--show-config",
+            [setShowConfigTriggerApp, this](std::size_t) {
+                setShowConfigTriggerApp(this);
+            },
+            "Show current configuration and exit")
+            ->take_first()
+            ->check(CLI::TypeValidator<bool>())
+            ->disable_flag_override()
+            ->configurable(false)
+            ->trigger_on_parse()
+            ->configurable(false);
+
+        add_flag_function(
+            "--command-line{standard}",
+            [setCommandlineTriggerApp, this]([[maybe_unused]] std::int64_t count) {
+                setCommandlineTriggerApp(this);
+            },
+            "Print command-line\n"
+            "* standard (default): Show all non-default and required options\n"
+            "* active: Show all active options\n"
+            "* complete: Show the complete option set with default values\n"
+            "* required: Show only required options")
+            ->take_first()
+            ->check(CLI::TypeValidator<bool>())
+            ->disable_flag_override()
+            ->trigger_on_parse();
+
+        return this;
+    }
+
+    template <class T>
+    inline AppWithPtr<T>* AppWithPtr<T>::addSimpleHelp(const std::function<void(CLI::App*)>& setHelpTriggerApp) {
+        set_help_flag(
+            "--help{exact},-h{exact}",
+            [setHelpTriggerApp, this](std::size_t) {
+                setHelpTriggerApp(this);
+            },
+            "Print help message and exit\n"
+            "* standard: display help for the last command processed\n"
+            "* exact: display help for the command directly preceding --help")
+            ->take_first()
+            ->check(CLI::IsMember({"standard", "exact"}))
+            ->trigger_on_parse();
+
+        return this;
+    }
+
+    template <class T>
+    inline AppWithPtr<T>* AppWithPtr<T>::addHelp(const std::function<void(CLI::App*)>& setHelpTriggerApp) {
+        set_help_flag(
+            "-h{exact},--help{exact}",
+            [setHelpTriggerApp, this](std::size_t) {
+                setHelpTriggerApp(this);
+            },
+            "Print help message and exit\n"
+            "* standard: display help for the last command processed\n"
+            "* exact: display help for the command directly preceding --help\n"
+            "* expanded: print help including all descendant command options")
+            ->take_first()
+            ->check(CLI::IsMember({"standard", "exact", "expanded"}))
+            ->trigger_on_parse();
+
+        return this;
     }
 
     template <class T>

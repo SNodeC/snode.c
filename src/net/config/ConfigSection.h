@@ -79,7 +79,7 @@ namespace net::config {
     private:
         ConfigInstance* instance = nullptr;
 
-        uint8_t requiredCount = 0;
+        //        uint8_t requiredCount = 0;
     };
 
 } // namespace net::config
