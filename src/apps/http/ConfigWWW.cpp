@@ -50,19 +50,16 @@
 namespace instance {
 
     ConfigWWW::ConfigWWW(SubCommand* parent)
-        : utils::SubCommand(parent->newInstance(net::config::Instance(std::string(name), std::string(description), this), "Applications")) {
+        : utils::SubCommand(parent->newInstance(net::config::Instance(std::string(NAME), std::string(DESCRIPTION), this), "Applications")) {
         htmlRootOpt = addOption("--html-root", "HTML root directory", "directory", CLI::ExistingDirectory);
 
-        subCommandSc->required()->needs(htmlRootOpt);
-        subCommandSc->get_parent()->needs(subCommandSc.get());
+        required(htmlRootOpt);
     }
 
     ConfigWWW& ConfigWWW::setHtmlRoot(const std::string& htmlRoot) {
         setDefaultValue(htmlRootOpt, htmlRoot);
-        htmlRootOpt->required(false);
 
-        subCommandSc->required(false)->remove_needs(htmlRootOpt);
-        subCommandSc->get_parent()->remove_needs(subCommandSc.get());
+        required(htmlRootOpt, false);
 
         return *this;
     }

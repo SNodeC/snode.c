@@ -69,8 +69,8 @@ namespace net::config {
         explicit ConfigTls(ConfigInstance* instance, ConcretConfigTls section);
 
     public:
-        constexpr static std::string_view name{"tls"};
-        constexpr static std::string_view description{"Configuration of SSL/TLS behavior"};
+        constexpr static std::string_view NAME{"tls"};
+        constexpr static std::string_view DESCRIPTION{"Configuration of SSL/TLS behavior"};
 
         ConfigTls& setInitTimeout(const utils::Timeval& newInitTimeout);
         utils::Timeval getInitTimeout() const;

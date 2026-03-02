@@ -47,7 +47,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace CLI {
-    class App;
     class Option;
 } // namespace CLI
 
@@ -79,17 +78,20 @@ namespace utils::config {
         std::string applicationName;
         std::string pidDirectory;
 
-        CLI::Option* daemonizeOpt;
-        CLI::Option* logFileOpt;
-        CLI::Option* monochromLogOpt;
-        CLI::Option* userNameOpt;
-        CLI::Option* groupNameOpt;
-        CLI::Option* enforceLogFileOpt;
-        CLI::Option* logLevelOpt;
-        CLI::Option* verboseLevelOpt;
-        CLI::Option* quietOpt;
-
-        CLI::Option* versionOpt;
+        CLI::Option* daemonizeOpt = nullptr;
+        CLI::Option* logFileOpt = nullptr;
+        CLI::Option* monochromLogOpt = nullptr;
+        CLI::Option* userNameOpt = nullptr;
+        CLI::Option* groupNameOpt = nullptr;
+        CLI::Option* enforceLogFileOpt = nullptr;
+        CLI::Option* logLevelOpt = nullptr;
+        CLI::Option* verboseLevelOpt = nullptr;
+        CLI::Option* quietOpt = nullptr;
+        CLI::Option* versionOpt = nullptr;
+        CLI::Option* writeConfigOpt = nullptr;
+        CLI::Option* killOpt = nullptr;
+        CLI::Option* logDirectoryOpt = nullptr;
+        CLI::Option* aliasOpt = nullptr;
     };
 
 } // namespace utils::config
@@ -120,47 +122,15 @@ namespace utils {
 
         static utils::config::ConfigRoot configRoot;
 
-        /*
-                //////////////////
-
-                static CLI::App* addStandardFlags(CLI::App* app);
-                static CLI::App* addSimpleHelp(CLI::App* app);
-                static CLI::App* addHelp(CLI::App* app);
-
-                //////////////////
-
-                static CLI::App* newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
-
-                static void required(CLI::App* instance, bool required = true);
-                static void disabled(CLI::App* instance, bool disabled = true);
-
-                static bool removeInstance(CLI::App* instance);
-
-                template <typename T>
-                static T* addInstance();
-
-                template <typename T>
-                static T* getInstance();
-
-                //////////////////
-        */
     private:
         static int argc;
         static char** argv;
 
-        //        static std::shared_ptr<CLI::App> app;
-
-        static bool subParse;
         static std::string applicationName;
 
         static std::string configDirectory;
         static std::string logDirectory;
         static std::string pidDirectory;
-
-    public:
-        static CLI::App* helpTriggerApp;
-        static CLI::App* showConfigTriggerApp;
-        static CLI::App* commandlineTriggerApp;
     };
 
     //////////////////

@@ -60,28 +60,22 @@
 
 class ConfigDb : public utils::SubCommand {
 public:
-    constexpr static std::string_view name{"db"};
-    constexpr static std::string_view description{"Database connection"};
+    constexpr static std::string_view NAME{"db"};
+    constexpr static std::string_view DESCRIPTION{"Database connection"};
 
     ConfigDb(SubCommand* parent)
-        : SubCommand(parent->newInstance(net::config::Instance(std::string(name), std::string(description), this), "Database")) {
-        hostOpt = subCommandSc->add_option("--db-host", "Hostname of IP-Address of Server")
-                      ->group(subCommandSc->get_formatter()->get_label("Persistent Options"))
-                      ->type_name("[hostname|IP-address]")
-                      ->configurable()
-                      ->required();
+        : SubCommand(parent->newInstance(net::config::Instance(std::string(NAME), std::string(DESCRIPTION), this), "Database")) {
+        hostOpt = setConfigurable(
+            addOption("--db-host", "Hostname or IP-Address of Server", "hostname|IPv4", CLI::TypeValidator<std::string>()), true);
 
-        subCommandSc->needs(hostOpt)->required();
-        subCommandSc->get_parent()->needs(subCommandSc.get());
+        required(hostOpt);
     }
 
     ConfigDb& setHost(const std::string& host) {
         setDefaultValue(hostOpt, host);
         hostOpt->required(false);
 
-        subCommandSc->remove_needs(hostOpt);
-        subCommandSc->required(false);
-        subCommandSc->get_parent()->remove_needs(subCommandSc.get());
+        required(hostOpt, false);
 
         return *this;
     }

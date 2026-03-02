@@ -60,8 +60,8 @@ namespace section {
 
     class ConfigWWW : public net::config::ConfigSection {
     public:
-        constexpr static std::string_view name{"www"};
-        constexpr static std::string_view description{"Web behavior of httpserver"};
+        constexpr static std::string_view NAME{"www"};
+        constexpr static std::string_view DESCRIPTION{"Web behavior of httpserver"};
 
         ConfigWWW(net::config::ConfigInstance* instance);
 
@@ -79,8 +79,8 @@ namespace instance {
 
     class ConfigWWW : public utils::SubCommand {
     public:
-        constexpr static std::string_view name{"www"};
-        constexpr static std::string_view description{"Web behavior of httpserver"};
+        constexpr static std::string_view NAME{"www"};
+        constexpr static std::string_view DESCRIPTION{"Web behavior of httpserver"};
 
         ConfigWWW(utils::SubCommand* parent);
 

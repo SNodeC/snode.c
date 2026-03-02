@@ -117,7 +117,7 @@ namespace net::config {
             "false",
             CLI::IsMember({"true", "false"}));
 
-        subCommandSc->final_callback([this]() {
+        finalCallback([this]() {
             for (auto& [domain, sniMap] : configuredSniCerts) {
                 if (domain.empty()) {
                     sniCertsOpt //
@@ -134,8 +134,7 @@ namespace net::config {
                         key != "CaCertUseDefaultDir" && //
                         key != "CipherList" &&          //
                         key != "SslOptions") {
-                        throw CLI::ConversionError("'" + key + "' of option '--" + subCommandSc->get_parent()->get_name() + "." +
-                                                       subCommandSc->get_name() + ".sni-cert'",
+                        throw CLI::ConversionError("'" + key + "' of option '--" + getParent()->getName() + "." + getName() + ".sni-cert'",
                                                    "<key>");
                     }
                 }

@@ -85,20 +85,33 @@ namespace utils {
         SubCommand& operator=(const SubCommand&) = delete;
         SubCommand& operator=(SubCommand&&) = delete;
 
-        SubCommand* required(bool required = true, bool force = true);
+        std::string getName();
+        std::string version();
 
+        void parse(int argc, char* argv[]);
+
+        SubCommand* description(const std::string& description);
+        SubCommand* footer(const std::string& footer);
+
+        CLI::Option* setConfig(const std::string& defaultConfigFile);
+        CLI::Option* setLogFile(const std::string& defaultLogFile);
+        CLI::Option* setVersionFlag(const std::string& version);
+
+        SubCommand* getParent();
         SubCommand* setRequireCallback(const std::function<void(void)>& callback);
 
         CLI::App* getParent() const;
 
-        static CLI::App* getHelpTriggerApp();
-        static CLI::App* getShowConfigTriggerApp();
-        static CLI::App* getCommandlineTriggerApp();
-
+        SubCommand* allowExtras(bool allow = true);
+        SubCommand* required(bool required = true, bool force = true);
         SubCommand* required(SubCommand* instance, bool required = true);
         SubCommand* required(CLI::Option* option, bool required = true);
-
         SubCommand* disabled(SubCommand* instance, bool disabled = true);
+        SubCommand* finalCallback(const std::function<void()>& finalCallback);
+
+        std::string configToStr();
+
+        std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode);
 
         std::shared_ptr<utils::AppWithPtr<SubCommand>> newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr,
                                                                    const std::string& group);
@@ -186,16 +199,26 @@ namespace utils {
         template <typename ValueTypeT>
         static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true);
 
+        static CLI::App* getHelpTriggerApp();
+        static CLI::App* getShowConfigTriggerApp();
+        static CLI::App* getCommandlineTriggerApp();
+
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
-    protected:
+    private:
         std::shared_ptr<utils::AppWithPtr<SubCommand>> subCommandSc;
+
+    protected:
         bool final;
         std::map<std::string, std::string> aliases;
 
         static CLI::App* helpTriggerApp;
         static CLI::App* showConfigTriggerApp;
         static CLI::App* commandlineTriggerApp;
+
+        CLI::Option* helpOpt = nullptr;
+        CLI::Option* showConfigOpt = nullptr;
+        CLI::Option* commandlineOpt = nullptr;
 
         std::vector<std::shared_ptr<utils::AppWithPtr<SubCommand>>> configInstances; // Store anything
 
@@ -206,8 +229,8 @@ namespace utils {
     ConcreteSubCommand* SubCommand::addInstance() {
         return !final
                    ? dynamic_cast<ConcreteSubCommand*>(configInstances
-                                                           .emplace_back(net::config::Instance(std::string(ConcreteSubCommand::name),
-                                                                                               std::string(ConcreteSubCommand::description),
+                                                           .emplace_back(net::config::Instance(std::string(ConcreteSubCommand::NAME),
+                                                                                               std::string(ConcreteSubCommand::DESCRIPTION),
                                                                                                new ConcreteSubCommand(this),
                                                                                                true))
                                                            ->getPtr())
@@ -216,7 +239,7 @@ namespace utils {
 
     template <typename ConcreteSubCommand>
     ConcreteSubCommand* SubCommand::getInstance() {
-        auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(ConcreteSubCommand::name));
+        auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(ConcreteSubCommand::NAME));
 
         AppWithPtr<SubCommand>* instanceApp = dynamic_cast<utils::AppWithPtr<SubCommand>*>(appWithPtr);
 

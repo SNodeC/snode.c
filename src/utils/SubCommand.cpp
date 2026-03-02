@@ -82,82 +82,118 @@ namespace utils {
             subCommandSc->option_defaults()->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
 
             if (!final) {
-                setConfigurable(subCommandSc
-                                    ->set_help_flag(
-                                        "--help{exact},-h{exact}",
-                                        [subCommandSc = this->subCommandSc](std::size_t) {
-                                            helpTriggerApp = subCommandSc.get();
-                                        },
-                                        "Print help message and exit\n"
-                                        "* standard: display help for the last command processed\n"
-                                        "* exact: display help for the command directly preceding --help")
-                                    ->take_first()
-                                    ->check(CLI::IsMember({"standard", "exact", "expanded"}))
-                                    ->trigger_on_parse(),
-                                false);
+                helpOpt = setConfigurable(subCommandSc
+                                              ->set_help_flag(
+                                                  "--help{exact},-h{exact}",
+                                                  [subCommandSc = this->subCommandSc](std::size_t) {
+                                                      helpTriggerApp = subCommandSc.get();
+                                                  },
+                                                  "Print help message and exit\n"
+                                                  "* standard: display help for the last command processed\n"
+                                                  "* exact: display help for the command directly preceding --help")
+                                              ->take_first()
+                                              ->check(CLI::IsMember({"standard", "exact", "expanded"}))
+                                              ->trigger_on_parse(),
+                                          false);
             } else {
-                setConfigurable(subCommandSc
-                                    ->set_help_flag(
-                                        "--help{exact},-h{exact}",
-                                        [subCommandSc = this->subCommandSc](std::size_t) {
-                                            helpTriggerApp = subCommandSc.get();
-                                        },
-                                        "Print help message and exit\n"
-                                        "* standard: display help for the last command processed\n"
-                                        "* exact: display help for the command directly preceding --help")
-                                    ->take_first()
-                                    ->check(CLI::IsMember({"standard", "exact"}))
-                                    ->trigger_on_parse(),
-                                false);
+                helpOpt = setConfigurable(subCommandSc
+                                              ->set_help_flag(
+                                                  "--help{exact},-h{exact}",
+                                                  [subCommandSc = this->subCommandSc](std::size_t) {
+                                                      helpTriggerApp = subCommandSc.get();
+                                                  },
+                                                  "Print help message and exit\n"
+                                                  "* standard: display help for the last command processed\n"
+                                                  "* exact: display help for the command directly preceding --help")
+                                              ->take_first()
+                                              ->check(CLI::IsMember({"standard", "exact"}))
+                                              ->trigger_on_parse(),
+                                          false);
             }
 
-            setConfigurable(subCommandSc
-                                ->add_flag_function(
-                                    "-s,--show-config",
-                                    [subCommandSc = this->subCommandSc](std::size_t) {
-                                        showConfigTriggerApp = subCommandSc.get();
-                                    },
-                                    "Show current configuration and exit")
-                                ->take_first()
-                                ->disable_flag_override()
-                                ->configurable(false)
-                                ->trigger_on_parse(),
-                            false);
+            showConfigOpt = setConfigurable(subCommandSc
+                                                ->add_flag_function(
+                                                    "-s,--show-config",
+                                                    [subCommandSc = this->subCommandSc](std::size_t) {
+                                                        showConfigTriggerApp = subCommandSc.get();
+                                                    },
+                                                    "Show current configuration and exit")
+                                                ->take_first()
+                                                ->disable_flag_override()
+                                                ->configurable(false)
+                                                ->trigger_on_parse(),
+                                            false);
 
-            setConfigurable(subCommandSc
-                                ->add_flag_function(
-                                    "--command-line{standard}",
-                                    [subCommandSc = this->subCommandSc]([[maybe_unused]] std::int64_t count) {
-                                        commandlineTriggerApp = subCommandSc.get();
-                                    },
-                                    "Print command-line\n"
-                                    "* standard (default): Show all non-default and required options\n"
-                                    "* active: Show all active options\n"
-                                    "* complete: Show the complete option set with default values\n"
-                                    "* required: Show only required options")
-                                ->take_first()
-                                ->check(CLI::IsMember({"standard", "active", "complete", "required"}))
-                                ->disable_flag_override()
-                                ->trigger_on_parse(),
-                            false);
+            commandlineOpt = setConfigurable(subCommandSc
+                                                 ->add_flag_function(
+                                                     "--command-line{standard}",
+                                                     [subCommandSc = this->subCommandSc]([[maybe_unused]] std::int64_t count) {
+                                                         commandlineTriggerApp = subCommandSc.get();
+                                                     },
+                                                     "Print command-line\n"
+                                                     "* standard (default): Show all non-default and required options\n"
+                                                     "* active: Show all active options\n"
+                                                     "* complete: Show the complete option set with default values\n"
+                                                     "* required: Show only required options")
+                                                 ->take_first()
+                                                 ->check(CLI::IsMember({"standard", "active", "complete", "required"}))
+                                                 ->disable_flag_override()
+                                                 ->trigger_on_parse(),
+                                             false);
         }
     }
 
     SubCommand::~SubCommand() {
     }
 
-    SubCommand* SubCommand::required(bool required, bool force) {
-        requiredCount += !force ? (required ? 1 : -1) : 0;
+    std::string SubCommand::getName() {
+        return subCommandSc->get_name();
+    }
 
-        subCommandSc->required(force ? required : requiredCount > 0);
+    std::string SubCommand::version() {
+        return subCommandSc->version();
+    }
 
-        CLI::App* parentSc = subCommandSc->get_parent();
+    void SubCommand::parse(int argc, char* argv[]) {
+        subCommandSc->parse(argc, argv);
+    }
 
-        if (parentSc != nullptr) {
-            parentSc->required(force ? required : requiredCount > 0);
-        }
+    SubCommand* SubCommand::description(const std::string& description) {
+        subCommandSc->description(description);
 
         return this;
+    }
+
+    SubCommand* SubCommand::footer(const std::string& footer) {
+        subCommandSc->footer(footer);
+
+        return this;
+    }
+
+    CLI::Option* SubCommand::setConfig(const std::string& defaultConfigFile) {
+        return subCommandSc
+            ->set_config( //
+                "-c,--config-file",
+                defaultConfigFile,
+                "Read a config file",
+                false) //
+            ->take_all()
+            ->type_name("configfile")
+            ->check(!CLI::ExistingDirectory);
+    }
+
+    CLI::Option* utils::SubCommand::setLogFile(const std::string& defaultLogFile) {
+        return addOption("-l,--log-file", "Log file", "logFile", defaultLogFile, !CLI::ExistingDirectory);
+    }
+
+    CLI::Option* SubCommand::setVersionFlag(const std::string& version) {
+        return subCommandSc->set_version_flag("-v,--version", version, "Framework version");
+    }
+
+    SubCommand* SubCommand::getParent() {
+        utils::AppWithPtr<SubCommand>* parentSc = dynamic_cast<utils::AppWithPtr<SubCommand>*>(subCommandSc->get_parent());
+
+        return parentSc != nullptr ? dynamic_cast<SubCommand*>(parentSc->getPtr()) : nullptr;
     }
 
     SubCommand* SubCommand::setRequireCallback(const std::function<void()>& callback) {
@@ -170,6 +206,12 @@ namespace utils {
         return subCommandSc->get_parent();
     }
 
+    SubCommand* SubCommand::allowExtras(bool allow) {
+        subCommandSc->allow_extras(allow);
+
+        return this;
+    }
+
     CLI::App* SubCommand::getCommandlineTriggerApp() {
         return commandlineTriggerApp;
     }
@@ -180,6 +222,33 @@ namespace utils {
 
     CLI::App* SubCommand::getHelpTriggerApp() {
         return helpTriggerApp;
+    }
+
+    SubCommand* SubCommand::required(bool required, bool force) {
+        requiredCount += !force ? (required ? 1 : -1) : 0;
+
+        subCommandSc->required(force ? required : requiredCount > 0);
+
+        CLI::App* parentSc = subCommandSc->get_parent();
+
+        VLOG(0) << "Required " << (parentSc != nullptr ? parentSc->get_name() : "-") << " " << subCommandSc->get_name() << ": " << required
+                << " - " << requiredCount;
+
+        if (parentSc != nullptr && parentSc->get_parent() != nullptr) {
+            //            getParent()->required(this, force ? required : requiredCount > 0);
+
+            parentSc->required(force ? required : requiredCount > 0);
+
+            if (parentSc->get_parent() != nullptr) {
+                if (force ? required : requiredCount > 0) {
+                    parentSc->needs(subCommandSc.get());
+                } else {
+                    parentSc->remove_needs(subCommandSc.get());
+                }
+            }
+        }
+
+        return this;
     }
 
     SubCommand* SubCommand::required(SubCommand* instance, bool required) {
@@ -257,6 +326,20 @@ namespace utils {
         return this;
     }
 
+    SubCommand* SubCommand::finalCallback(const std::function<void()>& finalCallback) {
+        subCommandSc->final_callback(finalCallback);
+
+        return this;
+    }
+
+    std::string SubCommand::configToStr() {
+        return subCommandSc->config_to_str(true, true);
+    }
+
+    std::string SubCommand::help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) {
+        return subCommandSc->help(helpApp, "", mode);
+    }
+
     static std::shared_ptr<CLI::HelpFormatter> makeSectionFormatter() {
         const std::shared_ptr<CLI::HelpFormatter> sectionFormatter = std::make_shared<CLI::HelpFormatter>();
 
@@ -313,7 +396,7 @@ namespace utils {
     }
 
     CLI::Option* SubCommand::getOption(const std::string& name) const {
-        return subCommandSc->get_option(name);
+        return subCommandSc->get_option_no_throw(name);
     }
 
     CLI::Option* SubCommand::addOption(const std::string& name,

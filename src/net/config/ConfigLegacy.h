@@ -58,8 +58,8 @@ namespace net::config {
 
     class ConfigLegacy : public ConfigSection {
     public:
-        constexpr static std::string_view name{"legacy"};
-        constexpr static std::string_view description{"Configuration of legacy behavior"};
+        constexpr static std::string_view NAME{"legacy"};
+        constexpr static std::string_view DESCRIPTION{"Configuration of legacy behavior"};
 
     protected:
         explicit ConfigLegacy(ConfigInstance* instance);

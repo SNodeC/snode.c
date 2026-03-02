@@ -58,8 +58,8 @@ namespace web::http::client {
 
     class ConfigHTTP : public utils::SubCommand {
     public:
-        constexpr static std::string_view name{"http"};
-        constexpr static std::string_view description{"HTTP behavior"};
+        constexpr static std::string_view NAME{"http"};
+        constexpr static std::string_view DESCRIPTION{"HTTP behavior"};
 
         explicit ConfigHTTP(utils::SubCommand* configInstance);
 

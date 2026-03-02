@@ -72,8 +72,8 @@ namespace net::config {
         ~ConfigConnection() override;
 
     public:
-        constexpr static std::string_view name{"connection"};
-        constexpr static std::string_view description{"Configuration of established connections"};
+        constexpr static std::string_view NAME{"connection"};
+        constexpr static std::string_view DESCRIPTION{"Configuration of established connections"};
 
         utils::Timeval getReadTimeout() const;
         ConfigConnection& setReadTimeout(const utils::Timeval& newReadTimeoutSet);

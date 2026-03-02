@@ -302,16 +302,16 @@ namespace utils::config {
         return out.str();
     }
 
-    static std::string doWriteConfig(CLI::App* app) {
+    static std::string doWriteConfig(utils::SubCommand* subCommand) {
         std::stringstream out;
 
-        std::ofstream confFile((*app)["--write-config"]->as<std::string>());
+        std::ofstream confFile(subCommand->getOption("--write-config")->as<std::string>());
         if (confFile.is_open()) {
             try {
-                confFile << app->config_to_str(true, true);
+                confFile << subCommand->configToStr();
                 confFile.close();
                 out << std::string{"["} << Color::Code::FG_GREEN << "SUCCESS" << Color::Code::FG_DEFAULT
-                    << "] Writing config file: " + app->get_option_no_throw("--write-config")->as<std::string>() << std::endl
+                    << "] Writing config file: " + subCommand->getOption("--write-config")->as<std::string>() << std::endl
                     << std::endl;
             } catch (const CLI::ParseError& e) {
                 confFile.close();
@@ -327,10 +327,11 @@ namespace utils::config {
         return out.str();
     }
 
-    static std::string getHelp(CLI::App* app, CLI::App* helpTriggerApp) {
+    static std::string getHelp(utils::SubCommand* subCommand, CLI::App* helpTriggerApp) {
         std::stringstream out;
 
-        const std::string helpMode = (helpTriggerApp != nullptr ? helpTriggerApp : app)->get_option("--help")->as<std::string>();
+        const std::string helpMode =
+            (helpTriggerApp != nullptr ? helpTriggerApp->get_option("--help") : subCommand->getOption("--help"))->as<std::string>();
 
         const CLI::App* helpApp = nullptr;
         CLI::AppFormatMode mode = CLI::AppFormatMode::Normal;
@@ -341,7 +342,7 @@ namespace utils::config {
             mode = CLI::AppFormatMode::All;
         }
         try {
-            out << app->help(helpApp, "", mode);
+            out << subCommand->help(helpApp, mode);
         } catch (CLI::ParseError& e) {
             out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT << "] Show help: " << e.get_name() << " "
                 << e.what();
@@ -364,142 +365,95 @@ namespace utils::config {
         this->applicationName = applicationName;
         this->pidDirectory = pidDirectory;
 
-        subCommandSc->description("Configuration for Application '" + applicationName + "'");
+        description("Configuration for Application '" + applicationName + "'");
 
-        subCommandSc->footer("Application '" + applicationName +
-                             "' powered by SNode.C\n"
-                             "(C) 2020-2025 Volker Christian <me@vchrist.at>\n"
-                             "https://github.com/SNodeC/snode.c");
-        subCommandSc
-            ->set_config( //
-                "-c,--config-file",
-                configDirectory + "/" + applicationName + ".conf",
-                "Read a config file",
-                false) //
-            ->take_all()
-            ->type_name("configfile")
-            ->check(!CLI::ExistingDirectory);
+        footer("Application '" + applicationName +
+               "' powered by SNode.C\n"
+               "(C) 2020-2026 Volker Christian <me@vchrist.at>\n"
+               "https://github.com/SNodeC/snode.c");
 
-        subCommandSc->add_option("-w,--write-config", "Write config file and exit")
-            ->configurable(false)
-            ->default_val(configDirectory + "/" + applicationName + ".conf")
-            ->type_name("configfile")
-            ->check(!CLI::ExistingDirectory)
-            ->expected(0, 1);
+        setConfig(configDirectory + "/" + applicationName + ".conf");
 
-        subCommandSc
-            ->add_flag( //
-                "-k,--kill",
-                "Kill running daemon") //
-            ->configurable(false)
-            ->disable_flag_override();
+        writeConfigOpt = setConfigurable(addOption( //
+                                             "-w,--write-config",
+                                             "Write config file and exit",
+                                             configDirectory + "/" + applicationName + ".conf",
+                                             "configfile",
+                                             !CLI::ExistingDirectory),
+                                         false)
+                             ->expected(0, 1);
 
-        logLevelOpt = subCommandSc
-                          ->add_option( //
-                              "--log-level",
-                              "Log level") //
-                          ->default_val(4)
-                          ->type_name("level")
-                          ->check(CLI::Range(0, 6))
-                          ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+        killOpt = setConfigurable(addFlag("-k,--kill", "Kill running daemon", "", CLI::Validator()), false);
 
-        verboseLevelOpt = subCommandSc
-                              ->add_option( //
-                                  "--verbose-level",
-                                  "Verbose level") //
-                              ->default_val(2)
-                              ->type_name("level")
-                              ->check(CLI::Range(0, 10))
-                              ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+        logLevelOpt = setConfigurable(addOption("--log-level", "Log level", "level", 4, CLI::Range(0, 6)), true);
 
-        logFileOpt = subCommandSc
-                         ->add_option( //
-                             "-l,--log-file",
-                             "Log file path") //
-                         ->default_val(logDirectory + "/" + applicationName + ".log")
-                         ->type_name("logfile")
-                         ->check(!CLI::ExistingDirectory)
-                         ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+        verboseLevelOpt = setConfigurable(addOption("--verbose-level", "Verbose level", "level", 2, CLI::Range(0, 10)), true);
 
-        monochromLogOpt = subCommandSc
-                              ->add_flag(
-                                  "-m{true},--monochrom-log{true}",
-                                  [&monochromLogOpt = this->monochromLogOpt]([[maybe_unused]] std::size_t count) {
-                                      if (monochromLogOpt->as<bool>()) {
-                                          logger::Logger::setDisableColor(true);
-                                      } else {
-                                          logger::Logger::setDisableColor(false);
-                                      }
-                                  },
-                                  "Monochrom log output")
-                              ->default_val(logger::Logger::getDisableColor() ? "true" : "false")
-                              ->type_name("bool")
-                              ->check(CLI::IsMember({"true", "false"}))
-                              ->group(subCommandSc->get_formatter()->get_label("Persistent Options"))
+        logDirectoryOpt = setConfigurable(setLogFile(logDirectory + "/" + applicationName + ".log"), true);
+
+        monochromLogOpt = setConfigurable(addFlagFunction( //
+                                              "-m{true},--monochrom-logmonochromLogOption{true}",
+                                              [&monochromLogOpt = this->monochromLogOpt]([[maybe_unused]] std::size_t count) {
+                                                  if (monochromLogOpt->as<bool>()) {
+                                                      logger::Logger::setDisableColor(true);
+                                                  } else {
+                                                      logger::Logger::setDisableColor(false);
+                                                  }
+                                              },
+                                              "Monochrom log output",
+                                              "bool",
+                                              logger::Logger::getDisableColor() ? "true" : "false",
+                                              CLI::IsMember({"true", "false"})),
+                                          true)
                               ->trigger_on_parse();
 
-        quietOpt = subCommandSc
-                       ->add_flag( //
-                           "-q{true},--quiet{true}",
-                           "Quiet mode") //
-                       ->default_val("false")
-                       ->type_name("bool")
-                       ->check(CLI::IsMember({"true", "false"}))
-                       ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+        quietOpt = setConfigurable(addFlag( //
+                                       "-q{true},--quiet{true}",
+                                       "Quiet mode",
+                                       "bool",
+                                       "false",
+                                       CLI::IsMember({"true", "false"})),
+                                   true);
 
-        enforceLogFileOpt = subCommandSc
-                                ->add_flag( //
-                                    "-e{true},--enforce-log-file{true}",
-                                    "Enforce writing of logs to file for foreground applications") //
-                                ->default_val("false")
-                                ->type_name("bool")
-                                ->check(CLI::IsMember({"true", "false"}))
-                                ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+        enforceLogFileOpt = setConfigurable(addFlag( //
+                                                "-e{true},--enforce-log-file{true}",
+                                                "Enforce writing of logs to file for foreground applications",
+                                                "bool",
+                                                "false",
+                                                CLI::IsMember({"true", "false"})),
+                                            true);
 
-        daemonizeOpt = subCommandSc
-                           ->add_flag( //
-                               "-d{true},--daemonize{true}",
-                               "Start application as daemon") //
-                           ->default_val("false")
-                           ->type_name("bool")
-                           ->check(CLI::IsMember({"true", "false"}))
-                           ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+        daemonizeOpt = setConfigurable(addFlag( //
+                                           "-d{true},--daemonize{true}",
+                                           "Start application as daemon",
+                                           "bool",
+                                           "false",
+                                           CLI::IsMember({"true", "false"})),
+                                       true);
 
-        userNameOpt = subCommandSc
-                          ->add_option( //
-                              "-u,--user-name",
-                              "Run daemon under specific user permissions") //
-                          ->default_val(userName)
-                          ->type_name("username")
-                          ->needs(daemonizeOpt)
-                          ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+        userNameOpt = setConfigurable(addOption( //
+                                          "-u,--user-name",
+                                          "Run daemon under specific user permissions",
+                                          "username",
+                                          userName,
+                                          CLI::TypeValidator<std::string>()),
+                                      true);
 
-        groupNameOpt = subCommandSc
-                           ->add_option( //
-                               "-g,--group-name",
-                               "Run daemon under specific group permissions")
-                           ->default_val(groupName)
-                           ->type_name("groupname")
-                           ->needs(daemonizeOpt)
-                           ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+        groupNameOpt = setConfigurable(addOption( //
+                                           "-g,--group-name",
+                                           "Run daemon under specific group permissions",
+                                           "groupname",
+                                           groupName,
+                                           CLI::TypeValidator<std::string>()),
+                                       true);
 
-        setConfigurable(subCommandSc
-                            ->add_option( //
-                                "-a,--aliases",
-                                "Make an instance also known as an alias in configuration files")
-                            ->configurable(false)
-                            ->type_name("instance=instance_alias [instance=instance_alias [...]]")
-                            ->each([this](const std::string& item) {
-                                const auto it = item.find('=');
-                                if (it != std::string::npos) {
-                                    aliases[item.substr(0, it)] = item.substr(it + 1);
-                                } else {
-                                    throw CLI::ConversionError("Can not convert '" + item + "' to a 'instance=instance_alias' pair");
-                                }
-                            }),
-                        false);
+        aliasOpt = setConfigurable(addOption("-a,--aliases",
+                                             "Make an instance also known as an alias in configuration files",
+                                             "instance=instance_alias [instance=instance_alias [...]]",
+                                             CLI::TypeValidator<std::string>()),
+                                   false);
 
-        versionOpt = subCommandSc->set_version_flag("-v,--version", "1.0-rc1", "Framework version");
+        versionOpt = setVersionFlag("1.0-rc1");
 
         return this;
     }
@@ -508,7 +462,7 @@ namespace utils::config {
         bool proceed = parse2(argc, argv, true);
 
         if (proceed) {
-            if (subCommandSc->get_option_no_throw("--kill")->count() > 0) {
+            if (killOpt->count() > 0) {
                 try {
                     const pid_t daemonPid =
                         utils::Daemon::stopDaemon(pidDirectory + "/" + std::string(std::filesystem::path(argv[0]).filename()) + ".pid");
@@ -521,15 +475,15 @@ namespace utils::config {
 
                 proceed = false;
             } else {
-                if (utils::Config::helpTriggerApp == nullptr && utils::Config::showConfigTriggerApp == nullptr &&
-                    utils::Config::commandlineTriggerApp == nullptr && versionOpt->count() == 0) {
+                if (helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && commandlineTriggerApp == nullptr &&
+                    versionOpt->count() == 0) {
                     logger::Logger::setLogLevel(logLevelOpt->as<int>());
                     logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
                 }
 
                 logger::Logger::setQuiet(quietOpt->as<bool>());
 
-                subCommandSc->allow_extras(false);
+                allowExtras(false);
             }
         }
 
@@ -537,11 +491,9 @@ namespace utils::config {
     }
 
     bool ConfigRoot::bootstrap(int argc, char* argv[]) {
-        aliases.clear();
-
-        subCommandSc->final_callback([this]() {
-            if (daemonizeOpt->as<bool>() && helpTriggerApp == nullptr && showConfigTriggerApp == nullptr &&
-                (*subCommandSc)["--write-config"]->count() == 0 && (*subCommandSc)["--command-line"]->count() == 0) {
+        finalCallback([this]() {
+            if (daemonizeOpt->as<bool>() && helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && writeConfigOpt->count() == 0 &&
+                commandlineOpt->count() == 0) {
                 std::cout << "Running as daemon (double fork)" << std::endl;
 
                 utils::Daemon::startDaemon(
@@ -553,7 +505,7 @@ namespace utils::config {
                 if (!logFile.empty()) {
                     logger::Logger::logToFile(logFile);
                 }
-            } else if ((*subCommandSc)["--enforce-log-file"]->as<bool>()) {
+            } else if (enforceLogFileOpt->as<bool>()) {
                 const std::string logFile = logFileOpt->as<std::string>();
                 if (!logFile.empty()) {
                     std::cout << "Writing logs to file " << logFile << std::endl;
@@ -567,7 +519,7 @@ namespace utils::config {
     }
 
     void ConfigRoot::terminate() {
-        if ((*subCommandSc)["--daemonize"]->as<bool>()) {
+        if (daemonizeOpt->as<bool>()) {
             std::ifstream pidFile(pidDirectory + "/" + applicationName + ".pid", std::ifstream::in);
 
             if (pidFile.good()) {
@@ -591,19 +543,21 @@ namespace utils::config {
         try {
             try {
                 try {
+                    aliases.clear();
+
                     helpTriggerApp = nullptr;
                     showConfigTriggerApp = nullptr;
                     commandlineTriggerApp = nullptr;
 
-                    subCommandSc->parse(argc, argv);
+                    parse(argc, argv);
 
                     if (!parse1) {
                         if (showConfigTriggerApp != nullptr) {
                             std::cout << getConfig(showConfigTriggerApp);
                         } else if (commandlineTriggerApp != nullptr) {
                             std::cout << getCommandLine(commandlineTriggerApp);
-                        } else if (subCommandSc->get_option("--write-config")->count() > 0) {
-                            std::cout << doWriteConfig(subCommandSc.get());
+                        } else if (getOption("--write-config")->count() > 0) {
+                            std::cout << doWriteConfig(this);
                         } else {
                             proceed = true;
                         }
@@ -648,9 +602,9 @@ namespace utils::config {
             } catch (const DaemonSignaled& e) {
                 std::cout << "Pid: " << getpid() << ", child pid: " << e.getPid() << ": " << e.what() << std::endl;
             } catch (const CLI::CallForHelp&) {
-                std::cout << getHelp(subCommandSc.get(), helpTriggerApp);
+                std::cout << getHelp(this, helpTriggerApp);
             } catch (const CLI::CallForVersion&) {
-                std::cout << subCommandSc->version() << std::endl << std::endl;
+                std::cout << version() << std::endl << std::endl;
             } catch (const CLI::ConversionError& e) {
                 std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
                           << std::endl;
@@ -846,9 +800,5 @@ namespace utils {
     std::string Config::configDirectory;
     std::string Config::logDirectory;
     std::string Config::pidDirectory;
-
-    CLI::App* Config::helpTriggerApp = nullptr;
-    CLI::App* Config::showConfigTriggerApp = nullptr;
-    CLI::App* Config::commandlineTriggerApp = nullptr;
 
 } // namespace utils

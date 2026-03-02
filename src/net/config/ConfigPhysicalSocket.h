@@ -71,8 +71,8 @@ namespace net::config {
         ConfigPhysicalSocket(ConfigInstance* instance, ConcretConfigPhysicalSocketT* section);
 
     public:
-        constexpr static std::string_view name{"socket"};
-        constexpr static std::string_view description{"Configuration of socket behavior"};
+        constexpr static std::string_view NAME{"socket"};
+        constexpr static std::string_view DESCRIPTION{"Configuration of socket behavior"};
 
         const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& getSocketOptions() const;
 
