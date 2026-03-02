@@ -55,27 +55,8 @@ namespace CLI {
 #include <string_view>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-/*
-namespace section {
 
-    class ConfigWWW : public net::config::ConfigSection {
-    public:
-        constexpr static std::string_view NAME{"www"};
-        constexpr static std::string_view DESCRIPTION{"Web behavior of httpserver"};
-
-        ConfigWWW(net::config::ConfigInstance* instance);
-
-        ConfigWWW& setHtmlRoot(const std::string& htmlRoot);
-        std::string getHtmlRoot();
-
-    private:
-        CLI::Option* htmlRootOpt;
-    };
-
-} // namespace section
-*/
-
-namespace instance {
+namespace subcommand {
 
     class ConfigWWW : public utils::SubCommand {
     public:
@@ -91,6 +72,6 @@ namespace instance {
         CLI::Option* htmlRootOpt;
     };
 
-} // namespace instance
+} // namespace subcommand
 
 #endif // CONFIGWWW_H

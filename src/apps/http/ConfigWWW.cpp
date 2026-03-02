@@ -45,7 +45,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace instance {
+namespace subcommand {
 
     ConfigWWW::ConfigWWW(SubCommand* parent)
         : utils::SubCommand(
@@ -67,4 +67,4 @@ namespace instance {
         return htmlRootOpt->as<std::string>();
     }
 
-} // namespace instance
+} // namespace subcommand

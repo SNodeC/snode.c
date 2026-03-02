@@ -76,7 +76,7 @@ namespace utils::CallForCommandline {
     enum class Mode { REQUIRED, STANDARD, ACTIVE, COMPLETE };
 }
 
-namespace utils::config {
+namespace utils {
 
     // Escape characters with special meaning in Bash (except whitespace).
     static std::string bash_backslash_escape_no_whitespace(std::string_view s) {
@@ -642,10 +642,6 @@ namespace utils::config {
         return proceed;
     }
 
-} // namespace utils::config
-
-namespace utils {
-
     bool Config::init(int argc, char* argv[]) {
         bool proceed = true;
 
@@ -793,7 +789,7 @@ namespace utils {
     int Config::argc = 0;
     char** Config::argv = nullptr;
 
-    utils::config::ConfigRoot Config::configRoot;
+    ConfigRoot Config::configRoot;
 
     std::string Config::applicationName;
 

@@ -62,6 +62,8 @@ namespace net::config {
 
     class ConfigInstance : public utils::SubCommand {
     public:
+        using Instance = ConfigInstance;
+
         enum class Role { SERVER, CLIENT };
 
     protected:

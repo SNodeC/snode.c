@@ -54,7 +54,9 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace utils::config {
+namespace utils::config {} // namespace utils::config
+
+namespace utils {
 
     class ConfigRoot : public utils::SubCommand {
     public:
@@ -94,10 +96,6 @@ namespace utils::config {
         CLI::Option* aliasOpt = nullptr;
     };
 
-} // namespace utils::config
-
-namespace utils {
-
     class Config {
     public:
         Config() = delete;
@@ -120,7 +118,7 @@ namespace utils {
     public:
         static bool parse2(bool parse1 = false);
 
-        static utils::config::ConfigRoot configRoot;
+        static ConfigRoot configRoot;
 
     private:
         static int argc;

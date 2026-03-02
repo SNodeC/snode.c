@@ -67,12 +67,12 @@ int main(int argc, char* argv[]) {
 
     const WebApp webApp(apps::http::STREAM::getWebApp("httpserver"));
 
-    webApp.getConfig().net::config::ConfigInstance::addSubCommand<instance::ConfigWWW>();
+    webApp.getConfig().net::config::ConfigInstance::addSubCommand<subcommand::ConfigWWW>();
 
     WebApp::init(argc, argv);
 
     webApp.use(express::middleware::StaticMiddleware(
-        webApp.getConfig().net::config::ConfigInstance::getSubCommand<instance::ConfigWWW>()->getHtmlRoot()));
+        webApp.getConfig().net::config::ConfigInstance::getSubCommand<subcommand::ConfigWWW>()->getHtmlRoot()));
 
     {
 #if (STREAM_TYPE == TLS)
