@@ -79,25 +79,4 @@ namespace CLI {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace utils {
-
-    class SubCommand;
-
-    class AppWithPtr : public CLI::App {
-    public:
-        AppWithPtr(const std::string& description, const std::string& name, SubCommand* t, bool manage);
-
-        const SubCommand* getPtr() const;
-
-        ~AppWithPtr() override;
-
-        SubCommand* getPtr();
-
-    private:
-        SubCommand* ptr;
-        bool manage;
-    };
-
-} // namespace utils
-
 #endif // UTILS_CONFIGAPP_H

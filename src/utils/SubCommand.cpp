@@ -41,7 +41,6 @@
 
 #include "SubCommand.h"
 
-#include "utils/ConfigApp.h"
 #include "utils/Formatter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

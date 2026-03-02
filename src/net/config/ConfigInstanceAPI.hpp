@@ -46,7 +46,6 @@
 
 #include "net/config/ConfigInstance.h" // IWYU pragma: export
 #include "utils/Config.h"              // IWYU pragma: export
-#include "utils/ConfigApp.h"           // IWYU pragma: export
 
 #include <cstdint>
 #include <memory> // IWYU pragma: export

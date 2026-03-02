@@ -42,8 +42,6 @@
 #ifndef UTILS_SUBCOMMAND_H
 #define UTILS_SUBCOMMAND_H
 
-#include "ConfigApp.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -56,11 +54,50 @@
 #include <string>
 #include <vector>
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#ifdef __has_warning
+#if __has_warning("-Wweak-vtables")
+#pragma GCC diagnostic ignored "-Wweak-vtables"
+#endif
+#if __has_warning("-Wcovered-switch-default")
+#pragma GCC diagnostic ignored "-Wcovered-switch-default"
+#endif
+#if __has_warning("-Wmissing-noreturn")
+#pragma GCC diagnostic ignored "-Wmissing-noreturn"
+#endif
+#if __has_warning("-Wnrvo")
+#pragma GCC diagnostic ignored "-Wnrvo"
+#endif
+#endif
+#endif
+#include "utils/CLI11.hpp" // IWYU pragma: export
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
     class SubCommand;
-}
+
+    class AppWithPtr : public CLI::App {
+    public:
+        AppWithPtr(const std::string& description, const std::string& name, SubCommand* t, bool manage);
+
+        const SubCommand* getPtr() const;
+
+        ~AppWithPtr() override;
+
+        SubCommand* getPtr();
+
+    private:
+        SubCommand* ptr;
+        bool manage;
+    };
+
+} // namespace utils
 
 namespace net::config {
 
