@@ -53,7 +53,7 @@
 
 namespace utils {
 
-    SubCommand::SubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr, bool final)
+    SubCommand::SubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, bool final)
         : subCommandSc(appWithPtr)
         , final(final) {
         if (appWithPtr != nullptr) {
@@ -195,7 +195,7 @@ namespace utils {
     }
 
     SubCommand* SubCommand::getParent() {
-        utils::AppWithPtr<SubCommand>* parentSc = dynamic_cast<utils::AppWithPtr<SubCommand>*>(subCommandSc->get_parent());
+        utils::AppWithPtr* parentSc = dynamic_cast<utils::AppWithPtr*>(subCommandSc->get_parent());
 
         return parentSc != nullptr ? dynamic_cast<SubCommand*>(parentSc->getPtr()) : nullptr;
     }
@@ -358,8 +358,8 @@ namespace utils {
 
     std::shared_ptr<CLI::Formatter> SubCommand::sectionFormatter = makeSectionFormatter();
 
-    std::shared_ptr<utils::AppWithPtr<SubCommand>> SubCommand::newSubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr,
-                                                                             const std::string& group) const {
+    std::shared_ptr<utils::AppWithPtr> SubCommand::newSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr,
+                                                                 const std::string& group) const {
         if (!final) {
             CLI::App* newSubCommand = subCommandSc->add_subcommand(appWithPtr)
                                           ->group(group)
@@ -464,5 +464,25 @@ namespace utils {
     CLI::App* SubCommand::helpTriggerApp = nullptr;
     CLI::App* SubCommand::showConfigTriggerApp = nullptr;
     CLI::App* SubCommand::commandlineTriggerApp = nullptr;
+
+    AppWithPtr::AppWithPtr(const std::string& description, const std::string& name, SubCommand* t, bool manage)
+        : CLI::App(description, name)
+        , ptr(t)
+        , manage(manage) {
+    }
+
+    AppWithPtr::~AppWithPtr() {
+        if (manage) {
+            delete ptr;
+        }
+    }
+
+    const SubCommand* AppWithPtr::getPtr() const {
+        return ptr;
+    }
+
+    SubCommand* AppWithPtr::getPtr() {
+        return ptr;
+    }
 
 } // namespace utils

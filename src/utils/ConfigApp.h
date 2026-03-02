@@ -81,45 +81,22 @@ namespace CLI {
 
 namespace utils {
 
-    template <class T>
+    class SubCommand;
+
     class AppWithPtr : public CLI::App {
     public:
-        AppWithPtr(const std::string& description, const std::string& name, T* t, bool manage);
+        AppWithPtr(const std::string& description, const std::string& name, SubCommand* t, bool manage);
 
-        const T* getPtr() const;
+        const SubCommand* getPtr() const;
 
         ~AppWithPtr() override;
 
-        T* getPtr();
+        SubCommand* getPtr();
 
     private:
-        T* ptr;
+        SubCommand* ptr;
         bool manage;
     };
-
-    template <class T>
-    AppWithPtr<T>::AppWithPtr(const std::string& description, const std::string& name, T* t, bool manage)
-        : CLI::App(description, name)
-        , ptr(t)
-        , manage(manage) {
-    }
-
-    template <class T>
-    AppWithPtr<T>::~AppWithPtr() {
-        if (manage) {
-            delete ptr;
-        }
-    }
-
-    template <class T>
-    const T* AppWithPtr<T>::getPtr() const {
-        return ptr;
-    }
-
-    template <class T>
-    T* AppWithPtr<T>::getPtr() {
-        return ptr;
-    }
 
 } // namespace utils
 

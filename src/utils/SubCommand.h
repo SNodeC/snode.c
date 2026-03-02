@@ -65,8 +65,7 @@ namespace utils {
 namespace net::config {
 
     template <typename T>
-    std::shared_ptr<utils::AppWithPtr<utils::SubCommand>>
-    Instance(const std::string& name, const std::string& description, T* section, bool manage = false);
+    std::shared_ptr<utils::AppWithPtr> Instance(const std::string& name, const std::string& description, T* section, bool manage = false);
 
 }
 
@@ -74,7 +73,7 @@ namespace utils {
 
     class SubCommand {
     protected:
-        SubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr, bool final = true);
+        SubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, bool final = true);
 
     public:
         SubCommand(const SubCommand&) = delete;
@@ -114,8 +113,7 @@ namespace utils {
         std::string configToStr() const;
         std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const;
 
-        std::shared_ptr<utils::AppWithPtr<SubCommand>> newSubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr,
-                                                                     const std::string& group) const;
+        std::shared_ptr<utils::AppWithPtr> newSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group) const;
 
         template <typename T>
         T* addInstance();
@@ -211,7 +209,7 @@ namespace utils {
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
     private:
-        std::shared_ptr<utils::AppWithPtr<SubCommand>> subCommandSc;
+        std::shared_ptr<utils::AppWithPtr> subCommandSc;
 
     protected:
         bool final;
@@ -225,7 +223,7 @@ namespace utils {
         CLI::Option* showConfigOpt = nullptr;
         CLI::Option* commandlineOpt = nullptr;
 
-        std::vector<std::shared_ptr<utils::AppWithPtr<SubCommand>>> configInstances; // Store anything
+        std::vector<std::shared_ptr<utils::AppWithPtr>> configInstances; // Store anything
 
         int requiredCount = 0;
     };
@@ -246,7 +244,7 @@ namespace utils {
     ConcreteSubCommand* SubCommand::getInstance() {
         auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(ConcreteSubCommand::NAME));
 
-        AppWithPtr<SubCommand>* subCommandApp = dynamic_cast<utils::AppWithPtr<SubCommand>*>(appWithPtr);
+        AppWithPtr* subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
 
         return subCommandApp != nullptr ? dynamic_cast<ConcreteSubCommand*>(subCommandApp->getPtr()) : nullptr;
     }
@@ -335,10 +333,8 @@ namespace utils {
 namespace net::config {
 
     template <typename T>
-    std::shared_ptr<utils::AppWithPtr<utils::SubCommand>>
-    Instance(const std::string& name, const std::string& description, T* section, bool manage) {
-        std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> subCommandSc =
-            std::make_shared<utils::AppWithPtr<utils::SubCommand>>(description, name, section, manage);
+    std::shared_ptr<utils::AppWithPtr> Instance(const std::string& name, const std::string& description, T* section, bool manage) {
+        std::shared_ptr<utils::AppWithPtr> subCommandSc = std::make_shared<utils::AppWithPtr>(description, name, section, manage);
 
         subCommandSc->option_defaults()->take_last();
         subCommandSc->formatter(utils::SubCommand::sectionFormatter);
