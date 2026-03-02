@@ -170,7 +170,7 @@ namespace utils {
         return this;
     }
 
-    CLI::Option* SubCommand::setConfig(const std::string& defaultConfigFile) {
+    CLI::Option* SubCommand::setConfig(const std::string& defaultConfigFile) const {
         return subCommandSc
             ->set_config( //
                 "-c,--config-file",
@@ -182,12 +182,16 @@ namespace utils {
             ->check(!CLI::ExistingDirectory);
     }
 
-    CLI::Option* utils::SubCommand::setLogFile(const std::string& defaultLogFile) {
+    CLI::Option* utils::SubCommand::setLogFile(const std::string& defaultLogFile) const {
         return addOption("-l,--log-file", "Log file", "logFile", defaultLogFile, !CLI::ExistingDirectory);
     }
 
-    CLI::Option* SubCommand::setVersionFlag(const std::string& version) {
+    CLI::Option* SubCommand::setVersionFlag(const std::string& version) const {
         return subCommandSc->set_version_flag("-v,--version", version, "Framework version");
+    }
+
+    bool SubCommand::hasParent() const {
+        return subCommandSc->get_parent() != nullptr;
     }
 
     SubCommand* SubCommand::getParent() {
@@ -200,10 +204,6 @@ namespace utils {
         subCommandSc->require_callback(callback);
 
         return this;
-    }
-
-    CLI::App* SubCommand::getParent() const {
-        return subCommandSc->get_parent();
     }
 
     SubCommand* SubCommand::allowExtras(bool allow) {
@@ -225,36 +225,31 @@ namespace utils {
     }
 
     SubCommand* SubCommand::required(bool required, bool force) {
-        requiredCount += !force ? (required ? 1 : -1) : 0;
+        requiredCount += required ? 1 : -1;
 
-        subCommandSc->required(force ? required : requiredCount > 0);
+        required = required || force;
 
-        CLI::App* parentSc = subCommandSc->get_parent();
+        subCommandSc->required(required);
 
-        VLOG(0) << "Required " << (parentSc != nullptr ? parentSc->get_name() : "-") << " " << subCommandSc->get_name() << ": " << required
-                << " - " << requiredCount;
-
-        if (parentSc != nullptr && parentSc->get_parent() != nullptr) {
-            //            getParent()->required(this, force ? required : requiredCount > 0);
-
-            parentSc->required(force ? required : requiredCount > 0);
-
-            if (parentSc->get_parent() != nullptr) {
-                if (force ? required : requiredCount > 0) {
-                    parentSc->needs(subCommandSc.get());
-                } else {
-                    parentSc->remove_needs(subCommandSc.get());
-                }
+        SubCommand* parent = getParent();
+        if (parent != nullptr) {
+            if (required) {
+                parent->needs(this);
             }
+
+            parent->required(this, required);
         }
 
         return this;
     }
 
     SubCommand* SubCommand::required(SubCommand* instance, bool required) {
-        if (required != instance->subCommandSc->get_required()) {
+        if (instance->subCommandSc->get_required() != required) {
+            instance->subCommandSc->required(required);
+            instance->subCommandSc->ignore_case(required);
+
             if (required) {
-                subCommandSc->needs(instance->subCommandSc.get());
+                needs(instance);
 
                 for (const auto& sub : instance->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
                          return sc->get_required();
@@ -262,7 +257,7 @@ namespace utils {
                     instance->subCommandSc->needs(sub);
                 }
             } else {
-                subCommandSc->remove_needs(instance->subCommandSc.get());
+                needs(instance, false);
 
                 for (const auto& sub : instance->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
                          return sc->get_required();
@@ -271,16 +266,16 @@ namespace utils {
                 }
             }
 
-            instance->subCommandSc->required(required);
-            instance->subCommandSc->ignore_case(required);
-
             this->required(required, false);
         }
+
         return this;
     }
 
     SubCommand* SubCommand::required(CLI::Option* option, bool required) {
-        if (required != option->get_required()) {
+        if (option->get_required() != required) {
+            option->required(required);
+
             if (required) {
                 subCommandSc->needs(option);
                 option->default_str("");
@@ -288,9 +283,17 @@ namespace utils {
                 subCommandSc->remove_needs(option);
             }
 
-            option->required(required);
-
             this->required(required, false);
+        }
+
+        return this;
+    }
+
+    SubCommand* SubCommand::needs(SubCommand* subCommand, bool needs) {
+        if (needs) {
+            subCommandSc->needs(subCommand->subCommandSc.get());
+        } else {
+            subCommandSc->remove_needs(subCommand->subCommandSc.get());
         }
 
         return this;
@@ -299,7 +302,7 @@ namespace utils {
     SubCommand* SubCommand::disabled(SubCommand* instance, bool disabled) {
         if (disabled) {
             if (instance->subCommandSc->get_ignore_case()) {
-                subCommandSc->remove_needs(instance->subCommandSc.get());
+                needs(instance, false);
             }
 
             for (const auto& sub : instance->subCommandSc->get_subcommands({})) {
@@ -310,7 +313,7 @@ namespace utils {
             }
         } else {
             if (instance->subCommandSc->get_ignore_case()) {
-                subCommandSc->needs(instance->subCommandSc.get());
+                needs(instance);
             }
 
             for (const auto& sub : instance->subCommandSc->get_subcommands({})) {
@@ -332,11 +335,11 @@ namespace utils {
         return this;
     }
 
-    std::string SubCommand::configToStr() {
+    std::string SubCommand::configToStr() const {
         return subCommandSc->config_to_str(true, true);
     }
 
-    std::string SubCommand::help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) {
+    std::string SubCommand::help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const {
         return subCommandSc->help(helpApp, "", mode);
     }
 
@@ -360,7 +363,7 @@ namespace utils {
     std::shared_ptr<CLI::Formatter> SubCommand::sectionFormatter = makeSectionFormatter();
 
     std::shared_ptr<utils::AppWithPtr<SubCommand>> SubCommand::newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr,
-                                                                           const std::string& group) {
+                                                                           const std::string& group) const {
         if (!final) {
             CLI::App* instanceSc = subCommandSc->add_subcommand(appWithPtr)
                                        ->group(group)
@@ -381,7 +384,7 @@ namespace utils {
             if (!instanceSc->get_disabled()) {
                 if (aliases.contains(instanceSc->get_name())) {
                     instanceSc //
-                        ->alias(aliases[instanceSc->get_name()]);
+                        ->alias(aliases.find(instanceSc->get_name())->second);
                 }
             }
         }
@@ -402,7 +405,7 @@ namespace utils {
     CLI::Option* SubCommand::addOption(const std::string& name,
                                        const std::string& description,
                                        const std::string& typeName,
-                                       const CLI::Validator& validator) {
+                                       const CLI::Validator& validator) const {
         return initialize(subCommandSc //
                               ->add_option(name, description),
                           typeName,
@@ -414,7 +417,7 @@ namespace utils {
                                                std::function<void(const std::string&)>& callback,
                                                const std::string& description,
                                                const std::string& typeName,
-                                               const CLI::Validator& validator) {
+                                               const CLI::Validator& validator) const {
         return initialize(subCommandSc //
                               ->add_option_function(name, callback, description),
                           typeName,
@@ -425,7 +428,7 @@ namespace utils {
     CLI::Option* SubCommand::addFlag(const std::string& name,
                                      const std::string& description,
                                      const std::string& typeName,
-                                     const CLI::Validator& validator) {
+                                     const CLI::Validator& validator) const {
         return initialize(subCommandSc //
                               ->add_flag(name, description),
                           typeName,
@@ -437,7 +440,7 @@ namespace utils {
                                              const std::function<void(std::int64_t)>& callback,
                                              const std::string& description,
                                              const std::string& typeName,
-                                             const CLI::Validator& validator) {
+                                             const CLI::Validator& validator) const {
         return initialize(subCommandSc //
                               ->add_flag_function(name, callback, description),
                           typeName,

@@ -93,28 +93,29 @@ namespace utils {
         SubCommand* description(const std::string& description);
         SubCommand* footer(const std::string& footer);
 
-        CLI::Option* setConfig(const std::string& defaultConfigFile);
-        CLI::Option* setLogFile(const std::string& defaultLogFile);
-        CLI::Option* setVersionFlag(const std::string& version);
+        CLI::Option* setConfig(const std::string& defaultConfigFile) const;
+        CLI::Option* setLogFile(const std::string& defaultLogFile) const;
+        CLI::Option* setVersionFlag(const std::string& version) const;
 
+        bool hasParent() const;
         SubCommand* getParent();
         SubCommand* setRequireCallback(const std::function<void(void)>& callback);
-
-        CLI::App* getParent() const;
 
         SubCommand* allowExtras(bool allow = true);
         SubCommand* required(bool required = true, bool force = true);
         SubCommand* required(SubCommand* instance, bool required = true);
         SubCommand* required(CLI::Option* option, bool required = true);
+
+        SubCommand* needs(SubCommand* subCommand, bool needs = true);
+
         SubCommand* disabled(SubCommand* instance, bool disabled = true);
         SubCommand* finalCallback(const std::function<void()>& finalCallback);
 
-        std::string configToStr();
-
-        std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode);
+        std::string configToStr() const;
+        std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const;
 
         std::shared_ptr<utils::AppWithPtr<SubCommand>> newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr,
-                                                                   const std::string& group);
+                                                                   const std::string& group) const;
 
         template <typename T>
         T* addInstance();
@@ -133,37 +134,41 @@ namespace utils {
     public:
         CLI::Option* getOption(const std::string& name) const;
 
-        CLI::Option*
-        addOption(const std::string& name, const std::string& description, const std::string& typeName, const CLI::Validator& validator);
+        CLI::Option* addOption(const std::string& name,
+                               const std::string& description,
+                               const std::string& typeName,
+                               const CLI::Validator& validator) const;
 
         CLI::Option* addOptionFunction(const std::string& name,
                                        std::function<void(const std::string&)>& callback,
                                        const std::string& description,
                                        const std::string& typeName,
-                                       const CLI::Validator& validator);
+                                       const CLI::Validator& validator) const;
 
-        CLI::Option*
-        addFlag(const std::string& name, const std::string& description, const std::string& typeName, const CLI::Validator& validator);
+        CLI::Option* addFlag(const std::string& name,
+                             const std::string& description,
+                             const std::string& typeName,
+                             const CLI::Validator& validator) const;
 
         CLI::Option* addFlagFunction(const std::string& name,
                                      const std::function<void(std::int64_t)>& callback,
                                      const std::string& description,
                                      const std::string& typeName,
-                                     const CLI::Validator& validator);
+                                     const CLI::Validator& validator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addOption(const std::string& name,
                                const std::string& description,
                                const std::string& typeName,
                                ValueTypeT defaultValue,
-                               const CLI::Validator& validator);
+                               const CLI::Validator& validator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addOptionVariable(const std::string& name,
                                        ValueTypeT& variable,
                                        const std::string& description,
                                        const std::string& typeName,
-                                       const CLI::Validator& additionalValidator);
+                                       const CLI::Validator& additionalValidator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addOptionVariable(const std::string& name,
@@ -171,7 +176,7 @@ namespace utils {
                                        const std::string& description,
                                        const std::string& typeName,
                                        ValueTypeT defaultValue,
-                                       const CLI::Validator& additionalValidator);
+                                       const CLI::Validator& additionalValidator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addOptionFunction(const std::string& name,
@@ -179,14 +184,14 @@ namespace utils {
                                        const std::string& description,
                                        const std::string& typeName,
                                        ValueTypeT defaultValue,
-                                       const CLI::Validator& validator);
+                                       const CLI::Validator& validator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addFlag(const std::string& name,
                              const std::string& description,
                              const std::string& typeName,
                              ValueTypeT defaultValue,
-                             const CLI::Validator& validator);
+                             const CLI::Validator& validator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addFlagFunction(const std::string& name,
@@ -194,7 +199,7 @@ namespace utils {
                                      const std::string& description,
                                      const std::string& typeName,
                                      ValueTypeT defaultValue,
-                                     const CLI::Validator& validator);
+                                     const CLI::Validator& validator) const;
 
         template <typename ValueTypeT>
         static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true);
@@ -252,7 +257,7 @@ namespace utils {
                                                const std::string& description,
                                                const std::string& typeName,
                                                ValueTypeT defaultValue,
-                                               const CLI::Validator& validator) {
+                                               const CLI::Validator& validator) const {
         return addOptionFunction(name, callback, description, typeName, validator) //
             ->default_val(defaultValue);
     }
@@ -262,7 +267,7 @@ namespace utils {
                                        const std::string& description,
                                        const std::string& typeName,
                                        ValueTypeT defaultValue,
-                                       const CLI::Validator& additionalValidator) {
+                                       const CLI::Validator& additionalValidator) const {
         return addOption(name, description, typeName, additionalValidator) //
             ->default_val(defaultValue);
     }
@@ -272,7 +277,7 @@ namespace utils {
                                                ValueTypeT& variable,
                                                const std::string& description,
                                                const std::string& typeName,
-                                               const CLI::Validator& additionalValidator) {
+                                               const CLI::Validator& additionalValidator) const {
         return initialize(
             subCommandSc->add_option(name, variable, description), typeName, additionalValidator, !subCommandSc->get_disabled());
     }
@@ -283,7 +288,7 @@ namespace utils {
                                                const std::string& description,
                                                const std::string& typeName,
                                                ValueTypeT defaultValue,
-                                               const CLI::Validator& additionalValidator) {
+                                               const CLI::Validator& additionalValidator) const {
         return addOption(name, variable, description, typeName, additionalValidator) //
             ->default_val(defaultValue);
     }
@@ -293,7 +298,7 @@ namespace utils {
                                      const std::string& description,
                                      const std::string& typeName,
                                      ValueTypeT defaultValue,
-                                     const CLI::Validator& additionalValidator) {
+                                     const CLI::Validator& additionalValidator) const {
         return addFlag(name, description, typeName, additionalValidator) //
             ->default_val(defaultValue);
     }
@@ -304,7 +309,7 @@ namespace utils {
                                              const std::string& description,
                                              const std::string& typeName,
                                              ValueTypeT defaultValue,
-                                             const CLI::Validator& validator) {
+                                             const CLI::Validator& validator) const {
         return addFlagFunction(name, callback, description, typeName, validator) //
             ->default_val(defaultValue);
     }
