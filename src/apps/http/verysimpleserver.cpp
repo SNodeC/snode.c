@@ -43,7 +43,7 @@
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "express/tls/in/WebApp.h"
-#include "net/config/ConfigInstanceAPI.hpp"
+#include "utils/Config.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -41,7 +41,7 @@
 
 #include "web/http/client/SocketContextFactory.h"
 
-#include "net/config/ConfigInstanceAPI.hpp"
+#include "net/config/ConfigInstance.h"
 #include "web/http/client/ConfigHTTP.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

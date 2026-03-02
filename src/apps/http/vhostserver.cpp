@@ -44,11 +44,11 @@
 #include "express/middleware/StaticMiddleware.h"
 #include "express/middleware/VHost.h"
 #include "express/tls/in6/WebApp.h"
-#include "net/config/ConfigInstanceAPI.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/Config.h"
 
 #include <string>
 

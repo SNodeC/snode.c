@@ -41,8 +41,6 @@
 
 #include "ConfigWWW.h"
 
-#include "net/config/ConfigInstanceAPI.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -50,7 +48,8 @@
 namespace instance {
 
     ConfigWWW::ConfigWWW(SubCommand* parent)
-        : utils::SubCommand(parent->newSubCommand(net::config::Instance(std::string(NAME), std::string(DESCRIPTION), this), "Applications")) {
+        : utils::SubCommand(
+              parent->newSubCommand(net::config::Instance(std::string(NAME), std::string(DESCRIPTION), this), "Applications")) {
         htmlRootOpt = addOption("--html-root", "HTML root directory", "directory", CLI::ExistingDirectory);
 
         required(htmlRootOpt);

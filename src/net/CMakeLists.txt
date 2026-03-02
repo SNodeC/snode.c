@@ -68,7 +68,6 @@ set(NET_H
     config/ConfigAddressReverse.h
     config/ConfigAddressReverse.hpp
     config/ConfigInstance.h
-    config/ConfigInstanceAPI.hpp
     config/ConfigConnection.h
     config/ConfigLegacy.h
     config/ConfigPhysicalSocket.h

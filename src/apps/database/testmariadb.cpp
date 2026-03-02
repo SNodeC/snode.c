@@ -44,7 +44,8 @@
 #include "core/timer/Timer.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/MariaDBCommandSequence.h"
-#include "net/config/ConfigInstanceAPI.hpp"
+#include "utils/Config.h"
+#include "utils/SubCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

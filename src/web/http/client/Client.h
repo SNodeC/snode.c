@@ -42,7 +42,6 @@
 #ifndef WEB_HTTP_CLIENT_CLIENT_H
 #define WEB_HTTP_CLIENT_CLIENT_H
 
-#include "net/config/ConfigInstanceAPI.hpp"
 #include "web/http/client/ConfigHTTP.h"
 #include "web/http/client/Request.h"              // IWYU pragma: export
 #include "web/http/client/SocketContextFactory.h" // IWYU pragma: export

@@ -45,7 +45,7 @@
 #include "express/middleware/StaticMiddleware.h"
 #include "express/middleware/VHost.h"
 #include "express/tls/in6/WebApp.h"
-#include "net/config/ConfigInstanceAPI.hpp"
+#include "utils/Config.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
