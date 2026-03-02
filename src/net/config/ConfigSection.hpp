@@ -87,7 +87,7 @@ namespace net::config {
 
     template <typename T>
     ConfigSection::ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group)
-        : SubCommand(instance->newInstance(net::config::Section(sectionPtr), group), true)
+        : SubCommand(instance->newSubCommand(net::config::Section(sectionPtr), group), true)
         , instance(instance) {
         description(std::string{T::DESCRIPTION} + " for instance '" + instance->getInstanceName() + "'");
     }

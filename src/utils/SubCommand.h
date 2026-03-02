@@ -103,19 +103,19 @@ namespace utils {
 
         SubCommand* allowExtras(bool allow = true);
         SubCommand* required(bool required = true, bool force = true);
-        SubCommand* required(SubCommand* instance, bool required = true);
+        SubCommand* required(SubCommand* subCommand, bool required = true);
         SubCommand* required(CLI::Option* option, bool required = true);
 
         SubCommand* needs(SubCommand* subCommand, bool needs = true);
 
-        SubCommand* disabled(SubCommand* instance, bool disabled = true);
+        SubCommand* disabled(SubCommand* subCommand, bool disabled = true);
         SubCommand* finalCallback(const std::function<void()>& finalCallback);
 
         std::string configToStr() const;
         std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const;
 
-        std::shared_ptr<utils::AppWithPtr<SubCommand>> newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr,
-                                                                   const std::string& group) const;
+        std::shared_ptr<utils::AppWithPtr<SubCommand>> newSubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr,
+                                                                     const std::string& group) const;
 
         template <typename T>
         T* addInstance();
@@ -123,7 +123,7 @@ namespace utils {
         template <typename T>
         T* getInstance();
 
-        SubCommand* removeInstance(utils::SubCommand* instance);
+        SubCommand* removeSubCommand(utils::SubCommand* subCommand);
 
     protected:
         CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
@@ -246,9 +246,9 @@ namespace utils {
     ConcreteSubCommand* SubCommand::getInstance() {
         auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(ConcreteSubCommand::NAME));
 
-        AppWithPtr<SubCommand>* instanceApp = dynamic_cast<utils::AppWithPtr<SubCommand>*>(appWithPtr);
+        AppWithPtr<SubCommand>* subCommandApp = dynamic_cast<utils::AppWithPtr<SubCommand>*>(appWithPtr);
 
-        return instanceApp != nullptr ? dynamic_cast<ConcreteSubCommand*>(instanceApp->getPtr()) : nullptr;
+        return subCommandApp != nullptr ? dynamic_cast<ConcreteSubCommand*>(subCommandApp->getPtr()) : nullptr;
     }
 
     template <typename ValueTypeT>

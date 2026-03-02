@@ -243,26 +243,26 @@ namespace utils {
         return this;
     }
 
-    SubCommand* SubCommand::required(SubCommand* instance, bool required) {
-        if (instance->subCommandSc->get_required() != required) {
-            instance->subCommandSc->required(required);
-            instance->subCommandSc->ignore_case(required);
+    SubCommand* SubCommand::required(SubCommand* subCommand, bool required) {
+        if (subCommand->subCommandSc->get_required() != required) {
+            subCommand->subCommandSc->required(required);
+            subCommand->subCommandSc->ignore_case(required);
 
             if (required) {
-                needs(instance);
+                needs(subCommand);
 
-                for (const auto& sub : instance->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
+                for (const auto& sub : subCommand->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
                          return sc->get_required();
                      })) {
-                    instance->subCommandSc->needs(sub);
+                    subCommand->subCommandSc->needs(sub);
                 }
             } else {
-                needs(instance, false);
+                needs(subCommand, false);
 
-                for (const auto& sub : instance->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
+                for (const auto& sub : subCommand->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
                          return sc->get_required();
                      })) {
-                    instance->subCommandSc->remove_needs(sub);
+                    subCommand->subCommandSc->remove_needs(sub);
                 }
             }
 
@@ -299,32 +299,32 @@ namespace utils {
         return this;
     }
 
-    SubCommand* SubCommand::disabled(SubCommand* instance, bool disabled) {
+    SubCommand* SubCommand::disabled(SubCommand* subCommand, bool disabled) {
         if (disabled) {
-            if (instance->subCommandSc->get_ignore_case()) {
-                needs(instance, false);
+            if (subCommand->subCommandSc->get_ignore_case()) {
+                needs(subCommand, false);
             }
 
-            for (const auto& sub : instance->subCommandSc->get_subcommands({})) {
+            for (const auto& sub : subCommand->subCommandSc->get_subcommands({})) {
                 if (sub->get_ignore_case()) {
-                    instance->subCommandSc->remove_needs(sub);
+                    subCommand->subCommandSc->remove_needs(sub);
                     sub->required(false); // ### must be stored in ConfigInstance
                 }
             }
         } else {
-            if (instance->subCommandSc->get_ignore_case()) {
-                needs(instance);
+            if (subCommand->subCommandSc->get_ignore_case()) {
+                needs(subCommand);
             }
 
-            for (const auto& sub : instance->subCommandSc->get_subcommands({})) {
+            for (const auto& sub : subCommand->subCommandSc->get_subcommands({})) {
                 if (sub->get_ignore_case()) { // ### must be recalled from ConfigInstance
-                    instance->subCommandSc->needs(sub);
+                    subCommand->subCommandSc->needs(sub);
                     sub->required();
                 }
             }
         }
 
-        instance->subCommandSc->required(disabled ? false : instance->subCommandSc->get_ignore_case());
+        subCommand->subCommandSc->required(disabled ? false : subCommand->subCommandSc->get_ignore_case());
 
         return this;
     }
@@ -362,29 +362,29 @@ namespace utils {
 
     std::shared_ptr<CLI::Formatter> SubCommand::sectionFormatter = makeSectionFormatter();
 
-    std::shared_ptr<utils::AppWithPtr<SubCommand>> SubCommand::newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr,
-                                                                           const std::string& group) const {
+    std::shared_ptr<utils::AppWithPtr<SubCommand>> SubCommand::newSubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr,
+                                                                             const std::string& group) const {
         if (!final) {
-            CLI::App* instanceSc = subCommandSc->add_subcommand(appWithPtr)
-                                       ->group(group)
-                                       ->ignore_case(false)
-                                       ->fallthrough()
-                                       ->formatter(sectionFormatter)
-                                       ->configurable(false)
-                                       ->config_formatter(subCommandSc->get_config_formatter())
-                                       ->allow_extras()
-                                       ->disabled(appWithPtr->get_name().empty());
+            CLI::App* newSubCommand = subCommandSc->add_subcommand(appWithPtr)
+                                          ->group(group)
+                                          ->ignore_case(false)
+                                          ->fallthrough()
+                                          ->formatter(sectionFormatter)
+                                          ->configurable(false)
+                                          ->config_formatter(subCommandSc->get_config_formatter())
+                                          ->allow_extras()
+                                          ->disabled(appWithPtr->get_name().empty());
 
-            instanceSc //
+            newSubCommand //
                 ->option_defaults()
-                ->configurable(!instanceSc->get_disabled())
+                ->configurable(!newSubCommand->get_disabled())
                 ->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
             ;
 
-            if (!instanceSc->get_disabled()) {
-                if (aliases.contains(instanceSc->get_name())) {
-                    instanceSc //
-                        ->alias(aliases.find(instanceSc->get_name())->second);
+            if (!newSubCommand->get_disabled()) {
+                if (aliases.contains(newSubCommand->get_name())) {
+                    newSubCommand //
+                        ->alias(aliases.find(newSubCommand->get_name())->second);
                 }
             }
         }
@@ -392,8 +392,8 @@ namespace utils {
         return !final ? appWithPtr : nullptr;
     }
 
-    SubCommand* SubCommand::removeInstance(utils::SubCommand* instance) {
-        required(instance, false);
+    SubCommand* SubCommand::removeSubCommand(utils::SubCommand* subCommand) {
+        required(subCommand, false);
 
         return this;
     }
