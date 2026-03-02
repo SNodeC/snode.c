@@ -65,7 +65,7 @@ Router getRouter(const std::string& webRoot) {
 }
 
 int main(int argc, char* argv[]) {
-    utils::Config::configRoot.addInstance<instance::ConfigWWW>();
+    utils::Config::configRoot.addSubCommand<instance::ConfigWWW>();
 
     WebApp::init(argc, argv);
 
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
         const legacy::in6::WebApp legacyApp("legacy");
 
         const Router& vh1 = middleware::VHost("localhost:8080");
-        vh1.use(middleware::StaticMiddleware(utils::Config::configRoot.getInstance<instance::ConfigWWW>()->getHtmlRoot()));
+        vh1.use(middleware::StaticMiddleware(utils::Config::configRoot.getSubCommand<instance::ConfigWWW>()->getHtmlRoot()));
         legacyApp.use(vh1);
 
         const Router& vh2 = middleware::VHost("jupiter.home.vchrist.at");
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
         const express::tls::in6::WebApp tlsApp("tls");
 
         const Router& vh1 = middleware::VHost("localhost:8088");
-        vh1.use(middleware::StaticMiddleware(utils::Config::configRoot.getInstance<instance::ConfigWWW>()->getHtmlRoot()));
+        vh1.use(middleware::StaticMiddleware(utils::Config::configRoot.getSubCommand<instance::ConfigWWW>()->getHtmlRoot()));
         tlsApp.use(vh1);
 
         const Router& vh2 = middleware::VHost("atlas.home.vchrist.at:8088");

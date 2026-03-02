@@ -90,13 +90,13 @@ private:
 };
 
 int main(int argc, char* argv[]) {
-    utils::Config::configRoot.addInstance<ConfigDb>()->setHost("localhost");
+    utils::Config::configRoot.addSubCommand<ConfigDb>()->setHost("localhost");
 
     core::SNodeC::init(argc, argv);
 
     const database::mariadb::MariaDBConnectionDetails details = {
         .connectionName = "testconnection",
-        .hostname = utils::Config::configRoot.getInstance<ConfigDb>()->getHost(),
+        .hostname = utils::Config::configRoot.getSubCommand<ConfigDb>()->getHost(),
         .username = "snodec",
         .password = "pentium5",
         .database = "snodec",
