@@ -303,7 +303,7 @@ namespace utils {
             for (const auto& sub : subCommand->subCommandSc->get_subcommands({})) {
                 if (sub->get_ignore_case()) {
                     subCommand->subCommandSc->remove_needs(sub);
-                    sub->required(false); // ### must be stored in ConfigInstance
+                    sub->required(false);
                 }
             }
         } else {
@@ -312,7 +312,7 @@ namespace utils {
             }
 
             for (const auto& sub : subCommand->subCommandSc->get_subcommands({})) {
-                if (sub->get_ignore_case()) { // ### must be recalled from ConfigInstance
+                if (sub->get_ignore_case()) {
                     subCommand->subCommandSc->needs(sub);
                     sub->required();
                 }

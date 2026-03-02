@@ -152,11 +152,11 @@ namespace utils {
 
         std::shared_ptr<utils::AppWithPtr> newSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group) const;
 
-        template <typename T>
-        T* addInstance();
+        template <typename NewSubCommand>
+        NewSubCommand* addInstance();
 
-        template <typename T>
-        T* getInstance();
+        template <typename NewSubCommand>
+        NewSubCommand* getInstance();
 
         SubCommand* removeSubCommand(utils::SubCommand* subCommand);
 
@@ -265,25 +265,24 @@ namespace utils {
         int requiredCount = 0;
     };
 
-    template <typename ConcreteSubCommand>
-    ConcreteSubCommand* SubCommand::addInstance() {
+    template <typename NewSubCommand>
+    NewSubCommand* SubCommand::addInstance() {
         return !final
-                   ? dynamic_cast<ConcreteSubCommand*>(configInstances
-                                                           .emplace_back(net::config::Instance(std::string(ConcreteSubCommand::NAME),
-                                                                                               std::string(ConcreteSubCommand::DESCRIPTION),
-                                                                                               new ConcreteSubCommand(this),
-                                                                                               true))
-                                                           ->getPtr())
+                   ? dynamic_cast<NewSubCommand*>(
+                         configInstances
+                             .emplace_back(net::config::Instance(
+                                 std::string(NewSubCommand::NAME), std::string(NewSubCommand::DESCRIPTION), new NewSubCommand(this), true))
+                             ->getPtr())
                    : nullptr;
     }
 
-    template <typename ConcreteSubCommand>
-    ConcreteSubCommand* SubCommand::getInstance() {
-        auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(ConcreteSubCommand::NAME));
+    template <typename NewSubCommand>
+    NewSubCommand* SubCommand::getInstance() {
+        auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(NewSubCommand::NAME));
 
         AppWithPtr* subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
 
-        return subCommandApp != nullptr ? dynamic_cast<ConcreteSubCommand*>(subCommandApp->getPtr()) : nullptr;
+        return subCommandApp != nullptr ? dynamic_cast<NewSubCommand*>(subCommandApp->getPtr()) : nullptr;
     }
 
     template <typename ValueTypeT>
