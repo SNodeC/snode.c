@@ -483,17 +483,21 @@ namespace utils::config {
                            ->needs(daemonizeOpt)
                            ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
 
-        aliasOpt = setConfigurable(
-            subCommandSc
-                ->add_flag_function( //
-                    "-a,--aliases",
-                    [&aliases = this->aliases, instanceName = subCommandSc->get_name(), &aliasOpt = this->aliasOpt](std::size_t) {
-                        aliases[instanceName] = aliasOpt->as<std::string>();
-                    },
-                    "Make an instance also known as an alias in configuration files")
-                ->type_name("alias")
-                ->check(CLI::TypeValidator<std::string>()),
-            false);
+        setConfigurable(subCommandSc
+                            ->add_option( //
+                                "-a,--aliases",
+                                "Make an instance also known as an alias in configuration files")
+                            ->configurable(false)
+                            ->type_name("instance=instance_alias [instance=instance_alias [...]]")
+                            ->each([this](const std::string& item) {
+                                const auto it = item.find('=');
+                                if (it != std::string::npos) {
+                                    aliases[item.substr(0, it)] = item.substr(it + 1);
+                                } else {
+                                    throw CLI::ConversionError("Can not convert '" + item + "' to a 'instance=instance_alias' pair");
+                                }
+                            }),
+                        false);
 
         versionOpt = subCommandSc->set_version_flag("-v,--version", "1.0-rc1", "Framework version");
 

@@ -47,34 +47,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-/*
-namespace section {
-
-    ConfigWWW::ConfigWWW(net::config::ConfigInstance* instance)
-        : net::config::ConfigSection(instance, this) {
-        htmlRootOpt = addOption("--html-root", "HTML root directory", "path", CLI::ExistingDirectory);
-        required(htmlRootOpt);
-    }
-
-    section::ConfigWWW& section::ConfigWWW::setHtmlRoot(const std::string& htmlRoot) {
-        setDefaultValue(htmlRootOpt, htmlRoot);
-        required(htmlRootOpt, false);
-
-        return *this;
-    }
-
-    std::string ConfigWWW::getHtmlRoot() {
-        return htmlRootOpt->as<std::string>();
-    }
-
-} // namespace section
-*/
-
 namespace instance {
 
     ConfigWWW::ConfigWWW(SubCommand* parent)
-        : utils::SubCommand(
-              parent->newInstance(net::config::Instance(std::string(name), std::string(description), this), "Applications", true)) {
+        : utils::SubCommand(parent->newInstance(net::config::Instance(std::string(name), std::string(description), this), "Applications")) {
         htmlRootOpt = addOption("--html-root", "HTML root directory", "directory", CLI::ExistingDirectory);
 
         subCommandSc->required()->needs(htmlRootOpt);

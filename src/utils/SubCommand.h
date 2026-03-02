@@ -100,8 +100,8 @@ namespace utils {
 
         SubCommand* disabled(SubCommand* instance, bool disabled = true);
 
-        std::shared_ptr<utils::AppWithPtr<SubCommand>>
-        newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr, const std::string& group, bool final = false);
+        std::shared_ptr<utils::AppWithPtr<SubCommand>> newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr,
+                                                                   const std::string& group);
 
         template <typename T>
         T* addInstance();
@@ -189,16 +189,13 @@ namespace utils {
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
     protected:
-        SubCommand* parent;
-
         std::shared_ptr<utils::AppWithPtr<SubCommand>> subCommandSc;
+        bool final;
         std::map<std::string, std::string> aliases;
 
         static CLI::App* helpTriggerApp;
         static CLI::App* showConfigTriggerApp;
         static CLI::App* commandlineTriggerApp;
-
-        CLI::Option* aliasOpt = nullptr;
 
         std::vector<std::shared_ptr<utils::AppWithPtr<SubCommand>>> configInstances; // Store anything
 
@@ -207,12 +204,14 @@ namespace utils {
 
     template <typename ConcreteSubCommand>
     ConcreteSubCommand* SubCommand::addInstance() {
-        return dynamic_cast<ConcreteSubCommand*>(configInstances
-                                                     .emplace_back(net::config::Instance(std::string(ConcreteSubCommand::name),
-                                                                                         std::string(ConcreteSubCommand::description),
-                                                                                         new ConcreteSubCommand(this),
-                                                                                         true))
-                                                     ->getPtr());
+        return !final
+                   ? dynamic_cast<ConcreteSubCommand*>(configInstances
+                                                           .emplace_back(net::config::Instance(std::string(ConcreteSubCommand::name),
+                                                                                               std::string(ConcreteSubCommand::description),
+                                                                                               new ConcreteSubCommand(this),
+                                                                                               true))
+                                                           ->getPtr())
+                   : nullptr;
     }
 
     template <typename ConcreteSubCommand>
