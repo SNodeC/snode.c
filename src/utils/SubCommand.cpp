@@ -244,47 +244,43 @@ namespace utils {
     }
 
     SubCommand* SubCommand::required(SubCommand* subCommand, bool required) {
-        if (subCommand->subCommandSc->get_required() != required) {
-            subCommand->subCommandSc->required(required);
-            subCommand->subCommandSc->ignore_case(required);
+        if (required) {
+            needs(subCommand);
 
-            if (required) {
-                needs(subCommand);
-
-                for (const auto& sub : subCommand->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
-                         return sc->get_required();
-                     })) {
-                    subCommand->subCommandSc->needs(sub);
-                }
-            } else {
-                needs(subCommand, false);
-
-                for (const auto& sub : subCommand->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
-                         return sc->get_required();
-                     })) {
-                    subCommand->subCommandSc->remove_needs(sub);
-                }
+            for (const auto& sub : subCommand->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
+                     return sc->get_required();
+                 })) {
+                subCommand->subCommandSc->needs(sub);
             }
+        } else {
+            needs(subCommand, false);
 
-            this->required(required, false);
+            for (const auto& sub : subCommand->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
+                     return sc->get_required();
+                 })) {
+                subCommand->subCommandSc->remove_needs(sub);
+            }
         }
+
+        this->required(required, false);
+
+        subCommand->subCommandSc->required(required);
+        subCommand->subCommandSc->ignore_case(required);
 
         return this;
     }
 
     SubCommand* SubCommand::required(CLI::Option* option, bool required) {
-        if (option->get_required() != required) {
-            option->required(required);
+        option->required(required);
 
-            if (required) {
-                subCommandSc->needs(option);
-                option->default_str("");
-            } else {
-                subCommandSc->remove_needs(option);
-            }
-
-            this->required(required, false);
+        if (required) {
+            subCommandSc->needs(option);
+            option->default_str("");
+        } else {
+            subCommandSc->remove_needs(option);
         }
+
+        this->required(required, false);
 
         return this;
     }
