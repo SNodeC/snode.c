@@ -46,6 +46,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <memory>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -81,22 +82,64 @@ namespace utils {
             subCommandSc->option_defaults()->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
 
             if (!final) {
-                subCommandSc->addHelp([](CLI::App* app) {
-                    helpTriggerApp = app;
-                });
+                setConfigurable(subCommandSc
+                                    ->set_help_flag(
+                                        "--help{exact},-h{exact}",
+                                        [subCommandSc = this->subCommandSc](std::size_t) {
+                                            helpTriggerApp = subCommandSc.get();
+                                        },
+                                        "Print help message and exit\n"
+                                        "* standard: display help for the last command processed\n"
+                                        "* exact: display help for the command directly preceding --help")
+                                    ->take_first()
+                                    ->check(CLI::IsMember({"standard", "exact", "expanded"}))
+                                    ->trigger_on_parse(),
+                                false);
             } else {
-                subCommandSc->addSimpleHelp([](CLI::App* app) {
-                    helpTriggerApp = app;
-                });
+                setConfigurable(subCommandSc
+                                    ->set_help_flag(
+                                        "--help{exact},-h{exact}",
+                                        [subCommandSc = this->subCommandSc](std::size_t) {
+                                            helpTriggerApp = subCommandSc.get();
+                                        },
+                                        "Print help message and exit\n"
+                                        "* standard: display help for the last command processed\n"
+                                        "* exact: display help for the command directly preceding --help")
+                                    ->take_first()
+                                    ->check(CLI::IsMember({"standard", "exact"}))
+                                    ->trigger_on_parse(),
+                                false);
             }
 
-            subCommandSc->addStandardFlags(
-                [](CLI::App* app) {
-                    showConfigTriggerApp = app;
-                },
-                [](CLI::App* app) {
-                    commandlineTriggerApp = app;
-                });
+            setConfigurable(subCommandSc
+                                ->add_flag_function(
+                                    "-s,--show-config",
+                                    [subCommandSc = this->subCommandSc](std::size_t) {
+                                        showConfigTriggerApp = subCommandSc.get();
+                                    },
+                                    "Show current configuration and exit")
+                                ->take_first()
+                                ->disable_flag_override()
+                                ->configurable(false)
+                                ->trigger_on_parse(),
+                            false);
+
+            setConfigurable(subCommandSc
+                                ->add_flag_function(
+                                    "--command-line{standard}",
+                                    [subCommandSc = this->subCommandSc]([[maybe_unused]] std::int64_t count) {
+                                        commandlineTriggerApp = subCommandSc.get();
+                                    },
+                                    "Print command-line\n"
+                                    "* standard (default): Show all non-default and required options\n"
+                                    "* active: Show all active options\n"
+                                    "* complete: Show the complete option set with default values\n"
+                                    "* required: Show only required options")
+                                ->take_first()
+                                ->check(CLI::IsMember({"standard", "active", "complete", "required"}))
+                                ->disable_flag_override()
+                                ->trigger_on_parse(),
+                            false);
         }
     }
 

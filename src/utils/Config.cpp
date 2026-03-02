@@ -43,7 +43,6 @@
 
 #include "net/config/ConfigSection.hpp"
 #include "utils/Daemon.h"
-#include "utils/Formatter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -58,6 +57,7 @@
 #include <functional>
 #include <grp.h>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <pwd.h>
 #include <sstream>

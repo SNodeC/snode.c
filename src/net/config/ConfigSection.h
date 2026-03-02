@@ -50,8 +50,7 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <concepts> // IWYU pragma: export
-#include <cstdint>
+#include <concepts>    // IWYU pragma: export
 #include <string>      // IWYU pragma: export
 #include <type_traits> // IWYU pragma: export
 

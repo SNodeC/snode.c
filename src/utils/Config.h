@@ -49,13 +49,9 @@
 namespace CLI {
     class App;
     class Option;
-    class Formatter;
 } // namespace CLI
 
-#include <map>
-#include <memory>
 #include <string>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
