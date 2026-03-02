@@ -84,8 +84,8 @@ namespace utils {
                 helpOpt = setConfigurable(subCommandSc
                                               ->set_help_flag(
                                                   "--help{exact},-h{exact}",
-                                                  [subCommandSc = this->subCommandSc](std::size_t) {
-                                                      helpTriggerApp = subCommandSc.get();
+                                                  [subCommandSc = this->subCommandSc.get()](std::size_t) {
+                                                      helpTriggerApp = subCommandSc;
                                                   },
                                                   "Print help message and exit\n"
                                                   "* standard: display help for the last command processed\n"
@@ -98,8 +98,8 @@ namespace utils {
                 helpOpt = setConfigurable(subCommandSc
                                               ->set_help_flag(
                                                   "--help{exact},-h{exact}",
-                                                  [subCommandSc = this->subCommandSc](std::size_t) {
-                                                      helpTriggerApp = subCommandSc.get();
+                                                  [subCommandSc = this->subCommandSc.get()](std::size_t) {
+                                                      helpTriggerApp = subCommandSc;
                                                   },
                                                   "Print help message and exit\n"
                                                   "* standard: display help for the last command processed\n"
@@ -113,8 +113,8 @@ namespace utils {
             showConfigOpt = setConfigurable(subCommandSc
                                                 ->add_flag_function(
                                                     "-s,--show-config",
-                                                    [subCommandSc = this->subCommandSc](std::size_t) {
-                                                        showConfigTriggerApp = subCommandSc.get();
+                                                    [subCommandSc = this->subCommandSc.get()](std::size_t) {
+                                                        showConfigTriggerApp = subCommandSc;
                                                     },
                                                     "Show current configuration and exit")
                                                 ->take_first()
@@ -126,8 +126,8 @@ namespace utils {
             commandlineOpt = setConfigurable(subCommandSc
                                                  ->add_flag_function(
                                                      "--command-line{standard}",
-                                                     [subCommandSc = this->subCommandSc]([[maybe_unused]] std::int64_t count) {
-                                                         commandlineTriggerApp = subCommandSc.get();
+                                                     [subCommandSc = this->subCommandSc.get()]([[maybe_unused]] std::int64_t count) {
+                                                         commandlineTriggerApp = subCommandSc;
                                                      },
                                                      "Print command-line\n"
                                                      "* standard (default): Show all non-default and required options\n"
