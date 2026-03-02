@@ -82,40 +82,14 @@ namespace net::config {
         const std::string& getInstanceName() const;
 
         bool getDisabled() const;
-        /*
-                ConfigInstance& setDisabled(bool disabled = true);
-
-                ConfigSection* addSection(std::shared_ptr<ConfigSection>&& configSection);
-
-                template <typename ConcreteConfigSection, typename... Args>
-                ConcreteConfigSection* addSection(Args&&... args);
-
-                template <typename SectionTypeT>
-                SectionTypeT* getSection() const;
-
-                ConfigInstance& configurable(bool configurable = true);
-        */
-        //        CLI::App* get() const;
 
     private:
-        /*
-                CLI::App* newSection(std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> appWithPtr, const std::string& group);
-                const CLI::App* getSection(const std::string& name) const;
-
-                ConfigInstance& required(bool required = true);
-                ConfigInstance& required(CLI::App* section, bool req = true);
-                bool getRequired() const;
-        */
-        uint8_t requiredCount = 0;
-
         std::string instanceName;
         static const std::string nameAnonymous;
 
         Role role;
 
         CLI::Option* disableOpt = nullptr;
-
-        std::vector<std::shared_ptr<net::config::ConfigSection>> configSections; // Store anything
 
         friend class net::config::ConfigSection;
     };

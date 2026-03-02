@@ -74,7 +74,7 @@ namespace utils {
 
     class SubCommand {
     protected:
-        SubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr);
+        SubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr, bool final = true);
 
     public:
         SubCommand(const SubCommand&) = delete;
@@ -197,6 +197,8 @@ namespace utils {
         static CLI::App* helpTriggerApp;
         static CLI::App* showConfigTriggerApp;
         static CLI::App* commandlineTriggerApp;
+
+        CLI::Option* aliasOpt = nullptr;
 
         std::vector<std::shared_ptr<utils::AppWithPtr<SubCommand>>> configInstances; // Store anything
 

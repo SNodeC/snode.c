@@ -126,7 +126,6 @@ namespace utils {
             },
             "Show current configuration and exit")
             ->take_first()
-            ->check(CLI::TypeValidator<bool>())
             ->disable_flag_override()
             ->configurable(false)
             ->trigger_on_parse()
@@ -143,9 +142,10 @@ namespace utils {
             "* complete: Show the complete option set with default values\n"
             "* required: Show only required options")
             ->take_first()
-            ->check(CLI::TypeValidator<bool>())
+            ->check(CLI::IsMember({"standard", "active", "complete", "required"}))
             ->disable_flag_override()
-            ->trigger_on_parse();
+            ->trigger_on_parse()
+            ->configurable(false);
 
         return this;
     }
@@ -162,7 +162,8 @@ namespace utils {
             "* exact: display help for the command directly preceding --help")
             ->take_first()
             ->check(CLI::IsMember({"standard", "exact"}))
-            ->trigger_on_parse();
+            ->trigger_on_parse()
+            ->configurable(false);
 
         return this;
     }
@@ -180,7 +181,8 @@ namespace utils {
             "* expanded: print help including all descendant command options")
             ->take_first()
             ->check(CLI::IsMember({"standard", "exact", "expanded"}))
-            ->trigger_on_parse();
+            ->trigger_on_parse()
+            ->configurable(false);
 
         return this;
     }

@@ -70,16 +70,9 @@ namespace net::config {
         ConfigSection(ConfigSection&&) = delete;
 
         ConfigSection& operator=(const ConfigSection&) = delete;
-        ConfigSection& operator=(ConfigSection&&) = delete;
-        /*
-                void required(bool required = true);
-                void required(CLI::Option* opt, bool req = true);
-                bool getRequired() const;
-        */
+
     private:
         ConfigInstance* instance = nullptr;
-
-        //        uint8_t requiredCount = 0;
     };
 
 } // namespace net::config

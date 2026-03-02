@@ -64,18 +64,20 @@ namespace net::config {
                                                                               .append(instanceName)
                                                                               .append("'"),
                                                                           this),
-                                                    "Instances"))
+                                                    "Instances"),
+              false)
         , instanceName(instanceName)
         , role(role) {
-        disableOpt = addFlagFunction(
-            "--disabled{true}",
-            [this](std::size_t) {
-                utils::Config::configRoot.disabled(this, disableOpt->as<bool>());
-            },
-            "Disable this instance",
-            "bool",
-            "false",
-            CLI::IsMember({"true", "false"}));
+        disableOpt = setConfigurable(addFlagFunction(
+                                         "--disabled{true}",
+                                         [this](std::size_t) {
+                                             utils::Config::configRoot.disabled(this, disableOpt->as<bool>());
+                                         },
+                                         "Disable this instance",
+                                         "bool",
+                                         "false",
+                                         CLI::IsMember({"true", "false"})),
+                                     true);
     }
 
     ConfigInstance::~ConfigInstance() {
@@ -90,95 +92,5 @@ namespace net::config {
         return disableOpt //
             ->as<bool>();
     }
-
-    /*
-        CLI::App* ConfigInstance::newSection(std::shared_ptr<utils::AppWithPtr<utils::SubCommand>> appWithPtr, const std::string& group) {
-            CLI::App* sectionSc = subCommandSc->add_subcommand(appWithPtr)
-                                      ->fallthrough()
-                                      ->configurable(false)
-                                      ->allow_extras()
-                                      ->group(group)
-                                      ->ignore_case(false)
-                                      ->disabled(appWithPtr->get_name().empty())
-                                      ->formatter(subCommandSc->get_formatter())
-                                      ->config_formatter(subCommandSc->get_config_formatter());
-
-            sectionSc //
-                ->option_defaults()
-                ->configurable(!sectionSc->get_disabled());
-
-            if (!sectionSc->get_disabled()) {
-                appWithPtr->getPtr()->addStandardFlags();
-                appWithPtr->getPtr()->addSimpleHelp();
-            }
-
-            return sectionSc;
-        }
-
-        ConfigSection* ConfigInstance::addSection(std::shared_ptr<ConfigSection>&& configSection) {
-            return configSections.emplace_back(configSection).get();
-        }
-
-        ConfigInstance& ConfigInstance::required(bool required) {
-            if (!getDisabled()) {
-                utils::Config::configRoot.required(this, required);
-            }
-
-            return *this;
-        }
-
-        ConfigInstance& ConfigInstance::required(CLI::App* section, bool req) {
-            if (req != section->get_required()) {
-                if (req) {
-                    ++requiredCount;
-                    subCommandSc //
-                        ->needs(section);
-                } else {
-                    --requiredCount;
-                    subCommandSc //
-                        ->remove_needs(section);
-                }
-
-                section //
-                    ->required(req);
-                section //
-                    ->ignore_case(req);
-
-                required(requiredCount > 0);
-            }
-
-            return *this;
-        }
-
-        bool ConfigInstance::getRequired() const {
-            return requiredCount > 0;
-        }
-    */
-    /*
-        CLI::App* ConfigInstance::get() const {
-            return subCommandSc;
-        }
-    */
-    /*
-        ConfigInstance& ConfigInstance::configurable(bool configurable) {
-            disableOpt->configurable(configurable);
-
-            disableOpt->group(subCommandSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
-
-            return *this;
-        }
-
-        const CLI::App* ConfigInstance::getSection(const std::string& name) const {
-            return subCommandSc->get_subcommand_no_throw(name);
-        }
-
-        ConfigInstance& ConfigInstance::setDisabled(bool disabled) {
-            setDefaultValue(disableOpt, disabled ? "true" : "false");
-
-            utils::Config::configRoot.disabled(this, disabled);
-
-            return *this;
-        }
-    */
 
 } // namespace net::config

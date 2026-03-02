@@ -351,31 +351,7 @@ namespace utils::config {
     }
 
     ConfigRoot::ConfigRoot()
-        : utils::SubCommand(std::make_shared<utils::AppWithPtr<utils::SubCommand>>("Root Config", "root", this, false)) {
-        subCommandSc->configurable(false);
-        subCommandSc->allow_extras();
-
-        const std::shared_ptr<CLI::HelpFormatter> helpFormatter = std::make_shared<CLI::HelpFormatter>();
-
-        helpFormatter->label("SUBCOMMAND", "INSTANCE");
-        helpFormatter->label("SUBCOMMANDS", "INSTANCES");
-        helpFormatter->label("PERSISTENT", "");
-        helpFormatter->label("Persistent Options", "Options (persistent)");
-        helpFormatter->label("Nonpersistent Options", "Options (nonpersistent)");
-        helpFormatter->label("Usage", "\nUsage");
-        helpFormatter->label("bool:{true,false}", "{true,false}");
-        helpFormatter->label(":{standard,active,complete,required}", "{standard,active,complete,required}");
-        helpFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
-        helpFormatter->column_width(7);
-
-        subCommandSc->formatter(helpFormatter);
-
-        subCommandSc->config_formatter(std::make_shared<CLI::ConfigFormatter>());
-        subCommandSc->get_config_formatter_base()->arrayDelimiter(' ');
-
-        subCommandSc->option_defaults()->take_last();
-        subCommandSc->option_defaults()->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
-
+        : utils::SubCommand(std::make_shared<utils::AppWithPtr<utils::SubCommand>>("Root Config", "", this, false), false) {
         logger::Logger::init();
     }
 
@@ -506,6 +482,18 @@ namespace utils::config {
                            ->type_name("groupname")
                            ->needs(daemonizeOpt)
                            ->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+
+        aliasOpt = setConfigurable(
+            subCommandSc
+                ->add_flag_function( //
+                    "-a,--aliases",
+                    [&aliases = this->aliases, instanceName = subCommandSc->get_name(), &aliasOpt = this->aliasOpt](std::size_t) {
+                        aliases[instanceName] = aliasOpt->as<std::string>();
+                    },
+                    "Make an instance also known as an alias in configuration files")
+                ->type_name("alias")
+                ->check(CLI::TypeValidator<std::string>()),
+            false);
 
         versionOpt = subCommandSc->set_version_flag("-v,--version", "1.0-rc1", "Framework version");
 
@@ -700,40 +688,6 @@ namespace utils::config {
 
 namespace utils {
 
-    //    std::vector<std::shared_ptr<void>> Config::configInstances;
-    /*
-        static std::shared_ptr<CLI::App> makeApp() { // NO_LINT
-            const std::shared_ptr<CLI::App> app = std::make_shared<CLI::App>();
-
-            app->configurable(false);
-            app->allow_extras();
-
-            const std::shared_ptr<CLI::HelpFormatter> helpFormatter = std::make_shared<CLI::HelpFormatter>();
-
-            helpFormatter->label("SUBCOMMAND", "INSTANCE");
-            helpFormatter->label("SUBCOMMANDS", "INSTANCES");
-            helpFormatter->label("PERSISTENT", "");
-            helpFormatter->label("Persistent Options", "Options (persistent)");
-            helpFormatter->label("Nonpersistent Options", "Options (nonpersistent)");
-            helpFormatter->label("Usage", "\nUsage");
-            helpFormatter->label("bool:{true,false}", "{true,false}");
-            helpFormatter->label(":{standard,active,complete,required}", "{standard,active,complete,required}");
-            helpFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
-            helpFormatter->column_width(7);
-
-            app->formatter(helpFormatter);
-
-            app->config_formatter(std::make_shared<CLI::ConfigFormatter>());
-            app->get_config_formatter_base()->arrayDelimiter(' ');
-
-            app->option_defaults()->take_last();
-            app->option_defaults()->group(app->get_formatter()->get_label("Nonpersistent Options"));
-
-            logger::Logger::init();
-
-            return app;
-        }
-    */
     bool Config::init(int argc, char* argv[]) {
         bool proceed = true;
 

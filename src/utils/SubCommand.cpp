@@ -52,22 +52,49 @@
 
 namespace utils {
 
-    SubCommand::SubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr)
+    SubCommand::SubCommand(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr, [[maybe_unused]] bool final)
         : subCommandSc(appWithPtr) {
-        setConfigurable(addOption( //
-                            "-i,--instance-alias",
-                            "Make an instance also known as an alias in configuration files",
-                            "instance=instance_alias [instance=instance_alias [...]]",
-                            CLI::TypeValidator<std::string>())
-                            ->each([&aliases = this->aliases](const std::string& item) {
-                                const auto it = item.find('=');
-                                if (it != std::string::npos) {
-                                    aliases[item.substr(0, it)] = item.substr(it + 1);
-                                } else {
-                                    throw CLI::ConversionError("Can not convert '" + item + "' to a 'instance=instance_alias' pair");
-                                }
-                            }),
-                        false);
+        subCommandSc->configurable(false);
+        subCommandSc->allow_extras();
+
+        static const std::shared_ptr<CLI::HelpFormatter> helpFormatter = std::make_shared<CLI::HelpFormatter>();
+
+        helpFormatter->label("SUBCOMMAND", "INSTANCE");
+        helpFormatter->label("SUBCOMMANDS", "INSTANCES");
+        helpFormatter->label("PERSISTENT", "");
+        helpFormatter->label("Persistent Options", "Options (persistent)");
+        helpFormatter->label("Nonpersistent Options", "Options (nonpersistent)");
+        helpFormatter->label("Usage", "\nUsage");
+        helpFormatter->label("bool:{true,false}", "{true,false}");
+        helpFormatter->label(":{standard,active,complete,required}", "{standard,active,complete,required}");
+        helpFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
+        helpFormatter->column_width(7);
+
+        subCommandSc->formatter(helpFormatter);
+
+        subCommandSc->config_formatter(std::make_shared<CLI::ConfigFormatter>());
+        subCommandSc->get_config_formatter_base()->arrayDelimiter(' ');
+
+        subCommandSc->option_defaults()->take_last();
+        subCommandSc->option_defaults()->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
+
+        if (!final) {
+            subCommandSc->addHelp([](CLI::App* app) {
+                helpTriggerApp = app;
+            });
+        } else {
+            subCommandSc->addSimpleHelp([](CLI::App* app) {
+                helpTriggerApp = app;
+            });
+        }
+
+        subCommandSc->addStandardFlags(
+            [](CLI::App* app) {
+                showConfigTriggerApp = app;
+            },
+            [](CLI::App* app) {
+                commandlineTriggerApp = app;
+            });
     }
 
     SubCommand::~SubCommand() {
@@ -203,14 +230,9 @@ namespace utils {
 
     std::shared_ptr<CLI::Formatter> SubCommand::sectionFormatter = makeSectionFormatter();
 
-    std::shared_ptr<utils::AppWithPtr<SubCommand>>
-    SubCommand::newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr, const std::string& group, bool final) {
-        VLOG(0) << "---------- AppWithPtr Name: " << appWithPtr->get_name();
-
-        if (appWithPtr->get_name() == "www") {
-            VLOG(0) << "              ---";
-        }
-
+    std::shared_ptr<utils::AppWithPtr<SubCommand>> SubCommand::newInstance(std::shared_ptr<utils::AppWithPtr<SubCommand>> appWithPtr,
+                                                                           const std::string& group,
+                                                                           [[maybe_unused]] bool final) {
         CLI::App* instanceSc = subCommandSc->add_subcommand(appWithPtr)
                                    ->group(group)
                                    ->ignore_case(false)
@@ -223,31 +245,15 @@ namespace utils {
 
         instanceSc //
             ->option_defaults()
-            ->configurable(!instanceSc->get_disabled());
+            ->configurable(!instanceSc->get_disabled())
+            ->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
+        ;
 
         if (!instanceSc->get_disabled()) {
             if (aliases.contains(instanceSc->get_name())) {
                 instanceSc //
                     ->alias(aliases[instanceSc->get_name()]);
             }
-        }
-
-        appWithPtr->addStandardFlags(
-            [](CLI::App* app) {
-                helpTriggerApp = app;
-            },
-            [](CLI::App* app) {
-                commandlineTriggerApp = app;
-            });
-
-        if (!final) {
-            appWithPtr->addHelp([](CLI::App* app) {
-                helpTriggerApp = app;
-            });
-        } else {
-            appWithPtr->addSimpleHelp([](CLI::App* app) {
-                helpTriggerApp = app;
-            });
         }
 
         return appWithPtr;

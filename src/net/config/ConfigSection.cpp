@@ -49,30 +49,5 @@ namespace net::config {
 
     ConfigSection::~ConfigSection() {
     }
-    /*
-        void ConfigSection::required(CLI::Option* opt, bool req) {
-            if (req != opt->get_required()) {
-                if (req) {
-                    ++requiredCount;
-                    subCommandSc->needs(opt);
-                    opt->default_str("");
-                } else {
-                    --requiredCount;
-                    subCommandSc->remove_needs(opt);
-                }
 
-                opt->required(req);
-
-                required(requiredCount > 0);
-            }
-        }
-
-        void ConfigSection::required(bool required) {
-            instance->required(subCommandSc, required);
-        }
-
-        bool ConfigSection::getRequired() const {
-            return subCommandSc->get_required();
-        }
-    */
 } // namespace net::config
