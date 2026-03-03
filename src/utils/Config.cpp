@@ -399,7 +399,7 @@ namespace utils {
 
         monochromLogOpt = setConfigurable(addFlagFunction( //
                                               "-m{true},--monochrom-logmonochromLogOption{true}",
-                                              [&monochromLogOpt = this->monochromLogOpt]([[maybe_unused]] std::size_t count) {
+                                              [&monochromLogOpt = this->monochromLogOpt]() {
                                                   if (monochromLogOpt->as<bool>()) {
                                                       logger::Logger::setDisableColor(true);
                                                   } else {

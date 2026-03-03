@@ -47,7 +47,6 @@
 
 #include "utils/Timeval.h"
 
-#include <cstdint>
 #include <functional>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -61,7 +60,7 @@ namespace net::config {
         : ConfigPhysicalSocket(instance, this) {
         reconnectOpt = addFlagFunction( //
             "--reconnect{true}",
-            [this]([[maybe_unused]] std::int64_t) {
+            [this]() {
                 if (!this->reconnectOpt->as<bool>()) {
                     this->reconnectTimeOpt->clear();
                 }

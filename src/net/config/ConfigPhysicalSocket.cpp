@@ -71,7 +71,7 @@ namespace net::config {
                                                        const CLI::Validator& validator) {
         return addFlagFunction(
                    name,
-                   [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]([[maybe_unused]] std::uint64_t) {
+                   [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]() {
                        try {
                            try {
                                if (getOption(strippedName)->as<bool>()) {
@@ -88,8 +88,8 @@ namespace net::config {
                    },
                    description,
                    typeName,
+                   defaultValue,
                    validator)
-            ->default_str(defaultValue)
             ->force_callback();
     }
 

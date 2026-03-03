@@ -45,7 +45,6 @@
 
 #include "utils/Config.h"
 
-#include <cstddef>
 #include <functional>
 #include <string>
 
@@ -58,19 +57,19 @@ namespace net::config {
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
         : utils::SubCommand(
               utils::Config::configRoot.newSubCommand(net::config::Instance(instanceName,
-                                                                          std::string("Configuration for ")
-                                                                              .append(role == Role::SERVER ? "server" : "client")
-                                                                              .append(" instance '")
-                                                                              .append(instanceName)
-                                                                              .append("'"),
-                                                                          this),
-                                                    "Instances"),
+                                                                            std::string("Configuration for ")
+                                                                                .append(role == Role::SERVER ? "server" : "client")
+                                                                                .append(" instance '")
+                                                                                .append(instanceName)
+                                                                                .append("'"),
+                                                                            this),
+                                                      "Instances"),
               false)
         , instanceName(instanceName)
         , role(role) {
         disableOpt = setConfigurable(addFlagFunction(
                                          "--disabled{true}",
-                                         [this](std::size_t) {
+                                         [this]() {
                                              utils::Config::configRoot.disabled(this, disableOpt->as<bool>());
                                          },
                                          "Disable this instance",

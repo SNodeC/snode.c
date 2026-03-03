@@ -46,6 +46,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <utility>
 
@@ -432,15 +433,35 @@ namespace utils {
     }
 
     CLI::Option* SubCommand::addFlagFunction(const std::string& name,
-                                             const std::function<void(std::int64_t)>& callback,
+                                             const std::function<void()>& callback,
                                              const std::string& description,
                                              const std::string& typeName,
-                                             const CLI::Validator& validator) const {
-        return initialize(subCommandSc //
-                              ->add_flag_function(name, callback, description),
-                          typeName,
-                          validator,
-                          !subCommandSc->get_disabled());
+                                             const CLI::Validator& validator) {
+        CLI::Option* opt = subCommandSc //
+                               ->add_flag_function(
+                                   name,
+                                   [callback](std::int64_t) {
+                                       callback();
+                                   },
+                                   description)
+                               ->type_name(typeName)
+                               ->check(validator)
+                               ->take_last();
+        if (opt->get_configurable()) {
+            opt->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+        }
+
+        return opt;
+    }
+
+    CLI::Option* SubCommand::addFlagFunction(const std::string& name,
+                                             const std::function<void()>& callback,
+                                             const std::string& description,
+                                             const std::string& typeName,
+                                             const std::string& defaultValue,
+                                             const CLI::Validator& validator) {
+        return addFlagFunction(name, callback, description, typeName, validator) //
+            ->default_val(defaultValue);
     }
 
     CLI::Option* SubCommand::setConfigurable(CLI::Option* option, bool configurable) const {

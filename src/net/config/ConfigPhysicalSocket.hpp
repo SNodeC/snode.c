@@ -63,13 +63,8 @@ namespace net::config {
             retry,
             CLI::IsMember({"true", "false"}));
 
-        retryOnFatalOpt = addFlagFunction( //
+        retryOnFatalOpt = addFlag( //
             "--retry-on-fatal{true}",
-            [this]([[maybe_unused]] std::uint64_t) {
-                if (retryOnFatalOpt->as<bool>() && !retryOpt->as<bool>()) {
-                    throw CLI::RequiresError(retryOnFatalOpt->get_name(), retryOpt->get_name().append("=true"));
-                }
-            },
             "Retry also on fatal errors",
             "bool",
             retryOnFatal,
