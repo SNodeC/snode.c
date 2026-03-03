@@ -50,7 +50,7 @@ namespace core::multiplexer::poll {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // IWYU pragma: export
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

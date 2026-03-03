@@ -42,7 +42,6 @@
 #include "ConfigPhysicalSocketClient.h"
 
 #include "net/config/ConfigPhysicalSocket.hpp"
-#include "net/config/ConfigSection.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

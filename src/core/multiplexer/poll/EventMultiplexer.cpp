@@ -53,6 +53,7 @@
 #include <array>
 #include <cstdint>
 #include <ctime>
+#include <string>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

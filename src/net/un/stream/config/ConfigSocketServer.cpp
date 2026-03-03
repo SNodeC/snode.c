@@ -43,6 +43,10 @@
 
 #include "net/config/stream/ConfigSocketServer.hpp"
 
+namespace net::config {
+    class ConfigInstance;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

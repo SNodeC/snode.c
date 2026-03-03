@@ -48,7 +48,7 @@
 
 #include "core/system/select.h"
 
-#include <string> // IWYU pragma: export
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

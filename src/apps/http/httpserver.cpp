@@ -42,6 +42,7 @@
 #include "ConfigWWW.h"
 #include "apps/http/model/servers.h"
 #include "express/middleware/StaticMiddleware.h"
+#include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -56,7 +57,6 @@
 
 #include <algorithm>
 #include <list>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -41,13 +41,14 @@
 
 #include "net/config/ConfigTls.h"
 
-#include "net/config/ConfigSection.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
+
+    ConfigTls::~ConfigTls() {
+    }
 
     ConfigTls& ConfigTls::setCert(const std::string& cert) {
         certOpt //

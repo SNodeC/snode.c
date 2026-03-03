@@ -54,10 +54,6 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::config {

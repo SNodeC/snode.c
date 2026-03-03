@@ -46,10 +46,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
 namespace net::config {
     class ConfigSection;
 }
@@ -69,7 +65,7 @@ namespace net::config {
     protected:
         explicit ConfigInstance(const std::string& instanceName, Role role);
 
-        virtual ~ConfigInstance();
+        ~ConfigInstance() override;
 
     public:
         ConfigInstance(ConfigInstance&) = delete;

@@ -49,6 +49,7 @@
 #include "utils/Timeval.h"
 
 #include <array>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

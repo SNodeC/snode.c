@@ -42,7 +42,6 @@
 #include "net/config/ConfigTlsServer.h"
 
 #include "ConfigTls.hpp"
-#include "net/config/ConfigSection.hpp"
 
 namespace net::config {
     class ConfigInstance;
@@ -51,7 +50,6 @@ namespace net::config {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <memory>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

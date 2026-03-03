@@ -52,13 +52,8 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
-namespace CLI {
-    class Option;
-}
-
 #include <map>
+#include <string>
 #include <variant>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

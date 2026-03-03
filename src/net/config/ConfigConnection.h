@@ -49,10 +49,6 @@ namespace net::config {
 }
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
 #include "utils/Timeval.h"
 
 #include <cstddef>

@@ -53,7 +53,6 @@
 #include <cstddef>
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
-#include <string>
 
 // IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <openssl/x509.h>

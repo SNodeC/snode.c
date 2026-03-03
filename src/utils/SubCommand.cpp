@@ -47,6 +47,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -374,7 +375,6 @@ namespace utils {
                 ->option_defaults()
                 ->configurable(!newSubCommand->get_disabled())
                 ->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
-            ;
 
             if (!newSubCommand->get_disabled()) {
                 if (aliases.contains(newSubCommand->get_name())) {
@@ -444,11 +444,9 @@ namespace utils {
     }
 
     CLI::Option* SubCommand::setConfigurable(CLI::Option* option, bool configurable) const {
-        option //
+        return option //
             ->configurable(configurable)
             ->group(subCommandSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
-
-        return option;
     }
 
     CLI::Option*
@@ -456,8 +454,6 @@ namespace utils {
         return setConfigurable(option, configurable) //
             ->type_name(typeName)
             ->check(validator);
-
-        return option;
     }
 
     CLI::App* SubCommand::helpTriggerApp = nullptr;

@@ -41,8 +41,6 @@
 
 #include "ConfigPhysicalSocket.h"
 
-#include "net/config/ConfigSection.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -56,6 +54,9 @@
 #define STR(s) #s
 
 namespace net::config {
+
+    ConfigPhysicalSocket::~ConfigPhysicalSocket() {
+    }
 
     const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& ConfigPhysicalSocket::getSocketOptions() const {
         return socketOptionsMapMap;
@@ -87,8 +88,8 @@ namespace net::config {
                    },
                    description,
                    typeName,
-                   defaultValue,
                    validator)
+            ->default_str(defaultValue)
             ->force_callback();
     }
 

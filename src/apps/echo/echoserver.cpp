@@ -46,8 +46,6 @@
 
 #include "log/Logger.h"
 
-#include <string>
-
 #if (STREAM_TYPE == TLS)
 
 #include <map>

@@ -46,7 +46,6 @@
 #include "log/Logger.h"
 
 #include <cstdlib>
-#include <string>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

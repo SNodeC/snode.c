@@ -54,7 +54,6 @@
 #include <mysql.h>
 #include <nlohmann/json.hpp>
 #include <sstream>
-#include <string>
 
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 // IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>

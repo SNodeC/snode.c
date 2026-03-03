@@ -46,10 +46,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -61,6 +57,8 @@ namespace utils {
     class ConfigRoot : public utils::SubCommand {
     public:
         ConfigRoot();
+
+        ~ConfigRoot() override;
 
         ConfigRoot* addRootOptions(const std::string& applicationName,
                                    const std::string& userName,

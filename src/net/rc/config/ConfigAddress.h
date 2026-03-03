@@ -56,10 +56,6 @@ namespace net::config {
 
 #include <cstdint>
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rc::config {

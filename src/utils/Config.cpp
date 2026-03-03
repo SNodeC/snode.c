@@ -41,7 +41,6 @@
 
 #include "utils/Config.h"
 
-#include "net/config/ConfigSection.hpp"
 #include "utils/Daemon.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -305,8 +304,12 @@ namespace utils {
     static std::string doWriteConfig(utils::SubCommand* subCommand) {
         std::stringstream out;
 
+        VLOG(0) << "1: subCommand->getOption(--write-config)->as<std::string>()";
         std::ofstream confFile(subCommand->getOption("--write-config")->as<std::string>());
         if (confFile.is_open()) {
+            VLOG(0) << "2: subCommand->getOption(--write-config)->as<std::string>()";
+            VLOG(0) << subCommand->configToStr();
+
             try {
                 confFile << subCommand->configToStr();
                 confFile.close();
@@ -356,6 +359,9 @@ namespace utils {
         logger::Logger::init();
     }
 
+    ConfigRoot::~ConfigRoot() {
+    }
+
     ConfigRoot* ConfigRoot::addRootOptions(const std::string& applicationName,
                                            const std::string& userName,
                                            const std::string& groupName,
@@ -377,8 +383,8 @@ namespace utils {
         writeConfigOpt = setConfigurable(addOption( //
                                              "-w,--write-config",
                                              "Write config file and exit",
-                                             configDirectory + "/" + applicationName + ".conf",
                                              "configfile",
+                                             configDirectory + "/" + applicationName + ".conf",
                                              !CLI::ExistingDirectory),
                                          false)
                              ->expected(0, 1);

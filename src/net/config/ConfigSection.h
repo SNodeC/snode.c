@@ -63,15 +63,12 @@ namespace net::config {
         template <typename T>
         ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group = "Sections");
 
-        virtual ~ConfigSection();
+        ~ConfigSection() override;
 
         ConfigSection(const ConfigSection&) = delete;
         ConfigSection(ConfigSection&&) = delete;
 
         ConfigSection& operator=(const ConfigSection&) = delete;
-
-    private:
-        ConfigInstance* instance = nullptr;
     };
 
 } // namespace net::config

@@ -54,10 +54,6 @@ namespace net::config {
 
 #include <string>
 
-namespace CLI {
-    class Option;
-}
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {

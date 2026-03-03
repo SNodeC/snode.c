@@ -47,29 +47,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#if __has_warning("-Wmissing-noreturn")
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif
-#if __has_warning("-Wnrvo")
-#pragma GCC diagnostic ignored "-Wnrvo"
-#endif
-#endif
-#endif
-#include "utils/CLI11.hpp" // IWYU pragma: export
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
 #include <memory>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -86,8 +63,7 @@ namespace net::config {
 
     template <typename T>
     ConfigSection::ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group)
-        : SubCommand(instance->newSubCommand(net::config::Section(sectionPtr), group), true)
-        , instance(instance) {
+        : SubCommand(instance->newSubCommand(net::config::Section(sectionPtr), group), true) {
         description(std::string{T::DESCRIPTION} + " for instance '" + instance->getInstanceName() + "'");
     }
 

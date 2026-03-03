@@ -44,10 +44,6 @@
 
 #include "net/config/ConfigSection.h"
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string_view>
@@ -62,6 +58,8 @@ namespace web::http::client {
         constexpr static std::string_view DESCRIPTION{"HTTP behavior"};
 
         explicit ConfigHTTP(utils::SubCommand* configInstance);
+
+        ~ConfigHTTP() override;
 
         ConfigHTTP(ConfigHTTP&) = delete;
         ConfigHTTP& operator=(ConfigHTTP&) = delete;

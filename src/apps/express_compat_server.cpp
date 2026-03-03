@@ -8,7 +8,6 @@
 #include "log/Logger.h"
 
 #include <nlohmann/json.hpp>
-#include <string>
 
 // IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>

@@ -45,35 +45,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#if __has_warning("-Wmissing-noreturn")
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif
-#if __has_warning("-Wnrvo")
-#pragma GCC diagnostic ignored "-Wnrvo"
-#endif
-#endif
-#endif
-#include "utils/CLI11.hpp"
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
 #include "core/system/socket.h"
 #include "utils/PreserveErrno.h"
 
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
