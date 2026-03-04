@@ -521,6 +521,8 @@ namespace utils {
             }
         });
 
+        setConfig("/home/voc/.config/snode.c/testregex.conf");
+
         return parse2(argc, argv);
     }
 
