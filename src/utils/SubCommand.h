@@ -134,16 +134,17 @@ namespace utils {
 
         bool hasParent() const;
         SubCommand* getParent();
-        SubCommand* setRequireCallback(const std::function<void(void)>& callback);
 
         SubCommand* allowExtras(bool allow = true);
+
         SubCommand* required(bool required = true, bool force = true);
         SubCommand* required(SubCommand* subCommand, bool required = true);
         SubCommand* required(CLI::Option* option, bool required = true);
 
         SubCommand* needs(SubCommand* subCommand, bool needs = true);
-
         SubCommand* disabled(SubCommand* subCommand, bool disabled = true);
+
+        SubCommand* setRequireCallback(const std::function<void(void)>& callback);
         SubCommand* finalCallback(const std::function<void()>& finalCallback);
 
         std::string configToStr() const;
@@ -159,13 +160,6 @@ namespace utils {
 
         SubCommand* removeSubCommand(utils::SubCommand* subCommand);
 
-    protected:
-        CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
-
-    private:
-        CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
-
-    public:
         CLI::Option* getOption(const std::string& name) const;
 
         CLI::Option* addOption(const std::string& name,
@@ -243,22 +237,27 @@ namespace utils {
 
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
-    private:
-        std::shared_ptr<utils::AppWithPtr> subCommandSc;
-
     protected:
-        bool final;
+        CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
+
         std::map<std::string, std::string> aliases;
 
         static CLI::App* helpTriggerApp;
         static CLI::App* showConfigTriggerApp;
         static CLI::App* commandlineTriggerApp;
 
+    private:
+        CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
+
+        std::shared_ptr<utils::AppWithPtr> subCommandSc;
+
+        std::vector<std::shared_ptr<utils::AppWithPtr>> configInstances; // Store anything
+
+        bool final;
+
         CLI::Option* helpOpt = nullptr;
         CLI::Option* showConfigOpt = nullptr;
         CLI::Option* commandlineOpt = nullptr;
-
-        std::vector<std::shared_ptr<utils::AppWithPtr>> configInstances; // Store anything
 
         int requiredCount = 0;
     };

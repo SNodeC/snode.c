@@ -477,10 +477,6 @@ namespace utils {
             ->check(validator);
     }
 
-    CLI::App* SubCommand::helpTriggerApp = nullptr;
-    CLI::App* SubCommand::showConfigTriggerApp = nullptr;
-    CLI::App* SubCommand::commandlineTriggerApp = nullptr;
-
     AppWithPtr::AppWithPtr(const std::string& description, const std::string& name, SubCommand* t, bool manage)
         : CLI::App(description, name)
         , ptr(t)
@@ -500,5 +496,9 @@ namespace utils {
     SubCommand* AppWithPtr::getPtr() {
         return ptr;
     }
+
+    CLI::App* SubCommand::helpTriggerApp = nullptr;
+    CLI::App* SubCommand::showConfigTriggerApp = nullptr;
+    CLI::App* SubCommand::commandlineTriggerApp = nullptr;
 
 } // namespace utils

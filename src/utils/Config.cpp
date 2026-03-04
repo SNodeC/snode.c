@@ -499,7 +499,7 @@ namespace utils {
     bool ConfigRoot::bootstrap(int argc, char* argv[]) {
         finalCallback([this]() {
             if (daemonizeOpt->as<bool>() && helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && writeConfigOpt->count() == 0 &&
-                commandlineOpt->count() == 0) {
+                commandlineTriggerApp == nullptr) {
                 std::cout << "Running as daemon (double fork)" << std::endl;
 
                 utils::Daemon::startDaemon(
