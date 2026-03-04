@@ -100,7 +100,7 @@ namespace core {
     }
 
     void TimerEventPublisher::stop() {
-        for (TimerEventReceiver* timer : timerList) { // cppcheck-suppress constVariablePointer
+        for (TimerEventReceiver* timer : timerList) {
             remove(timer);
         }
 
