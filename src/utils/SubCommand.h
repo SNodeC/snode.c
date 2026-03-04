@@ -44,12 +44,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <functional>
 #include <map>
 #include <memory>
-#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -364,8 +361,7 @@ namespace utils {
                 option->clear();
             }
         } catch (const CLI::ParseError& e) {
-            LOG(ERROR) << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
-                       << std::endl;
+            option = nullptr;
         }
 
         return option;
