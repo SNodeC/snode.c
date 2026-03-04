@@ -51,6 +51,7 @@
 #include <memory>
 #include <ostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #ifdef __GNUC__
@@ -152,8 +153,8 @@ namespace utils {
 
         std::shared_ptr<utils::AppWithPtr> newSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group) const;
 
-        template <typename NewSubCommand>
-        NewSubCommand* addSubCommand();
+        template <typename NewSubCommand, typename... Args>
+        NewSubCommand* addSubCommand(Args&&... args);
 
         template <typename RequestedSubCommand>
         RequestedSubCommand* getSubCommand();
@@ -262,15 +263,15 @@ namespace utils {
         int requiredCount = 0;
     };
 
-    template <typename NewSubCommand>
-    NewSubCommand* SubCommand::addSubCommand() {
-        return !final
-                   ? dynamic_cast<NewSubCommand*>(
-                         configInstances
-                             .emplace_back(net::config::Instance(
-                                 std::string(NewSubCommand::NAME), std::string(NewSubCommand::DESCRIPTION), new NewSubCommand(this), true))
-                             ->getPtr())
-                   : nullptr;
+    template <typename NewSubCommand, typename... Args>
+    NewSubCommand* SubCommand::addSubCommand(Args&&... args) {
+        return !final ? dynamic_cast<NewSubCommand*>(configInstances
+                                                         .emplace_back(net::config::Instance(std::string(NewSubCommand::NAME),
+                                                                                             std::string(NewSubCommand::DESCRIPTION),
+                                                                                             new NewSubCommand(this, std::forward(args)...),
+                                                                                             true))
+                                                         ->getPtr())
+                      : nullptr;
     }
 
     template <typename RequestedSubCommand>
