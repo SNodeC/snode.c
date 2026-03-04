@@ -77,6 +77,9 @@ namespace net::config {
         const std::string& getInstanceName() const;
 
         bool getDisabled() const;
+        ConfigInstance& setDisabled(bool disabled = true);
+
+        ConfigInstance& configurable(bool configurable);
 
     private:
         std::string instanceName;

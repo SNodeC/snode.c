@@ -92,4 +92,18 @@ namespace net::config {
             ->as<bool>();
     }
 
+    ConfigInstance& ConfigInstance::setDisabled(bool disabled) {
+        setDefaultValue(disableOpt, disabled ? "true" : "false");
+
+        utils::Config::configRoot.disabled(this, disabled);
+
+        return *this;
+    }
+
+    ConfigInstance& ConfigInstance::configurable(bool configurable) {
+        setConfigurable(disableOpt, configurable);
+
+        return *this;
+    }
+
 } // namespace net::config
