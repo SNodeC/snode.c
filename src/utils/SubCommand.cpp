@@ -228,7 +228,7 @@ namespace utils {
     SubCommand* SubCommand::required(bool required, bool force) {
         requiredCount += required ? 1 : -1;
 
-        required = required || force;
+        required = force ? required : requiredCount > 0;
 
         subCommandSc->required(required);
 

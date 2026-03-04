@@ -167,6 +167,9 @@ namespace utils {
         template <typename RequestedSubCommand>
         RequestedSubCommand* getSubCommand();
 
+        template <typename RequestedSubCommand>
+        RequestedSubCommand* getSubCommand() const;
+
         SubCommand* removeSubCommand(utils::SubCommand* subCommand);
 
         CLI::Option* getOption(const std::string& name) const;
@@ -284,6 +287,15 @@ namespace utils {
 
     template <typename RequestedSubCommand>
     RequestedSubCommand* SubCommand::getSubCommand() {
+        auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(RequestedSubCommand::NAME));
+
+        AppWithPtr* subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
+
+        return subCommandApp != nullptr ? dynamic_cast<RequestedSubCommand*>(subCommandApp->getPtr()) : nullptr;
+    }
+
+    template <typename RequestedSubCommand>
+    RequestedSubCommand* SubCommand::getSubCommand() const {
         auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(RequestedSubCommand::NAME));
 
         AppWithPtr* subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
