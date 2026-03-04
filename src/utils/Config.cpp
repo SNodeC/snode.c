@@ -774,6 +774,10 @@ namespace utils {
         return configRoot.bootstrap(argc, argv);
     }
 
+    void Config::parse() {
+        configRoot.parse(argc, argv);
+    }
+
     void Config::terminate() {
         configRoot.terminate();
     }

@@ -92,6 +92,8 @@ namespace utils {
         CLI::Option* killOpt = nullptr;
         CLI::Option* logDirectoryOpt = nullptr;
         CLI::Option* aliasOpt = nullptr;
+
+        friend class Config;
     };
 
     class Config {
@@ -104,17 +106,12 @@ namespace utils {
 
         static bool init(int argc, char* argv[]);
         static bool bootstrap();
+        static void parse();
         static void terminate();
 
         static const std::string& getApplicationName();
         static int getLogLevel();
         static int getVerboseLevel();
-
-    private:
-        static bool parse1();
-
-    public:
-        static bool parse2(bool parse1 = false);
 
         static ConfigRoot configRoot;
 
