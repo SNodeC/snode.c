@@ -65,7 +65,7 @@ public:
     constexpr static std::string_view DESCRIPTION{"Database connection"};
 
     ConfigDb(SubCommand* parent)
-        : SubCommand(parent->newSubCommand(net::config::Instance(std::string(NAME), std::string(DESCRIPTION), this), "Database")) {
+        : SubCommand(parent, this, "Database") {
         hostOpt = setConfigurable(
             addOption("--db-host", "Hostname or IP-Address of Server", "hostname|IPv4", CLI::TypeValidator<std::string>()), true);
 

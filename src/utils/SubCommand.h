@@ -112,6 +112,14 @@ namespace utils {
     protected:
         SubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, bool final = true);
 
+        template <typename ConcretSubCommand>
+        SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group)
+            : SubCommand(parent->newSubCommand(net::config::Instance(std::string(ConcretSubCommand::NAME),
+                                                                     std::string(ConcretSubCommand::DESCRIPTION),
+                                                                     concretSubCommand),
+                                               group)) {
+        }
+
     public:
         SubCommand(const SubCommand&) = delete;
         SubCommand(SubCommand&&) = delete;
