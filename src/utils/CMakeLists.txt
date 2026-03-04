@@ -79,7 +79,7 @@ append_source_file_config(
 )
 
 set_property(
-    SOURCE Config.cpp
+    SOURCE SubCommand.cpp
     APPEND
     PROPERTY COMPILE_DEFINITIONS CLI11_USE_OLD_HELP_PROCESSING
 )
