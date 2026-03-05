@@ -237,9 +237,13 @@ namespace utils {
                                      const std::string& defaultValue,
                                      const CLI::Validator& validator);
 
+    protected:
         template <typename ValueTypeT>
         static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true);
 
+        CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
+
+    public:
         static CLI::App* getHelpTriggerApp();
         static CLI::App* getShowConfigTriggerApp();
         static CLI::App* getCommandlineTriggerApp();
@@ -247,9 +251,7 @@ namespace utils {
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
     protected:
-        CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
-
-        std::map<std::string, std::string> aliases;
+        static std::map<std::string, std::string> aliases;
 
         static CLI::App* helpTriggerApp;
         static CLI::App* showConfigTriggerApp;
@@ -260,7 +262,7 @@ namespace utils {
 
         std::shared_ptr<utils::AppWithPtr> subCommandSc;
 
-        std::vector<std::shared_ptr<utils::AppWithPtr>> configInstances; // Store anything
+        std::vector<std::shared_ptr<utils::AppWithPtr>> addedSubCommands; // Store anything
 
         bool final;
 
@@ -273,7 +275,7 @@ namespace utils {
 
     template <typename NewSubCommand, typename... Args>
     NewSubCommand* SubCommand::addSubCommand(Args&&... args) {
-        return !final ? dynamic_cast<NewSubCommand*>(configInstances
+        return !final ? dynamic_cast<NewSubCommand*>(addedSubCommands
                                                          .emplace_back(net::config::Instance(std::string(NewSubCommand::NAME),
                                                                                              std::string(NewSubCommand::DESCRIPTION),
                                                                                              new NewSubCommand(this, std::forward(args)...),

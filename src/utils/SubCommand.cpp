@@ -198,7 +198,7 @@ namespace utils {
     SubCommand* SubCommand::getParent() {
         utils::AppWithPtr* parentSc = dynamic_cast<utils::AppWithPtr*>(subCommandSc->get_parent());
 
-        return parentSc != nullptr ? dynamic_cast<SubCommand*>(parentSc->getPtr()) : nullptr;
+        return parentSc != nullptr ? parentSc->getPtr() : nullptr;
     }
 
     SubCommand* SubCommand::setRequireCallback(const std::function<void()>& callback) {
@@ -397,9 +397,9 @@ namespace utils {
 
         subCommandSc->remove_subcommand(subCommand->subCommandSc.get());
 
-        for (auto it = configInstances.begin(); it != configInstances.end();) {
+        for (auto it = addedSubCommands.begin(); it != addedSubCommands.end();) {
             if (it->get() == subCommand->subCommandSc.get()) {
-                it = configInstances.erase(it);
+                it = addedSubCommands.erase(it);
             } else {
                 ++it;
             }
@@ -510,6 +510,8 @@ namespace utils {
     SubCommand* AppWithPtr::getPtr() {
         return ptr;
     }
+
+    std::map<std::string, std::string> SubCommand::aliases;
 
     CLI::App* SubCommand::helpTriggerApp = nullptr;
     CLI::App* SubCommand::showConfigTriggerApp = nullptr;
