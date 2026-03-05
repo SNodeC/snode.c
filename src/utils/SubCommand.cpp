@@ -395,6 +395,16 @@ namespace utils {
     SubCommand* SubCommand::removeSubCommand(utils::SubCommand* subCommand) {
         required(subCommand, false);
 
+        subCommandSc->remove_subcommand(subCommand->subCommandSc.get());
+
+        for (auto it = configInstances.begin(); it != configInstances.end();) {
+            if (it->get() == subCommand->subCommandSc.get()) {
+                it = configInstances.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
         return this;
     }
 
