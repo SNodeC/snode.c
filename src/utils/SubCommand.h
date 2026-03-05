@@ -94,16 +94,9 @@ namespace utils {
         bool manage;
     };
 
-} // namespace utils
-
-namespace net::config {
-
     template <typename T>
-    std::shared_ptr<utils::AppWithPtr> Instance(const std::string& name, const std::string& description, T* section, bool manage = false);
-
-}
-
-namespace utils {
+    std::shared_ptr<utils::AppWithPtr>
+    SubCommandApp(const std::string& name, const std::string& description, T* section, bool manage = false);
 
     class SubCommand {
     protected:
@@ -111,10 +104,9 @@ namespace utils {
 
         template <typename ConcretSubCommand>
         SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group)
-            : SubCommand(parent->newSubCommand(net::config::Instance(std::string(ConcretSubCommand::NAME),
-                                                                     std::string(ConcretSubCommand::DESCRIPTION),
-                                                                     concretSubCommand),
-                                               group)) {
+            : SubCommand(parent->newSubCommand(
+                  SubCommandApp(std::string(ConcretSubCommand::NAME), std::string(ConcretSubCommand::DESCRIPTION), concretSubCommand),
+                  group)) {
         }
 
     public:
@@ -276,10 +268,10 @@ namespace utils {
     template <typename NewSubCommand, typename... Args>
     NewSubCommand* SubCommand::addSubCommand(Args&&... args) {
         return !final ? dynamic_cast<NewSubCommand*>(addedSubCommands
-                                                         .emplace_back(net::config::Instance(std::string(NewSubCommand::NAME),
-                                                                                             std::string(NewSubCommand::DESCRIPTION),
-                                                                                             new NewSubCommand(this, std::forward(args)...),
-                                                                                             true))
+                                                         .emplace_back(SubCommandApp(std::string(NewSubCommand::NAME),
+                                                                                     std::string(NewSubCommand::DESCRIPTION),
+                                                                                     new NewSubCommand(this, std::forward(args)...),
+                                                                                     true))
                                                          ->getPtr())
                       : nullptr;
     }
@@ -369,12 +361,8 @@ namespace utils {
         return option;
     }
 
-} // namespace utils
-
-namespace net::config {
-
     template <typename T>
-    std::shared_ptr<utils::AppWithPtr> Instance(const std::string& name, const std::string& description, T* section, bool manage) {
+    std::shared_ptr<utils::AppWithPtr> SubCommandApp(const std::string& name, const std::string& description, T* section, bool manage) {
         std::shared_ptr<utils::AppWithPtr> subCommandSc = std::make_shared<utils::AppWithPtr>(description, name, section, manage);
 
         subCommandSc->option_defaults()->take_last();
@@ -382,6 +370,6 @@ namespace net::config {
 
         return subCommandSc;
     }
-} // namespace net::config
+} // namespace utils
 
 #endif // UTILS_SUBCOMMAND_H

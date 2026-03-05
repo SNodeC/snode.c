@@ -56,6 +56,10 @@
 
 namespace CLI {
 
+    ConfigFormatter::ConfigFormatter() {
+        arrayDelimiter(' ');
+    }
+
     ConfigFormatter::~ConfigFormatter() {
     }
 

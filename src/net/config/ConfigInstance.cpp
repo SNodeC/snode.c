@@ -56,13 +56,13 @@ namespace net::config {
 
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
         : utils::SubCommand(
-              utils::Config::configRoot.newSubCommand(net::config::Instance(instanceName,
-                                                                            std::string("Configuration for ")
-                                                                                .append(role == Role::SERVER ? "server" : "client")
-                                                                                .append(" instance '")
-                                                                                .append(instanceName)
-                                                                                .append("'"),
-                                                                            this),
+              utils::Config::configRoot.newSubCommand(utils::SubCommandApp(instanceName,
+                                                                           std::string("Configuration for ")
+                                                                               .append(role == Role::SERVER ? "server" : "client")
+                                                                               .append(" instance '")
+                                                                               .append(instanceName)
+                                                                               .append("'"),
+                                                                           this),
                                                       "Instances"),
               false)
         , instanceName(instanceName)

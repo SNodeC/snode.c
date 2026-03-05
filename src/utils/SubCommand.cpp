@@ -76,11 +76,11 @@ namespace utils {
 
             subCommandSc->formatter(helpFormatter);
 
-            subCommandSc->config_formatter(std::make_shared<CLI::ConfigFormatter>());
-            subCommandSc->get_config_formatter_base()->arrayDelimiter(' ');
+            static const std::shared_ptr<CLI::Config> configFormatter = std::make_shared<CLI::ConfigFormatter>();
 
-            subCommandSc->option_defaults()->take_last();
-            subCommandSc->option_defaults()->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
+            subCommandSc->config_formatter(configFormatter);
+
+            subCommandSc->option_defaults()->take_last()->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
 
             if (!final) {
                 helpOpt = setConfigurable(subCommandSc
@@ -138,7 +138,6 @@ namespace utils {
                                                      "* required: Show only required options")
                                                  ->take_first()
                                                  ->check(CLI::IsMember({"standard", "active", "complete", "required"}))
-                                                 ->disable_flag_override()
                                                  ->trigger_on_parse(),
                                              false);
         }
