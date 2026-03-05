@@ -42,7 +42,7 @@
 #ifndef NET_CONFIG_CONFIGPHYSICALSOCKET_H
 #define NET_CONFIG_CONFIGPHYSICALSOCKET_H
 
-#include "net/config/ConfigSection.h"
+#include "net/config/ConfigSection.h"     // IWYU pragma: export
 #include "net/phy/PhysicalSocketOption.h" // IWYU pragma: export
 
 namespace net::config {
@@ -56,24 +56,22 @@ namespace net::config {
 #include <string_view>
 #include <vector>
 
-namespace CLI {
-    class Option;
-    class Validator;
-} // namespace CLI
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
 
-    class ConfigPhysicalSocket : protected ConfigSection {
+    class ConfigPhysicalSocket : public ConfigSection {
+    public:
+        constexpr static std::string_view NAME{"socket"};
+        constexpr static std::string_view DESCRIPTION{"Configuration of socket behavior"};
+
     protected:
         template <typename ConcretConfigPhysicalSocketT>
         ConfigPhysicalSocket(ConfigInstance* instance, ConcretConfigPhysicalSocketT* section);
 
-    public:
-        constexpr static std::string_view name{"socket"};
-        constexpr static std::string_view description{"Configuration of socket behavior"};
+        ~ConfigPhysicalSocket() override;
 
+    public:
         const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& getSocketOptions() const;
 
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, int optValue);

@@ -44,7 +44,8 @@
 #include "core/timer/Timer.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/MariaDBCommandSequence.h"
-#include "net/config/ConfigInstanceAPI.hpp"
+#include "utils/Config.h"
+#include "utils/SubCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -58,31 +59,24 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class ConfigDb : utils::SubCommand {
+class ConfigDb : public utils::SubCommand {
 public:
-    constexpr static std::string_view name{"db"};
-    constexpr static std::string_view description{"Database connection"};
+    constexpr static std::string_view NAME{"db"};
+    constexpr static std::string_view DESCRIPTION{"Database connection"};
 
-    ConfigDb()
-        : SubCommand(
-              utils::Config::newInstance(net::config::Instance(std::string(name), std::string(description), this), "Database", true)) {
-        hostOpt = subCommandSc->add_option("--db-host", "Hostname of IP-Address of Server")
-                      ->group(subCommandSc->get_formatter()->get_label("Persistent Options"))
-                      ->type_name("[hostname|IP-address]")
-                      ->configurable()
-                      ->required();
+    ConfigDb(SubCommand* parent)
+        : SubCommand(parent, this, "Database") {
+        hostOpt = setConfigurable(
+            addOption("--db-host", "Hostname or IP-Address of Server", "hostname|IPv4", CLI::TypeValidator<std::string>()), true);
 
-        subCommandSc->needs(hostOpt)->required();
-        subCommandSc->get_parent()->needs(subCommandSc);
+        required(hostOpt);
     }
 
     ConfigDb& setHost(const std::string& host) {
         setDefaultValue(hostOpt, host);
         hostOpt->required(false);
 
-        subCommandSc->remove_needs(hostOpt);
-        subCommandSc->required(false);
-        subCommandSc->get_parent()->remove_needs(subCommandSc);
+        required(hostOpt, false);
 
         return *this;
     }
@@ -96,13 +90,13 @@ private:
 };
 
 int main(int argc, char* argv[]) {
-    utils::Config::addInstance<ConfigDb>()->setHost("localhost");
+    utils::Config::configRoot.newSubCommand<ConfigDb>()->setHost("localhost");
 
     core::SNodeC::init(argc, argv);
 
     const database::mariadb::MariaDBConnectionDetails details = {
         .connectionName = "testconnection",
-        .hostname = utils::Config::getInstance<ConfigDb>()->getHost(),
+        .hostname = utils::Config::configRoot.getSubCommand<ConfigDb>()->getHost(),
         .username = "snodec",
         .password = "pentium5",
         .database = "snodec",

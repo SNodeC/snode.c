@@ -41,7 +41,7 @@
 
 #include "web/http/client/SocketContextFactory.h"
 
-#include "net/config/ConfigInstanceAPI.hpp"
+#include "net/config/ConfigInstance.h"
 #include "web/http/client/ConfigHTTP.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -64,8 +64,8 @@ namespace web::http::client {
         return new web::http::client::SocketContext(socketConnection,
                                                     onHttpConnected,
                                                     onHttpDisconnected,
-                                                    configInstance.getSection<ConfigHTTP>()->getHostHeader(),
-                                                    configInstance.getSection<ConfigHTTP>()->getPipelinedRequests());
+                                                    configInstance.getSubCommand<ConfigHTTP>()->getHostHeader(),
+                                                    configInstance.getSubCommand<ConfigHTTP>()->getPipelinedRequests());
     }
 
 } // namespace web::http::client

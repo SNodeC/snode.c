@@ -49,10 +49,6 @@ namespace net::config {
 }
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
 #include "utils/Timeval.h"
 
 #include <cstddef>
@@ -62,9 +58,10 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigConnection : protected ConfigSection {
+    class ConfigConnection : public ConfigSection {
     public:
-        using Connection = ConfigConnection;
+        constexpr static std::string_view NAME{"connection"};
+        constexpr static std::string_view DESCRIPTION{"Configuration of established connections"};
 
     protected:
         explicit ConfigConnection(ConfigInstance* instance);
@@ -72,9 +69,6 @@ namespace net::config {
         ~ConfigConnection() override;
 
     public:
-        constexpr static std::string_view name{"connection"};
-        constexpr static std::string_view description{"Configuration of established connections"};
-
         utils::Timeval getReadTimeout() const;
         ConfigConnection& setReadTimeout(const utils::Timeval& newReadTimeoutSet);
 

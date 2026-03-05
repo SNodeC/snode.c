@@ -44,32 +44,8 @@
 
 #include "net/config/ConfigInstance.h"
 #include "net/config/ConfigSection.h" // IWYU pragma: export
-#include "utils/ConfigApp.h"          // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#if __has_warning("-Wmissing-noreturn")
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif
-#if __has_warning("-Wnrvo")
-#pragma GCC diagnostic ignored "-Wnrvo"
-#endif
-#endif
-#endif
-#include "utils/CLI11.hpp" // IWYU pragma: export
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
 #include <memory>
 
@@ -78,15 +54,17 @@
 namespace net::config {
 
     template <typename T>
-    std::shared_ptr<CLI::App> Section(T* section) {
-        return std::make_shared<utils::AppWithPtr<T>>(std::string(T::description), std::string(T::name), section);
+    std::shared_ptr<utils::AppWithPtr> Section(T* section) {
+        std::shared_ptr<utils::AppWithPtr> subCommandApp =
+            std::make_shared<utils::AppWithPtr>(std::string(T::DESCRIPTION), std::string(T::NAME), section, false);
+
+        return subCommandApp;
     }
 
     template <typename T>
     ConfigSection::ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group)
-        : SubCommand(instance->newSection(net::config::Section(sectionPtr), group))
-        , instance(instance) {
-        subCommandSc->description(std::string{T::description} + " for instance '" + instance->getInstanceName() + "'");
+        : SubCommand(instance->addSubCommand(net::config::Section(sectionPtr), group), true) {
+        description(std::string{T::DESCRIPTION} + " for instance '" + instance->getInstanceName() + "'");
     }
 
 } // namespace net::config

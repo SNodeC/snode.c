@@ -45,13 +45,11 @@
 #include "express/middleware/StaticMiddleware.h"
 #include "express/middleware/VHost.h"
 #include "express/tls/in6/WebApp.h"
-#include "net/config/ConfigInstanceAPI.hpp"
+#include "utils/Config.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
-
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -68,7 +66,7 @@ Router getRouter(const std::string& webRoot) {
 
 int main(int argc, char* argv[]) {
     // Add config entries for the server to the config system befor init so they are available immediately
-    utils::Config::addInstance<instance::ConfigWWW>();
+    utils::Config::configRoot.newSubCommand<subcommand::ConfigWWW>();
 
     WebApp::init(argc, argv);
 
@@ -79,7 +77,7 @@ int main(int argc, char* argv[]) {
     const Router& router1 = middleware::VHost("localhost:8080");
 
     const Router& ba = middleware::BasicAuthentication("voc", "pentium5", "Authenticate yourself with username and password");
-    ba.use(middleware::StaticMiddleware(utils::Config::getInstance<instance::ConfigWWW>()->getHtmlRoot()));
+    ba.use(middleware::StaticMiddleware(utils::Config::configRoot.getSubCommand<subcommand::ConfigWWW>()->getHtmlRoot()));
 
     router1.use(ba);
     legacyServer.use(router1);
@@ -118,7 +116,7 @@ int main(int argc, char* argv[]) {
     const express::tls::in6::WebApp tlsServer("tls");
 
     const Router& vh1 = middleware::VHost("localhost:8088");
-    vh1.use(getRouter(utils::Config::getInstance<instance::ConfigWWW>()->getHtmlRoot()));
+    vh1.use(getRouter(utils::Config::configRoot.getSubCommand<subcommand::ConfigWWW>()->getHtmlRoot()));
     tlsServer.use(vh1);
 
     const Router& vh2 = middleware::VHost("jupiter.home.vchrist.at:8088");

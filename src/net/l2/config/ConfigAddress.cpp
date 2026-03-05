@@ -121,7 +121,7 @@ namespace net::l2::config {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(btAddressOpt, btAddress);
-        this->required(btAddressOpt, false);
+        required(btAddressOpt, false);
 
         return *this;
     }
@@ -136,7 +136,7 @@ namespace net::l2::config {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(psmOpt, psm);
-        this->required(psmOpt, false);
+        required(psmOpt, false);
 
         return *this;
     }

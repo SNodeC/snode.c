@@ -41,8 +41,6 @@
 
 #include "ConfigPhysicalSocket.h"
 
-#include "net/config/ConfigSection.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -57,6 +55,9 @@
 
 namespace net::config {
 
+    ConfigPhysicalSocket::~ConfigPhysicalSocket() {
+    }
+
     const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& ConfigPhysicalSocket::getSocketOptions() const {
         return socketOptionsMapMap;
     }
@@ -70,7 +71,7 @@ namespace net::config {
                                                        const CLI::Validator& validator) {
         return addFlagFunction(
                    name,
-                   [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]([[maybe_unused]] std::uint64_t) {
+                   [this, strippedName = name.substr(0, name.find('{')), optLevel, optName]() {
                        try {
                            try {
                                if (getOption(strippedName)->as<bool>()) {
@@ -120,9 +121,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetry(bool retry) {
-        retryOpt //
-            ->default_val(retry ? "true" : "false")
-            ->clear();
+        setDefaultValue(retryOpt, retry ? "true" : "false");
 
         if (retry) {
             retryLimitOpt->remove_needs(retryOpt);
@@ -148,9 +147,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryOnFatal(bool retry) {
-        retryOnFatalOpt //
-            ->default_val(retry ? "true" : "false")
-            ->clear();
+        setDefaultValue(retryOnFatalOpt, retry ? "true" : "false");
 
         return *this;
     }
@@ -160,9 +157,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryTimeout(double sec) {
-        retryTimeoutOpt //
-            ->default_val(sec)
-            ->clear();
+        setDefaultValue(retryTimeoutOpt, sec);
 
         return *this;
     }
@@ -172,9 +167,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryTries(unsigned int tries) {
-        retryTriesOpt //
-            ->default_val(tries)
-            ->clear();
+        setDefaultValue(retryTriesOpt, tries);
 
         return *this;
     }
@@ -184,9 +177,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryBase(double base) {
-        retryBaseOpt //
-            ->default_val(base)
-            ->clear();
+        setDefaultValue(retryBaseOpt, base);
 
         return *this;
     }
@@ -196,9 +187,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryLimit(unsigned int limit) {
-        retryLimitOpt //
-            ->default_val(limit)
-            ->clear();
+        setDefaultValue(retryLimitOpt, limit);
 
         return *this;
     }
@@ -208,9 +197,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryJitter(double percent) {
-        retryJitterOpt //
-            ->default_val(percent)
-            ->clear();
+        setDefaultValue(retryJitterOpt, percent);
 
         return *this;
     }

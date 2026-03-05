@@ -45,34 +45,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#if __has_warning("-Wmissing-noreturn")
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif
-#if __has_warning("-Wnrvo")
-#pragma GCC diagnostic ignored "-Wnrvo"
-#endif
-#endif
-#endif
-#include "utils/CLI11.hpp"
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
 #include "core/system/socket.h"
 
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -83,12 +59,13 @@ namespace net::in::stream::config {
 
     ConfigSocketClient::ConfigSocketClient(net::config::ConfigInstance* instance)
         : net::config::stream::ConfigSocketClient<net::in::config::ConfigAddress>(instance) {
-        net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setHostRequired();
-        net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setPortRequired();
-        net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiSockType(SOCK_STREAM);
-        net::in::config::ConfigAddress<net::config::ConfigAddressRemote>::setAiProtocol(IPPROTO_TCP);
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
+        Remote::setHostRequired();
+        Remote::setPortRequired();
+        Remote::setAiSockType(SOCK_STREAM);
+        Remote::setAiProtocol(IPPROTO_TCP);
+
+        Local::setAiSockType(SOCK_STREAM);
+        Local::setAiProtocol(IPPROTO_TCP);
 
         disableNagleAlgorithmOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
             "--disable-nagle-algorithm{true}",
@@ -99,7 +76,7 @@ namespace net::in::stream::config {
             XSTR(IN_CLIENT_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {
-            setDefaultValue(disableNagleAlgorithmOpt, "false");
+            Local::setDefaultValue(disableNagleAlgorithmOpt, "false");
         }
     }
 
@@ -113,7 +90,7 @@ namespace net::in::stream::config {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 0);
         }
 
-        setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
+        Local::setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
 
         return *this;
     }

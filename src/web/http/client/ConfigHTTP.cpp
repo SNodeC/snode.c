@@ -41,8 +41,6 @@
 
 #include "ConfigHTTP.h"
 
-#include "net/config/ConfigSection.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -52,13 +50,12 @@
 
 namespace web::http::client {
 
-    ConfigHTTP::ConfigHTTP(net::config::ConfigInstance* configInstance)
-        : net::config::ConfigSection(configInstance, this) {
+    ConfigHTTP::ConfigHTTP(utils::SubCommand* configInstance)
+        : utils::SubCommand(configInstance, this, "Applications") {
         hostHeaderOpt = addOption( //
             "--host",
             "HTTP request 'Host' header field",
             "hostname|IP",
-            "",
             CLI::TypeValidator<std::string>());
 
         pipelinedRequestsOpt = addFlag( //

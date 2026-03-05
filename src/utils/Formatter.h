@@ -77,6 +77,8 @@ namespace CLI {
 
     class ConfigFormatter : public ConfigBase {
     public:
+        ConfigFormatter();
+
         ~ConfigFormatter() override;
 
     private:

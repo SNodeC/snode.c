@@ -45,36 +45,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#ifdef __has_warning
-#if __has_warning("-Wweak-vtables")
-#pragma GCC diagnostic ignored "-Wweak-vtables"
-#endif
-#if __has_warning("-Wcovered-switch-default")
-#pragma GCC diagnostic ignored "-Wcovered-switch-default"
-#endif
-#if __has_warning("-Wmissing-noreturn")
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif
-#if __has_warning("-Wnrvo")
-#pragma GCC diagnostic ignored "-Wnrvo"
-#endif
-#endif
-#endif
-#include "utils/CLI11.hpp"
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
 #include "core/system/netdb.h"
 #include "utils/PreserveErrno.h"
 
 #include <fstream>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -85,11 +61,10 @@ namespace net::in6::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::config::stream::ConfigSocketServer<net::in6::config::ConfigAddress, net::in6::config::ConfigAddressReverse>(instance) {
-        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setPortRequired();
-
-        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);
-        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
-        net::in6::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
+        Local::setPortRequired();
+        Local::setAiFlags(AI_PASSIVE);
+        Local::setAiSockType(SOCK_STREAM);
+        Local::setAiProtocol(IPPROTO_TCP);
 
         reuseAddressOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
             "--reuse-address{true}",
@@ -129,7 +104,7 @@ namespace net::in6::stream::config {
             XSTR(IN6_IPV6_ONLY),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_IPV6_ONLY)) == "default") {
-            setDefaultValue(iPv6OnlyOpt, "false");
+            Local::setDefaultValue(iPv6OnlyOpt, "false");
         }
 
         disableNagleAlgorithmOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
@@ -141,7 +116,7 @@ namespace net::in6::stream::config {
             XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {
-            setDefaultValue(disableNagleAlgorithmOpt, "false");
+            Local::setDefaultValue(disableNagleAlgorithmOpt, "false");
         }
     }
 
@@ -157,7 +132,7 @@ namespace net::in6::stream::config {
             addSocketOption(SOL_SOCKET, SO_REUSEADDR, 0);
         }
 
-        setDefaultValue(reuseAddressOpt, reuseAddress ? "true" : "false");
+        Local::setDefaultValue(reuseAddressOpt, reuseAddress ? "true" : "false");
 
         return *this;
     }
@@ -175,7 +150,7 @@ namespace net::in6::stream::config {
             addSocketOption(SOL_SOCKET, SO_REUSEPORT, 0);
         }
 
-        setDefaultValue(reusePortOpt, reusePort ? "true" : "false");
+        Local::setDefaultValue(reusePortOpt, reusePort ? "true" : "false");
 
         return *this;
     }
@@ -193,7 +168,7 @@ namespace net::in6::stream::config {
             addSocketOption(IPPROTO_IPV6, IPV6_V6ONLY, 0);
         }
 
-        setDefaultValue(iPv6OnlyOpt, iPv6Only ? "true" : "false");
+        Local::setDefaultValue(iPv6OnlyOpt, iPv6Only ? "true" : "false");
 
         return *this;
     }
@@ -211,8 +186,7 @@ namespace net::in6::stream::config {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 0);
         }
 
-        setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
-        this->Local::required(disableNagleAlgorithmOpt, false);
+        Local::setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
 
         return *this;
     }

@@ -108,7 +108,7 @@ namespace net::un::config {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(sunPathOpt, sunPath);
-        this->required(sunPathOpt, false);
+        required(sunPathOpt, false);
 
         return *this;
     }

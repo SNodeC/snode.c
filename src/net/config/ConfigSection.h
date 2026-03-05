@@ -50,14 +50,9 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <concepts> // IWYU pragma: export
-#include <cstdint>
+#include <concepts>    // IWYU pragma: export
 #include <string>      // IWYU pragma: export
 #include <type_traits> // IWYU pragma: export
-
-namespace CLI {
-    class Option;
-}
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -68,22 +63,12 @@ namespace net::config {
         template <typename T>
         ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group = "Sections");
 
-        virtual ~ConfigSection();
+        ~ConfigSection() override;
 
         ConfigSection(const ConfigSection&) = delete;
         ConfigSection(ConfigSection&&) = delete;
 
         ConfigSection& operator=(const ConfigSection&) = delete;
-        ConfigSection& operator=(ConfigSection&&) = delete;
-
-        void required(bool required = true);
-        void required(CLI::Option* opt, bool req = true);
-        bool getRequired() const;
-
-    private:
-        ConfigInstance* instance = nullptr;
-
-        uint8_t requiredCount = 0;
     };
 
 } // namespace net::config

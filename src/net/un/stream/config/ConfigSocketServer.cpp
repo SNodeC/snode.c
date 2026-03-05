@@ -43,6 +43,10 @@
 
 #include "net/config/stream/ConfigSocketServer.hpp"
 
+namespace net::config {
+    class ConfigInstance;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -51,7 +55,7 @@ namespace net::un::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::config::stream::ConfigSocketServer<net::un::config::ConfigAddress, net::un::config::ConfigAddressReverse>(instance) {
-        net::un::config::ConfigAddress<net::config::ConfigAddressLocal>::sunPathRequired();
+        Local::sunPathRequired();
     }
 
     ConfigSocketServer::~ConfigSocketServer() {

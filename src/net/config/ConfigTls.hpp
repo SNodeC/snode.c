@@ -67,7 +67,6 @@ namespace net::config {
             "--cert-key-password",
             "Password for the certificate key file",
             "password",
-            "",
             CLI::TypeValidator<std::string>());
 
         caCertOpt = addOption( //
@@ -100,7 +99,6 @@ namespace net::config {
             "--cipher-list",
             "Cipher list (OpenSSL syntax)",
             "cipher_list",
-            "",
             CLI::TypeValidator<std::string>("CIPHER"));
 
         sslOptionsOpt = addOption( //

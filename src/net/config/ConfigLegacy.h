@@ -42,7 +42,7 @@
 #ifndef NET_CONFIG_CONFIGLEGACY_H
 #define NET_CONFIG_CONFIGLEGACY_H
 
-#include "net/config/ConfigSection.h"
+#include "net/config/ConfigSection.h" // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;
@@ -56,10 +56,10 @@ namespace net::config {
 
 namespace net::config {
 
-    class ConfigLegacy : protected ConfigSection {
+    class ConfigLegacy : public ConfigSection {
     public:
-        constexpr static std::string_view name{"legacy"};
-        constexpr static std::string_view description{"Configuration of legacy behavior"};
+        constexpr static std::string_view NAME{"legacy"};
+        constexpr static std::string_view DESCRIPTION{"Configuration of legacy behavior"};
 
     protected:
         explicit ConfigLegacy(ConfigInstance* instance);

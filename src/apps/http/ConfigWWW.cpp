@@ -41,23 +41,22 @@
 
 #include "ConfigWWW.h"
 
-#include "net/config/ConfigInstanceAPI.hpp"
-#include "net/config/ConfigSection.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace section {
+namespace subcommand {
 
-    ConfigWWW::ConfigWWW(net::config::ConfigInstance* instance)
-        : net::config::ConfigSection(instance, this) {
-        htmlRootOpt = addOption("--html-root", "HTML root directory", "path", CLI::ExistingDirectory);
+    ConfigWWW::ConfigWWW(SubCommand* parent)
+        : utils::SubCommand(parent, this, "Applications", false) {
+        htmlRootOpt = addOption("--html-root", "HTML root directory", "directory", CLI::ExistingDirectory);
+
         required(htmlRootOpt);
     }
 
-    section::ConfigWWW& section::ConfigWWW::setHtmlRoot(const std::string& htmlRoot) {
+    ConfigWWW& ConfigWWW::setHtmlRoot(const std::string& htmlRoot) {
         setDefaultValue(htmlRootOpt, htmlRoot);
+
         required(htmlRootOpt, false);
 
         return *this;
@@ -67,31 +66,4 @@ namespace section {
         return htmlRootOpt->as<std::string>();
     }
 
-} // namespace section
-
-namespace instance {
-
-    ConfigWWW::ConfigWWW()
-        : utils::SubCommand(
-              utils::Config::newInstance(net::config::Instance(std::string(name), std::string(description), this), "Applications", true)) {
-        htmlRootOpt = addOption("--html-root", "HTML root directory", "directory", "path", CLI::ExistingDirectory);
-
-        subCommandSc->required()->needs(htmlRootOpt);
-        subCommandSc->get_parent()->needs(subCommandSc);
-    }
-
-    ConfigWWW& ConfigWWW::setHtmlRoot(const std::string& htmlRoot) {
-        setDefaultValue(htmlRootOpt, htmlRoot);
-        htmlRootOpt->required(false);
-
-        subCommandSc->required(false)->remove_needs(htmlRootOpt);
-        subCommandSc->get_parent()->remove_needs(subCommandSc);
-
-        return *this;
-    }
-
-    std::string ConfigWWW::getHtmlRoot() {
-        return htmlRootOpt->as<std::string>();
-    }
-
-} // namespace instance
+} // namespace subcommand

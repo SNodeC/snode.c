@@ -42,22 +42,58 @@
 #ifndef UTILS_CONFIG_H
 #define UTILS_CONFIG_H
 
+#include "utils/SubCommand.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class App;
-    class Option;
-    class Formatter;
-} // namespace CLI
-
-#include <map>
-#include <memory>
 #include <string>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+namespace utils::config {} // namespace utils::config
+
 namespace utils {
+
+    class ConfigRoot : public utils::SubCommand {
+    public:
+        ConfigRoot();
+
+        ~ConfigRoot() override;
+
+        ConfigRoot* addRootOptions(const std::string& applicationName,
+                                   const std::string& userName,
+                                   const std::string& groupName,
+                                   const std::string& configDirectory,
+                                   const std::string& logDirectory,
+                                   const std::string& pidDirectory);
+
+        bool parse1(int argc, char* argv[]);
+        bool bootstrap(int argc, char* argv[]);
+        void terminate();
+
+    protected:
+        bool parse2(int argc, char* argv[], bool parse1 = false);
+
+    private:
+        std::string applicationName;
+        std::string pidDirectory;
+
+        CLI::Option* daemonizeOpt = nullptr;
+        CLI::Option* logFileOpt = nullptr;
+        CLI::Option* monochromLogOpt = nullptr;
+        CLI::Option* userNameOpt = nullptr;
+        CLI::Option* groupNameOpt = nullptr;
+        CLI::Option* enforceLogFileOpt = nullptr;
+        CLI::Option* logLevelOpt = nullptr;
+        CLI::Option* verboseLevelOpt = nullptr;
+        CLI::Option* quietOpt = nullptr;
+        CLI::Option* versionOpt = nullptr;
+        CLI::Option* writeConfigOpt = nullptr;
+        CLI::Option* killOpt = nullptr;
+        CLI::Option* aliasOpt = nullptr;
+
+        friend class Config;
+    };
 
     class Config {
     public:
@@ -69,78 +105,24 @@ namespace utils {
 
         static bool init(int argc, char* argv[]);
         static bool bootstrap();
+        static void parse();
         static void terminate();
 
-        static std::string getApplicationName();
+        static const std::string& getApplicationName();
         static int getLogLevel();
         static int getVerboseLevel();
 
-    private:
-        static bool parse1();
-
-    public:
-        static bool parse2(bool parse1 = false);
-
-        //////////////////
-
-        static CLI::App* addStandardFlags(CLI::App* app);
-        static CLI::App* addSimpleHelp(CLI::App* app);
-        static CLI::App* addHelp(CLI::App* app);
-
-        //////////////////
-
-        static CLI::App* newInstance(std::shared_ptr<CLI::App> appWithPtr, const std::string& group, bool final = false);
-
-        static void required(CLI::App* instance, bool required = true);
-        static void disabled(CLI::App* instance, bool disabled = true);
-
-        static bool removeInstance(CLI::App* instance);
-
-        template <typename T>
-        static T* addInstance();
-
-        template <typename T>
-        static T* getInstance();
-
-        //////////////////
+        static ConfigRoot configRoot;
 
     private:
         static int argc;
         static char** argv;
 
-        static std::shared_ptr<CLI::App> app;
-
-        static bool subParse;
         static std::string applicationName;
 
         static std::string configDirectory;
         static std::string logDirectory;
         static std::string pidDirectory;
-
-        static CLI::Option* daemonizeOpt;
-        static CLI::Option* logFileOpt;
-        static CLI::Option* monochromLogOpt;
-        static CLI::Option* userNameOpt;
-        static CLI::Option* groupNameOpt;
-        static CLI::Option* enforceLogFileOpt;
-        static CLI::Option* logLevelOpt;
-        static CLI::Option* verboseLevelOpt;
-        static CLI::Option* quietOpt;
-
-        static CLI::Option* versionOpt;
-
-    public:
-        static CLI::App* helpTriggerApp;
-        static CLI::App* showConfigTriggerApp;
-        static CLI::App* commandlineTriggerApp;
-
-        static std::shared_ptr<CLI::Formatter> sectionFormatter;
-
-    private:
-        static std::map<std::string, std::string> aliases;             // from -> to
-        static std::map<std::string, CLI::Option*> applicationOptions; // keep all user options in memory
-
-        static std::vector<std::shared_ptr<void>> configInstances; // Store anything
     };
 
     //////////////////

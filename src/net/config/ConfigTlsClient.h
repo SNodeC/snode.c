@@ -54,10 +54,6 @@ namespace net::config {
 
 #include <string>
 
-namespace CLI {
-    class Option;
-}
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
@@ -65,9 +61,6 @@ namespace net::config {
     class ConfigTlsClient : public ConfigTls {
     private:
         using Super = ConfigTls;
-
-    public:
-        using Tls = ConfigTlsClient;
 
     protected:
         explicit ConfigTlsClient(ConfigInstance* instance);

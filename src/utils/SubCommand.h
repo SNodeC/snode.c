@@ -44,10 +44,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
 #include <functional>
-#include <ostream>
+#include <map>
+#include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -67,54 +69,114 @@
 #endif
 #endif
 #endif
-#include "utils/CLI11.hpp"
+#include "utils/CLI11.hpp" // IWYU pragma: export
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
 
-#include "log/Logger.h"
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
+    class SubCommand;
+
+    class AppWithPtr : public CLI::App {
+    public:
+        AppWithPtr(const std::string& description, const std::string& name, SubCommand* t, bool manage);
+
+        const SubCommand* getPtr() const;
+
+        ~AppWithPtr() override;
+
+        SubCommand* getPtr();
+
+    private:
+        SubCommand* ptr;
+        bool manage;
+    };
+
+    template <typename T>
+    std::shared_ptr<utils::AppWithPtr>
+    SubCommandApp(const std::string& name, const std::string& description, T* section, bool manage = false);
 
     class SubCommand {
+    protected:
+        SubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, bool final); // = true);
+
+        template <typename ConcretSubCommand>
+        SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group, bool final = true);
+
     public:
-        SubCommand(CLI::App* subCommandSc);
+        SubCommand(const SubCommand&) = delete;
+        SubCommand(SubCommand&&) = delete;
+
+        virtual ~SubCommand();
+
+        SubCommand& operator=(const SubCommand&) = delete;
+        SubCommand& operator=(SubCommand&&) = delete;
+
+        std::string getName();
+        std::string version();
+
+        void parse(int argc, char* argv[]);
+
+        SubCommand* description(const std::string& description);
+        SubCommand* footer(const std::string& footer);
+
+        CLI::Option* setConfig(const std::string& defaultConfigFile) const;
+        CLI::Option* setLogFile(const std::string& defaultLogFile) const;
+        CLI::Option* setVersionFlag(const std::string& version) const;
+
+        bool hasParent() const;
+        SubCommand* getParent();
+
+        SubCommand* allowExtras(bool allow = true);
+
+        SubCommand* required(bool required = true, bool force = true);
+        SubCommand* required(SubCommand* subCommand, bool required = true);
+        SubCommand* required(CLI::Option* option, bool required = true);
+
+        SubCommand* needs(SubCommand* subCommand, bool needs = true);
+        SubCommand* disabled(SubCommand* subCommand, bool disabled = true);
+
+        SubCommand* setRequireCallback(const std::function<void(void)>& callback);
+        SubCommand* finalCallback(const std::function<void()>& finalCallback);
+
+        std::string configToStr() const;
+        std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const;
+
+        std::shared_ptr<utils::AppWithPtr> addSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group) const;
+
+        template <typename NewSubCommand, typename... Args>
+        NewSubCommand* newSubCommand(Args&&... args);
+
+        template <typename RequestedSubCommand>
+        RequestedSubCommand* getSubCommand();
+
+        template <typename RequestedSubCommand>
+        RequestedSubCommand* getSubCommand() const;
+
+        SubCommand* removeSubCommand(utils::SubCommand* subCommand);
 
         CLI::Option* getOption(const std::string& name) const;
 
-        CLI::Option*
-        addOption(const std::string& name, const std::string& description, const std::string& typeName, const CLI::Validator& validator);
-
-        CLI::Option* addOptionFunction(const std::string& name,
-                                       std::function<void(const std::string&)>& callback,
-                                       const std::string& description,
-                                       const std::string& typeName,
-                                       const CLI::Validator& validator);
-
-        CLI::Option*
-        addFlag(const std::string& name, const std::string& description, const std::string& typeName, const CLI::Validator& validator);
-
-        CLI::Option* addFlagFunction(const std::string& name,
-                                     const std::function<void(std::int64_t)>& callback,
-                                     const std::string& description,
-                                     const std::string& typeName,
-                                     const CLI::Validator& validator);
+        CLI::Option* addOption(const std::string& name,
+                               const std::string& description,
+                               const std::string& typeName,
+                               const CLI::Validator& validator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addOption(const std::string& name,
                                const std::string& description,
                                const std::string& typeName,
                                ValueTypeT defaultValue,
-                               const CLI::Validator& validator);
+                               const CLI::Validator& validator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addOptionVariable(const std::string& name,
                                        ValueTypeT& variable,
                                        const std::string& description,
                                        const std::string& typeName,
-                                       const CLI::Validator& additionalValidator);
+                                       const CLI::Validator& additionalValidator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addOptionVariable(const std::string& name,
@@ -122,7 +184,13 @@ namespace utils {
                                        const std::string& description,
                                        const std::string& typeName,
                                        ValueTypeT defaultValue,
-                                       const CLI::Validator& additionalValidator);
+                                       const CLI::Validator& additionalValidator) const;
+
+        CLI::Option* addOptionFunction(const std::string& name,
+                                       std::function<void(const std::string&)>& callback,
+                                       const std::string& description,
+                                       const std::string& typeName,
+                                       const CLI::Validator& validator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addOptionFunction(const std::string& name,
@@ -130,49 +198,105 @@ namespace utils {
                                        const std::string& description,
                                        const std::string& typeName,
                                        ValueTypeT defaultValue,
-                                       const CLI::Validator& validator);
+                                       const CLI::Validator& validator) const;
+
+        CLI::Option* addFlag(const std::string& name,
+                             const std::string& description,
+                             const std::string& typeName,
+                             const CLI::Validator& validator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addFlag(const std::string& name,
                              const std::string& description,
                              const std::string& typeName,
                              ValueTypeT defaultValue,
-                             const CLI::Validator& validator);
+                             const CLI::Validator& validator) const;
 
-        template <typename ValueTypeT>
         CLI::Option* addFlagFunction(const std::string& name,
-                                     const std::function<void(std::int64_t)>& callback,
+                                     const std::function<void()>& callback,
                                      const std::string& description,
                                      const std::string& typeName,
-                                     ValueTypeT defaultValue,
                                      const CLI::Validator& validator);
 
-        template <typename ValueTypeT>
-        static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true);
-
-        SubCommand* setRequireCallback(const std::function<void(void)>& callback);
-
-        CLI::App* getParent() const;
+        CLI::Option* addFlagFunction(const std::string& name,
+                                     const std::function<void()>& callback,
+                                     const std::string& description,
+                                     const std::string& typeName,
+                                     const std::string& defaultValue,
+                                     const CLI::Validator& validator);
 
     protected:
+        template <typename ValueTypeT>
+        CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true) const;
+
         CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
+
+    public:
+        static CLI::App* getHelpTriggerApp();
+        static CLI::App* getShowConfigTriggerApp();
+        static CLI::App* getCommandlineTriggerApp();
+
+        static std::shared_ptr<CLI::Formatter> sectionFormatter;
+
+    protected:
+        static std::map<std::string, std::string> aliases;
+
+        static CLI::App* helpTriggerApp;
+        static CLI::App* showConfigTriggerApp;
+        static CLI::App* commandlineTriggerApp;
 
     private:
         CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
 
-    protected:
-        CLI::App* subCommandSc = nullptr;
+        std::shared_ptr<AppWithPtr> subCommandApp;
+
+        std::vector<std::shared_ptr<utils::AppWithPtr>> addedSubCommands; // Store anything
+
+        bool final;
+
+        CLI::Option* helpOpt = nullptr;
+        CLI::Option* showConfigOpt = nullptr;
+        CLI::Option* commandlineOpt = nullptr;
+
+        int requiredCount = 0;
     };
 
-    template <typename ValueTypeT>
-    CLI::Option* SubCommand::addOptionFunction(const std::string& name,
-                                               std::function<void(const std::string&)>& callback,
-                                               const std::string& description,
-                                               const std::string& typeName,
-                                               ValueTypeT defaultValue,
-                                               const CLI::Validator& validator) {
-        return addOptionFunction(name, callback, description, typeName, validator) //
-            ->default_val(defaultValue);
+    template <typename ConcretSubCommand>
+    inline SubCommand::SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group, bool final)
+        : SubCommand(
+              parent->addSubCommand(
+                  SubCommandApp(std::string(ConcretSubCommand::NAME), std::string(ConcretSubCommand::DESCRIPTION), concretSubCommand),
+                  group),
+              final) {
+    }
+
+    template <typename NewSubCommand, typename... Args>
+    NewSubCommand* SubCommand::newSubCommand(Args&&... args) {
+        return !final ? dynamic_cast<NewSubCommand*>(addedSubCommands
+                                                         .emplace_back(SubCommandApp(std::string(NewSubCommand::NAME),
+                                                                                     std::string(NewSubCommand::DESCRIPTION),
+                                                                                     new NewSubCommand(this, std::forward(args)...),
+                                                                                     true))
+                                                         ->getPtr())
+                      : nullptr;
+    }
+
+    template <typename RequestedSubCommand>
+    RequestedSubCommand* SubCommand::getSubCommand() {
+        auto* appWithPtr = subCommandApp->get_subcommand_no_throw(std::string(RequestedSubCommand::NAME));
+
+        AppWithPtr* subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
+
+        return subCommandApp != nullptr ? dynamic_cast<RequestedSubCommand*>(subCommandApp->getPtr()) : nullptr;
+    }
+
+    template <typename RequestedSubCommand>
+    RequestedSubCommand* SubCommand::getSubCommand() const {
+        auto* appWithPtr = subCommandApp->get_subcommand_no_throw(std::string(RequestedSubCommand::NAME));
+
+        AppWithPtr* subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
+
+        return subCommandApp != nullptr ? dynamic_cast<RequestedSubCommand*>(subCommandApp->getPtr()) : nullptr;
     }
 
     template <typename ValueTypeT>
@@ -180,9 +304,8 @@ namespace utils {
                                        const std::string& description,
                                        const std::string& typeName,
                                        ValueTypeT defaultValue,
-                                       const CLI::Validator& additionalValidator) {
-        return addOption(name, description, typeName, additionalValidator) //
-            ->default_val(defaultValue);
+                                       const CLI::Validator& additionalValidator) const {
+        return setDefaultValue(addOption(name, description, typeName, additionalValidator), defaultValue);
     }
 
     template <typename ValueTypeT>
@@ -190,9 +313,9 @@ namespace utils {
                                                ValueTypeT& variable,
                                                const std::string& description,
                                                const std::string& typeName,
-                                               const CLI::Validator& additionalValidator) {
+                                               const CLI::Validator& additionalValidator) const {
         return initialize(
-            subCommandSc->add_option(name, variable, description), typeName, additionalValidator, !subCommandSc->get_disabled());
+            subCommandApp->add_option(name, variable, description), typeName, additionalValidator, !subCommandApp->get_disabled());
     }
 
     template <typename ValueTypeT>
@@ -201,9 +324,18 @@ namespace utils {
                                                const std::string& description,
                                                const std::string& typeName,
                                                ValueTypeT defaultValue,
-                                               const CLI::Validator& additionalValidator) {
-        return addOption(name, variable, description, typeName, additionalValidator) //
-            ->default_val(defaultValue);
+                                               const CLI::Validator& additionalValidator) const {
+        return setDefaultValue(addOptionVariable(name, variable, description, typeName, additionalValidator), defaultValue);
+    }
+
+    template <typename ValueTypeT>
+    CLI::Option* SubCommand::addOptionFunction(const std::string& name,
+                                               std::function<void(const std::string&)>& callback,
+                                               const std::string& description,
+                                               const std::string& typeName,
+                                               ValueTypeT defaultValue,
+                                               const CLI::Validator& validator) const {
+        return setDefaultValue(addOptionFunction(name, callback, description, typeName, validator), defaultValue);
     }
 
     template <typename ValueTypeT>
@@ -211,36 +343,33 @@ namespace utils {
                                      const std::string& description,
                                      const std::string& typeName,
                                      ValueTypeT defaultValue,
-                                     const CLI::Validator& additionalValidator) {
-        return addFlag(name, description, typeName, additionalValidator) //
-            ->default_val(defaultValue);
+                                     const CLI::Validator& additionalValidator) const {
+        return setDefaultValue(addFlag(name, description, typeName, additionalValidator), defaultValue);
     }
 
     template <typename ValueTypeT>
-    CLI::Option* SubCommand::addFlagFunction(const std::string& name,
-                                             const std::function<void(std::int64_t)>& callback,
-                                             const std::string& description,
-                                             const std::string& typeName,
-                                             ValueTypeT defaultValue,
-                                             const CLI::Validator& validator) {
-        return addFlagFunction(name, callback, description, typeName, validator) //
-            ->default_val(defaultValue);
-    }
-
-    template <typename ValueTypeT>
-    CLI::Option* SubCommand::setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear) {
+    CLI::Option* SubCommand::setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear) const {
         try {
             option->default_val(value);
 
             if (clear) {
                 option->clear();
             }
-        } catch (const CLI::ParseError& e) {
-            LOG(ERROR) << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
-                       << std::endl;
+        } catch (const CLI::ParseError&) {
+            option = nullptr;
         }
 
         return option;
+    }
+
+    template <typename T>
+    std::shared_ptr<utils::AppWithPtr> SubCommandApp(const std::string& name, const std::string& description, T* section, bool manage) {
+        std::shared_ptr<utils::AppWithPtr> subCommandApp = std::make_shared<utils::AppWithPtr>(description, name, section, manage);
+
+        subCommandApp->option_defaults()->take_last();
+        subCommandApp->formatter(utils::SubCommand::sectionFormatter);
+
+        return subCommandApp;
     }
 
 } // namespace utils

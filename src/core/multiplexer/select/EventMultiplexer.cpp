@@ -49,6 +49,7 @@
 
 #include <array>
 #include <ctime>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

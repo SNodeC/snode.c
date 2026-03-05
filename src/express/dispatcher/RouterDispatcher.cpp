@@ -53,6 +53,7 @@
 
 #include "log/Logger.h"
 
+#include <memory>
 #include <unordered_map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

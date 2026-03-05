@@ -43,18 +43,16 @@
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "express/tls/in/WebApp.h"
-#include "net/config/ConfigInstanceAPI.hpp"
+#include "utils/Config.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
-    utils::Config::addInstance<instance::ConfigWWW>();
+    utils::Config::configRoot.newSubCommand<subcommand::ConfigWWW>();
 
     express::WebApp::init(argc, argv);
 
@@ -62,7 +60,7 @@ int main(int argc, char* argv[]) {
     using LegacySocketAddress = LegacyWebApp::SocketAddress;
 
     const LegacyWebApp legacyApp;
-    legacyApp.use(express::middleware::StaticMiddleware(utils::Config::getInstance<instance::ConfigWWW>()->getHtmlRoot()));
+    legacyApp.use(express::middleware::StaticMiddleware(utils::Config::configRoot.getSubCommand<subcommand::ConfigWWW>()->getHtmlRoot()));
 
     legacyApp.getConfig().setReuseAddress();
 
@@ -94,7 +92,7 @@ int main(int argc, char* argv[]) {
     tlsApp.getConfig().setCertKey("/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
     tlsApp.getConfig().setCertKeyPassword("snode.c");
 
-    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::getInstance<instance::ConfigWWW>()->getHtmlRoot()));
+    tlsApp.use(express::middleware::StaticMiddleware(utils::Config::configRoot.getSubCommand<subcommand::ConfigWWW>()->getHtmlRoot()));
 
     tlsApp.getConfig().setReuseAddress();
 

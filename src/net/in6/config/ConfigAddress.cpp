@@ -194,7 +194,7 @@ namespace net::in6::config {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(hostOpt, ipOrHostname);
-        this->required(hostOpt, false);
+        required(hostOpt, false);
 
         return *this;
     }
@@ -209,7 +209,7 @@ namespace net::in6::config {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(portOpt, port);
-        this->required(portOpt, false);
+        required(portOpt, false);
 
         return *this;
     }

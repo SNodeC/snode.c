@@ -54,17 +54,13 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddressReverse
-        : protected net::config::ConfigSection
+        : public net::config::ConfigSection
         , public ConfigAddressTypeT<net::un::SocketAddress> {
     private:
         using Super = ConfigAddressTypeT<SocketAddress>;
@@ -77,7 +73,7 @@ namespace net::un::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress
-        : protected net::config::ConfigSection
+        : public net::config::ConfigSection
         , public ConfigAddressTypeT<net::un::SocketAddress> {
     private:
         using Super = ConfigAddressTypeT<net::un::SocketAddress>;

@@ -42,7 +42,7 @@
 #include "ConfigWWW.h"
 #include "apps/http/model/servers.h"
 #include "express/middleware/StaticMiddleware.h"
-#include "net/config/ConfigInstanceAPI.hpp"
+#include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -57,7 +57,6 @@
 
 #include <algorithm>
 #include <list>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -68,11 +67,12 @@ int main(int argc, char* argv[]) {
 
     const WebApp webApp(apps::http::STREAM::getWebApp("httpserver"));
 
-    webApp.getConfig().addSection<section::ConfigWWW>();
+    webApp.getConfig().net::config::ConfigInstance::newSubCommand<subcommand::ConfigWWW>();
 
     WebApp::init(argc, argv);
 
-    webApp.use(express::middleware::StaticMiddleware(webApp.getConfig().getSection<section::ConfigWWW>()->getHtmlRoot()));
+    webApp.use(express::middleware::StaticMiddleware(
+        webApp.getConfig().net::config::ConfigInstance::getSubCommand<subcommand::ConfigWWW>()->getHtmlRoot()));
 
     {
 #if (STREAM_TYPE == TLS)

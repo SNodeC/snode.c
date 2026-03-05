@@ -42,14 +42,11 @@
 #ifndef WEB_HTTP_CLIENT_CLIENT_H
 #define WEB_HTTP_CLIENT_CLIENT_H
 
-#include "net/config/ConfigInstanceAPI.hpp"
 #include "web/http/client/ConfigHTTP.h"
 #include "web/http/client/Request.h"              // IWYU pragma: export
 #include "web/http/client/SocketContextFactory.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
 
 #include <functional>
 #include <string>
@@ -94,8 +91,9 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::getConfig().template addSection<ConfigHTTP>();
-            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>()](SocketConnection* socketConnection) {
+            Super::getConfig().Instance::template newSubCommand<ConfigHTTP>();
+            Super::setOnConnect([config = Super::getConfig().net::config::ConfigInstance::template getSubCommand<ConfigHTTP>()](
+                                    SocketConnection* socketConnection) {
                 config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }
@@ -122,8 +120,9 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::getConfig().template addSection<ConfigHTTP>();
-            Super::setOnConnect([config = Super::getConfig().template getSection<ConfigHTTP>()](SocketConnection* socketConnection) {
+            Super::getConfig().Instance::template newSubCommand<ConfigHTTP>();
+            Super::setOnConnect([config = Super::getConfig().net::config::ConfigInstance::template getSubCommand<ConfigHTTP>()](
+                                    SocketConnection* socketConnection) {
                 config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
             });
         }

@@ -120,7 +120,7 @@ namespace net::rc::config {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(btAddressOpt, btAddress);
-        this->required(btAddressOpt, false);
+        required(btAddressOpt, false);
 
         return *this;
     }
@@ -135,7 +135,7 @@ namespace net::rc::config {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue<int>(channelOpt, channel);
-        this->required(channelOpt, false);
+        required(channelOpt, false);
 
         return *this;
     }

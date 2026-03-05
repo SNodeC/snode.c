@@ -42,48 +42,23 @@
 #ifndef CONFIGWWW_H
 #define CONFIGWWW_H
 
-#include "net/config/ConfigSection.h"
-
-namespace net::config {
-    class ConfigInstance;
-}
+#include "utils/SubCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
+#include <string>
 #include <string_view>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace section {
-
-    class ConfigWWW : public net::config::ConfigSection {
-    public:
-        constexpr static std::string_view name{"www"};
-        constexpr static std::string_view description{"Web behavior of httpserver"};
-
-        ConfigWWW(net::config::ConfigInstance* instance);
-
-        ConfigWWW& setHtmlRoot(const std::string& htmlRoot);
-        std::string getHtmlRoot();
-
-    private:
-        CLI::Option* htmlRootOpt;
-    };
-
-} // namespace section
-
-namespace instance {
+namespace subcommand {
 
     class ConfigWWW : public utils::SubCommand {
     public:
-        constexpr static std::string_view name{"www"};
-        constexpr static std::string_view description{"Web behavior of httpserver"};
+        constexpr static std::string_view NAME{"www"};
+        constexpr static std::string_view DESCRIPTION{"Web behavior of httpserver"};
 
-        ConfigWWW();
+        ConfigWWW(utils::SubCommand* parent);
 
         ConfigWWW& setHtmlRoot(const std::string& htmlRoot);
         std::string getHtmlRoot();
@@ -92,6 +67,6 @@ namespace instance {
         CLI::Option* htmlRootOpt;
     };
 
-} // namespace instance
+} // namespace subcommand
 
 #endif // CONFIGWWW_H

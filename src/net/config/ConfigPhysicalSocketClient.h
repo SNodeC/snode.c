@@ -53,10 +53,6 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace CLI {
-    class Option;
-}
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
@@ -64,9 +60,6 @@ namespace net::config {
     class ConfigPhysicalSocketClient : public ConfigPhysicalSocket {
     private:
         using Super = ConfigPhysicalSocket;
-
-    public:
-        using Socket = ConfigPhysicalSocketClient;
 
     protected:
         explicit ConfigPhysicalSocketClient(ConfigInstance* instance);

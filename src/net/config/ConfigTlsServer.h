@@ -52,13 +52,8 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
-namespace CLI {
-    class Option;
-}
-
 #include <map>
+#include <string>
 #include <variant>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -68,9 +63,6 @@ namespace net::config {
     class ConfigTlsServer : public ConfigTls {
     private:
         using Super = ConfigTls;
-
-    public:
-        using Tls = ConfigTlsServer;
 
     protected:
         explicit ConfigTlsServer(ConfigInstance* instance);

@@ -42,7 +42,6 @@
 #include "net/config/ConfigTlsClient.h"
 
 #include "ConfigTls.hpp"
-#include "net/config/ConfigSection.hpp"
 
 namespace net::config {
     class ConfigInstance;

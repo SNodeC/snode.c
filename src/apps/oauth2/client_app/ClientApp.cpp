@@ -43,8 +43,6 @@
 #include "express/middleware/StaticMiddleware.h"
 #include "log/Logger.h"
 
-#include <string>
-
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
     const express::legacy::in::WebApp app("OAuth2Client");

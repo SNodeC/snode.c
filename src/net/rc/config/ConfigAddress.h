@@ -56,17 +56,13 @@ namespace net::config {
 
 #include <cstdint>
 
-namespace CLI {
-    class Option;
-} // namespace CLI
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::rc::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddressReverse
-        : protected net::config::ConfigSection
+        : public net::config::ConfigSection
         , public ConfigAddressTypeT<net::rc::SocketAddress> {
     private:
         using Super = ConfigAddressTypeT<SocketAddress>;
@@ -79,7 +75,7 @@ namespace net::rc::config {
 
     template <template <typename SocketAddressT> typename ConfigAddressTypeT>
     class ConfigAddress
-        : protected net::config::ConfigSection
+        : public net::config::ConfigSection
         , public ConfigAddressTypeT<net::rc::SocketAddress> {
     private:
         using Super = ConfigAddressTypeT<net::rc::SocketAddress>;

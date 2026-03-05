@@ -56,6 +56,10 @@
 
 namespace CLI {
 
+    ConfigFormatter::ConfigFormatter() {
+        arrayDelimiter(' ');
+    }
+
     ConfigFormatter::~ConfigFormatter() {
     }
 
@@ -279,7 +283,7 @@ namespace CLI {
             out << " " << get_label("REQUIRED");
         }
 
-        out << std::endl << std::endl;
+        out << std::endl;
 
         return out.str();
     }

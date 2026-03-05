@@ -42,17 +42,13 @@
 #ifndef NET_CONFIG_CONFIGTLS_H
 #define NET_CONFIG_CONFIGTLS_H
 
-#include "net/config/ConfigSection.h"
+#include "net/config/ConfigSection.h" // IWYU pragma: export
 
 namespace net::config {
     class ConfigInstance;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-namespace CLI {
-    class Option;
-} // namespace CLI
 
 #include "core/socket/stream/tls/ssl_utils.h" // IWYU pragma: export
 #include "utils/Timeval.h"
@@ -63,15 +59,18 @@ namespace CLI {
 
 namespace net::config {
 
-    class ConfigTls : protected ConfigSection {
+    class ConfigTls : public ConfigSection {
+    public:
+        constexpr static std::string_view NAME{"tls"};
+        constexpr static std::string_view DESCRIPTION{"Configuration of SSL/TLS behavior"};
+
     protected:
         template <typename ConcretConfigTls>
         explicit ConfigTls(ConfigInstance* instance, ConcretConfigTls section);
 
-    public:
-        constexpr static std::string_view name{"tls"};
-        constexpr static std::string_view description{"Configuration of SSL/TLS behavior"};
+        ~ConfigTls() override;
 
+    public:
         ConfigTls& setInitTimeout(const utils::Timeval& newInitTimeout);
         utils::Timeval getInitTimeout() const;
 

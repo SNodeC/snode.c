@@ -41,18 +41,17 @@
 
 #include "net/config/ConfigTls.h"
 
-#include "net/config/ConfigSection.hpp"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
 
+    ConfigTls::~ConfigTls() {
+    }
+
     ConfigTls& ConfigTls::setCert(const std::string& cert) {
-        certOpt //
-            ->default_val(cert)
-            ->clear();
+        setDefaultValue(certOpt, cert);
 
         return *this;
     }
@@ -62,9 +61,7 @@ namespace net::config {
     }
 
     ConfigTls& ConfigTls::setCertKey(const std::string& certKey) {
-        certKeyOpt //
-            ->default_val(certKey)
-            ->clear();
+        setDefaultValue(certKeyOpt, certKey);
 
         return *this;
     }
@@ -74,9 +71,7 @@ namespace net::config {
     }
 
     ConfigTls& ConfigTls::setCertKeyPassword(const std::string& certKeyPassword) {
-        certKeyPasswordOpt //
-            ->default_val(certKeyPassword)
-            ->clear();
+        setDefaultValue(certKeyPasswordOpt, certKeyPassword);
 
         return *this;
     }
@@ -86,9 +81,7 @@ namespace net::config {
     }
 
     ConfigTls& ConfigTls::setCaCert(const std::string& caCert) {
-        caCertOpt //
-            ->default_val(caCert)
-            ->clear();
+        setDefaultValue(caCertOpt, caCert);
 
         return *this;
     }
@@ -98,9 +91,7 @@ namespace net::config {
     }
 
     ConfigTls& ConfigTls::setCaCertDir(const std::string& caCertDir) {
-        caCertDirOpt //
-            ->default_val(caCertDir)
-            ->clear();
+        setDefaultValue(caCertDirOpt, caCertDir);
 
         return *this;
     }
@@ -110,9 +101,7 @@ namespace net::config {
     }
 
     ConfigTls& ConfigTls::setCaCertUseDefaultDir(bool set) {
-        caCertUseDefaultDirOpt //
-            ->default_val(set ? "true" : "false")
-            ->clear();
+        setDefaultValue(caCertUseDefaultDirOpt, set ? "true" : "false");
 
         return *this;
     }
@@ -122,9 +111,7 @@ namespace net::config {
     }
 
     ConfigTls& ConfigTls::setCaCertAcceptUnknown(bool set) {
-        caCertAcceptUnknownOpt //
-            ->default_val(set ? "true" : "false")
-            ->clear();
+        setDefaultValue(caCertAcceptUnknownOpt, set ? "true" : "false");
 
         return *this;
     }
@@ -134,9 +121,7 @@ namespace net::config {
     }
 
     ConfigTls& ConfigTls::setCipherList(const std::string& cipherList) {
-        cipherListOpt //
-            ->default_val(cipherList)
-            ->clear();
+        setDefaultValue(cipherListOpt, cipherList);
 
         return *this;
     }
@@ -146,9 +131,7 @@ namespace net::config {
     }
 
     ConfigTls& ConfigTls::setSslOptions(ssl_option_t sslOptions) {
-        sslOptionsOpt //
-            ->default_val(sslOptions)
-            ->clear();
+        setDefaultValue(sslOptionsOpt, sslOptions);
 
         return *this;
     }
@@ -168,9 +151,7 @@ namespace net::config {
     }
 
     ConfigTls& ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeout) {
-        initTimeoutOpt //
-            ->default_val(newInitTimeout)
-            ->clear();
+        setDefaultValue(initTimeoutOpt, newInitTimeout);
 
         return *this;
     }
@@ -180,9 +161,7 @@ namespace net::config {
     }
 
     ConfigTls& ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeout) {
-        shutdownTimeoutOpt //
-            ->default_val(newShutdownTimeout)
-            ->clear();
+        setDefaultValue(shutdownTimeoutOpt, newShutdownTimeout);
 
         return *this;
     }
