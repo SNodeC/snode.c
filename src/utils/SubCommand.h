@@ -360,7 +360,7 @@ namespace utils {
             if (clear) {
                 option->clear();
             }
-        } catch (const CLI::ParseError& e) {
+        } catch (const CLI::ParseError&) {
             option = nullptr;
         }
 
