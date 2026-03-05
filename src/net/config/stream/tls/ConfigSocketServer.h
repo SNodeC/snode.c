@@ -66,6 +66,9 @@ namespace net::config::stream::tls {
         ~ConfigSocketServer() override;
 
     public:
+        using Instance = net::config::ConfigInstance;
+        using Tls = net::config::ConfigTlsServer;
+
         SSL_CTX* getSslCtx();
         SSL_CTX* getSniCtx(const std::string& serverNameIndication);
 

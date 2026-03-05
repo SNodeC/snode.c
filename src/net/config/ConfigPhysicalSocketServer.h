@@ -61,9 +61,6 @@ namespace net::config {
     private:
         using Super = ConfigPhysicalSocket;
 
-    public:
-        using Socket = ConfigPhysicalSocketServer;
-
     protected:
         explicit ConfigPhysicalSocketServer(ConfigInstance* instance);
 

@@ -80,7 +80,6 @@ namespace net::config {
     }
 
     ConfigInstance::~ConfigInstance() {
-        utils::Config::configRoot.removeSubCommand(this);
     }
 
     const std::string& ConfigInstance::getInstanceName() const {

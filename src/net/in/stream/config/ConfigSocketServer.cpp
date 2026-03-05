@@ -59,10 +59,10 @@ namespace net::in::stream::config {
 
     ConfigSocketServer::ConfigSocketServer(net::config::ConfigInstance* instance)
         : net::config::stream::ConfigSocketServer<net::in::config::ConfigAddress, net::in::config::ConfigAddressReverse>(instance) {
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setPortRequired();
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiFlags(AI_PASSIVE);
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiSockType(SOCK_STREAM);
-        net::in::config::ConfigAddress<net::config::ConfigAddressLocal>::setAiProtocol(IPPROTO_TCP);
+        Local::setPortRequired();
+        Local::setAiFlags(AI_PASSIVE);
+        Local::setAiSockType(SOCK_STREAM);
+        Local::setAiProtocol(IPPROTO_TCP);
 
         reuseAddressOpt = net::config::ConfigPhysicalSocket::addSocketOption( //
             "--reuse-address{true}",
@@ -91,7 +91,7 @@ namespace net::in::stream::config {
             XSTR(IN_SERVER_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {
-            setDefaultValue(disableNagleAlgorithmOpt, "false");
+            Local::setDefaultValue(disableNagleAlgorithmOpt, "false");
         }
     }
 
@@ -105,7 +105,7 @@ namespace net::in::stream::config {
             addSocketOption(SOL_SOCKET, SO_REUSEADDR, 0);
         }
 
-        setDefaultValue(reuseAddressOpt, reuseAddress ? "true" : "false");
+        Local::setDefaultValue(reuseAddressOpt, reuseAddress ? "true" : "false");
 
         return *this;
     }
@@ -121,7 +121,7 @@ namespace net::in::stream::config {
             addSocketOption(SOL_SOCKET, SO_REUSEPORT, 0);
         }
 
-        setDefaultValue(reusePortOpt, reusePort ? "true" : "false");
+        Local::setDefaultValue(reusePortOpt, reusePort ? "true" : "false");
 
         return *this;
     }
@@ -137,7 +137,7 @@ namespace net::in::stream::config {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 0);
         }
 
-        setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
+        Local::setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
 
         return *this;
     }

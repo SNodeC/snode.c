@@ -61,6 +61,10 @@ namespace net::config {
 namespace net::config {
 
     class ConfigPhysicalSocket : public ConfigSection {
+    public:
+        constexpr static std::string_view NAME{"socket"};
+        constexpr static std::string_view DESCRIPTION{"Configuration of socket behavior"};
+
     protected:
         template <typename ConcretConfigPhysicalSocketT>
         ConfigPhysicalSocket(ConfigInstance* instance, ConcretConfigPhysicalSocketT* section);
@@ -68,9 +72,6 @@ namespace net::config {
         ~ConfigPhysicalSocket() override;
 
     public:
-        constexpr static std::string_view NAME{"socket"};
-        constexpr static std::string_view DESCRIPTION{"Configuration of socket behavior"};
-
         const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& getSocketOptions() const;
 
         ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, int optValue);

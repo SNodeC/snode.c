@@ -62,9 +62,6 @@ namespace net::config {
     private:
         using Super = ConfigTls;
 
-    public:
-        using Tls = ConfigTlsClient;
-
     protected:
         explicit ConfigTlsClient(ConfigInstance* instance);
 

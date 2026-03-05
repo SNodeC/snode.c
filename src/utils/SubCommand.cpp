@@ -55,11 +55,11 @@
 namespace utils {
 
     SubCommand::SubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, bool final)
-        : subCommandSc(appWithPtr)
+        : subCommandApp(appWithPtr)
         , final(final) {
         if (appWithPtr != nullptr) {
-            subCommandSc->configurable(false);
-            subCommandSc->allow_extras();
+            subCommandApp->configurable(false);
+            subCommandApp->allow_extras();
 
             static const std::shared_ptr<CLI::HelpFormatter> helpFormatter = std::make_shared<CLI::HelpFormatter>();
 
@@ -74,20 +74,20 @@ namespace utils {
             helpFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
             helpFormatter->column_width(7);
 
-            subCommandSc->formatter(helpFormatter);
+            subCommandApp->formatter(helpFormatter);
 
             static const std::shared_ptr<CLI::Config> configFormatter = std::make_shared<CLI::ConfigFormatter>();
 
-            subCommandSc->config_formatter(configFormatter);
+            subCommandApp->config_formatter(configFormatter);
 
-            subCommandSc->option_defaults()->take_last()->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
+            subCommandApp->option_defaults()->take_last()->group(subCommandApp->get_formatter()->get_label("Nonpersistent Options"));
 
             if (!final) {
-                helpOpt = setConfigurable(subCommandSc
+                helpOpt = setConfigurable(subCommandApp
                                               ->set_help_flag(
                                                   "--help{exact},-h{exact}",
-                                                  [subCommandSc = this->subCommandSc.get()](std::size_t) {
-                                                      helpTriggerApp = subCommandSc;
+                                                  [subCommandApp = this->subCommandApp.get()](std::size_t) {
+                                                      helpTriggerApp = subCommandApp;
                                                   },
                                                   "Print help message and exit\n"
                                                   "* standard: display help for the last command processed\n"
@@ -97,11 +97,11 @@ namespace utils {
                                               ->trigger_on_parse(),
                                           false);
             } else {
-                helpOpt = setConfigurable(subCommandSc
+                helpOpt = setConfigurable(subCommandApp
                                               ->set_help_flag(
                                                   "--help{exact},-h{exact}",
-                                                  [subCommandSc = this->subCommandSc.get()](std::size_t) {
-                                                      helpTriggerApp = subCommandSc;
+                                                  [subCommandApp = this->subCommandApp.get()](std::size_t) {
+                                                      helpTriggerApp = subCommandApp;
                                                   },
                                                   "Print help message and exit\n"
                                                   "* standard: display help for the last command processed\n"
@@ -112,11 +112,11 @@ namespace utils {
                                           false);
             }
 
-            showConfigOpt = setConfigurable(subCommandSc
+            showConfigOpt = setConfigurable(subCommandApp
                                                 ->add_flag_function(
                                                     "-s,--show-config",
-                                                    [subCommandSc = this->subCommandSc.get()](std::size_t) {
-                                                        showConfigTriggerApp = subCommandSc;
+                                                    [subCommandApp = this->subCommandApp.get()](std::size_t) {
+                                                        showConfigTriggerApp = subCommandApp;
                                                     },
                                                     "Show current configuration and exit")
                                                 ->take_first()
@@ -125,11 +125,11 @@ namespace utils {
                                                 ->trigger_on_parse(),
                                             false);
 
-            commandlineOpt = setConfigurable(subCommandSc
+            commandlineOpt = setConfigurable(subCommandApp
                                                  ->add_flag_function(
                                                      "--command-line{standard}",
-                                                     [subCommandSc = this->subCommandSc.get()]([[maybe_unused]] std::int64_t count) {
-                                                         commandlineTriggerApp = subCommandSc;
+                                                     [subCommandApp = this->subCommandApp.get()]([[maybe_unused]] std::int64_t count) {
+                                                         commandlineTriggerApp = subCommandApp;
                                                      },
                                                      "Print command-line\n"
                                                      "* standard (default): Show all non-default and required options\n"
@@ -144,34 +144,37 @@ namespace utils {
     }
 
     SubCommand::~SubCommand() {
+        if (hasParent()) {
+            getParent()->removeSubCommand(this);
+        }
     }
 
     std::string SubCommand::getName() {
-        return subCommandSc->get_name();
+        return subCommandApp->get_name();
     }
 
     std::string SubCommand::version() {
-        return subCommandSc->version();
+        return subCommandApp->version();
     }
 
     void SubCommand::parse(int argc, char* argv[]) {
-        subCommandSc->parse(argc, argv);
+        subCommandApp->parse(argc, argv);
     }
 
     SubCommand* SubCommand::description(const std::string& description) {
-        subCommandSc->description(description);
+        subCommandApp->description(description);
 
         return this;
     }
 
     SubCommand* SubCommand::footer(const std::string& footer) {
-        subCommandSc->footer(footer);
+        subCommandApp->footer(footer);
 
         return this;
     }
 
     CLI::Option* SubCommand::setConfig(const std::string& defaultConfigFile) const {
-        return subCommandSc
+        return subCommandApp
             ->set_config( //
                 "-c,--config-file",
                 defaultConfigFile,
@@ -187,27 +190,27 @@ namespace utils {
     }
 
     CLI::Option* SubCommand::setVersionFlag(const std::string& version) const {
-        return subCommandSc->set_version_flag("-v,--version", version, "Framework version");
+        return subCommandApp->set_version_flag("-v,--version", version, "Framework version");
     }
 
     bool SubCommand::hasParent() const {
-        return subCommandSc->get_parent() != nullptr;
+        return subCommandApp->get_parent() != nullptr;
     }
 
     SubCommand* SubCommand::getParent() {
-        utils::AppWithPtr* parentSc = dynamic_cast<utils::AppWithPtr*>(subCommandSc->get_parent());
+        utils::AppWithPtr* parentSc = dynamic_cast<utils::AppWithPtr*>(subCommandApp->get_parent());
 
         return parentSc != nullptr ? parentSc->getPtr() : nullptr;
     }
 
     SubCommand* SubCommand::setRequireCallback(const std::function<void()>& callback) {
-        subCommandSc->require_callback(callback);
+        subCommandApp->require_callback(callback);
 
         return this;
     }
 
     SubCommand* SubCommand::allowExtras(bool allow) {
-        subCommandSc->allow_extras(allow);
+        subCommandApp->allow_extras(allow);
 
         return this;
     }
@@ -229,7 +232,7 @@ namespace utils {
 
         required = force ? required : requiredCount > 0;
 
-        subCommandSc->required(required);
+        subCommandApp->required(required);
 
         SubCommand* parent = getParent();
         if (parent != nullptr) {
@@ -244,29 +247,29 @@ namespace utils {
     }
 
     SubCommand* SubCommand::required(SubCommand* subCommand, bool required) {
-        if (subCommandSc->get_required() != required) {
+        if (subCommandApp->get_required() != required) {
             if (required) {
                 needs(subCommand);
 
-                for (const auto& sub : subCommand->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
+                for (const auto& sub : subCommand->subCommandApp->get_subcommands([](const CLI::App* sc) -> bool {
                          return sc->get_required();
                      })) {
-                    subCommand->subCommandSc->needs(sub);
+                    subCommand->subCommandApp->needs(sub);
                 }
             } else {
                 needs(subCommand, false);
 
-                for (const auto& sub : subCommand->subCommandSc->get_subcommands([](const CLI::App* sc) -> bool {
+                for (const auto& sub : subCommand->subCommandApp->get_subcommands([](const CLI::App* sc) -> bool {
                          return sc->get_required();
                      })) {
-                    subCommand->subCommandSc->remove_needs(sub);
+                    subCommand->subCommandApp->remove_needs(sub);
                 }
             }
 
             this->required(required, false);
 
-            subCommand->subCommandSc->required(required);
-            subCommand->subCommandSc->ignore_case(required);
+            subCommand->subCommandApp->required(required);
+            subCommand->subCommandApp->ignore_case(required);
         }
 
         return this;
@@ -277,10 +280,10 @@ namespace utils {
             option->required(required);
 
             if (required) {
-                subCommandSc->needs(option);
+                subCommandApp->needs(option);
                 option->default_str("");
             } else {
-                subCommandSc->remove_needs(option);
+                subCommandApp->remove_needs(option);
             }
 
             this->required(required, false);
@@ -291,9 +294,9 @@ namespace utils {
 
     SubCommand* SubCommand::needs(SubCommand* subCommand, bool needs) {
         if (needs) {
-            subCommandSc->needs(subCommand->subCommandSc.get());
+            subCommandApp->needs(subCommand->subCommandApp.get());
         } else {
-            subCommandSc->remove_needs(subCommand->subCommandSc.get());
+            subCommandApp->remove_needs(subCommand->subCommandApp.get());
         }
 
         return this;
@@ -301,46 +304,46 @@ namespace utils {
 
     SubCommand* SubCommand::disabled(SubCommand* subCommand, bool disabled) {
         if (disabled) {
-            if (subCommand->subCommandSc->get_ignore_case()) {
+            if (subCommand->subCommandApp->get_ignore_case()) {
                 needs(subCommand, false);
             }
 
-            for (const auto& sub : subCommand->subCommandSc->get_subcommands({})) {
+            for (const auto& sub : subCommand->subCommandApp->get_subcommands({})) {
                 if (sub->get_ignore_case()) {
-                    subCommand->subCommandSc->remove_needs(sub);
+                    subCommand->subCommandApp->remove_needs(sub);
                     sub->required(false);
                 }
             }
         } else {
-            if (subCommand->subCommandSc->get_ignore_case()) {
+            if (subCommand->subCommandApp->get_ignore_case()) {
                 needs(subCommand);
             }
 
-            for (const auto& sub : subCommand->subCommandSc->get_subcommands({})) {
+            for (const auto& sub : subCommand->subCommandApp->get_subcommands({})) {
                 if (sub->get_ignore_case()) {
-                    subCommand->subCommandSc->needs(sub);
+                    subCommand->subCommandApp->needs(sub);
                     sub->required();
                 }
             }
         }
 
-        subCommand->subCommandSc->required(disabled ? false : subCommand->subCommandSc->get_ignore_case());
+        subCommand->subCommandApp->required(disabled ? false : subCommand->subCommandApp->get_ignore_case());
 
         return this;
     }
 
     SubCommand* SubCommand::finalCallback(const std::function<void()>& finalCallback) {
-        subCommandSc->final_callback(finalCallback);
+        subCommandApp->final_callback(finalCallback);
 
         return this;
     }
 
     std::string SubCommand::configToStr() const {
-        return subCommandSc->config_to_str(true, true);
+        return subCommandApp->config_to_str(true, true);
     }
 
     std::string SubCommand::help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const {
-        return subCommandSc->help(helpApp, "", mode);
+        return subCommandApp->help(helpApp, "", mode);
     }
 
     static std::shared_ptr<CLI::HelpFormatter> makeSectionFormatter() {
@@ -365,20 +368,20 @@ namespace utils {
     std::shared_ptr<utils::AppWithPtr> SubCommand::addSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr,
                                                                  const std::string& group) const {
         if (!final) {
-            CLI::App* addSubCommand = subCommandSc->add_subcommand(appWithPtr)
+            CLI::App* addSubCommand = subCommandApp->add_subcommand(appWithPtr)
                                           ->group(group)
                                           ->ignore_case(false)
                                           ->fallthrough()
                                           ->formatter(sectionFormatter)
                                           ->configurable(false)
-                                          ->config_formatter(subCommandSc->get_config_formatter())
+                                          ->config_formatter(subCommandApp->get_config_formatter())
                                           ->allow_extras()
                                           ->disabled(appWithPtr->get_name().empty());
 
             addSubCommand //
                 ->option_defaults()
                 ->configurable(!addSubCommand->get_disabled())
-                ->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
+                ->group(subCommandApp->get_formatter()->get_label("Nonpersistent Options"));
 
             if (!addSubCommand->get_disabled()) {
                 if (aliases.contains(addSubCommand->get_name())) {
@@ -394,10 +397,10 @@ namespace utils {
     SubCommand* SubCommand::removeSubCommand(utils::SubCommand* subCommand) {
         required(subCommand, false);
 
-        subCommandSc->remove_subcommand(subCommand->subCommandSc.get());
+        subCommandApp->remove_subcommand(subCommand->subCommandApp.get());
 
         for (auto it = addedSubCommands.begin(); it != addedSubCommands.end();) {
-            if (it->get() == subCommand->subCommandSc.get()) {
+            if (it->get() == subCommand->subCommandApp.get()) {
                 it = addedSubCommands.erase(it);
             } else {
                 ++it;
@@ -408,18 +411,18 @@ namespace utils {
     }
 
     CLI::Option* SubCommand::getOption(const std::string& name) const {
-        return subCommandSc->get_option_no_throw(name);
+        return subCommandApp->get_option_no_throw(name);
     }
 
     CLI::Option* SubCommand::addOption(const std::string& name,
                                        const std::string& description,
                                        const std::string& typeName,
                                        const CLI::Validator& validator) const {
-        return initialize(subCommandSc //
+        return initialize(subCommandApp //
                               ->add_option(name, description),
                           typeName,
                           validator,
-                          !subCommandSc->get_disabled());
+                          !subCommandApp->get_disabled());
     }
 
     CLI::Option* SubCommand::addOptionFunction(const std::string& name,
@@ -427,22 +430,22 @@ namespace utils {
                                                const std::string& description,
                                                const std::string& typeName,
                                                const CLI::Validator& validator) const {
-        return initialize(subCommandSc //
+        return initialize(subCommandApp //
                               ->add_option_function(name, callback, description),
                           typeName,
                           validator,
-                          !subCommandSc->get_disabled());
+                          !subCommandApp->get_disabled());
     }
 
     CLI::Option* SubCommand::addFlag(const std::string& name,
                                      const std::string& description,
                                      const std::string& typeName,
                                      const CLI::Validator& validator) const {
-        return initialize(subCommandSc //
+        return initialize(subCommandApp //
                               ->add_flag(name, description),
                           typeName,
                           validator,
-                          !subCommandSc->get_disabled());
+                          !subCommandApp->get_disabled());
     }
 
     CLI::Option* SubCommand::addFlagFunction(const std::string& name,
@@ -450,7 +453,7 @@ namespace utils {
                                              const std::string& description,
                                              const std::string& typeName,
                                              const CLI::Validator& validator) {
-        CLI::Option* opt = subCommandSc //
+        CLI::Option* opt = subCommandApp //
                                ->add_flag_function(
                                    name,
                                    [callback](std::int64_t) {
@@ -461,7 +464,7 @@ namespace utils {
                                ->check(validator)
                                ->take_last();
         if (opt->get_configurable()) {
-            opt->group(subCommandSc->get_formatter()->get_label("Persistent Options"));
+            opt->group(subCommandApp->get_formatter()->get_label("Persistent Options"));
         }
 
         return opt;
@@ -473,14 +476,13 @@ namespace utils {
                                              const std::string& typeName,
                                              const std::string& defaultValue,
                                              const CLI::Validator& validator) {
-        return addFlagFunction(name, callback, description, typeName, validator) //
-            ->default_val(defaultValue);
+        return setDefaultValue(addFlagFunction(name, callback, description, typeName, validator), defaultValue);
     }
 
     CLI::Option* SubCommand::setConfigurable(CLI::Option* option, bool configurable) const {
         return option //
             ->configurable(configurable)
-            ->group(subCommandSc->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
+            ->group(subCommandApp->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
     }
 
     CLI::Option*

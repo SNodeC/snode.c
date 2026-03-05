@@ -55,10 +55,10 @@ namespace net::config {
 
     template <typename T>
     std::shared_ptr<utils::AppWithPtr> Section(T* section) {
-        std::shared_ptr<utils::AppWithPtr> subCommandSc =
+        std::shared_ptr<utils::AppWithPtr> subCommandApp =
             std::make_shared<utils::AppWithPtr>(std::string(T::DESCRIPTION), std::string(T::NAME), section, false);
 
-        return subCommandSc;
+        return subCommandApp;
     }
 
     template <typename T>

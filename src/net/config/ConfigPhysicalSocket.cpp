@@ -121,9 +121,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetry(bool retry) {
-        retryOpt //
-            ->default_val(retry ? "true" : "false")
-            ->clear();
+        setDefaultValue(retryOpt, retry ? "true" : "false");
 
         if (retry) {
             retryLimitOpt->remove_needs(retryOpt);
@@ -149,9 +147,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryOnFatal(bool retry) {
-        retryOnFatalOpt //
-            ->default_val(retry ? "true" : "false")
-            ->clear();
+        setDefaultValue(retryOnFatalOpt, retry ? "true" : "false");
 
         return *this;
     }
@@ -161,9 +157,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryTimeout(double sec) {
-        retryTimeoutOpt //
-            ->default_val(sec)
-            ->clear();
+        setDefaultValue(retryTimeoutOpt, sec);
 
         return *this;
     }
@@ -173,9 +167,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryTries(unsigned int tries) {
-        retryTriesOpt //
-            ->default_val(tries)
-            ->clear();
+        setDefaultValue(retryTriesOpt, tries);
 
         return *this;
     }
@@ -185,9 +177,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryBase(double base) {
-        retryBaseOpt //
-            ->default_val(base)
-            ->clear();
+        setDefaultValue(retryBaseOpt, base);
 
         return *this;
     }
@@ -197,9 +187,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryLimit(unsigned int limit) {
-        retryLimitOpt //
-            ->default_val(limit)
-            ->clear();
+        setDefaultValue(retryLimitOpt, limit);
 
         return *this;
     }
@@ -209,9 +197,7 @@ namespace net::config {
     }
 
     ConfigPhysicalSocket& ConfigPhysicalSocket::setRetryJitter(double percent) {
-        retryJitterOpt //
-            ->default_val(percent)
-            ->clear();
+        setDefaultValue(retryJitterOpt, percent);
 
         return *this;
     }

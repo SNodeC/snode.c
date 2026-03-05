@@ -63,6 +63,8 @@ namespace net::config::stream {
     public:
         using Local = ConfigAddressLocalT<net::config::ConfigAddressLocal>;
         using Remote = ConfigAddressRemoteT<net::config::ConfigAddressReverse>;
+        using Connection = net::config::ConfigConnection;
+        using Socket = net::config::ConfigPhysicalSocketServer;
 
     protected:
         explicit ConfigSocketServer(net::config::ConfigInstance* instance);

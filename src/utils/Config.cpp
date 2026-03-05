@@ -355,7 +355,7 @@ namespace utils {
     }
 
     ConfigRoot::ConfigRoot()
-        : utils::SubCommand(std::make_shared<utils::AppWithPtr>("Root Config", "", this, false), false) {
+        : utils::SubCommand(std::make_shared<utils::AppWithPtr>("Root of config", "", this, false), false) {
         logger::Logger::init();
     }
 
@@ -787,13 +787,11 @@ namespace utils {
     }
 
     int Config::getLogLevel() {
-        //        return logLevelOpt->as<int>();
-        return 0;
+        return configRoot.logLevelOpt->as<int>();
     }
 
     int Config::getVerboseLevel() {
-        //        return verboseLevelOpt->as<int>();
-        return 0;
+        return configRoot.verboseLevelOpt->as<int>();
     }
 
     int Config::argc = 0;

@@ -60,7 +60,8 @@ namespace net::config {
 
     class ConfigConnection : public ConfigSection {
     public:
-        using Connection = ConfigConnection;
+        constexpr static std::string_view NAME{"connection"};
+        constexpr static std::string_view DESCRIPTION{"Configuration of established connections"};
 
     protected:
         explicit ConfigConnection(ConfigInstance* instance);
@@ -68,9 +69,6 @@ namespace net::config {
         ~ConfigConnection() override;
 
     public:
-        constexpr static std::string_view NAME{"connection"};
-        constexpr static std::string_view DESCRIPTION{"Configuration of established connections"};
-
         utils::Timeval getReadTimeout() const;
         ConfigConnection& setReadTimeout(const utils::Timeval& newReadTimeoutSet);
 

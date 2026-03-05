@@ -60,6 +60,10 @@ namespace net::config {
 namespace net::config {
 
     class ConfigTls : public ConfigSection {
+    public:
+        constexpr static std::string_view NAME{"tls"};
+        constexpr static std::string_view DESCRIPTION{"Configuration of SSL/TLS behavior"};
+
     protected:
         template <typename ConcretConfigTls>
         explicit ConfigTls(ConfigInstance* instance, ConcretConfigTls section);
@@ -67,9 +71,6 @@ namespace net::config {
         ~ConfigTls() override;
 
     public:
-        constexpr static std::string_view NAME{"tls"};
-        constexpr static std::string_view DESCRIPTION{"Configuration of SSL/TLS behavior"};
-
         ConfigTls& setInitTimeout(const utils::Timeval& newInitTimeout);
         utils::Timeval getInitTimeout() const;
 

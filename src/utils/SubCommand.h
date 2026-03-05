@@ -100,14 +100,10 @@ namespace utils {
 
     class SubCommand {
     protected:
-        SubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, bool final = true);
+        SubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, bool final); // = true);
 
         template <typename ConcretSubCommand>
-        SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group)
-            : SubCommand(parent->addSubCommand(
-                  SubCommandApp(std::string(ConcretSubCommand::NAME), std::string(ConcretSubCommand::DESCRIPTION), concretSubCommand),
-                  group)) {
-        }
+        SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group, bool final = true);
 
     public:
         SubCommand(const SubCommand&) = delete;
@@ -231,7 +227,7 @@ namespace utils {
 
     protected:
         template <typename ValueTypeT>
-        static CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true);
+        CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true) const;
 
         CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
 
@@ -252,7 +248,7 @@ namespace utils {
     private:
         CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
 
-        std::shared_ptr<utils::AppWithPtr> subCommandSc;
+        std::shared_ptr<AppWithPtr> subCommandApp;
 
         std::vector<std::shared_ptr<utils::AppWithPtr>> addedSubCommands; // Store anything
 
@@ -264,6 +260,15 @@ namespace utils {
 
         int requiredCount = 0;
     };
+
+    template <typename ConcretSubCommand>
+    inline SubCommand::SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group, bool final)
+        : SubCommand(
+              parent->addSubCommand(
+                  SubCommandApp(std::string(ConcretSubCommand::NAME), std::string(ConcretSubCommand::DESCRIPTION), concretSubCommand),
+                  group),
+              final) {
+    }
 
     template <typename NewSubCommand, typename... Args>
     NewSubCommand* SubCommand::newSubCommand(Args&&... args) {
@@ -278,7 +283,7 @@ namespace utils {
 
     template <typename RequestedSubCommand>
     RequestedSubCommand* SubCommand::getSubCommand() {
-        auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(RequestedSubCommand::NAME));
+        auto* appWithPtr = subCommandApp->get_subcommand_no_throw(std::string(RequestedSubCommand::NAME));
 
         AppWithPtr* subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
 
@@ -287,7 +292,7 @@ namespace utils {
 
     template <typename RequestedSubCommand>
     RequestedSubCommand* SubCommand::getSubCommand() const {
-        auto* appWithPtr = subCommandSc->get_subcommand_no_throw(std::string(RequestedSubCommand::NAME));
+        auto* appWithPtr = subCommandApp->get_subcommand_no_throw(std::string(RequestedSubCommand::NAME));
 
         AppWithPtr* subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
 
@@ -300,8 +305,7 @@ namespace utils {
                                        const std::string& typeName,
                                        ValueTypeT defaultValue,
                                        const CLI::Validator& additionalValidator) const {
-        return addOption(name, description, typeName, additionalValidator) //
-            ->default_val(defaultValue);
+        return setDefaultValue(addOption(name, description, typeName, additionalValidator), defaultValue);
     }
 
     template <typename ValueTypeT>
@@ -311,7 +315,7 @@ namespace utils {
                                                const std::string& typeName,
                                                const CLI::Validator& additionalValidator) const {
         return initialize(
-            subCommandSc->add_option(name, variable, description), typeName, additionalValidator, !subCommandSc->get_disabled());
+            subCommandApp->add_option(name, variable, description), typeName, additionalValidator, !subCommandApp->get_disabled());
     }
 
     template <typename ValueTypeT>
@@ -321,8 +325,7 @@ namespace utils {
                                                const std::string& typeName,
                                                ValueTypeT defaultValue,
                                                const CLI::Validator& additionalValidator) const {
-        return addOption(name, variable, description, typeName, additionalValidator) //
-            ->default_val(defaultValue);
+        return setDefaultValue(addOptionVariable(name, variable, description, typeName, additionalValidator), defaultValue);
     }
 
     template <typename ValueTypeT>
@@ -332,8 +335,7 @@ namespace utils {
                                                const std::string& typeName,
                                                ValueTypeT defaultValue,
                                                const CLI::Validator& validator) const {
-        return addOptionFunction(name, callback, description, typeName, validator) //
-            ->default_val(defaultValue);
+        return setDefaultValue(addOptionFunction(name, callback, description, typeName, validator), defaultValue);
     }
 
     template <typename ValueTypeT>
@@ -342,12 +344,11 @@ namespace utils {
                                      const std::string& typeName,
                                      ValueTypeT defaultValue,
                                      const CLI::Validator& additionalValidator) const {
-        return addFlag(name, description, typeName, additionalValidator) //
-            ->default_val(defaultValue);
+        return setDefaultValue(addFlag(name, description, typeName, additionalValidator), defaultValue);
     }
 
     template <typename ValueTypeT>
-    CLI::Option* SubCommand::setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear) {
+    CLI::Option* SubCommand::setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear) const {
         try {
             option->default_val(value);
 
@@ -363,13 +364,14 @@ namespace utils {
 
     template <typename T>
     std::shared_ptr<utils::AppWithPtr> SubCommandApp(const std::string& name, const std::string& description, T* section, bool manage) {
-        std::shared_ptr<utils::AppWithPtr> subCommandSc = std::make_shared<utils::AppWithPtr>(description, name, section, manage);
+        std::shared_ptr<utils::AppWithPtr> subCommandApp = std::make_shared<utils::AppWithPtr>(description, name, section, manage);
 
-        subCommandSc->option_defaults()->take_last();
-        subCommandSc->formatter(utils::SubCommand::sectionFormatter);
+        subCommandApp->option_defaults()->take_last();
+        subCommandApp->formatter(utils::SubCommand::sectionFormatter);
 
-        return subCommandSc;
+        return subCommandApp;
     }
+
 } // namespace utils
 
 #endif // UTILS_SUBCOMMAND_H
