@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 
     const WebApp webApp(apps::http::STREAM::getWebApp("httpserver"));
 
-    webApp.getConfig().net::config::ConfigInstance::addSubCommand<subcommand::ConfigWWW>();
+    webApp.getConfig().net::config::ConfigInstance::newSubCommand<subcommand::ConfigWWW>();
 
     WebApp::init(argc, argv);
 

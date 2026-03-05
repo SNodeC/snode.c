@@ -56,7 +56,7 @@ namespace net::config {
 
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
         : utils::SubCommand(
-              utils::Config::configRoot.newSubCommand(utils::SubCommandApp(instanceName,
+              utils::Config::configRoot.addSubCommand(utils::SubCommandApp(instanceName,
                                                                            std::string("Configuration for ")
                                                                                .append(role == Role::SERVER ? "server" : "client")
                                                                                .append(" instance '")

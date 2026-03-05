@@ -63,7 +63,7 @@ Router getRouter(const std::string& webRoot) {
 }
 
 int main(int argc, char* argv[]) {
-    utils::Config::configRoot.addSubCommand<subcommand::ConfigWWW>();
+    utils::Config::configRoot.newSubCommand<subcommand::ConfigWWW>();
 
     WebApp::init(argc, argv);
 

@@ -362,10 +362,10 @@ namespace utils {
 
     std::shared_ptr<CLI::Formatter> SubCommand::sectionFormatter = makeSectionFormatter();
 
-    std::shared_ptr<utils::AppWithPtr> SubCommand::newSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr,
+    std::shared_ptr<utils::AppWithPtr> SubCommand::addSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr,
                                                                  const std::string& group) const {
         if (!final) {
-            CLI::App* newSubCommand = subCommandSc->add_subcommand(appWithPtr)
+            CLI::App* addSubCommand = subCommandSc->add_subcommand(appWithPtr)
                                           ->group(group)
                                           ->ignore_case(false)
                                           ->fallthrough()
@@ -375,15 +375,15 @@ namespace utils {
                                           ->allow_extras()
                                           ->disabled(appWithPtr->get_name().empty());
 
-            newSubCommand //
+            addSubCommand //
                 ->option_defaults()
-                ->configurable(!newSubCommand->get_disabled())
+                ->configurable(!addSubCommand->get_disabled())
                 ->group(subCommandSc->get_formatter()->get_label("Nonpersistent Options"));
 
-            if (!newSubCommand->get_disabled()) {
-                if (aliases.contains(newSubCommand->get_name())) {
-                    newSubCommand //
-                        ->alias(aliases.find(newSubCommand->get_name())->second);
+            if (!addSubCommand->get_disabled()) {
+                if (aliases.contains(addSubCommand->get_name())) {
+                    addSubCommand //
+                        ->alias(aliases.find(addSubCommand->get_name())->second);
                 }
             }
         }

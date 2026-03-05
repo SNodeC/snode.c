@@ -52,7 +52,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
-    utils::Config::configRoot.addSubCommand<subcommand::ConfigWWW>();
+    utils::Config::configRoot.newSubCommand<subcommand::ConfigWWW>();
 
     express::WebApp::init(argc, argv);
 

@@ -90,7 +90,7 @@ private:
 };
 
 int main(int argc, char* argv[]) {
-    utils::Config::configRoot.addSubCommand<ConfigDb>()->setHost("localhost");
+    utils::Config::configRoot.newSubCommand<ConfigDb>()->setHost("localhost");
 
     core::SNodeC::init(argc, argv);
 

@@ -104,7 +104,7 @@ namespace utils {
 
         template <typename ConcretSubCommand>
         SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group)
-            : SubCommand(parent->newSubCommand(
+            : SubCommand(parent->addSubCommand(
                   SubCommandApp(std::string(ConcretSubCommand::NAME), std::string(ConcretSubCommand::DESCRIPTION), concretSubCommand),
                   group)) {
         }
@@ -148,10 +148,10 @@ namespace utils {
         std::string configToStr() const;
         std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const;
 
-        std::shared_ptr<utils::AppWithPtr> newSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group) const;
+        std::shared_ptr<utils::AppWithPtr> addSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group) const;
 
         template <typename NewSubCommand, typename... Args>
-        NewSubCommand* addSubCommand(Args&&... args);
+        NewSubCommand* newSubCommand(Args&&... args);
 
         template <typename RequestedSubCommand>
         RequestedSubCommand* getSubCommand();
@@ -266,7 +266,7 @@ namespace utils {
     };
 
     template <typename NewSubCommand, typename... Args>
-    NewSubCommand* SubCommand::addSubCommand(Args&&... args) {
+    NewSubCommand* SubCommand::newSubCommand(Args&&... args) {
         return !final ? dynamic_cast<NewSubCommand*>(addedSubCommands
                                                          .emplace_back(SubCommandApp(std::string(NewSubCommand::NAME),
                                                                                      std::string(NewSubCommand::DESCRIPTION),

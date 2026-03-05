@@ -66,7 +66,7 @@ Router getRouter(const std::string& webRoot) {
 
 int main(int argc, char* argv[]) {
     // Add config entries for the server to the config system befor init so they are available immediately
-    utils::Config::configRoot.addSubCommand<subcommand::ConfigWWW>();
+    utils::Config::configRoot.newSubCommand<subcommand::ConfigWWW>();
 
     WebApp::init(argc, argv);
 
