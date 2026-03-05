@@ -90,7 +90,6 @@ namespace utils {
         CLI::Option* versionOpt = nullptr;
         CLI::Option* writeConfigOpt = nullptr;
         CLI::Option* killOpt = nullptr;
-        CLI::Option* logDirectoryOpt = nullptr;
         CLI::Option* aliasOpt = nullptr;
 
         friend class Config;

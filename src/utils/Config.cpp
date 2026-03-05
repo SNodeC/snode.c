@@ -395,7 +395,7 @@ namespace utils {
 
         verboseLevelOpt = setConfigurable(addOption("--verbose-level", "Verbose level", "level", 2, CLI::Range(0, 10)), true);
 
-        logDirectoryOpt = setConfigurable(setLogFile(logDirectory + "/" + applicationName + ".log"), true);
+        logFileOpt = setConfigurable(setLogFile(logDirectory + "/" + applicationName + ".log"), true);
 
         monochromLogOpt = setConfigurable(addFlagFunction( //
                                               "-m{true},--monochrom-logmonochromLogOption{true}",
