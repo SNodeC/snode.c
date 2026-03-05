@@ -91,7 +91,7 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::getConfig().Instance::template newSubCommand<ConfigHTTP>();
+            Super::getConfig().net::config::ConfigInstance::template newSubCommand<ConfigHTTP>();
             Super::setOnConnect([config = Super::getConfig().net::config::ConfigInstance::template getSubCommand<ConfigHTTP>()](
                                     SocketConnection* socketConnection) {
                 config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
@@ -120,7 +120,7 @@ namespace web::http::client {
                     [this]() -> net::config::ConfigInstance& {
                         return Super::getConfig();
                     }) {
-            Super::getConfig().Instance::template newSubCommand<ConfigHTTP>();
+            Super::getConfig().net::config::ConfigInstance::template newSubCommand<ConfigHTTP>();
             Super::setOnConnect([config = Super::getConfig().net::config::ConfigInstance::template getSubCommand<ConfigHTTP>()](
                                     SocketConnection* socketConnection) {
                 config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
