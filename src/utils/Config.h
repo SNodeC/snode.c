@@ -56,9 +56,10 @@ namespace utils::config {} // namespace utils::config
 namespace utils {
 
     class ConfigRoot : public utils::SubCommand {
-    public:
+    private:
         ConfigRoot();
 
+    public:
         ~ConfigRoot() override;
 
         ConfigRoot* addRootOptions(const std::string& applicationName,
@@ -114,7 +115,6 @@ namespace utils {
         static int getVerboseLevel();
 
         static ConfigRoot configRoot;
-        static std::shared_ptr<AppWithPtr> configRootApp;
 
     private:
         static int argc;
@@ -122,9 +122,13 @@ namespace utils {
 
         static std::string applicationName;
 
+        static std::shared_ptr<AppWithPtr> configRootApp;
+
         static std::string configDirectory;
         static std::string logDirectory;
         static std::string pidDirectory;
+
+        friend class ConfigRoot;
     };
 
     //////////////////

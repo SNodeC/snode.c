@@ -104,19 +104,21 @@ namespace utils {
         SubCommand(const SubCommand&) = delete;
         SubCommand(SubCommand&&) = delete;
 
-        virtual ~SubCommand();
-
         SubCommand& operator=(const SubCommand&) = delete;
         SubCommand& operator=(SubCommand&&) = delete;
+
+        virtual ~SubCommand();
 
         std::string getName() const;
         std::string version() const;
 
         void parse(int argc, char* argv[]);
 
+    protected:
         SubCommand* description(const std::string& description);
         SubCommand* footer(const std::string& footer);
 
+    public:
         CLI::Option* setConfig(const std::string& defaultConfigFile) const;
         CLI::Option* setLogFile(const std::string& defaultLogFile) const;
         CLI::Option* setVersionFlag(const std::string& version) const;
