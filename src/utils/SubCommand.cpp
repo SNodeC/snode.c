@@ -150,6 +150,9 @@ namespace utils {
     }
 
     SubCommand::~SubCommand() {
+        if (parent != nullptr) {
+            parent->subCommandApp->remove_subcommand(subCommandApp);
+        }
     }
 
     std::string SubCommand::getName() const {
