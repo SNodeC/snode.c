@@ -59,7 +59,7 @@ namespace web::http::client {
             CLI::TypeValidator<std::string>());
 
         pipelinedRequestsOpt = addFlag( //
-            "--pipelined-requests",
+            "--pipelined-requests{true}",
             "Pipelined requests",
             "bool",
             XSTR(HTTP_REQUEST_PIPELINED),

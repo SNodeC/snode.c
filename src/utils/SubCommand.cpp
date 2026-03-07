@@ -68,22 +68,9 @@ namespace utils {
             subCommandApp->allow_extras();
 
             static const std::shared_ptr<CLI::HelpFormatter> helpFormatter = std::make_shared<CLI::HelpFormatter>();
-
-            helpFormatter->label("SUBCOMMAND", "INSTANCE");
-            helpFormatter->label("SUBCOMMANDS", "INSTANCES");
-            helpFormatter->label("PERSISTENT", "");
-            helpFormatter->label("Persistent Options", "Options (persistent)");
-            helpFormatter->label("Nonpersistent Options", "Options (nonpersistent)");
-            helpFormatter->label("Usage", "\nUsage");
-            helpFormatter->label("bool:{true,false}", "{true,false}");
-            helpFormatter->label(":{standard,active,complete,required}", "{standard,active,complete,required}");
-            helpFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
-            helpFormatter->column_width(7);
-
             subCommandApp->formatter(helpFormatter);
 
             static const std::shared_ptr<CLI::Config> configFormatter = std::make_shared<CLI::ConfigFormatter>();
-
             subCommandApp->config_formatter(configFormatter);
 
             subCommandApp->option_defaults()->take_last()->group(subCommandApp->get_formatter()->get_label("Nonpersistent Options"));

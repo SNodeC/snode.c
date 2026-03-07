@@ -130,6 +130,9 @@ namespace CLI {
                         out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';
                     }
                     if (default_also && !defaultValue.empty()) {
+                        if (defaultValue == value) {
+                            value.clear();
+                        }
                         out << commentChar << name << valueDelimiter << defaultValue << "\n";
                     }
                     if (!value.empty()) {

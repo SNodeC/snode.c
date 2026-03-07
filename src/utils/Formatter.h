@@ -89,6 +89,19 @@ namespace CLI {
 #ifndef CLI11_ORIGINAL_FORMATTER
 
     public:
+        HelpFormatter() {
+            label("SUBCOMMAND", "INSTANCE");
+            label("SUBCOMMANDS", "INSTANCES");
+            label("PERSISTENT", "");
+            label("Persistent Options", "Options (persistent)");
+            label("Nonpersistent Options", "Options (nonpersistent)");
+            label("Usage", "\nUsage");
+            label("bool:{true,false}", "{true,false}");
+            label(":{true,false)", "{true,false}");
+            label(":{standard,active,complete,required}", "{standard,active,complete,required}");
+            label(":{standard,exact,expanded}", "{standard,exact,expanded}");
+            column_width(7);
+        }
         ~HelpFormatter() override;
 
     private:
