@@ -46,6 +46,7 @@
 #include "utils/Config.h"
 
 #include <functional>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -55,16 +56,17 @@ namespace net::config {
     const std::string ConfigInstance::nameAnonymous = "<anonymous>";
 
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
-        : utils::SubCommand(
-              utils::Config::configRoot.addSubCommand(utils::SubCommandApp(instanceName,
-                                                                           std::string("Configuration for ")
-                                                                               .append(role == Role::SERVER ? "server" : "client")
-                                                                               .append(" instance '")
-                                                                               .append(instanceName)
-                                                                               .append("'"),
-                                                                           this),
-                                                      "Instances"),
-              false)
+        : utils::SubCommand(&utils::Config::configRoot,
+                            std::make_shared<utils::AppWithPtr>(std::string("Configuration for ")
+                                                                    .append(role == Role::SERVER ? "server" : "client")
+                                                                    .append(" instance '")
+                                                                    .append(instanceName)
+                                                                    .append("'"),
+                                                                instanceName,
+                                                                this,
+                                                                false),
+                            "Instances",
+                            false)
         , instanceName(instanceName)
         , role(role) {
         disableOpt = setConfigurable(addFlagFunction(

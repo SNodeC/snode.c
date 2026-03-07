@@ -50,8 +50,8 @@
 
 namespace web::http::client {
 
-    ConfigHTTP::ConfigHTTP(utils::SubCommand* configInstance)
-        : utils::SubCommand(configInstance, this, "Applications") {
+    ConfigHTTP::ConfigHTTP(utils::SubCommand* parent)
+        : utils::SubCommand(parent, this, "Applications") {
         hostHeaderOpt = addOption( //
             "--host",
             "HTTP request 'Host' header field",

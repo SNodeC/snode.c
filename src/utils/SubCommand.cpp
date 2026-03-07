@@ -48,16 +48,22 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <utility>
+#include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
 
-    SubCommand::SubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, bool final)
-        : subCommandApp(appWithPtr)
+    SubCommand::SubCommand(SubCommand* parent, std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group, bool final)
+        : subCommandApp(appWithPtr.get())
+        , parent(parent)
         , final(final) {
         if (appWithPtr != nullptr) {
+            if (parent != nullptr) {
+                parent->subCommandApp->add_subcommand(appWithPtr);
+            }
+
+            subCommandApp->group(group);
             subCommandApp->configurable(false);
             subCommandApp->allow_extras();
 
@@ -86,7 +92,7 @@ namespace utils {
                 helpOpt = setConfigurable(subCommandApp
                                               ->set_help_flag(
                                                   "--help{exact},-h{exact}",
-                                                  [subCommandApp = this->subCommandApp.get()](std::size_t) {
+                                                  [subCommandApp = this->subCommandApp](std::size_t) {
                                                       helpTriggerApp = subCommandApp;
                                                   },
                                                   "Print help message and exit\n"
@@ -100,7 +106,7 @@ namespace utils {
                 helpOpt = setConfigurable(subCommandApp
                                               ->set_help_flag(
                                                   "--help{exact},-h{exact}",
-                                                  [subCommandApp = this->subCommandApp.get()](std::size_t) {
+                                                  [subCommandApp = this->subCommandApp](std::size_t) {
                                                       helpTriggerApp = subCommandApp;
                                                   },
                                                   "Print help message and exit\n"
@@ -115,7 +121,7 @@ namespace utils {
             showConfigOpt = setConfigurable(subCommandApp
                                                 ->add_flag_function(
                                                     "-s,--show-config",
-                                                    [subCommandApp = this->subCommandApp.get()](std::size_t) {
+                                                    [subCommandApp = this->subCommandApp](std::size_t) {
                                                         showConfigTriggerApp = subCommandApp;
                                                     },
                                                     "Show current configuration and exit")
@@ -128,7 +134,7 @@ namespace utils {
             commandlineOpt = setConfigurable(subCommandApp
                                                  ->add_flag_function(
                                                      "--command-line{standard}",
-                                                     [subCommandApp = this->subCommandApp.get()]([[maybe_unused]] std::int64_t count) {
+                                                     [subCommandApp = this->subCommandApp]([[maybe_unused]] std::int64_t count) {
                                                          commandlineTriggerApp = subCommandApp;
                                                      },
                                                      "Print command-line\n"
@@ -144,16 +150,13 @@ namespace utils {
     }
 
     SubCommand::~SubCommand() {
-        if (hasParent()) {
-            getParent()->removeSubCommand(this);
-        }
     }
 
-    std::string SubCommand::getName() {
+    std::string SubCommand::getName() const {
         return subCommandApp->get_name();
     }
 
-    std::string SubCommand::version() {
+    std::string SubCommand::version() const {
         return subCommandApp->version();
     }
 
@@ -198,9 +201,7 @@ namespace utils {
     }
 
     SubCommand* SubCommand::getParent() {
-        utils::AppWithPtr* parentSc = dynamic_cast<utils::AppWithPtr*>(subCommandApp->get_parent());
-
-        return parentSc != nullptr ? parentSc->getPtr() : nullptr;
+        return parent;
     }
 
     SubCommand* SubCommand::setRequireCallback(const std::function<void()>& callback) {
@@ -294,9 +295,9 @@ namespace utils {
 
     SubCommand* SubCommand::needs(SubCommand* subCommand, bool needs) {
         if (needs) {
-            subCommandApp->needs(subCommand->subCommandApp.get());
+            subCommandApp->needs(subCommand->subCommandApp);
         } else {
-            subCommandApp->remove_needs(subCommand->subCommandApp.get());
+            subCommandApp->remove_needs(subCommand->subCommandApp);
         }
 
         return this;
@@ -364,51 +365,6 @@ namespace utils {
     }
 
     std::shared_ptr<CLI::Formatter> SubCommand::sectionFormatter = makeSectionFormatter();
-
-    std::shared_ptr<utils::AppWithPtr> SubCommand::addSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr,
-                                                                 const std::string& group) const {
-        if (!final) {
-            CLI::App* addSubCommand = subCommandApp->add_subcommand(appWithPtr)
-                                          ->group(group)
-                                          ->ignore_case(false)
-                                          ->fallthrough()
-                                          ->formatter(sectionFormatter)
-                                          ->configurable(false)
-                                          ->config_formatter(subCommandApp->get_config_formatter())
-                                          ->allow_extras()
-                                          ->disabled(appWithPtr->get_name().empty());
-
-            addSubCommand //
-                ->option_defaults()
-                ->configurable(!addSubCommand->get_disabled())
-                ->group(subCommandApp->get_formatter()->get_label("Nonpersistent Options"));
-
-            if (!addSubCommand->get_disabled()) {
-                if (aliases.contains(addSubCommand->get_name())) {
-                    addSubCommand //
-                        ->alias(aliases.find(addSubCommand->get_name())->second);
-                }
-            }
-        }
-
-        return !final ? appWithPtr : nullptr;
-    }
-
-    SubCommand* SubCommand::removeSubCommand(utils::SubCommand* subCommand) {
-        required(subCommand, false);
-
-        subCommandApp->remove_subcommand(subCommand->subCommandApp.get());
-
-        for (auto it = addedSubCommands.begin(); it != addedSubCommands.end();) {
-            if (it->get() == subCommand->subCommandApp.get()) {
-                it = addedSubCommands.erase(it);
-            } else {
-                ++it;
-            }
-        }
-
-        return this;
-    }
 
     CLI::Option* SubCommand::getOption(const std::string& name) const {
         return subCommandApp->get_option_no_throw(name);

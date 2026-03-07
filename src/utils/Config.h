@@ -46,6 +46,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -113,6 +114,7 @@ namespace utils {
         static int getVerboseLevel();
 
         static ConfigRoot configRoot;
+        static std::shared_ptr<AppWithPtr> configRootApp;
 
     private:
         static int argc;

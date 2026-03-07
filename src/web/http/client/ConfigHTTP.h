@@ -57,7 +57,7 @@ namespace web::http::client {
         constexpr static std::string_view NAME{"http"};
         constexpr static std::string_view DESCRIPTION{"HTTP behavior"};
 
-        explicit ConfigHTTP(utils::SubCommand* configInstance);
+        explicit ConfigHTTP(utils::SubCommand* parent);
 
         ~ConfigHTTP() override;
 

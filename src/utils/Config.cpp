@@ -355,7 +355,8 @@ namespace utils {
     }
 
     ConfigRoot::ConfigRoot()
-        : utils::SubCommand(std::make_shared<utils::AppWithPtr>("Root of config", "", this, false), false) {
+        : utils::SubCommand(
+              nullptr, utils::Config::configRootApp = std::make_shared<utils::AppWithPtr>("Root of config", "", this, false), "", false) {
         logger::Logger::init();
     }
 
@@ -798,6 +799,7 @@ namespace utils {
     char** Config::argv = nullptr;
 
     ConfigRoot Config::configRoot;
+    std::shared_ptr<AppWithPtr> Config::configRootApp;
 
     std::string Config::applicationName;
 

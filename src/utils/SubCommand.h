@@ -49,7 +49,6 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include <vector>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -94,13 +93,9 @@ namespace utils {
         bool manage;
     };
 
-    template <typename T>
-    std::shared_ptr<utils::AppWithPtr>
-    SubCommandApp(const std::string& name, const std::string& description, T* section, bool manage = false);
-
     class SubCommand {
     protected:
-        SubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, bool final); // = true);
+        SubCommand(SubCommand* parent, std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group, bool final); // = true);
 
         template <typename ConcretSubCommand>
         SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group, bool final = true);
@@ -114,8 +109,8 @@ namespace utils {
         SubCommand& operator=(const SubCommand&) = delete;
         SubCommand& operator=(SubCommand&&) = delete;
 
-        std::string getName();
-        std::string version();
+        std::string getName() const;
+        std::string version() const;
 
         void parse(int argc, char* argv[]);
 
@@ -144,8 +139,6 @@ namespace utils {
         std::string configToStr() const;
         std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const;
 
-        std::shared_ptr<utils::AppWithPtr> addSubCommand(std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group) const;
-
         template <typename NewSubCommand, typename... Args>
         NewSubCommand* newSubCommand(Args&&... args);
 
@@ -154,8 +147,6 @@ namespace utils {
 
         template <typename RequestedSubCommand>
         RequestedSubCommand* getSubCommand() const;
-
-        SubCommand* removeSubCommand(utils::SubCommand* subCommand);
 
         CLI::Option* getOption(const std::string& name) const;
 
@@ -248,9 +239,8 @@ namespace utils {
     private:
         CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
 
-        std::shared_ptr<AppWithPtr> subCommandApp;
-
-        std::vector<std::shared_ptr<utils::AppWithPtr>> addedSubCommands; // Store anything
+        AppWithPtr* subCommandApp;
+        SubCommand* parent;
 
         bool final;
 
@@ -263,22 +253,16 @@ namespace utils {
 
     template <typename ConcretSubCommand>
     inline SubCommand::SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group, bool final)
-        : SubCommand(
-              parent->addSubCommand(
-                  SubCommandApp(std::string(ConcretSubCommand::NAME), std::string(ConcretSubCommand::DESCRIPTION), concretSubCommand),
-                  group),
-              final) {
+        : SubCommand(parent,
+                     std::make_shared<utils::AppWithPtr>(
+                         std::string(ConcretSubCommand::DESCRIPTION), std::string(ConcretSubCommand::NAME), concretSubCommand, true),
+                     group,
+                     final) {
     }
 
     template <typename NewSubCommand, typename... Args>
     NewSubCommand* SubCommand::newSubCommand(Args&&... args) {
-        return !final ? dynamic_cast<NewSubCommand*>(addedSubCommands
-                                                         .emplace_back(SubCommandApp(std::string(NewSubCommand::NAME),
-                                                                                     std::string(NewSubCommand::DESCRIPTION),
-                                                                                     new NewSubCommand(this, std::forward(args)...),
-                                                                                     true))
-                                                         ->getPtr())
-                      : nullptr;
+        return !final ? new NewSubCommand(this, std::forward(args)...) : nullptr;
     }
 
     template <typename RequestedSubCommand>
@@ -360,16 +344,6 @@ namespace utils {
         }
 
         return option;
-    }
-
-    template <typename T>
-    std::shared_ptr<utils::AppWithPtr> SubCommandApp(const std::string& name, const std::string& description, T* section, bool manage) {
-        std::shared_ptr<utils::AppWithPtr> subCommandApp = std::make_shared<utils::AppWithPtr>(description, name, section, manage);
-
-        subCommandApp->option_defaults()->take_last();
-        subCommandApp->formatter(utils::SubCommand::sectionFormatter);
-
-        return subCommandApp;
     }
 
 } // namespace utils
