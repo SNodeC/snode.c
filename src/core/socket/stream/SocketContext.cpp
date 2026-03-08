@@ -128,7 +128,7 @@ namespace core::socket::stream {
     void SocketContext::onWriteError(int errnum) {
         errno = errnum;
 
-        PLOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: onWriteError";
+        SNODEC_PLOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: onWriteError";
         shutdownRead();
     }
 
@@ -136,9 +136,9 @@ namespace core::socket::stream {
         errno = errnum;
 
         if (errno == 0) {
-            LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: EOF received";
+            SNODEC_LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: EOF received";
         } else {
-            PLOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: onReadError";
+            SNODEC_PLOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: onReadError";
         }
         shutdownWrite();
     }
@@ -153,11 +153,11 @@ namespace core::socket::stream {
     void SocketContext::detach() {
         onDisconnected();
 
-        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: detached";
-        LOG(DEBUG) << "     Online Since: " << getOnlineSince();
-        LOG(DEBUG) << "  Online Duration: " << getOnlineDuration();
-        LOG(DEBUG) << "       Total Sent: " << getTotalQueued();
-        LOG(DEBUG) << "  Total Processed: " << getTotalProcessed();
+        SNODEC_LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: detached";
+        SNODEC_LOG(DEBUG) << "     Online Since: " << getOnlineSince();
+        SNODEC_LOG(DEBUG) << "  Online Duration: " << getOnlineDuration();
+        SNODEC_LOG(DEBUG) << "       Total Sent: " << getTotalQueued();
+        SNODEC_LOG(DEBUG) << "  Total Processed: " << getTotalProcessed();
 
         delete this;
     }

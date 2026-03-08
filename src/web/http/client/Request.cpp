@@ -268,37 +268,37 @@ namespace web::http::client {
                     if (socketContextUpgradeFactory != nullptr) {
                         name = socketContextUpgradeFactory->name();
 
-                        LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << name;
+                        SNODEC_LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << name;
 
                         core::socket::stream::SocketContext* socketContextUpgrade =
                             socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                         if (socketContextUpgrade != nullptr) {
-                            LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create success for: " << name;
+                            SNODEC_LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create success for: " << name;
                             socketContext->getSocketConnection()->setSocketContext(socketContextUpgrade);
                         } else {
-                            LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create failed for: " << name;
+                            SNODEC_LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgrade create failed for: " << name;
 
                             socketContext->close();
                         }
                     } else {
-                        LOG(DEBUG) << connectionName
+                        SNODEC_LOG(DEBUG) << connectionName
                                    << " HTTP upgrade: SocketContextUpgradeFactory not supported by server: " << header("upgrade");
 
                         socketContext->close();
                     }
                 } else {
-                    LOG(DEBUG) << connectionName << " HTTP upgrade: No upgrade requested";
+                    SNODEC_LOG(DEBUG) << connectionName << " HTTP upgrade: No upgrade requested";
 
                     socketContext->close();
                 }
             } else {
-                LOG(ERROR) << connectionName << " HTTP upgrade: Response has gone away";
+                SNODEC_LOG(ERROR) << connectionName << " HTTP upgrade: Response has gone away";
 
                 socketContext->close();
             }
         } else {
-            LOG(ERROR) << connectionName << " HTTP upgrade: Unexpected disconnect";
+            SNODEC_LOG(ERROR) << connectionName << " HTTP upgrade: Unexpected disconnect";
         }
 
         status(name);
@@ -402,7 +402,7 @@ namespace web::http::client {
                     if (request != nullptr) {
                         const std::string connectionName = request->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                        LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " "
+                        SNODEC_LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " "
                                    << request->url << " "
                                    << "HTTP/" << request->httpMajor << "." << request->httpMinor << "\n"
                                    << httputils::toString(response->httpVersion,
@@ -413,11 +413,11 @@ namespace web::http::client {
                                                           response->body);
 
                         request->upgrade(response, [request, response, connectionName, &onResponseReceived](const std::string& name) {
-                            LOG(DEBUG) << connectionName << " HTTP upgrade: bootstrap " << (!name.empty() ? "success" : "failed");
-                            LOG(DEBUG) << "      Protocol selected: " << name;
-                            LOG(DEBUG) << "              requested: " << request->header("upgrade");
-                            LOG(DEBUG) << "  Subprotocol  selected: " << response->get("Sec-WebSocket-Protocol");
-                            LOG(DEBUG) << "              requested: " << request->header("Sec-WebSocket-Protocol");
+                            SNODEC_LOG(DEBUG) << connectionName << " HTTP upgrade: bootstrap " << (!name.empty() ? "success" : "failed");
+                            SNODEC_LOG(DEBUG) << "      Protocol selected: " << name;
+                            SNODEC_LOG(DEBUG) << "              requested: " << request->header("upgrade");
+                            SNODEC_LOG(DEBUG) << "  Subprotocol  selected: " << response->get("Sec-WebSocket-Protocol");
+                            SNODEC_LOG(DEBUG) << "              requested: " << request->header("Sec-WebSocket-Protocol");
 
                             onResponseReceived(request, response, !name.empty());
                         });
@@ -466,7 +466,7 @@ namespace web::http::client {
                 },
                 [masterRequest = this->masterRequest](const std::shared_ptr<Request>& request, const std::string& status) {
                     if (!masterRequest.expired()) {
-                        LOG(DEBUG) << request->getSocketContext()->getSocketConnection()->getConnectionName()
+                        SNODEC_LOG(DEBUG) << request->getSocketContext()->getSocketConnection()->getConnectionName()
                                    << " error in response: " << status;
                         masterRequest.lock()->getSocketContext()->close();
                     }
@@ -618,19 +618,19 @@ namespace web::http::client {
             web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
 
         if (socketContextUpgradeFactory != nullptr) {
-            LOG(DEBUG) << connectionName << " HTTP: "
+            SNODEC_LOG(DEBUG) << connectionName << " HTTP: "
                        << "SocketContextUpgradeFactory create success: " << socketContextUpgradeFactory->name();
-            LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade: " << method << " " << url
+            SNODEC_LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade: " << method << " " << url
                        << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
         } else {
-            LOG(DEBUG) << connectionName << " HTTP: "
+            SNODEC_LOG(DEBUG) << connectionName << " HTTP: "
                        << "SocketContextUpgradeFactory create failed: " << protocols;
-            LOG(DEBUG) << connectionName << " HTTP: Not initiating upgrade " << method << " " << url
+            SNODEC_LOG(DEBUG) << connectionName << " HTTP: Not initiating upgrade " << method << " " << url
                        << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
         }
 
-        LOG(DEBUG) << connectionName << " HTTP: Upgrade request:\n"
+        SNODEC_LOG(DEBUG) << connectionName << " HTTP: Upgrade request:\n"
                    << httputils::toString(method,
                                           url,
                                           "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),

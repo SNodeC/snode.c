@@ -68,16 +68,16 @@ int main(int argc, char* argv[]) {
         [instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                    SNODEC_VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << ": disabled";
+                    SNODEC_VLOG(1) << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    SNODEC_LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    SNODEC_LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         });
@@ -88,10 +88,10 @@ int main(int argc, char* argv[]) {
         req->getAttribute<nlohmann::json>(
             [&jsonString](nlohmann::json& json) {
                 jsonString = json.dump(4);
-                VLOG(1) << "Application received body: " << jsonString;
+                SNODEC_VLOG(1) << "Application received body: " << jsonString;
             },
             [](const std::string& key) {
-                VLOG(1) << key << " attribute not found";
+                SNODEC_VLOG(1) << key << " attribute not found";
             });
 
         res->send(jsonString);

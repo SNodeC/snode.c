@@ -304,11 +304,11 @@ namespace utils {
     static std::string doWriteConfig(utils::SubCommand* subCommand) {
         std::stringstream out;
 
-        VLOG(0) << "1: subCommand->getOption(--write-config)->as<std::string>()";
+        SNODEC_VLOG(0) << "1: subCommand->getOption(--write-config)->as<std::string>()";
         std::ofstream confFile(subCommand->getOption("--write-config")->as<std::string>());
         if (confFile.is_open()) {
-            VLOG(0) << "2: subCommand->getOption(--write-config)->as<std::string>()";
-            VLOG(0) << subCommand->configToStr();
+            SNODEC_VLOG(0) << "2: subCommand->getOption(--write-config)->as<std::string>()";
+            SNODEC_VLOG(0) << subCommand->configToStr();
 
             try {
                 confFile << subCommand->configToStr();

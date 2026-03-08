@@ -2,162 +2,240 @@
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
  *               2020, 2021, 2022, 2023, 2024, 2025, 2026
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
- * MIT License
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
  */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
 
-#include <string>
+#include <spdlog/logger.h>
+#include <spdlog/pattern_formatter.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+
+#include <unistd.h>
+#include <cerrno>
+#include <algorithm>
+#include <chrono>
+#include <cstring>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-INITIALIZE_EASYLOGGINGPP
+namespace {
+    std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> stdoutSink;
+    std::shared_ptr<spdlog::sinks::basic_file_sink_mt> fileSink;
+    std::shared_ptr<spdlog::logger> stdoutLogger;
+    std::shared_ptr<spdlog::logger> fileLogger;
+
+    int configuredLogLevel = 0;
+    int configuredVerboseLevel = 0;
+    bool quietMode = false;
+    logger::Logger::TickResolver tickResolver;
+
+    using Clock = std::chrono::steady_clock;
+    Clock::time_point startTime = Clock::now();
+
+    std::string defaultTick();
+
+    class TickFlagFormatter final : public spdlog::custom_flag_formatter {
+    public:
+        void format(const spdlog::details::log_msg&, const std::tm&, spdlog::memory_buf_t& dest) override {
+            std::string tick = tickResolver ? tickResolver() : defaultTick();
+            dest.append(tick.data(), tick.data() + static_cast<std::ptrdiff_t>(tick.size()));
+        }
+
+        std::unique_ptr<custom_flag_formatter> clone() const override {
+            return spdlog::details::make_unique<TickFlagFormatter>();
+        }
+    };
+
+    std::string defaultTick() {
+        const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - startTime).count();
+        std::string tick = std::to_string(elapsed);
+        if (tick.size() < 13) {
+            tick.insert(0, 13 - tick.size(), '0');
+        }
+        return tick;
+    }
+
+    std::string levelName(const logger::Level level) {
+        switch (level) {
+            case logger::Level::TRACE:
+                return "TRACE";
+            case logger::Level::DEBUG:
+                return "DEBUG";
+            case logger::Level::INFO:
+                return "INFO";
+            case logger::Level::WARNING:
+                return "WARNING";
+            case logger::Level::ERROR:
+                return "ERROR";
+            case logger::Level::FATAL:
+                return "FATAL";
+            case logger::Level::VERBOSE:
+                return "VERBOSE";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
+    Color::Code levelColor(const logger::Level level) {
+        switch (level) {
+            case logger::Level::TRACE:
+                return Color::Code::FG_CYAN;
+            case logger::Level::DEBUG:
+                return Color::Code::FG_GREEN;
+            case logger::Level::INFO:
+                return Color::Code::FG_LIGHT_GRAY;
+            case logger::Level::WARNING:
+                return Color::Code::FG_YELLOW;
+            case logger::Level::ERROR:
+                return Color::Code::FG_RED;
+            case logger::Level::FATAL:
+                return Color::Code::FG_LIGHT_RED;
+            case logger::Level::VERBOSE:
+                return Color::Code::FG_LIGHT_BLUE;
+            default:
+                return Color::Code::FG_DEFAULT;
+        }
+    }
+
+    std::string colorizeLevel(const logger::Level level) {
+        const std::string label = levelName(level);
+        if (logger::Logger::getDisableColor()) {
+            return label;
+        }
+        return Color::Code::FG_DEFAULT + (levelColor(level) + label) + Color::Code::FG_DEFAULT;
+    }
+
+    bool shouldEmit(const logger::Level level) {
+        if (level == logger::Level::VERBOSE) {
+            return true;
+        }
+
+        switch (configuredLogLevel) {
+            case 6:
+                return true;
+            case 5:
+                return level != logger::Level::TRACE;
+            case 4:
+                return level == logger::Level::INFO || level == logger::Level::WARNING || level == logger::Level::ERROR || level == logger::Level::FATAL;
+            case 3:
+                return level == logger::Level::WARNING || level == logger::Level::ERROR || level == logger::Level::FATAL;
+            case 2:
+                return level == logger::Level::ERROR || level == logger::Level::FATAL;
+            case 1:
+                return level == logger::Level::FATAL;
+            default:
+                return false;
+        }
+    }
+}
 
 namespace logger {
 
     void Logger::init() {
-        el::Configurations conf = *el::Loggers::defaultConfigurations();
+        startTime = Clock::now();
+        stdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        stdoutLogger = std::make_shared<spdlog::logger>("snodec-stdout", stdoutSink);
+        auto stdoutPattern = std::make_unique<spdlog::pattern_formatter>();
+        stdoutPattern->add_flag<TickFlagFormatter>('*').set_pattern("%Y-%m-%d %H:%M:%S %* %v");
+        stdoutLogger->set_formatter(std::move(stdoutPattern));
 
-        conf.setGlobally(el::ConfigurationType::Enabled, "true");
-        conf.setGlobally(el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick %level %msg");
-        conf.setGlobally(el::ConfigurationType::ToFile, "false");
-        conf.setGlobally(el::ConfigurationType::ToStandardOutput, "true");
-        conf.setGlobally(el::ConfigurationType::SubsecondPrecision, "2");
-        conf.setGlobally(el::ConfigurationType::PerformanceTracking, "false");
-        conf.setGlobally(el::ConfigurationType::MaxLogFileSize, "2097152");
-        conf.setGlobally(el::ConfigurationType::LogFlushThreshold, "0");
-        conf.set(el::Level::Verbose, el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick %msg");
-
-        el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
-        el::Loggers::addFlag(el::LoggingFlag::DisablePerformanceTrackingCheckpointComparison);
-        el::Loggers::addFlag(el::LoggingFlag::ColoredTerminalOutput);
-        el::Loggers::removeFlag(el::LoggingFlag::AllowVerboseIfModuleNotSpecified);
-
-        el::Loggers::setDefaultConfigurations(conf, true);
-
-        setDisableColor(::isatty(::fileno(stdout)) == 0);
-
-        setVerboseLevel(0);
-        setLogLevel(0);
+        fileSink.reset();
+        fileLogger.reset();
+        quietMode = false;
+        disableColorLog = ::isatty(::fileno(stdout)) == 0;
+        configuredVerboseLevel = 0;
+        configuredLogLevel = 0;
     }
 
-    void Logger::setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver) {
-        el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier(format, resolver));
+    void Logger::setTickResolver(TickResolver resolver) {
+        tickResolver = std::move(resolver);
     }
 
-    void Logger::setDisableColor(bool disableColorLog) {
-        if (disableColorLog) {
-            el::Loggers::removeFlag(el::LoggingFlag::ColoredTerminalOutput);
-        } else {
-            el::Loggers::addFlag(el::LoggingFlag::ColoredTerminalOutput);
-        }
+    void Logger::setLogLevel(int level) {
+        configuredLogLevel = level;
+    }
 
-        Logger::disableColorLog = disableColorLog;
+    void Logger::setVerboseLevel(int level) {
+        configuredVerboseLevel = std::max(0, level);
+    }
+
+    void Logger::logToFile(const std::string& logFile) {
+        fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFile, true);
+        fileLogger = std::make_shared<spdlog::logger>("snodec-file", fileSink);
+        auto filePattern = std::make_unique<spdlog::pattern_formatter>();
+        filePattern->add_flag<TickFlagFormatter>('*').set_pattern("%Y-%m-%d %H:%M:%S %* %v");
+        fileLogger->set_formatter(std::move(filePattern));
+    }
+
+    void Logger::disableLogToFile() {
+        fileLogger.reset();
+        fileSink.reset();
+    }
+
+    void Logger::setQuiet(bool quiet) {
+        quietMode = quiet;
+    }
+
+    void Logger::setDisableColor(bool disableColor) {
+        disableColorLog = disableColor;
     }
 
     bool Logger::getDisableColor() {
         return disableColorLog;
     }
 
-    // Application logging should be done with VLOG(loglevel)
-    // Framework logging should use one of the following levels
-    void Logger::setLogLevel(int level) {
-        el::Configurations conf = *el::Loggers::defaultConfigurations();
+    bool Logger::shouldLog(Level level) {
+        return shouldEmit(level);
+    }
 
-        conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");   // trace method/function calling
-        conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");   // typical assert messages - but we can go on
-        conf.set(el::Level::Info, el::ConfigurationType::Enabled, "false");    // additional infos - what 's going on
-        conf.set(el::Level::Warning, el::ConfigurationType::Enabled, "false"); // not that serious but mentioning
-        conf.set(el::Level::Error, el::ConfigurationType::Enabled, "false");   // serious errors - but we can go on
-        conf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "false");   // asserts - stop - we can not go on
+    bool Logger::shouldVerbose(int verboseLevel) {
+        return verboseLevel >= 0 && verboseLevel <= configuredVerboseLevel;
+    }
 
-        switch (level) {
-            case 6:
-                conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "true");
-                [[fallthrough]];
-            case 5:
-                conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "true");
-                [[fallthrough]];
-            case 4:
-                conf.set(el::Level::Info, el::ConfigurationType::Enabled, "true");
-                [[fallthrough]];
-            case 3:
-                conf.set(el::Level::Warning, el::ConfigurationType::Enabled, "true");
-                [[fallthrough]];
-            case 2:
-                conf.set(el::Level::Error, el::ConfigurationType::Enabled, "true");
-                [[fallthrough]];
-            case 1:
-                conf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "true");
-                [[fallthrough]];
-            case 0:
-                [[fallthrough]];
-            default:;
+    static void emitLine(Level level, std::string message, const bool withErrno, const int errnoValue) {
+        if (!shouldEmit(level)) {
+            return;
         }
 
-        el::Loggers::setDefaultConfigurations(conf, true);
-    }
-
-    void Logger::setVerboseLevel(int level) {
-        if (level >= 0) {
-            el::Loggers::setVerboseLevel(static_cast<el::base::type::VerboseLevel>(level));
+        if (withErrno) {
+            message += ": ";
+            message += std::strerror(errnoValue);
         }
-    }
 
-    void Logger::logToFile(const std::string& logFile) {
-        el::Configurations conf = *el::Loggers::defaultConfigurations();
+        if (level != Level::VERBOSE) {
+            message = colorizeLevel(level) + " " + message;
+        }
 
-        conf.setGlobally(el::ConfigurationType::Filename, logFile);
-        conf.setGlobally(el::ConfigurationType::ToFile, "true");
-
-        el::Loggers::setDefaultConfigurations(conf, true);
-    }
-
-    void Logger::setQuiet(bool quiet) {
-        el::Configurations conf = *el::Loggers::defaultConfigurations();
-
-        conf.setGlobally(el::ConfigurationType::ToStandardOutput, quiet ? "false" : "true");
-
-        el::Loggers::setDefaultConfigurations(conf, true);
+        if (!quietMode && stdoutLogger) {
+            stdoutLogger->log(spdlog::level::info, "{}", message);
+        }
+        if (fileLogger) {
+            fileLogger->log(spdlog::level::info, "{}", message);
+        }
     }
 
     bool Logger::disableColorLog = false;
+
+    LogMessage::LogMessage(const Level level, const int verboseLevel, const bool withErrno)
+        : level(level)
+        , verboseLevel(verboseLevel)
+        , withErrno(withErrno)
+        , enabled(true)
+        , errnoValue(errno) {
+    }
+
+    LogMessage::~LogMessage() {
+        if (enabled) {
+            emitLine(level, message.str(), withErrno, errnoValue);
+        }
+    }
+
+    std::ostringstream& LogMessage::stream() {
+        return message;
+    }
 
 } // namespace logger
 

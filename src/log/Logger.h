@@ -19,24 +19,6 @@
 
 /*
  * MIT License
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
  */
 
 #ifndef LOGGER_LOGGER_H
@@ -44,21 +26,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#ifdef __has_warning
-#if __has_warning("-Wdocumentation-unknown-command")
-#pragma GCC diagnostic ignored "-Wdocumentation-unknown-command"
-#endif
-#else
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-#endif
-#include <easylogging++.h> // IWYU pragma: export
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
+#include <functional>
+#include <memory>
+#include <ostream>
+#include <sstream>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -98,37 +69,66 @@ namespace Color {
 
 namespace logger {
 
+    enum class Level { TRACE, DEBUG, INFO, WARNING, ERROR, FATAL, VERBOSE };
+
     class Logger {
     public:
+        using TickResolver = std::function<std::string()>;
+
         Logger() = delete;
         ~Logger() = delete;
 
-        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init();
-
         static void setLogLevel(int level);
-
         static void setVerboseLevel(int level);
-
         static void logToFile(const std::string& logFile);
-
+        static void disableLogToFile();
         static void setQuiet(bool quiet = true);
-
-        static void setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver);
-
+        static void setTickResolver(TickResolver resolver);
         static void setDisableColor(bool disableColorLog = true);
-
         static bool getDisableColor();
+
+        static bool shouldLog(Level level);
+        static bool shouldVerbose(int verboseLevel);
 
     protected:
         static bool disableColorLog;
 
         friend std::ostream& Color::operator<<(std::ostream& os, const Color::Code& code);
-
         friend std::string Color::operator+(const std::string& string, const Color::Code& code);
         friend std::string Color::operator+(const Color::Code& code, const std::string& string);
     };
 
+    class LogMessage {
+    public:
+        LogMessage(Level level, int verboseLevel = -1, bool withErrno = false);
+        ~LogMessage();
+
+        std::ostringstream& stream();
+
+    private:
+        Level level;
+        int verboseLevel;
+        bool withErrno;
+        bool enabled;
+        int errnoValue;
+        std::ostringstream message;
+    };
+
 } // namespace logger
+
+#ifdef SNODEC_DISABLE_LOGLEVEL_LOGGING
+#define SNODEC_LOG(level) if (true) {} else ::logger::LogMessage(::logger::Level::level).stream()
+#define SNODEC_PLOG(level) if (true) {} else ::logger::LogMessage(::logger::Level::level, -1, true).stream()
+#else
+#define SNODEC_LOG(level)     if (!::logger::Logger::shouldLog(::logger::Level::level)) {} else ::logger::LogMessage(::logger::Level::level).stream()
+#define SNODEC_PLOG(level)     if (!::logger::Logger::shouldLog(::logger::Level::level)) {} else ::logger::LogMessage(::logger::Level::level, -1, true).stream()
+#endif
+
+#ifdef SNODEC_DISABLE_VERBOSE_LOGGING
+#define SNODEC_VLOG(level) if (true) {} else ::logger::LogMessage(::logger::Level::VERBOSE, level).stream()
+#else
+#define SNODEC_VLOG(level)     if (!::logger::Logger::shouldVerbose(level)) {} else ::logger::LogMessage(::logger::Level::VERBOSE, level).stream()
+#endif
 
 #endif // LOGGER_LOGGER_H

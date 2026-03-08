@@ -105,10 +105,10 @@ namespace web::http::tls::in6 {
             if (scheme == "https") {
                 eventSource = EventSource(scheme, net::in6::SocketAddress(host, port), path + query);
             } else {
-                LOG(ERROR) << "Scheme not valid: " << scheme;
+                SNODEC_LOG(ERROR) << "Scheme not valid: " << scheme;
             }
         } else {
-            LOG(ERROR) << "EventSource url not accepted: " << url;
+            SNODEC_LOG(ERROR) << "EventSource url not accepted: " << url;
         }
 
         return eventSource;

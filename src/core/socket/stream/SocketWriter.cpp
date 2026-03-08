@@ -116,7 +116,7 @@ namespace core::socket::stream {
             }
 
             if (markShutdown) {
-                LOG(TRACE) << getName() << ": Shutdown restart";
+                SNODEC_LOG(TRACE) << getName() << ": Shutdown restart";
                 doWriteShutdown(onShutdown);
             } else if (source != nullptr) {
                 source->resume();
@@ -142,10 +142,10 @@ namespace core::socket::stream {
                     source->suspend();
                 }
             } else {
-                LOG(WARNING) << getName() << ": Send while not enabled";
+                SNODEC_LOG(WARNING) << getName() << ": Send while not enabled";
             }
         } else {
-            LOG(WARNING) << getName() << ": Send while shutdown in progress: ignoring";
+            SNODEC_LOG(WARNING) << getName() << ": Send while shutdown in progress: ignoring";
         }
     }
 
@@ -157,15 +157,15 @@ namespace core::socket::stream {
                 success = source != nullptr;
 
                 if (success) {
-                    LOG(TRACE) << getName() << ": Stream started";
+                    SNODEC_LOG(TRACE) << getName() << ": Stream started";
                 } else {
-                    LOG(WARNING) << getName() << ": Stream source is nullptr";
+                    SNODEC_LOG(WARNING) << getName() << ": Stream source is nullptr";
                 }
             } else {
-                LOG(WARNING) << getName() << ": Stream while not enabled";
+                SNODEC_LOG(WARNING) << getName() << ": Stream while not enabled";
             }
         } else {
-            LOG(WARNING) << getName() << ": Stream while shutdown in progress";
+            SNODEC_LOG(WARNING) << getName() << ": Stream while shutdown in progress";
         }
 
         this->source = source;
@@ -174,7 +174,7 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::streamEof() {
-        LOG(TRACE) << getName() << ": Stream EOF";
+        SNODEC_LOG(TRACE) << getName() << ": Stream EOF";
         this->source = nullptr;
     }
 
@@ -184,11 +184,11 @@ namespace core::socket::stream {
 
             SocketWriter::onShutdown = onShutdown;
             if (writePuffer.empty()) {
-                LOG(TRACE) << getName() << ": Shutdown start";
+                SNODEC_LOG(TRACE) << getName() << ": Shutdown start";
                 doWriteShutdown(onShutdown);
             } else {
                 markShutdown = true;
-                LOG(TRACE) << getName() << ": Shutdown delayed due to queued data";
+                SNODEC_LOG(TRACE) << getName() << ": Shutdown delayed due to queued data";
             }
         }
     }

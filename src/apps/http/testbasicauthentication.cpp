@@ -97,16 +97,16 @@ int main(int argc, char* argv[]) {
                                                                                     const core::socket::State& state) {
                             switch (state) {
                                 case core::socket::State::OK:
-                                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                                    SNODEC_VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
                                     break;
                                 case core::socket::State::DISABLED:
-                                    VLOG(1) << instanceName << ": disabled";
+                                    SNODEC_VLOG(1) << instanceName << ": disabled";
                                     break;
                                 case core::socket::State::ERROR:
-                                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                    SNODEC_LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                     break;
                                 case core::socket::State::FATAL:
-                                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                    SNODEC_LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                     break;
                             }
                         });
@@ -133,17 +133,17 @@ int main(int argc, char* argv[]) {
     tlsServer.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "tls: listening on '" << socketAddress.toString() << "'"
+                SNODEC_VLOG(1) << "tls: listening on '" << socketAddress.toString() << "'"
                         << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "tls: disabled";
+                SNODEC_VLOG(1) << "tls: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "tls: error occurred";
+                SNODEC_VLOG(1) << "tls: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "tls: fatal error occurred";
+                SNODEC_VLOG(1) << "tls: fatal error occurred";
                 break;
         }
     });

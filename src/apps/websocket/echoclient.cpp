@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
             [](const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                VLOG(1) << connectionName << ": OnRequestBegin";
+                SNODEC_VLOG(1) << connectionName << ": OnRequestBegin";
 
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
@@ -72,44 +72,44 @@ int main(int argc, char* argv[]) {
                     "/ws",
                     "websocket",
                     [connectionName](bool success) {
-                        VLOG(1) << connectionName << ": HTTP Upgrade (http -> websocket) start " << (success ? "success" : "failed");
+                        SNODEC_VLOG(1) << connectionName << ": HTTP Upgrade (http -> websocket) start " << (success ? "success" : "failed");
                     },
                     [connectionName]([[maybe_unused]] const std::shared_ptr<Request>& req,
                                      const std::shared_ptr<Response>& res,
                                      [[maybe_unused]] bool success) {
-                        VLOG(1) << connectionName << ": Upgrade success:";
+                        SNODEC_VLOG(1) << connectionName << ": Upgrade success:";
 
-                        VLOG(1) << connectionName << ":   Requested: " << req->header("upgrade");
-                        VLOG(1) << connectionName << ":    Selected: " << res->get("upgrade");
+                        SNODEC_VLOG(1) << connectionName << ":   Requested: " << req->header("upgrade");
+                        SNODEC_VLOG(1) << connectionName << ":    Selected: " << res->get("upgrade");
                     },
                     [connectionName](const std::shared_ptr<Request>&, const std::string& message) {
-                        VLOG(1) << connectionName << ": Request parse error: " << message;
+                        SNODEC_VLOG(1) << connectionName << ": Request parse error: " << message;
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                VLOG(1) << connectionName << ": OnRequestEnd";
+                SNODEC_VLOG(1) << connectionName << ": OnRequestEnd";
             });
 
         legacyClient
             .setOnInitState([]([[maybe_unused]] core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
-                VLOG(0) << "------------------- Legacy Client Init: " << connectEventReceiver;
+                SNODEC_VLOG(0) << "------------------- Legacy Client Init: " << connectEventReceiver;
             })
             .connect([instanceName = legacyClient.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
                                                                                  const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
-                        VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
+                        SNODEC_VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        VLOG(1) << instanceName << " disabled";
+                        SNODEC_VLOG(1) << instanceName << " disabled";
                         break;
                     case core::socket::State::ERROR:
-                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        SNODEC_VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        SNODEC_VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             }); // Connection:keep-alive\r\n\r\n"
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
             [](const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                VLOG(1) << connectionName << ": OnRequestBegin";
+                SNODEC_VLOG(1) << connectionName << ": OnRequestBegin";
 
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
@@ -133,40 +133,40 @@ int main(int argc, char* argv[]) {
                     "/ws",
                     "websocket",
                     [connectionName](bool success) {
-                        VLOG(1) << connectionName << ": HTTP Upgrade (http -> websocket) start " << (success ? "success" : "failed");
+                        SNODEC_VLOG(1) << connectionName << ": HTTP Upgrade (http -> websocket) start " << (success ? "success" : "failed");
                     },
                     [connectionName]([[maybe_unused]] const std::shared_ptr<Request>& req,
                                      [[maybe_unused]] const std::shared_ptr<Response>& res,
                                      [[maybe_unused]] bool success) {
                     },
                     [connectionName](const std::shared_ptr<Request>&, const std::string& message) {
-                        VLOG(1) << connectionName << ": Request parse error: " << message;
+                        SNODEC_VLOG(1) << connectionName << ": Request parse error: " << message;
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                VLOG(1) << connectionName << ": OnRequestEnd";
+                SNODEC_VLOG(1) << connectionName << ": OnRequestEnd";
             });
 
         tlsClient
             .setOnInitState([]([[maybe_unused]] core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
-                VLOG(0) << "------------------- TLS Client Init: " << connectEventReceiver;
+                SNODEC_VLOG(0) << "------------------- TLS Client Init: " << connectEventReceiver;
             })
             .connect([instanceName = tlsClient.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress,
                                                                               const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
-                        VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
+                        SNODEC_VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        VLOG(1) << instanceName << " disabled";
+                        SNODEC_VLOG(1) << instanceName << " disabled";
                         break;
                     case core::socket::State::ERROR:
-                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        SNODEC_VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        SNODEC_VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             }); // Connection:keep-alive\r\n\r\n"
