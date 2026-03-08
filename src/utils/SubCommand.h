@@ -82,11 +82,12 @@ namespace utils {
     public:
         AppWithPtr(const std::string& description, const std::string& name, SubCommand* t, bool manage);
 
-        const SubCommand* getPtr() const;
-
         ~AppWithPtr() override;
 
+        const SubCommand* getPtr() const;
         SubCommand* getPtr();
+
+        void validate();
 
     private:
         SubCommand* ptr;

@@ -75,6 +75,7 @@ namespace net::config {
         ConfigInstance& operator=(ConfigInstance&&) = delete;
 
         const std::string& getInstanceName() const;
+        ConfigInstance& setInstanceName(const std::string& instanceName);
 
         bool getDisabled() const;
         ConfigInstance& setDisabled(bool disabled = true);

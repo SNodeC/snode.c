@@ -295,17 +295,17 @@ namespace web::http::client::tools {
 
             client = std::make_shared<Client>(
                 [eventSourceWeak](SocketConnection* socketConnection) {
-                    LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnConnect";
+                    LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";
 
                     if (const std::shared_ptr<EventSourceT> eventStream = eventSourceWeak.lock()) {
                         eventStream->socketConnection = socketConnection;
                     }
                 },
                 [](SocketConnection* socketConnection) {
-                    LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnConnected";
+                    LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnected";
                 },
                 [eventSourceWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](SocketConnection* socketConnection) {
-                    LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnDisconnect";
+                    LOG(DEBUG) << socketConnection->getConnectionName() << " : OnDisconnect";
 
                     if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
                         eventSource->socketConnection = nullptr;
@@ -338,7 +338,7 @@ namespace web::http::client::tools {
                     const std::shared_ptr<MasterRequest>& masterRequest) {
                     const std::string connectionName = masterRequest->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                    LOG(DEBUG) << connectionName << " EventSource: OnRequestStart";
+                    LOG(DEBUG) << connectionName << ": OnRequestStart";
 
                     if (!sharedState->lastId.empty()) {
                         masterRequest->set("Last-Event-ID", sharedState->lastId);
@@ -395,13 +395,14 @@ namespace web::http::client::tools {
                     }
                 },
                 [](const std::shared_ptr<Request>& req) {
-                    LOG(DEBUG) << req->getSocketContext()->getSocketConnection()->getConnectionName() << " EventSource: OnRequestEnd";
+                    LOG(DEBUG) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestEnd";
                 });
 
             client->getConfig().Remote::setSocketAddress(socketAddress);
             client->getConfig().setReconnect();
             client->getConfig().setRetry();
             client->getConfig().setRetryBase(1);
+            client->getConfig().setInstanceName("EventSource");
 
             sharedConfig->config = &client->getConfig();
 

@@ -90,6 +90,12 @@ namespace net::config {
         return instanceName.empty() ? nameAnonymous : instanceName;
     }
 
+    ConfigInstance& ConfigInstance::setInstanceName(const std::string& instanceName) {
+        this->instanceName = instanceName;
+
+        return *this;
+    }
+
     bool ConfigInstance::getDisabled() const {
         return disableOpt //
             ->as<bool>();

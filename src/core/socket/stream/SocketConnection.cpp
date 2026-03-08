@@ -61,7 +61,7 @@ namespace core::socket::stream {
 
     SocketConnection::SocketConnection(int fd, const net::config::ConfigInstance* config)
         : instanceName(config->getInstanceName())
-        , connectionName("[" + std::to_string(fd) + "]" + (!instanceName.empty() ? " " : "") + instanceName)
+        , connectionName("[" + std::to_string(fd) + "]" + (!instanceName.empty() ? " " + instanceName : ""))
         , onlineSinceTimePoint(std::chrono::system_clock::now())
         , config(config) {
     }
