@@ -235,16 +235,16 @@ int main(int argc, char* argv[]) {
                [instanceName = "app"](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
                    switch (state) {
                        case core::socket::State::OK:
-                           VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                           SNODEC_VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
                            break;
                        case core::socket::State::DISABLED:
-                           VLOG(1) << instanceName << " disabled";
+                           SNODEC_VLOG(1) << instanceName << " disabled";
                            break;
                        case core::socket::State::ERROR:
-                           LOG(ERROR) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                           SNODEC_LOG(ERROR) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                            break;
                        case core::socket::State::FATAL:
-                           LOG(FATAL) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                           SNODEC_LOG(FATAL) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                            break;
                    }
                });

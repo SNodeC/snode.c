@@ -98,17 +98,17 @@ namespace database::mariadb {
                             ExceptionalConditionEventReceiver::disable();
                         }
 
-                        LOG(ERROR) << this->connectionName << " MariaDB: Descriptor not registered in SNode.C eventloop";
+                        SNODEC_LOG(ERROR) << this->connectionName << " MariaDB: Descriptor not registered in SNode.C eventloop";
                     }
                 }
             },
             [this]() {
-                LOG(DEBUG) << this->connectionName << " MariaDB connect: success";
+                SNODEC_LOG(DEBUG) << this->connectionName << " MariaDB connect: success";
 
                 this->onStateChanged({.error = 0, .errorMessage = "", .connected = true});
             },
             [this](const std::string& errorString, unsigned int errorNumber) {
-                LOG(WARNING) << this->connectionName << " MariaDB connect: error: " << errorString << " : " << errorNumber;
+                SNODEC_LOG(WARNING) << this->connectionName << " MariaDB connect: error: " << errorString << " : " << errorNumber;
 
                 this->onStateChanged({.error = errorNumber, .errorMessage = errorString});
             }))));
@@ -162,7 +162,7 @@ namespace database::mariadb {
         if (!commandSequenceQueue.empty()) {
             currentCommand = commandSequenceQueue.front().nextCommand();
 
-            LOG(DEBUG) << connectionName << " MariaDB start: " << currentCommand->commandInfo();
+            SNODEC_LOG(DEBUG) << connectionName << " MariaDB start: " << currentCommand->commandInfo();
 
             currentCommand->setMariaDBConnection(this);
             checkStatus(currentCommand->commandStart(mysql, currentTime));
@@ -188,7 +188,7 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::commandCompleted() {
-        LOG(DEBUG) << connectionName << " MariaDB completed: " << currentCommand->commandInfo();
+        SNODEC_LOG(DEBUG) << connectionName << " MariaDB completed: " << currentCommand->commandInfo();
         commandSequenceQueue.front().commandCompleted();
 
         const bool sequenceEmpty = commandSequenceQueue.front().empty();
@@ -299,7 +299,7 @@ namespace database::mariadb {
 
     void MariaDBConnection::unobservedEvent() {
         if (!closing) {
-            LOG(ERROR) << connectionName << " MariaDB: Lost connection";
+            SNODEC_LOG(ERROR) << connectionName << " MariaDB: Lost connection";
         }
 
         if (mariaDBClient != nullptr) {

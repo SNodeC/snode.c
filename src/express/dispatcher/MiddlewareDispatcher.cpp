@@ -70,16 +70,16 @@ namespace express::dispatcher {
                                         bool strictRouting,
                                         bool caseInsensitiveRouting,
                                         bool mergeParams) {
-        LOG(TRACE) << "======================= MIDDLEWARE  DISPATCH =======================";
-        LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
-        LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
-        LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
-        LOG(TRACE) << "            Request Path: " << controller.getRequest()->path;
-        LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
-        LOG(TRACE) << "         Mountpoint Path: " << mountPoint.relativeMountPath;
-        LOG(TRACE) << "           StrictRouting: " << strictRouting;
-        LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
-        LOG(TRACE) << "             MergeParams: " << mergeParams;
+        SNODEC_LOG(TRACE) << "======================= MIDDLEWARE  DISPATCH =======================";
+        SNODEC_LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
+        SNODEC_LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
+        SNODEC_LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
+        SNODEC_LOG(TRACE) << "            Request Path: " << controller.getRequest()->path;
+        SNODEC_LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
+        SNODEC_LOG(TRACE) << "         Mountpoint Path: " << mountPoint.relativeMountPath;
+        SNODEC_LOG(TRACE) << "           StrictRouting: " << strictRouting;
+        SNODEC_LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
+        SNODEC_LOG(TRACE) << "             MergeParams: " << mergeParams;
 
         bool dispatched = false;
 
@@ -90,7 +90,7 @@ namespace express::dispatcher {
                 matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
 
             if (match.requestMatched) {
-                LOG(TRACE) << "----------------------- MIDDLEWARE     MATCH -----------------------";
+                SNODEC_LOG(TRACE) << "----------------------- MIDDLEWARE     MATCH -----------------------";
 
                 dispatched = true;
 
@@ -107,7 +107,7 @@ namespace express::dispatcher {
 
                     // If next() was called synchronously continue current route-tree traversal
                     if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
-                        LOG(TRACE) << "Express: M - Next called - set to NO MATCH";
+                        SNODEC_LOG(TRACE) << "Express: M - Next called - set to NO MATCH";
                         dispatched = false;
                         controller = next.controller;
                     }
@@ -116,10 +116,10 @@ namespace express::dispatcher {
                 }
 
             } else {
-                LOG(TRACE) << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
+                SNODEC_LOG(TRACE) << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
             }
         } else {
-            LOG(TRACE) << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
+            SNODEC_LOG(TRACE) << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
         }
 
         return dispatched;

@@ -79,21 +79,21 @@ namespace net::un::phy {
     PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
         if (lockFd >= 0) {
             if (std::remove(Super::getBindAddress().getSunPath().data()) == 0) {
-                LOG(DEBUG) << "Remove sun path: " << Super::getBindAddress().getSunPath();
+                SNODEC_LOG(DEBUG) << "Remove sun path: " << Super::getBindAddress().getSunPath();
             } else {
-                PLOG(ERROR) << "Remove sun path: " << Super::getBindAddress().getSunPath();
+                SNODEC_PLOG(ERROR) << "Remove sun path: " << Super::getBindAddress().getSunPath();
             }
 
             if (core::system::flock(lockFd, LOCK_UN) == 0) {
-                LOG(DEBUG) << "Remove lock from file: " << Super::getBindAddress().getSunPath().append(".lock");
+                SNODEC_LOG(DEBUG) << "Remove lock from file: " << Super::getBindAddress().getSunPath().append(".lock");
             } else {
-                PLOG(ERROR) << "Remove lock from file: " << Super::getBindAddress().getSunPath().append(".lock");
+                SNODEC_PLOG(ERROR) << "Remove lock from file: " << Super::getBindAddress().getSunPath().append(".lock");
             }
 
             if (std::remove(Super::bindAddress.getSunPath().append(".lock").data()) == 0) {
-                LOG(DEBUG) << "Remove lock file: " << Super::getBindAddress().getSunPath().append(".lock");
+                SNODEC_LOG(DEBUG) << "Remove lock file: " << Super::getBindAddress().getSunPath().append(".lock");
             } else {
-                PLOG(ERROR) << "Remove lock file: " << Super::getBindAddress().getSunPath().append(".lock");
+                SNODEC_PLOG(ERROR) << "Remove lock file: " << Super::getBindAddress().getSunPath().append(".lock");
             }
 
             core::system::close(lockFd);
@@ -105,24 +105,24 @@ namespace net::un::phy {
     int PhysicalSocket<PhysicalPeerSocket>::bind(SocketAddress& bindAddress) {
         if (!bindAddress.getSunPath().empty() && !bindAddress.getSunPath().starts_with('\0')) {
             if ((lockFd = open(bindAddress.getSunPath().append(".lock").data(), O_RDONLY | O_CREAT, 0600)) >= 0) {
-                LOG(DEBUG) << "Opening lock file: " << bindAddress.getSunPath().append(".lock").data();
+                SNODEC_LOG(DEBUG) << "Opening lock file: " << bindAddress.getSunPath().append(".lock").data();
                 if (core::system::flock(lockFd, LOCK_EX | LOCK_NB) == 0) {
-                    LOG(DEBUG) << "Locking lock file: " << bindAddress.getSunPath().append(".lock").data();
+                    SNODEC_LOG(DEBUG) << "Locking lock file: " << bindAddress.getSunPath().append(".lock").data();
                     if (std::filesystem::exists(bindAddress.getSunPath().data())) {
                         if (std::remove(bindAddress.getSunPath().data()) == 0) {
-                            LOG(WARNING) << "Removed stalled sun_path: " << bindAddress.getSunPath().data();
+                            SNODEC_LOG(WARNING) << "Removed stalled sun_path: " << bindAddress.getSunPath().data();
                         } else {
-                            PLOG(ERROR) << "Removed stalled sun path: " << bindAddress.getSunPath().data();
+                            SNODEC_PLOG(ERROR) << "Removed stalled sun path: " << bindAddress.getSunPath().data();
                         }
                     }
                 } else {
-                    PLOG(ERROR) << "Locking lock file " << bindAddress.getSunPath().append(".lock").data();
+                    SNODEC_PLOG(ERROR) << "Locking lock file " << bindAddress.getSunPath().append(".lock").data();
 
                     core::system::close(lockFd);
                     lockFd = -1;
                 }
             } else {
-                PLOG(ERROR) << "Opening lock file: " << bindAddress.getSunPath().append(".lock").data();
+                SNODEC_PLOG(ERROR) << "Opening lock file: " << bindAddress.getSunPath().append(".lock").data();
             }
         }
 

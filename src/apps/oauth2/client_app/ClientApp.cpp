@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
             res->sendFile("/home/rathalin/projects/snode.c/src/oauth2/client_app/vue-frontend-oauth2-client/dist/index.html",
                           [req](int ret) {
                               if (ret != 0) {
-                                  PLOG(ERROR) << req->url;
+                                  SNODEC_PLOG(ERROR) << req->url;
                               }
                           });
             /*
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
             }
             tokenRequestUri += "&client_id=911a821a-ea2d-11ec-8e2e-08002771075f";
             tokenRequestUri += "&redirect_uri=http://localhost:8081/oauth2";
-            VLOG(1) << "Recieving auth code from auth server: " << req.query("code") << ", requesting token from " << tokenRequestUri;
+            SNODEC_VLOG(1) << "Recieving auth code from auth server: " << req.query("code") << ", requesting token from " << tokenRequestUri;
             res.redirect(tokenRequestUri);
             */
         }
@@ -76,16 +76,16 @@ int main(int argc, char* argv[]) {
     app.listen(8081, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "OAuth2Client: connected to '" << socketAddress.toString() << "'";
+                SNODEC_VLOG(1) << "OAuth2Client: connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "OAuth2Client: disabled";
+                SNODEC_VLOG(1) << "OAuth2Client: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "OAuth2Client: error occurred";
+                SNODEC_VLOG(1) << "OAuth2Client: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "OAuth2Client: fatal error occurred";
+                SNODEC_VLOG(1) << "OAuth2Client: fatal error occurred";
                 break;
         }
     });

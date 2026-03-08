@@ -57,7 +57,7 @@ namespace apps::echo::model {
     }
 
     void EchoSocketContext::onConnected() {
-        VLOG(1) << "Echo connected";
+        SNODEC_VLOG(1) << "Echo connected";
 
         if (role == Role::CLIENT) {
             sendToPeer("Hello peer! Nice to see you!!!");
@@ -65,7 +65,7 @@ namespace apps::echo::model {
     }
 
     void EchoSocketContext::onDisconnected() {
-        VLOG(1) << "Echo disconnected";
+        SNODEC_VLOG(1) << "Echo disconnected";
     }
 
     bool EchoSocketContext::onSignal([[maybe_unused]] int signum) {
@@ -78,7 +78,7 @@ namespace apps::echo::model {
         const std::size_t chunklen = readFromPeer(chunk, 4096);
 
         if (chunklen > 0) {
-            VLOG(1) << "Data to reflect: " << std::string(chunk, chunklen);
+            SNODEC_VLOG(1) << "Data to reflect: " << std::string(chunk, chunklen);
             sendToPeer(chunk, chunklen);
         }
 

@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     const Client jsonClient(
         "legacy",
         [](const std::shared_ptr<MasterRequest>& req) {
-            VLOG(1) << "-- OnRequest";
+            SNODEC_VLOG(1) << "-- OnRequest";
             req->method = "POST";
             req->url = "/index.html";
             req->type("application/json");
@@ -68,34 +68,34 @@ int main(int argc, char* argv[]) {
             req->send(
                 R"({"userId":1,"schnitzel":"good","hungry":false})",
                 []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                    VLOG(1) << "-- OnResponse";
-                    VLOG(1) << "     Status:";
-                    VLOG(1) << "       " << res->httpVersion;
-                    VLOG(1) << "       " << res->statusCode;
-                    VLOG(1) << "       " << res->reason;
+                    SNODEC_VLOG(1) << "-- OnResponse";
+                    SNODEC_VLOG(1) << "     Status:";
+                    SNODEC_VLOG(1) << "       " << res->httpVersion;
+                    SNODEC_VLOG(1) << "       " << res->statusCode;
+                    SNODEC_VLOG(1) << "       " << res->reason;
 
-                    VLOG(1) << "     Headers:";
+                    SNODEC_VLOG(1) << "     Headers:";
                     for (const auto& [field, value] : res->headers) {
-                        VLOG(1) << "       " << field + " = " + value;
+                        SNODEC_VLOG(1) << "       " << field + " = " + value;
                     }
 
-                    VLOG(1) << "     Cookies:";
+                    SNODEC_VLOG(1) << "     Cookies:";
                     for (const auto& [name, cookie] : res->cookies) {
-                        VLOG(1) << "       " + name + " = " + cookie.getValue();
+                        SNODEC_VLOG(1) << "       " + name + " = " + cookie.getValue();
                         for (const auto& [option, value] : cookie.getOptions()) {
-                            VLOG(1) << "         " + option + " = " + value;
+                            SNODEC_VLOG(1) << "         " + option + " = " + value;
                         }
                     }
 
                     res->body.push_back(0);
-                    VLOG(1) << "     Body:\n----------- start body -----------" << res->body.data() << "------------ end body ------------";
+                    SNODEC_VLOG(1) << "     Body:\n----------- start body -----------" << res->body.data() << "------------ end body ------------";
                 },
                 [](const std::shared_ptr<Request>&, const std::string& message) {
-                    VLOG(1) << "legacy: Request parse error: " << message;
+                    SNODEC_VLOG(1) << "legacy: Request parse error: " << message;
                 });
         },
         []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
-            LOG(INFO) << " -- OnRequestEnd";
+            SNODEC_LOG(INFO) << " -- OnRequestEnd";
         });
 
     jsonClient.connect("localhost",
@@ -105,16 +105,16 @@ int main(int argc, char* argv[]) {
                            const core::socket::State& state) { // example.com:81 simulate connect timeout
                            switch (state) {
                                case core::socket::State::OK:
-                                   VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                   SNODEC_VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
                                    break;
                                case core::socket::State::DISABLED:
-                                   VLOG(1) << instanceName << ": disabled";
+                                   SNODEC_VLOG(1) << instanceName << ": disabled";
                                    break;
                                case core::socket::State::ERROR:
-                                   LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                   SNODEC_LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                    break;
                                case core::socket::State::FATAL:
-                                   LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                   SNODEC_LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                    break;
                            }
                        });
@@ -126,16 +126,16 @@ int main(int argc, char* argv[]) {
                                const core::socket::State& state) { // example.com:81 simulate connnect timeout
                                switch (state) {
                                    case core::socket::State::OK:
-                                       VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                       SNODEC_VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
                                        break;
                                    case core::socket::State::DISABLED:
-                                       VLOG(1) << instanceName << ": disabled";
+                                       SNODEC_VLOG(1) << instanceName << ": disabled";
                                        break;
                                    case core::socket::State::ERROR:
-                                       LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                       SNODEC_LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                        break;
                                    case core::socket::State::FATAL:
-                                       LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                       SNODEC_LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                        break;
                                }
                            });
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
     /*
         jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) {
             if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
+                SNODEC_PLOG(ERROR) << "OnError: " << err;
             }
         });
     */

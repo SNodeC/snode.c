@@ -59,16 +59,16 @@ int main(int argc, char* argv[]) {
         [instanceName = client.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                    SNODEC_VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << ": disabled";
+                    SNODEC_VLOG(1) << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    SNODEC_LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    SNODEC_LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         });
@@ -76,16 +76,16 @@ int main(int argc, char* argv[]) {
         client.connect([](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'" << "'";
+                    SNODEC_VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'" << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << "echoclient: disabled";
+                    SNODEC_VLOG(1) << "echoclient: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "echoclientt: error occurred";
+                    SNODEC_VLOG(1) << "echoclientt: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "echoclient: fatal error occurred";
+                    SNODEC_VLOG(1) << "echoclient: fatal error occurred";
                     break;
             }
         });
@@ -121,12 +121,12 @@ int main(int argc, char* argv[]) {
 #endif
 
     if (errnum < 0) {
-        PLOG(ERROR) << "OnError";
+        SNODEC_PLOG(ERROR) << "OnError";
     } else if (errnum > 0) {
         errno = errnum;
-        PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        SNODEC_PLOG(ERROR) << "OnError: " << socketAddress.toString();
     } else {
-        VLOG(1) << "snode.c connecting to " << socketAddress.toString();
+        SNODEC_VLOG(1) << "snode.c connecting to " << socketAddress.toString();
     }
 
 #ifdef NET_TYPE

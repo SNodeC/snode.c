@@ -64,13 +64,13 @@ namespace iot::mqtt::server::broker {
     }
 
     void Session::sendPublish(Message& message, uint8_t qoS, bool retain) {
-        LOG(INFO) << "MQTT Broker:   TopicName: " << message.getTopic();
-        LOG(INFO) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
-        LOG(DEBUG) << "MQTT Broker:   QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
+        SNODEC_LOG(INFO) << "MQTT Broker:   TopicName: " << message.getTopic();
+        SNODEC_LOG(INFO) << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
+        SNODEC_LOG(DEBUG) << "MQTT Broker:   QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
-            LOG(DEBUG) << "MQTT Broker:   ClientId: " << mqtt->getClientId();
-            LOG(DEBUG) << "MQTT Broker:   OriginClientId: " << message.getOriginClientId();
+            SNODEC_LOG(DEBUG) << "MQTT Broker:   ClientId: " << mqtt->getClientId();
+            SNODEC_LOG(DEBUG) << "MQTT Broker:   OriginClientId: " << message.getOriginClientId();
 
             if ((mqtt->getReflect() || mqtt->getClientId() != message.getOriginClientId())) {
                 mqtt->sendPublish(message.getTopic(),
@@ -78,7 +78,7 @@ namespace iot::mqtt::server::broker {
                                   std::min(message.getQoS(), qoS),
                                   !mqtt->getReflect() ? message.getOriginRetain() || retain : retain);
             } else {
-                LOG(INFO) << "MQTT Broker:     Suppress reflection to origin to avoid message looping";
+                SNODEC_LOG(INFO) << "MQTT Broker:     Suppress reflection to origin to avoid message looping";
             }
         } else {
             // Offline session behavior:
@@ -89,17 +89,17 @@ namespace iot::mqtt::server::broker {
                 message.setQoS(effectiveQoS);
                 messageQueue.emplace_back(message);
             } else {
-                LOG(INFO) << "MQTT Broker:     Drop QoS0 message for inactive session";
+                SNODEC_LOG(INFO) << "MQTT Broker:     Drop QoS0 message for inactive session";
             }
         }
     }
 
     void Session::publishQueued() {
-        LOG(INFO) << "MQTT Broker:     send queued messages ...";
+        SNODEC_LOG(INFO) << "MQTT Broker:     send queued messages ...";
         for (iot::mqtt::server::broker::Message& message : messageQueue) {
             sendPublish(message, message.getQoS(), false);
         }
-        LOG(INFO) << "MQTT Broker:     ... done";
+        SNODEC_LOG(INFO) << "MQTT Broker:     ... done";
 
         messageQueue.clear();
     }

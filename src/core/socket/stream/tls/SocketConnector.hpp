@@ -78,19 +78,19 @@ namespace core::socket::stream::tls {
                   }
               },
               [socketContextFactory, onConnected](SocketConnection* socketConnection) { // onConnected
-                  LOG(TRACE) << socketConnection->getConnectionName() << " SSL/TLS: Start handshake";
+                  SNODEC_LOG(TRACE) << socketConnection->getConnectionName() << " SSL/TLS: Start handshake";
                   if (!socketConnection->doSSLHandshake(
                           [socketContextFactory,
                            onConnected,
                            socketConnection]() { // onSuccess
-                              LOG(DEBUG) << socketConnection->getConnectionName() << " SSL/TLS: Handshake success";
+                              SNODEC_LOG(DEBUG) << socketConnection->getConnectionName() << " SSL/TLS: Handshake success";
 
                               onConnected(socketConnection);
 
                               socketConnection->setSocketContext(socketContextFactory);
                           },
                           [socketConnection]() { // onTimeout
-                              LOG(ERROR) << socketConnection->getConnectionName() << " SSL/TLS: Handshake timed out";
+                              SNODEC_LOG(ERROR) << socketConnection->getConnectionName() << " SSL/TLS: Handshake timed out";
 
                               socketConnection->close();
                           },
@@ -99,7 +99,7 @@ namespace core::socket::stream::tls {
 
                               socketConnection->close();
                           })) {
-                      LOG(ERROR) << socketConnection->getConnectionName() + " SSL/TLS: Handshake failed";
+                      SNODEC_LOG(ERROR) << socketConnection->getConnectionName() + " SSL/TLS: Handshake failed";
 
                       socketConnection->close();
                   }
@@ -136,14 +136,14 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocketClient, typename Config>
     void SocketConnector<PhysicalSocketClient, Config>::init() {
         if (core::eventLoopState() == core::State::RUNNING && !config->getDisabled()) {
-            LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
+            SNODEC_LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
 
             if (config->getSslCtx() != nullptr) {
-                LOG(DEBUG) << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
+                SNODEC_LOG(DEBUG) << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
 
                 Super::init();
             } else {
-                LOG(ERROR) << config->getInstanceName() << " SSL/TLS: SSL_CTX creation failed";
+                SNODEC_LOG(ERROR) << config->getInstanceName() << " SSL/TLS: SSL_CTX creation failed";
 
                 Super::onStatus(config->Remote::getSocketAddress(), core::socket::STATE_FATAL);
                 Super::destruct();

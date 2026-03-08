@@ -63,7 +63,7 @@ namespace express::middleware {
         use(
             [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
                 req, res, next) {
-                LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express " << req->method;
+                SNODEC_LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express " << req->method;
 
                 if (req->method != "GET") {
                     res->sendStatus(405, "Unsupported method: " + req->method + "\n");
@@ -87,7 +87,7 @@ namespace express::middleware {
                     if (index.empty()) {
                         res->status(404).send("Unsupported resource: " + req->url + "\n");
                     } else {
-                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                        SNODEC_LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
                                   << " Express StaticMiddleware Redirecting: " << req->url << " -> "
                                   << req->originalPath +
                                          (!req->originalPath.empty() && req->originalPath.back() != '/' && index.front() != '/' ? "/"
@@ -106,10 +106,10 @@ namespace express::middleware {
                 const std::string decodedPath = httputils::url_decode(req->path);
                 res->sendFile(root + decodedPath, [&root, decodedPath, req, res, &next](int ret) {
                     if (ret == 0) {
-                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                        SNODEC_LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
                                   << " Express StaticMiddleware: GET " << req->url + " -> " << root + decodedPath;
                     } else {
-                        PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
+                        SNODEC_PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
                                     << req->url + " -> " << root + decodedPath;
 
                         next();
