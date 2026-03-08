@@ -148,7 +148,7 @@ namespace iot::mqtt::server::broker {
         subscriptionTree.publish(Message(originClientId, topic, message, qoS, retain));
 
         if (retain) {
-            retainTree.retain(Message(originClientId, topic, message, qoS, retain));
+            retainTree.retain(Message("", topic, message, qoS, retain));
         }
     }
 
