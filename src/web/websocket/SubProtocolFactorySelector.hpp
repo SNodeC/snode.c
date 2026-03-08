@@ -67,13 +67,13 @@ namespace web::websocket {
                 subProtocolFactory = getSubProtocolFactory();
                 if (subProtocolFactory != nullptr) {
                     subProtocolFactory->setHandle(handle);
-                    LOG(DEBUG) << "WebSocket: SubProtocolFactory create: success: " << subProtocolName;
+                    SNODEC_LOG(DEBUG) << "WebSocket: SubProtocolFactory create: success: " << subProtocolName;
                 } else {
-                    LOG(DEBUG) << "WebSocket: SubProtocolFactory create: failed: " << subProtocolName;
+                    SNODEC_LOG(DEBUG) << "WebSocket: SubProtocolFactory create: failed: " << subProtocolName;
                     core::DynamicLoader::dlClose(handle);
                 }
             } else {
-                LOG(DEBUG) << "WebSocket: Optaining function \"" << subProtocolFactoryFunctionName
+                SNODEC_LOG(DEBUG) << "WebSocket: Optaining function \"" << subProtocolFactoryFunctionName
                            << "\" in plugin failed: " << core::DynamicLoader::dlError();
                 core::DynamicLoader::dlClose(handle);
             }

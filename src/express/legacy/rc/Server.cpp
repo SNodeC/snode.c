@@ -70,26 +70,26 @@ namespace express::legacy::rc {
             } else {
                 switch (state) {
                     case core::socket::State::OK:
-                        VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                        SNODEC_VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        VLOG(1) << instanceName << ": disabled";
+                        SNODEC_VLOG(1) << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        SNODEC_VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        SNODEC_VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             }
         });
 
-        VLOG(1) << "Instance: " << instanceName;
+        SNODEC_VLOG(1) << "Instance: " << instanceName;
         for (std::string& route : webApp.getRoutes()) {
             route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
 
-            VLOG(1) << "  " << route;
+            SNODEC_VLOG(1) << "  " << route;
         }
 
         return webApp;

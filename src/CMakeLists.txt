@@ -121,16 +121,11 @@ option(SNODEC_DISABLE_LOGLEVEL_LOGGING "Disable LOG() and PLOG() logging")
 option(SNODEC_DISABLE_VERBOSE_LOGGING "Disable VLOG() logging")
 
 if(SNODEC_DISABLE_LOGLEVEL_LOGGING)
-    add_compile_definitions(ELPP_DISABLE_TRACE_LOGS)
-    add_compile_definitions(ELPP_DISABLE_DEBUG_LOGS)
-    add_compile_definitions(ELPP_DISABLE_INFO_LOGS)
-    add_compile_definitions(ELPP_DISABLE_WARNING_LOGS)
-    add_compile_definitions(ELPP_DISABLE_ERROR_LOGS)
-    add_compile_definitions(ELPP_DISABLE_FATAL_LOGS)
+    add_compile_definitions(SNODEC_DISABLE_LOGLEVEL_LOGGING)
 endif(SNODEC_DISABLE_LOGLEVEL_LOGGING)
 
 if(SNODEC_DISABLE_VERBOSE_LOGGING)
-    add_compile_definitions(ELPP_DISABLE_VERBOSE_LOGS)
+    add_compile_definitions(SNODEC_DISABLE_VERBOSE_LOGGING)
 endif(SNODEC_DISABLE_VERBOSE_LOGGING)
 
 add_subdirectory(log)

@@ -99,9 +99,9 @@ namespace core {
 
             enabled = true;
             descriptorEventPublisher.enable(this);
-            LOG(TRACE) << getName() << ": Enabled";
+            SNODEC_LOG(TRACE) << getName() << ": Enabled";
         } else {
-            LOG(WARNING) << getName() << ": Double enable";
+            SNODEC_LOG(WARNING) << getName() << ": Double enable";
         }
 
         return enabled;
@@ -111,9 +111,9 @@ namespace core {
         if (enabled) {
             enabled = false;
             descriptorEventPublisher.disable(this);
-            LOG(TRACE) << getName() << ": Disabled";
+            SNODEC_LOG(TRACE) << getName() << ": Disabled";
         } else {
-            LOG(WARNING) << getName() << ": Double disable";
+            SNODEC_LOG(WARNING) << getName() << ": Double disable";
         }
     }
 
@@ -123,10 +123,10 @@ namespace core {
                 suspended = true;
                 descriptorEventPublisher.suspend(this);
             } else {
-                LOG(WARNING) << getName() << ": Double suspend";
+                SNODEC_LOG(WARNING) << getName() << ": Double suspend";
             }
         } else {
-            LOG(WARNING) << getName() << ": Suspend while not enabled";
+            SNODEC_LOG(WARNING) << getName() << ": Suspend while not enabled";
         }
     }
 
@@ -137,10 +137,10 @@ namespace core {
                 lastTriggered = utils::Timeval::currentTime();
                 descriptorEventPublisher.resume(this);
             } else {
-                LOG(WARNING) << getName() << ": Double resume";
+                SNODEC_LOG(WARNING) << getName() << ": Double resume";
             }
         } else {
-            LOG(WARNING) << getName() << ": Resume while not enabled";
+            SNODEC_LOG(WARNING) << getName() << ": Resume while not enabled";
         }
     }
 

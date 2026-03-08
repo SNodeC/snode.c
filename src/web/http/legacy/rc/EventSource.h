@@ -106,7 +106,7 @@ namespace web::http::legacy::rc {
 
             eventSource = EventSource(scheme, net::rc::SocketAddress(addr, chan), path + query);
         } else {
-            LOG(ERROR) << "EventSource RFCOMM url not accepted: " << url;
+            SNODEC_LOG(ERROR) << "EventSource RFCOMM url not accepted: " << url;
         }
 
         return eventSource;

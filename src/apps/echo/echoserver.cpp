@@ -83,16 +83,16 @@ int main(int argc, char* argv[]) {
                                                                         const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                SNODEC_VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << instanceName << ": disabled";
+                SNODEC_VLOG(1) << instanceName << ": disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                SNODEC_LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                SNODEC_LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -127,9 +127,9 @@ int main(int argc, char* argv[]) {
      server.listen("/tmp/testme", 5, [](const SocketServer::Socket& socket, int errnum) { // titan
 #endif
         if (errnum != 0) {
-            PLOG(FATAL) << "listen";
+            SNODEC_PLOG(FATAL) << "listen";
         } else {
-            VLOG(1) << "snode.c listening on " << socket.getBindAddress().toString();
+            SNODEC_VLOG(1) << "snode.c listening on " << socket.getBindAddress().toString();
         }
 
 #ifdef NET_TYPE

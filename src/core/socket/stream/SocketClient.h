@@ -133,40 +133,40 @@ namespace core::socket::stream {
             , sharedContext(std::make_shared<Context>(
                   std::make_shared<SocketContextFactory>(std::forward<Args>(args)...),
                   [onConnect](SocketConnection* socketConnection) { // onConnect
-                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";
+                      SNODEC_LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";
 
-                      LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+                      SNODEC_LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
+                      SNODEC_LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
 
                       if (onConnect) {
                           onConnect(socketConnection);
                       }
                   },
                   [onConnected](SocketConnection* socketConnection) { // onConnected
-                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnected";
+                      SNODEC_LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnected";
 
-                      LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+                      SNODEC_LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
+                      SNODEC_LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
 
                       if (onConnected) {
                           onConnected(socketConnection);
                       }
                   },
                   [onDisconnect](SocketConnection* socketConnection) { // onDisconnect
-                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnDisconnect";
+                      SNODEC_LOG(DEBUG) << socketConnection->getConnectionName() << ": OnDisconnect";
 
-                      LOG(DEBUG) << "            Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(DEBUG) << "             Peer: " << socketConnection->getRemoteAddress().toString();
+                      SNODEC_LOG(DEBUG) << "            Local: " << socketConnection->getLocalAddress().toString();
+                      SNODEC_LOG(DEBUG) << "             Peer: " << socketConnection->getRemoteAddress().toString();
 
-                      LOG(DEBUG) << "     Online Since: " << socketConnection->getOnlineSince();
-                      LOG(DEBUG) << "  Online Duration: " << socketConnection->getOnlineDuration();
+                      SNODEC_LOG(DEBUG) << "     Online Since: " << socketConnection->getOnlineSince();
+                      SNODEC_LOG(DEBUG) << "  Online Duration: " << socketConnection->getOnlineDuration();
 
-                      LOG(DEBUG) << "     Total Queued: " << socketConnection->getTotalQueued();
-                      LOG(DEBUG) << "       Total Sent: " << socketConnection->getTotalSent();
-                      LOG(DEBUG) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
-                      LOG(DEBUG) << "       Total Read: " << socketConnection->getTotalRead();
-                      LOG(DEBUG) << "  Total Processed: " << socketConnection->getTotalProcessed();
-                      LOG(DEBUG) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
+                      SNODEC_LOG(DEBUG) << "     Total Queued: " << socketConnection->getTotalQueued();
+                      SNODEC_LOG(DEBUG) << "       Total Sent: " << socketConnection->getTotalSent();
+                      SNODEC_LOG(DEBUG) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
+                      SNODEC_LOG(DEBUG) << "       Total Read: " << socketConnection->getTotalRead();
+                      SNODEC_LOG(DEBUG) << "  Total Processed: " << socketConnection->getTotalProcessed();
+                      SNODEC_LOG(DEBUG) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
 
                       if (onDisconnect) {
                           onDisconnect(socketConnection);
@@ -197,7 +197,7 @@ namespace core::socket::stream {
 
                 [config = this->config, sharedContext = this->sharedContext, onStatus, tries, retryTimeoutScale] {
                     if (config->Instance::getParent() != nullptr || !config->Instance::getRequired()) {
-                        LOG(DEBUG) << config->getInstanceName() << ": Initiating connect";
+                        SNODEC_LOG(DEBUG) << config->getInstanceName() << ": Initiating connect";
 
                         if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
                             auto autoConnectControl = sharedContext->autoConnectControl;
@@ -221,7 +221,7 @@ namespace core::socket::stream {
                                         core::eventLoopState() == core::State::RUNNING) {
                                         double relativeReconnectTimeout = config->getReconnectTime();
 
-                                        LOG(INFO)
+                                        SNODEC_LOG(INFO)
                                             << config->getInstanceName() << ": Reconnect in " << relativeReconnectTimeout << " seconds";
 
                                         autoConnectControl->armReconnectTimer(
@@ -233,7 +233,7 @@ namespace core::socket::stream {
                                                 if (config->getReconnect()) {
                                                     SocketClient(config, sharedContext).realConnect(onStatus, 0, config->getRetryBase());
                                                 } else {
-                                                    LOG(INFO) << config->getInstanceName() << ": Reconnect disabled during wait";
+                                                    SNODEC_LOG(INFO) << config->getInstanceName() << ": Reconnect disabled during wait";
                                                 }
                                             });
                                     }
@@ -259,7 +259,7 @@ namespace core::socket::stream {
                                             utils::Random::getInRange(-config->getRetryJitter(), config->getRetryJitter()) *
                                             relativeRetryTimeout / 100.;
 
-                                        LOG(INFO)
+                                        SNODEC_LOG(INFO)
                                             << config->getInstanceName() << ": Retry connect in " << relativeRetryTimeout << " seconds";
 
                                         autoConnectControl->armRetryTimer(
@@ -277,7 +277,7 @@ namespace core::socket::stream {
                                                     SocketClient(config, sharedContext)
                                                         .realConnect(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
                                                 } else {
-                                                    LOG(INFO) << config->getInstanceName() << ": Retry connect disabled during wait";
+                                                    SNODEC_LOG(INFO) << config->getInstanceName() << ": Retry connect disabled during wait";
                                                 }
                                             });
                                     }
@@ -285,7 +285,7 @@ namespace core::socket::stream {
                                 config);
                         }
                     } else {
-                        LOG(FATAL) << config->getInstanceName() << " required";
+                        SNODEC_LOG(FATAL) << config->getInstanceName() << " required";
                     }
                 });
 

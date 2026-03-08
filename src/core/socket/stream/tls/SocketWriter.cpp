@@ -68,13 +68,13 @@ namespace core::socket::stream::tls {
 
                 switch (ssl_err) {
                     case SSL_ERROR_WANT_READ:
-                        LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
+                        SNODEC_LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
                         doSSLHandshake(
                             [this]() {
-                                LOG(DEBUG) << getName() << " SSL/TLS: Renegotiation on read success";
+                                SNODEC_LOG(DEBUG) << getName() << " SSL/TLS: Renegotiation on read success";
                             },
                             [this]() {
-                                LOG(WARNING) << getName() << " SSL/TLS: Renegotiation on read timed out";
+                                SNODEC_LOG(WARNING) << getName() << " SSL/TLS: Renegotiation on read timed out";
                             },
                             [this](int ssl_err) {
                                 ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
@@ -96,11 +96,11 @@ namespace core::socket::stream::tls {
                             const utils::PreserveErrno pe;
 
                             if (errno == EPIPE) {
-                                PLOG(WARNING) << getName() << " SSL/TLS: Syscal error (SIGPIPE detected) on write.";
+                                SNODEC_PLOG(WARNING) << getName() << " SSL/TLS: Syscal error (SIGPIPE detected) on write.";
                             } else if (errno == ECONNRESET) {
-                                PLOG(WARNING) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
+                                SNODEC_PLOG(WARNING) << getName() << " SSL/TLS: Connection reset by peer (ECONNRESET).";
                             } else {
-                                PLOG(WARNING) << getName() << " SSL/TLS: Syscall error on write";
+                                SNODEC_PLOG(WARNING) << getName() << " SSL/TLS: Syscall error on write";
                             }
                         }
                         ret = -1;

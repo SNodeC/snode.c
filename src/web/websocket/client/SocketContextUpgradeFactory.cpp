@@ -58,6 +58,7 @@
 #include <sys/syscall.h>
 #else
 #include <fcntl.h>
+#include <stdexcept>
 #endif
 #endif
 
@@ -85,7 +86,9 @@ namespace web::websocket::client {
 
     void SocketContextUpgradeFactory::prepare(http::client::Request& request) {
         unsigned char ebytes[16];
-        getentropy(ebytes, 16);
+        if (getentropy(ebytes, 16) != 0) {
+            throw std::runtime_error("getentropy() failed");
+        }
 
         request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
         request.set("Sec-WebSocket-Version", "13");

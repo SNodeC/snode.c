@@ -83,7 +83,7 @@ namespace net::config {
                                removeSocketOption(optLevel, optName);
                            }
                        } catch (CLI::OptionNotFound& err) {
-                           LOG(ERROR) << err.what();
+                           SNODEC_LOG(ERROR) << err.what();
                        }
                    },
                    description,

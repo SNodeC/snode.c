@@ -69,7 +69,7 @@ namespace web::websocket {
                         sendPing();
                         flyingPings++;
                     } else {
-                        LOG(WARNING) << this->subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '"
+                        SNODEC_LOG(WARNING) << this->subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '"
                                      << this->name << "': MaxFlyingPings exceeded - closing";
 
                         sendClose();
@@ -129,7 +129,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::sendPing(const char* reason, std::size_t reasonLength) const {
-        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': Ping sent";
+        SNODEC_LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': Ping sent";
 
         subProtocolContext->sendPing(reason, reasonLength);
     }
@@ -141,7 +141,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::attach() {
-        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': start";
+        SNODEC_LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': start";
 
         onConnected();
     }
@@ -150,15 +150,15 @@ namespace web::websocket {
     void SubProtocol<SocketContextUpgrade>::detach() {
         onDisconnected();
 
-        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': stopped";
+        SNODEC_LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': stopped";
 
-        LOG(DEBUG) << "       Total Payload sent: " << getPayloadTotalSent();
-        LOG(DEBUG) << "  Total Payload processed: " << getPayloadTotalRead();
+        SNODEC_LOG(DEBUG) << "       Total Payload sent: " << getPayloadTotalSent();
+        SNODEC_LOG(DEBUG) << "  Total Payload processed: " << getPayloadTotalRead();
     }
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::onPongReceived() {
-        LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': Pong received";
+        SNODEC_LOG(DEBUG) << subProtocolContext->getSocketConnection()->getConnectionName() << " Subprotocol '" << name << "': Pong received";
 
         flyingPings = 0;
     }
