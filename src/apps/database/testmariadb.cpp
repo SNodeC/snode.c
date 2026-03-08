@@ -74,8 +74,6 @@ public:
 
     ConfigDb& setHost(const std::string& host) {
         setDefaultValue(hostOpt, host);
-        hostOpt->required(false);
-
         required(hostOpt, false);
 
         return *this;
