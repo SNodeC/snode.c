@@ -46,7 +46,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -69,14 +68,12 @@ namespace utils {
                                    const std::string& logDirectory,
                                    const std::string& pidDirectory);
 
+    private:
         bool parse1(int argc, char* argv[]);
         bool bootstrap(int argc, char* argv[]);
+        bool parse2(int argc, char* argv[], bool parse1 = false);
         void terminate();
 
-    protected:
-        bool parse2(int argc, char* argv[], bool parse1 = false);
-
-    private:
         std::string applicationName;
         std::string pidDirectory;
 
@@ -121,8 +118,6 @@ namespace utils {
         static char** argv;
 
         static std::string applicationName;
-
-        static std::shared_ptr<AppWithPtr> configRootApp;
 
         static std::string configDirectory;
         static std::string logDirectory;

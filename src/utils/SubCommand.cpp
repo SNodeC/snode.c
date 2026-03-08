@@ -61,6 +61,8 @@ namespace utils {
         if (appWithPtr != nullptr) {
             if (parent != nullptr) {
                 parent->subCommandApp->add_subcommand(appWithPtr);
+            } else {
+                subCommandAppOwner = std::move(appWithPtr);
             }
 
             subCommandApp->group(group);

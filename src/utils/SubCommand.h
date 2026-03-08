@@ -132,6 +132,10 @@ namespace utils {
         SubCommand* required(SubCommand* subCommand, bool required = true);
         SubCommand* required(CLI::Option* option, bool required = true);
 
+        bool getRequired() const {
+            return subCommandApp->get_required();
+        }
+
         SubCommand* needs(SubCommand* subCommand, bool needs = true);
         SubCommand* disabled(SubCommand* subCommand, bool disabled = true);
 
@@ -243,6 +247,8 @@ namespace utils {
 
         AppWithPtr* subCommandApp;
         SubCommand* parent;
+
+        std::shared_ptr<AppWithPtr> subCommandAppOwner;
 
         bool final;
 

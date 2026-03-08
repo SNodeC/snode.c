@@ -56,7 +56,7 @@ namespace net::config {
     const std::string ConfigInstance::nameAnonymous = "<anonymous>";
 
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
-        : utils::SubCommand(&utils::Config::configRoot,
+        : utils::SubCommand(!instanceName.empty() ? &utils::Config::configRoot : nullptr,
                             std::make_shared<utils::AppWithPtr>(std::string("Configuration for ")
                                                                     .append(role == Role::SERVER ? "server" : "client")
                                                                     .append(" instance '")
@@ -72,7 +72,9 @@ namespace net::config {
         disableOpt = setConfigurable(addFlagFunction(
                                          "--disabled{true}",
                                          [this]() {
-                                             utils::Config::configRoot.disabled(this, disableOpt->as<bool>());
+                                             if (getParent() != nullptr) {
+                                                 getParent()->disabled(this, disableOpt->as<bool>());
+                                             }
                                          },
                                          "Disable this instance",
                                          "bool",
@@ -96,7 +98,9 @@ namespace net::config {
     ConfigInstance& ConfigInstance::setDisabled(bool disabled) {
         setDefaultValue(disableOpt, disabled ? "true" : "false");
 
-        utils::Config::configRoot.disabled(this, disabled);
+        if (getParent() != nullptr) {
+            getParent()->disabled(this, disabled);
+        }
 
         return *this;
     }
