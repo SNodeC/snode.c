@@ -72,13 +72,13 @@ int main(int argc, char* argv[]) {
 
         res->upgrade(req, [req, res, connectionName](const std::string& name) {
             if (!name.empty()) {
-                SNODEC_VLOG(1) << connectionName << ": Successful upgrade:";
-                SNODEC_VLOG(1) << connectionName << ":   Requested: " << req->get("upgrade");
-                SNODEC_VLOG(1) << connectionName << ":    Selected: " << name;
+                VLOG(1) << connectionName << ": Successful upgrade:";
+                VLOG(1) << connectionName << ":   Requested: " << req->get("upgrade");
+                VLOG(1) << connectionName << ":    Selected: " << name;
 
                 res->end();
             } else {
-                SNODEC_VLOG(1) << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
+                VLOG(1) << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
 
                 res->sendStatus(404);
             }
@@ -86,18 +86,18 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.get("/", [] APPLICATION(req, res) {
-        SNODEC_VLOG(1) << "HTTP GET on "
+        VLOG(1) << "HTTP GET on "
                 << "/";
         if (req->url == "/" || req->url == "/index.html") {
             req->url = "/wstest.html";
         }
 
-        SNODEC_VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
+        VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
         res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req, res](int errnum) {
             if (errnum == 0) {
-                SNODEC_VLOG(1) << req->url;
+                VLOG(1) << req->url;
             } else {
-                SNODEC_VLOG(1) << "HTTP response send file failed: " << std::strerror(errnum);
+                VLOG(1) << "HTTP response send file failed: " << std::strerror(errnum);
                 res->sendStatus(404);
             }
         });
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
 
     legacyApp
         .setOnInitState([]([[maybe_unused]] core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
-            SNODEC_VLOG(0) << "------------------- Legacy Server Init: " << acceptEventReceiver;
+            VLOG(0) << "------------------- Legacy Server Init: " << acceptEventReceiver;
             if (acceptEventReceiver->isEnabled()) {
                 acceptEventReceiver->stopListen();
             }
@@ -114,25 +114,25 @@ int main(int argc, char* argv[]) {
             [instanceName = legacyApp.getConfig().getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
-                        SNODEC_VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                        VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        SNODEC_VLOG(1) << instanceName << " disabled";
+                        VLOG(1) << instanceName << " disabled";
                         break;
                     case core::socket::State::ERROR:
-                        SNODEC_VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        SNODEC_VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             });
 
-    SNODEC_VLOG(1) << "Legacy Routes:";
+    VLOG(1) << "Legacy Routes:";
     for (std::string& route : legacyApp.getRoutes()) {
         route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
 
-        SNODEC_VLOG(1) << "  " << route;
+        VLOG(1) << "  " << route;
     }
 
     {
@@ -150,13 +150,13 @@ int main(int argc, char* argv[]) {
 
             res->upgrade(req, [req, res, connectionName](const std::string& name) {
                 if (!name.empty()) {
-                    SNODEC_VLOG(1) << connectionName << ": Upgrade success:";
-                    SNODEC_VLOG(1) << connectionName << ":   Requested: " << req->get("upgrade");
-                    SNODEC_VLOG(1) << connectionName << ":    Selected: " << name;
+                    VLOG(1) << connectionName << ": Upgrade success:";
+                    VLOG(1) << connectionName << ":   Requested: " << req->get("upgrade");
+                    VLOG(1) << connectionName << ":    Selected: " << name;
 
                     res->end();
                 } else {
-                    SNODEC_VLOG(1) << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
+                    VLOG(1) << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
 
                     res->sendStatus(404);
                 }
@@ -168,12 +168,12 @@ int main(int argc, char* argv[]) {
                 req->url = "/wstest.html";
             }
 
-            SNODEC_VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
+            VLOG(1) << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
             res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req, res](int errnum) {
                 if (errnum == 0) {
-                    SNODEC_VLOG(1) << req->url;
+                    VLOG(1) << req->url;
                 } else {
-                    SNODEC_VLOG(1) << "HTTP response send file failed: " << std::strerror(errnum);
+                    VLOG(1) << "HTTP response send file failed: " << std::strerror(errnum);
                     res->sendStatus(404);
                 }
             });
@@ -181,31 +181,31 @@ int main(int argc, char* argv[]) {
 
         tlsApp
             .setOnInitState([]([[maybe_unused]] core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
-                SNODEC_VLOG(0) << "------------------- TLS Server Init: " << acceptEventReceiver;
+                VLOG(0) << "------------------- TLS Server Init: " << acceptEventReceiver;
             })
             .listen([instanceName = tlsApp.getConfig().getInstanceName()](const SocketAddress& socketAddress,
                                                                           const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
-                        SNODEC_VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                        VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        SNODEC_VLOG(1) << instanceName << " disabled";
+                        VLOG(1) << instanceName << " disabled";
                         break;
                     case core::socket::State::ERROR:
-                        SNODEC_VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        SNODEC_VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             });
 
-        SNODEC_VLOG(1) << "Tls Routes:";
+        VLOG(1) << "Tls Routes:";
         for (std::string& route : legacyApp.getRoutes()) {
             route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
 
-            SNODEC_VLOG(1) << "  " << route;
+            VLOG(1) << "  " << route;
         }
     }
 

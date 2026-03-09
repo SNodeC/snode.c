@@ -126,7 +126,7 @@ namespace net::in6 {
                       << "                  sin_addr:     " << hostBfr << "\n"
                       << "                  sin_port:     " << servBfr;
 
-            SNODEC_LOG(TRACE) << formatted.str();
+            LOG(TRACE) << formatted.str();
         }
     }
 

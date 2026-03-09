@@ -68,7 +68,7 @@ namespace core::multiplexer::select {
                                                                                          fdSets[core::EventMultiplexer::DISP_TYPE::WR]),
                                  new core::multiplexer::select::DescriptorEventPublisher("EXCEPT", //
                                                                                          fdSets[core::EventMultiplexer::DISP_TYPE::EX])) {
-        SNODEC_LOG(DEBUG) << "Core::multiplexer: select";
+        LOG(DEBUG) << "Core::multiplexer: select";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {

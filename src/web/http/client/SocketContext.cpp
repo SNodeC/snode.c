@@ -87,16 +87,16 @@ namespace web::http::client {
 
     SocketContext::~SocketContext() {
         if (!deliveredRequests.empty()) {
-            SNODEC_LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Responses missed";
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Responses missed";
             for (const std::shared_ptr<MasterRequest>& request : deliveredRequests) {
-                SNODEC_LOG(DEBUG) << "  " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+                LOG(DEBUG) << "  " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
             }
         }
 
         if (!pendingRequests.empty()) {
-            SNODEC_LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Requests ignored";
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Requests ignored";
             for (const std::shared_ptr<MasterRequest>& request : pendingRequests) {
-                SNODEC_LOG(DEBUG) << "  " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+                LOG(DEBUG) << "  " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
             }
         }
     }
@@ -112,7 +112,7 @@ namespace web::http::client {
 
         if ((flags == Flags::NONE || (flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) &&
             (flags & Flags::CLOSE) != Flags::CLOSE) {
-            SNODEC_LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
+            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
                       << ") accepted: " << requestLine;
             flags = (flags & Flags::HTTP11) | ((request->httpMajor == 1 && request->httpMinor == 1) ? Flags::HTTP11 : Flags::NONE);
             flags = (flags & Flags::HTTP10) | ((request->httpMajor == 1 && request->httpMinor == 0) ? Flags::HTTP10 : Flags::NONE);
@@ -122,7 +122,7 @@ namespace web::http::client {
 
             pendingRequests.push_back(request);
 
-            SNODEC_LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count << ") queued: " << requestLine
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count << ") queued: " << requestLine
                        << " - QueueSize = " << pendingRequests.size() << " - Flags: " << flags << " - "
                        << web::http::ciContains(request->header("Connection"), "close");
 
@@ -130,10 +130,10 @@ namespace web::http::client {
                 initiateRequest();
             }
         } else {
-            SNODEC_LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
+            LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
                          << ") rejected: " << requestLine;
 
-            SNODEC_LOG(WARNING) << httputils::toString(request->method,
+            LOG(WARNING) << httputils::toString(request->method,
                                                 request->url,
                                                 "HTTP/" + std::to_string(request->httpMajor) + "." + std::to_string(request->httpMinor),
                                                 request->getQueries(),
@@ -156,10 +156,10 @@ namespace web::http::client {
                                                 .append(".")
                                                 .append(std::to_string(request->httpMinor));
 
-            SNODEC_LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count << ") start: " << requestLine;
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count << ") start: " << requestLine;
 
             if (!request->initiate(request)) {
-                SNODEC_LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
+                LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
                              << ") delivering failed: " << requestLine;
 
                 core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {
@@ -167,7 +167,7 @@ namespace web::http::client {
                     if (!masterRequest.expired() && !pendingRequests.empty()) {
                         const std::shared_ptr<Request>& request = pendingRequests.front();
 
-                        SNODEC_LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
+                        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
                                    << ") dequeued: " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "."
                                    << request->httpMinor;
 
@@ -191,7 +191,7 @@ namespace web::http::client {
                                             .append(std::to_string(currentRequest->httpMinor));
 
         if (success) {
-            SNODEC_LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << currentRequest->count
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << currentRequest->count
                        << ") delivered: " << requestLine << " " << pendingRequests.size();
 
             deliveredRequests.push_back(currentRequest);
@@ -201,7 +201,7 @@ namespace web::http::client {
                     if (!masterRequest.expired()) {
                         const std::shared_ptr<Request>& request = pendingRequests.front();
 
-                        SNODEC_LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
+                        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
                                    << ") dequeued: " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "."
                                    << request->httpMinor;
 
@@ -210,7 +210,7 @@ namespace web::http::client {
                 });
             }
         } else {
-            SNODEC_LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << currentRequest->count
+            LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << currentRequest->count
                          << ") deliver failed: " << requestLine;
 
             shutdownWrite();
@@ -219,7 +219,7 @@ namespace web::http::client {
 
     void SocketContext::responseStarted() {
         if (deliveredRequests.empty()) {
-            SNODEC_LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Response without delivered request";
+            LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Response without delivered request";
 
             close();
         }
@@ -237,15 +237,15 @@ namespace web::http::client {
                                             .append(".")
                                             .append(std::to_string(request->httpMinor));
 
-        SNODEC_LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response received for request (" << request->count
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response received for request (" << request->count
                   << "): " << requestLine;
 
-        SNODEC_LOG(INFO) << getSocketConnection()->getConnectionName() << "   HTTP/" << response->httpMajor << "." << response->httpMinor << " "
+        LOG(INFO) << getSocketConnection()->getConnectionName() << "   HTTP/" << response->httpMajor << "." << response->httpMinor << " "
                   << response->statusCode << " " << response->reason;
 
         request->deliverResponse(request, response);
 
-        SNODEC_LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count << ") completed: " << requestLine;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count << ") completed: " << requestLine;
 
         requestCompleted(response);
     }
@@ -262,7 +262,7 @@ namespace web::http::client {
                                             .append(".")
                                             .append(std::to_string(request->httpMinor));
 
-        SNODEC_LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Response parse error: " << reason << " (" << status
+        LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Response parse error: " << reason << " (" << status
                      << ") for request (" << request->count << "): " << requestLine
                      << std::string(request->method)
                             .append(" ")
@@ -283,18 +283,18 @@ namespace web::http::client {
                      ((response->httpMajor == 0 && response->httpMinor == 0) || (response->httpMajor == 1 && response->httpMinor == 0)));
 
         if (httpClose) {
-            SNODEC_LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
 
             shutdownWrite();
         } else {
-            SNODEC_LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
+            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
 
             if (!pipelinedRequests && !pendingRequests.empty()) {
                 core::EventReceiver::atNextTick([this, masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {
                     if (!masterRequest.expired()) {
                         const std::shared_ptr<Request>& request = pendingRequests.front();
 
-                        SNODEC_LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Initiating request (" << request->count
+                        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Initiating request (" << request->count
                                    << "): " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "."
                                    << request->httpMinor;
 
@@ -312,7 +312,7 @@ namespace web::http::client {
     }
 
     void SocketContext::onConnected() {
-        SNODEC_LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Connected";
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Connected";
 
         onHttpConnected(masterRequest);
     }
@@ -345,11 +345,11 @@ namespace web::http::client {
 
         onHttpDisconnected(masterRequest);
 
-        SNODEC_LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received disconnect";
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received disconnect";
     }
 
     bool SocketContext::onSignal([[maybe_unused]] int signum) {
-        SNODEC_LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received signal " << signum;
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received signal " << signum;
 
         return true;
     }

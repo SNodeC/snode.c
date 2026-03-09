@@ -73,10 +73,10 @@ namespace core::socket::stream {
         SocketContext* socketContext = socketContextFactory->create(this);
 
         if (socketContext != nullptr) {
-            SNODEC_LOG(DEBUG) << connectionName << ": SocketContext created successful";
+            LOG(DEBUG) << connectionName << ": SocketContext created successful";
             setSocketContext(socketContext);
         } else {
-            SNODEC_LOG(ERROR) << connectionName << ": SocketContext failed to create";
+            LOG(ERROR) << connectionName << ": SocketContext failed to create";
             close();
         }
     }
@@ -87,7 +87,7 @@ namespace core::socket::stream {
 
             socketContext->attach();
         } else {
-            SNODEC_LOG(DEBUG) << connectionName << " SocketContext: switch";
+            LOG(DEBUG) << connectionName << " SocketContext: switch";
 
             newSocketContext = socketContext;
         }

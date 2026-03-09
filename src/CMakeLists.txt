@@ -88,17 +88,14 @@ add_compile_options(
     -Wall
     -Wextra
     -Wconversion
-    -Wpedantic
-    -Wconversion
     -Wuninitialized
     -Wunreachable-code
     -Wfloat-equal
-    -pedantic-errors
     -fexec-charset=UTF-8
     -ftemplate-backtrace-limit=0
     -Wno-shadow # yes we do
     -Wno-psabi # needed for RaspberryPi
-    -Wno-used-but-marked-unused
+    $<$<CXX_COMPILER_ID:Clang>:-Wno-used-but-marked-unused>
     $<$<CXX_COMPILER_ID:Clang>:-Weverything>
     $<$<CXX_COMPILER_ID:Clang>:-Wno-c++98-compat-pedantic>
     $<$<CXX_COMPILER_ID:Clang>:-Wno-exit-time-destructors>

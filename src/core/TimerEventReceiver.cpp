@@ -85,7 +85,7 @@ namespace core {
         if (core::eventLoopState() != core::State::STOPPING) {
             timerEventPublisher.insert(this);
         } else {
-            SNODEC_LOG(WARNING) << "TimerEventReceiver - Enable after signal: Not enabled";
+            LOG(WARNING) << "TimerEventReceiver - Enable after signal: Not enabled";
             delete this;
         }
     }
@@ -101,7 +101,7 @@ namespace core {
     }
 
     void TimerEventReceiver::onEvent(const utils::Timeval& currentTime) {
-        SNODEC_LOG(TRACE) << "TimerEventReceiver: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).getMsd() << " ms";
+        LOG(TRACE) << "TimerEventReceiver: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).getMsd() << " ms";
 
         dispatchEvent();
     }

@@ -87,7 +87,7 @@ namespace core::multiplexer::epoll {
         event.data.ptr = descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::EX];
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::EventMultiplexer::DISP_TYPE::EX], &event);
 
-        SNODEC_LOG(DEBUG) << "Core::multiplexer: epoll";
+        LOG(DEBUG) << "Core::multiplexer: epoll";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeout, const sigset_t& sigMask) {

@@ -69,16 +69,16 @@ namespace express::dispatcher {
                                     [[maybe_unused]] bool strictRoutingUnused,
                                     [[maybe_unused]] bool caseInsensitiveRoutingUnused,
                                     [[maybe_unused]] bool mergeParamsUnused) {
-        SNODEC_LOG(TRACE) << "======================= ROUTER      DISPATCH =======================";
-        SNODEC_LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
-        SNODEC_LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
-        SNODEC_LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
-        SNODEC_LOG(TRACE) << "            Request Path: " << controller.getRequest()->path;
-        SNODEC_LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
-        SNODEC_LOG(TRACE) << "         Mountpoint Path: " << mountPoint.relativeMountPath;
-        SNODEC_LOG(TRACE) << "           StrictRouting: " << this->strictRouting;
-        SNODEC_LOG(TRACE) << "  CaseInsensitiveRouting: " << this->caseInsensitiveRouting;
-        SNODEC_LOG(TRACE) << "             MergeParams: " << this->mergeParams;
+        LOG(TRACE) << "======================= ROUTER      DISPATCH =======================";
+        LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
+        LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
+        LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
+        LOG(TRACE) << "            Request Path: " << controller.getRequest()->path;
+        LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
+        LOG(TRACE) << "         Mountpoint Path: " << mountPoint.relativeMountPath;
+        LOG(TRACE) << "           StrictRouting: " << this->strictRouting;
+        LOG(TRACE) << "  CaseInsensitiveRouting: " << this->caseInsensitiveRouting;
+        LOG(TRACE) << "             MergeParams: " << this->mergeParams;
 
         bool dispatched = false;
 
@@ -89,7 +89,7 @@ namespace express::dispatcher {
                 controller, mountPoint.relativeMountPath, mountPoint, regex, names, this->strictRouting, this->caseInsensitiveRouting);
 
             if (match.requestMatched) {
-                SNODEC_LOG(TRACE) << "----------------------- ROUTER         MATCH -----------------------";
+                LOG(TRACE) << "----------------------- ROUTER         MATCH -----------------------";
 
                 dispatched = true;
 
@@ -112,10 +112,10 @@ namespace express::dispatcher {
                     controller.getResponse()->sendStatus(400);
                 }
             } else {
-                SNODEC_LOG(TRACE) << "----------------------- ROUTER       NOMATCH -----------------------";
+                LOG(TRACE) << "----------------------- ROUTER       NOMATCH -----------------------";
             }
         } else {
-            SNODEC_LOG(TRACE) << "----------------------- ROUTER       NOMATCH -----------------------";
+            LOG(TRACE) << "----------------------- ROUTER       NOMATCH -----------------------";
         }
 
         return dispatched;

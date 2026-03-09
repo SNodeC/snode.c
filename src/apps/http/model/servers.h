@@ -99,10 +99,10 @@ namespace apps::http::tls {
         const std::string& instanceName = webApp.getConfig().getInstanceName();
 
         webApp.setOnConnect([instanceName](SocketConnection* socketConnection) { // onConnect
-            SNODEC_VLOG(1) << "OnConnect " << instanceName;
+            VLOG(1) << "OnConnect " << instanceName;
 
-            SNODEC_VLOG(1) << "  Local: " << socketConnection->getLocalAddress().toString();
-            SNODEC_VLOG(1) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "  Local: " << socketConnection->getLocalAddress().toString();
+            VLOG(1) << "   Peer: " << socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -115,21 +115,21 @@ namespace apps::http::tls {
         });
 
         webApp.setOnConnected([instanceName](SocketConnection* socketConnection) { // onConnected
-            SNODEC_VLOG(1) << "OnConnected " << instanceName;
+            VLOG(1) << "OnConnected " << instanceName;
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                SNODEC_VLOG(1) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
+                VLOG(1) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
                                std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                SNODEC_VLOG(1) << "\t   Subject: " + std::string(str);
+                VLOG(1) << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                SNODEC_VLOG(1) << "\t   Issuer: " + std::string(str);
+                VLOG(1) << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -139,7 +139,7 @@ namespace apps::http::tls {
 
                 int32_t altNameCount = OPENSSL_sk_num(reinterpret_cast<const OPENSSL_STACK*>(subjectAltNames));
 
-                SNODEC_VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
+                VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
                     GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
 
@@ -147,14 +147,14 @@ namespace apps::http::tls {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        SNODEC_VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
+                        VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        SNODEC_VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
+                        VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
                     } else {
-                        SNODEC_VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                     }
                 }
 
@@ -162,25 +162,25 @@ namespace apps::http::tls {
 
                 X509_free(server_cert);
             } else {
-                SNODEC_LOG(WARNING) << "\tPeer certificate: no certificate";
+                LOG(WARNING) << "\tPeer certificate: no certificate";
             }
         });
 
         webApp.setOnDisconnect([instanceName](SocketConnection* socketConnection) { // onDisconnect
-            SNODEC_VLOG(1) << "OnDisconnect " << instanceName;
+            VLOG(1) << "OnDisconnect " << instanceName;
 
-            SNODEC_VLOG(2) << "            Local: " << socketConnection->getLocalAddress().toString(false);
-            SNODEC_VLOG(2) << "             Peer: " << socketConnection->getRemoteAddress().toString(false);
+            VLOG(2) << "            Local: " << socketConnection->getLocalAddress().toString(false);
+            VLOG(2) << "             Peer: " << socketConnection->getRemoteAddress().toString(false);
 
-            SNODEC_VLOG(2) << "     Online Since: " << socketConnection->getOnlineSince();
-            SNODEC_VLOG(2) << "  Online Duration: " << socketConnection->getOnlineDuration();
+            VLOG(2) << "     Online Since: " << socketConnection->getOnlineSince();
+            VLOG(2) << "  Online Duration: " << socketConnection->getOnlineDuration();
 
-            SNODEC_VLOG(2) << "     Total Queued: " << socketConnection->getTotalQueued();
-            SNODEC_VLOG(2) << "       Total Sent: " << socketConnection->getTotalSent();
-            SNODEC_VLOG(2) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
-            SNODEC_VLOG(2) << "       Total Read: " << socketConnection->getTotalRead();
-            SNODEC_VLOG(2) << "  Total Processed: " << socketConnection->getTotalProcessed();
-            SNODEC_VLOG(2) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
+            VLOG(2) << "     Total Queued: " << socketConnection->getTotalQueued();
+            VLOG(2) << "       Total Sent: " << socketConnection->getTotalSent();
+            VLOG(2) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
+            VLOG(2) << "       Total Read: " << socketConnection->getTotalRead();
+            VLOG(2) << "  Total Processed: " << socketConnection->getTotalProcessed();
+            VLOG(2) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
         });
 
         return webApp;

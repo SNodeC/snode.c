@@ -49,6 +49,7 @@
 
 #include "utils/base64.h"
 
+#include <stdexcept>
 #include <unistd.h>
 
 #if !defined(HAVE_GETENTROPY)

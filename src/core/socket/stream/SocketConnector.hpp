@@ -101,7 +101,7 @@ namespace core::socket::stream {
             try {
                 core::socket::State state = core::socket::STATE_OK;
 
-                SNODEC_LOG(DEBUG) << config->getInstanceName() << " Connect: starting";
+                LOG(DEBUG) << config->getInstanceName() << " Connect: starting";
 
                 SocketAddress bindAddress = config->Local::getSocketAddress();
 
@@ -109,7 +109,7 @@ namespace core::socket::stream {
                     remoteAddress = config->Remote::getSocketAddress();
 
                     if (physicalClientSocket.open(config->getSocketOptions(), PhysicalClientSocket::Flags::NONBLOCK) < 0) {
-                        SNODEC_PLOG(DEBUG) << config->getInstanceName() << " open " << bindAddress.toString();
+                        PLOG(DEBUG) << config->getInstanceName() << " open " << bindAddress.toString();
 
                         switch (errno) {
                             case EMFILE:
@@ -125,10 +125,10 @@ namespace core::socket::stream {
 
                         onStatus(bindAddress, state);
                     } else {
-                        SNODEC_LOG(TRACE) << config->getInstanceName() << " open " << bindAddress.toString() << ": success";
+                        LOG(TRACE) << config->getInstanceName() << " open " << bindAddress.toString() << ": success";
 
                         if (physicalClientSocket.bind(bindAddress) < 0) {
-                            SNODEC_PLOG(DEBUG) << config->getInstanceName() << " bind " << bindAddress.toString();
+                            PLOG(DEBUG) << config->getInstanceName() << " bind " << bindAddress.toString();
 
                             switch (errno) {
                                 case EADDRINUSE:
@@ -141,10 +141,10 @@ namespace core::socket::stream {
 
                             onStatus(bindAddress, state);
                         } else {
-                            SNODEC_LOG(TRACE) << config->getInstanceName() << " bind " << bindAddress.toString() << ": success";
+                            LOG(TRACE) << config->getInstanceName() << " bind " << bindAddress.toString() << ": success";
 
                             if (physicalClientSocket.connect(remoteAddress) < 0 && !PhysicalClientSocket::connectInProgress(errno)) {
-                                SNODEC_PLOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString();
+                                PLOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString();
                                 switch (errno) {
                                     case EADDRINUSE:
                                     case EADDRNOTAVAIL:
@@ -163,21 +163,21 @@ namespace core::socket::stream {
                                 if (remoteAddress.useNext()) {
                                     onStatus(currentRemoteAddress, state | core::socket::State::NO_RETRY);
 
-                                    SNODEC_LOG(INFO) << config->getInstanceName() << ": Using next SocketAddress: " << remoteAddress.toString();
+                                    LOG(INFO) << config->getInstanceName() << ": Using next SocketAddress: " << remoteAddress.toString();
 
                                     useNextSocketAddress();
                                 } else {
                                     onStatus(currentRemoteAddress, state);
                                 }
                             } else {
-                                SNODEC_LOG(TRACE) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
+                                LOG(TRACE) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
 
                                 if (PhysicalClientSocket::connectInProgress(errno)) {
                                     if (enable(physicalClientSocket.getFd())) {
-                                        SNODEC_LOG(DEBUG)
+                                        LOG(DEBUG)
                                             << config->getInstanceName() << " enable " << remoteAddress.toString(false) << ": success";
                                     } else {
-                                        SNODEC_LOG(ERROR) << config->getInstanceName() << " enable " << remoteAddress.toString()
+                                        LOG(ERROR) << config->getInstanceName() << " enable " << remoteAddress.toString()
                                                    << ": failed. No valid descriptor created";
 
                                         state = core::socket::STATE(core::socket::STATE_FATAL, ECANCELED, "SocketConnector not enabled");
@@ -188,8 +188,8 @@ namespace core::socket::stream {
                                     SocketConnection* socketConnection =
                                         new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);
 
-                                    SNODEC_LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
-                                    SNODEC_LOG(DEBUG) << "  " << socketConnection->getLocalAddress().toString() << " -> "
+                                    LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
+                                    LOG(DEBUG) << "  " << socketConnection->getLocalAddress().toString() << " -> "
                                                << socketConnection->getRemoteAddress().toString();
 
                                     onStatus(remoteAddress, state);
@@ -204,7 +204,7 @@ namespace core::socket::stream {
                     core::socket::State state =
                         core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what());
 
-                    SNODEC_LOG(ERROR) << state.what();
+                    LOG(ERROR) << state.what();
 
                     onStatus({}, state);
                 }
@@ -212,12 +212,12 @@ namespace core::socket::stream {
                 core::socket::State state =
                     core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what());
 
-                SNODEC_LOG(ERROR) << state.what();
+                LOG(ERROR) << state.what();
 
                 onStatus({}, state);
             }
         } else {
-            SNODEC_LOG(DEBUG) << config->getInstanceName() << ": disabled";
+            LOG(DEBUG) << config->getInstanceName() << ": disabled";
 
             onStatus({}, core::socket::STATE_DISABLED);
         }
@@ -242,8 +242,8 @@ namespace core::socket::stream {
             if (errno == 0) {
                 SocketConnection* socketConnection = new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);
 
-                SNODEC_LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
-                SNODEC_LOG(DEBUG) << "  " << socketConnection->getLocalAddress().toString() << " -> "
+                LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
+                LOG(DEBUG) << "  " << socketConnection->getLocalAddress().toString() << " -> "
                            << socketConnection->getRemoteAddress().toString();
 
                 onStatus(remoteAddress, core::socket::STATE_OK);
@@ -253,7 +253,7 @@ namespace core::socket::stream {
 
                 disable();
             } else if (PhysicalClientSocket::connectInProgress(errno)) {
-                SNODEC_LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": in progress:";
+                LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": in progress:";
             } else {
                 SocketAddress currentRemoteAddress = remoteAddress;
 
@@ -274,18 +274,18 @@ namespace core::socket::stream {
                 }
 
                 if (remoteAddress.useNext()) {
-                    SNODEC_PLOG(DEBUG) << config->getInstanceName() << " connect '" << remoteAddress.toString();
+                    PLOG(DEBUG) << config->getInstanceName() << " connect '" << remoteAddress.toString();
 
                     onStatus(currentRemoteAddress, (state | core::socket::State::NO_RETRY));
 
-                    SNODEC_LOG(DEBUG) << config->getInstanceName()
+                    LOG(DEBUG) << config->getInstanceName()
                                << " using next SocketAddress: " << config->Remote::getSocketAddress().toString();
 
                     useNextSocketAddress();
 
                     disable();
                 } else {
-                    SNODEC_PLOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString();
+                    PLOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString();
 
                     onStatus(currentRemoteAddress, state);
 
@@ -293,7 +293,7 @@ namespace core::socket::stream {
                 }
             }
         } else {
-            SNODEC_PLOG(DEBUG) << config->getInstanceName() << " getsockopt syscall error: '" << remoteAddress.toString() << "'";
+            PLOG(DEBUG) << config->getInstanceName() << " getsockopt syscall error: '" << remoteAddress.toString() << "'";
 
             onStatus(remoteAddress, core::socket::STATE_FATAL);
             disable();
@@ -311,16 +311,16 @@ namespace core::socket::stream {
               typename Config,
               template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectTimeout() {
-        SNODEC_LOG(TRACE) << config->getInstanceName() << " connect timeout " << remoteAddress.toString();
+        LOG(TRACE) << config->getInstanceName() << " connect timeout " << remoteAddress.toString();
 
         SocketAddress currentRemoteAddress = remoteAddress;
         if (remoteAddress.useNext()) {
-            SNODEC_LOG(DEBUG) << config->getInstanceName() << " using next SocketAddress: '" << config->Remote::getSocketAddress().toString()
+            LOG(DEBUG) << config->getInstanceName() << " using next SocketAddress: '" << config->Remote::getSocketAddress().toString()
                        << "'";
 
             useNextSocketAddress();
         } else {
-            SNODEC_LOG(DEBUG) << config->getInstanceName() << " connect timeout '" << remoteAddress.toString() << "'";
+            LOG(DEBUG) << config->getInstanceName() << " connect timeout '" << remoteAddress.toString() << "'";
             errno = ETIMEDOUT;
 
             onStatus(currentRemoteAddress, core::socket::STATE_ERROR);

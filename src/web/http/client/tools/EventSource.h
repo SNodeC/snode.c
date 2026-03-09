@@ -288,24 +288,24 @@ namespace web::http::client::tools {
             sharedState->path = path;
             sharedState->origin = scheme + "://" + socketAddress.toString(false);
 
-            SNODEC_LOG(TRACE) << "Origin: " << sharedState->origin;
-            SNODEC_LOG(TRACE) << "  Path: " << sharedState->path;
+            LOG(TRACE) << "Origin: " << sharedState->origin;
+            LOG(TRACE) << "  Path: " << sharedState->path;
 
             const std::weak_ptr<EventSourceT> eventSourceWeak = this->weak_from_this();
 
             client = std::make_shared<Client>(
                 [eventSourceWeak](SocketConnection* socketConnection) {
-                    SNODEC_LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";
+                    LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";
 
                     if (const std::shared_ptr<EventSourceT> eventStream = eventSourceWeak.lock()) {
                         eventStream->socketConnection = socketConnection;
                     }
                 },
                 [](SocketConnection* socketConnection) {
-                    SNODEC_LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnected";
+                    LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnected";
                 },
                 [eventSourceWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](SocketConnection* socketConnection) {
-                    SNODEC_LOG(DEBUG) << socketConnection->getConnectionName() << " : OnDisconnect";
+                    LOG(DEBUG) << socketConnection->getConnectionName() << " : OnDisconnect";
 
                     if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
                         eventSource->socketConnection = nullptr;
@@ -338,7 +338,7 @@ namespace web::http::client::tools {
                     const std::shared_ptr<MasterRequest>& masterRequest) {
                     const std::string connectionName = masterRequest->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                    SNODEC_LOG(DEBUG) << connectionName << ": OnRequestStart";
+                    LOG(DEBUG) << connectionName << ": OnRequestStart";
 
                     if (!sharedState->lastId.empty()) {
                         masterRequest->set("Last-Event-ID", sharedState->lastId);
@@ -360,13 +360,13 @@ namespace web::http::client::tools {
                                         masterRequest->getSocketContext()->close();
                                     }
                                 } else {
-                                    SNODEC_LOG(DEBUG) << connectionName << ": server-sent event: server disconnect";
+                                    LOG(DEBUG) << connectionName << ": server-sent event: server disconnect";
                                 }
 
                                 return consumed;
                             },
                             [sharedState, sharedConfig, connectionName]() {
-                                SNODEC_LOG(DEBUG) << connectionName << ": server-sent event stream start";
+                                LOG(DEBUG) << connectionName << ": server-sent event stream start";
 
                                 sharedState->ready = ReadyState::OPEN;
 
@@ -386,7 +386,7 @@ namespace web::http::client::tools {
                                 }
                             },
                             [sharedState, connectionName]() {
-                                SNODEC_LOG(DEBUG) << connectionName
+                                LOG(DEBUG) << connectionName
                                            << ": not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
                             })) {
                         if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
@@ -395,7 +395,7 @@ namespace web::http::client::tools {
                     }
                 },
                 [](const std::shared_ptr<Request>& req) {
-                    SNODEC_LOG(DEBUG) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestEnd";
+                    LOG(DEBUG) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestEnd";
                 });
 
             client->getConfig().Remote::setSocketAddress(socketAddress);
@@ -411,16 +411,16 @@ namespace web::http::client::tools {
                                 const core::socket::State& state) { // example.com:81 simulate connnect timeout
                 switch (state) {
                     case core::socket::State::OK:
-                        SNODEC_LOG(DEBUG) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        LOG(DEBUG) << instanceName << ": connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        SNODEC_LOG(DEBUG) << instanceName << ": disabled";
+                        LOG(DEBUG) << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        SNODEC_LOG(DEBUG) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        LOG(DEBUG) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        SNODEC_LOG(DEBUG) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        LOG(DEBUG) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             });

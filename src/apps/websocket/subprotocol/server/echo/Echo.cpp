@@ -60,21 +60,21 @@ namespace apps::websocket::subprotocol::echo::server {
     }
 
     void Echo::onConnected() {
-        SNODEC_VLOG(1) << "Echo connected";
+        VLOG(1) << "Echo connected";
     }
 
     void Echo::onMessageStart(int opCode) {
-        SNODEC_VLOG(2) << "Message Start - OpCode: " << opCode;
+        VLOG(2) << "Message Start - OpCode: " << opCode;
     }
 
     void Echo::onMessageData(const char* chunk, std::size_t chunkLen) {
         data += std::string(chunk, chunkLen);
 
-        SNODEC_VLOG(2) << "Message Fragment: " << std::string(chunk, chunkLen);
+        VLOG(2) << "Message Fragment: " << std::string(chunk, chunkLen);
     }
 
     void Echo::onMessageEnd() {
-        SNODEC_VLOG(1) << "Message Data: " << data;
+        VLOG(1) << "Message Data: " << data;
 
         // Alternative
         // forEachClient([&data = this->data](SubProtocol* client) {
@@ -87,15 +87,15 @@ namespace apps::websocket::subprotocol::echo::server {
     }
 
     void Echo::onMessageError(uint16_t errnum) {
-        SNODEC_VLOG(1) << "Message error: " << errnum;
+        VLOG(1) << "Message error: " << errnum;
     }
 
     void Echo::onDisconnected() {
-        SNODEC_VLOG(1) << "Echo disconnected:";
+        VLOG(1) << "Echo disconnected:";
     }
 
     bool Echo::onSignal(int sig) {
-        SNODEC_VLOG(1) << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
+        VLOG(1) << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
                 << ")";
 
         sendClose();

@@ -70,26 +70,26 @@ namespace express::tls::in6 {
             } else {
                 switch (state) {
                     case core::socket::State::OK:
-                        SNODEC_VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                        VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        SNODEC_VLOG(1) << instanceName << ": disabled";
+                        VLOG(1) << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        SNODEC_VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        SNODEC_VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             }
         });
 
-        SNODEC_VLOG(1) << "Instance: " << instanceName;
+        VLOG(1) << "Instance: " << instanceName;
         for (std::string& route : webApp.getRoutes()) {
             route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
 
-            SNODEC_VLOG(1) << "  " << route;
+            VLOG(1) << "  " << route;
         }
 
         return webApp;

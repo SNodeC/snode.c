@@ -107,10 +107,10 @@ namespace web::http::legacy::in {
             if (scheme == "http") {
                 eventSource = EventSource(scheme, net::in::SocketAddress(host, port), path + query);
             } else {
-                SNODEC_LOG(ERROR) << "Scheme not valid: " << scheme;
+                LOG(ERROR) << "Scheme not valid: " << scheme;
             }
         } else {
-            SNODEC_LOG(ERROR) << "EventSource url not accepted: " << url;
+            LOG(ERROR) << "EventSource url not accepted: " << url;
         }
 
         return eventSource;

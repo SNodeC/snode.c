@@ -112,11 +112,11 @@ int main(int argc, char* argv[]) {
 
     database::mariadb::MariaDBClient db1(details, [](const database::mariadb::MariaDBState& state) {
         if (state.error != 0) {
-            SNODEC_VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
+            VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
         } else if (state.connected) {
-            SNODEC_VLOG(0) << "MySQL connected";
+            VLOG(0) << "MySQL connected";
         } else {
-            SNODEC_VLOG(0) << "MySQL disconnected";
+            VLOG(0) << "MySQL disconnected";
         }
     });
 
@@ -125,68 +125,68 @@ int main(int argc, char* argv[]) {
     db1.exec(
            "DELETE FROM `snodec`",
            [&db1](void) -> void {
-               SNODEC_VLOG(0) << "********** OnQuery 0;";
+               VLOG(0) << "********** OnQuery 0;";
                db1.affectedRows(
                    [](my_ulonglong affectedRows) -> void {
-                       SNODEC_VLOG(0) << "********** AffectedRows 1: " << affectedRows;
+                       VLOG(0) << "********** AffectedRows 1: " << affectedRows;
                    },
                    [](const std::string& errorString, unsigned int errorNumber) -> void {
-                       SNODEC_VLOG(0) << "Error 1: " << errorString << " : " << errorNumber;
+                       VLOG(0) << "Error 1: " << errorString << " : " << errorNumber;
                    });
            },
            [](const std::string& errorString, unsigned int errorNumber) -> void {
-               SNODEC_VLOG(0) << "********** Error 0: " << errorString << " : " << errorNumber;
+               VLOG(0) << "********** Error 0: " << errorString << " : " << errorNumber;
            })
 
         .exec(
             "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
             [&db1](void) -> void {
-                SNODEC_VLOG(0) << "********** OnQuery 1: ";
+                VLOG(0) << "********** OnQuery 1: ";
                 db1.affectedRows(
                     [](my_ulonglong affectedRows) -> void {
-                        SNODEC_VLOG(0) << "********** AffectedRows 2: " << affectedRows;
+                        VLOG(0) << "********** AffectedRows 2: " << affectedRows;
                     },
                     [](const std::string& errorString, unsigned int errorNumber) -> void {
-                        SNODEC_VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
+                        VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
                     });
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
-                SNODEC_VLOG(0) << "********** Error 1: " << errorString << " : " << errorNumber;
+                VLOG(0) << "********** Error 1: " << errorString << " : " << errorNumber;
             })
         .query(
             "SELECT * FROM snodec",
             [&r](const MYSQL_ROW row) -> void {
                 if (row != nullptr) {
-                    SNODEC_VLOG(0) << "********** Row Result 2: " << row[0] << " : " << row[1];
+                    VLOG(0) << "********** Row Result 2: " << row[0] << " : " << row[1];
                     r++;
                 } else {
-                    SNODEC_VLOG(0) << "********** Row Result 2: " << r;
+                    VLOG(0) << "********** Row Result 2: " << r;
                 }
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
-                SNODEC_VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
+                VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
             })
         .query(
             "SELECT * FROM snodec",
             [&r](const MYSQL_ROW row) -> void {
                 if (row != nullptr) {
-                    SNODEC_VLOG(0) << "********** Row Result 2: " << row[0] << " : " << row[1];
+                    VLOG(0) << "********** Row Result 2: " << row[0] << " : " << row[1];
                     r++;
                 } else {
-                    SNODEC_VLOG(0) << "********** Row Result 2: " << r;
+                    VLOG(0) << "********** Row Result 2: " << r;
                 }
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
-                SNODEC_VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
+                VLOG(0) << "********** Error 2: " << errorString << " : " << errorNumber;
             });
 
     database::mariadb::MariaDBClient db2(details, [](const database::mariadb::MariaDBState& state) {
         if (state.error != 0) {
-            SNODEC_VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
+            VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
         } else if (state.connected) {
-            SNODEC_VLOG(0) << "MySQL connected";
+            VLOG(0) << "MySQL connected";
         } else {
-            SNODEC_VLOG(0) << "MySQL disconnected";
+            VLOG(0) << "MySQL disconnected";
         }
     });
 
@@ -197,49 +197,49 @@ int main(int argc, char* argv[]) {
             "SELECT * FROM snodec",
             [](const MYSQL_ROW row) -> void {
                 if (row != nullptr) {
-                    SNODEC_VLOG(0) << "Row Result 3: " << row[0] << " : " << row[1];
+                    VLOG(0) << "Row Result 3: " << row[0] << " : " << row[1];
                 } else {
-                    SNODEC_VLOG(0) << "Row Result 3:";
+                    VLOG(0) << "Row Result 3:";
                 }
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
-                SNODEC_VLOG(0) << "Error 3: " << errorString << " : " << errorNumber;
+                VLOG(0) << "Error 3: " << errorString << " : " << errorNumber;
             });
 
         db2.query(
             "SELECT * FROM snodec",
             [&db2, &r1, &r2](const MYSQL_ROW row) -> void {
                 if (row != nullptr) {
-                    SNODEC_VLOG(0) << "Row Result 4: " << row[0] << " : " << row[1];
+                    VLOG(0) << "Row Result 4: " << row[0] << " : " << row[1];
                 } else {
-                    SNODEC_VLOG(0) << "Row Result 4:";
+                    VLOG(0) << "Row Result 4:";
 
                     db2.query(
                         "SELECT * FROM snodec",
                         [&db2, &r1, &r2](const MYSQL_ROW row) -> void {
                             if (row != nullptr) {
-                                SNODEC_VLOG(0) << "Row Result 5: " << row[0] << " : " << row[1];
+                                VLOG(0) << "Row Result 5: " << row[0] << " : " << row[1];
                             } else { // After all results have been fetched
-                                SNODEC_VLOG(0) << "Row Result 5:";
+                                VLOG(0) << "Row Result 5:";
 
                                 core::timer::Timer dbTimer1 = core::timer::Timer::intervalTimer(
                                     [&db2, &r1](const std::function<void()>& stop) -> void {
                                         static int i = 0;
-                                        SNODEC_VLOG(0) << "Tick 2: " << i++;
+                                        VLOG(0) << "Tick 2: " << i++;
 
                                         r1 = 0;
                                         db2.query(
                                             "SELECT * FROM snodec",
                                             [&r1](const MYSQL_ROW row) -> void {
                                                 if (row != nullptr) {
-                                                    SNODEC_VLOG(0) << "Row Result 6: " << row[0] << " : " << row[1];
+                                                    VLOG(0) << "Row Result 6: " << row[0] << " : " << row[1];
                                                     r1++;
                                                 } else {
-                                                    SNODEC_VLOG(0) << "Row Result 6: " << r1;
+                                                    VLOG(0) << "Row Result 6: " << r1;
                                                 }
                                             },
                                             [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                                SNODEC_VLOG(0) << "Error 6: " << errorString << " : " << errorNumber;
+                                                VLOG(0) << "Error 6: " << errorString << " : " << errorNumber;
                                                 stop();
                                             });
                                     },
@@ -248,146 +248,146 @@ int main(int argc, char* argv[]) {
                                 core::timer::Timer dbTimer2 = core::timer::Timer::intervalTimer(
                                     [&db2, &r2](const std::function<void()>& stop) -> void {
                                         static int i = 0;
-                                        SNODEC_VLOG(0) << "Tick 0.7: " << i++;
+                                        VLOG(0) << "Tick 0.7: " << i++;
 
                                         r2 = 0;
                                         db2.query(
                                                "SELECT * FROM snodec",
                                                [&db2, &r2](const MYSQL_ROW row) -> void {
                                                    if (row != nullptr) {
-                                                       SNODEC_VLOG(0) << "Row Result 7: " << row[0] << " : " << row[1];
+                                                       VLOG(0) << "Row Result 7: " << row[0] << " : " << row[1];
                                                        r2++;
                                                    } else {
-                                                       SNODEC_VLOG(0) << "Row Result 7: " << r2;
+                                                       VLOG(0) << "Row Result 7: " << r2;
                                                        db2.fieldCount(
                                                            [](unsigned int fieldCount) -> void {
-                                                               SNODEC_VLOG(0) << "************ FieldCount ************ = " << fieldCount;
+                                                               VLOG(0) << "************ FieldCount ************ = " << fieldCount;
                                                            },
                                                            [](const std::string& errorString, unsigned int errorNumber) -> void {
-                                                               SNODEC_VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
+                                                               VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
                                                            });
                                                    }
                                                },
                                                [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                                                   SNODEC_VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
+                                                   VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
                                                    stop();
                                                })
                                             .fieldCount(
                                                 [](unsigned int fieldCount) -> void {
-                                                    SNODEC_VLOG(0) << "************ FieldCount ************ = " << fieldCount;
+                                                    VLOG(0) << "************ FieldCount ************ = " << fieldCount;
                                                 },
                                                 [](const std::string& errorString, unsigned int errorNumber) -> void {
-                                                    SNODEC_VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
+                                                    VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
                                                 });
                                     },
                                     0.7);
                             }
                         },
                         [](const std::string& errorString, unsigned int errorNumber) -> void {
-                            SNODEC_VLOG(0) << "Error 5: " << errorString << " : " << errorNumber;
+                            VLOG(0) << "Error 5: " << errorString << " : " << errorNumber;
                         });
                 }
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
-                SNODEC_VLOG(0) << "Error 4: " << errorString << " : " << errorNumber;
+                VLOG(0) << "Error 4: " << errorString << " : " << errorNumber;
             });
 
         core::timer::Timer dbTimer = core::timer::Timer::intervalTimer(
             [&db2](const std::function<void()>& stop) -> void {
                 static int i = 0;
-                SNODEC_VLOG(0) << "Tick 0.1: " << i++;
+                VLOG(0) << "Tick 0.1: " << i++;
 
                 if (i >= 60000) {
-                    SNODEC_VLOG(0) << "Stop Stop";
+                    VLOG(0) << "Stop Stop";
                     stop();
                 }
 
                 int j = i;
                 db2.startTransactions(
                        [](void) -> void {
-                           SNODEC_VLOG(0) << "Transactions activated 10:";
+                           VLOG(0) << "Transactions activated 10:";
                        },
                        [](const std::string& errorString, unsigned int errorNumber) -> void {
-                           SNODEC_VLOG(0) << "Error 8: " << errorString << " : " << errorNumber;
+                           VLOG(0) << "Error 8: " << errorString << " : " << errorNumber;
                        })
                     .exec(
                         "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
                         [&db2, j](void) -> void {
-                            SNODEC_VLOG(0) << "Inserted 10: " << j;
+                            VLOG(0) << "Inserted 10: " << j;
                             db2.affectedRows(
                                 [](my_ulonglong affectedRows) -> void {
-                                    SNODEC_VLOG(0) << "AffectedRows 11: " << affectedRows;
+                                    VLOG(0) << "AffectedRows 11: " << affectedRows;
                                 },
                                 [](const std::string& errorString, unsigned int errorNumber) -> void {
-                                    SNODEC_VLOG(0) << "Error 11: " << errorString << " : " << errorNumber;
+                                    VLOG(0) << "Error 11: " << errorString << " : " << errorNumber;
                                 });
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                            SNODEC_VLOG(0) << "Error 10: " << errorString << " : " << errorNumber;
+                            VLOG(0) << "Error 10: " << errorString << " : " << errorNumber;
                             stop();
                         })
                     .rollback(
                         [](void) -> void {
-                            SNODEC_VLOG(0) << "Rollback success 11";
+                            VLOG(0) << "Rollback success 11";
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                            SNODEC_VLOG(0) << "Error 12: " << errorString << " : " << errorNumber;
+                            VLOG(0) << "Error 12: " << errorString << " : " << errorNumber;
                             stop();
                         })
                     .exec(
                         "INSERT INTO `snodec`(`username`, `password`) VALUES ('Annett','Hallo')",
                         [&db2, j](void) -> void {
-                            SNODEC_VLOG(0) << "Inserted 13: " << j;
+                            VLOG(0) << "Inserted 13: " << j;
                             db2.affectedRows(
                                 [](my_ulonglong affectedRows) -> void {
-                                    SNODEC_VLOG(0) << "AffectedRows 14: " << affectedRows;
+                                    VLOG(0) << "AffectedRows 14: " << affectedRows;
                                 },
                                 [](const std::string& errorString, unsigned int errorNumber) -> void {
-                                    SNODEC_VLOG(0) << "Error 14: " << errorString << " : " << errorNumber;
+                                    VLOG(0) << "Error 14: " << errorString << " : " << errorNumber;
                                 });
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                            SNODEC_VLOG(0) << "Error 13: " << errorString << " : " << errorNumber;
+                            VLOG(0) << "Error 13: " << errorString << " : " << errorNumber;
                             stop();
                         })
                     .commit(
                         [](void) -> void {
-                            SNODEC_VLOG(0) << "Commit success 15";
+                            VLOG(0) << "Commit success 15";
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                            SNODEC_VLOG(0) << "Error 15: " << errorString << " : " << errorNumber;
+                            VLOG(0) << "Error 15: " << errorString << " : " << errorNumber;
                             stop();
                         })
                     .query(
                         "SELECT COUNT(*) FROM snodec",
                         [&db2, j, stop](const MYSQL_ROW row) -> void {
                             if (row != nullptr) {
-                                SNODEC_VLOG(0) << "Row Result count(*) 16: " << row[0];
+                                VLOG(0) << "Row Result count(*) 16: " << row[0];
                                 if (std::atoi(row[0]) != j + 1) {                                                   // NOLINT
-                                    SNODEC_VLOG(0) << "Wrong number of rows 16: " << std::atoi(row[0]) << " != " << j + 1; // NOLINT
+                                    VLOG(0) << "Wrong number of rows 16: " << std::atoi(row[0]) << " != " << j + 1; // NOLINT
                                     //                                    exit(1);
                                 }
                             } else {
-                                SNODEC_VLOG(0) << "Row Result count(*) 16: no result:";
+                                VLOG(0) << "Row Result count(*) 16: no result:";
                                 db2.fieldCount(
                                     [](unsigned int fieldCount) -> void {
-                                        SNODEC_VLOG(0) << "************ FieldCount ************ = " << fieldCount;
+                                        VLOG(0) << "************ FieldCount ************ = " << fieldCount;
                                     },
                                     [](const std::string& errorString, unsigned int errorNumber) -> void {
-                                        SNODEC_VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
+                                        VLOG(0) << "Error 7: " << errorString << " : " << errorNumber;
                                     });
                             }
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                            SNODEC_VLOG(0) << "Error 16: " << errorString << " : " << errorNumber;
+                            VLOG(0) << "Error 16: " << errorString << " : " << errorNumber;
                             stop();
                         })
                     .endTransactions(
                         [](void) -> void {
-                            SNODEC_VLOG(0) << "Transactions deactivated 17";
+                            VLOG(0) << "Transactions deactivated 17";
                         },
                         [stop](const std::string& errorString, unsigned int errorNumber) -> void {
-                            SNODEC_VLOG(0) << "Error 17: " << errorString << " : " << errorNumber;
+                            VLOG(0) << "Error 17: " << errorString << " : " << errorNumber;
                             stop();
                         });
             },

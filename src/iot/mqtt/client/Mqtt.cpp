@@ -90,9 +90,9 @@ namespace iot::mqtt::client {
 
                     session.fromJson(sessionStoreJson);
 
-                    SNODEC_LOG(DEBUG) << connectionName << " MQTT Client:   ... Persistent session data loaded successful";
+                    LOG(DEBUG) << connectionName << " MQTT Client:   ... Persistent session data loaded successful";
                 } catch (const nlohmann::json::exception&) {
-                    SNODEC_LOG(DEBUG) << connectionName << " MQTT Client:   ... Starting with empty session: Session store '"
+                    LOG(DEBUG) << connectionName << " MQTT Client:   ... Starting with empty session: Session store '"
                                << sessionStoreFileName << "' empty or corrupted";
 
                     session.clear();
@@ -101,12 +101,12 @@ namespace iot::mqtt::client {
                 sessionStoreFile.close();
                 std::remove(sessionStoreFileName.data()); // NOLINT
 
-                SNODEC_LOG(INFO) << connectionName << " MQTT Client: Restoring saved session done";
+                LOG(INFO) << connectionName << " MQTT Client: Restoring saved session done";
             } else {
-                SNODEC_PLOG(WARNING) << connectionName << " MQTT Client:   ... Could not read session store '" << sessionStoreFileName << "'";
+                PLOG(WARNING) << connectionName << " MQTT Client:   ... Could not read session store '" << sessionStoreFileName << "'";
             }
         } else {
-            SNODEC_LOG(INFO) << connectionName << " MQTT Client: Session not reloaded: Session store filename empty";
+            LOG(INFO) << connectionName << " MQTT Client: Session not reloaded: Session store filename empty";
         }
     }
 
@@ -123,10 +123,10 @@ namespace iot::mqtt::client {
 
                 sessionStoreFile.close();
             } else {
-                SNODEC_PLOG(DEBUG) << connectionName << " MQTT Client: Could not write session store '" << sessionStoreFileName << "'";
+                PLOG(DEBUG) << connectionName << " MQTT Client: Could not write session store '" << sessionStoreFileName << "'";
             }
         } else {
-            SNODEC_LOG(INFO) << connectionName << " MQTT Client: Session not saved: Session store filename empty";
+            LOG(INFO) << connectionName << " MQTT Client: Session not saved: Session store filename empty";
         }
 
         pingTimer.cancel();
@@ -192,12 +192,12 @@ namespace iot::mqtt::client {
     }
 
     void Mqtt::_onConnack(const iot::mqtt::client::packets::Connack& connack) {
-        SNODEC_LOG(INFO) << connectionName << " MQTT Client:   Acknowledge Flag: " << static_cast<int>(connack.getAcknowledgeFlags());
-        SNODEC_LOG(INFO) << connectionName << " MQTT Client:   Return code: " << static_cast<int>(connack.getReturnCode());
-        SNODEC_LOG(INFO) << connectionName << " MQTT Client:   Session present: " << connack.getSessionPresent();
+        LOG(INFO) << connectionName << " MQTT Client:   Acknowledge Flag: " << static_cast<int>(connack.getAcknowledgeFlags());
+        LOG(INFO) << connectionName << " MQTT Client:   Return code: " << static_cast<int>(connack.getReturnCode());
+        LOG(INFO) << connectionName << " MQTT Client:   Session present: " << connack.getSessionPresent();
 
         if (connack.getReturnCode() != MQTT_CONNACK_ACCEPT) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Client:   Negative ack received";
+            LOG(ERROR) << connectionName << " MQTT Client:   Negative ack received";
         } else {
             initSession(&session, keepAlive);
 
@@ -219,10 +219,10 @@ namespace iot::mqtt::client {
 
     void Mqtt::_onSuback(const iot::mqtt::client::packets::Suback& suback) {
         if (suback.getPacketIdentifier() == 0) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Client:   PackageIdentifier missing";
+            LOG(ERROR) << connectionName << " MQTT Client:   PackageIdentifier missing";
             mqttContext->close();
         } else {
-            SNODEC_LOG(DEBUG) << connectionName << " MQTT Client:  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
+            LOG(DEBUG) << connectionName << " MQTT Client:  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << suback.getPacketIdentifier() << std::dec;
 
             std::stringstream ss;
@@ -237,7 +237,7 @@ namespace iot::mqtt::client {
                 ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(returnCode) << " "; // << " | ";
             }
 
-            SNODEC_LOG(DEBUG) << connectionName << " MQTT Client:  Return codes: " << ss.str();
+            LOG(DEBUG) << connectionName << " MQTT Client:  Return codes: " << ss.str();
 
             onSuback(suback);
         }
@@ -245,10 +245,10 @@ namespace iot::mqtt::client {
 
     void Mqtt::_onUnsuback(const iot::mqtt::client::packets::Unsuback& unsuback) {
         if (unsuback.getPacketIdentifier() == 0) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Client:  PacketIdentifier missing";
+            LOG(ERROR) << connectionName << " MQTT Client:  PacketIdentifier missing";
             mqttContext->close();
         } else {
-            SNODEC_LOG(DEBUG) << connectionName << " MQTT Client:  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
+            LOG(DEBUG) << connectionName << " MQTT Client:  PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << unsuback.getPacketIdentifier() << std::dec;
 
             onUnsuback(unsuback);
@@ -271,7 +271,7 @@ namespace iot::mqtt::client {
                            const std::string& username,
                            const std::string& password,
                            bool loopPrevention) const { // Client
-        SNODEC_LOG(INFO) << connectionName << " MQTT Client: CONNECT send: " << clientId;
+        LOG(INFO) << connectionName << " MQTT Client: CONNECT send: " << clientId;
 
         send(iot::mqtt::packets::Connect(
             clientId, keepAlive, cleanSession, willTopic, willMessage, willQoS, willRetain, username, password, loopPrevention));

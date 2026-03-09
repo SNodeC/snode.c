@@ -28,7 +28,7 @@
 
 #include <functional>
 #include <memory>
-#include <ostream>
+#include <ostream> // IWYU pragma: export
 #include <sstream>
 #include <string>
 
@@ -118,17 +118,35 @@ namespace logger {
 } // namespace logger
 
 #ifdef SNODEC_DISABLE_LOGLEVEL_LOGGING
-#define SNODEC_LOG(level) if (true) {} else ::logger::LogMessage(::logger::Level::level).stream()
-#define SNODEC_PLOG(level) if (true) {} else ::logger::LogMessage(::logger::Level::level, -1, true).stream()
+#define LOG(level)                                                                                                                  \
+    if (true) {                                                                                                                            \
+    } else                                                                                                                                 \
+        ::logger::LogMessage(::logger::Level::level).stream()
+#define PLOG(level)                                                                                                                 \
+    if (true) {                                                                                                                            \
+    } else                                                                                                                                 \
+        ::logger::LogMessage(::logger::Level::level, -1, true).stream()
 #else
-#define SNODEC_LOG(level)     if (!::logger::Logger::shouldLog(::logger::Level::level)) {} else ::logger::LogMessage(::logger::Level::level).stream()
-#define SNODEC_PLOG(level)     if (!::logger::Logger::shouldLog(::logger::Level::level)) {} else ::logger::LogMessage(::logger::Level::level, -1, true).stream()
+#define LOG(level)                                                                                                                  \
+    if (!::logger::Logger::shouldLog(::logger::Level::level)) {                                                                            \
+    } else                                                                                                                                 \
+        ::logger::LogMessage(::logger::Level::level).stream()
+#define PLOG(level)                                                                                                                 \
+    if (!::logger::Logger::shouldLog(::logger::Level::level)) {                                                                            \
+    } else                                                                                                                                 \
+        ::logger::LogMessage(::logger::Level::level, -1, true).stream()
 #endif
 
 #ifdef SNODEC_DISABLE_VERBOSE_LOGGING
-#define SNODEC_VLOG(level) if (true) {} else ::logger::LogMessage(::logger::Level::VERBOSE, level).stream()
+#define VLOG(level)                                                                                                                 \
+    if (true) {                                                                                                                            \
+    } else                                                                                                                                 \
+        ::logger::LogMessage(::logger::Level::VERBOSE, level).stream()
 #else
-#define SNODEC_VLOG(level)     if (!::logger::Logger::shouldVerbose(level)) {} else ::logger::LogMessage(::logger::Level::VERBOSE, level).stream()
+#define VLOG(level)                                                                                                                 \
+    if (!::logger::Logger::shouldVerbose(level)) {                                                                                         \
+    } else                                                                                                                                 \
+        ::logger::LogMessage(::logger::Level::VERBOSE, level).stream()
 #endif
 
 #endif // LOGGER_LOGGER_H

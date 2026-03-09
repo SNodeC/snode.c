@@ -121,16 +121,16 @@ int main(int argc, char* argv[]) {
                                                                                   const core::socket::State& state) {
                              switch (state) {
                                  case core::socket::State::OK:
-                                     SNODEC_VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                                     VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
                                      break;
                                  case core::socket::State::DISABLED:
-                                     SNODEC_VLOG(1) << instanceName << " disabled";
+                                     VLOG(1) << instanceName << " disabled";
                                      break;
                                  case core::socket::State::ERROR:
-                                     SNODEC_LOG(ERROR) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                                     LOG(ERROR) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                                      break;
                                  case core::socket::State::FATAL:
-                                     SNODEC_LOG(FATAL) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                                     LOG(FATAL) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                                      break;
                              }
                          });
@@ -190,16 +190,16 @@ int main(int argc, char* argv[]) {
                                                                             const core::socket::State& state) {
                           switch (state) {
                               case core::socket::State::OK:
-                                  SNODEC_VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                                  VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
                                   break;
                               case core::socket::State::DISABLED:
-                                  SNODEC_VLOG(1) << instanceName << " disabled";
+                                  VLOG(1) << instanceName << " disabled";
                                   break;
                               case core::socket::State::ERROR:
-                                  SNODEC_LOG(ERROR) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                                  LOG(ERROR) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                                   break;
                               case core::socket::State::FATAL:
-                                  SNODEC_LOG(FATAL) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                                  LOG(FATAL) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                                   break;
                           }
                       });

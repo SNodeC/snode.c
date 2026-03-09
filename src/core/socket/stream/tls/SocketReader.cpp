@@ -74,13 +74,13 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case SSL_ERROR_WANT_WRITE:
-                        SNODEC_LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
+                        LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
                         doSSLHandshake(
                             [this]() {
-                                SNODEC_LOG(DEBUG) << getName() << " SSL/TLS: Renegotiation on read success";
+                                LOG(DEBUG) << getName() << " SSL/TLS: Renegotiation on read success";
                             },
                             [this]() {
-                                SNODEC_LOG(WARNING) << getName() << " SSL/TLS: Renegotiation on read timed out";
+                                LOG(WARNING) << getName() << " SSL/TLS: Renegotiation on read timed out";
                             },
                             [this](int ssl_err) {
                                 ssl_log(getName() + " SSL/TLS: Renegotiation on read", ssl_err);
@@ -104,9 +104,9 @@ namespace core::socket::stream::tls {
                             const utils::PreserveErrno pe;
 
                             if (ret == 0) {
-                                SNODEC_PLOG(DEBUG) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
+                                PLOG(DEBUG) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
                             } else {
-                                SNODEC_PLOG(WARNING) << getName() + " SSL/TLS: Syscall error on read";
+                                PLOG(WARNING) << getName() + " SSL/TLS: Syscall error on read";
                             }
                         }
                         ret = -1;

@@ -101,12 +101,12 @@ namespace core::socket::stream {
             try {
                 core::socket::State state = core::socket::STATE_OK;
 
-                SNODEC_LOG(DEBUG) << config->getInstanceName() << " Listen: starting";
+                LOG(DEBUG) << config->getInstanceName() << " Listen: starting";
 
                 bindAddress = config->Local::getSocketAddress();
 
                 if (physicalServerSocket.open(config->getSocketOptions(), PhysicalServerSocket::Flags::NONBLOCK) < 0) {
-                    SNODEC_PLOG(ERROR) << config->getInstanceName() << " open " << bindAddress.toString();
+                    PLOG(ERROR) << config->getInstanceName() << " open " << bindAddress.toString();
 
                     switch (errno) {
                         case EMFILE:
@@ -120,10 +120,10 @@ namespace core::socket::stream {
                             break;
                     }
                 } else {
-                    SNODEC_LOG(DEBUG) << config->getInstanceName() << " open " << bindAddress.toString() << ": success";
+                    LOG(DEBUG) << config->getInstanceName() << " open " << bindAddress.toString() << ": success";
 
                     if (physicalServerSocket.bind(bindAddress) < 0) {
-                        SNODEC_PLOG(ERROR) << config->getInstanceName() << " bind " << bindAddress.toString();
+                        PLOG(ERROR) << config->getInstanceName() << " bind " << bindAddress.toString();
 
                         switch (errno) {
                             case EADDRINUSE:
@@ -136,10 +136,10 @@ namespace core::socket::stream {
                                 break;
                         }
                     } else {
-                        SNODEC_LOG(DEBUG) << config->getInstanceName() << " bind " << bindAddress.toString() << ": success";
+                        LOG(DEBUG) << config->getInstanceName() << " bind " << bindAddress.toString() << ": success";
 
                         if (physicalServerSocket.listen(config->getBacklog()) < 0) {
-                            SNODEC_PLOG(ERROR) << config->getInstanceName() << " listen " << bindAddress.toString();
+                            PLOG(ERROR) << config->getInstanceName() << " listen " << bindAddress.toString();
 
                             switch (errno) {
                                 case EADDRINUSE:
@@ -150,12 +150,12 @@ namespace core::socket::stream {
                                     break;
                             }
                         } else {
-                            SNODEC_LOG(DEBUG) << config->getInstanceName() << " listen " << bindAddress.toString() << ": success";
+                            LOG(DEBUG) << config->getInstanceName() << " listen " << bindAddress.toString() << ": success";
 
                             if (enable(physicalServerSocket.getFd())) {
-                                SNODEC_LOG(DEBUG) << config->getInstanceName() << " enable " << bindAddress.toString() << ": success";
+                                LOG(DEBUG) << config->getInstanceName() << " enable " << bindAddress.toString() << ": success";
                             } else {
-                                SNODEC_LOG(ERROR) << config->getInstanceName() << " enable " << bindAddress.toString()
+                                LOG(ERROR) << config->getInstanceName() << " enable " << bindAddress.toString()
                                            << ": failed. No valid descriptor created";
 
                                 state = core::socket::STATE(core::socket::STATE_FATAL, ECANCELED, "SocketAcceptor not enabled");
@@ -168,7 +168,7 @@ namespace core::socket::stream {
                 if (bindAddress.useNext()) {
                     onStatus(currentLocalAddress, (state | core::socket::State::NO_RETRY));
 
-                    SNODEC_LOG(INFO) << config->getInstanceName()
+                    LOG(INFO) << config->getInstanceName()
                               << ": Using next SocketAddress: " << config->Local::getSocketAddress().toString();
 
                     useNextSocketAddress();
@@ -179,12 +179,12 @@ namespace core::socket::stream {
                 core::socket::State state =
                     core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what());
 
-                SNODEC_LOG(ERROR) << state.what();
+                LOG(ERROR) << state.what();
 
                 onStatus({}, state);
             }
         } else {
-            SNODEC_LOG(DEBUG) << config->getInstanceName() << ": disabled";
+            LOG(DEBUG) << config->getInstanceName() << ": disabled";
 
             onStatus({}, core::socket::STATE_DISABLED);
         }
@@ -211,14 +211,14 @@ namespace core::socket::stream {
                 if (connectedPhysicalSocket.isValid()) {
                     SocketConnection* socketConnection = new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, config);
 
-                    SNODEC_LOG(DEBUG) << config->getInstanceName() << " accept " << bindAddress.toString() << ": success";
-                    SNODEC_LOG(DEBUG) << "  " << socketConnection->getRemoteAddress().toString() << " -> "
+                    LOG(DEBUG) << config->getInstanceName() << " accept " << bindAddress.toString() << ": success";
+                    LOG(DEBUG) << "  " << socketConnection->getRemoteAddress().toString() << " -> "
                                << socketConnection->getLocalAddress().toString();
 
                     onConnect(socketConnection);
                     onConnected(socketConnection);
                 } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                    SNODEC_PLOG(WARNING) << config->getInstanceName() << " accept " << bindAddress.toString();
+                    PLOG(WARNING) << config->getInstanceName() << " accept " << bindAddress.toString();
                 }
             } while (--acceptsPerTick > 0);
         }

@@ -8,16 +8,15 @@
 
 #include "log/Logger.h"
 
+#include <algorithm>
+#include <cerrno>
+#include <chrono>
+#include <cstring>
 #include <spdlog/logger.h>
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-
 #include <unistd.h>
-#include <cerrno>
-#include <algorithm>
-#include <chrono>
-#include <cstring>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -59,53 +58,73 @@ namespace {
     }
 
     std::string levelName(const logger::Level level) {
+        std::string result;
+
         switch (level) {
             case logger::Level::TRACE:
-                return "TRACE";
+                result = "TRACE  ";
+                break;
             case logger::Level::DEBUG:
-                return "DEBUG";
+                result = "DEBUG  ";
+                break;
             case logger::Level::INFO:
-                return "INFO";
+                result = "INFO   ";
+                break;
             case logger::Level::WARNING:
-                return "WARNING";
+                result = "WARNING";
+                break;
             case logger::Level::ERROR:
-                return "ERROR";
+                result = "ERROR  ";
+                break;
             case logger::Level::FATAL:
-                return "FATAL";
+                result = "FATAL  ";
+                break;
             case logger::Level::VERBOSE:
-                return "VERBOSE";
-            default:
-                return "UNKNOWN";
+                result = "VERBOSE";
+                break;
         }
+
+        return result;
     }
 
     Color::Code levelColor(const logger::Level level) {
+        Color::Code color = Color::Code::FG_WHITE;
+
         switch (level) {
             case logger::Level::TRACE:
-                return Color::Code::FG_CYAN;
+                color = Color::Code::FG_CYAN;
+                break;
             case logger::Level::DEBUG:
-                return Color::Code::FG_GREEN;
+                color = Color::Code::FG_GREEN;
+                break;
             case logger::Level::INFO:
-                return Color::Code::FG_LIGHT_GRAY;
+                color = Color::Code::FG_LIGHT_GRAY;
+                break;
             case logger::Level::WARNING:
-                return Color::Code::FG_YELLOW;
+                color = Color::Code::FG_YELLOW;
+                break;
             case logger::Level::ERROR:
-                return Color::Code::FG_RED;
+                color = Color::Code::FG_RED;
+                break;
             case logger::Level::FATAL:
-                return Color::Code::FG_LIGHT_RED;
+                color = Color::Code::FG_LIGHT_RED;
+                break;
             case logger::Level::VERBOSE:
-                return Color::Code::FG_LIGHT_BLUE;
-            default:
-                return Color::Code::FG_DEFAULT;
+                color = Color::Code::FG_LIGHT_BLUE;
+                break;
         }
+
+        return color;
     }
 
     std::string colorizeLevel(const logger::Level level) {
-        const std::string label = levelName(level);
-        if (logger::Logger::getDisableColor()) {
-            return label;
+        std::string label = levelName(level);
+
+        if (!logger::Logger::getDisableColor()) {
+            label = Color::Code::FG_DEFAULT + (levelColor(level) + label) + Color::Code::FG_DEFAULT;
         }
-        return Color::Code::FG_DEFAULT + (levelColor(level) + label) + Color::Code::FG_DEFAULT;
+
+        return label;
     }
 
     bool shouldEmit(const logger::Level level) {
@@ -119,7 +138,8 @@ namespace {
             case 5:
                 return level != logger::Level::TRACE;
             case 4:
-                return level == logger::Level::INFO || level == logger::Level::WARNING || level == logger::Level::ERROR || level == logger::Level::FATAL;
+                return level == logger::Level::INFO || level == logger::Level::WARNING || level == logger::Level::ERROR ||
+                       level == logger::Level::FATAL;
             case 3:
                 return level == logger::Level::WARNING || level == logger::Level::ERROR || level == logger::Level::FATAL;
             case 2:
@@ -130,7 +150,7 @@ namespace {
                 return false;
         }
     }
-}
+} // namespace
 
 namespace logger {
 
@@ -210,10 +230,10 @@ namespace logger {
         }
 
         if (!quietMode && stdoutLogger) {
-            stdoutLogger->log(spdlog::level::info, "{}", message);
+            stdoutLogger->log(spdlog::level::info, message);
         }
         if (fileLogger) {
-            fileLogger->log(spdlog::level::info, "{}", message);
+            fileLogger->log(spdlog::level::info, message);
         }
     }
 

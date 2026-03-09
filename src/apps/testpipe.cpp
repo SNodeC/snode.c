@@ -61,28 +61,28 @@ int main(int argc, char* argv[]) {
         []([[maybe_unused]] core::pipe::PipeSource& pipeSource, [[maybe_unused]] core::pipe::PipeSink& pipeSink) {
             pipeSink.setOnData([&pipeSource](const char* chunk, std::size_t chunkLen) {
                 const std::string string(chunk, chunkLen);
-                SNODEC_VLOG(1) << "Pipe Data: " << string;
+                VLOG(1) << "Pipe Data: " << string;
                 pipeSource.send(chunk, chunkLen);
                 // pipeSink.disable();
                 // pipeSource.disable();
             });
 
             pipeSink.setOnEof([]() {
-                SNODEC_VLOG(1) << "Pipe EOF";
+                VLOG(1) << "Pipe EOF";
             });
 
             pipeSink.setOnError([]([[maybe_unused]] int errnum) {
-                SNODEC_VLOG(1) << "PipeSink";
+                VLOG(1) << "PipeSink";
             });
 
             pipeSource.setOnError([]([[maybe_unused]] int errnum) {
-                SNODEC_VLOG(1) << "PipeSource";
+                VLOG(1) << "PipeSource";
             });
 
             pipeSource.send("Hello World!");
         },
         []([[maybe_unused]] int errnum) {
-            SNODEC_PLOG(ERROR) << "Pipe not created";
+            PLOG(ERROR) << "Pipe not created";
         });
 
     return core::SNodeC::start();

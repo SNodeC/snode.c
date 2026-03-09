@@ -104,11 +104,11 @@ Router router(database::mariadb::MariaDBClient& db) {
         .get(
             "/query/:userId",
             [] MIDDLEWARE(req, res, next) {
-                SNODEC_VLOG(1) << "Move on to the next route to query database";
+                VLOG(1) << "Move on to the next route to query database";
                 next();
             },
             [&db] MIDDLEWARE(req, res, next) { // http://localhost:8080/query/123
-                SNODEC_VLOG(1) << "UserId: " << req->params["userId"];
+                VLOG(1) << "UserId: " << req->params["userId"];
                 std::string userId = req->params["userId"];
 
                 req->setAttribute<std::string, "html-table">(std::string());
@@ -159,29 +159,29 @@ Router router(database::mariadb::MariaDBClient& db) {
                                                          "  </body>\n"
                                                          "</html>\n"));
                             });
-                            SNODEC_VLOG(1) << "Move on to the next route to send result";
+                            VLOG(1) << "Move on to the next route to send result";
                             next();
                         }
                     },
                     [res, userId](const std::string& errorString, unsigned int errorNumber) {
-                        SNODEC_VLOG(1) << "Error: " << errorString << " : " << errorNumber;
+                        VLOG(1) << "Error: " << errorString << " : " << errorNumber;
                         res->status(404).send(userId + ": " + errorString + " - " + std::to_string(errorNumber));
                     });
             },
             [] MIDDLEWARE(req, res, next) {
-                SNODEC_VLOG(1) << "And again 1: Move on to the next route to send result";
+                VLOG(1) << "And again 1: Move on to the next route to send result";
                 next();
             },
             [] MIDDLEWARE(req, res, next) {
-                SNODEC_VLOG(1) << "And again 2: Move on to the next route to send result";
+                VLOG(1) << "And again 2: Move on to the next route to send result";
                 next();
             })
         .get([] MIDDLEWARE(req, res, next) {
-            SNODEC_VLOG(1) << "And again 3: Move on to the next route to send result";
+            VLOG(1) << "And again 3: Move on to the next route to send result";
             next();
         })
         .get([] APPLICATION(req, res) {
-            SNODEC_VLOG(1) << "SendResult";
+            VLOG(1) << "SendResult";
 
             req->getAttribute<std::string, "html-table">(
                 [res](std::string& table) {
@@ -192,9 +192,9 @@ Router router(database::mariadb::MariaDBClient& db) {
                 });
         });
     router.get("/account/:userId(\\d*)/:userName", [&db] APPLICATION(req, res) { // http://localhost:8080/account/123/perfectNDSgroup
-        SNODEC_VLOG(1) << "Show account of";
-        SNODEC_VLOG(1) << "UserId: " << req->params["userId"];
-        SNODEC_VLOG(1) << "UserName: " << req->params["userName"];
+        VLOG(1) << "Show account of";
+        VLOG(1) << "UserId: " << req->params["userId"];
+        VLOG(1) << "UserName: " << req->params["userName"];
 
         const std::string response = "<html>"
                                      "  <head>"
@@ -219,18 +219,18 @@ Router router(database::mariadb::MariaDBClient& db) {
         db.exec(
             "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
             [userId, userName]() {
-                SNODEC_VLOG(1) << "Inserted: -> " << userId << " - " << userName;
+                VLOG(1) << "Inserted: -> " << userId << " - " << userName;
             },
             [](const std::string& errorString, unsigned int errorNumber) {
-                SNODEC_VLOG(1) << "Error: " << errorString << " : " << errorNumber;
+                VLOG(1) << "Error: " << errorString << " : " << errorNumber;
             });
 
         res->send(response);
     });
     router.get("/asdf/:testRegex1(d\\d{3}e)/jklö/:testRegex2", [] APPLICATION(req, res) { // http://localhost:8080/asdf/d123e/jklö/hallo
-        SNODEC_VLOG(1) << "Testing Regex";
-        SNODEC_VLOG(1) << "Regex1: " << req->params["testRegex1"];
-        SNODEC_VLOG(1) << "Regex2: " << req->params["testRegex2"];
+        VLOG(1) << "Testing Regex";
+        VLOG(1) << "Regex1: " << req->params["testRegex1"];
+        VLOG(1) << "Regex2: " << req->params["testRegex2"];
 
         const std::string response = "<html>"
                                      "  <head>"
@@ -252,9 +252,9 @@ Router router(database::mariadb::MariaDBClient& db) {
         res->send(response);
     });
     router.get("/search/:search", [] APPLICATION(req, res) { // http://localhost:8080/search/buxtehude123
-        SNODEC_VLOG(1) << "Show Search of";
-        SNODEC_VLOG(1) << "Search: " << req->params["search"];
-        SNODEC_VLOG(1) << "Queries: " << req->query("test");
+        VLOG(1) << "Show Search of";
+        VLOG(1) << "Search: " << req->params["search"];
+        VLOG(1) << "Queries: " << req->query("test");
 
         res->send(req->params["search"]);
     });
@@ -287,11 +287,11 @@ int main(int argc, char* argv[]) {
 
     database::mariadb::MariaDBClient db(details, [](const database::mariadb::MariaDBState& state) {
         if (state.error != 0) {
-            SNODEC_VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
+            VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
         } else if (state.connected) {
-            SNODEC_VLOG(0) << "MySQL connected";
+            VLOG(0) << "MySQL connected";
         } else {
-            SNODEC_VLOG(0) << "MySQL disconnected";
+            VLOG(0) << "MySQL disconnected";
         }
     });
 
@@ -303,32 +303,32 @@ int main(int argc, char* argv[]) {
         legacyApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    SNODEC_VLOG(1) << "legacy-testregex: listening on '" << socketAddress.toString() << "'";
+                    VLOG(1) << "legacy-testregex: listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    SNODEC_VLOG(1) << "legacy-testregex: disabled";
+                    VLOG(1) << "legacy-testregex: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    SNODEC_VLOG(1) << "legacy-testregex: error occurred";
+                    VLOG(1) << "legacy-testregex: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    SNODEC_VLOG(1) << "legacy-testregex: fatal error occurred";
+                    VLOG(1) << "legacy-testregex: fatal error occurred";
                     break;
             }
         });
 
         legacyApp.setOnConnect([](legacy::in::WebApp::SocketConnection* socketConnection) {
-            SNODEC_VLOG(1) << "OnConnect:";
+            VLOG(1) << "OnConnect:";
 
-            SNODEC_VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            SNODEC_VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
         legacyApp.setOnDisconnect([](legacy::in::WebApp::SocketConnection* socketConnection) {
-            SNODEC_VLOG(1) << "OnDisconnect:";
+            VLOG(1) << "OnDisconnect:";
 
-            SNODEC_VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            SNODEC_VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
         tls::in::WebApp tlsApp("tls-testregex");
@@ -338,43 +338,43 @@ int main(int argc, char* argv[]) {
         tlsApp.listen(8088, [](const tls::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    SNODEC_VLOG(1) << "tls-testregex: listening on '" << socketAddress.toString() << "'";
+                    VLOG(1) << "tls-testregex: listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    SNODEC_VLOG(1) << "tls-testregex: disabled";
+                    VLOG(1) << "tls-testregex: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    SNODEC_VLOG(1) << "tls-testregex: error occurred";
+                    VLOG(1) << "tls-testregex: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    SNODEC_VLOG(1) << "tls-testregex: fatal error occurred";
+                    VLOG(1) << "tls-testregex: fatal error occurred";
                     break;
             }
         });
 
         tlsApp.setOnConnect([](tls::in::WebApp::SocketConnection* socketConnection) {
-            SNODEC_VLOG(1) << "OnConnect:";
+            VLOG(1) << "OnConnect:";
 
-            SNODEC_VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            SNODEC_VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
         tlsApp.setOnConnected([](tls::in::WebApp::SocketConnection* socketConnection) {
-            SNODEC_VLOG(1) << "OnConnected:";
+            VLOG(1) << "OnConnected:";
 
             X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
 
             if (client_cert != nullptr) {
                 const long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                SNODEC_VLOG(1) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                VLOG(1) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), nullptr, 0);
-                SNODEC_VLOG(1) << "\t   Subject: " + std::string(str);
+                VLOG(1) << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(client_cert), nullptr, 0);
-                SNODEC_VLOG(1) << "\t   Issuer: " + std::string(str);
+                VLOG(1) << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -384,21 +384,21 @@ int main(int argc, char* argv[]) {
 
                 const int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 
-                SNODEC_VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
+                VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
                     GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                     if (generalName->type == GEN_URI) {
                         const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        SNODEC_VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
+                        VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        SNODEC_VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
+                        VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
                     } else {
-                        SNODEC_VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                     }
                 }
 
@@ -406,15 +406,15 @@ int main(int argc, char* argv[]) {
 
                 X509_free(client_cert);
             } else {
-                SNODEC_VLOG(1) << "\tClient certificate: no certificate";
+                VLOG(1) << "\tClient certificate: no certificate";
             }
         });
 
         tlsApp.setOnDisconnect([](tls::in::WebApp::SocketConnection* socketConnection) {
-            SNODEC_VLOG(1) << "OnDisconnect:";
+            VLOG(1) << "OnDisconnect:";
 
-            SNODEC_VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            SNODEC_VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
     }
 

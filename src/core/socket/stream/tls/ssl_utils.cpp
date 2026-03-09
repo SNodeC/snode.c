@@ -87,15 +87,15 @@ namespace core::socket::stream::tls {
         X509_NAME_oneline(X509_get_issuer_name(curr_cert), issuerName, 256);
 
         if (preverify_ok != 0) {
-            SNODEC_LOG(DEBUG) << connectionName << ": SSL/TLS verify success at depth=" << depth;
-            SNODEC_LOG(DEBUG) << "   Issuer: " << issuerName;
-            SNODEC_LOG(DEBUG) << "  Subject: " << subjectName;
+            LOG(DEBUG) << connectionName << ": SSL/TLS verify success at depth=" << depth;
+            LOG(DEBUG) << "   Issuer: " << issuerName;
+            LOG(DEBUG) << "  Subject: " << subjectName;
         } else {
             const int err = X509_STORE_CTX_get_error(ctx);
 
-            SNODEC_LOG(DEBUG) << connectionName << ": SSL/TLS verify error at depth=" << depth << ": " << X509_verify_cert_error_string(err);
-            SNODEC_LOG(DEBUG) << "   Issuer: " << issuerName;
-            SNODEC_LOG(DEBUG) << "  Subject: " << subjectName;
+            LOG(DEBUG) << connectionName << ": SSL/TLS verify error at depth=" << depth << ": " << X509_verify_cert_error_string(err);
+            LOG(DEBUG) << "   Issuer: " << issuerName;
+            LOG(DEBUG) << "  Subject: " << subjectName;
 
             /*
              * At this point, err contains the last verification error. We can use
@@ -137,31 +137,31 @@ namespace core::socket::stream::tls {
                     sslErr = true;
                 } else {
                     if (!sslConfig.caCert.empty()) {
-                        SNODEC_LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate loaded";
-                        SNODEC_LOG(TRACE) << "  " << sslConfig.caCert;
+                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate loaded";
+                        LOG(TRACE) << "  " << sslConfig.caCert;
                     } else {
-                        SNODEC_LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
+                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
                     }
                     if (!sslConfig.caCertDir.empty()) {
-                        SNODEC_LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates load from";
-                        SNODEC_LOG(TRACE) << "  " << sslConfig.caCertDir;
+                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates load from";
+                        LOG(TRACE) << "  " << sslConfig.caCertDir;
                     } else {
-                        SNODEC_LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
+                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
                     }
                 }
             } else {
-                SNODEC_LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
-                SNODEC_LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
+                LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
+                LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
             }
             if (!sslErr && sslConfig.caCertUseDefaultDir) {
                 if (SSL_CTX_set_default_verify_paths(ctx) == 0) {
                     ssl_log_error(sslConfig.instanceName + " SSL/TLS: CA certificates error load from default openssl CA directory");
                     sslErr = true;
                 } else {
-                    SNODEC_LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates enabled load from default openssl CA directory";
+                    LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates enabled load from default openssl CA directory";
                 }
             } else {
-                SNODEC_LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from default openssl CA directory";
+                LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from default openssl CA directory";
             }
             if (!sslErr) {
                 SSL_CTX_set_verify_depth(ctx, 5);
@@ -172,7 +172,7 @@ namespace core::socket::stream::tls {
                                         : 0),
                                    verify_callback);
                 if ((SSL_CTX_get_verify_mode(ctx) & SSL_VERIFY_PEER) != 0) {
-                    SNODEC_LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA requested verify";
+                    LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA requested verify";
                 }
                 if (!sslConfig.cert.empty()) {
                     if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.cert.c_str()) == 0) {
@@ -190,14 +190,14 @@ namespace core::socket::stream::tls {
                         } else if (SSL_CTX_check_private_key(ctx) != 1) {
                             ssl_log_error(sslConfig.instanceName + " SSL/TLS: Cert chain key error");
 
-                            SNODEC_LOG(TRACE) << "  " << sslConfig.certKey;
+                            LOG(TRACE) << "  " << sslConfig.certKey;
                             sslErr = true;
                         } else {
-                            SNODEC_LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain key loaded";
-                            SNODEC_LOG(TRACE) << "  " << sslConfig.certKey;
+                            LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain key loaded";
+                            LOG(TRACE) << "  " << sslConfig.certKey;
 
-                            SNODEC_LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain loaded";
-                            SNODEC_LOG(TRACE) << "  " << sslConfig.cert;
+                            LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain loaded";
+                            LOG(TRACE) << "  " << sslConfig.cert;
                         }
                     }
                 }
@@ -339,32 +339,32 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log_error(const std::string& message) {
-        SNODEC_LOG(ERROR) << message;
-        SNODEC_LOG(ERROR) << "  " << ERR_error_string(ERR_get_error(), nullptr);
+        LOG(ERROR) << message;
+        LOG(ERROR) << "  " << ERR_error_string(ERR_get_error(), nullptr);
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            SNODEC_LOG(ERROR) << "  " << ERR_error_string(errorCode, nullptr);
+            LOG(ERROR) << "  " << ERR_error_string(errorCode, nullptr);
         }
     }
 
     void ssl_log_warning(const std::string& message) {
-        SNODEC_LOG(WARNING) << message;
-        SNODEC_LOG(WARNING) << "  " << ERR_error_string(ERR_get_error(), nullptr);
+        LOG(WARNING) << message;
+        LOG(WARNING) << "  " << ERR_error_string(ERR_get_error(), nullptr);
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            SNODEC_LOG(WARNING) << "  " << ERR_error_string(errorCode, nullptr);
+            LOG(WARNING) << "  " << ERR_error_string(errorCode, nullptr);
         }
     }
 
     void ssl_log_info(const std::string& message) {
-        SNODEC_LOG(INFO) << message;
-        SNODEC_LOG(INFO) << "  " << ERR_error_string(ERR_get_error(), nullptr);
+        LOG(INFO) << message;
+        LOG(INFO) << "  " << ERR_error_string(ERR_get_error(), nullptr);
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            SNODEC_LOG(INFO) << "  " << ERR_error_string(errorCode, nullptr);
+            LOG(INFO) << "  " << ERR_error_string(errorCode, nullptr);
         }
     }
 

@@ -66,14 +66,14 @@ namespace core::socket::stream {
         if (physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
             try {
                 localPeerAddress = config->Local::getSocketAddress(localSockAddr, localSockAddrLen);
-                SNODEC_LOG(TRACE) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+                LOG(TRACE) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
                            << "  PeerAddress (local): " << localPeerAddress.toString();
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                SNODEC_LOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+                LOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
                              << "  PeerAddress (local): " << badSocketAddress.what();
             }
         } else {
-            SNODEC_PLOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+            PLOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
                           << " PeerAddress (local) not retrievable";
         }
 
@@ -89,14 +89,14 @@ namespace core::socket::stream {
         if (physicalSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
             try {
                 remotePeerAddress = config->Remote::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                SNODEC_LOG(TRACE) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+                LOG(TRACE) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
                            << "  PeerAddress (remote): " << remotePeerAddress.toString();
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                SNODEC_LOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+                LOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
                              << "  PeerAddress (remote): " << badSocketAddress.what();
             }
         } else {
-            SNODEC_PLOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
+            PLOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
                           << " PeerAddress (remote) not retrievble";
         }
 
@@ -114,9 +114,9 @@ namespace core::socket::stream {
                   {
                       const utils::PreserveErrno pe(errnum);
                       if (errno == 0) {
-                          SNODEC_LOG(TRACE) << connectionName << " OnReadError: EOF received";
+                          LOG(TRACE) << connectionName << " OnReadError: EOF received";
                       } else {
-                          SNODEC_PLOG(TRACE) << connectionName << " OnReadError";
+                          PLOG(TRACE) << connectionName << " OnReadError";
                       }
                   }
                   SocketReader::disable();
@@ -131,7 +131,7 @@ namespace core::socket::stream {
               [this](int errnum) {
                   {
                       const utils::PreserveErrno pe(errnum);
-                      SNODEC_PLOG(TRACE) << connectionName << " OnWriteError";
+                      PLOG(TRACE) << connectionName << " OnWriteError";
                   }
                   SocketWriter::disable();
 
@@ -203,7 +203,7 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             ret = SocketReader::readFromPeer(chunk, chunkLen);
         } else {
-            SNODEC_LOG(TRACE) << connectionName << " ReadFromPeer: New SocketContext != nullptr: SocketContextSwitch still in progress";
+            LOG(TRACE) << connectionName << " ReadFromPeer: New SocketContext != nullptr: SocketContextSwitch still in progress";
         }
 
         return ret;
@@ -226,21 +226,21 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::shutdownRead() {
-        SNODEC_LOG(TRACE) << connectionName << ": Shutdown (RD)";
+        LOG(TRACE) << connectionName << ": Shutdown (RD)";
 
         SocketReader::shutdownRead();
 
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::RD) == 0) {
-            SNODEC_LOG(DEBUG) << connectionName << " Shutdown (RD): success";
+            LOG(DEBUG) << connectionName << " Shutdown (RD): success";
         } else {
-            SNODEC_PLOG(ERROR) << connectionName << " Shutdown (RD)";
+            PLOG(ERROR) << connectionName << " Shutdown (RD)";
         }
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::shutdownWrite() {
         if (!SocketWriter::shutdownInProgress) {
-            SNODEC_LOG(TRACE) << connectionName << ": Stop writing";
+            LOG(TRACE) << connectionName << ": Stop writing";
 
             SocketWriter::shutdownWrite([this]() {
                 if (SocketWriter::isEnabled()) {
@@ -291,12 +291,12 @@ namespace core::socket::stream {
 
         setTimeout(SocketWriter::terminateTimeout);
 
-        SNODEC_LOG(TRACE) << connectionName << ": Shutdown (WR)";
+        LOG(TRACE) << connectionName << ": Shutdown (WR)";
 
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) == 0) {
-            SNODEC_LOG(DEBUG) << connectionName << " Shutdown (WR): success";
+            LOG(DEBUG) << connectionName << " Shutdown (WR): success";
         } else {
-            SNODEC_PLOG(ERROR) << connectionName << " Shutdown (WR)";
+            PLOG(ERROR) << connectionName << " Shutdown (WR)";
         }
 
         onShutdown();
@@ -307,7 +307,7 @@ namespace core::socket::stream {
         std::size_t consumed = socketContext->readFromPeer();
 
         if (available != 0 && consumed == 0) {
-            SNODEC_LOG(TRACE) << connectionName << ": Data available: " << available << " but nothing read";
+            LOG(TRACE) << connectionName << ": Data available: " << available << " but nothing read";
 
             close();
 
@@ -321,7 +321,7 @@ namespace core::socket::stream {
 
             socketContext->attach();
 
-            SNODEC_LOG(DEBUG) << connectionName << " SocketConnection: switch completed";
+            LOG(DEBUG) << connectionName << " SocketConnection: switch completed";
         }
     }
 
@@ -345,7 +345,7 @@ namespace core::socket::stream {
             case SIGABRT:
                 [[fallthrough]];
             case SIGHUP:
-                SNODEC_LOG(DEBUG) << connectionName << ": Shutting down due to signal '" << strsignal(signum) << "' (SIG"
+                LOG(DEBUG) << connectionName << ": Shutting down due to signal '" << strsignal(signum) << "' (SIG"
                            << utils::system::sigabbrev_np(signum) << " [" << signum << "])";
                 break;
             case SIGALRM:
@@ -357,13 +357,13 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::readTimeout() {
-        SNODEC_LOG(WARNING) << connectionName << ": Read timeout";
+        LOG(WARNING) << connectionName << ": Read timeout";
         close();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::writeTimeout() {
-        SNODEC_LOG(WARNING) << connectionName << ": Write timeout";
+        LOG(WARNING) << connectionName << ": Write timeout";
         close();
     }
 
@@ -375,7 +375,7 @@ namespace core::socket::stream {
 
         onDisconnect();
 
-        SNODEC_LOG(DEBUG) << connectionName << ": disconnected";
+        LOG(DEBUG) << connectionName << ": disconnected";
 
         delete this;
     }

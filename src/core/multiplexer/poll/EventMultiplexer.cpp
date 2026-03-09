@@ -163,7 +163,7 @@ namespace core::multiplexer::poll {
                                                                                        pollFdsManager,
                                                                                        POLLPRI,
                                                                                        POLLPRI)) {
-        SNODEC_LOG(DEBUG) << "Core::multiplexer: poll";
+        LOG(DEBUG) << "Core::multiplexer: poll";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {

@@ -127,7 +127,7 @@ namespace web::websocket {
             } else {
                 parserState = ParserState::ERROR;
                 errorState = 1002;
-                SNODEC_LOG(ERROR) << "WebSocket: Error opcode in continuation frame";
+                LOG(ERROR) << "WebSocket: Error opcode in continuation frame";
             }
             continuation = !fin;
         }
@@ -281,7 +281,7 @@ namespace web::websocket {
                 }
             }
 
-            SNODEC_LOG(TRACE) << "WebSocket receive: Frame data\n" << utils::hexDump(payloadChunk, payloadChunkLen, 32, true);
+            LOG(TRACE) << "WebSocket receive: Frame data\n" << utils::hexDump(payloadChunk, payloadChunkLen, 32, true);
 
             onMessageData(payloadChunk, payloadChunkLen);
 

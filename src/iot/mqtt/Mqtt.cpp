@@ -58,7 +58,6 @@
 
 #include <functional>
 #include <iomanip>
-#include <ios>
 #include <map>
 #include <set>
 
@@ -93,7 +92,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::onConnected() {
-        SNODEC_LOG(INFO) << "MQTT: Connected";
+        LOG(INFO) << "MQTT: Connected";
     }
 
     std::size_t Mqtt::onReceivedFromPeer() {
@@ -117,13 +116,13 @@ namespace iot::mqtt {
                 fixedHeader.reset();
 
                 if (controlPacketDeserializer == nullptr) {
-                    SNODEC_LOG(DEBUG) << connectionName << " MQTT: Received packet-type is unavailable ... closing connection";
+                    LOG(DEBUG) << connectionName << " MQTT: Received packet-type is unavailable ... closing connection";
 
                     mqttContext->close();
                     break;
                 }
                 if (controlPacketDeserializer->isError()) {
-                    SNODEC_LOG(DEBUG) << connectionName << " MQTT: Fixed header has error ... closing connection";
+                    LOG(DEBUG) << connectionName << " MQTT: Fixed header has error ... closing connection";
 
                     delete controlPacketDeserializer;
                     controlPacketDeserializer = nullptr;
@@ -139,7 +138,7 @@ namespace iot::mqtt {
                 consumed += controlPacketDeserializer->deserialize(mqttContext);
 
                 if (controlPacketDeserializer->isError()) {
-                    SNODEC_LOG(DEBUG) << connectionName << " MQTT: Control packet has error ... closing connection";
+                    LOG(DEBUG) << connectionName << " MQTT: Control packet has error ... closing connection";
                     mqttContext->close();
 
                     delete controlPacketDeserializer;
@@ -164,7 +163,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::onDisconnected() {
-        SNODEC_LOG(INFO) << connectionName << " MQTT: Disconnected";
+        LOG(INFO) << connectionName << " MQTT: Disconnected";
     }
 
     const std::string& Mqtt::getConnectionName() const {
@@ -175,13 +174,13 @@ namespace iot::mqtt {
         this->session = session;
 
         for (const auto& [packetIdentifier, publish] : session->outgoingPublishMap) {
-            SNODEC_LOG(INFO) << connectionName << " MQTT: PUBLISH Resend";
+            LOG(INFO) << connectionName << " MQTT: PUBLISH Resend";
 
             send(publish);
         }
 
         for (const uint16_t packetIdentifier : session->pubrelPacketIdentifierSet) {
-            SNODEC_LOG(INFO) << connectionName << " MQTT: PUBREL Resend";
+            LOG(INFO) << connectionName << " MQTT: PUBREL Resend";
 
             sendPubrel(packetIdentifier);
         }
@@ -189,11 +188,11 @@ namespace iot::mqtt {
         if (keepAlive > 0) {
             keepAlive *= 1.5;
 
-            SNODEC_LOG(INFO) << connectionName << " MQTT: Keep alive initialized with: " << keepAlive;
+            LOG(INFO) << connectionName << " MQTT: Keep alive initialized with: " << keepAlive;
 
             keepAliveTimer = core::timer::Timer::singleshotTimer(
                 [this, keepAlive]() {
-                    SNODEC_LOG(ERROR) << connectionName << " MQTT: Keep-alive timer expired. Interval was: " << keepAlive;
+                    LOG(ERROR) << connectionName << " MQTT: Keep-alive timer expired. Interval was: " << keepAlive;
                     mqttContext->close();
                 },
                 keepAlive);
@@ -203,13 +202,13 @@ namespace iot::mqtt {
     }
 
     void Mqtt::send(const ControlPacket& controlPacket) const {
-        SNODEC_LOG(INFO) << connectionName << " MQTT: " << controlPacket.getName() << " send: " << clientId;
+        LOG(INFO) << connectionName << " MQTT: " << controlPacket.getName() << " send: " << clientId;
 
         send(controlPacket.serialize());
     }
 
     void Mqtt::send(const std::vector<char>& data) const {
-        SNODEC_LOG(TRACE) << connectionName << " MQTT: Send data (full message):\n" << toHexString(data);
+        LOG(TRACE) << connectionName << " MQTT: Send data (full message):\n" << toHexString(data);
 
         mqttContext->send(data.data(), data.size());
     }
@@ -219,12 +218,12 @@ namespace iot::mqtt {
 
         send(iot::mqtt::packets::Publish(packetIdentifier, topic, message, qoS, false, retain));
 
-        SNODEC_LOG(INFO) << connectionName << " MQTT:   Topic: " << topic;
-        SNODEC_LOG(INFO) << connectionName << " MQTT:   Message:\n" << toHexString(message);
-        SNODEC_LOG(DEBUG) << connectionName << " MQTT:   QoS: " << static_cast<uint16_t>(qoS);
-        SNODEC_LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: " << packetIdentifier;
-        SNODEC_LOG(DEBUG) << connectionName << " MQTT:   DUP: " << false;
-        SNODEC_LOG(DEBUG) << connectionName << " MQTT:   Retain: " << retain;
+        LOG(INFO) << connectionName << " MQTT:   Topic: " << topic;
+        LOG(INFO) << connectionName << " MQTT:   Message:\n" << toHexString(message);
+        LOG(DEBUG) << connectionName << " MQTT:   QoS: " << static_cast<uint16_t>(qoS);
+        LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: " << packetIdentifier;
+        LOG(DEBUG) << connectionName << " MQTT:   DUP: " << false;
+        LOG(DEBUG) << connectionName << " MQTT:   Retain: " << retain;
 
         if (qoS >= 1) {
             session->outgoingPublishMap.insert_or_assign(packetIdentifier,
@@ -266,23 +265,23 @@ namespace iot::mqtt {
     bool Mqtt::_onPublish(const iot::mqtt::packets::Publish& publish) {
         bool deliver = true;
 
-        SNODEC_LOG(INFO) << connectionName << " MQTT:   Topic: " << publish.getTopic();
-        SNODEC_LOG(INFO) << connectionName << " MQTT:   Message:\n" << toHexString(publish.getMessage());
-        SNODEC_LOG(DEBUG) << connectionName << " MQTT:   QoS: " << static_cast<uint16_t>(publish.getQoS());
-        SNODEC_LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: " << publish.getPacketIdentifier();
-        SNODEC_LOG(DEBUG) << connectionName << " MQTT:   DUP: " << publish.getDup();
-        SNODEC_LOG(DEBUG) << connectionName << " MQTT:   Retain: " << publish.getRetain();
+        LOG(INFO) << connectionName << " MQTT:   Topic: " << publish.getTopic();
+        LOG(INFO) << connectionName << " MQTT:   Message:\n" << toHexString(publish.getMessage());
+        LOG(DEBUG) << connectionName << " MQTT:   QoS: " << static_cast<uint16_t>(publish.getQoS());
+        LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: " << publish.getPacketIdentifier();
+        LOG(DEBUG) << connectionName << " MQTT:   DUP: " << publish.getDup();
+        LOG(DEBUG) << connectionName << " MQTT:   Retain: " << publish.getRetain();
 
         if (publish.getQoS() > 2) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT:   Received invalid QoS: " << publish.getQoS();
+            LOG(ERROR) << connectionName << " MQTT:   Received invalid QoS: " << publish.getQoS();
             mqttContext->close();
             deliver = false;
         } else if (publish.getPacketIdentifier() == 0 && publish.getQoS() > 0) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT:   Received QoS > 0 but no PackageIdentifier present";
+            LOG(ERROR) << connectionName << " MQTT:   Received QoS > 0 but no PackageIdentifier present";
             mqttContext->close();
             deliver = false;
         } else if (publish.getQoS() == 0 && publish.getDup()) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT:   Received QoS == 0 but dup is set";
+            LOG(ERROR) << connectionName << " MQTT:   Received QoS == 0 but dup is set";
             mqttContext->close();
             deliver = false;
         } else {
@@ -302,13 +301,13 @@ namespace iot::mqtt {
                         if (!publish.getDup()) {
                             session->pubcompPacketIdentifierSet.erase(pid);
                         } else {
-                            SNODEC_LOG(WARNING) << connectionName << " MQTT:   Duplicate QoS2 PUBLISH after PUBCOMP for PacketIdentifier: " << pid;
+                            LOG(WARNING) << connectionName << " MQTT:   Duplicate QoS2 PUBLISH after PUBCOMP for PacketIdentifier: " << pid;
                             break;
                         }
                     }
 
                     if (session->incomingPublishMap.contains(pid)) {
-                        SNODEC_LOG(INFO) << connectionName << " MQTT:   Duplicate QoS2 PUBLISH suppressed for PacketIdentifier: " << pid;
+                        LOG(INFO) << connectionName << " MQTT:   Duplicate QoS2 PUBLISH suppressed for PacketIdentifier: " << pid;
                     } else {
                         session->incomingPublishMap.emplace(pid, publish);
                     }
@@ -322,10 +321,10 @@ namespace iot::mqtt {
 
     void Mqtt::_onPuback(const iot::mqtt::packets::Puback& puback) {
         if (puback.getPacketIdentifier() == 0) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
+            LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
             mqttContext->close();
         } else {
-            SNODEC_LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
+            LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << puback.getPacketIdentifier() << std::dec;
 
             session->outgoingPublishMap.erase(puback.getPacketIdentifier());
@@ -336,10 +335,10 @@ namespace iot::mqtt {
 
     void Mqtt::_onPubrec(const iot::mqtt::packets::Pubrec& pubrec) {
         if (pubrec.getPacketIdentifier() == 0) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
+            LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
             mqttContext->close();
         } else {
-            SNODEC_LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
+            LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << pubrec.getPacketIdentifier() << std::dec;
 
             session->outgoingPublishMap.erase(pubrec.getPacketIdentifier());
@@ -353,25 +352,25 @@ namespace iot::mqtt {
 
     void Mqtt::_onPubrel(const iot::mqtt::packets::Pubrel& pubrel) {
         if (pubrel.getPacketIdentifier() == 0) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
+            LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
             mqttContext->close();
         } else {
-            SNODEC_LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
+            LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << pubrel.getPacketIdentifier() << std::dec;
 
             const uint16_t pid = pubrel.getPacketIdentifier();
 
             if (session->incomingPublishMap.contains(pid)) {
-                SNODEC_LOG(INFO) << connectionName << " MQTT:   QoS2 PUBREL received. Deliver publish: " << pid;
+                LOG(INFO) << connectionName << " MQTT:   QoS2 PUBREL received. Deliver publish: " << pid;
 
                 deliverPublish(session->incomingPublishMap[pid]);
 
                 session->incomingPublishMap.erase(pid);
                 session->pubcompPacketIdentifierSet.insert(pid);
             } else if (session->pubcompPacketIdentifierSet.contains(pid)) {
-                SNODEC_LOG(INFO) << connectionName << " MQTT:   Duplicate QoS2 PUBREL for completed PacketIdentifier: " << pid;
+                LOG(INFO) << connectionName << " MQTT:   Duplicate QoS2 PUBREL for completed PacketIdentifier: " << pid;
             } else {
-                SNODEC_LOG(WARNING) << connectionName << " MQTT:   QoS2 PUBREL received for unknown PacketIdentifier: " << pid;
+                LOG(WARNING) << connectionName << " MQTT:   QoS2 PUBREL received for unknown PacketIdentifier: " << pid;
 
                 session->pubcompPacketIdentifierSet.insert(pid);
             }
@@ -384,10 +383,10 @@ namespace iot::mqtt {
 
     void Mqtt::_onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) {
         if (pubcomp.getPacketIdentifier() == 0) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
+            LOG(ERROR) << connectionName << " MQTT:   PackageIdentifier missing";
             mqttContext->close();
         } else {
-            SNODEC_LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
+            LOG(DEBUG) << connectionName << " MQTT:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << pubcomp.getPacketIdentifier() << std::dec;
 
             session->outgoingPublishMap.erase(pubcomp.getPacketIdentifier());
@@ -398,25 +397,25 @@ namespace iot::mqtt {
     }
 
     void Mqtt::printVP(const iot::mqtt::ControlPacket& packet) const {
-        SNODEC_LOG(INFO) << connectionName << " MQTT: " << packet.getName() << " received: " << clientId;
+        LOG(INFO) << connectionName << " MQTT: " << packet.getName() << " received: " << clientId;
 
         const std::string hexString = toHexString(packet.serializeVP());
         if (!hexString.empty()) {
-            SNODEC_LOG(TRACE) << connectionName << " MQTT: Received data (variable header and payload):\n" << hexString;
+            LOG(TRACE) << connectionName << " MQTT: Received data (variable header and payload):\n" << hexString;
         }
     }
 
     void Mqtt::printFixedHeader(const FixedHeader& fixedHeader) const {
-        SNODEC_LOG(INFO) << connectionName << " MQTT: ====================================";
+        LOG(INFO) << connectionName << " MQTT: ====================================";
 
-        SNODEC_LOG(TRACE) << connectionName << " MQTT: Received data (fixed header):\n" << toHexString(fixedHeader.serialize());
+        LOG(TRACE) << connectionName << " MQTT: Received data (fixed header):\n" << toHexString(fixedHeader.serialize());
 
-        SNODEC_LOG(DEBUG) << connectionName << " MQTT: Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
+        LOG(DEBUG) << connectionName << " MQTT: Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
                    << static_cast<uint16_t>(fixedHeader.getType()) << " (" << iot::mqtt::mqttPackageName[fixedHeader.getType()] << ")"
                    << std::dec;
-        SNODEC_LOG(DEBUG) << connectionName << " MQTT:   PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
+        LOG(DEBUG) << connectionName << " MQTT:   PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
                    << static_cast<uint16_t>(fixedHeader.getFlags()) << std::dec;
-        SNODEC_LOG(DEBUG) << connectionName << " MQTT:   RemainingLength: " << fixedHeader.getRemainingLength();
+        LOG(DEBUG) << connectionName << " MQTT:   RemainingLength: " << fixedHeader.getRemainingLength();
     }
 
     std::string Mqtt::toHexString(const std::vector<char>& data) {

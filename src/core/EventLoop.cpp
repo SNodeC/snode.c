@@ -121,7 +121,7 @@ namespace core {
         if (utils::Config::init(argc, argv)) {
             eventLoopState = State::INITIALIZED;
 
-            SNODEC_LOG(TRACE) << "SNode.C: Starting ... HELLO";
+            LOG(TRACE) << "SNode.C: Starting ... HELLO";
         }
 
         sigaction(SIGPIPE, &oldPipeAct, nullptr);
@@ -175,7 +175,7 @@ namespace core {
             EventLoop::instance().eventMultiplexer.clearEventQueue();
             free();
 
-            SNODEC_PLOG(FATAL) << "Core: not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().";
+            PLOG(FATAL) << "Core: not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().";
         }
 
         return tickStatus;
@@ -209,7 +209,7 @@ namespace core {
                 eventLoopState = State::RUNNING;
                 core::TickStatus tickStatus = TickStatus::SUCCESS;
 
-                SNODEC_LOG(TRACE) << "Core::EventLoop: started";
+                LOG(TRACE) << "Core::EventLoop: started";
 
                 do {
                     tickStatus = EventLoop::instance()._tick(timeOut);
@@ -217,16 +217,16 @@ namespace core {
 
                 switch (tickStatus) {
                     case TickStatus::SUCCESS:
-                        SNODEC_LOG(TRACE) << "Core::EventLoop: Stopped";
+                        LOG(TRACE) << "Core::EventLoop: Stopped";
                         break;
                     case TickStatus::NOOBSERVER:
-                        SNODEC_LOG(TRACE) << "Core::EventLoop: No Observer";
+                        LOG(TRACE) << "Core::EventLoop: No Observer";
                         break;
                     case TickStatus::INTERRUPTED:
-                        SNODEC_LOG(TRACE) << "Core::EventLoop: Interrupted";
+                        LOG(TRACE) << "Core::EventLoop: Interrupted";
                         break;
                     case TickStatus::TRACE:
-                        SNODEC_PLOG(FATAL) << "Core::EventLoop: _tick()";
+                        PLOG(FATAL) << "Core::EventLoop: _tick()";
                         break;
                 }
             } else {
@@ -260,7 +260,7 @@ namespace core {
         }
 
         if (stopsig != 0) {
-            SNODEC_LOG(TRACE) << "Core: Sending signal " << signal << " to all DescriptorEventReceivers";
+            LOG(TRACE) << "Core: Sending signal " << signal << " to all DescriptorEventReceivers";
 
             EventLoop::instance().eventMultiplexer.signal(stopsig);
         }
@@ -282,25 +282,25 @@ namespace core {
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS));
 
-        SNODEC_LOG(TRACE) << "Core: Terminate all stalled DescriptorEventReceivers";
+        LOG(TRACE) << "Core: Terminate all stalled DescriptorEventReceivers";
 
         EventLoop::instance().eventMultiplexer.terminate();
 
-        SNODEC_LOG(TRACE) << "Core: Close all libraries opened during runtime";
+        LOG(TRACE) << "Core: Close all libraries opened during runtime";
 
         DynamicLoader::execDlCloseAll();
 
-        SNODEC_LOG(TRACE) << "Core:: Clean up the filesystem";
+        LOG(TRACE) << "Core:: Clean up the filesystem";
 
         utils::Config::terminate();
 
-        SNODEC_LOG(TRACE) << "Core:: All resources released";
+        LOG(TRACE) << "Core:: All resources released";
 
-        SNODEC_LOG(TRACE) << "SNode.C: Ended ... BYE";
+        LOG(TRACE) << "SNode.C: Ended ... BYE";
     }
 
     void EventLoop::stoponsig(int sig) {
-        SNODEC_LOG(TRACE) << "Core: Received signal '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
+        LOG(TRACE) << "Core: Received signal '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
         stopsig = sig;
         stop();
     }

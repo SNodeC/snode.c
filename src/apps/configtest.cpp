@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
     CLI::Option* filenameOpt = subApp->add_option("-f", filename, "A Filename");
     //    filenameOpt->default_val("Filenameeeeee");
 
-    SNODEC_VLOG(1) << "Filename: " << filename;
+    VLOG(1) << "Filename: " << filename;
 
     //    app.needs(subApp);
     //    subApp->needs(filenameOpt);

@@ -64,7 +64,6 @@
 
 #include <cstdint>
 #include <iomanip>
-#include <ios>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -148,30 +147,30 @@ namespace iot::mqtt::server {
         bool success = true;
 
         if (broker->hasActiveSession(clientId)) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Broker: Existing session found for ClientId = " << clientId;
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Broker:   closing";
+            LOG(ERROR) << connectionName << " MQTT Broker: Existing session found for ClientId = " << clientId;
+            LOG(ERROR) << connectionName << " MQTT Broker:   closing";
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
 
             willFlag = false;
             success = false;
         } else if (broker->hasRetainedSession(clientId)) {
-            SNODEC_LOG(INFO) << connectionName << " MQTT Broker: Retained session found for ClientId = " << clientId;
+            LOG(INFO) << connectionName << " MQTT Broker: Retained session found for ClientId = " << clientId;
             if (cleanSession) {
-                SNODEC_LOG(DEBUG) << connectionName << "   New SessionId = " << this;
+                LOG(DEBUG) << connectionName << "   New SessionId = " << this;
                 sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
 
                 broker->unsubscribe(clientId);
                 initSession(broker->newSession(clientId, this), keepAlive);
             } else {
-                SNODEC_LOG(DEBUG) << connectionName << "   Renew SessionId = " << this;
+                LOG(DEBUG) << connectionName << "   Renew SessionId = " << this;
                 sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_PRESENT);
 
                 initSession(broker->renewSession(clientId, this), keepAlive);
                 broker->restartSession(clientId);
             }
         } else {
-            SNODEC_LOG(INFO) << connectionName << " MQTT Broker: No session found for ClientId = " << clientId;
-            SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   new SessionId = " << this;
+            LOG(INFO) << connectionName << " MQTT Broker: No session found for ClientId = " << clientId;
+            LOG(INFO) << connectionName << " MQTT Broker:   new SessionId = " << this;
 
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
 
@@ -184,12 +183,12 @@ namespace iot::mqtt::server {
     void Mqtt::releaseSession() {
         if (broker->isActiveSession(clientId, this)) {
             if (cleanSession) {
-                SNODEC_LOG(DEBUG) << connectionName << " MQTT Broker: Delete session for ClientId = " << clientId;
-                SNODEC_LOG(DEBUG) << connectionName << " MQTT Broker:   SessionId = " << this;
+                LOG(DEBUG) << connectionName << " MQTT Broker: Delete session for ClientId = " << clientId;
+                LOG(DEBUG) << connectionName << " MQTT Broker:   SessionId = " << this;
                 broker->deleteSession(clientId);
             } else {
-                SNODEC_LOG(DEBUG) << connectionName << " MQTT Broker: Retain session for ClientId = " << clientId;
-                SNODEC_LOG(DEBUG) << connectionName << " MQTT Broker:   SessionId = " << this;
+                LOG(DEBUG) << connectionName << " MQTT Broker: Retain session for ClientId = " << clientId;
+                LOG(DEBUG) << connectionName << " MQTT Broker:   SessionId = " << this;
                 broker->retainSession(clientId);
             }
         }
@@ -211,50 +210,50 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::_onConnect(const iot::mqtt::server::packets::Connect& connect) {
-        SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   Protocol: " << connect.getProtocol();
-        SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   Version: " << static_cast<uint16_t>(connect.getLevel());
-        SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   ConnectFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
+        LOG(INFO) << connectionName << " MQTT Broker:   Protocol: " << connect.getProtocol();
+        LOG(INFO) << connectionName << " MQTT Broker:   Version: " << static_cast<uint16_t>(connect.getLevel());
+        LOG(INFO) << connectionName << " MQTT Broker:   ConnectFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
                   << static_cast<uint16_t>(connect.getConnectFlags()) << std::dec << std::setw(0);
-        SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   KeepAlive: " << connect.getKeepAlive();
-        SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   ClientID: " << connect.getClientId();
-        SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   CleanSession: " << connect.getCleanSession();
+        LOG(INFO) << connectionName << " MQTT Broker:   KeepAlive: " << connect.getKeepAlive();
+        LOG(INFO) << connectionName << " MQTT Broker:   ClientID: " << connect.getClientId();
+        LOG(INFO) << connectionName << " MQTT Broker:   CleanSession: " << connect.getCleanSession();
 
         if (connect.getWillFlag()) {
-            SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   WillTopic: " << connect.getWillTopic();
-            SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   WillMessage: " << connect.getWillMessage();
-            SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   WillQoS: " << static_cast<uint16_t>(connect.getWillQoS());
-            SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   WillRetain: " << connect.getWillRetain();
+            LOG(INFO) << connectionName << " MQTT Broker:   WillTopic: " << connect.getWillTopic();
+            LOG(INFO) << connectionName << " MQTT Broker:   WillMessage: " << connect.getWillMessage();
+            LOG(INFO) << connectionName << " MQTT Broker:   WillQoS: " << static_cast<uint16_t>(connect.getWillQoS());
+            LOG(INFO) << connectionName << " MQTT Broker:   WillRetain: " << connect.getWillRetain();
         }
         if (connect.getUsernameFlag()) {
-            SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   Username: " << connect.getUsername();
+            LOG(INFO) << connectionName << " MQTT Broker:   Username: " << connect.getUsername();
         }
         if (connect.getPasswordFlag()) {
-            SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   Password: " << connect.getPassword();
+            LOG(INFO) << connectionName << " MQTT Broker:   Password: " << connect.getPassword();
         }
 
         if (connect.getProtocol() != "MQTT") {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Broker:   Wrong Protocol: " << connect.getProtocol();
+            LOG(ERROR) << connectionName << " MQTT Broker:   Wrong Protocol: " << connect.getProtocol();
             mqttContext->close();
         } else if ((connect.getLevel()) != MQTT_VERSION_3_1_1) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Broker:   Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
+            LOG(ERROR) << connectionName << " MQTT Broker:   Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
             mqttContext->close();
         } else if (connect.isFakedClientId() && !connect.getCleanSession()) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Broker:   Resume session but no ClientId present";
+            LOG(ERROR) << connectionName << " MQTT Broker:   Resume session but no ClientId present";
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
 
             mqttContext->close();
         } else if (!connect.getWillFlag() && (connect.getWillQoS() != 0 || connect.getWillRetain())) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Broker:   WillFlag not set but WillQoS or WillRetain set";
+            LOG(ERROR) << connectionName << " MQTT Broker:   WillFlag not set but WillQoS or WillRetain set";
 
             mqttContext->close();
         } else if (connect.getWillQoS() > 2) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Broker:   WillQoS larger than 2";
+            LOG(ERROR) << connectionName << " MQTT Broker:   WillQoS larger than 2";
 
             mqttContext->close();
         } else if (connect.getPasswordFlag() && !connect.getUsernameFlag()) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Broker:   Password flag set but username flag not";
+            LOG(ERROR) << connectionName << " MQTT Broker:   Password flag set but username flag not";
 
             mqttContext->close();
         } else {
@@ -296,14 +295,14 @@ namespace iot::mqtt::server {
 
     void Mqtt::_onSubscribe(const iot::mqtt::server::packets::Subscribe& subscribe) {
         if (subscribe.getPacketIdentifier() == 0) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Broker:   PackageIdentifier missing";
+            LOG(ERROR) << connectionName << " MQTT Broker:   PackageIdentifier missing";
             mqttContext->close();
         } else {
-            SNODEC_LOG(DEBUG) << connectionName << " MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
+            LOG(DEBUG) << connectionName << " MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << subscribe.getPacketIdentifier() << std::dec;
 
             for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   Topic filter: '" << topic.getName()
+                LOG(INFO) << connectionName << " MQTT Broker:   Topic filter: '" << topic.getName()
                           << "', QoS: " << static_cast<uint16_t>(topic.getQoS());
             }
 
@@ -321,14 +320,14 @@ namespace iot::mqtt::server {
 
     void Mqtt::_onUnsubscribe(const iot::mqtt::server::packets::Unsubscribe& unsubscribe) {
         if (unsubscribe.getPacketIdentifier() == 0) {
-            SNODEC_LOG(ERROR) << connectionName << " MQTT Broker:   PackageIdentifier missing";
+            LOG(ERROR) << connectionName << " MQTT Broker:   PackageIdentifier missing";
             mqttContext->close();
         } else {
-            SNODEC_LOG(DEBUG) << connectionName << " MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
+            LOG(DEBUG) << connectionName << " MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
                        << unsubscribe.getPacketIdentifier() << std::dec;
 
             for (const std::string& topic : unsubscribe.getTopics()) {
-                SNODEC_LOG(INFO) << connectionName << " MQTT Broker:   Topic: " << topic;
+                LOG(INFO) << connectionName << " MQTT Broker:   Topic: " << topic;
             }
 
             for (const std::string& topic : unsubscribe.getTopics()) {

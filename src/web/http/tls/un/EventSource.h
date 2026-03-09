@@ -132,10 +132,10 @@ namespace web::http::tls::un {
 
                 eventSource = EventSource(scheme, net::un::SocketAddress(socketPath), httpPath + query);
             } else {
-                SNODEC_LOG(ERROR) << "UNIX socket must decode to absolute ('/..') or abstract ('@name'): " << sockToken;
+                LOG(ERROR) << "UNIX socket must decode to absolute ('/..') or abstract ('@name'): " << sockToken;
             }
         } else {
-            SNODEC_LOG(ERROR) << "EventSource unix-domain url not accepted: " << url;
+            LOG(ERROR) << "EventSource unix-domain url not accepted: " << url;
         }
 
         return eventSource;
