@@ -68,3 +68,23 @@ Even without documenting external repository internals here, SNode.C source stru
 SNode.C is a technically ambitious and coherent framework with clear strengths for IoT and protocol gateway workloads. Its architecture is especially compelling when teams need **fine-grained networking control plus modern protocol support in C++**.
 
 For adoption growth, the key multiplier is excellent documentation and compatibility/test narratives—especially around MQTT and MQTTSuite deployment journeys.
+
+## Logging migration review notes (this PR)
+
+- The migration from easylogging++ to spdlog preserves the stream-style call sites via `SNODEC_LOG/SNODEC_VLOG/SNODEC_PLOG` wrappers while removing all direct uses of `LOG/VLOG/PLOG` in active source files.
+- Tick formatting remains coupled to the core event loop by injecting a tick resolver (`EventLoop::getTickCounter`) into the logger.
+- Operational controls remain intact: runtime log-level, verbose-level, quiet mode, and runtime file logging.
+- Main follow-up recommendation: introduce focused regression tests that assert exact line rendering (timestamp/tick/level and ANSI colors) for representative levels and verbose output.
+
+## Logging overhead comparison (spdlog migration vs easylogging++)
+
+| Scenario | spdlog-based current path (ns/log) | easylogging++ baseline (ns/log) |
+|---|---:|---:|
+| Suppressed DEBUG | 1.933 | 39.490 |
+| Enabled INFO | 199.875 | 525.526 |
+| Suppressed VLOG(2) | 0.917 | 2.154 |
+| Enabled VLOG(2) | 196.733 | 540.180 |
+
+### Interpretation
+- `spdlog` itself is not the limiting factor here; suppressed-path overhead is lower than easylogging++ due to macro short-circuiting before stream creation; enabled-path overhead is also now below easylogging++ after removing custom line assembly and using native spdlog pattern formatting for timestamp/tick rendering.
+- To approach ~1x parity or better, call sites should progressively move from stream insertion chains to native fmt-style `spdlog` calls and avoid stream-buffer assembly on suppressed paths.

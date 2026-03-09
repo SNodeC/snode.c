@@ -47,6 +47,7 @@
 
 #include <cstring>
 #include <netinet/in.h>
+#include <sstream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -115,39 +116,24 @@ namespace net::in {
 
             const struct sockaddr_in* aiAddr = reinterpret_cast<sockaddr_in*>(currentAddrInfo->ai_addr);
 
-            const std::string format = "AddressInfo:\n"
-                                       "   ai_next      = %v\n"
-                                       "   ai_flags     = %v\n"
-                                       "   ai_family    = %v (PF_INET = %v, PF_INET6 = %v)\n"
-                                       "   ai_socktype  = %v (SOCK_STREAM = %v, SOCK_DGRAM = %v)\n"
-                                       "   ai_protocol  = %v (IPPROTO_TCP = %v, IPPROTO_UDP = %v)\n"
-                                       "   ai_addrlen   = %v (sockaddr_in = %v, "
-                                       "sockaddr_in6 = %v)\n"
-                                       "   ai_addr      = sin_family:   %v (AF_INET = %v, "
-                                       "AF_INET6 = %v)\n"
-                                       "                  sin_addr:     %v\n"
-                                       "                  sin_port:     %v";
+            std::ostringstream formatted;
+            formatted << "AddressInfo:\n"
+                      << "   ai_next      = " << currentAddrInfo->ai_next << "\n"
+                      << "   ai_flags     = " << currentAddrInfo->ai_flags << "\n"
+                      << "   ai_family    = " << currentAddrInfo->ai_family << " (PF_INET = " << PF_INET
+                      << ", PF_INET6 = " << PF_INET6 << ")\n"
+                      << "   ai_socktype  = " << currentAddrInfo->ai_socktype << " (SOCK_STREAM = " << SOCK_STREAM
+                      << ", SOCK_DGRAM = " << SOCK_DGRAM << ")\n"
+                      << "   ai_protocol  = " << currentAddrInfo->ai_protocol << " (IPPROTO_TCP = " << IPPROTO_TCP
+                      << ", IPPROTO_UDP = " << IPPROTO_UDP << ")\n"
+                      << "   ai_addrlen   = " << currentAddrInfo->ai_addrlen << " (sockaddr_in = " << sizeof(struct sockaddr_in)
+                      << ", sockaddr_in6 = " << sizeof(struct sockaddr_in6) << ")\n"
+                      << "   ai_addr      = sin_family:   " << aiAddr->sin_family << " (AF_INET = " << AF_INET
+                      << ", AF_INET6 = " << AF_INET6 << ")\n"
+                      << "                  sin_addr:     " << hostBfr << "\n"
+                      << "                  sin_port:     " << servBfr;
 
-            el::Loggers::getLogger("default")->trace(format.c_str(),
-                                                     currentAddrInfo->ai_next,
-                                                     currentAddrInfo->ai_flags,
-                                                     currentAddrInfo->ai_family,
-                                                     PF_INET,
-                                                     PF_INET6,
-                                                     currentAddrInfo->ai_socktype,
-                                                     SOCK_STREAM,
-                                                     SOCK_DGRAM,
-                                                     currentAddrInfo->ai_protocol,
-                                                     IPPROTO_TCP,
-                                                     IPPROTO_UDP,
-                                                     currentAddrInfo->ai_addrlen,
-                                                     sizeof(struct sockaddr_in),
-                                                     sizeof(struct sockaddr_in6),
-                                                     aiAddr->sin_family,
-                                                     AF_INET,
-                                                     AF_INET6,
-                                                     hostBfr,
-                                                     servBfr);
+            LOG(TRACE) << formatted.str();
         }
     }
 

@@ -156,8 +156,8 @@ namespace iot::mqtt {
     template <typename WSSubProtocolRole>
     bool SubProtocol<WSSubProtocolRole>::onSignal(int sig) {
         bool ret = iot::mqtt::MqttContext::onSignal(sig);
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " WsMqtt: exit due to '" << strsignal(sig) << "' (SIG"
-                  << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
+        LOG(INFO) << getSocketConnection()->getConnectionName() << " WsMqtt: exit due to signal SIG"
+                  << utils::system::sigabbrev_np(sig) << " (" << sig << ")";
 
         this->sendClose();
 

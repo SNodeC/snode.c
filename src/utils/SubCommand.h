@@ -87,6 +87,8 @@ namespace utils {
         const SubCommand* getPtr() const;
         SubCommand* getPtr();
 
+        bool getManaged() const;
+
         void validate();
 
     private:

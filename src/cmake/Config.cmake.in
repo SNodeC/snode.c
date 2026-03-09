@@ -85,7 +85,7 @@ foreach(_comp ${snodec_FIND_COMPONENTS})
     endif(NOT _comp IN_LIST _supported_components)
 endforeach(_comp ${snodec_FIND_COMPONENTS})
 
-if(NOT snodec_NOT_FOUND})
+if(NOT snodec_NOT_FOUND)
     set(CMAKE_SKIP_RPATH FALSE)
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
     list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES

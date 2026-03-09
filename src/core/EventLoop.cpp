@@ -62,7 +62,7 @@ namespace core {
     unsigned long EventLoop::tickCounter = 0;
     core::State EventLoop::eventLoopState = State::LOADED;
 
-    static std::string getTickCounterAsString([[maybe_unused]] const el::LogMessage* logMessage) {
+    static std::string getTickCounterAsString() {
         std::string tick = std::to_string(EventLoop::getTickCounter());
 
         if (tick.length() < 13) {
@@ -116,7 +116,7 @@ namespace core {
         struct sigaction oldHupAct{};
         sigaction(SIGHUP, &sact, &oldHupAct);
 
-        logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
+        logger::Logger::setTickResolver(core::getTickCounterAsString);
 
         if (utils::Config::init(argc, argv)) {
             eventLoopState = State::INITIALIZED;

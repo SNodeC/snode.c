@@ -139,7 +139,7 @@ namespace utils {
     }
 
     SubCommand::~SubCommand() {
-        if (parent != nullptr) {
+        if (parent != nullptr && !subCommandApp->getManaged()) {
             parent->subCommandApp->remove_subcommand(subCommandApp);
         }
     }
@@ -458,6 +458,10 @@ namespace utils {
 
     SubCommand* AppWithPtr::getPtr() {
         return ptr;
+    }
+
+    bool AppWithPtr::getManaged() const {
+        return manage;
     }
 
     std::map<std::string, std::string> SubCommand::aliases;
