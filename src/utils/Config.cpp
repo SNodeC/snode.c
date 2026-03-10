@@ -304,12 +304,8 @@ namespace utils {
     static std::string doWriteConfig(utils::SubCommand* subCommand) {
         std::stringstream out;
 
-        VLOG(0) << "1: subCommand->getOption(--write-config)->as<std::string>()";
         std::ofstream confFile(subCommand->getOption("--write-config")->as<std::string>());
         if (confFile.is_open()) {
-            VLOG(0) << "2: subCommand->getOption(--write-config)->as<std::string>()";
-            VLOG(0) << subCommand->configToStr();
-
             try {
                 confFile << subCommand->configToStr();
                 confFile.close();
@@ -465,6 +461,8 @@ namespace utils {
     }
 
     bool ConfigRoot::parse1(int argc, char* argv[]) {
+        allowExtras(true);
+
         bool proceed = parse2(argc, argv, true);
 
         if (proceed) {
@@ -482,7 +480,7 @@ namespace utils {
                 proceed = false;
             } else {
                 if (helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && commandlineTriggerApp == nullptr &&
-                    versionOpt->count() == 0) {
+                    versionOpt->count() == 0 && writeConfigOpt->count() == 0) {
                     logger::Logger::setLogLevel(logLevelOpt->as<int>());
                     logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
                 }

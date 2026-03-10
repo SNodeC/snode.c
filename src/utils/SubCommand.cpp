@@ -67,7 +67,7 @@ namespace utils {
 
             subCommandApp->group(group);
             subCommandApp->configurable(false);
-            subCommandApp->allow_extras();
+            subCommandApp->fallthrough();
 
             static const std::shared_ptr<CLI::HelpFormatter> helpFormatter = std::make_shared<CLI::HelpFormatter>();
             subCommandApp->formatter(helpFormatter);
