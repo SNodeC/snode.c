@@ -84,6 +84,7 @@ namespace net::config {
     }
 
     ConfigInstance::~ConfigInstance() {
+        removeSubCommand();
     }
 
     const std::string& ConfigInstance::getInstanceName() const {
@@ -115,6 +116,17 @@ namespace net::config {
         setConfigurable(disableOpt, configurable);
 
         return *this;
+    }
+
+    CLI::App* ConfigInstance::getHelpTriggerApp() {
+        return utils::Config::configRoot.getHelpTriggerApp();
+    }
+
+    CLI::App* ConfigInstance::getShowConfigTriggerApp() {
+        return utils::Config::configRoot.getShowConfigTriggerApp();
+    }
+    CLI::App* ConfigInstance::getCommandlineTriggerApp() {
+        return utils::Config::configRoot.getCommandlineTriggerApp();
     }
 
 } // namespace net::config

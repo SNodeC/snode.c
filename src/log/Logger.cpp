@@ -127,25 +127,25 @@ namespace {
 
         switch (level) {
             case logger::Level::TRACE:
-                color = Color::Code::FG_CYAN;
+                color = Color::Code::FG_MAGENTA; // +
                 break;
             case logger::Level::DEBUG:
-                color = Color::Code::FG_GREEN;
+                color = Color::Code::FG_LIGHT_GREEN; // +
                 break;
             case logger::Level::INFO:
-                color = Color::Code::FG_LIGHT_GRAY;
+                color = Color::Code::FG_LIGHT_YELLOW; // +
                 break;
             case logger::Level::WARNING:
-                color = Color::Code::FG_YELLOW;
+                color = Color::Code::FG_YELLOW; // +
                 break;
             case logger::Level::ERROR:
-                color = Color::Code::FG_RED;
+                color = Color::Code::FG_RED; // +
                 break;
             case logger::Level::FATAL:
-                color = Color::Code::FG_LIGHT_RED;
+                color = Color::Code::FG_LIGHT_RED; // +
                 break;
             case logger::Level::VERBOSE:
-                color = Color::Code::FG_LIGHT_BLUE;
+                color = Color::Code::FG_WHITE;
                 break;
         }
 

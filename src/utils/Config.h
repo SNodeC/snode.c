@@ -46,6 +46,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -59,6 +60,8 @@ namespace utils {
         ConfigRoot();
 
     public:
+        void* operator new(std::size_t) = delete;
+
         ~ConfigRoot() override;
 
         ConfigRoot* addRootOptions(const std::string& applicationName,

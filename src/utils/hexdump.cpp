@@ -81,7 +81,7 @@ namespace utils {
                 if ((i % 16) == 0) {
                     // Just don't print ASCII for the zeroth line.
                     if (i != 0) {
-                        hexStream << "  " << buff << std::endl;
+                        hexStream << "  " << Color::Code::FG_YELLOW << buff << Color::Code::FG_DEFAULT << std::endl;
                     }
 
                     // Output the offset.
@@ -116,7 +116,7 @@ namespace utils {
             }
 
             // And print the final ASCII bit.
-            hexStream << "  " << buff;
+            hexStream << "  " << Color::Code::FG_YELLOW << buff << Color::Code::FG_DEFAULT;
         }
 
         return hexStream.str();

@@ -139,9 +139,6 @@ namespace utils {
     }
 
     SubCommand::~SubCommand() {
-        if (parent != nullptr && !subCommandApp->getManaged()) {
-            parent->subCommandApp->remove_subcommand(subCommandApp);
-        }
     }
 
     std::string SubCommand::getName() const {
@@ -192,7 +189,7 @@ namespace utils {
         return subCommandApp->get_parent() != nullptr;
     }
 
-    SubCommand* SubCommand::getParent() {
+    SubCommand* SubCommand::getParent() const {
         return parent;
     }
 

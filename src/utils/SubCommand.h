@@ -98,7 +98,7 @@ namespace utils {
 
     class SubCommand {
     protected:
-        SubCommand(SubCommand* parent, std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group, bool final); // = true);
+        SubCommand(SubCommand* parent, std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group, bool final);
 
         template <typename ConcretSubCommand>
         SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group, bool final = true);
@@ -121,13 +121,19 @@ namespace utils {
         SubCommand* description(const std::string& description);
         SubCommand* footer(const std::string& footer);
 
+        void removeSubCommand() {
+            if (parent != nullptr) {
+                parent->subCommandApp->remove_subcommand(this->subCommandApp);
+            }
+        }
+
     public:
         CLI::Option* setConfig(const std::string& defaultConfigFile) const;
         CLI::Option* setLogFile(const std::string& defaultLogFile) const;
         CLI::Option* setVersionFlag(const std::string& version) const;
 
         bool hasParent() const;
-        SubCommand* getParent();
+        SubCommand* getParent() const;
 
         SubCommand* allowExtras(bool allow = true);
 
@@ -231,7 +237,7 @@ namespace utils {
 
         CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
 
-    public:
+    protected:
         static CLI::App* getHelpTriggerApp();
         static CLI::App* getShowConfigTriggerApp();
         static CLI::App* getCommandlineTriggerApp();

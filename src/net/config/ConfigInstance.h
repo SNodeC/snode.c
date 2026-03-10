@@ -82,6 +82,10 @@ namespace net::config {
 
         ConfigInstance& configurable(bool configurable);
 
+        static CLI::App* getHelpTriggerApp();
+        static CLI::App* getShowConfigTriggerApp();
+        static CLI::App* getCommandlineTriggerApp();
+
     private:
         std::string instanceName;
         static const std::string nameAnonymous;
