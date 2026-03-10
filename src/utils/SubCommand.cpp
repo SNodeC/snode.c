@@ -165,6 +165,12 @@ namespace utils {
         return this;
     }
 
+    void SubCommand::removeSubCommand() {
+        if (parent != nullptr) {
+            parent->subCommandApp->remove_subcommand(this->subCommandApp);
+        }
+    }
+
     CLI::Option* SubCommand::setConfig(const std::string& defaultConfigFile) const {
         return subCommandApp
             ->set_config( //

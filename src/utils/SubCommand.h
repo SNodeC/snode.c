@@ -121,11 +121,7 @@ namespace utils {
         SubCommand* description(const std::string& description);
         SubCommand* footer(const std::string& footer);
 
-        void removeSubCommand() {
-            if (parent != nullptr) {
-                parent->subCommandApp->remove_subcommand(this->subCommandApp);
-            }
-        }
+        void removeSubCommand();
 
     public:
         CLI::Option* setConfig(const std::string& defaultConfigFile) const;
