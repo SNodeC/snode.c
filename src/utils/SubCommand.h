@@ -189,14 +189,14 @@ namespace utils {
                                        const CLI::Validator& additionalValidator) const;
 
         CLI::Option* addOptionFunction(const std::string& name,
-                                       std::function<void(const std::string&)>& callback,
+                                       const std::function<void(const std::string&)>& callback,
                                        const std::string& description,
                                        const std::string& typeName,
                                        const CLI::Validator& validator) const;
 
         template <typename ValueTypeT>
         CLI::Option* addOptionFunction(const std::string& name,
-                                       std::function<void(const std::string&)>& callback,
+                                       const std::function<void(const std::string&)>& callback,
                                        const std::string& description,
                                        const std::string& typeName,
                                        ValueTypeT defaultValue,
@@ -327,7 +327,7 @@ namespace utils {
 
     template <typename ValueTypeT>
     CLI::Option* SubCommand::addOptionFunction(const std::string& name,
-                                               std::function<void(const std::string&)>& callback,
+                                               const std::function<void(const std::string&)>& callback,
                                                const std::string& description,
                                                const std::string& typeName,
                                                ValueTypeT defaultValue,

@@ -377,7 +377,7 @@ namespace utils {
     }
 
     CLI::Option* SubCommand::addOptionFunction(const std::string& name,
-                                               std::function<void(const std::string&)>& callback,
+                                               const std::function<void(const std::string&)>& callback,
                                                const std::string& description,
                                                const std::string& typeName,
                                                const CLI::Validator& validator) const {
