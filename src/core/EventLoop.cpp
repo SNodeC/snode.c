@@ -286,13 +286,13 @@ namespace core {
 
         EventLoop::instance().eventMultiplexer.terminate();
 
+        LOG(TRACE) << "Core: Shutdown config system";
+
+        utils::Config::terminate();
+
         LOG(TRACE) << "Core: Close all libraries opened during runtime";
 
         DynamicLoader::execDlCloseAll();
-
-        LOG(TRACE) << "Core:: Clean up the filesystem";
-
-        utils::Config::terminate();
 
         LOG(TRACE) << "Core:: All resources released";
 
