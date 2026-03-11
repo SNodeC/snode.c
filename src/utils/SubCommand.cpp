@@ -169,6 +169,8 @@ namespace utils {
         if (parent != nullptr) {
             parent->subCommandApp->remove_subcommand(this->subCommandApp);
         }
+
+        subCommandAppOwner = nullptr;
     }
 
     CLI::Option* SubCommand::setConfig(const std::string& defaultConfigFile) const {

@@ -233,14 +233,12 @@ namespace utils {
 
         CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
 
-    protected:
         static CLI::App* getHelpTriggerApp();
         static CLI::App* getShowConfigTriggerApp();
         static CLI::App* getCommandlineTriggerApp();
 
         static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
-    protected:
         static std::map<std::string, std::string> aliases;
 
         static CLI::App* helpTriggerApp;
