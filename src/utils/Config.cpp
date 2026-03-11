@@ -539,6 +539,8 @@ namespace utils {
             while (read(STDIN_FILENO, buf, 1024) > 0) {
             }
         }
+
+        removeSubCommand();
     }
 
     bool ConfigRoot::parse2(int argc, char* argv[], bool parse1) {
