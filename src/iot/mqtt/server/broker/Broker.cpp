@@ -58,7 +58,7 @@
 namespace iot::mqtt::server::broker {
 
     Broker::Broker(uint8_t maxQoS, const std::string& sessionStoreFileName)
-        : sessionStoreFileName(sessionStoreFileName) // NOLINT
+        : sessionStoreFileName(sessionStoreFileName)
         , maxQoS(maxQoS)
         , subscriptionTree(this)
         , retainTree(this) {
