@@ -230,14 +230,4 @@ namespace core {
         }
     }
 
-    void DynamicLoader::execDlCloseAll() {
-        for (auto& [canonical, library] : dlOpenedLibraries) {
-            (void) dlClose(library);
-        }
-
-        dlOpenedLibraries.clear();
-        dlOpenedLibrariesByHandle.clear();
-        closeQueue.clear();
-    }
-
 } // namespace core

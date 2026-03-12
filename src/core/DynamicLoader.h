@@ -81,7 +81,6 @@ namespace core {
 
         static int realExecDlClose(const Library& library);
         static void execDlCloseDeleyed();
-        static void execDlCloseAll();
 
         static std::map<std::string, Library> dlOpenedLibraries;
         static std::map<void*, std::string> dlOpenedLibrariesByHandle;

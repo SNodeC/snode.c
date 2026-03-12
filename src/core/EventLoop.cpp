@@ -41,7 +41,6 @@
 
 #include "core/EventLoop.h"
 
-#include "core/DynamicLoader.h"
 #include "core/EventMultiplexer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -289,10 +288,6 @@ namespace core {
         LOG(TRACE) << "Core: Shutdown config system";
 
         utils::Config::terminate();
-
-        LOG(TRACE) << "Core: Close all libraries opened during runtime";
-
-        DynamicLoader::execDlCloseAll();
 
         LOG(TRACE) << "Core: All resources released";
 
