@@ -47,6 +47,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <utility>
 
@@ -80,20 +81,17 @@ namespace utils {
 
     class AppWithPtr : public CLI::App {
     public:
-        AppWithPtr(const std::string& description, const std::string& name, SubCommand* t, bool manage);
+        AppWithPtr(const std::string& description, const std::string& name, SubCommand* t);
 
         ~AppWithPtr() override;
 
         const SubCommand* getPtr() const;
         SubCommand* getPtr();
 
-        bool getManaged() const;
-
         void validate();
 
     private:
         SubCommand* ptr;
-        bool manage;
     };
 
     class SubCommand {
@@ -121,7 +119,7 @@ namespace utils {
         SubCommand* description(const std::string& description);
         SubCommand* footer(const std::string& footer);
 
-        void removeSubCommand() const;
+        void removeSubCommand();
 
     public:
         CLI::Option* setConfig(const std::string& defaultConfigFile) const;
@@ -245,13 +243,15 @@ namespace utils {
         static CLI::App* showConfigTriggerApp;
         static CLI::App* commandlineTriggerApp;
 
-    public:
+    private:
         CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
 
         AppWithPtr* subCommandApp;
+        std::string name;
         SubCommand* parent;
 
-        std::shared_ptr<AppWithPtr> subCommandAppOwner;
+        std::shared_ptr<AppWithPtr> selfAnchoredSubCommandApp;
+        std::set<SubCommand*> childSubCommands;
 
         bool final;
 
@@ -266,14 +266,15 @@ namespace utils {
     inline SubCommand::SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group, bool final)
         : SubCommand(parent,
                      std::make_shared<utils::AppWithPtr>(
-                         std::string(ConcretSubCommand::DESCRIPTION), std::string(ConcretSubCommand::NAME), concretSubCommand, true),
+                         std::string(ConcretSubCommand::DESCRIPTION), std::string(ConcretSubCommand::NAME), concretSubCommand),
                      group,
                      final) {
     }
 
     template <typename NewSubCommand, typename... Args>
     NewSubCommand* SubCommand::newSubCommand(Args&&... args) {
-        return !final ? new NewSubCommand(this, std::forward(args)...) : nullptr;
+        return !final ? dynamic_cast<NewSubCommand*>(*childSubCommands.insert(new NewSubCommand(this, std::forward<Args>(args)...)).first)
+                      : nullptr;
     }
 
     template <typename RequestedSubCommand>

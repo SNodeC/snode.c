@@ -63,8 +63,7 @@ namespace net::config {
                                                                     .append(instanceName)
                                                                     .append("'"),
                                                                 instanceName,
-                                                                this,
-                                                                false),
+                                                                this),
                             "Instances",
                             false)
         , instanceName(instanceName)

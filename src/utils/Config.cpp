@@ -351,7 +351,7 @@ namespace utils {
     }
 
     ConfigRoot::ConfigRoot()
-        : utils::SubCommand(nullptr, std::make_shared<utils::AppWithPtr>("Root of config", "", this, false), "", false) {
+        : utils::SubCommand(nullptr, std::make_shared<utils::AppWithPtr>("Root of config", "", this), "", false) {
         logger::Logger::init();
     }
 

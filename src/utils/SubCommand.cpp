@@ -56,13 +56,14 @@ namespace utils {
 
     SubCommand::SubCommand(SubCommand* parent, std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group, bool final)
         : subCommandApp(appWithPtr.get())
+        , name(subCommandApp != nullptr ? subCommandApp->get_name() : "<NOAPP>")
         , parent(parent)
         , final(final) {
         if (appWithPtr != nullptr) {
             if (parent != nullptr) {
                 parent->subCommandApp->add_subcommand(appWithPtr);
             } else {
-                subCommandAppOwner = std::move(appWithPtr);
+                selfAnchoredSubCommandApp = std::move(appWithPtr);
             }
 
             subCommandApp->group(group);
@@ -142,7 +143,7 @@ namespace utils {
     }
 
     std::string SubCommand::getName() const {
-        return subCommandApp->get_name();
+        return name;
     }
 
     std::string SubCommand::version() const {
@@ -165,13 +166,14 @@ namespace utils {
         return this;
     }
 
-    void SubCommand::removeSubCommand() const {
+    void SubCommand::removeSubCommand() {
+        for (const SubCommand* child : childSubCommands) {
+            delete child;
+        }
+        childSubCommands.clear();
+
         if (parent != nullptr) {
             parent->subCommandApp->remove_subcommand(this->subCommandApp);
-        } else {
-            for (CLI::App* child : subCommandApp->get_subcommands({})) {
-                subCommandApp->remove_subcommand(child);
-            }
         }
     }
 
@@ -447,16 +449,12 @@ namespace utils {
             ->check(validator);
     }
 
-    AppWithPtr::AppWithPtr(const std::string& description, const std::string& name, SubCommand* t, bool manage)
+    AppWithPtr::AppWithPtr(const std::string& description, const std::string& name, SubCommand* t)
         : CLI::App(description, name)
-        , ptr(t)
-        , manage(manage) {
+        , ptr(t) {
     }
 
     AppWithPtr::~AppWithPtr() {
-        if (manage) {
-            delete ptr;
-        }
     }
 
     const SubCommand* AppWithPtr::getPtr() const {
@@ -465,10 +463,6 @@ namespace utils {
 
     SubCommand* AppWithPtr::getPtr() {
         return ptr;
-    }
-
-    bool AppWithPtr::getManaged() const {
-        return manage;
     }
 
     std::map<std::string, std::string> SubCommand::aliases;
