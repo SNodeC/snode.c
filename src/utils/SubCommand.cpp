@@ -149,7 +149,7 @@ namespace utils {
         return subCommandApp->version();
     }
 
-    void SubCommand::parse(int argc, char* argv[]) {
+    void SubCommand::parse(int argc, char* argv[]) const {
         subCommandApp->parse(argc, argv);
     }
 
@@ -165,9 +165,13 @@ namespace utils {
         return this;
     }
 
-    void SubCommand::removeSubCommand() {
+    void SubCommand::removeSubCommand() const {
         if (parent != nullptr) {
             parent->subCommandApp->remove_subcommand(this->subCommandApp);
+        } else {
+            for (CLI::App* child : subCommandApp->get_subcommands({})) {
+                subCommandApp->remove_subcommand(child);
+            }
         }
     }
 
@@ -403,7 +407,7 @@ namespace utils {
                                              const std::function<void()>& callback,
                                              const std::string& description,
                                              const std::string& typeName,
-                                             const CLI::Validator& validator) {
+                                             const CLI::Validator& validator) const {
         CLI::Option* opt = subCommandApp //
                                ->add_flag_function(
                                    name,
@@ -426,7 +430,7 @@ namespace utils {
                                              const std::string& description,
                                              const std::string& typeName,
                                              const std::string& defaultValue,
-                                             const CLI::Validator& validator) {
+                                             const CLI::Validator& validator) const {
         return setDefaultValue(addFlagFunction(name, callback, description, typeName, validator), defaultValue);
     }
 

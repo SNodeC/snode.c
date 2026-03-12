@@ -115,13 +115,13 @@ namespace utils {
         std::string getName() const;
         std::string version() const;
 
-        void parse(int argc, char* argv[]);
+        void parse(int argc, char* argv[]) const;
 
     protected:
         SubCommand* description(const std::string& description);
         SubCommand* footer(const std::string& footer);
 
-        void removeSubCommand();
+        void removeSubCommand() const;
 
     public:
         CLI::Option* setConfig(const std::string& defaultConfigFile) const;
@@ -218,14 +218,14 @@ namespace utils {
                                      const std::function<void()>& callback,
                                      const std::string& description,
                                      const std::string& typeName,
-                                     const CLI::Validator& validator);
+                                     const CLI::Validator& validator) const;
 
         CLI::Option* addFlagFunction(const std::string& name,
                                      const std::function<void()>& callback,
                                      const std::string& description,
                                      const std::string& typeName,
                                      const std::string& defaultValue,
-                                     const CLI::Validator& validator);
+                                     const CLI::Validator& validator) const;
 
     protected:
         template <typename ValueTypeT>
@@ -245,7 +245,7 @@ namespace utils {
         static CLI::App* showConfigTriggerApp;
         static CLI::App* commandlineTriggerApp;
 
-    private:
+    public:
         CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
 
         AppWithPtr* subCommandApp;
