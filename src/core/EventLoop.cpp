@@ -294,7 +294,7 @@ namespace core {
 
         DynamicLoader::execDlCloseAll();
 
-        LOG(TRACE) << "Core:: All resources released";
+        LOG(TRACE) << "Core: All resources released";
 
         LOG(TRACE) << "SNode.C: Ended ... BYE";
     }

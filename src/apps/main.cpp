@@ -58,7 +58,7 @@ using express::Router;
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    const express::legacy::in::WebApp app("app");
+    const express::legacy::in::WebApp app;
 
     app.use(express::middleware::VerboseRequest());
 
