@@ -64,14 +64,13 @@ namespace utils {
 
         ~ConfigRoot() override;
 
+    private:
         ConfigRoot* addRootOptions(const std::string& applicationName,
                                    const std::string& userName,
                                    const std::string& groupName,
                                    const std::string& configDirectory,
                                    const std::string& logDirectory,
                                    const std::string& pidDirectory);
-
-    private:
         bool parse1(int argc, char* argv[]);
         bool bootstrap(int argc, char* argv[]);
         bool parse2(int argc, char* argv[], bool parse1 = false);

@@ -173,7 +173,7 @@ namespace utils {
         childSubCommands.clear();
 
         if (parent != nullptr) {
-            parent->subCommandApp->remove_subcommand(this->subCommandApp);
+            parent->subCommandApp->remove_subcommand(subCommandApp);
         }
     }
 

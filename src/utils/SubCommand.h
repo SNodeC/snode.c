@@ -113,9 +113,9 @@ namespace utils {
         std::string getName() const;
         std::string version() const;
 
+    protected:
         void parse(int argc, char* argv[]) const;
 
-    protected:
         SubCommand* description(const std::string& description);
         SubCommand* footer(const std::string& footer);
 
