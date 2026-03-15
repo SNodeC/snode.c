@@ -128,7 +128,7 @@ namespace iot::mqtt {
 
         void send(const iot::mqtt::ControlPacket& controlPacket) const;
 
-        virtual void deliverPublish(const iot::mqtt::packets::Publish& publish) = 0;
+        virtual void distributePublish(const iot::mqtt::packets::Publish& publish) = 0;
 
     public:
         static std::string toHexString(const std::vector<char>& data);

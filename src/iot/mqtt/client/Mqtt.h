@@ -110,7 +110,7 @@ namespace iot::mqtt::client {
         void _onUnsuback(const iot::mqtt::client::packets::Unsuback& unsuback);
         void _onPingresp(const iot::mqtt::client::packets::Pingresp& pingresp);
 
-        void deliverPublish(const iot::mqtt::packets::Publish& publish) final;
+        void distributePublish(const iot::mqtt::packets::Publish& publish) final;
 
     public:
         void sendConnect(bool cleanSession,

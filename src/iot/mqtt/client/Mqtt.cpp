@@ -213,7 +213,7 @@ namespace iot::mqtt::client {
 
     void Mqtt::_onPublish(const iot::mqtt::client::packets::Publish& publish) {
         if (Super::_onPublish(publish)) {
-            deliverPublish(publish);
+            distributePublish(publish);
         }
     }
 
@@ -259,7 +259,7 @@ namespace iot::mqtt::client {
         onPingresp(pingresp);
     }
 
-    void Mqtt::deliverPublish(const iot::mqtt::packets::Publish& publish) {
+    void Mqtt::distributePublish(const iot::mqtt::packets::Publish& publish) {
         onPublish(publish);
     }
 
@@ -278,12 +278,21 @@ namespace iot::mqtt::client {
     }
 
     void Mqtt::sendSubscribe(const std::list<iot::mqtt::Topic>& topics) const { // Client
+        for (const iot::mqtt::Topic& topic : topics) {
+            LOG(INFO) << connectionName << " MQTT Client: SUBSCRIBE with qos=" << static_cast<uint16_t>(topic.getQoS()) << " for "
+                      << topic.getName();
+        }
+
         if (!topics.empty()) {
             send(iot::mqtt::packets::Subscribe(getPacketIdentifier(), topics));
         }
     }
 
     void Mqtt::sendUnsubscribe(const std::list<std::string>& topics) const { // Client
+        for (const std::string& topic : topics) {
+            LOG(INFO) << connectionName << " MQTT Client: UNSUBSCRIBE from " << topic;
+        }
+
         if (!topics.empty()) {
             send(iot::mqtt::packets::Unsubscribe(getPacketIdentifier(), topics));
         }

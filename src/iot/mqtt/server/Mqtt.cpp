@@ -194,6 +194,12 @@ namespace iot::mqtt::server {
         }
     }
 
+    void Mqtt::distributePublish(const iot::mqtt::packets::Publish& publish) {
+        broker->publish(clientId, publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
+
+        onPublish(publish);
+    }
+
     void Mqtt::onConnect([[maybe_unused]] const iot::mqtt::packets::Connect& connect) {
     }
 
@@ -289,7 +295,7 @@ namespace iot::mqtt::server {
 
     void Mqtt::_onPublish(const iot::mqtt::server::packets::Publish& publish) {
         if (Super::_onPublish(publish)) {
-            deliverPublish(publish);
+            distributePublish(publish);
         }
     }
 
@@ -352,12 +358,6 @@ namespace iot::mqtt::server {
         onDisconnect(disconnect);
 
         releaseSession();
-    }
-
-    void Mqtt::deliverPublish(const iot::mqtt::packets::Publish& publish) {
-        broker->publish(clientId, publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
-
-        onPublish(publish);
     }
 
     void Mqtt::sendConnack(uint8_t returnCode, uint8_t flags) const { // Server

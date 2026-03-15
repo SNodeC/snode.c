@@ -117,9 +117,8 @@ namespace iot::mqtt::server {
         void _onPingreq(const iot::mqtt::server::packets::Pingreq& pingreq);
         void _onDisconnect(const iot::mqtt::server::packets::Disconnect& disconnect);
 
-        void deliverPublish(const iot::mqtt::packets::Publish& publish) final;
+        void distributePublish(const iot::mqtt::packets::Publish& publish) final;
 
-    public:
         void sendConnack(uint8_t returnCode, uint8_t flags) const;
         void sendSuback(uint16_t packetIdentifier, const std::list<uint8_t>& returnCodes) const;
         void sendUnsuback(uint16_t packetIdentifier) const;
@@ -127,6 +126,7 @@ namespace iot::mqtt::server {
 
         std::list<std::string> getSubscriptions() const;
 
+    public:
         std::string getProtocol() const;
         uint8_t getLevel() const;
         uint8_t getConnectFlags() const;

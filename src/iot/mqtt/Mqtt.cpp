@@ -363,7 +363,7 @@ namespace iot::mqtt {
             if (session->incomingPublishMap.contains(pid)) {
                 LOG(INFO) << connectionName << " MQTT:   QoS2 PUBREL received. Deliver publish: " << pid;
 
-                deliverPublish(session->incomingPublishMap[pid]);
+                distributePublish(session->incomingPublishMap[pid]);
 
                 session->incomingPublishMap.erase(pid);
                 session->pubcompPacketIdentifierSet.insert(pid);
