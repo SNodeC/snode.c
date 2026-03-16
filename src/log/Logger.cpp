@@ -50,14 +50,15 @@
 #include <spdlog/logger.h>
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace {
-    std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> stdoutSink;
-    std::shared_ptr<spdlog::sinks::basic_file_sink_mt> fileSink;
+    std::shared_ptr<spdlog::sinks::stdout_color_sink_st> stdoutSink;
+    std::shared_ptr<spdlog::sinks::rotating_file_sink_st> fileSink;
     std::shared_ptr<spdlog::logger> stdoutLogger;
     std::shared_ptr<spdlog::logger> fileLogger;
 
@@ -191,7 +192,7 @@ namespace logger {
 
     void Logger::init() {
         startTime = Clock::now();
-        stdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        stdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
         stdoutLogger = std::make_shared<spdlog::logger>("snodec-stdout", stdoutSink);
         auto stdoutPattern = std::make_unique<spdlog::pattern_formatter>();
         stdoutPattern->add_flag<TickFlagFormatter>('*').set_pattern("%Y-%m-%d %H:%M:%S %* %v");
@@ -218,7 +219,9 @@ namespace logger {
     }
 
     void Logger::logToFile(const std::string& logFile) {
-        fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFile, true);
+        constexpr std::size_t maxSize = 2 * 1024 * 1024; // 2 MiB
+        constexpr std::size_t maxFiles = 3;              // keep log, log.1, log.2, log.3
+        fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_st>(logFile, maxSize, maxFiles);
         fileLogger = std::make_shared<spdlog::logger>("snodec-file", fileSink);
         auto filePattern = std::make_unique<spdlog::pattern_formatter>();
         filePattern->add_flag<TickFlagFormatter>('*').set_pattern("%Y-%m-%d %H:%M:%S %* %v");
