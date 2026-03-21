@@ -644,7 +644,6 @@ SNode.C requires some external tools and depends on a view external libraries. S
 
 #### Mandatory
 
--   Easylogging++ (v9.97.0 or later) development files ([<https://github.com/amrayn/easyloggingpp/>](https://github.com/amrayn/easyloggingpp/))
 -   OpenSSL (v1.1, v3.0, or v3.1) development files ([<https://www.openssl.org/>](https://www.openssl.org/))
 -   Nlohmann-JSON (v3.11.2 or later) development files ([<https://json.nlohmann.me/>](https://json.nlohmann.me/))
 
@@ -659,6 +658,7 @@ SNode.C requires some external tools and depends on a view external libraries. S
 This libraries are already integrated directly in SNode.C. Thus they need not be installed by hand
 
 -   CLI11 ([<https://github.com/CLIUtils/CLI11/>](https://github.com/CLIUtils/CLI11/))
+-   spdlog ([<https://github.com/gabime/spdlog/>](https://github.com/gabime/spdlog/))
 
 ## Installation on Debian Style Systems (x86-64, Arm)
 
@@ -670,7 +670,7 @@ To install all dependencies on Debian style systems just run
 sudo apt update
 sudo apt install git cmake make ninja-build g++ clang pkg-config
 sudo apt install iwyu clang-format cmake-format doxygen
-sudo apt install libeasyloggingpp-dev libssl-dev nlohmann-json3-dev
+sudo apt install libssl-dev nlohmann-json3-dev
 sudo apt install libbluetooth-dev libmagic-dev libmariadb-dev
 ```
 
