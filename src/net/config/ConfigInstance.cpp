@@ -67,8 +67,8 @@ namespace net::config {
                             "Instances",
                             false)
         , instanceName(instanceName)
-        , role(role) {
-        disableOpt = setConfigurable(addFlagFunction(
+        , role(role)
+        , disableOpt(setConfigurable(addFlagFunction(
                                          "--disabled{true}",
                                          [this]() {
                                              if (getParent() != nullptr) {
@@ -79,11 +79,15 @@ namespace net::config {
                                          "bool",
                                          "false",
                                          CLI::IsMember({"true", "false"})),
-                                     true);
+                                     true))
+        , onDestroy([](ConfigInstance*) {
+        }) {
     }
 
     ConfigInstance::~ConfigInstance() {
         removeSubCommand();
+
+        onDestroy(this);
     }
 
     const std::string& ConfigInstance::getInstanceName() const {
@@ -117,15 +121,25 @@ namespace net::config {
         return *this;
     }
 
+    ConfigInstance& ConfigInstance::setOnDestroy(const std::function<void(ConfigInstance*)>& onDestroy) {
+        const std::function<void(ConfigInstance*)> oldOnDestroy = this->onDestroy;
+        this->onDestroy = [oldOnDestroy, onDestroy](ConfigInstance* configInstance) {
+            oldOnDestroy(configInstance);
+            onDestroy(configInstance);
+        };
+
+        return *this;
+    }
+
     CLI::App* ConfigInstance::getHelpTriggerApp() {
-        return utils::Config::configRoot.getHelpTriggerApp();
+        return utils::ConfigRoot::getHelpTriggerApp();
     }
 
     CLI::App* ConfigInstance::getShowConfigTriggerApp() {
-        return utils::Config::configRoot.getShowConfigTriggerApp();
+        return utils::ConfigRoot::getShowConfigTriggerApp();
     }
     CLI::App* ConfigInstance::getCommandlineTriggerApp() {
-        return utils::Config::configRoot.getCommandlineTriggerApp();
+        return utils::ConfigRoot::getCommandlineTriggerApp();
     }
 
 } // namespace net::config

@@ -86,6 +86,8 @@ namespace core::socket::stream {
         bool isRetryEnabled() const;
         bool isReconnectEnabled() const;
 
+        AutoConnectControl* setOnDestroy(const std::function<void(AutoConnectControl*)>& onDestroy);
+
     private:
         void armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
         void armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
@@ -101,6 +103,8 @@ namespace core::socket::stream {
 
         std::unique_ptr<core::timer::Timer> retryTimer;
         std::unique_ptr<core::timer::Timer> reconnectTimer;
+
+        std::function<void(AutoConnectControl*)> onDestroy;
 
         template <typename SocketConnectorT, typename SocketContextFactoryT, typename... Args>
             requires std::is_base_of_v<core::eventreceiver::ConnectEventReceiver, SocketConnectorT> &&

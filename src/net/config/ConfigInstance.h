@@ -44,12 +44,13 @@
 
 #include "utils/SubCommand.h" // IWYU pragma: export
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 namespace net::config {
     class ConfigSection;
 }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <functional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -82,8 +83,11 @@ namespace net::config {
 
         ConfigInstance& configurable(bool configurable);
 
+        ConfigInstance& setOnDestroy(const std::function<void(ConfigInstance*)>& onDestroy);
+
         static CLI::App* getHelpTriggerApp();
         static CLI::App* getShowConfigTriggerApp();
+        static CLI::App* extracted();
         static CLI::App* getCommandlineTriggerApp();
 
     private:
@@ -93,6 +97,8 @@ namespace net::config {
         Role role;
 
         CLI::Option* disableOpt = nullptr;
+
+        std::function<void(ConfigInstance*)> onDestroy;
 
         friend class net::config::ConfigSection;
     };

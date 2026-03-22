@@ -49,9 +49,14 @@
 
 namespace core::socket::stream {
 
-    AutoConnectControl::AutoConnectControl() = default;
+    AutoConnectControl::AutoConnectControl()
+        : onDestroy([](AutoConnectControl*) {
+        }) {
+    }
 
-    AutoConnectControl::~AutoConnectControl() = default;
+    AutoConnectControl::~AutoConnectControl() {
+        onDestroy(this);
+    };
 
     void AutoConnectControl::stopRetry() {
         retryEnabled = false;
@@ -79,6 +84,16 @@ namespace core::socket::stream {
 
     bool AutoConnectControl::isReconnectEnabled() const {
         return reconnectEnabled;
+    }
+
+    AutoConnectControl* AutoConnectControl::setOnDestroy(const std::function<void(AutoConnectControl*)>& onDestroy) {
+        const std::function<void(AutoConnectControl*)> oldOnDestroy = this->onDestroy;
+
+        this->onDestroy = [oldOnDestroy, onDestroy](AutoConnectControl* control) {
+            oldOnDestroy(control);
+            onDestroy(control);
+        };
+        return this;
     }
 
     void AutoConnectControl::armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {
