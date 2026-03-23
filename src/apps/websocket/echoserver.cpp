@@ -105,7 +105,8 @@ int main(int argc, char* argv[]) {
 
     legacyApp
         .setOnInitState([]([[maybe_unused]] core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
-            VLOG(0) << "------------------- Legacy Server Init: " << acceptEventReceiver;
+            VLOG(0) << "------------------- Legacy Server Init: " << acceptEventReceiver
+                    << " - enabled: " << acceptEventReceiver->isEnabled();
             if (acceptEventReceiver->isEnabled()) {
                 acceptEventReceiver->stopListen();
             }
