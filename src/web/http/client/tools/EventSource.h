@@ -398,15 +398,15 @@ namespace web::http::client::tools {
                     LOG(DEBUG) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestEnd";
                 });
 
-            client->getConfig().Remote::setSocketAddress(socketAddress);
-            client->getConfig().setReconnect();
-            client->getConfig().setRetry();
-            client->getConfig().setRetryBase(1);
-            client->getConfig().setInstanceName("EventSource");
+            client->getConfig()->Remote::setSocketAddress(socketAddress);
+            client->getConfig()->setReconnect();
+            client->getConfig()->setRetry();
+            client->getConfig()->setRetryBase(1);
+            client->getConfig()->setInstanceName("EventSource");
 
-            sharedConfig->config = &client->getConfig();
+            sharedConfig->config = client->getConfig();
 
-            client->connect([instanceName = client->getConfig().getInstanceName()](
+            client->connect([instanceName = client->getConfig()->getInstanceName()](
                                 const core::socket::SocketAddress& socketAddress,
                                 const core::socket::State& state) { // example.com:81 simulate connnect timeout
                 switch (state) {

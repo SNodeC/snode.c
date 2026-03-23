@@ -73,7 +73,7 @@ namespace net::un::stream {
 
         const Super& connect(const std::string& sunPath,
                              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Remote::setSunPath(sunPath);
+            Super::getConfig()->Remote::setSunPath(sunPath);
 
             return connect(onStatus);
         }
@@ -81,8 +81,8 @@ namespace net::un::stream {
         const Super& connect(const std::string& sunPath,
                              const std::string& bindSunPath,
                              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Remote::setSunPath(sunPath);
-            Super::getConfig().Local::setSunPath(bindSunPath);
+            Super::getConfig()->Remote::setSunPath(sunPath);
+            Super::getConfig()->Local::setSunPath(bindSunPath);
 
             return connect(onStatus);
         }

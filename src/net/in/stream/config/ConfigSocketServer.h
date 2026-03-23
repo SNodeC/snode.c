@@ -63,13 +63,13 @@ namespace net::in::stream::config {
         ~ConfigSocketServer() override;
 
     public:
-        ConfigSocketServer& setReuseAddress(bool reuseAddress = true);
+        ConfigSocketServer* setReuseAddress(bool reuseAddress = true);
         bool getReuseAddress() const;
 
-        ConfigSocketServer& setReusePort(bool reusePort = true);
+        ConfigSocketServer* setReusePort(bool reusePort = true);
         bool getReusePort() const;
 
-        ConfigSocketServer& setDisableNagleAlgorithm(bool disableNagleAlgorithm = true);
+        ConfigSocketServer* setDisableNagleAlgorithm(bool disableNagleAlgorithm = true);
         bool getDisableNagleAlgorithm() const;
 
     private:

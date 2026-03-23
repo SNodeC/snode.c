@@ -73,13 +73,13 @@ int main(int argc, char* argv[]) {
         {"snodec.home.vchrist.at", {{"Cert", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}},
         {"www.vchrist.at", {{"Cert", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}}};
 
-    server.getConfig().addSniCerts(sniCerts);
+    server.getConfig()->addSniCerts(sniCerts);
 #endif
 
-    server.getConfig().setDisabled();
-    server.getConfig().setDisabled(false);
+    server.getConfig()->setDisabled();
+    server.getConfig()->setDisabled(false);
 
-    server.listen([instanceName = server.getConfig().getInstanceName()](const SocketServer::SocketAddress& socketAddress,
+    server.listen([instanceName = server.getConfig()->getInstanceName()](const SocketServer::SocketAddress& socketAddress,
                                                                         const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:

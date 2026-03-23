@@ -69,7 +69,7 @@ namespace core::socket {
 
         virtual ~Socket();
 
-        Config& getConfig() const;
+        Config* getConfig() const;
 
     protected:
         const std::shared_ptr<Config> config;

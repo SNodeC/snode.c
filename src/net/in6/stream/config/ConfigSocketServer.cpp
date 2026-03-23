@@ -123,7 +123,7 @@ namespace net::in6::stream::config {
     ConfigSocketServer::~ConfigSocketServer() {
     }
 
-    ConfigSocketServer& ConfigSocketServer::setReuseAddress(bool reuseAddress) {
+    ConfigSocketServer* ConfigSocketServer::setReuseAddress(bool reuseAddress) {
         const utils::PreserveErrno preserveErrno;
 
         if (reuseAddress) {
@@ -134,14 +134,14 @@ namespace net::in6::stream::config {
 
         Local::setDefaultValue(reuseAddressOpt, reuseAddress ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigSocketServer::getReuseAddress() const {
         return reuseAddressOpt->as<bool>();
     }
 
-    ConfigSocketServer& ConfigSocketServer::setReusePort(bool reusePort) {
+    ConfigSocketServer* ConfigSocketServer::setReusePort(bool reusePort) {
         const utils::PreserveErrno preserveErrno;
 
         if (reusePort) {
@@ -152,14 +152,14 @@ namespace net::in6::stream::config {
 
         Local::setDefaultValue(reusePortOpt, reusePort ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigSocketServer::getReusePort() const {
         return reusePortOpt->as<bool>();
     }
 
-    ConfigSocketServer& ConfigSocketServer::setIPv6Only(bool iPv6Only) {
+    ConfigSocketServer* ConfigSocketServer::setIPv6Only(bool iPv6Only) {
         const utils::PreserveErrno preserveErrno;
 
         if (iPv6Only) {
@@ -170,14 +170,14 @@ namespace net::in6::stream::config {
 
         Local::setDefaultValue(iPv6OnlyOpt, iPv6Only ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigSocketServer::getIPv6Only() const {
         return iPv6OnlyOpt->as<bool>();
     }
 
-    ConfigSocketServer& ConfigSocketServer::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
+    ConfigSocketServer* ConfigSocketServer::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
         const utils::PreserveErrno preserveErrno;
 
         if (disableNagleAlgorithm) {
@@ -188,7 +188,7 @@ namespace net::in6::stream::config {
 
         Local::setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigSocketServer::getDisableNagleAlgorithm() const {

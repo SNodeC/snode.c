@@ -89,12 +89,12 @@ namespace web::http::client {
                     std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpConnected),
                     std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected),
                     [this]() -> net::config::ConfigInstance& {
-                        return Super::getConfig();
+                        return *Super::getConfig();
                     }) {
-            Super::getConfig().net::config::ConfigInstance::template newSubCommand<ConfigHTTP>();
-            Super::setOnConnect([config = Super::getConfig().net::config::ConfigInstance::template getSubCommand<ConfigHTTP>()](
+            Super::getConfig()->net::config::ConfigInstance::template newSubCommand<ConfigHTTP>();
+            Super::setOnConnect([config = Super::getConfig()->net::config::ConfigInstance::template getSubCommand<ConfigHTTP>()](
                                     SocketConnection* socketConnection) {
-                config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
+                config->setHostHeader(socketConnection->getConfig()->Remote::getSocketAddress().toString(false));
             });
         }
 
@@ -118,12 +118,12 @@ namespace web::http::client {
                     std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpConnected),
                     std::forward<std::function<void(const std::shared_ptr<MasterRequest>&)>>(onHttpDisconnected),
                     [this]() -> net::config::ConfigInstance& {
-                        return Super::getConfig();
+                        return *Super::getConfig();
                     }) {
-            Super::getConfig().net::config::ConfigInstance::template newSubCommand<ConfigHTTP>();
-            Super::setOnConnect([config = Super::getConfig().net::config::ConfigInstance::template getSubCommand<ConfigHTTP>()](
+            Super::getConfig()->net::config::ConfigInstance::template newSubCommand<ConfigHTTP>();
+            Super::setOnConnect([config = Super::getConfig()->net::config::ConfigInstance::template getSubCommand<ConfigHTTP>()](
                                     SocketConnection* socketConnection) {
-                config->setHostHeader(socketConnection->getConfig().Remote::getSocketAddress().toString(false));
+                config->setHostHeader(socketConnection->getConfig()->Remote::getSocketAddress().toString(false));
             });
         }
 

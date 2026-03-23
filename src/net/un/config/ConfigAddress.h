@@ -87,15 +87,15 @@ namespace net::un::config {
         SocketAddress* init() final;
 
     public:
-        ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
+        ConfigAddress* setSocketAddress(const SocketAddress& socketAddress);
 
-        ConfigAddress& setSunPath(const std::string& sunPath);
+        ConfigAddress* setSunPath(const std::string& sunPath);
         std::string getSunPath() const;
 
         void configurable(bool configurable = true) final;
 
     protected:
-        ConfigAddress& sunPathRequired(bool required = true);
+        ConfigAddress* sunPathRequired(bool required = true);
 
     private:
         CLI::Option* sunPathOpt = nullptr;

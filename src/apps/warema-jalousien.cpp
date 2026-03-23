@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
     });
 
     webApp.listen(8080,
-                  [instanceName = webApp.getConfig().getInstanceName()](const legacy::in::WebApp::SocketAddress& socketAddress,
+                  [instanceName = webApp.getConfig()->getInstanceName()](const legacy::in::WebApp::SocketAddress& socketAddress,
                                                                         const core::socket::State& state) {
                       switch (state) {
                           case core::socket::State::OK:

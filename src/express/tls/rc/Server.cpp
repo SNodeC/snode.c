@@ -61,7 +61,7 @@ namespace express::tls::rc {
         const WebApp webApp(instanceName, router);
 
         if (configurator != nullptr) {
-            configurator(webApp.getConfig());
+            configurator(*webApp.getConfig());
         }
 
         webApp.listen([instanceName, reportState](const SocketAddress& socketAddress, const core::socket::State& state) {

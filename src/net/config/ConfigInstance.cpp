@@ -94,10 +94,10 @@ namespace net::config {
         return instanceName.empty() ? nameAnonymous : instanceName;
     }
 
-    ConfigInstance& ConfigInstance::setInstanceName(const std::string& instanceName) {
+    ConfigInstance* ConfigInstance::setInstanceName(const std::string& instanceName) {
         this->instanceName = instanceName;
 
-        return *this;
+        return this;
     }
 
     bool ConfigInstance::getDisabled() const {
@@ -105,30 +105,30 @@ namespace net::config {
             ->as<bool>();
     }
 
-    ConfigInstance& ConfigInstance::setDisabled(bool disabled) {
+    ConfigInstance* ConfigInstance::setDisabled(bool disabled) {
         setDefaultValue(disableOpt, disabled ? "true" : "false");
 
         if (getParent() != nullptr) {
             getParent()->disabled(this, disabled);
         }
 
-        return *this;
+        return this;
     }
 
-    ConfigInstance& ConfigInstance::configurable(bool configurable) {
+    ConfigInstance* ConfigInstance::configurable(bool configurable) {
         setConfigurable(disableOpt, configurable);
 
-        return *this;
+        return this;
     }
 
-    ConfigInstance& ConfigInstance::setOnDestroy(const std::function<void(ConfigInstance*)>& onDestroy) {
+    ConfigInstance* ConfigInstance::setOnDestroy(const std::function<void(ConfigInstance*)>& onDestroy) {
         const std::function<void(ConfigInstance*)> oldOnDestroy = this->onDestroy;
         this->onDestroy = [oldOnDestroy, onDestroy](ConfigInstance* configInstance) {
             oldOnDestroy(configInstance);
             onDestroy(configInstance);
         };
 
-        return *this;
+        return this;
     }
 
     CLI::App* ConfigInstance::getHelpTriggerApp() {

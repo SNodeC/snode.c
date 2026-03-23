@@ -89,19 +89,19 @@ namespace net::l2::config {
         SocketAddress* init() final;
 
     public:
-        ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
+        ConfigAddress* setSocketAddress(const SocketAddress& socketAddress);
 
-        ConfigAddress& setBtAddress(const std::string& btAddress);
+        ConfigAddress* setBtAddress(const std::string& btAddress);
         std::string getBtAddress() const;
 
-        ConfigAddress& setPsm(uint16_t psm);
+        ConfigAddress* setPsm(uint16_t psm);
         uint16_t getPsm() const;
 
         void configurable(bool configurable = true) final;
 
     protected:
-        ConfigAddress& setBtAddressRequired(bool required = true);
-        ConfigAddress& setPsmRequired(bool required = true);
+        ConfigAddress* setBtAddressRequired(bool required = true);
+        ConfigAddress* setPsmRequired(bool required = true);
 
         CLI::Option* btAddressOpt = nullptr;
         CLI::Option* psmOpt = nullptr;

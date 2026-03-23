@@ -66,11 +66,11 @@ int main(int argc, char* argv[]) {
 
     const WebApp webApp(apps::http::STREAM::getWebApp("httpserver"));
 
-    webApp.getConfig().Instance::newSubCommand<subcommand::ConfigWWW>();
+    webApp.getConfig()->Instance::newSubCommand<subcommand::ConfigWWW>();
 
     WebApp::init(argc, argv);
 
-    webApp.use(express::middleware::StaticMiddleware(webApp.getConfig().Instance::getSubCommand<subcommand::ConfigWWW>()->getHtmlRoot()));
+    webApp.use(express::middleware::StaticMiddleware(webApp.getConfig()->Instance::getSubCommand<subcommand::ConfigWWW>()->getHtmlRoot()));
 
     {
 #if (STREAM_TYPE == TLS)
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
             {"snodec.home.vchrist.at", {{"Cert", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}},
             {"www.vchrist.at", {{"Cert", cert}, {"CertKey", key}, {"CertKeyPassword", pass}}}};
 
-//        webApp.getConfig().addSniCerts(sniCerts);
+//        webApp.getConfig()->addSniCerts(sniCerts);
 #endif
 
         VLOG(1) << "Routes:";
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
             VLOG(1) << "  " << route;
         }
 
-        webApp.listen([instanceName = webApp.getConfig().getInstanceName()](const core::socket::SocketAddress& socketAddress,
+        webApp.listen([instanceName = webApp.getConfig()->getInstanceName()](const core::socket::SocketAddress& socketAddress,
                                                                             const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:

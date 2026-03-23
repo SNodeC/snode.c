@@ -74,7 +74,7 @@ namespace net::un::stream {
 
         const Super& listen(const std::string& sunPath,
                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setSunPath(sunPath);
+            Super::getConfig()->Local::setSunPath(sunPath);
 
             return listen(onStatus);
         }
@@ -82,8 +82,8 @@ namespace net::un::stream {
         const Super& listen(const std::string& sunPath,
                             int backlog,
                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setSunPath(sunPath);
-            Super::getConfig().setBacklog(backlog);
+            Super::getConfig()->Local::setSunPath(sunPath);
+            Super::getConfig()->setBacklog(backlog);
 
             return listen(onStatus);
         }

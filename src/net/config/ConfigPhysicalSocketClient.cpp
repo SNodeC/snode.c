@@ -89,7 +89,7 @@ namespace net::config {
     ConfigPhysicalSocketClient::~ConfigPhysicalSocketClient() {
     }
 
-    ConfigPhysicalSocketClient& ConfigPhysicalSocketClient::setReconnect(bool reconnect) {
+    ConfigPhysicalSocketClient* ConfigPhysicalSocketClient::setReconnect(bool reconnect) {
         setDefaultValue(reconnectOpt, reconnect ? "true" : "false");
 
         if (reconnect) {
@@ -98,27 +98,27 @@ namespace net::config {
             reconnectTimeOpt->needs(reconnectOpt);
         }
 
-        return *this;
+        return this;
     }
 
     bool ConfigPhysicalSocketClient::getReconnect() const {
         return reconnectOpt->as<bool>();
     }
 
-    ConfigPhysicalSocketClient& ConfigPhysicalSocketClient::setReconnectTime(double time) {
+    ConfigPhysicalSocketClient* ConfigPhysicalSocketClient::setReconnectTime(double time) {
         setDefaultValue(reconnectTimeOpt, time);
 
-        return *this;
+        return this;
     }
 
     double ConfigPhysicalSocketClient::getReconnectTime() const {
         return reconnectTimeOpt->as<double>();
     }
 
-    ConfigPhysicalSocketClient& ConfigPhysicalSocketClient::setConnectTimeout(const utils::Timeval& connectTimeout) {
+    ConfigPhysicalSocketClient* ConfigPhysicalSocketClient::setConnectTimeout(const utils::Timeval& connectTimeout) {
         setDefaultValue(connectTimeoutOpt, connectTimeout);
 
-        return *this;
+        return this;
     }
 
     utils::Timeval ConfigPhysicalSocketClient::getConnectTimeout() const {

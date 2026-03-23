@@ -96,7 +96,7 @@ namespace apps::http::tls {
     static WebApp getWebApp(const std::string& name) {
         WebApp webApp(name, getRouter());
 
-        const std::string& instanceName = webApp.getConfig().getInstanceName();
+        const std::string& instanceName = webApp.getConfig()->getInstanceName();
 
         webApp.setOnConnect([instanceName](SocketConnection* socketConnection) { // onConnect
             VLOG(1) << "OnConnect " << instanceName;
