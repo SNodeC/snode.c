@@ -67,7 +67,7 @@ namespace core {
 
 namespace core::socket::stream {
 
-    class AutoConnectControl : public std::enable_shared_from_this<AutoConnectControl> {
+    class AutoConnectControl {
     public:
         AutoConnectControl();
 
