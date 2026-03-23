@@ -98,9 +98,6 @@ namespace core::socket::stream {
         bool retryEnabled{true};
         bool reconnectEnabled{true};
 
-        bool cancelRetryScheduled{false};
-        bool cancelReconnectScheduled{false};
-
         std::unique_ptr<core::timer::Timer> retryTimer;
         std::unique_ptr<core::timer::Timer> reconnectTimer;
 
