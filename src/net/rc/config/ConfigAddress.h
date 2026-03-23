@@ -89,19 +89,19 @@ namespace net::rc::config {
         SocketAddress* init() final;
 
     public:
-        ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
+        ConfigAddress* setSocketAddress(const SocketAddress& socketAddress);
 
-        ConfigAddress& setBtAddress(const std::string& btAddress);
+        ConfigAddress* setBtAddress(const std::string& btAddress);
         std::string getBtAddress() const;
 
-        ConfigAddress& setChannel(uint8_t channel);
+        ConfigAddress* setChannel(uint8_t channel);
         uint8_t getChannel() const;
 
         void configurable(bool configurable = true) final;
 
     protected:
-        ConfigAddress& setBtAddressRequired(bool required = true);
-        ConfigAddress& setChannelRequired(bool required = true);
+        ConfigAddress* setBtAddressRequired(bool required = true);
+        ConfigAddress* setChannelRequired(bool required = true);
 
         CLI::Option* btAddressOpt = nullptr;
         CLI::Option* channelOpt = nullptr;

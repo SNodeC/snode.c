@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
     using LegacySocketAddress = LegacyWebApp::SocketAddress;
 
     const LegacyWebApp legacyApp("legacy");
-    legacyApp.getConfig().setReuseAddress();
+    legacyApp.getConfig()->setReuseAddress();
 
     legacyApp.use(express::middleware::VerboseRequest());
 
@@ -125,10 +125,9 @@ int main(int argc, char* argv[]) {
     using TLSSocketAddress = TLSWebApp::SocketAddress;
 
     const TLSWebApp tlsApp("tls");
-    tlsApp.getConfig().setReuseAddress();
+    tlsApp.getConfig()->setReuseAddress();
 
-    tlsApp.getConfig()
-        .setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem")
+    tlsApp.getConfig()->setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem")
         .setCertKey("/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem")
         .setCertKeyPassword("snode.c");
 

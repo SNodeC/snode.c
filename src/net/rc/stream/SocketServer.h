@@ -73,15 +73,15 @@ namespace net::rc::stream {
         using Super::listen;
 
         const Super& listen(uint8_t channel, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setChannel(channel);
+            Super::getConfig()->Local::setChannel(channel);
 
             return listen(onStatus);
         }
 
         const Super&
         listen(uint8_t channel, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setChannel(channel);
-            Super::getConfig().setBacklog(backlog);
+            Super::getConfig()->Local::setChannel(channel);
+            Super::getConfig()->setBacklog(backlog);
 
             return listen(onStatus);
         }
@@ -89,7 +89,7 @@ namespace net::rc::stream {
         const Super& listen(const std::string& btAddress,
                             uint8_t channel,
                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setBtAddress(btAddress).setChannel(channel);
+            Super::getConfig()->Local::setBtAddress(btAddress)->setChannel(channel);
 
             return listen(onStatus);
         }
@@ -98,8 +98,8 @@ namespace net::rc::stream {
                             uint8_t channel,
                             int backlog,
                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setBtAddress(btAddress).setChannel(channel);
-            Super::getConfig().setBacklog(backlog);
+            Super::getConfig()->Local::setBtAddress(btAddress)->setChannel(channel);
+            Super::getConfig()->setBacklog(backlog);
 
             return listen(onStatus);
         }

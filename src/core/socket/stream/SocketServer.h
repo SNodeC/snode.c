@@ -342,7 +342,7 @@ namespace core::socket::stream {
                         Args&&... socketContextFactoryArgs) {
         const SocketServer socketServer(instanceName, std::forward<Args>(socketContextFactoryArgs)...);
 
-        configurator(socketServer.getConfig());
+        configurator(*socketServer.getConfig());
 
         return socketServer;
     }

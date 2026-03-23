@@ -374,7 +374,7 @@ namespace core::socket::stream {
                         Args&&... socketContextFactoryArgs) {
         const SocketClient socketClient(instanceName, std::forward<Args>(socketContextFactoryArgs)...);
 
-        configurator(socketClient.getConfig());
+        configurator(*socketClient.getConfig());
 
         return socketClient;
     }

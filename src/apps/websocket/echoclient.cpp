@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
             .setOnInitState([]([[maybe_unused]] core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
                 VLOG(0) << "------------------- Legacy Client Init: " << connectEventReceiver;
             })
-            .connect([instanceName = legacyClient.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
+            .connect([instanceName = legacyClient.getConfig()->getInstanceName()](const LegacySocketAddress& socketAddress,
                                                                                  const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
             .setOnInitState([]([[maybe_unused]] core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
                 VLOG(0) << "------------------- TLS Client Init: " << connectEventReceiver;
             })
-            .connect([instanceName = tlsClient.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress,
+            .connect([instanceName = tlsClient.getConfig()->getInstanceName()](const TLSSocketAddress& socketAddress,
                                                                               const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:

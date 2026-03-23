@@ -62,10 +62,10 @@ int main(int argc, char* argv[]) {
     const LegacyWebApp legacyApp;
     legacyApp.use(express::middleware::StaticMiddleware(utils::Config::configRoot.getSubCommand<subcommand::ConfigWWW>()->getHtmlRoot()));
 
-    legacyApp.getConfig().setReuseAddress();
+    legacyApp.getConfig()->setReuseAddress();
 
     legacyApp.listen(8080,
-                     [instanceName = legacyApp.getConfig().getInstanceName()](const LegacySocketAddress& socketAddress,
+                     [instanceName = legacyApp.getConfig()->getInstanceName()](const LegacySocketAddress& socketAddress,
                                                                               const core::socket::State& state) {
                          switch (state) {
                              case core::socket::State::OK:
@@ -88,17 +88,17 @@ int main(int argc, char* argv[]) {
 
     const TLSWebApp tlsApp;
 
-    tlsApp.getConfig().setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
-    tlsApp.getConfig().setCertKey("/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
-    tlsApp.getConfig().setCertKeyPassword("snode.c");
+    tlsApp.getConfig()->setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
+    tlsApp.getConfig()->setCertKey("/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
+    tlsApp.getConfig()->setCertKeyPassword("snode.c");
 
     tlsApp.use(express::middleware::StaticMiddleware(utils::Config::configRoot.getSubCommand<subcommand::ConfigWWW>()->getHtmlRoot()));
 
-    tlsApp.getConfig().setReuseAddress();
+    tlsApp.getConfig()->setReuseAddress();
 
     tlsApp.listen(
         8088,
-        [instanceName = legacyApp.getConfig().getInstanceName()](const TLSSocketAddress& socketAddress, const core::socket::State& state) {
+        [instanceName = legacyApp.getConfig()->getInstanceName()](const TLSSocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";

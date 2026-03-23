@@ -67,13 +67,13 @@ namespace net::config {
         ~ConfigPhysicalSocketClient() override;
 
     public:
-        ConfigPhysicalSocketClient& setReconnect(bool reconnect = true);
+        ConfigPhysicalSocketClient* setReconnect(bool reconnect = true);
         bool getReconnect() const;
 
-        ConfigPhysicalSocketClient& setReconnectTime(double time);
+        ConfigPhysicalSocketClient* setReconnectTime(double time);
         double getReconnectTime() const;
 
-        ConfigPhysicalSocketClient& setConnectTimeout(const utils::Timeval& connectTimeout);
+        ConfigPhysicalSocketClient* setConnectTimeout(const utils::Timeval& connectTimeout);
         utils::Timeval getConnectTimeout() const;
 
     private:

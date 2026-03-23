@@ -83,7 +83,7 @@ namespace net::in::stream::config {
     ConfigSocketClient::~ConfigSocketClient() {
     }
 
-    ConfigSocketClient& ConfigSocketClient::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
+    ConfigSocketClient* ConfigSocketClient::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
         if (disableNagleAlgorithm) {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 1);
         } else {
@@ -92,7 +92,7 @@ namespace net::in::stream::config {
 
         Local::setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigSocketClient::getDisableNagleAlgorithm() const {

@@ -76,10 +76,10 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddressReverse<ConfigAddressType>& ConfigAddressReverse<ConfigAddressType>::setNumericReverse(bool numeric) {
+    ConfigAddressReverse<ConfigAddressType>* ConfigAddressReverse<ConfigAddressType>::setNumericReverse(bool numeric) {
         setDefaultValue(numericReverseOpt, numeric ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -175,21 +175,21 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
         setHost(socketAddress.getHost());
         setPort(socketAddress.getPort());
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setHost(const std::string& ipOrHostname) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setHost(const std::string& ipOrHostname) {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(hostOpt, ipOrHostname);
         required(hostOpt, false);
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -198,13 +198,13 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPort(uint16_t port) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setPort(uint16_t port) {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(portOpt, port);
         required(portOpt, false);
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -213,12 +213,12 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setNumeric(bool numeric) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setNumeric(bool numeric) {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(numericOpt, numeric ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -227,12 +227,12 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setNumericReverse(bool numeric) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setNumericReverse(bool numeric) {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(numericReverseOpt, numeric ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -247,10 +247,10 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setAiFlags(int aiFlags) {
         this->aiFlags = aiFlags;
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -259,10 +259,10 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiSockType(int aiSockType) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setAiSockType(int aiSockType) {
         this->aiSockType = aiSockType;
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -271,10 +271,10 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setAiProtocol(int aiProtocol) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setAiProtocol(int aiProtocol) {
         this->aiProtocol = aiProtocol;
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -283,17 +283,17 @@ namespace net::in::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setHostRequired(bool required) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setHostRequired(bool required) {
         this->required(hostOpt, required);
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPortRequired(bool required) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setPortRequired(bool required) {
         this->required(portOpt, required);
 
-        return *this;
+        return this;
     }
 
 } // namespace net::in::config

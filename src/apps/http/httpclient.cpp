@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
 
     const Client client = apps::http::STREAM::getClient();
 
-    client.connect([instanceName = client.getConfig().getInstanceName()](
+    client.connect([instanceName = client.getConfig()->getInstanceName()](
                        const core::socket::SocketAddress& socketAddress,
                        const core::socket::State& state) { // example.com:81 simulate connnect timeout
         switch (state) {

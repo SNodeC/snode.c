@@ -77,7 +77,7 @@ namespace net::in6::config {
     public:
         SocketAddress getSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
-        ConfigAddressReverse& setNumericReverse(bool numeric = true);
+        ConfigAddressReverse* setNumericReverse(bool numeric = true);
         bool getNumericReverse() const;
 
     private:
@@ -103,37 +103,37 @@ namespace net::in6::config {
         using Super::getSocketAddress;
         SocketAddress getSocketAddress(const SocketAddress::SockAddr& sockAddr, SocketAddress::SockLen sockAddrLen);
 
-        ConfigAddress& setSocketAddress(const SocketAddress& socketAddress);
+        ConfigAddress* setSocketAddress(const SocketAddress& socketAddress);
 
-        ConfigAddress& setHost(const std::string& ipOrHostname);
+        ConfigAddress* setHost(const std::string& ipOrHostname);
         std::string getHost() const;
 
-        ConfigAddress& setPort(uint16_t port);
+        ConfigAddress* setPort(uint16_t port);
         uint16_t getPort() const;
 
-        ConfigAddress& setNumeric(bool numeric = true);
+        ConfigAddress* setNumeric(bool numeric = true);
         bool getNumeric() const;
 
-        ConfigAddress& setNumericReverse(bool numeric = true);
+        ConfigAddress* setNumericReverse(bool numeric = true);
         bool getNumericReverse() const;
 
         void configurable(bool configurable = true) final;
 
     protected:
-        ConfigAddress& setIpv4Mapped(bool ipv4Mapped = true);
+        ConfigAddress* setIpv4Mapped(bool ipv4Mapped = true);
         bool getIpv4Mapped() const;
 
-        ConfigAddress& setAiFlags(int aiFlags);
+        ConfigAddress* setAiFlags(int aiFlags);
         int getAiFlags() const;
 
-        ConfigAddress& setAiSockType(int aiSocktype);
+        ConfigAddress* setAiSockType(int aiSocktype);
         int getAiSockType() const;
 
-        ConfigAddress& setAiProtocol(int aiProtocol);
+        ConfigAddress* setAiProtocol(int aiProtocol);
         int getAiProtocol() const;
 
-        ConfigAddress& setHostRequired(bool required = true);
-        ConfigAddress& setPortRequired(bool required = true);
+        ConfigAddress* setHostRequired(bool required = true);
+        ConfigAddress* setPortRequired(bool required = true);
 
     private:
         CLI::Option* hostOpt = nullptr;

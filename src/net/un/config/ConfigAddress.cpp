@@ -97,20 +97,20 @@ namespace net::un::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
         setSunPath(socketAddress.getSunPath());
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSunPath(const std::string& sunPath) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setSunPath(const std::string& sunPath) {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(sunPathOpt, sunPath);
         required(sunPathOpt, false);
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -124,10 +124,10 @@ namespace net::un::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::sunPathRequired(bool required) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::sunPathRequired(bool required) {
         this->required(sunPathOpt, required);
 
-        return *this;
+        return this;
     }
 
 } // namespace net::un::config

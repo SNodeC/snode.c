@@ -143,30 +143,30 @@ namespace net::config {
     ConfigTlsServer::~ConfigTlsServer() {
     }
 
-    ConfigTlsServer& ConfigTlsServer::setForceSni(bool forceSni) {
+    ConfigTlsServer* ConfigTlsServer::setForceSni(bool forceSni) {
         setDefaultValue(forceSniOpt, forceSni ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigTlsServer::getForceSni() const {
         return forceSniOpt->as<bool>();
     }
 
-    ConfigTlsServer& ConfigTlsServer::addSniCerts(
+    ConfigTlsServer* ConfigTlsServer::addSniCerts(
         const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>& sniCerts) {
         defaultSniCerts.insert(sniCerts.begin(), sniCerts.end());
         sniCertsOpt->capture_default_str();
 
-        return *this;
+        return this;
     }
 
-    ConfigTlsServer& ConfigTlsServer::addSniCert(const std::string& domain,
+    ConfigTlsServer* ConfigTlsServer::addSniCert(const std::string& domain,
                                                  const std::map<std::string, std::variant<std::string, bool, ssl_option_t>>& sniCert) {
         defaultSniCerts[domain] = sniCert;
         sniCertsOpt->capture_default_str();
 
-        return *this;
+        return this;
     }
 
     const std::map<std::string, std::map<std::string, std::variant<std::string, bool, ssl_option_t>>>&
