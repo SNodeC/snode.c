@@ -463,7 +463,11 @@ namespace utils {
     bool ConfigRoot::parse1(int argc, char* argv[]) {
         allowExtras(true);
 
+        helpOpt->get_validator()->active(false);
+
         bool proceed = parse2(argc, argv, true);
+
+        helpOpt->get_validator()->active(true);
 
         if (proceed) {
             if (killOpt->count() > 0) {
@@ -519,7 +523,9 @@ namespace utils {
             }
         });
 
-        return parse2(argc, argv);
+        bool proceed = parse2(argc, argv);
+
+        return proceed;
     }
 
     void ConfigRoot::terminate() {

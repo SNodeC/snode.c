@@ -64,8 +64,7 @@ namespace net::config {
                                                                     .append("'"),
                                                                 instanceName,
                                                                 this),
-                            "Instances",
-                            false)
+                            "Instances")
         , instanceName(instanceName)
         , role(role)
         , disableOpt(setConfigurable(addFlagFunction(

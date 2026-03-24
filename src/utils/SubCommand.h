@@ -96,10 +96,10 @@ namespace utils {
 
     class SubCommand {
     protected:
-        SubCommand(SubCommand* parent, std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group, bool final);
+        SubCommand(SubCommand* parent, std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group, bool final = false);
 
         template <typename ConcretSubCommand>
-        SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group, bool final = true);
+        SubCommand(SubCommand* parent, ConcretSubCommand* concretSubCommand, const std::string& group, bool final = false);
 
     public:
         SubCommand(const SubCommand&) = delete;
@@ -147,6 +147,8 @@ namespace utils {
 
         std::string configToStr() const;
         std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const;
+
+        void addSubCommandApp(std::shared_ptr<utils::AppWithPtr> subCommand);
 
         template <typename NewSubCommand, typename... Args>
         NewSubCommand* newSubCommand(Args&&... args);
@@ -255,7 +257,10 @@ namespace utils {
 
         bool final;
 
+    protected:
         CLI::Option* helpOpt = nullptr;
+
+    private:
         CLI::Option* showConfigOpt = nullptr;
         CLI::Option* commandlineOpt = nullptr;
 
@@ -273,8 +278,23 @@ namespace utils {
 
     template <typename NewSubCommand, typename... Args>
     NewSubCommand* SubCommand::newSubCommand(Args&&... args) {
-        return !final ? dynamic_cast<NewSubCommand*>(*childSubCommands.insert(new NewSubCommand(this, std::forward<Args>(args)...)).first)
-                      : nullptr;
+        NewSubCommand* newSubCommand = nullptr;
+
+        if (!final) {
+            /*
+            helpOpt->description("Print help message and exit\n"
+                                 "* standard: display help for the last command processed\n"
+                                 "* exact: display help for the command directly preceding --help\n"
+                                 "* expanded: display help including all descendant sections");
+            if (auto* existing = helpOpt->get_validator(); existing != nullptr) {
+                *existing = std::move(CLI::IsMember({"standard", "exact", "expanded"})); // replace, do not append
+            }
+            */
+            newSubCommand =
+                dynamic_cast<NewSubCommand*>(*childSubCommands.insert(new NewSubCommand(this, std::forward<Args>(args)...)).first);
+        }
+
+        return newSubCommand;
     }
 
     template <typename RequestedSubCommand>

@@ -55,8 +55,7 @@ namespace net::config {
 
     template <typename T>
     ConfigSection::ConfigSection(ConfigInstance* instance, T* sectionPtr, const std::string& group)
-        : SubCommand(
-              instance, std::make_shared<utils::AppWithPtr>(std::string(T::DESCRIPTION), std::string(T::NAME), sectionPtr), group, true) {
+        : SubCommand(instance, std::make_shared<utils::AppWithPtr>(std::string(T::DESCRIPTION), std::string(T::NAME), sectionPtr), group) {
         description(std::string{T::DESCRIPTION} + " for instance '" + instance->getInstanceName() + "'");
     }
 

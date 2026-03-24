@@ -48,7 +48,7 @@
 namespace subcommand {
 
     ConfigWWW::ConfigWWW(SubCommand* parent)
-        : utils::SubCommand(parent, this, "Applications", false) {
+        : utils::SubCommand(parent, this, "Applications") {
         htmlRootOpt = addOption("--html-root", "HTML root directory", "directory", CLI::ExistingDirectory);
 
         required(htmlRootOpt);
