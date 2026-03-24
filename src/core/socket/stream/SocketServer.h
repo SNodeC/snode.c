@@ -338,11 +338,11 @@ namespace core::socket::stream {
 
     template <typename SocketServer, typename... Args>
     SocketServer Server(const std::string& instanceName,
-                        const std::function<void(typename SocketServer::Config&)>& configurator,
+                        const std::function<void(typename SocketServer::Config*)>& configurator,
                         Args&&... socketContextFactoryArgs) {
         const SocketServer socketServer(instanceName, std::forward<Args>(socketContextFactoryArgs)...);
 
-        configurator(*socketServer.getConfig());
+        configurator(socketServer.getConfig());
 
         return socketServer;
     }

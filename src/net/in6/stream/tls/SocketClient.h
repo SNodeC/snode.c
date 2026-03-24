@@ -82,7 +82,7 @@ namespace net::in6::stream::tls {
     template <typename SocketContextFactory,
               typename... SocketContextFactoryArgs,
               typename = std::enable_if_t<not std::is_invocable_v<std::tuple_element_t<0, std::tuple<SocketContextFactoryArgs...>>,
-                                                                  typename SocketClient<SocketContextFactory>::Config&>>>
+                                                                  typename SocketClient<SocketContextFactory>::Config*>>>
     SocketClient<SocketContextFactory, SocketContextFactoryArgs...> Client(const std::string& instanceName,
                                                                            SocketContextFactoryArgs&&... socketContextFactoryArgs) {
         return core::socket::stream::Client<SocketClient<SocketContextFactory, SocketContextFactoryArgs...>>(

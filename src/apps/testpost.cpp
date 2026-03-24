@@ -127,9 +127,10 @@ int main(int argc, char* argv[]) {
     const TLSWebApp tlsApp("tls");
     tlsApp.getConfig()->setReuseAddress();
 
-    tlsApp.getConfig()->setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem")
-        .setCertKey("/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem")
-        .setCertKeyPassword("snode.c");
+    tlsApp.getConfig()
+        ->setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem")
+        ->setCertKey("/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem")
+        ->setCertKeyPassword("snode.c");
 
     tlsApp.use(legacyApp);
 

@@ -49,9 +49,11 @@
 #include "utils/Config.h"
 #include "utils/Timeval.h"
 #include "utils/system/signal.h"
-
+// #define _GNU_SOURCE
 #include <chrono>
+#include <cstdio>
 #include <cstring>
+#include <link.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
