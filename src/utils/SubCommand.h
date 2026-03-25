@@ -131,7 +131,8 @@ namespace utils {
 
         SubCommand* allowExtras(bool allow = true);
 
-        SubCommand* required(bool required = true, bool force = true);
+        SubCommand* disabled(bool disabled = true);
+        SubCommand* required(bool required = true);
         SubCommand* required(CLI::Option* option, bool required = true);
 
         bool getRequired() const {
@@ -139,7 +140,6 @@ namespace utils {
         }
 
         SubCommand* needs(SubCommand* subCommand, bool needs = true);
-        SubCommand* disabled(SubCommand* subCommand, bool disabled = true);
 
         SubCommand* setRequireCallback(const std::function<void(void)>& callback);
         SubCommand* finalCallback(const std::function<void()>& finalCallback);
@@ -264,6 +264,7 @@ namespace utils {
         CLI::Option* commandlineOpt = nullptr;
 
         int requiredCount = 0;
+        bool requiredDisabled = false;
     };
 
     template <typename ConcretSubCommand>
