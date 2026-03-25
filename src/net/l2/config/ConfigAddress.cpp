@@ -109,21 +109,21 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
         setBtAddress(socketAddress.getBtAddress());
         setPsm(socketAddress.getPsm());
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(btAddressOpt, btAddress);
         required(btAddressOpt, false);
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -132,13 +132,13 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPsm(uint16_t psm) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setPsm(uint16_t psm) {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(psmOpt, psm);
         required(psmOpt, false);
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -153,17 +153,17 @@ namespace net::l2::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddressRequired(bool required) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setBtAddressRequired(bool required) {
         this->required(btAddressOpt, required);
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setPsmRequired(bool required) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setPsmRequired(bool required) {
         this->required(psmOpt, required);
 
-        return *this;
+        return this;
     }
 
 } // namespace net::l2::config

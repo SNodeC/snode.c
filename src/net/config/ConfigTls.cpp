@@ -50,120 +50,120 @@ namespace net::config {
     ConfigTls::~ConfigTls() {
     }
 
-    ConfigTls& ConfigTls::setCert(const std::string& cert) {
+    ConfigTls* ConfigTls::setCert(const std::string& cert) {
         setDefaultValue(certOpt, cert);
 
-        return *this;
+        return this;
     }
 
     std::string ConfigTls::getCert() const {
         return certOpt->as<std::string>();
     }
 
-    ConfigTls& ConfigTls::setCertKey(const std::string& certKey) {
+    ConfigTls* ConfigTls::setCertKey(const std::string& certKey) {
         setDefaultValue(certKeyOpt, certKey);
 
-        return *this;
+        return this;
     }
 
     std::string ConfigTls::getCertKey() const {
         return certKeyOpt->as<std::string>();
     }
 
-    ConfigTls& ConfigTls::setCertKeyPassword(const std::string& certKeyPassword) {
+    ConfigTls* ConfigTls::setCertKeyPassword(const std::string& certKeyPassword) {
         setDefaultValue(certKeyPasswordOpt, certKeyPassword);
 
-        return *this;
+        return this;
     }
 
     std::string ConfigTls::getCertKeyPassword() const {
         return certKeyPasswordOpt->as<std::string>();
     }
 
-    ConfigTls& ConfigTls::setCaCert(const std::string& caCert) {
+    ConfigTls* ConfigTls::setCaCert(const std::string& caCert) {
         setDefaultValue(caCertOpt, caCert);
 
-        return *this;
+        return this;
     }
 
     std::string ConfigTls::getCaCert() const {
         return caCertOpt->as<std::string>();
     }
 
-    ConfigTls& ConfigTls::setCaCertDir(const std::string& caCertDir) {
+    ConfigTls* ConfigTls::setCaCertDir(const std::string& caCertDir) {
         setDefaultValue(caCertDirOpt, caCertDir);
 
-        return *this;
+        return this;
     }
 
     std::string ConfigTls::getCaCertDir() const {
         return caCertDirOpt->as<std::string>();
     }
 
-    ConfigTls& ConfigTls::setCaCertUseDefaultDir(bool set) {
+    ConfigTls* ConfigTls::setCaCertUseDefaultDir(bool set) {
         setDefaultValue(caCertUseDefaultDirOpt, set ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigTls::getCaCertUseDefaultDir() const {
         return caCertUseDefaultDirOpt->as<bool>();
     }
 
-    ConfigTls& ConfigTls::setCaCertAcceptUnknown(bool set) {
+    ConfigTls* ConfigTls::setCaCertAcceptUnknown(bool set) {
         setDefaultValue(caCertAcceptUnknownOpt, set ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigTls::getCaCertAcceptUnknown() const {
         return caCertAcceptUnknownOpt->as<bool>();
     }
 
-    ConfigTls& ConfigTls::setCipherList(const std::string& cipherList) {
+    ConfigTls* ConfigTls::setCipherList(const std::string& cipherList) {
         setDefaultValue(cipherListOpt, cipherList);
 
-        return *this;
+        return this;
     }
 
     std::string ConfigTls::getCipherList() const {
         return cipherListOpt->as<std::string>();
     }
 
-    ConfigTls& ConfigTls::setSslOptions(ssl_option_t sslOptions) {
+    ConfigTls* ConfigTls::setSslOptions(ssl_option_t sslOptions) {
         setDefaultValue(sslOptionsOpt, sslOptions);
 
-        return *this;
+        return this;
     }
 
     ssl_option_t ConfigTls::getSslOptions() const {
         return sslOptionsOpt->as<ssl_option_t>();
     }
 
-    ConfigTls& ConfigTls::setNoCloseNotifyIsEOF(bool noCloseNotifyIsEOF) {
+    ConfigTls* ConfigTls::setNoCloseNotifyIsEOF(bool noCloseNotifyIsEOF) {
         this->noCloseNotifyIsEOFOpt = noCloseNotifyIsEOF;
 
-        return *this;
+        return this;
     }
 
     bool ConfigTls::getNoCloseNotifyIsEOF() const {
         return noCloseNotifyIsEOFOpt;
     }
 
-    ConfigTls& ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeout) {
+    ConfigTls* ConfigTls::setInitTimeout(const utils::Timeval& newInitTimeout) {
         setDefaultValue(initTimeoutOpt, newInitTimeout);
 
-        return *this;
+        return this;
     }
 
     utils::Timeval ConfigTls::getInitTimeout() const {
         return initTimeoutOpt->as<utils::Timeval>();
     }
 
-    ConfigTls& ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeout) {
+    ConfigTls* ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeout) {
         setDefaultValue(shutdownTimeoutOpt, newShutdownTimeout);
 
-        return *this;
+        return this;
     }
 
     utils::Timeval ConfigTls::getShutdownTimeout() const {

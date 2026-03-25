@@ -103,7 +103,7 @@ add_library(
     mqtt-server-websocket SHARED ${MQTT_SERVER_WEBSOCKET_CPP}
                                  ${MQTT_SERVER_WEBSOCKET_H}
 )
-add_library(snodec::mqtt-server-websocket ALIAS mqtt-server)
+add_library(snodec::mqtt-server-websocket ALIAS mqtt-server-websocket)
 
 target_link_libraries(
     mqtt-server-websocket

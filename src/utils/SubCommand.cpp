@@ -61,7 +61,7 @@ namespace utils {
         , final(final) {
         if (appWithPtr != nullptr) {
             if (parent != nullptr) {
-                parent->subCommandApp->add_subcommand(appWithPtr);
+                parent->addSubCommandApp(appWithPtr);
             } else {
                 selfAnchoredSubCommandApp = std::move(appWithPtr);
             }
@@ -78,35 +78,19 @@ namespace utils {
 
             subCommandApp->option_defaults()->take_last()->group(subCommandApp->get_formatter()->get_label("Nonpersistent Options"));
 
-            if (!final) {
-                helpOpt = setConfigurable(subCommandApp
-                                              ->set_help_flag(
-                                                  "--help{exact},-h{exact}",
-                                                  [subCommandApp = this->subCommandApp](std::size_t) {
-                                                      helpTriggerApp = subCommandApp;
-                                                  },
-                                                  "Print help message and exit\n"
-                                                  "* standard: display help for the last command processed\n"
-                                                  "* exact: display help for the command directly preceding --help")
-                                              ->take_first()
-                                              ->check(CLI::IsMember({"standard", "exact", "expanded"}))
-                                              ->trigger_on_parse(),
-                                          false);
-            } else {
-                helpOpt = setConfigurable(subCommandApp
-                                              ->set_help_flag(
-                                                  "--help{exact},-h{exact}",
-                                                  [subCommandApp = this->subCommandApp](std::size_t) {
-                                                      helpTriggerApp = subCommandApp;
-                                                  },
-                                                  "Print help message and exit\n"
-                                                  "* standard: display help for the last command processed\n"
-                                                  "* exact: display help for the command directly preceding --help")
-                                              ->take_first()
-                                              ->check(CLI::IsMember({"standard", "exact"}))
-                                              ->trigger_on_parse(),
-                                          false);
-            }
+            helpOpt = setConfigurable(subCommandApp
+                                          ->set_help_flag(
+                                              "--help{exact},-h{exact}",
+                                              [subCommandApp = this->subCommandApp](std::size_t) {
+                                                  helpTriggerApp = subCommandApp;
+                                              },
+                                              "Print help message and exit\n"
+                                              "* standard: display help for the last command processed\n"
+                                              "* exact: display help for the command directly preceding --help")
+                                          ->take_first()
+                                          ->check(CLI::IsMember({"standard", "exact"}))
+                                          ->trigger_on_parse(),
+                                      false);
 
             showConfigOpt = setConfigurable(subCommandApp
                                                 ->add_flag_function(
@@ -346,6 +330,20 @@ namespace utils {
 
     std::string SubCommand::help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const {
         return subCommandApp->help(helpApp, "", mode);
+    }
+
+    void SubCommand::addSubCommandApp(std::shared_ptr<AppWithPtr> subCommand) {
+        if (subCommandApp->get_subcommands({}).empty()) {
+            helpOpt->description("Print help message and exit\n"
+                                 "* standard: display help for the last command processed\n"
+                                 "* exact: display help for the command directly preceding --help\n"
+                                 "* expanded: display help including all descendant sections");
+            if (auto* existing = helpOpt->get_validator(); existing != nullptr) {
+                *existing = std::move(CLI::IsMember({"standard", "exact", "expanded"})); // replace, do not append
+            }
+        }
+
+        subCommandApp->add_subcommand(subCommand);
     }
 
     static std::shared_ptr<CLI::HelpFormatter> makeSectionFormatter() {

@@ -65,10 +65,10 @@ namespace net::config {
     ConfigTlsClient::~ConfigTlsClient() {
     }
 
-    ConfigTlsClient& ConfigTlsClient::setSni(const std::string& sni) {
+    ConfigTlsClient* ConfigTlsClient::setSni(const std::string& sni) {
         setDefaultValue(sniOpt, sni);
 
-        return *this;
+        return this;
     }
 
     std::string ConfigTlsClient::getSni() const {

@@ -73,15 +73,15 @@ namespace net::in::stream {
         using Super::listen;
 
         const Super& listen(uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setPort(port);
+            Super::getConfig()->Local::setPort(port);
 
             return listen(onStatus);
         }
 
         const Super&
         listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setPort(port);
-            Super::getConfig().setBacklog(backlog);
+            Super::getConfig()->Local::setPort(port);
+            Super::getConfig()->setBacklog(backlog);
 
             return listen(onStatus);
         }
@@ -89,7 +89,7 @@ namespace net::in::stream {
         const Super& listen(const std::string& ipOrHostname,
                             uint16_t port,
                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setHost(ipOrHostname).setPort(port);
+            Super::getConfig()->Local::setHost(ipOrHostname)->setPort(port);
 
             return listen(onStatus);
         }
@@ -98,8 +98,8 @@ namespace net::in::stream {
                             uint16_t port,
                             int backlog,
                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setHost(ipOrHostname).setPort(port);
-            Super::getConfig().setBacklog(backlog);
+            Super::getConfig()->Local::setHost(ipOrHostname)->setPort(port);
+            Super::getConfig()->setBacklog(backlog);
 
             return listen(onStatus);
         }

@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
         });
 
         legacyApp.listen(8080,
-                         [instanceName = legacyApp.getConfig().getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
+                         [instanceName = legacyApp.getConfig()->getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
                                                                                   const core::socket::State& state) {
                              switch (state) {
                                  case core::socket::State::OK:
@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
         });
 
         tlsApp.listen(8088,
-                      [instanceName = tlsApp.getConfig().getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
+                      [instanceName = tlsApp.getConfig()->getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
                                                                             const core::socket::State& state) {
                           switch (state) {
                               case core::socket::State::OK:
@@ -204,10 +204,10 @@ int main(int argc, char* argv[]) {
                           }
                       });
 
-        tlsApp.getConfig().setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
-        tlsApp.getConfig().setCertKey(
+        tlsApp.getConfig()->setCert("/home/voc/projects/snodec/snode.c/certs/wildcard.home.vchrist.at_-_snode.c_-_server.pem");
+        tlsApp.getConfig()->setCertKey(
             "/home/voc/projects/snodec/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
-        tlsApp.getConfig().setCertKeyPassword("snode.c");
+        tlsApp.getConfig()->setCertKeyPassword("snode.c");
     }
 
     WebApp::start();

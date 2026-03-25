@@ -73,7 +73,7 @@ namespace net::un::stream::tls {
     template <typename SocketContextFactory, typename... SocketContextFactoryArgs>
     SocketServer<SocketContextFactory, SocketContextFactoryArgs...>
     Server(const std::string& instanceName,
-           const std::function<void(net::un::stream::tls::config::ConfigSocketServer&)>& configurator,
+           const std::function<void(net::un::stream::tls::config::ConfigSocketServer*)>& configurator,
            SocketContextFactoryArgs&&... socketContextFactoryArgs) {
         return core::socket::stream::Server<SocketServer<SocketContextFactory, SocketContextFactoryArgs...>>(
             instanceName, configurator, std::forward<SocketContextFactoryArgs>(socketContextFactoryArgs)...);
@@ -82,7 +82,7 @@ namespace net::un::stream::tls {
     template <typename SocketContextFactory,
               typename... SocketContextFactoryArgs,
               typename = std::enable_if_t<not std::is_invocable_v<std::tuple_element_t<0, std::tuple<SocketContextFactoryArgs...>>,
-                                                                  typename SocketServer<SocketContextFactory>::Config&>>>
+                                                                  typename SocketServer<SocketContextFactory>::Config*>>>
     SocketServer<SocketContextFactory, SocketContextFactoryArgs...> Server(const std::string& instanceName,
                                                                            SocketContextFactoryArgs&&... socketContextFactoryArgs) {
         return core::socket::stream::Server<SocketServer<SocketContextFactory, SocketContextFactoryArgs...>>(

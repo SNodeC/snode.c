@@ -62,7 +62,7 @@ namespace net::in::stream::config {
         ~ConfigSocketClient() override;
 
     public:
-        ConfigSocketClient& setDisableNagleAlgorithm(bool disableNagleAlgorithm = true);
+        ConfigSocketClient* setDisableNagleAlgorithm(bool disableNagleAlgorithm = true);
         bool getDisableNagleAlgorithm() const;
 
     private:

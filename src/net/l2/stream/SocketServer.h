@@ -73,15 +73,15 @@ namespace net::l2::stream {
         using Super::listen;
 
         const Super& listen(uint16_t psm, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setPsm(psm);
+            Super::getConfig()->Local::setPsm(psm);
 
             return listen(onStatus);
         }
 
         const Super&
         listen(uint16_t psm, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setPsm(psm);
-            Super::getConfig().setBacklog(backlog);
+            Super::getConfig()->Local::setPsm(psm);
+            Super::getConfig()->setBacklog(backlog);
 
             return listen(onStatus);
         }
@@ -89,7 +89,7 @@ namespace net::l2::stream {
         const Super& listen(const std::string& btAddress,
                             uint16_t psm,
                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm);
+            Super::getConfig()->Local::setBtAddress(btAddress)->setPsm(psm);
 
             return listen(onStatus);
         }
@@ -98,8 +98,8 @@ namespace net::l2::stream {
                             uint16_t psm,
                             int backlog,
                             const std::function<void(const SocketAddress& SocketAddress, core::socket::State)>& onStatus) const {
-            Super::getConfig().Local::setBtAddress(btAddress).setPsm(psm);
-            Super::getConfig().setBacklog(backlog);
+            Super::getConfig()->Local::setBtAddress(btAddress)->setPsm(psm);
+            Super::getConfig()->setBacklog(backlog);
 
             return listen(onStatus);
         }

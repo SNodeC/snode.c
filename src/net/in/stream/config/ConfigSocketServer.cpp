@@ -98,7 +98,7 @@ namespace net::in::stream::config {
     ConfigSocketServer::~ConfigSocketServer() {
     }
 
-    ConfigSocketServer& ConfigSocketServer::setReuseAddress(bool reuseAddress) {
+    ConfigSocketServer* ConfigSocketServer::setReuseAddress(bool reuseAddress) {
         if (reuseAddress) {
             addSocketOption(SOL_SOCKET, SO_REUSEADDR, 1);
         } else {
@@ -107,14 +107,14 @@ namespace net::in::stream::config {
 
         Local::setDefaultValue(reuseAddressOpt, reuseAddress ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigSocketServer::getReuseAddress() const {
         return reuseAddressOpt->as<bool>();
     }
 
-    ConfigSocketServer& ConfigSocketServer::setReusePort(bool reusePort) {
+    ConfigSocketServer* ConfigSocketServer::setReusePort(bool reusePort) {
         if (reusePort) {
             addSocketOption(SOL_SOCKET, SO_REUSEPORT, 1);
         } else {
@@ -123,14 +123,14 @@ namespace net::in::stream::config {
 
         Local::setDefaultValue(reusePortOpt, reusePort ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigSocketServer::getReusePort() const {
         return reusePortOpt->as<bool>();
     }
 
-    ConfigSocketServer& ConfigSocketServer::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
+    ConfigSocketServer* ConfigSocketServer::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
         if (disableNagleAlgorithm) {
             addSocketOption(IPPROTO_TCP, TCP_NODELAY, 1);
         } else {
@@ -139,7 +139,7 @@ namespace net::in::stream::config {
 
         Local::setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigSocketServer::getDisableNagleAlgorithm() const {

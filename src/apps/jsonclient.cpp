@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 
     jsonClient.connect("localhost",
                        8080,
-                       [instanceName = jsonClient.getConfig().getInstanceName()](
+                       [instanceName = jsonClient.getConfig()->getInstanceName()](
                            const SocketAddress& socketAddress,
                            const core::socket::State& state) { // example.com:81 simulate connect timeout
                            switch (state) {
@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
     /*
         jsonClient.connect("localhost",
                            8080,
-                           [instanceName = jsonClient.getConfig().getInstanceName()](
+                           [instanceName = jsonClient.getConfig()->getInstanceName()](
                                const SocketAddress& socketAddress,
                                const core::socket::State& state) { // example.com:81 simulate connnect timeout
                                switch (state) {

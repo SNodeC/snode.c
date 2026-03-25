@@ -67,13 +67,13 @@ namespace net::config {
         ~ConfigPhysicalSocketServer() override;
 
     public:
-        ConfigPhysicalSocketServer& setBacklog(int newBacklog);
+        ConfigPhysicalSocketServer* setBacklog(int newBacklog);
         int getBacklog() const;
 
-        ConfigPhysicalSocketServer& setAcceptsPerTick(int acceptsPerTickSet);
+        ConfigPhysicalSocketServer* setAcceptsPerTick(int acceptsPerTickSet);
         int getAcceptsPerTick() const;
 
-        ConfigPhysicalSocketServer& setAcceptTimeout(const utils::Timeval& acceptTimeout);
+        ConfigPhysicalSocketServer* setAcceptTimeout(const utils::Timeval& acceptTimeout);
         utils::Timeval getAcceptTimeout() const;
 
     private:

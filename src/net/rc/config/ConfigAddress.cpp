@@ -108,21 +108,21 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setSocketAddress(const SocketAddress& socketAddress) {
         setBtAddress(socketAddress.getBtAddress());
         setChannel(socketAddress.getChannel());
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setBtAddress(const std::string& btAddress) {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue(btAddressOpt, btAddress);
         required(btAddressOpt, false);
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -131,13 +131,13 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setChannel(uint8_t channel) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setChannel(uint8_t channel) {
         const utils::PreserveErrno preserveErrno;
 
         setDefaultValue<int>(channelOpt, channel);
         required(channelOpt, false);
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
@@ -152,17 +152,17 @@ namespace net::rc::config {
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setBtAddressRequired(bool required) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setBtAddressRequired(bool required) {
         this->required(btAddressOpt, required);
 
-        return *this;
+        return this;
     }
 
     template <template <typename SocketAddress> typename ConfigAddressType>
-    ConfigAddress<ConfigAddressType>& ConfigAddress<ConfigAddressType>::setChannelRequired(bool required) {
+    ConfigAddress<ConfigAddressType>* ConfigAddress<ConfigAddressType>::setChannelRequired(bool required) {
         this->required(channelOpt, required);
 
-        return *this;
+        return this;
     }
 
 } // namespace net::rc::config

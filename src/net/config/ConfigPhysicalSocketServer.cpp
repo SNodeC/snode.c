@@ -82,26 +82,26 @@ namespace net::config {
         return backlogOpt->as<int>();
     }
 
-    ConfigPhysicalSocketServer& ConfigPhysicalSocketServer::setBacklog(int newBacklog) {
+    ConfigPhysicalSocketServer* ConfigPhysicalSocketServer::setBacklog(int newBacklog) {
         setDefaultValue(backlogOpt, newBacklog);
 
-        return *this;
+        return this;
     }
 
     int ConfigPhysicalSocketServer::getAcceptsPerTick() const {
         return acceptsPerTickOpt->as<int>();
     }
 
-    ConfigPhysicalSocketServer& ConfigPhysicalSocketServer::setAcceptsPerTick(int acceptsPerTickSet) {
+    ConfigPhysicalSocketServer* ConfigPhysicalSocketServer::setAcceptsPerTick(int acceptsPerTickSet) {
         setDefaultValue(acceptsPerTickOpt, acceptsPerTickSet);
 
-        return *this;
+        return this;
     }
 
-    ConfigPhysicalSocketServer& ConfigPhysicalSocketServer::setAcceptTimeout(const utils::Timeval& acceptTimeout) {
+    ConfigPhysicalSocketServer* ConfigPhysicalSocketServer::setAcceptTimeout(const utils::Timeval& acceptTimeout) {
         setDefaultValue(acceptTimeoutOpt, acceptTimeout);
 
-        return *this;
+        return this;
     }
 
     utils::Timeval ConfigPhysicalSocketServer::getAcceptTimeout() const {

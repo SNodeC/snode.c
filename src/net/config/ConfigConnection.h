@@ -70,19 +70,19 @@ namespace net::config {
 
     public:
         utils::Timeval getReadTimeout() const;
-        ConfigConnection& setReadTimeout(const utils::Timeval& newReadTimeoutSet);
+        ConfigConnection* setReadTimeout(const utils::Timeval& newReadTimeoutSet);
 
         utils::Timeval getWriteTimeout() const;
-        ConfigConnection& setWriteTimeout(const utils::Timeval& newWriteTimeoutSet);
+        ConfigConnection* setWriteTimeout(const utils::Timeval& newWriteTimeoutSet);
 
         std::size_t getReadBlockSize() const;
-        ConfigConnection& setReadBlockSize(std::size_t newReadBlockSize);
+        ConfigConnection* setReadBlockSize(std::size_t newReadBlockSize);
 
         std::size_t getWriteBlockSize() const;
-        ConfigConnection& setWriteBlockSize(std::size_t newWriteBlockSize);
+        ConfigConnection* setWriteBlockSize(std::size_t newWriteBlockSize);
 
         utils::Timeval getTerminateTimeout() const;
-        ConfigConnection& setTerminateTimeout(const utils::Timeval& newTerminateTimeout);
+        ConfigConnection* setTerminateTimeout(const utils::Timeval& newTerminateTimeout);
 
     private:
         CLI::Option* readTimeoutOpt = nullptr;

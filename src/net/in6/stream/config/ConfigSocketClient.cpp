@@ -84,7 +84,7 @@ namespace net::in6::stream::config {
     ConfigSocketClient::~ConfigSocketClient() {
     }
 
-    ConfigSocketClient& ConfigSocketClient::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
+    ConfigSocketClient* ConfigSocketClient::setDisableNagleAlgorithm(bool disableNagleAlgorithm) {
         const utils::PreserveErrno preserveErrno;
 
         if (disableNagleAlgorithm) {
@@ -95,7 +95,7 @@ namespace net::in6::stream::config {
 
         Local::setDefaultValue(disableNagleAlgorithmOpt, disableNagleAlgorithm ? "true" : "false");
 
-        return *this;
+        return this;
     }
 
     bool ConfigSocketClient::getDisableNagleAlgorithm() const {

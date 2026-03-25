@@ -62,8 +62,8 @@ namespace core::socket {
     }
 
     template <typename Config>
-    Config& Socket<Config>::getConfig() const {
-        return *config;
+    Config* Socket<Config>::getConfig() const {
+        return config.get();
     }
 
 } // namespace core::socket

@@ -224,7 +224,7 @@ namespace tls {
         const SocketAddress remoteAddress("localhost", 8088);
 
         tlsClient.connect(remoteAddress,
-                          [instanceName = tlsClient.getConfig().getInstanceName()](
+                          [instanceName = tlsClient.getConfig()->getInstanceName()](
                               const SocketAddress& socketAddress,
                               const core::socket::State& state) { // example.com:81 simulate connnect timeout
                               switch (state) {
@@ -282,7 +282,7 @@ namespace legacy {
         VLOG(1) << "###############': " << remoteAddress.toString();
 
         legacyClient.connect(remoteAddress,
-                             [instanceName = legacyClient.getConfig().getInstanceName()](
+                             [instanceName = legacyClient.getConfig()->getInstanceName()](
                                  const tls::SocketAddress& socketAddress,
                                  const core::socket::State& state) { // example.com:81 simulate connnect timeout
                                  switch (state) {
@@ -315,7 +315,7 @@ int main(int argc, char* argv[]) {
         const legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
         legacyClient.connect(legacyRemoteAddress,
-                             [instanceName = legacyClient.getConfig().getInstanceName()](
+                             [instanceName = legacyClient.getConfig()->getInstanceName()](
                                  const tls::SocketAddress& socketAddress,
                                  const core::socket::State& state) { // example.com:81 simulate connnect timeout
                                  switch (state) {
@@ -339,7 +339,7 @@ int main(int argc, char* argv[]) {
         const tls::SocketClient tlsClient = tls::getClient();
 
         tlsClient.connect(tlsRemoteAddress,
-                          [instanceName = tlsClient.getConfig().getInstanceName()](
+                          [instanceName = tlsClient.getConfig()->getInstanceName()](
                               const tls::SocketAddress& socketAddress,
                               const core::socket::State& state) { // example.com:81 simulate connnect timeout
                               switch (state) {

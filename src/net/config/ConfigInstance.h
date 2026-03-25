@@ -76,14 +76,14 @@ namespace net::config {
         ConfigInstance& operator=(ConfigInstance&&) = delete;
 
         const std::string& getInstanceName() const;
-        ConfigInstance& setInstanceName(const std::string& instanceName);
+        ConfigInstance* setInstanceName(const std::string& instanceName);
 
         bool getDisabled() const;
-        ConfigInstance& setDisabled(bool disabled = true);
+        ConfigInstance* setDisabled(bool disabled = true);
 
-        ConfigInstance& configurable(bool configurable);
+        ConfigInstance* configurable(bool configurable);
 
-        ConfigInstance& setOnDestroy(const std::function<void(ConfigInstance*)>& onDestroy);
+        ConfigInstance* setOnDestroy(const std::function<void(ConfigInstance*)>& onDestroy);
 
         static CLI::App* getHelpTriggerApp();
         static CLI::App* getShowConfigTriggerApp();

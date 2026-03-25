@@ -75,7 +75,7 @@ namespace net::in::stream {
         const Super& connect(const std::string& ipOrHostname,
                              uint16_t port,
                              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
+            Super::getConfig()->Remote::setHost(ipOrHostname)->setPort(port);
 
             return connect(onStatus);
         }
@@ -84,8 +84,8 @@ namespace net::in::stream {
                              uint16_t port,
                              const std::string& bindHost,
                              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
-            Super::getConfig().Local::setHost(bindHost);
+            Super::getConfig()->Remote::setHost(ipOrHostname)->setPort(port);
+            Super::getConfig()->Local::setHost(bindHost);
 
             return connect(onStatus);
         }
@@ -94,8 +94,8 @@ namespace net::in::stream {
                              uint16_t port,
                              uint16_t bindPort,
                              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
-            Super::getConfig().Local::setHost(bindPort);
+            Super::getConfig()->Remote::setHost(ipOrHostname)->setPort(port);
+            Super::getConfig()->Local::setHost(bindPort);
 
             return connect(onStatus);
         }
@@ -105,8 +105,8 @@ namespace net::in::stream {
                              const std::string& bindHost,
                              uint16_t bindPort,
                              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
-            Super::getConfig().Remote::setHost(ipOrHostname).setPort(port);
-            Super::getConfig().Local::setHost(bindHost).setPort(bindPort);
+            Super::getConfig()->Remote::setHost(ipOrHostname)->setPort(port);
+            Super::getConfig()->Local::setHost(bindHost)->setPort(bindPort);
 
             return connect(onStatus);
         }

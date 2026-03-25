@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
     });
 
     legacyServer.listen(8080,
-                        [instanceName = legacyServer.getConfig().getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
+                        [instanceName = legacyServer.getConfig()->getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
                                                                                     const core::socket::State& state) {
                             switch (state) {
                                 case core::socket::State::OK:

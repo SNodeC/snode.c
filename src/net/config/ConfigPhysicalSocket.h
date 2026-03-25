@@ -74,31 +74,31 @@ namespace net::config {
     public:
         const std::map<int, std::map<int, net::phy::PhysicalSocketOption>>& getSocketOptions() const;
 
-        ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, int optValue);
-        ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, const std::string& optValue);
-        ConfigPhysicalSocket& addSocketOption(int optLevel, int optName, const std::vector<char>& optValue);
+        ConfigPhysicalSocket* addSocketOption(int optLevel, int optName, int optValue);
+        ConfigPhysicalSocket* addSocketOption(int optLevel, int optName, const std::string& optValue);
+        ConfigPhysicalSocket* addSocketOption(int optLevel, int optName, const std::vector<char>& optValue);
 
-        ConfigPhysicalSocket& removeSocketOption(int optLevel, int optName);
+        ConfigPhysicalSocket* removeSocketOption(int optLevel, int optName);
 
-        ConfigPhysicalSocket& setRetry(bool retry = true);
+        ConfigPhysicalSocket* setRetry(bool retry = true);
         bool getRetry() const;
 
-        ConfigPhysicalSocket& setRetryOnFatal(bool retry = true);
+        ConfigPhysicalSocket* setRetryOnFatal(bool retry = true);
         bool getRetryOnFatal() const;
 
-        ConfigPhysicalSocket& setRetryTimeout(double sec);
+        ConfigPhysicalSocket* setRetryTimeout(double sec);
         double getRetryTimeout() const;
 
-        ConfigPhysicalSocket& setRetryTries(unsigned int tries = 0); // 0 ... unlimmit
+        ConfigPhysicalSocket* setRetryTries(unsigned int tries = 0); // 0 ... unlimmit
         unsigned int getRetryTries() const;
 
-        ConfigPhysicalSocket& setRetryBase(double base);
+        ConfigPhysicalSocket* setRetryBase(double base);
         double getRetryBase() const;
 
-        ConfigPhysicalSocket& setRetryLimit(unsigned int limit);
+        ConfigPhysicalSocket* setRetryLimit(unsigned int limit);
         unsigned int getRetryLimit() const;
 
-        ConfigPhysicalSocket& setRetryJitter(double percent);
+        ConfigPhysicalSocket* setRetryJitter(double percent);
         double getRetryJitter() const;
 
     protected:

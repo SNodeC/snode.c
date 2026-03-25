@@ -261,8 +261,8 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
-    Config& SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::getConfig() const {
-        return *config;
+    Config* SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::getConfig() const {
+        return config.get();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
