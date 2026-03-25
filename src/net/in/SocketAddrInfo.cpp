@@ -120,8 +120,8 @@ namespace net::in {
             formatted << "AddressInfo:\n"
                       << "   ai_next      = " << currentAddrInfo->ai_next << "\n"
                       << "   ai_flags     = " << currentAddrInfo->ai_flags << "\n"
-                      << "   ai_family    = " << currentAddrInfo->ai_family << " (PF_INET = " << PF_INET
-                      << ", PF_INET6 = " << PF_INET6 << ")\n"
+                      << "   ai_family    = " << currentAddrInfo->ai_family << " (PF_INET = " << PF_INET << ", PF_INET6 = " << PF_INET6
+                      << ")\n"
                       << "   ai_socktype  = " << currentAddrInfo->ai_socktype << " (SOCK_STREAM = " << SOCK_STREAM
                       << ", SOCK_DGRAM = " << SOCK_DGRAM << ")\n"
                       << "   ai_protocol  = " << currentAddrInfo->ai_protocol << " (IPPROTO_TCP = " << IPPROTO_TCP
