@@ -139,7 +139,6 @@ namespace utils {
         }
 
         SubCommand* needs(SubCommand* subCommand, bool needs = true);
-        SubCommand* disabled(SubCommand* subCommand, bool disabled = true);
 
         SubCommand* setRequireCallback(const std::function<void(void)>& callback);
         SubCommand* finalCallback(const std::function<void()>& finalCallback);

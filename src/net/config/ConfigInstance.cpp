@@ -70,11 +70,7 @@ namespace net::config {
         , disableOpt(setConfigurable(addFlagFunction(
                                          "--disabled{true}",
                                          [this]() {
-                                             if (getParent() != nullptr) {
-                                                 getParent()->disabled(this, disableOpt->as<bool>());
-                                             }
-
-                                             //                                             required(disableOpt->as<bool>(), true);
+                                             syncDisabledState(disableOpt->as<bool>());
                                          },
                                          "Disable this instance",
                                          "bool",
@@ -83,6 +79,21 @@ namespace net::config {
                                      true))
         , onDestroy([](ConfigInstance*) {
         }) {
+    }
+
+    void ConfigInstance::syncDisabledState(bool disabled) {
+        if (disabled == disabledState) {
+            return;
+        }
+
+        if (disabled) {
+            requiredBeforeDisable = getRequired();
+            required(false, true);
+        } else {
+            required(requiredBeforeDisable, true);
+        }
+
+        disabledState = disabled;
     }
 
     ConfigInstance::~ConfigInstance() {
@@ -109,11 +120,7 @@ namespace net::config {
     ConfigInstance* ConfigInstance::setDisabled(bool disabled) {
         setDefaultValue(disableOpt, disabled ? "true" : "false");
 
-        if (getParent() != nullptr) {
-            getParent()->disabled(this, disabled);
-        }
-
-        //        required(disabled, true);
+        syncDisabledState(disabled);
 
         return this;
     }

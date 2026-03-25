@@ -262,14 +262,6 @@ namespace utils {
         return this;
     }
 
-    SubCommand* SubCommand::disabled(SubCommand* subCommand, bool disabled) {
-        needs(subCommand, disabled ? !subCommand->subCommandApp->get_ignore_case() : subCommand->subCommandApp->get_ignore_case());
-
-        subCommand->subCommandApp->required(disabled ? false : subCommand->subCommandApp->get_ignore_case());
-
-        return this;
-    }
-
     SubCommand* SubCommand::finalCallback(const std::function<void()>& finalCallback) {
         subCommandApp->final_callback(finalCallback);
 

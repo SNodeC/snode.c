@@ -91,12 +91,16 @@ namespace net::config {
         static CLI::App* getCommandlineTriggerApp();
 
     private:
+        void syncDisabledState(bool disabled);
+
         std::string instanceName;
         static const std::string nameAnonymous;
 
         Role role;
 
         CLI::Option* disableOpt = nullptr;
+        bool disabledState = false;
+        bool requiredBeforeDisable = false;
 
         std::function<void(ConfigInstance*)> onDestroy;
 
