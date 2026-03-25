@@ -132,7 +132,6 @@ namespace utils {
         SubCommand* allowExtras(bool allow = true);
 
         SubCommand* required(bool required = true, bool force = true);
-        SubCommand* required(SubCommand* subCommand, bool required = true);
         SubCommand* required(CLI::Option* option, bool required = true);
 
         bool getRequired() const {

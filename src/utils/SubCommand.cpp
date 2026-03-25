@@ -218,44 +218,18 @@ namespace utils {
 
         required = force ? required : requiredCount > 0;
 
-        subCommandApp->required(required);
-
-        SubCommand* parent = getParent();
-        if (parent != nullptr) {
-            if (required) {
-                parent->needs(this);
-            }
-
-            parent->required(this, required);
-        }
-
-        return this;
-    }
-
-    SubCommand* SubCommand::required(SubCommand* subCommand, bool required) {
         if (subCommandApp->get_required() != required) {
-            if (required) {
-                needs(subCommand);
+            subCommandApp->required(required);
+            subCommandApp->ignore_case(required);
 
-                for (const auto& sub : subCommand->subCommandApp->get_subcommands([](const CLI::App* sc) -> bool {
-                         return sc->get_required();
-                     })) {
-                    subCommand->subCommandApp->needs(sub);
-                }
-            } else {
-                needs(subCommand, false);
+            if (hasParent()) {
+                SubCommand* parent = getParent();
 
-                for (const auto& sub : subCommand->subCommandApp->get_subcommands([](const CLI::App* sc) -> bool {
-                         return sc->get_required();
-                     })) {
-                    subCommand->subCommandApp->remove_needs(sub);
+                parent->needs(this, required);
+                if (!force) {
+                    parent->required(required, false);
                 }
             }
-
-            this->required(required, false);
-
-            subCommand->subCommandApp->required(required);
-            subCommand->subCommandApp->ignore_case(required);
         }
 
         return this;
@@ -289,31 +263,11 @@ namespace utils {
     }
 
     SubCommand* SubCommand::disabled(SubCommand* subCommand, bool disabled) {
-        if (disabled) {
-            if (subCommand->subCommandApp->get_ignore_case()) {
-                needs(subCommand, false);
-            }
-
-            for (const auto& sub : subCommand->subCommandApp->get_subcommands({})) {
-                if (sub->get_ignore_case()) {
-                    subCommand->subCommandApp->remove_needs(sub);
-                    sub->required(false);
-                }
-            }
-        } else {
-            if (subCommand->subCommandApp->get_ignore_case()) {
-                needs(subCommand);
-            }
-
-            for (const auto& sub : subCommand->subCommandApp->get_subcommands({})) {
-                if (sub->get_ignore_case()) {
-                    subCommand->subCommandApp->needs(sub);
-                    sub->required();
-                }
-            }
-        }
+        needs(subCommand, disabled ? !subCommand->subCommandApp->get_ignore_case() : subCommand->subCommandApp->get_ignore_case());
 
         subCommand->subCommandApp->required(disabled ? false : subCommand->subCommandApp->get_ignore_case());
+
+        // subCommand->required(!disabled, true);
 
         return this;
     }
