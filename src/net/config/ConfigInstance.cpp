@@ -73,6 +73,8 @@ namespace net::config {
                                              if (getParent() != nullptr) {
                                                  getParent()->disabled(this, disableOpt->as<bool>());
                                              }
+
+                                             //                                             required(disableOpt->as<bool>(), true);
                                          },
                                          "Disable this instance",
                                          "bool",
@@ -110,6 +112,8 @@ namespace net::config {
         if (getParent() != nullptr) {
             getParent()->disabled(this, disabled);
         }
+
+        //        required(disabled, true);
 
         return this;
     }

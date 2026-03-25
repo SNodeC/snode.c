@@ -267,8 +267,6 @@ namespace utils {
 
         subCommand->subCommandApp->required(disabled ? false : subCommand->subCommandApp->get_ignore_case());
 
-        // subCommand->required(!disabled, true);
-
         return this;
     }
 
