@@ -257,6 +257,11 @@ namespace utils {
         return this;
     }
 
+    SubCommand* SubCommand::clearRequiredForce() {
+        requiredForced = false;
+        return this;
+    }
+
     SubCommand* SubCommand::needs(SubCommand* subCommand, bool needs) {
         if (needs) {
             subCommandApp->needs(subCommand->subCommandApp);

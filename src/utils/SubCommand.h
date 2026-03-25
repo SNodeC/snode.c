@@ -133,6 +133,7 @@ namespace utils {
 
         SubCommand* required(bool required = true, bool force = true);
         SubCommand* required(CLI::Option* option, bool required = true);
+        SubCommand* clearRequiredForce();
 
         bool getRequired() const {
             return subCommandApp->get_required();
