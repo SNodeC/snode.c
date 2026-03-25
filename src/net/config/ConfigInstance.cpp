@@ -88,9 +88,13 @@ namespace net::config {
 
         if (disabled) {
             requiredBeforeDisable = getRequired();
-            required(false, true);
+            if (!getRequiredForced()) {
+                required(false, true);
+            }
         } else {
-            required(requiredBeforeDisable, true);
+            if (!getRequiredForced()) {
+                required(requiredBeforeDisable, true);
+            }
         }
 
         disabledState = disabled;

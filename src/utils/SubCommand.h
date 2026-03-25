@@ -137,6 +137,9 @@ namespace utils {
         bool getRequired() const {
             return subCommandApp->get_required();
         }
+        bool getRequiredForced() const {
+            return requiredForced;
+        }
 
         SubCommand* needs(SubCommand* subCommand, bool needs = true);
 
@@ -263,6 +266,7 @@ namespace utils {
         CLI::Option* commandlineOpt = nullptr;
 
         int requiredCount = 0;
+        bool requiredForced = false;
     };
 
     template <typename ConcretSubCommand>

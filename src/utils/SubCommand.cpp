@@ -214,9 +214,14 @@ namespace utils {
     }
 
     SubCommand* SubCommand::required(bool required, bool force) {
+        if (force) {
+            requiredForced = required;
+        }
+
         requiredCount += required ? 1 : -1;
 
         required = force ? required : requiredCount > 0;
+        required = requiredForced ? true : required;
 
         if (subCommandApp->get_required() != required) {
             subCommandApp->required(required);
