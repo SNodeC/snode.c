@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "------------------- Legacy Client Init: " << connectEventReceiver;
             })
             .connect([instanceName = legacyClient.getConfig()->getInstanceName()](const LegacySocketAddress& socketAddress,
-                                                                                 const core::socket::State& state) {
+                                                                                  const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
                         VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "------------------- TLS Client Init: " << connectEventReceiver;
             })
             .connect([instanceName = tlsClient.getConfig()->getInstanceName()](const TLSSocketAddress& socketAddress,
-                                                                              const core::socket::State& state) {
+                                                                               const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
                         VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";

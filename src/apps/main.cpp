@@ -233,7 +233,7 @@ int main(int argc, char* argv[]) {
 
     app.listen(8080,
                [instanceName = app.getConfig()->getInstanceName()](const express::legacy::in::WebApp::SocketAddress& socketAddress,
-                                                                  const core::socket::State& state) {
+                                                                   const core::socket::State& state) {
                    switch (state) {
                        case core::socket::State::OK:
                            VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";

@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
         }
 
         webApp.listen([instanceName = webApp.getConfig()->getInstanceName()](const core::socket::SocketAddress& socketAddress,
-                                                                            const core::socket::State& state) {
+                                                                             const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
                     VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";

@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     server.getConfig()->setDisabled(false);
 
     server.listen([instanceName = server.getConfig()->getInstanceName()](const SocketServer::SocketAddress& socketAddress,
-                                                                        const core::socket::State& state) {
+                                                                         const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
                 VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";

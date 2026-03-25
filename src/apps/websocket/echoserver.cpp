@@ -111,23 +111,23 @@ int main(int argc, char* argv[]) {
                 acceptEventReceiver->stopListen();
             }
         })
-        .listen(
-            [instanceName = legacyApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
-                switch (state) {
-                    case core::socket::State::OK:
-                        VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
-                        break;
-                    case core::socket::State::DISABLED:
-                        VLOG(1) << instanceName << " disabled";
-                        break;
-                    case core::socket::State::ERROR:
-                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                        break;
-                    case core::socket::State::FATAL:
-                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                        break;
-                }
-            });
+        .listen([instanceName = legacyApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress,
+                                                                          const core::socket::State& state) {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << instanceName << " disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    break;
+            }
+        });
 
     VLOG(1) << "Legacy Routes:";
     for (std::string& route : legacyApp.getRoutes()) {
@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "------------------- TLS Server Init: " << acceptEventReceiver;
             })
             .listen([instanceName = tlsApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress,
-                                                                          const core::socket::State& state) {
+                                                                           const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
                         VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";

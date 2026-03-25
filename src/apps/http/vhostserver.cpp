@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
 
         legacyApp.listen(8080,
                          [instanceName = legacyApp.getConfig()->getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
-                                                                                  const core::socket::State& state) {
+                                                                                   const core::socket::State& state) {
                              switch (state) {
                                  case core::socket::State::OK:
                                      VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
@@ -187,7 +187,7 @@ int main(int argc, char* argv[]) {
 
         tlsApp.listen(8088,
                       [instanceName = tlsApp.getConfig()->getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
-                                                                            const core::socket::State& state) {
+                                                                             const core::socket::State& state) {
                           switch (state) {
                               case core::socket::State::OK:
                                   VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
