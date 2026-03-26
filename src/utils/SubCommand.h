@@ -122,10 +122,6 @@ namespace utils {
         void removeSubCommand();
 
     public:
-        CLI::Option* setConfig(const std::string& defaultConfigFile) const;
-        CLI::Option* setLogFile(const std::string& defaultLogFile) const;
-        CLI::Option* setVersionFlag(const std::string& version) const;
-
         std::string configToStr() const;
         std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const;
 
@@ -159,8 +155,12 @@ namespace utils {
         template <typename RequestedSubCommand>
         RequestedSubCommand* getSubCommand() const;
 
-        CLI::Option* getOption(const std::string& name) const;
+    protected:
+        CLI::Option* addConfigFlag(const std::string& defaultConfigFile) const;
+        CLI::Option* addLogFileFlag(const std::string& defaultLogFile) const;
+        CLI::Option* addVersionFlag(const std::string& version) const;
 
+    public:
         CLI::Option* addOption(const std::string& name,
                                const std::string& description,
                                const std::string& typeName,
@@ -226,6 +226,8 @@ namespace utils {
                                      const std::string& typeName,
                                      const std::string& defaultValue,
                                      const CLI::Validator& validator) const;
+
+        CLI::Option* getOption(const std::string& name) const;
 
         template <typename ValueTypeT>
         CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true) const;

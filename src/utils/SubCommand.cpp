@@ -163,26 +163,6 @@ namespace utils {
         }
     }
 
-    CLI::Option* SubCommand::setConfig(const std::string& defaultConfigFile) const {
-        return subCommandApp
-            ->set_config( //
-                "-c,--config-file",
-                defaultConfigFile,
-                "Read a config file",
-                false) //
-            ->take_all()
-            ->type_name("configfile")
-            ->check(!CLI::ExistingDirectory);
-    }
-
-    CLI::Option* utils::SubCommand::setLogFile(const std::string& defaultLogFile) const {
-        return addOption("-l,--log-file", "Log file", "logFile", defaultLogFile, !CLI::ExistingDirectory);
-    }
-
-    CLI::Option* SubCommand::setVersionFlag(const std::string& version) const {
-        return subCommandApp->set_version_flag("-v,--version", version, "Framework version");
-    }
-
     std::string SubCommand::configToStr() const {
         return subCommandApp->config_to_str(true, true);
     }
@@ -304,8 +284,24 @@ namespace utils {
         subCommandApp->add_subcommand(subCommand);
     }
 
-    CLI::Option* SubCommand::getOption(const std::string& name) const {
-        return subCommandApp->get_option_no_throw(name);
+    CLI::Option* SubCommand::addConfigFlag(const std::string& defaultConfigFile) const {
+        return subCommandApp
+            ->set_config( //
+                "-c,--config-file",
+                defaultConfigFile,
+                "Read a config file",
+                false) //
+            ->take_all()
+            ->type_name("configfile")
+            ->check(!CLI::ExistingDirectory);
+    }
+
+    CLI::Option* utils::SubCommand::addLogFileFlag(const std::string& defaultLogFile) const {
+        return addOption("-l,--log-file", "Log file", "logFile", defaultLogFile, !CLI::ExistingDirectory);
+    }
+
+    CLI::Option* SubCommand::addVersionFlag(const std::string& version) const {
+        return subCommandApp->set_version_flag("-v,--version", version, "Framework version");
     }
 
     CLI::Option* SubCommand::addOption(const std::string& name,
@@ -371,6 +367,10 @@ namespace utils {
                                              const std::string& defaultValue,
                                              const CLI::Validator& validator) const {
         return setDefaultValue(addFlagFunction(name, callback, description, typeName, validator), defaultValue);
+    }
+
+    CLI::Option* SubCommand::getOption(const std::string& name) const {
+        return subCommandApp->get_option_no_throw(name);
     }
 
     CLI::Option* SubCommand::setConfigurable(CLI::Option* option, bool configurable) const {

@@ -374,7 +374,7 @@ namespace utils {
                "(C) 2020-2026 Volker Christian <me@vchrist.at>\n"
                "https://github.com/SNodeC/snode.c");
 
-        setConfig(configDirectory + "/" + applicationName + ".conf");
+        addConfigFlag(configDirectory + "/" + applicationName + ".conf");
 
         writeConfigOpt = setConfigurable(addOption( //
                                              "-w,--write-config",
@@ -391,7 +391,7 @@ namespace utils {
 
         verboseLevelOpt = setConfigurable(addOption("--verbose-level", "Verbose level", "level", 2, CLI::Range(0, 10)), true);
 
-        logFileOpt = setConfigurable(setLogFile(logDirectory + "/" + applicationName + ".log"), true);
+        logFileOpt = setConfigurable(addLogFileFlag(logDirectory + "/" + applicationName + ".log"), true);
 
         monochromLogOpt = setConfigurable(addFlagFunction( //
                                               "-m{true},--monochrom-logmonochromLogOption{true}",
@@ -455,7 +455,7 @@ namespace utils {
                                              CLI::TypeValidator<std::string>()),
                                    false);
 
-        versionOpt = setVersionFlag("1.0-rc1");
+        versionOpt = addVersionFlag("1.0-rc1");
 
         return this;
     }
