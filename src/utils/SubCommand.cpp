@@ -201,6 +201,24 @@ namespace utils {
         return this;
     }
 
+    SubCommand* SubCommand::forceUnrequired(bool unrequired) {
+        const bool previouslyRequired = subCommandApp->get_required();
+        const bool countedRequired = subCommandApp->get_ignore_case();
+
+        requiredForced = unrequired;
+
+        const bool effectiveRequired = requiredForced ? false : countedRequired;
+        if (previouslyRequired != effectiveRequired) {
+            subCommandApp->required(effectiveRequired);
+
+            if (hasParent()) {
+                getParent()->needs(this, effectiveRequired);
+            }
+        }
+
+        return this;
+    }
+
     CLI::App* SubCommand::getCommandlineTriggerApp() {
         return commandlineTriggerApp;
     }
@@ -213,22 +231,27 @@ namespace utils {
         return helpTriggerApp;
     }
 
-    SubCommand* SubCommand::required(bool required, bool force) {
+    SubCommand* SubCommand::required(bool required) {
+        const bool previousCountedRequired = subCommandApp->get_ignore_case();
+        const bool previousEffectiveRequired = subCommandApp->get_required();
+
         requiredCount += required ? 1 : -1;
+        const bool countedRequired = requiredCount > 0;
+        const bool effectiveRequired = requiredForced ? false : countedRequired;
 
-        required = force ? required : requiredCount > 0;
+        subCommandApp->ignore_case(countedRequired);
+        if (subCommandApp->get_required() != effectiveRequired) {
+            subCommandApp->required(effectiveRequired);
+        }
 
-        if (subCommandApp->get_required() != required) {
-            subCommandApp->required(required);
-            subCommandApp->ignore_case(required);
+        if (hasParent()) {
+            SubCommand* parent = getParent();
 
-            if (hasParent()) {
-                SubCommand* parent = getParent();
-
-                parent->needs(this, required);
-                if (!force) {
-                    parent->required(required, false);
-                }
+            if (previousEffectiveRequired != effectiveRequired) {
+                parent->needs(this, effectiveRequired);
+            }
+            if (previousCountedRequired != countedRequired) {
+                parent->required(countedRequired);
             }
         }
 
@@ -246,7 +269,7 @@ namespace utils {
                 subCommandApp->remove_needs(option);
             }
 
-            this->required(required, false);
+            this->required(required);
         }
 
         return this;
@@ -258,14 +281,6 @@ namespace utils {
         } else {
             subCommandApp->remove_needs(subCommand->subCommandApp);
         }
-
-        return this;
-    }
-
-    SubCommand* SubCommand::disabled(SubCommand* subCommand, bool disabled) {
-        needs(subCommand, disabled ? !subCommand->subCommandApp->get_ignore_case() : subCommand->subCommandApp->get_ignore_case());
-
-        subCommand->subCommandApp->required(disabled ? false : subCommand->subCommandApp->get_ignore_case());
 
         return this;
     }
