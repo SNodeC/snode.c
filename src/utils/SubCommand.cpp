@@ -201,18 +201,18 @@ namespace utils {
         return this;
     }
 
-    SubCommand* SubCommand::disabled(bool disabled) {
-        if (requiredDisabled != disabled) {
-            requiredDisabled = disabled;
-
+    SubCommand* SubCommand::forceRequired(bool required) {
+        if (requiredForced != true || requiredForcedValue != required) {
             const bool previouslyRequired = subCommandApp->get_required();
-            const bool currentlyRequired = requiredDisabled ? false : subCommandApp->get_ignore_case();
 
-            if (previouslyRequired != currentlyRequired) {
-                subCommandApp->required(currentlyRequired);
+            requiredForced = true;
+            requiredForcedValue = required;
+
+            if (previouslyRequired != requiredForcedValue) {
+                subCommandApp->required(requiredForcedValue);
 
                 if (hasParent()) {
-                    getParent()->needs(this, currentlyRequired);
+                    getParent()->needs(this, requiredForcedValue);
                 }
             }
         }
@@ -238,7 +238,7 @@ namespace utils {
 
         requiredCount += required ? 1 : -1;
         const bool countedRequired = requiredCount > 0;
-        const bool effectiveRequired = requiredDisabled ? false : countedRequired;
+        const bool effectiveRequired = requiredForced ? requiredForcedValue : countedRequired;
 
         subCommandApp->ignore_case(countedRequired);
         if (subCommandApp->get_required() != effectiveRequired) {

@@ -131,7 +131,7 @@ namespace utils {
 
         SubCommand* allowExtras(bool allow = true);
 
-        SubCommand* disabled(bool disabled = true);
+        SubCommand* forceRequired(bool required = true);
         SubCommand* required(bool required = true);
         SubCommand* required(CLI::Option* option, bool required = true);
 
@@ -264,7 +264,8 @@ namespace utils {
         CLI::Option* commandlineOpt = nullptr;
 
         int requiredCount = 0;
-        bool requiredDisabled = false;
+        bool requiredForced = false;
+        bool requiredForcedValue = false;
     };
 
     template <typename ConcretSubCommand>
