@@ -152,6 +152,9 @@ namespace utils {
         template <typename NewSubCommand, typename... Args>
         NewSubCommand* newSubCommand(Args&&... args);
 
+        template <typename NewSubCommand>
+        NewSubCommand* manageSubCommand(NewSubCommand* newSubCommand);
+
         template <typename RequestedSubCommand>
         RequestedSubCommand* getSubCommand();
 
@@ -278,30 +281,23 @@ namespace utils {
 
     template <typename NewSubCommand, typename... Args>
     NewSubCommand* SubCommand::newSubCommand(Args&&... args) {
-        NewSubCommand* newSubCommand = nullptr;
+        return manageSubCommand(new NewSubCommand(this, std::forward<Args>(args)...));
+    }
 
-        if (!final) {
-            /*
-            helpOpt->description("Print help message and exit\n"
-                                 "* standard: display help for the last command processed\n"
-                                 "* exact: display help for the command directly preceding --help\n"
-                                 "* expanded: display help including all descendant sections");
-            if (auto* existing = helpOpt->get_validator(); existing != nullptr) {
-                *existing = std::move(CLI::IsMember({"standard", "exact", "expanded"})); // replace, do not append
-            }
-            */
-            newSubCommand =
-                dynamic_cast<NewSubCommand*>(*childSubCommands.insert(new NewSubCommand(this, std::forward<Args>(args)...)).first);
-        }
-
-        return newSubCommand;
+    template <typename NewSubCommand>
+    NewSubCommand* SubCommand::manageSubCommand(NewSubCommand* newSubCommand) {
+        return !final ? dynamic_cast<NewSubCommand*>(*childSubCommands.insert(newSubCommand).first) : (delete newSubCommand, nullptr);
     }
 
     template <typename RequestedSubCommand>
     RequestedSubCommand* SubCommand::getSubCommand() {
         auto* appWithPtr = subCommandApp->get_subcommand_no_throw(std::string(RequestedSubCommand::NAME));
 
-        AppWithPtr* subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
+        AppWithPtr* subCommandApp = nullptr;
+
+        if (appWithPtr != nullptr) {
+            subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
+        }
 
         return subCommandApp != nullptr ? dynamic_cast<RequestedSubCommand*>(subCommandApp->getPtr()) : nullptr;
     }
@@ -310,7 +306,11 @@ namespace utils {
     RequestedSubCommand* SubCommand::getSubCommand() const {
         auto* appWithPtr = subCommandApp->get_subcommand_no_throw(std::string(RequestedSubCommand::NAME));
 
-        AppWithPtr* subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
+        AppWithPtr* subCommandApp = nullptr;
+
+        if (appWithPtr != nullptr) {
+            subCommandApp = dynamic_cast<utils::AppWithPtr*>(appWithPtr);
+        }
 
         return subCommandApp != nullptr ? dynamic_cast<RequestedSubCommand*>(subCommandApp->getPtr()) : nullptr;
     }
