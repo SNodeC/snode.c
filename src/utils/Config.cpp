@@ -403,7 +403,7 @@ namespace utils {
                                                   }
                                               },
                                               "Monochrom log output",
-                                              "bool",
+                                              "BOOL",
                                               logger::Logger::getDisableColor() ? "true" : "false",
                                               CLI::IsMember({"true", "false"})),
                                           true)
@@ -412,7 +412,7 @@ namespace utils {
         quietOpt = setConfigurable(addFlag( //
                                        "-q{true},--quiet{true}",
                                        "Quiet mode",
-                                       "bool",
+                                       "BOOL",
                                        "false",
                                        CLI::IsMember({"true", "false"})),
                                    true);
@@ -420,7 +420,7 @@ namespace utils {
         enforceLogFileOpt = setConfigurable(addFlag( //
                                                 "-e{true},--enforce-log-file{true}",
                                                 "Enforce writing of logs to file for foreground applications",
-                                                "bool",
+                                                "BOOL",
                                                 "false",
                                                 CLI::IsMember({"true", "false"})),
                                             true);
@@ -428,7 +428,7 @@ namespace utils {
         daemonizeOpt = setConfigurable(addFlag( //
                                            "-d{true},--daemonize{true}",
                                            "Start application as daemon",
-                                           "bool",
+                                           "BOOL",
                                            "false",
                                            CLI::IsMember({"true", "false"})),
                                        true);

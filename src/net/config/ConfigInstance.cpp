@@ -73,7 +73,7 @@ namespace net::config {
                                              forceUnrequired(disableOpt->as<bool>());
                                          },
                                          "Disable this instance",
-                                         "bool",
+                                         "BOOL",
                                          "false",
                                          CLI::IsMember({"true", "false"})),
                                      true))

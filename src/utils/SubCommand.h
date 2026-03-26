@@ -126,6 +126,9 @@ namespace utils {
         CLI::Option* setLogFile(const std::string& defaultLogFile) const;
         CLI::Option* setVersionFlag(const std::string& version) const;
 
+        std::string configToStr() const;
+        std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const;
+
         bool hasParent() const;
         SubCommand* getParent() const;
 
@@ -135,17 +138,12 @@ namespace utils {
         SubCommand* required(bool required = true);
         SubCommand* required(CLI::Option* option, bool required = true);
 
-        bool getRequired() const {
-            return subCommandApp->get_required();
-        }
+        bool getRequired() const;
 
         SubCommand* needs(SubCommand* subCommand, bool needs = true);
 
         SubCommand* setRequireCallback(const std::function<void(void)>& callback);
         SubCommand* finalCallback(const std::function<void()>& finalCallback);
-
-        std::string configToStr() const;
-        std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const;
 
         void addSubCommandApp(std::shared_ptr<utils::AppWithPtr> subCommand);
 
@@ -229,17 +227,15 @@ namespace utils {
                                      const std::string& defaultValue,
                                      const CLI::Validator& validator) const;
 
-    protected:
         template <typename ValueTypeT>
         CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true) const;
 
         CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
 
+    protected:
         static CLI::App* getHelpTriggerApp();
         static CLI::App* getShowConfigTriggerApp();
         static CLI::App* getCommandlineTriggerApp();
-
-        static std::shared_ptr<CLI::Formatter> sectionFormatter;
 
         static std::map<std::string, std::string> aliases;
 
@@ -254,20 +250,19 @@ namespace utils {
         std::string name;
         SubCommand* parent;
 
-        std::shared_ptr<AppWithPtr> selfAnchoredSubCommandApp;
-        std::set<SubCommand*> childSubCommands;
-
-        bool final;
-
     protected:
         CLI::Option* helpOpt = nullptr;
-
-    private:
         CLI::Option* showConfigOpt = nullptr;
         CLI::Option* commandlineOpt = nullptr;
 
+    private:
+        std::shared_ptr<AppWithPtr> selfAnchoredSubCommandApp;
+        std::set<SubCommand*> childSubCommands;
+
         int requiredCount = 0;
         bool requiredForced = false;
+
+        bool final;
     };
 
     template <typename ConcretSubCommand>

@@ -84,14 +84,14 @@ namespace net::config {
         caCertUseDefaultDirOpt = addFlag( //
             "--ca-cert-use-default-dir{true}",
             "Use default CA-certificate directory",
-            "bool",
+            "BOOL",
             "false",
             CLI::IsMember({"true", "false"}));
 
         caCertAcceptUnknownOpt = addFlag( //
             "--ca-cert-accept-unknown{true}",
             "Accept unknown certificates (unsecure)",
-            "bool",
+            "BOOL",
             "false",
             CLI::IsMember({"true", "false"}));
 

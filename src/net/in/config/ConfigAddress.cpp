@@ -70,7 +70,7 @@ namespace net::in::config {
         numericReverseOpt = addFlag( //
             "--numeric-reverse{true}",
             "Suppress reverse host name lookup",
-            "bool",
+            "BOOL",
             XSTR(IN_NUMERIC_REVERSE),
             CLI::IsMember({"true", "false"}));
     }
@@ -127,14 +127,14 @@ namespace net::in::config {
         numericOpt = addFlag( //
             "--numeric{true}",
             "Suppress host name lookup",
-            "bool",
+            "BOOL",
             XSTR(IN_NUMERIC),
             CLI::IsMember({"true", "false"}));
 
         numericReverseOpt = addFlag( //
             "--numeric-reverse{true}",
             "Suppress reverse host name lookup",
-            "bool",
+            "BOOL",
             XSTR(IN_NUMERIC_REVERSE),
             CLI::IsMember({"true", "false"}));
     }

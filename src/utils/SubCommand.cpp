@@ -87,6 +87,7 @@ namespace utils {
                                               "Print help message and exit\n"
                                               "* standard: display help for the last command processed\n"
                                               "* exact: display help for the command directly preceding --help")
+                                          ->type_name("MODE")
                                           ->take_first()
                                           ->check(CLI::IsMember({"standard", "exact"}))
                                           ->trigger_on_parse(),
@@ -116,6 +117,7 @@ namespace utils {
                                                      "* active: Show all active options\n"
                                                      "* complete: Show the complete option set with default values\n"
                                                      "* required: Show only required options")
+                                                 ->type_name("MODE")
                                                  ->take_first()
                                                  ->check(CLI::IsMember({"standard", "active", "complete", "required"}))
                                                  ->trigger_on_parse(),
@@ -181,18 +183,20 @@ namespace utils {
         return subCommandApp->set_version_flag("-v,--version", version, "Framework version");
     }
 
+    std::string SubCommand::configToStr() const {
+        return subCommandApp->config_to_str(true, true);
+    }
+
+    std::string SubCommand::help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const {
+        return subCommandApp->help(helpApp, "", mode);
+    }
+
     bool SubCommand::hasParent() const {
         return subCommandApp->get_parent() != nullptr;
     }
 
     SubCommand* SubCommand::getParent() const {
         return parent;
-    }
-
-    SubCommand* SubCommand::setRequireCallback(const std::function<void()>& callback) {
-        subCommandApp->require_callback(callback);
-
-        return this;
     }
 
     SubCommand* SubCommand::allowExtras(bool allow) {
@@ -212,27 +216,16 @@ namespace utils {
             subCommandApp->required(effectiveRequired);
 
             if (hasParent()) {
-                getParent()->needs(this, effectiveRequired);
+                SubCommand* parent = getParent();
+                parent->needs(this, effectiveRequired);
+                parent->required(effectiveRequired);
             }
         }
 
         return this;
     }
 
-    CLI::App* SubCommand::getCommandlineTriggerApp() {
-        return commandlineTriggerApp;
-    }
-
-    CLI::App* SubCommand::getShowConfigTriggerApp() {
-        return showConfigTriggerApp;
-    }
-
-    CLI::App* SubCommand::getHelpTriggerApp() {
-        return helpTriggerApp;
-    }
-
     SubCommand* SubCommand::required(bool required) {
-        const bool previousCountedRequired = subCommandApp->get_ignore_case();
         const bool previousEffectiveRequired = subCommandApp->get_required();
 
         requiredCount += required ? 1 : -1;
@@ -244,15 +237,11 @@ namespace utils {
             subCommandApp->required(effectiveRequired);
         }
 
-        if (hasParent()) {
+        if (hasParent() && previousEffectiveRequired != effectiveRequired) {
             SubCommand* parent = getParent();
 
-            if (previousEffectiveRequired != effectiveRequired) {
-                parent->needs(this, effectiveRequired);
-            }
-            if (previousCountedRequired != countedRequired) {
-                parent->required(countedRequired);
-            }
+            parent->needs(this, effectiveRequired);
+            parent->required(effectiveRequired);
         }
 
         return this;
@@ -275,6 +264,10 @@ namespace utils {
         return this;
     }
 
+    bool SubCommand::getRequired() const {
+        return subCommandApp->get_required();
+    }
+
     SubCommand* SubCommand::needs(SubCommand* subCommand, bool needs) {
         if (needs) {
             subCommandApp->needs(subCommand->subCommandApp);
@@ -285,18 +278,16 @@ namespace utils {
         return this;
     }
 
-    SubCommand* SubCommand::finalCallback(const std::function<void()>& finalCallback) {
-        subCommandApp->final_callback(finalCallback);
+    SubCommand* SubCommand::setRequireCallback(const std::function<void()>& callback) {
+        subCommandApp->require_callback(callback);
 
         return this;
     }
 
-    std::string SubCommand::configToStr() const {
-        return subCommandApp->config_to_str(true, true);
-    }
+    SubCommand* SubCommand::finalCallback(const std::function<void()>& finalCallback) {
+        subCommandApp->final_callback(finalCallback);
 
-    std::string SubCommand::help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const {
-        return subCommandApp->help(helpApp, "", mode);
+        return this;
     }
 
     void SubCommand::addSubCommandApp(std::shared_ptr<AppWithPtr> subCommand) {
@@ -312,25 +303,6 @@ namespace utils {
 
         subCommandApp->add_subcommand(subCommand);
     }
-
-    static std::shared_ptr<CLI::HelpFormatter> makeSectionFormatter() {
-        const std::shared_ptr<CLI::HelpFormatter> sectionFormatter = std::make_shared<CLI::HelpFormatter>();
-
-        sectionFormatter->label("SUBCOMMAND", "SECTION");
-        sectionFormatter->label("SUBCOMMANDS", "SECTIONS");
-        sectionFormatter->label("PERSISTENT", "");
-        sectionFormatter->label("Persistent Options", "Options (persistent)");
-        sectionFormatter->label("Nonpersistent Options", "Options (nonpersistent)");
-        sectionFormatter->label("Usage", "\nUsage");
-        sectionFormatter->label("bool:{true,false}", "{true,false}");
-        sectionFormatter->label(":{standard,active,complete,required}", "{standard,active,complete,required}");
-        sectionFormatter->label(":{standard,exact,expanded}", "{standard,exact,expanded}");
-        sectionFormatter->column_width(7);
-
-        return sectionFormatter;
-    }
-
-    std::shared_ptr<CLI::Formatter> SubCommand::sectionFormatter = makeSectionFormatter();
 
     CLI::Option* SubCommand::getOption(const std::string& name) const {
         return subCommandApp->get_option_no_throw(name);
@@ -405,6 +377,18 @@ namespace utils {
         return option //
             ->configurable(configurable)
             ->group(subCommandApp->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
+    }
+
+    CLI::App* SubCommand::getHelpTriggerApp() {
+        return helpTriggerApp;
+    }
+
+    CLI::App* SubCommand::getShowConfigTriggerApp() {
+        return showConfigTriggerApp;
+    }
+
+    CLI::App* SubCommand::getCommandlineTriggerApp() {
+        return commandlineTriggerApp;
     }
 
     CLI::Option*

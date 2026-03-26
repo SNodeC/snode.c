@@ -111,7 +111,7 @@ namespace net::config {
         forceSniOpt = addFlag( //
             "--force-sni{true}",
             "Force using of the Server Name Indication",
-            "bool",
+            "BOOL",
             "false",
             CLI::IsMember({"true", "false"}));
 

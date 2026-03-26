@@ -190,6 +190,22 @@ namespace CLI {
     }
 
 #ifndef CLI11_ORIGINAL_FORMATTER
+    HelpFormatter::HelpFormatter() {
+        label("SUBCOMMAND", "SECTION");
+        label("SUBCOMMANDS", "SECTIONS");
+        label("PERSISTENT", "");
+        label("Persistent Options", "Options (persistent)");
+        label("Nonpersistent Options", "Options (nonpersistent)");
+        label("Usage", "\nUsage");
+        label("BOOL:{true,false}", "{true,false}");
+        label("TRISTAT:{true,false,default}", "{true,false,default}");
+        label("MODE:{standard,active,complete,required}", "{standard,active,complete,required}");
+        label("MODE:{standard,exact,expanded}", "{standard,exact,expanded}");
+        label("MODE:{standard,exact}", "{standard,exact}");
+
+        column_width(7);
+    }
+
     HelpFormatter::~HelpFormatter() {
     }
 

@@ -66,7 +66,7 @@ namespace net::config {
                 }
             },
             "Auto-reconnection in the event of a connection interruption",
-            "bool",
+            "BOOL",
             XSTR(RECONNECT),
             CLI::IsMember({"true", "false"}));
 

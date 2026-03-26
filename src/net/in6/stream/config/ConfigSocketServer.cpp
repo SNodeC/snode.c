@@ -71,7 +71,7 @@ namespace net::in6::stream::config {
             SOL_SOCKET,
             SO_REUSEADDR,
             "Reuse socket address",
-            "bool",
+            "BOOL",
             XSTR(IN6_REUSE_ADDRESS),
             CLI::IsMember({"true", "false"}));
 
@@ -80,7 +80,7 @@ namespace net::in6::stream::config {
             SOL_SOCKET,
             SO_REUSEPORT,
             "Reuse port number",
-            "bool",
+            "BOOL",
             XSTR(IN6_REUSE_PORT),
             CLI::IsMember({"true", "false"}));
 
@@ -100,7 +100,7 @@ namespace net::in6::stream::config {
             IPPROTO_IPV6,
             IPV6_V6ONLY,
             "Turn off IPv6 dual stack mode",
-            "bool",
+            "BOOL",
             XSTR(IN6_IPV6_ONLY),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_IPV6_ONLY)) == "default") {
@@ -112,7 +112,7 @@ namespace net::in6::stream::config {
             IPPROTO_TCP,
             TCP_NODELAY,
             "Turn of Nagle algorithm",
-            "tristat",
+            "TRISTAT",
             XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {

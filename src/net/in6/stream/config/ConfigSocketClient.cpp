@@ -73,7 +73,7 @@ namespace net::in6::stream::config {
             IPPROTO_TCP,
             TCP_NODELAY,
             "Turn of Nagle algorithm",
-            "tristat",
+            "TRISTAT",
             XSTR(IN6_CLIENT_DISABLE_NAGLE_ALGORITHM),
             CLI::IsMember({"true", "false", "default"}));
         if (std::string(XSTR(IN6_SERVER_DISABLE_NAGLE_ALGORITHM)) == "default") {

@@ -61,7 +61,7 @@ namespace web::http::client {
         pipelinedRequestsOpt = addFlag( //
             "--pipelined-requests{true}",
             "Pipelined requests",
-            "bool",
+            "BOOL",
             XSTR(HTTP_REQUEST_PIPELINED),
             CLI::IsMember({"true", "false"}));
     }

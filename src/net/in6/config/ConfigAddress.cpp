@@ -70,7 +70,7 @@ namespace net::in6::config {
         numericReverseOpt = addFlag( //
             "--numeric-reverse",
             "Suppress reverse host name lookup",
-            "bool",
+            "BOOL",
             XSTR(IN6_NUMERIC_REVERSE),
             CLI::IsMember({"true", "false"}));
     }
@@ -127,21 +127,21 @@ namespace net::in6::config {
         numericOpt = addFlag( //
             "--numeric",
             "Suppress host name lookup",
-            "bool",
+            "BOOL",
             XSTR(IN6_NUMERIC),
             CLI::IsMember({"true", "false"}));
 
         numericReverseOpt = addFlag( //
             "--numeric-reverse",
             "Suppress reverse host name lookup",
-            "bool",
+            "BOOL",
             XSTR(IN6_NUMERIC_REVERSE),
             CLI::IsMember({"true", "false"}));
 
         ipv4MappedOpt = addFlag( //
             "--ipv4-mapped",
             "Resolve IPv4-mapped IPv6 addresses also",
-            "bool",
+            "BOOL",
             XSTR(IN6_IPV4_MAPPED),
             CLI::IsMember({"true", "false"}));
     }

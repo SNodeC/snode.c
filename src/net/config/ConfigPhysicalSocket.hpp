@@ -59,14 +59,14 @@ namespace net::config {
         retryOpt = addFlag( //
             "--retry{true}",
             "Automatically retry listen|connect",
-            "bool",
+            "BOOL",
             retry,
             CLI::IsMember({"true", "false"}));
 
         retryOnFatalOpt = addFlag( //
             "--retry-on-fatal{true}",
             "Retry also on fatal errors",
-            "bool",
+            "BOOL",
             retryOnFatal,
             CLI::IsMember({"true", "false"}));
         retryOnFatalOpt->needs(retryOpt);
