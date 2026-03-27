@@ -199,9 +199,9 @@ namespace web::http::server {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
 
             if (!pendingRequests.empty()) {
-                core::EventReceiver::atNextTick([this, response = std::weak_ptr<Response>(masterResponse)]() {
+                core::EventReceiver::atNextTick([response = std::weak_ptr<Response>(masterResponse)]() {
                     if (!response.expired()) {
-                        deliverRequest();
+                        response.lock()->getSocketContext()->deliverRequest();
                     }
                 });
             }
