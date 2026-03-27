@@ -349,6 +349,7 @@ namespace web::http::client {
             deliverResponse(response);
         }
 
+        masterRequest->disconnect();
         onHttpDisconnected(masterRequest);
 
         LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received disconnect";

@@ -333,8 +333,12 @@ namespace web::http::client {
         connectionState = ConnectionState::Default;
     }
 
+    void MasterRequest::disconnect() {
+        socketContext = nullptr;
+    }
+
     bool Request::isConnected() const {
-        return !masterRequest.expired();
+        return socketContext != nullptr;
     }
 
     bool

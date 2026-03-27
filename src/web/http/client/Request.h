@@ -166,8 +166,8 @@ namespace web::http::client {
         ~MasterRequest() override;
 
         void init();
+        void disconnect();
 
-    public:
         bool send(const char* chunk,
                   std::size_t chunkLen,
                   const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,
