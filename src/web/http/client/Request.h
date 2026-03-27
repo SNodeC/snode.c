@@ -105,6 +105,8 @@ namespace web::http::client {
 
         SocketContext* getSocketContext() const;
 
+        bool isConnected() const;
+
         Request& host(const std::string& hostFieldValue);
         Request& append(const std::string& field, const std::string& value);
         Request& set(const std::string& field, const std::string& value, bool overwrite = true);
@@ -129,9 +131,10 @@ namespace web::http::client {
 
         std::size_t count{0};
 
-    protected:
+    private:
         void upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status);
 
+    protected:
         std::map<std::string, std::string> queries;
         CiStringMap<std::string> headers;
         CiStringMap<std::string> cookies;
@@ -164,6 +167,7 @@ namespace web::http::client {
 
         void init();
 
+    public:
         bool send(const char* chunk,
                   std::size_t chunkLen,
                   const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onResponseReceived,

@@ -78,11 +78,11 @@ namespace web::http::server {
 
         ~Response() override;
 
-        void disconnect();
         bool isConnected() const;
 
     private:
         virtual void init();
+        void disconnect();
 
     public:
         Response& status(int statusCode);
