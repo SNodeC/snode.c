@@ -100,6 +100,10 @@ target_include_directories(
                             "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
+target_compile_options(
+    websocket-client PRIVATE $<$<CXX_COMPILER_ID:GNU>:-fno-gnu-unique>
+)
+
 target_link_libraries(websocket-client PUBLIC websocket http-client)
 
 install(
