@@ -73,7 +73,6 @@ namespace web::websocket {
                                         const std::string& subProtocolFactoryFunctionName);
 
     public:
-        SubProtocolFactory* select(const std::string& subProtocolName);
         SubProtocolFactory* select(const std::string& subProtocolName, Role role);
 
         template <typename SubProtocolFactory>

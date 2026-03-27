@@ -125,11 +125,18 @@ namespace web::http {
 
         if (socketContextUpgradePlugins.contains(socketContextUpgradeName)) {
             socketContextUpgradeFactory = socketContextUpgradePlugins[socketContextUpgradeName].socketContextUpgradeFactory;
+
+            LOG(DEBUG) << "HTTP upgrade: plugin '" << socketContextUpgradeName << "' selected from dynamic cache";
         } else if (linkedSocketContextUpgradePlugins.contains(socketContextUpgradeName)) {
             socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[socketContextUpgradeName]();
-            add(socketContextUpgradeFactory);
+
+            LOG(DEBUG) << "HTTP upgrade: plugin '" << socketContextUpgradeName << "' selected from static cache";
         } else if (!onlyLinked) {
             socketContextUpgradeFactory = load(socketContextUpgradeName);
+
+            LOG(DEBUG) << "HTTP upgrade: plugin '" << socketContextUpgradeName << "' loaded and added to dynamic cache";
+        } else {
+            LOG(WARNING) << "HTTP upgrade: plugin '" << socketContextUpgradeName << "' not found";
         }
 
         return socketContextUpgradeFactory;

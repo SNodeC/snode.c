@@ -67,9 +67,9 @@ namespace web::websocket {
                 subProtocolFactory = getSubProtocolFactory();
                 if (subProtocolFactory != nullptr) {
                     subProtocolFactory->setHandle(handle);
-                    LOG(DEBUG) << "WebSocket: SubProtocolFactory create: success: " << subProtocolName;
+                    LOG(DEBUG) << "WebSocket: SubProtocolFactory create success: " << subProtocolName;
                 } else {
-                    LOG(DEBUG) << "WebSocket: SubProtocolFactory create: failed: " << subProtocolName;
+                    LOG(DEBUG) << "WebSocket: SubProtocolFactory create failed: " << subProtocolName;
                     core::DynamicLoader::dlClose(handle);
                 }
             } else {
@@ -83,32 +83,26 @@ namespace web::websocket {
     }
 
     template <typename SubProtocolFactory>
-    SubProtocolFactory* SubProtocolFactorySelector<SubProtocolFactory>::select(const std::string& subProtocolName) {
+    SubProtocolFactory* SubProtocolFactorySelector<SubProtocolFactory>::select(const std::string& subProtocolName,
+                                                                               [[maybe_unused]] Role role) {
         SubProtocolFactory* subProtocolFactory = nullptr;
 
         if (subProtocolFactories.contains(subProtocolName)) {
             subProtocolFactory = subProtocolFactories[subProtocolName];
-        }
 
-        return subProtocolFactory;
-    }
+            LOG(DEBUG) << "WebSocket subprotocol: plugin '" << subProtocolName << "' selected from dynamic cache";
+        } else if (linkedSubProtocolFactories.contains(subProtocolName)) {
+            SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
+            subProtocolFactory = plugin();
 
-    template <typename SubProtocolFactory>
-    SubProtocolFactory* SubProtocolFactorySelector<SubProtocolFactory>::select(const std::string& subProtocolName,
-                                                                               [[maybe_unused]] Role role) {
-        SubProtocolFactory* subProtocolFactory = select(subProtocolName);
+            LOG(DEBUG) << "WebSocket subprotocol: plugin '" << subProtocolName << "' selected from static cache";
+        } else if (!onlyLinked) {
+            subProtocolFactory = load(subProtocolName);
+            subProtocolFactories.insert({subProtocolName, subProtocolFactory});
 
-        if (subProtocolFactory == nullptr) {
-            if (linkedSubProtocolFactories.contains(subProtocolName)) {
-                SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
-                subProtocolFactory = plugin();
-            } else if (!onlyLinked) {
-                subProtocolFactory = load(subProtocolName);
-            }
-
-            if (subProtocolFactory != nullptr) {
-                subProtocolFactories.insert({subProtocolName, subProtocolFactory});
-            }
+            LOG(DEBUG) << "WebSocket subprotocol: plugin '" << subProtocolName << "' loaded and added to dynamic cache";
+        } else {
+            LOG(WARNING) << "WebSocket subprotocol: plugin '" << subProtocolName << "' not found";
         }
 
         return subProtocolFactory;
