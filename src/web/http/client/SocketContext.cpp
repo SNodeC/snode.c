@@ -304,13 +304,15 @@ namespace web::http::client {
                     if (!masterRequest.expired()) {
                         SocketContext* socketContext = masterRequest.lock()->getSocketContext();
 
-                        const std::shared_ptr<Request>& request = socketContext->pendingRequests.front();
+                        if (socketContext != nullptr) {
+                            const std::shared_ptr<Request>& request = socketContext->pendingRequests.front();
 
-                        LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName() << " HTTP: Initiating request ("
-                                   << request->count << "): " << request->method << " " << request->url << " HTTP/" << request->httpMajor
-                                   << "." << request->httpMinor;
+                            LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName() << " HTTP: Initiating request ("
+                                       << request->count << "): " << request->method << " " << request->url << " HTTP/"
+                                       << request->httpMajor << "." << request->httpMinor;
 
-                        socketContext->initiateRequest();
+                            socketContext->initiateRequest();
+                        }
                     }
                 });
             }
