@@ -388,6 +388,17 @@ namespace web::http::client::tools {
                             [sharedState, connectionName]() {
                                 LOG(DEBUG) << connectionName
                                            << ": not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
+                                if (auto it = sharedState->onEventListener.find("error"); it != sharedState->onEventListener.end()) {
+                                    EventSource::MessageEvent e{"error", "", sharedState->lastId, sharedState->origin};
+
+                                    for (auto& onError : it->second) {
+                                        onError(e);
+                                    }
+                                }
+
+                                for (const auto& onError : sharedState->onErrorListener) {
+                                    onError();
+                                }
                             })) {
                         if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
                             eventSource->socketConnection->close();
