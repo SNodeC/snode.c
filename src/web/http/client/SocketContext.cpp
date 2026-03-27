@@ -165,15 +165,18 @@ namespace web::http::client {
                 core::EventReceiver::atNextTick([masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {
                     if (!masterRequest.expired()) {
                         SocketContext* socketContext = masterRequest.lock()->getSocketContext();
-                        socketContext->pendingRequests.pop_front();
-                        if (!socketContext->pendingRequests.empty()) {
-                            const std::shared_ptr<Request>& request = socketContext->pendingRequests.front();
 
-                            LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
-                                       << ") dequeued: " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "."
-                                       << request->httpMinor;
+                        if (socketContext != nullptr) {
+                            socketContext->pendingRequests.pop_front();
+                            if (!socketContext->pendingRequests.empty()) {
+                                const std::shared_ptr<Request>& request = socketContext->pendingRequests.front();
 
-                            socketContext->initiateRequest();
+                                LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName() << " HTTP: Request ("
+                                           << request->count << ") dequeued: " << request->method << " " << request->url << " HTTP/"
+                                           << request->httpMajor << "." << request->httpMinor;
+
+                                socketContext->initiateRequest();
+                            }
                         }
                     }
                 });
@@ -203,13 +206,16 @@ namespace web::http::client {
                 core::EventReceiver::atNextTick([masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {
                     if (!masterRequest.expired()) {
                         SocketContext* socketContext = masterRequest.lock()->getSocketContext();
-                        const std::shared_ptr<Request>& request = socketContext->pendingRequests.front();
 
-                        LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
-                                   << ") dequeued: " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "."
-                                   << request->httpMinor;
+                        if (socketContext != nullptr) {
+                            const std::shared_ptr<Request>& request = socketContext->pendingRequests.front();
 
-                        socketContext->initiateRequest();
+                            LOG(DEBUG) << socketContext->getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
+                                       << ") dequeued: " << request->method << " " << request->url << " HTTP/" << request->httpMajor << "."
+                                       << request->httpMinor;
+
+                            socketContext->initiateRequest();
+                        }
                     }
                 });
             }

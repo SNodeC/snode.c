@@ -201,7 +201,11 @@ namespace web::http::server {
             if (!pendingRequests.empty()) {
                 core::EventReceiver::atNextTick([response = std::weak_ptr<Response>(masterResponse)]() {
                     if (!response.expired()) {
-                        response.lock()->getSocketContext()->deliverRequest();
+                        SocketContext* socketContext = response.lock()->getSocketContext();
+
+                        if (socketContext != nullptr) {
+                            socketContext->deliverRequest();
+                        }
                     }
                 });
             }
