@@ -162,7 +162,7 @@ namespace web::http::client {
                 LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
                              << ") delivering failed: " << requestLine;
 
-                core::EventReceiver::atNextTick([masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {
+                core::EventReceiver::atNextTick([masterRequest = std::weak_ptr(masterRequest)]() {
                     if (!masterRequest.expired()) {
                         SocketContext* socketContext = masterRequest.lock()->getSocketContext();
 
@@ -203,7 +203,7 @@ namespace web::http::client {
             deliveredRequests.push_back(currentRequest);
 
             if (pipelinedRequests && !pendingRequests.empty()) {
-                core::EventReceiver::atNextTick([masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {
+                core::EventReceiver::atNextTick([masterRequest = std::weak_ptr(masterRequest)]() {
                     if (!masterRequest.expired()) {
                         SocketContext* socketContext = masterRequest.lock()->getSocketContext();
 
@@ -300,7 +300,7 @@ namespace web::http::client {
             LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
 
             if (!pipelinedRequests && !pendingRequests.empty()) {
-                core::EventReceiver::atNextTick([masterRequest = static_cast<std::weak_ptr<Request>>(masterRequest)]() {
+                core::EventReceiver::atNextTick([masterRequest = std::weak_ptr(masterRequest)]() {
                     if (!masterRequest.expired()) {
                         SocketContext* socketContext = masterRequest.lock()->getSocketContext();
 

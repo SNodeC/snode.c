@@ -69,8 +69,8 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 static void logResponse(const std::shared_ptr<web::http::client::Request>& req, const std::shared_ptr<web::http::client::Response>& res) {
-    VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName() << " HTTP response: " << req->method << " " << req->url
-            << " HTTP/" << req->httpMajor << "." << req->httpMinor << "\n"
+    VLOG(1) << req->getConnectionName() << " HTTP response: " << req->method << " " << req->url << " HTTP/" << req->httpMajor << "."
+            << req->httpMinor << "\n"
             << httputils::toString(req->method,
                                    req->url,
                                    "HTTP/" + std::to_string(req->httpMajor) + "." + std::to_string(req->httpMinor),
@@ -467,7 +467,7 @@ namespace apps::http::legacy {
 #endif
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
-                VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestEnd";
+                VLOG(1) << req->getConnectionName() << ": OnRequestEnd";
             });
 
         client.setOnConnect([](SocketConnection* socketConnection) { // onConnect
@@ -653,7 +653,7 @@ namespace apps::http::tls {
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
-                VLOG(1) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestEnd";
+                VLOG(1) << req->getConnectionName() << ": OnRequestEnd";
             });
 
         client.setOnConnect([](SocketConnection* socketConnection) { // onConnect

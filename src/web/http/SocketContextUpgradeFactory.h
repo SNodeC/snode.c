@@ -77,6 +77,8 @@ namespace web::http {
     public:
         virtual std::string name() = 0;
 
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
+
     protected:
         std::size_t refCount = 0;
 
@@ -85,7 +87,6 @@ namespace web::http {
     private:
         virtual SocketContextUpgrade<Request, Response>*
         create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
-        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
 
         void incRefCount();
         void decRefCount();
@@ -95,8 +96,6 @@ namespace web::http {
         Request* request = nullptr;
         Response* response = nullptr;
 
-        friend Response;
-        friend Request;
         friend class SocketContextUpgrade<Request, Response>;
     };
 

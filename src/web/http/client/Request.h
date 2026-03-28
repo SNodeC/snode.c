@@ -89,7 +89,7 @@ namespace web::http::client {
 
     class Request {
     public:
-        Request(SocketContext* socketContext, const std::string& host);
+        Request(const std::string& connectionName, const std::string& host);
 
         explicit Request(Request&) = delete;
 
@@ -100,12 +100,10 @@ namespace web::http::client {
         Request& operator=(Request&) = delete;
         Request& operator=(Request&&) noexcept = delete;
 
+        std::string getConnectionName() const;
+
         void setMasterRequest(const std::shared_ptr<MasterRequest>& masterRequest);
         std::shared_ptr<MasterRequest> getMasterRequest() const;
-
-        SocketContext* getSocketContext() const;
-
-        bool isConnected() const;
 
         Request& host(const std::string& hostFieldValue);
         Request& append(const std::string& field, const std::string& value);
@@ -131,19 +129,17 @@ namespace web::http::client {
 
         std::size_t count{0};
 
-    private:
-        void upgrade(const std::shared_ptr<Response>& response, const std::function<void(const std::string&)>& status);
-
     protected:
         std::map<std::string, std::string> queries;
         CiStringMap<std::string> headers;
         CiStringMap<std::string> cookies;
         CiStringMap<std::string> trailer;
 
+        std::string connectionName;
+
         std::size_t contentLength = 0;
 
         std::weak_ptr<MasterRequest> masterRequest;
-        web::http::client::SocketContext* socketContext;
 
         TransferEncoding transferEncoding = TransferEncoding::HTTP10;
         ConnectionState connectionState = ConnectionState::Default;
@@ -165,8 +161,11 @@ namespace web::http::client {
 
         ~MasterRequest() override;
 
+        SocketContext* getSocketContext() const;
+
         void init();
         void disconnect();
+        bool isConnected() const;
 
         bool send(const char* chunk,
                   std::size_t chunkLen,
@@ -229,6 +228,8 @@ namespace web::http::client {
 
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
         std::function<void(const std::shared_ptr<Request>&, const std::string& message)> onResponseParseError;
+
+        web::http::client::SocketContext* socketContext;
 
         friend class SocketContext;
 

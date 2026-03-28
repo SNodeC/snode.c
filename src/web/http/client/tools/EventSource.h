@@ -406,7 +406,7 @@ namespace web::http::client::tools {
                     }
                 },
                 [](const std::shared_ptr<Request>& req) {
-                    LOG(DEBUG) << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestEnd";
+                    LOG(DEBUG) << req->getConnectionName() << ": OnRequestEnd";
                 });
 
             client->getConfig()->Remote::setSocketAddress(socketAddress);
