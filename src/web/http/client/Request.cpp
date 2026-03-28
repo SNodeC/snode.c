@@ -94,7 +94,6 @@ namespace web::http::client {
         , trailer(std::move(request.trailer))
         , connectionName(request.connectionName)
         , contentLength(request.contentLength)
-        , masterRequest(request.masterRequest) // NOLINT
         , transferEncoding(request.transferEncoding)
         , connectionState(request.connectionState) {
         request.count++;
@@ -107,11 +106,11 @@ namespace web::http::client {
         return connectionName;
     }
 
-    void Request::setMasterRequest(const std::shared_ptr<MasterRequest>& masterRequest) {
+    void MasterRequest::setMasterRequest(const std::shared_ptr<MasterRequest>& masterRequest) {
         this->masterRequest = masterRequest;
     }
 
-    std::shared_ptr<MasterRequest> Request::getMasterRequest() const {
+    std::shared_ptr<MasterRequest> MasterRequest::getMasterRequest() const {
         return masterRequest.lock();
     }
 
@@ -274,7 +273,8 @@ namespace web::http::client {
         , contentLengthSent(request.contentLengthSent)
         , onResponseReceived(std::move(request.onResponseReceived))
         , onResponseParseError(std::move(request.onResponseParseError))
-        , socketContext(request.socketContext) {
+        , socketContext(request.socketContext)
+        , masterRequest(request.masterRequest) { // NOLINT
         request.init();
     }
 
@@ -354,11 +354,9 @@ namespace web::http::client {
         const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&, bool)>& onResponseReceived,
         const std::function<void(const std::shared_ptr<Request>&, const std::string&)>& onResponseParseError) {
         if (isConnected()) {
-            const std::shared_ptr<MasterRequest> newRequest = std::make_shared<MasterRequest>(std::move(*this));
+            masterRequest.lock()->url = url;
 
-            newRequest->url = url;
-
-            newRequest->requestCommands.push_back(new commands::UpgradeCommand(
+            masterRequest.lock()->requestCommands.push_back(new commands::UpgradeCommand(
                 url,
                 protocols,
                 onUpgradeInitiate,
@@ -423,6 +421,8 @@ namespace web::http::client {
                     }
                 },
                 onResponseParseError));
+
+            const std::shared_ptr<MasterRequest> newRequest = std::make_shared<MasterRequest>(std::move(*this));
 
             requestPrepared(newRequest);
         }
@@ -608,7 +608,6 @@ namespace web::http::client {
     }
 
     bool MasterRequest::executeUpgrade(const std::string& url, const std::string& protocols, const std::function<void(bool)>& onStatus) {
-        //        const std::string connectionName = this->getSocketContext()->getSocketConnection()->getConnectionName();
         this->url = url;
 
         set("Connection", "Upgrade", true);

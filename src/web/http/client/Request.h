@@ -47,7 +47,6 @@
 #include "web/http/TransferEncoding.h"
 
 namespace web::http::client {
-    class MasterRequest;
     class RequestCommand;
     class Response;
     class SocketContext;
@@ -102,9 +101,6 @@ namespace web::http::client {
 
         std::string getConnectionName() const;
 
-        void setMasterRequest(const std::shared_ptr<MasterRequest>& masterRequest);
-        std::shared_ptr<MasterRequest> getMasterRequest() const;
-
         Request& host(const std::string& hostFieldValue);
         Request& append(const std::string& field, const std::string& value);
         Request& set(const std::string& field, const std::string& value, bool overwrite = true);
@@ -139,8 +135,6 @@ namespace web::http::client {
 
         std::size_t contentLength = 0;
 
-        std::weak_ptr<MasterRequest> masterRequest;
-
         TransferEncoding transferEncoding = TransferEncoding::HTTP10;
         ConnectionState connectionState = ConnectionState::Default;
 
@@ -160,6 +154,9 @@ namespace web::http::client {
         MasterRequest& operator=(MasterRequest&&) noexcept = delete;
 
         ~MasterRequest() override;
+
+        void setMasterRequest(const std::shared_ptr<MasterRequest>& masterRequest);
+        std::shared_ptr<MasterRequest> getMasterRequest() const;
 
         SocketContext* getSocketContext() const;
 
@@ -230,6 +227,8 @@ namespace web::http::client {
         std::function<void(const std::shared_ptr<Request>&, const std::string& message)> onResponseParseError;
 
         web::http::client::SocketContext* socketContext;
+
+        std::weak_ptr<MasterRequest> masterRequest;
 
         friend class SocketContext;
 
