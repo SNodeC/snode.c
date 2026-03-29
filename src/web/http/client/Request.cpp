@@ -305,6 +305,7 @@ namespace web::http::client {
     }
 
     void MasterRequest::disconnect() {
+        stop();
         socketContext = nullptr;
     }
 
@@ -748,7 +749,9 @@ namespace web::http::client {
     }
 
     void MasterRequest::onSourceData(const char* chunk, std::size_t chunkLen) {
-        executeSendFragment(chunk, chunkLen);
+        if (isConnected()) {
+            executeSendFragment(chunk, chunkLen);
+        }
     }
 
     void MasterRequest::onSourceEof() {
