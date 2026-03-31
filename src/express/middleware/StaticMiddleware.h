@@ -63,8 +63,8 @@ namespace express::middleware {
         StaticMiddleware& operator=(const StaticMiddleware&) = delete;
 
     protected:
-        explicit StaticMiddleware(const std::string& root);
-        static class StaticMiddleware& instance(const std::string& root);
+        explicit StaticMiddleware(const std::string& root, bool fallThrough);
+        static class StaticMiddleware& instance(const std::string& root, bool fallThrough);
 
     public:
         StaticMiddleware& setIndex(const std::string& index);
@@ -79,14 +79,15 @@ namespace express::middleware {
     private:
         std::string root;
         std::string index;
+        bool fallThrough;
         std::map<std::string, std::string> stdHeaders = {{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}};
         std::map<std::string, web::http::CookieOptions> stdCookies;
         web::http::ConnectionState defaultConnectionState = web::http::ConnectionState::Default;
 
-        friend class StaticMiddleware& StaticMiddleware(const std::string& root);
+        friend class StaticMiddleware& StaticMiddleware(const std::string& root, bool fallThrough);
     };
 
-    class StaticMiddleware& StaticMiddleware(const std::string& root);
+    class StaticMiddleware& StaticMiddleware(const std::string& root, bool fallThrough = true);
 
 } // namespace express::middleware
 

@@ -55,18 +55,25 @@
 
 namespace express::middleware {
 
-    StaticMiddleware::StaticMiddleware(const std::string& root)
+    StaticMiddleware::StaticMiddleware(const std::string& root, bool fallThrough)
         : root(root)
-        , index("index.html") {
+        , index("index.html")
+        , fallThrough(fallThrough) {
         setStrictRouting(false);
 
         use(
-            [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
-                req, res, next) {
+            [&stdHeaders = this->stdHeaders,
+             &stdCookies = this->stdCookies,
+             &connectionState = this->defaultConnectionState,
+             &fallThrough = this->fallThrough] MIDDLEWARE(req, res, next) {
                 LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express " << req->method;
 
                 if (req->method != "GET") {
-                    res->sendStatus(405, "Unsupported method: " + req->method + "\n");
+                    if (fallThrough) {
+                        next("route");
+                    } else {
+                        res->sendStatus(405, "Unsupported method: " + req->method + "\n");
+                    }
                 } else {
                     if (connectionState == web::http::ConnectionState::Close) {
                         res->set("Connection", "close");
@@ -102,9 +109,9 @@ namespace express::middleware {
                     next();
                 }
             },
-            [&root = this->root] MIDDLEWARE(req, res, next) {
+            [&root = this->root, &fallThrough = this->fallThrough] MIDDLEWARE(req, res, next) {
                 const std::string decodedPath = httputils::url_decode(req->path);
-                res->sendFile(root + decodedPath, [&root, decodedPath, req, res, &next](int ret) {
+                res->sendFile(root + decodedPath, [&root, decodedPath, req, res, &next, &fallThrough](int ret) {
                     if (ret == 0) {
                         LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
                                   << " Express StaticMiddleware: GET " << req->url + " -> " << root + decodedPath;
@@ -112,7 +119,11 @@ namespace express::middleware {
                         PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
                                     << req->url + " -> " << root + decodedPath;
 
-                        next();
+                        if (fallThrough) {
+                            next();
+                        } else {
+                            res->status(404).send("Unsupported resource: " + req->url + "\n");
+                        }
                     }
                 });
             });
@@ -162,20 +173,20 @@ namespace express::middleware {
         return *this;
     }
 
-    class StaticMiddleware& StaticMiddleware::instance(const std::string& root) {
+    class StaticMiddleware& StaticMiddleware::instance(const std::string& root, bool fallThrough) {
         // Keep all created static middlewares alive
         static std::map<const std::string, std::shared_ptr<class StaticMiddleware>> staticMiddlewares;
 
         if (!staticMiddlewares.contains(root)) {
-            staticMiddlewares[root] = std::shared_ptr<StaticMiddleware>(new StaticMiddleware(root));
+            staticMiddlewares[root] = std::shared_ptr<StaticMiddleware>(new StaticMiddleware(root, fallThrough));
         }
 
         return *staticMiddlewares[root];
     }
 
     // "Constructor" of StaticMiddleware
-    class StaticMiddleware& StaticMiddleware(const std::string& root) {
-        return StaticMiddleware::instance(root);
+    class StaticMiddleware& StaticMiddleware(const std::string& root, bool fallThrough) {
+        return StaticMiddleware::instance(root, fallThrough);
     }
 
 } // namespace express::middleware
