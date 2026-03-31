@@ -331,8 +331,6 @@ namespace web::http::server {
 
                 if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
                     core::file::FileReader::open(absolutFileName, [this, &absolutFileName, &onStatus](int fd) {
-                        onStatus(errno);
-
                         if (fd >= 0) {
                             status(200);
                             set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
@@ -344,9 +342,11 @@ namespace web::http::server {
                                     set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
                                 }
                             }
+
                         } else {
                             status(404);
                         }
+                        onStatus(errno);
                     })->pipe(this);
                 } else {
                     status(404);
