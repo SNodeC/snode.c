@@ -417,7 +417,7 @@ namespace web::http::server {
 
             if (transferEncoding == TransferEncoding::Chunked || web::http::ciContains(headers["Content-Type"], "text/event-stream")) {
                 socketContext->sendToPeer("\r\n");
-                contentLength += 2;
+                contentLength += chunkLen;
             }
         }
 
