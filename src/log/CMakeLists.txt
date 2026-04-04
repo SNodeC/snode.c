@@ -47,9 +47,9 @@ add_compile_options(
     $<$<CXX_COMPILER_ID:Clang>:-Wno-switch-enum>
     $<$<CXX_COMPILER_ID:Clang>:-Wno-reserved-macro-identifier>
     $<$<CXX_COMPILER_ID:Clang>:-Wno-c++20-compat>
-    $<$<CXX_COMPILER_ID:Clang>:-Wno-nrvo>
     $<$<CXX_COMPILER_ID:Clang>:-Wno-covered-switch-default>
     $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-private-field>
+    $<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,21>>:-Wno-nrvo>
 )
 
 set(TMP_CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${CMAKE_CXX_INCLUDE_WHAT_YOU_USE})
