@@ -146,9 +146,6 @@ namespace utils {
         template <typename NewSubCommand, typename... Args>
         NewSubCommand* newSubCommand(Args&&... args);
 
-        template <typename NewSubCommand>
-        NewSubCommand* manageSubCommand(NewSubCommand* newSubCommand);
-
         template <typename RequestedSubCommand>
         RequestedSubCommand* getSubCommand();
 
@@ -278,12 +275,8 @@ namespace utils {
 
     template <typename NewSubCommand, typename... Args>
     NewSubCommand* SubCommand::newSubCommand(Args&&... args) {
-        return manageSubCommand(new NewSubCommand(this, std::forward<Args>(args)...));
-    }
-
-    template <typename NewSubCommand>
-    NewSubCommand* SubCommand::manageSubCommand(NewSubCommand* newSubCommand) {
-        return !final ? dynamic_cast<NewSubCommand*>(*childSubCommands.insert(newSubCommand).first) : (delete newSubCommand, nullptr);
+        return !final ? dynamic_cast<NewSubCommand*>(*childSubCommands.insert(new NewSubCommand(this, std::forward(args)...)).first)
+                      : nullptr;
     }
 
     template <typename RequestedSubCommand>
