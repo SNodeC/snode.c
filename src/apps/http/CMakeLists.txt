@@ -191,3 +191,16 @@ set_target_properties(
 install(TARGETS testbasicauthentication
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
 )
+
+add_executable(testexpressnext testexpressnext.cpp)
+target_link_libraries(
+    testexpressnext PRIVATE http-server-express http-client
+                            net-in-stream-legacy
+)
+set_target_properties(
+    testexpressnext
+    PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+)
+install(TARGETS testexpressnext RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                COMPONENT apps
+)
