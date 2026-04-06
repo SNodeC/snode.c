@@ -39,8 +39,8 @@
  * THE SOFTWARE.
  */
 
-#include "core/SNodeC.h"
 #include "core/EventReceiver.h"
+#include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "express/legacy/in/WebApp.h"
 #include "log/Logger.h"
@@ -59,21 +59,30 @@ struct TestCase {
     std::string connection;
 };
 
+// "next(async route) fallback for id=0"
+
 class NextTester {
 public:
     NextTester()
-        : testCases({{"next() middleware chain", "/next/basic", 200, "next() reached final handler", "keep-alive"},
-                     {"next() asynchronous middleware chain", "/next/async/basic", 200, "next(async) reached final handler", "keep-alive"},
-                     {"next('route') fallback", "/next/route/0", 200, "next(route) fallback for id=0", "keep-alive"},
-                     {"next('route') primary", "/next/route/7", 200, "next(route) primary for id=7", "keep-alive"},
-                     {"next('route') asynchronous fallback", "/next/async/route/0", 200, "next(async route) fallback for id=0", "keep-alive"},
-                     {"next('route') asynchronous primary", "/next/async/route/7", 200, "next(async route) primary for id=7", "keep-alive"},
-                     {"next('router') fallback", "/next/router/resource?allow=false", 403, "next(router) denied by fallback", "keep-alive"},
-                     {"next('router') inside router", "/next/router/resource?allow=true", 200, "next(router) router handler", "keep-alive"},
-                     {"next('router') asynchronous fallback", "/next/async/router/resource?allow=false", 403,
-                      "next(async router) denied by fallback", "keep-alive"},
-                     {"next('router') asynchronous inside router", "/next/async/router/resource?allow=true", 200,
-                      "next(async router) router handler", "close"}}) {
+        : testCases(
+              {{"next() middleware chain", "/next/basic", 200, "next() reached final handler", "keep-alive"},
+               {"next() asynchronous middleware chain", "/next/async/basic", 200, "next(async) reached final handler", "keep-alive"},
+               {"next('route') fallback", "/next/route/0", 200, "next(route) fallback for id=0", "keep-alive"},
+               {"next('route') primary", "/next/route/7", 200, "next(route) primary for id=7", "keep-alive"},
+               {"next('route') asynchronous fallback", "/next/async/route/0", 200, "next(async route) fallback for id=0", "keep-alive"},
+               {"next('route') asynchronous primary", "/next/async/route/7", 200, "next(async route) primary for id=7", "keep-alive"},
+               {"next('router') fallback", "/next/router/resource?allow=false", 403, "next(router) denied by fallback", "keep-alive"},
+               {"next('router') inside router", "/next/router/resource?allow=true", 200, "next(router) router handler", "keep-alive"},
+               {"next('router') asynchronous fallback",
+                "/next/async/router/resource?allow=false",
+                403,
+                "next(async router) denied by fallback",
+                "keep-alive"},
+               {"next('router') asynchronous inside router",
+                "/next/async/router/resource?allow=true",
+                200,
+                "next(async router) router handler",
+                "close"}}) {
     }
 
     void run() {
