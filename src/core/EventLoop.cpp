@@ -268,6 +268,10 @@ namespace core {
 
         utils::Timeval timeout = 2;
 
+        LOG(TRACE) << "Core: Terminate all stalled DescriptorEventReceivers";
+
+        EventLoop::instance().eventMultiplexer.terminate();
+
         core::TickStatus tickStatus = TickStatus::SUCCESS;
         do {
             auto t1 = std::chrono::system_clock::now();
@@ -280,10 +284,6 @@ namespace core {
 
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS));
-
-        LOG(TRACE) << "Core: Terminate all stalled DescriptorEventReceivers";
-
-        EventLoop::instance().eventMultiplexer.terminate();
 
         LOG(TRACE) << "Core: Shutdown config system";
 
