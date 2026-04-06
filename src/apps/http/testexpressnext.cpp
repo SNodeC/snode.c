@@ -40,6 +40,7 @@
  */
 
 #include "core/SNodeC.h"
+#include "core/EventReceiver.h"
 #include "core/timer/Timer.h"
 #include "express/legacy/in/WebApp.h"
 #include "log/Logger.h"
@@ -62,10 +63,17 @@ class NextTester {
 public:
     NextTester()
         : testCases({{"next() middleware chain", "/next/basic", 200, "next() reached final handler", "keep-alive"},
+                     {"next() asynchronous middleware chain", "/next/async/basic", 200, "next(async) reached final handler", "keep-alive"},
                      {"next('route') fallback", "/next/route/0", 200, "next(route) fallback for id=0", "keep-alive"},
                      {"next('route') primary", "/next/route/7", 200, "next(route) primary for id=7", "keep-alive"},
+                     {"next('route') asynchronous fallback", "/next/async/route/0", 200, "next(async route) fallback for id=0", "keep-alive"},
+                     {"next('route') asynchronous primary", "/next/async/route/7", 200, "next(async route) primary for id=7", "keep-alive"},
                      {"next('router') fallback", "/next/router/resource?allow=false", 403, "next(router) denied by fallback", "keep-alive"},
-                     {"next('router') inside router", "/next/router/resource?allow=true", 200, "next(router) router handler", "close"}}) {
+                     {"next('router') inside router", "/next/router/resource?allow=true", 200, "next(router) router handler", "keep-alive"},
+                     {"next('router') asynchronous fallback", "/next/async/router/resource?allow=false", 403,
+                      "next(async router) denied by fallback", "keep-alive"},
+                     {"next('router') asynchronous inside router", "/next/async/router/resource?allow=true", 200,
+                      "next(async router) router handler", "close"}}) {
     }
 
     void run() {
@@ -188,6 +196,24 @@ int main(int argc, char* argv[]) {
         });
 
     app.get(
+        "/next/async/basic",
+        [] MIDDLEWARE(req, res, next) {
+            req->setAttribute<std::string>("middleware-seen-async", "yes");
+            core::EventReceiver::atNextTick([next] {
+                next();
+            });
+        },
+        [] APPLICATION(req, res) {
+            std::string marker = "no";
+            req->getAttribute<std::string>(
+                [&](const std::string& value) {
+                    marker = value;
+                },
+                "middleware-seen-async");
+            res->status(200).send("next(async) reached final handler (middleware=" + marker + ")");
+        });
+
+    app.get(
         "/next/route/:id(\\d+)",
         [] MIDDLEWARE(req, res, next) {
             if (req->params["id"] == "0") {
@@ -202,6 +228,27 @@ int main(int argc, char* argv[]) {
 
     app.get("/next/route/:id(\\d+)", [] APPLICATION(req, res) {
         res->status(200).send("next(route) fallback for id=" + req->params["id"]);
+    });
+
+    app.get(
+        "/next/async/route/:id(\\d+)",
+        [] MIDDLEWARE(req, res, next) {
+            if (req->params["id"] == "0") {
+                core::EventReceiver::atNextTick([next] {
+                    next("route");
+                });
+                return;
+            }
+            core::EventReceiver::atNextTick([next] {
+                next();
+            });
+        },
+        [] APPLICATION(req, res) {
+            res->status(200).send("next(async route) primary for id=" + req->params["id"]);
+        });
+
+    app.get("/next/async/route/:id(\\d+)", [] APPLICATION(req, res) {
+        res->status(200).send("next(async route) fallback for id=" + req->params["id"]);
     });
 
     const Router guarded;
@@ -219,6 +266,27 @@ int main(int argc, char* argv[]) {
     app.use("/next/router", guarded);
     app.get("/next/router/:rest(.*)", [] APPLICATION(req, res) {
         res->status(403).send("next(router) denied by fallback");
+    });
+
+    const Router guardedAsync;
+    guardedAsync.use([] MIDDLEWARE(req, res, next) {
+        if (req->queries["allow"] != "true") {
+            core::EventReceiver::atNextTick([next] {
+                next("router");
+            });
+            return;
+        }
+        core::EventReceiver::atNextTick([next] {
+            next();
+        });
+    });
+    guardedAsync.get("/resource", [] APPLICATION(req, res) {
+        res->status(200).send("next(async router) router handler");
+    });
+
+    app.use("/next/async/router", guardedAsync);
+    app.get("/next/async/router/:rest(.*)", [] APPLICATION(req, res) {
+        res->status(403).send("next(async router) denied by fallback");
     });
 
     app.getConfig()->setReuseAddress();
