@@ -56,13 +56,10 @@ namespace net::phy::dgram {
 
     template <typename SocketAddressT>
     class PeerSocket : public net::phy::PhysicalSocket<SocketAddressT> {
-    protected:
-        using Super = net::phy::PhysicalSocket<SocketAddressT>;
-
     public:
-        using Super::Super;
-
+        using Super = net::phy::PhysicalSocket<SocketAddressT>;
         using SocketAddress = SocketAddressT;
+        using Super::Super;
     };
 
 } // namespace net::phy::dgram
