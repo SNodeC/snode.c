@@ -84,8 +84,9 @@ namespace express::dispatcher {
         bool dispatched = false;
 
         const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
+        const bool replayingNext = (controller.getFlags() & Controller::NEXT) != 0;
 
-        if (methodMatchesResult && ((controller.getFlags() & Controller::NEXT) == 0)) {
+        if (methodMatchesResult) {
             const MountMatchResult match =
                 matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
 
@@ -102,7 +103,11 @@ namespace express::dispatcher {
                     const ScopedPathStrip pathStrip(request, match.isPrefix, match.consumedLength);
                     const ScopedParams scopedParams(request, match.params, mergeParams);
 
-                    lambda(controller.getRequest(), controller.getResponse());
+                    if (!replayingNext) {
+                        lambda(controller.getRequest(), controller.getResponse());
+                    } else {
+                        dispatched = controller.dispatchNext(strictRouting, caseInsensitiveRouting, mergeParams);
+                    }
                 } else {
                     controller.getResponse()->sendStatus(400);
                 }

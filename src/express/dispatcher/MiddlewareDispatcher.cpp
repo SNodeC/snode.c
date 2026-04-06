@@ -84,8 +84,9 @@ namespace express::dispatcher {
         bool dispatched = false;
 
         const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
+        const bool replayingNext = (controller.getFlags() & Controller::NEXT) != 0;
 
-        if (methodMatchesResult && ((controller.getFlags() & Controller::NEXT) == 0)) {
+        if (methodMatchesResult) {
             const MountMatchResult match =
                 matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
 
@@ -102,14 +103,18 @@ namespace express::dispatcher {
                     const ScopedPathStrip pathStrip(request, match.isPrefix, match.consumedLength);
                     const ScopedParams scopedParams(request, match.params, mergeParams);
 
-                    Next next(controller);
-                    lambda(controller.getRequest(), controller.getResponse(), next);
+                    if (!replayingNext) {
+                        Next next(controller);
+                        lambda(controller.getRequest(), controller.getResponse(), next);
 
-                    // If next() was called synchronously continue current route-tree traversal
-                    if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
-                        LOG(TRACE) << "Express: M - Next called - set to NO MATCH";
-                        dispatched = false;
-                        controller = next.controller;
+                        // If next() was called synchronously continue current route-tree traversal
+                        if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
+                            LOG(TRACE) << "Express: M - Next called - set to NO MATCH";
+                            dispatched = false;
+                            controller = next.controller;
+                        }
+                    } else {
+                        dispatched = controller.dispatchNext(strictRouting, caseInsensitiveRouting, mergeParams);
                     }
                 } else {
                     controller.getResponse()->sendStatus(400);

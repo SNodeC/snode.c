@@ -140,7 +140,7 @@ namespace express {
                 } else if ((flags & Controller::NEXT_ROUTER) == 0) {
                     dispatched = currentRoute->dispatchNext(*this, strictRouting, caseInsensitiveRouting, mergeParams);
                 }
-            } else { // ? Optimization: Dispatch only parent route matched path
+            } else { // Parent routes rebuild their matched state during async replay before reaching this broad fallback
                 dispatched = currentRoute->dispatchNext(*this, strictRouting, caseInsensitiveRouting, mergeParams);
             }
         }

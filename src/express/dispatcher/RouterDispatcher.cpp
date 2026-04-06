@@ -84,7 +84,7 @@ namespace express::dispatcher {
 
         const bool methodMatchesResult = methodMatches(controller.getRequest()->method, mountPoint.method);
 
-        if (methodMatchesResult && (controller.getFlags() & Controller::NEXT) == 0) {
+        if (methodMatchesResult) {
             const MountMatchResult match = matchMountPoint(
                 controller, mountPoint.relativeMountPath, mountPoint, regex, names, this->strictRouting, this->caseInsensitiveRouting);
 
