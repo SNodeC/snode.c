@@ -39,7 +39,6 @@
  * THE SOFTWARE.
  */
 
-#include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "express/legacy/in/WebApp.h"
@@ -87,7 +86,6 @@ public:
 
     void run() {
         client = std::make_shared<Client>( //
-            "testexpressnext-client",
             [this](const std::shared_ptr<MasterRequest>& connectedRequest) {
                 masterRequest = connectedRequest;
                 dispatchNextRequest();
