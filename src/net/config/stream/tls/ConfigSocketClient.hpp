@@ -75,7 +75,7 @@ namespace net::config::stream::tls {
             sslConfig.caCertDir = getCaCertDir();
             sslConfig.cipherList = getCipherList();
             sslConfig.sslOptions = getSslOptions();
-            sslConfig.caCertUseDefaultDir = getCaCertUseDefaultDir();
+            sslConfig.caCertUseDefaultDir = getCaCertDirUseDefault();
             sslConfig.caCertAcceptUnknown = getCaCertAcceptUnknown();
 
             sslCtx = core::socket::stream::tls::ssl_ctx_new(sslConfig);

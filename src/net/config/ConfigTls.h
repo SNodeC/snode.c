@@ -92,8 +92,8 @@ namespace net::config {
         ConfigTls* setCaCertDir(const std::string& caCertDir);
         std::string getCaCertDir() const;
 
-        ConfigTls* setCaCertUseDefaultDir(bool set = true);
-        bool getCaCertUseDefaultDir() const;
+        ConfigTls* setCaCertDirUseDefault(bool set = true);
+        bool getCaCertDirUseDefault() const;
 
         ConfigTls* setCaCertAcceptUnknown(bool set = true);
         bool getCaCertAcceptUnknown() const;

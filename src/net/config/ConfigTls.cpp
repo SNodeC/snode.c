@@ -100,13 +100,13 @@ namespace net::config {
         return caCertDirOpt->as<std::string>();
     }
 
-    ConfigTls* ConfigTls::setCaCertUseDefaultDir(bool set) {
+    ConfigTls* ConfigTls::setCaCertDirUseDefault(bool set) {
         setDefaultValue(caCertUseDefaultDirOpt, set ? "true" : "false");
 
         return this;
     }
 
-    bool ConfigTls::getCaCertUseDefaultDir() const {
+    bool ConfigTls::getCaCertDirUseDefault() const {
         return caCertUseDefaultDirOpt->as<bool>();
     }
 

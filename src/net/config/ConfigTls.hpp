@@ -82,7 +82,7 @@ namespace net::config {
             CLI::ExistingDirectory.description("PEM-CONTAINER-DIR"));
 
         caCertUseDefaultDirOpt = addFlag( //
-            "--ca-cert-use-default-dir{true}",
+            "--ca-cert-dir-use-default{true}",
             "Use default CA-certificate directory",
             "BOOL",
             "false",
