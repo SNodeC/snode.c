@@ -48,7 +48,6 @@
 #include <deque>
 #include <memory>
 #include <string>
-#include <vector>
 
 using express::Router;
 
@@ -70,7 +69,23 @@ class NextTester {
     }
 
     void run() {
-        dispatchNextRequest();
+        client = std::make_shared<Client>(
+            "testexpressnext-client",
+            [this](const std::shared_ptr<MasterRequest>& connectedRequest) {
+                masterRequest = connectedRequest;
+                dispatchNextRequest();
+            },
+            [](const std::shared_ptr<MasterRequest>&) {});
+
+        client->connect("localhost",
+                        18080,
+                        [this](const Client::SocketAddress&, const core::socket::State& state) {
+                            if (state != core::socket::State::OK) {
+                                ++failures;
+                                LOG(ERROR) << "FAIL: connect failed: " << state.what();
+                                core::timer::Timer::singleshotTimer([] { core::SNodeC::stop(); }, 1);
+                            }
+                        });
     }
 
     std::size_t getFailures() const {
@@ -86,6 +101,16 @@ class NextTester {
     void dispatchNextRequest() {
         if (testCases.empty()) {
             LOG(INFO) << "All express next() tests executed. failures=" << failures;
+            if (masterRequest && masterRequest->isConnected()) {
+                masterRequest->disconnect();
+            }
+            core::timer::Timer::singleshotTimer([] { core::SNodeC::stop(); }, 1);
+            return;
+        }
+
+        if (!masterRequest || !masterRequest->isConnected()) {
+            ++failures;
+            LOG(ERROR) << "FAIL: master request not connected";
             core::timer::Timer::singleshotTimer([] { core::SNodeC::stop(); }, 1);
             return;
         }
@@ -93,51 +118,39 @@ class NextTester {
         const TestCase current = testCases.front();
         testCases.pop_front();
 
-        auto client = std::make_shared<Client>(
-            "testexpressnext-client",
-            [this, current](const std::shared_ptr<MasterRequest>& req) {
-                req->method = "GET";
-                req->url = current.url;
-                req->set("Connection", "close");
-                req->end(
-                    [this, current](const std::shared_ptr<Request>&, const std::shared_ptr<Response>& res) {
-                        const std::string body(res->body.begin(), res->body.end());
-                        const bool statusOk = res->statusCode == current.expectedStatus;
-                        const bool bodyOk = body.find(current.expectedBody) != std::string::npos;
+        masterRequest->init();
+        masterRequest->method = "GET";
+        masterRequest->url = current.url;
+        masterRequest->set("Connection", "keep-alive");
+        masterRequest->end(
+            [this, current](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
+                const std::string body(res->body.begin(), res->body.end());
+                const bool statusOk = res->statusCode == current.expectedStatus;
+                const bool bodyOk = body.find(current.expectedBody) != std::string::npos;
 
-                        if (statusOk && bodyOk) {
-                            LOG(INFO) << "PASS: " << current.name << " status=" << res->statusCode << " body='" << body << "'";
-                        } else {
-                            ++failures;
-                            LOG(ERROR) << "FAIL: " << current.name << " expected status=" << current.expectedStatus
-                                       << " expected body fragment='" << current.expectedBody << "'"
-                                       << " got status=" << res->statusCode << " body='" << body << "'";
-                        }
+                if (statusOk && bodyOk) {
+                    LOG(INFO) << "PASS: " << current.name << " status=" << res->statusCode << " body='" << body << "'";
+                } else {
+                    ++failures;
+                    LOG(ERROR) << "FAIL: " << current.name << " expected status=" << current.expectedStatus
+                               << " expected body fragment='" << current.expectedBody << "'"
+                               << " got status=" << res->statusCode << " body='" << body << "'";
+                }
 
-                        dispatchNextRequest();
-                    },
-                    [this, current](const std::shared_ptr<Request>&, const std::string& reason) {
-                        ++failures;
-                        LOG(ERROR) << "FAIL: " << current.name << " parse-error: " << reason;
-                        dispatchNextRequest();
-                    });
+                masterRequest = req->getMasterRequest();
+                dispatchNextRequest();
+            },
+            [this, current](const std::shared_ptr<Request>& req, const std::string& reason) {
+                ++failures;
+                LOG(ERROR) << "FAIL: " << current.name << " parse-error: " << reason;
+                masterRequest = req->getMasterRequest();
+                dispatchNextRequest();
             });
-
-        activeClients.push_back(client);
-
-        client->connect("localhost",
-                        18080,
-                        [this, current](const Client::SocketAddress&, const core::socket::State& state) {
-                            if (state != core::socket::State::OK) {
-                                ++failures;
-                                LOG(ERROR) << "FAIL: " << current.name << " connect failed: " << state.what();
-                                dispatchNextRequest();
-                            }
-                        });
     }
 
     std::deque<TestCase> testCases;
-    std::vector<std::shared_ptr<Client>> activeClients;
+    std::shared_ptr<Client> client;
+    std::shared_ptr<MasterRequest> masterRequest;
     std::size_t failures = 0;
 };
 
