@@ -61,6 +61,15 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
+    class ClientFlowController {
+    public:
+        virtual ~ClientFlowController() = default;
+
+        virtual uint64_t getId() const = 0;
+        virtual bool terminateFlow() = 0;
+        virtual bool isTerminated() const = 0;
+    };
+
     /** Sequence diagram showing how a connect to a peer is performed.
     @startuml
     !include core/socket/stream/pu/SocketClient.pu
@@ -81,12 +90,24 @@ namespace core::socket::stream {
         using SocketAddress = typename SocketConnector::SocketAddress;
         using Config = typename SocketConnector::Config;
 
-        class FlowController final : public core::socket::stream::FlowController<FlowController> {
+        class FlowController final : public ClientFlowController, public core::socket::stream::FlowController<FlowController> {
         public:
             explicit FlowController(net::config::ConfigInstance* configInstance)
                 : core::socket::stream::FlowController<FlowController>(configInstance)
                 , onFlowReconnectCallback([](FlowController*) {
                 }) {
+            }
+
+            uint64_t getId() const override {
+                return core::socket::stream::FlowController<FlowController>::getId();
+            }
+
+            bool terminateFlow() override {
+                return core::socket::stream::FlowController<FlowController>::terminateFlow();
+            }
+
+            bool isTerminated() const override {
+                return core::socket::stream::FlowController<FlowController>::isTerminated();
             }
 
             void stopReconnect() {
@@ -410,6 +431,10 @@ namespace core::socket::stream {
         }
 
         FlowController* getFlowController() const {
+            return sharedContext->flowController.get();
+        }
+
+        ClientFlowController* getClientFlowController() const {
             return sharedContext->flowController.get();
         }
 
