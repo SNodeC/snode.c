@@ -87,32 +87,28 @@ int main(int argc, char* argv[]) {
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
-                const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
+                const std::string connectionName = req->getConnectionName();
 
                 VLOG(1) << connectionName << ": OnRequestEnd";
             });
 
-        legacyClient
-            .setOnInitState([]([[maybe_unused]] core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
-                VLOG(0) << "------------------- Legacy Client Init: " << connectEventReceiver;
-            })
-            .connect([instanceName = legacyClient.getConfig()->getInstanceName()](const LegacySocketAddress& socketAddress,
-                                                                                  const core::socket::State& state) {
-                switch (state) {
-                    case core::socket::State::OK:
-                        VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
-                        break;
-                    case core::socket::State::DISABLED:
-                        VLOG(1) << instanceName << " disabled";
-                        break;
-                    case core::socket::State::ERROR:
-                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                        break;
-                    case core::socket::State::FATAL:
-                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                        break;
-                }
-            }); // Connection:keep-alive\r\n\r\n"
+        legacyClient.connect([instanceName = legacyClient.getConfig()->getInstanceName()](const LegacySocketAddress& socketAddress,
+                                                                                          const core::socket::State& state) {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << instanceName << " disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    break;
+            }
+        }); // Connection:keep-alive\r\n\r\n"
 
         using TlsClient = web::http::tls::in::Client;
         using MasterRequest = TlsClient::MasterRequest;
@@ -144,32 +140,28 @@ int main(int argc, char* argv[]) {
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
-                const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
+                const std::string connectionName = req->getConnectionName();
 
                 VLOG(1) << connectionName << ": OnRequestEnd";
             });
 
-        tlsClient
-            .setOnInitState([]([[maybe_unused]] core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
-                VLOG(0) << "------------------- TLS Client Init: " << connectEventReceiver;
-            })
-            .connect([instanceName = tlsClient.getConfig()->getInstanceName()](const TLSSocketAddress& socketAddress,
-                                                                               const core::socket::State& state) {
-                switch (state) {
-                    case core::socket::State::OK:
-                        VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
-                        break;
-                    case core::socket::State::DISABLED:
-                        VLOG(1) << instanceName << " disabled";
-                        break;
-                    case core::socket::State::ERROR:
-                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                        break;
-                    case core::socket::State::FATAL:
-                        VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                        break;
-                }
-            }); // Connection:keep-alive\r\n\r\n"
+        tlsClient.connect([instanceName = tlsClient.getConfig()->getInstanceName()](const TLSSocketAddress& socketAddress,
+                                                                                    const core::socket::State& state) {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << instanceName << " disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    break;
+                case core::socket::State::FATAL:
+                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    break;
+            }
+        }); // Connection:keep-alive\r\n\r\n"
     }
 
     return core::SNodeC::start();
