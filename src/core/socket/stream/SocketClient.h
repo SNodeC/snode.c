@@ -46,6 +46,7 @@
 #include "core/SNodeC.h"
 #include "core/socket/Socket.h"                // IWYU pragma: export
 #include "core/socket/State.h"                 // IWYU pragma: export
+#include "core/socket/stream/ClientFlowController.h"
 #include "core/socket/stream/FlowController.h" // IWYU pragma: export
 #include "core/timer/Timer.h"
 
@@ -61,15 +62,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
-    class ClientFlowController {
-    public:
-        virtual ~ClientFlowController() = default;
-
-        virtual uint64_t getId() const = 0;
-        virtual bool terminateFlow() = 0;
-        virtual bool isTerminated() const = 0;
-    };
-
     /** Sequence diagram showing how a connect to a peer is performed.
     @startuml
     !include core/socket/stream/pu/SocketClient.pu
@@ -90,86 +82,6 @@ namespace core::socket::stream {
         using SocketAddress = typename SocketConnector::SocketAddress;
         using Config = typename SocketConnector::Config;
 
-        class FlowController final : public ClientFlowController, public core::socket::stream::FlowController<FlowController> {
-        public:
-            explicit FlowController(net::config::ConfigInstance* configInstance)
-                : core::socket::stream::FlowController<FlowController>(configInstance)
-                , onFlowReconnectCallback([](FlowController*) {
-                }) {
-            }
-
-            uint64_t getId() const override {
-                return core::socket::stream::FlowController<FlowController>::getId();
-            }
-
-            bool terminateFlow() override {
-                return core::socket::stream::FlowController<FlowController>::terminateFlow();
-            }
-
-            bool isTerminated() const override {
-                return core::socket::stream::FlowController<FlowController>::isTerminated();
-            }
-
-            void stopReconnect() {
-                reconnectEnabled = false;
-                cancelReconnectTimer();
-            }
-
-            bool isReconnectEnabled() const {
-                return reconnectEnabled;
-            }
-
-            FlowController* onFlowReconnect(const std::function<void(FlowController*)>& callback) {
-                const std::function<void(FlowController*)> oldCallback = onFlowReconnectCallback;
-                onFlowReconnectCallback = [oldCallback, callback](FlowController* flowController) {
-                    oldCallback(flowController);
-                    callback(flowController);
-                };
-
-                return this;
-            }
-
-            void reportFlowReconnect() {
-                onFlowReconnectCallback(this);
-            }
-
-            void observeConnectEventReceiver(core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
-                if (connectEventReceiver != nullptr && connectEventReceiver->isEnabled()) {
-                    this->connectEventReceiver = connectEventReceiver;
-                } else {
-                    this->connectEventReceiver = nullptr;
-                }
-            }
-
-            void armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {
-                if (reconnectEnabled) {
-                    reconnectTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(dispatcher, timeoutSeconds));
-                }
-            }
-
-        private:
-            void terminateAsyncSubFlow() override {
-                stopReconnect();
-                this->stopRetry();
-
-                if (connectEventReceiver != nullptr) {
-                    connectEventReceiver->stopConnect();
-                }
-            }
-
-            void cancelReconnectTimer() {
-                if (reconnectTimer) {
-                    reconnectTimer->cancel();
-                    reconnectTimer.reset();
-                }
-            }
-
-            bool reconnectEnabled{true};
-            core::eventreceiver::ConnectEventReceiver* connectEventReceiver{nullptr};
-            std::unique_ptr<core::timer::Timer> reconnectTimer;
-            std::function<void(FlowController*)> onFlowReconnectCallback;
-        };
-
     private:
         struct Context {
             Context(Config* config,
@@ -177,14 +89,14 @@ namespace core::socket::stream {
                     const std::function<void(SocketConnection*)>& onConnect,
                     const std::function<void(SocketConnection*)>& onConnected,
                     const std::function<void(SocketConnection*)>& onDisconnect)
-                : flowController(std::make_shared<FlowController>(config))
+                : flowController(std::make_shared<ClientFlowController>(config))
                 , socketContextFactory(socketContextFactory)
                 , onConnect(onConnect)
                 , onConnected(onConnected)
                 , onDisconnect(onDisconnect) {
             }
 
-            std::shared_ptr<FlowController> flowController;
+            std::shared_ptr<ClientFlowController> flowController;
 
             std::shared_ptr<SocketContextFactory> socketContextFactory;
 
@@ -430,11 +342,7 @@ namespace core::socket::stream {
             return *this;
         }
 
-        FlowController* getFlowController() const {
-            return sharedContext->flowController.get();
-        }
-
-        ClientFlowController* getClientFlowController() const {
+        ClientFlowController* getFlowController() const {
             return sharedContext->flowController.get();
         }
 

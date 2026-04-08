@@ -47,6 +47,7 @@
 #include "core/socket/Socket.h"                // IWYU pragma: export
 #include "core/socket/State.h"                 // IWYU pragma: export
 #include "core/socket/stream/FlowController.h" // IWYU pragma: export
+#include "core/socket/stream/ServerFlowController.h"
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -76,32 +77,6 @@ namespace core::socket::stream {
         using SocketAddress = typename SocketAcceptor::SocketAddress;
         using Config = typename SocketAcceptor::Config;
 
-        class FlowController final : public core::socket::stream::FlowController<FlowController> {
-        public:
-            explicit FlowController(net::config::ConfigInstance* configInstance)
-                : core::socket::stream::FlowController<FlowController>(configInstance) {
-            }
-
-            void observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
-                if (acceptEventReceiver != nullptr && acceptEventReceiver->isEnabled()) {
-                    this->acceptEventReceiver = acceptEventReceiver;
-                } else {
-                    this->acceptEventReceiver = nullptr;
-                }
-            }
-
-        private:
-            void terminateAsyncSubFlow() override {
-                this->stopRetry();
-
-                if (acceptEventReceiver != nullptr) {
-                    acceptEventReceiver->stopListen();
-                }
-            }
-
-            core::eventreceiver::AcceptEventReceiver* acceptEventReceiver{nullptr};
-        };
-
     private:
         struct Context {
             Context(Config* config,
@@ -109,14 +84,14 @@ namespace core::socket::stream {
                     const std::function<void(SocketConnection*)>& onConnect,
                     const std::function<void(SocketConnection*)>& onConnected,
                     const std::function<void(SocketConnection*)>& onDisconnect)
-                : flowController(std::make_shared<FlowController>(config))
+                : flowController(std::make_shared<ServerFlowController>(config))
                 , socketContextFactory(socketContextFactory)
                 , onConnect(onConnect)
                 , onConnected(onConnected)
                 , onDisconnect(onDisconnect) {
             }
 
-            std::shared_ptr<FlowController> flowController;
+            std::shared_ptr<ServerFlowController> flowController;
             std::shared_ptr<SocketContextFactory> socketContextFactory;
 
             std::function<void(SocketConnection*)> onConnect;
@@ -335,7 +310,7 @@ namespace core::socket::stream {
             return *this;
         }
 
-        FlowController* getFlowController() const {
+        ServerFlowController* getFlowController() const {
             return sharedContext->flowController.get();
         }
 
