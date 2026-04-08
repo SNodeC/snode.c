@@ -104,13 +104,6 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp
-        .setOnInitState([]([[maybe_unused]] core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
-            VLOG(0) << "------------------- Legacy Server Init: " << acceptEventReceiver
-                    << " - enabled: " << acceptEventReceiver->isEnabled();
-            if (acceptEventReceiver->isEnabled()) {
-                acceptEventReceiver->stopListen();
-            }
-        })
         .listen([instanceName = legacyApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress,
                                                                           const core::socket::State& state) {
             switch (state) {
@@ -127,6 +120,11 @@ int main(int argc, char* argv[]) {
                     VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
             }
+        })
+        .getFlowController()
+        ->onFlowStarted([](core::socket::stream::FlowController* flowController) {
+            VLOG(0) << "#################################: ";
+            flowController->terminateFlow();
         });
 
     VLOG(1) << "Legacy Routes:";
@@ -181,9 +179,6 @@ int main(int argc, char* argv[]) {
         });
 
         tlsApp
-            .setOnInitState([]([[maybe_unused]] core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
-                VLOG(0) << "------------------- TLS Server Init: " << acceptEventReceiver;
-            })
             .listen([instanceName = tlsApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress,
                                                                            const core::socket::State& state) {
                 switch (state) {
@@ -200,6 +195,11 @@ int main(int argc, char* argv[]) {
                         VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
+            })
+            .getFlowController()
+            ->onFlowStarted([](core::socket::stream::FlowController* flowController) {
+                VLOG(0) << "#################################: ";
+                flowController->terminateFlow();
             });
 
         VLOG(1) << "Tls Routes:";

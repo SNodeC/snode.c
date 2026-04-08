@@ -42,15 +42,17 @@
 #ifndef CORE_SOCKET_STREAM_FLOWCONTROLLER_H
 #define CORE_SOCKET_STREAM_FLOWCONTROLLER_H
 
-namespace core {
-    namespace timer {
-        class Timer;
-    }
+#include "core/timer/Timer.h"
 
+namespace core {
     namespace eventreceiver {
         class AcceptEventReceiver;
         class ConnectEventReceiver;
     } // namespace eventreceiver
+
+    namespace socket::stream {
+        class SocketContextFactory;
+    }
 } // namespace core
 
 namespace net::config {
@@ -59,8 +61,11 @@ namespace net::config {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
 #include <functional>
 #include <memory>
+#include <string>
+#include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -68,7 +73,7 @@ namespace core::socket::stream {
 
     class FlowController {
     public:
-        FlowController();
+        FlowController(net::config::ConfigInstance* configInstance);
 
         FlowController(const FlowController&) = delete;
         FlowController& operator=(const FlowController&) = delete;
@@ -78,7 +83,12 @@ namespace core::socket::stream {
 
         virtual ~FlowController();
 
+        std::string getInstanceName() const;
+
+        uint64_t getId() const;
+
         bool terminateFlow();
+        bool isTerminated() const;
 
         void stopRetry();
         bool isRetryEnabled() const;
@@ -86,59 +96,57 @@ namespace core::socket::stream {
         FlowController* setOnDestroy(const std::function<void(FlowController*)>& onDestroy);
 
         FlowController* onFlowRetry(const std::function<void(FlowController*)>& callback);
-        FlowController* onFlowCompleted(const std::function<void(FlowController*)>& callback);
+        FlowController* onFlowCompleted(const std::function<void(const std::string&)>& callback);
+        FlowController* onFlowCompleted(const std::function<void(uint64_t)>& callback);
         FlowController* onFlowTerminated(const std::function<void(FlowController*)>& callback);
         FlowController* onFlowStarted(const std::function<void(FlowController*)>& callback);
 
-        void observeConfig(net::config::ConfigInstance* configInstance);
-
+    protected:
         void reportFlowRetry();
-        void reportFlowCompleted();
         void reportFlowStarted();
 
         void armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
 
-    protected:
         virtual void terminateAsyncSubFlow() = 0;
 
     private:
+        uint64_t id{idCounter++};
+        static uint64_t idCounter;
         void cancelRetryTimer();
         void notifyFlowTerminated();
 
         bool retryEnabled{true};
         bool terminated{false};
-        bool flowCompletedNotified{false};
-        net::config::ConfigInstance* observedConfigInstance{nullptr};
+
+        net::config::ConfigInstance* observedConfigInstance;
 
         std::unique_ptr<core::timer::Timer> retryTimer;
 
         std::function<void(FlowController*)> onDestroy;
 
         std::function<void(FlowController*)> onFlowRetryCallback;
-        std::function<void(FlowController*)> onFlowCompletedCallback;
         std::function<void(FlowController*)> onFlowTerminatedCallback;
         std::function<void(FlowController*)> onFlowStartedCallback;
     };
 
     class ClientFlowController : public FlowController {
     public:
-        ClientFlowController();
+        ClientFlowController(net::config::ConfigInstance* configInstance);
 
         void stopReconnect();
         bool isReconnectEnabled() const;
 
         ClientFlowController* onFlowReconnect(const std::function<void(ClientFlowController*)>& callback);
 
+    private:
         void reportFlowReconnect();
 
         void observeConnectEventReceiver(core::eventreceiver::ConnectEventReceiver* connectEventReceiver);
 
         void armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
 
-    protected:
         void terminateAsyncSubFlow() override;
 
-    private:
         void cancelReconnectTimer();
 
         bool reconnectEnabled{true};
@@ -148,17 +156,28 @@ namespace core::socket::stream {
         std::unique_ptr<core::timer::Timer> reconnectTimer;
 
         std::function<void(ClientFlowController*)> onFlowReconnectCallback;
+
+        template <typename SocketConnectorT, typename SocketContextFactoryT, typename... Args>
+            requires std::is_base_of_v<core::eventreceiver::ConnectEventReceiver, SocketConnectorT> &&
+                     std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
+        friend class SocketClient;
     };
 
     class ServerFlowController : public FlowController {
     public:
-        void observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver);
-
-    protected:
-        void terminateAsyncSubFlow() override;
+        ServerFlowController(net::config::ConfigInstance* configInstance);
 
     private:
+        void observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver);
+
+        void terminateAsyncSubFlow() override;
+
         core::eventreceiver::AcceptEventReceiver* acceptEventReceiver{nullptr};
+
+        template <typename SocketAcceptorT, typename SocketContextFactoryT, typename... Args>
+            requires std::is_base_of_v<core::eventreceiver::AcceptEventReceiver, SocketAcceptorT> &&
+                     std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
+        friend class SocketServer;
     };
 
 } // namespace core::socket::stream

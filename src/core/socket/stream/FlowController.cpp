@@ -52,12 +52,13 @@
 
 namespace core::socket::stream {
 
-    FlowController::FlowController()
-        : onDestroy([](FlowController*) {
+    uint64_t FlowController::idCounter = 0;
+
+    FlowController::FlowController(net::config::ConfigInstance* configInstance)
+        : observedConfigInstance(configInstance)
+        , onDestroy([](FlowController*) {
         })
         , onFlowRetryCallback([](FlowController*) {
-        })
-        , onFlowCompletedCallback([](FlowController*) {
         })
         , onFlowTerminatedCallback([](FlowController*) {
         })
@@ -69,19 +70,33 @@ namespace core::socket::stream {
         onDestroy(this);
     }
 
+    std::string FlowController::getInstanceName() const {
+        return observedConfigInstance->getInstanceName();
+    }
+
+    uint64_t FlowController::getId() const {
+        return id;
+    }
+
     bool FlowController::terminateFlow() {
-        if (terminated) {
-            return false;
+        bool success = false;
+
+        if (!terminated) {
+            terminated = true;
+            retryEnabled = false;
+            cancelRetryTimer();
+
+            terminateAsyncSubFlow();
+            notifyFlowTerminated();
+
+            success = true;
         }
 
-        terminated = true;
-        retryEnabled = false;
-        cancelRetryTimer();
+        return success;
+    }
 
-        terminateAsyncSubFlow();
-        notifyFlowTerminated();
-
-        return true;
+    bool FlowController::isTerminated() const {
+        return terminated;
     }
 
     void FlowController::stopRetry() {
@@ -94,12 +109,10 @@ namespace core::socket::stream {
     }
 
     FlowController* FlowController::setOnDestroy(const std::function<void(FlowController*)>& onDestroy) {
-        const std::function<void(FlowController*)> oldOnDestroy = this->onDestroy;
+        observedConfigInstance->setOnDestroy([this, onDestroy](net::config::ConfigInstance*) {
+            onDestroy(this);
+        });
 
-        this->onDestroy = [oldOnDestroy, onDestroy](FlowController* control) {
-            oldOnDestroy(control);
-            onDestroy(control);
-        };
         return this;
     }
 
@@ -113,12 +126,19 @@ namespace core::socket::stream {
         return this;
     }
 
-    FlowController* FlowController::onFlowCompleted(const std::function<void(FlowController*)>& callback) {
-        const std::function<void(FlowController*)> oldCallback = onFlowCompletedCallback;
-        onFlowCompletedCallback = [oldCallback, callback](FlowController* flowController) {
-            oldCallback(flowController);
-            callback(flowController);
-        };
+    FlowController* FlowController::onFlowCompleted(const std::function<void(const std::string& instanceName)>& callback) {
+        observedConfigInstance->setOnDestroy(
+            [instanceName = observedConfigInstance->getInstanceName(), callback](net::config::ConfigInstance*) {
+                callback(instanceName);
+            });
+
+        return this;
+    }
+
+    FlowController* FlowController::onFlowCompleted(const std::function<void(uint64_t)>& callback) {
+        observedConfigInstance->setOnDestroy([id = getId(), callback](net::config::ConfigInstance*) {
+            callback(id);
+        });
 
         return this;
     }
@@ -143,27 +163,8 @@ namespace core::socket::stream {
         return this;
     }
 
-    void FlowController::observeConfig(net::config::ConfigInstance* configInstance) {
-        if (configInstance == nullptr || configInstance == observedConfigInstance) {
-            return;
-        }
-
-        observedConfigInstance = configInstance;
-
-        configInstance->setOnDestroy([this](net::config::ConfigInstance*) {
-            reportFlowCompleted();
-        });
-    }
-
     void FlowController::reportFlowRetry() {
         onFlowRetryCallback(this);
-    }
-
-    void FlowController::reportFlowCompleted() {
-        if (!flowCompletedNotified) {
-            flowCompletedNotified = true;
-            onFlowCompletedCallback(this);
-        }
     }
 
     void FlowController::reportFlowStarted() {
@@ -187,8 +188,9 @@ namespace core::socket::stream {
         onFlowTerminatedCallback(this);
     }
 
-    ClientFlowController::ClientFlowController()
-        : onFlowReconnectCallback([](ClientFlowController*) {
+    ClientFlowController::ClientFlowController(net::config::ConfigInstance* configInstance)
+        : FlowController(configInstance)
+        , onFlowReconnectCallback([](ClientFlowController*) {
         }) {
     }
 
@@ -243,6 +245,10 @@ namespace core::socket::stream {
             reconnectTimer->cancel();
             reconnectTimer.reset();
         }
+    }
+
+    ServerFlowController::ServerFlowController(net::config::ConfigInstance* configInstance)
+        : FlowController(configInstance) {
     }
 
     void ServerFlowController::observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
