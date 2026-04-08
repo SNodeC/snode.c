@@ -42,38 +42,44 @@
 #ifndef CORE_SOCKET_STREAM_FLOWCONTROLLER_H
 #define CORE_SOCKET_STREAM_FLOWCONTROLLER_H
 
+#include "core/EventReceiver.h"
 #include "core/timer/Timer.h"
-
-namespace core {
-    namespace eventreceiver {
-        class AcceptEventReceiver;
-        class ConnectEventReceiver;
-    } // namespace eventreceiver
-
-    namespace socket::stream {
-        class SocketContextFactory;
-    }
-} // namespace core
-
-namespace net::config {
-    class ConfigInstance;
-}
+#include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <atomic>
 #include <cstdint>
 #include <functional>
 #include <memory>
 #include <string>
-#include <type_traits>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
 
-    class FlowController {
+    namespace detail {
+        inline std::atomic_uint64_t flowControllerIdCounter = 0;
+    }
+
+    template <typename DerivedT>
+    class FlowController : public std::enable_shared_from_this<DerivedT> {
     public:
-        FlowController(net::config::ConfigInstance* configInstance);
+        using Derived = DerivedT;
+
+        explicit FlowController(net::config::ConfigInstance* configInstance)
+            : observedConfigInstance(configInstance)
+            , id(detail::flowControllerIdCounter.fetch_add(1, std::memory_order_relaxed))
+            , onDestroy([](Derived*) {
+            })
+            , onFlowRetryCallback([](Derived*) {
+            })
+            , onFlowTerminatedCallback([](Derived*) {
+            })
+            , onFlowStartedCallback([](Derived*) {
+            }) {
+        }
 
         FlowController(const FlowController&) = delete;
         FlowController& operator=(const FlowController&) = delete;
@@ -81,103 +87,159 @@ namespace core::socket::stream {
         FlowController(FlowController&&) = delete;
         FlowController& operator=(FlowController&&) = delete;
 
-        virtual ~FlowController();
+        virtual ~FlowController() {
+            onDestroy(self());
+        }
 
-        std::string getInstanceName() const;
+        std::string getInstanceName() const {
+            return observedConfigInstance->getInstanceName();
+        }
 
-        uint64_t getId() const;
+        uint64_t getId() const {
+            return id;
+        }
 
-        bool terminateFlow();
-        bool isTerminated() const;
+        void startFlow(const std::function<void()>& callback) {
+            std::weak_ptr<Derived> selfWeak = this->shared_from_this();
+            core::EventReceiver::atNextTick([selfWeak, callback]() {
+                if (const std::shared_ptr<Derived> selfLocked = selfWeak.lock(); selfLocked != nullptr && !selfLocked->isTerminated()) {
+                    selfLocked->reportFlowStarted();
+                    callback();
+                }
+            });
+        }
 
-        void stopRetry();
-        bool isRetryEnabled() const;
+        bool terminateFlow() {
+            bool success = false;
 
-        FlowController* setOnDestroy(const std::function<void(FlowController*)>& onDestroy);
+            if (!terminated) {
+                terminated = true;
+                retryEnabled = false;
+                cancelRetryTimer();
 
-        FlowController* onFlowRetry(const std::function<void(FlowController*)>& callback);
-        FlowController* onFlowCompleted(const std::function<void(const std::string&)>& callback);
-        FlowController* onFlowCompleted(const std::function<void(uint64_t)>& callback);
-        FlowController* onFlowTerminated(const std::function<void(FlowController*)>& callback);
-        FlowController* onFlowStarted(const std::function<void(FlowController*)>& callback);
+                terminateAsyncSubFlow();
+                notifyFlowTerminated();
+
+                success = true;
+            }
+
+            return success;
+        }
+
+        bool isTerminated() const {
+            return terminated;
+        }
+
+        void stopRetry() {
+            retryEnabled = false;
+            cancelRetryTimer();
+        }
+
+        bool isRetryEnabled() const {
+            return retryEnabled;
+        }
+
+        Derived* setOnDestroy(const std::function<void(Derived*)>& onDestroySet) {
+            observedConfigInstance->setOnDestroy([this, onDestroySet](net::config::ConfigInstance*) {
+                onDestroySet(self());
+            });
+
+            return self();
+        }
+
+        Derived* onFlowRetry(const std::function<void(Derived*)>& callback) {
+            const std::function<void(Derived*)> oldCallback = onFlowRetryCallback;
+            onFlowRetryCallback = [oldCallback, callback](Derived* flowController) {
+                oldCallback(flowController);
+                callback(flowController);
+            };
+
+            return self();
+        }
+
+        Derived* onFlowCompleted(const std::function<void(const std::string&)>& callback) {
+            observedConfigInstance->setOnDestroy(
+                [instanceName = observedConfigInstance->getInstanceName(), callback](net::config::ConfigInstance*) {
+                    callback(instanceName);
+                });
+
+            return self();
+        }
+
+        Derived* onFlowCompleted(const std::function<void(uint64_t)>& callback) {
+            observedConfigInstance->setOnDestroy([id = getId(), callback](net::config::ConfigInstance*) {
+                callback(id);
+            });
+
+            return self();
+        }
+
+        Derived* onFlowTerminated(const std::function<void(Derived*)>& callback) {
+            const std::function<void(Derived*)> oldCallback = onFlowTerminatedCallback;
+            onFlowTerminatedCallback = [oldCallback, callback](Derived* flowController) {
+                oldCallback(flowController);
+                callback(flowController);
+            };
+
+            return self();
+        }
+
+        Derived* onFlowStarted(const std::function<void(Derived*)>& callback) {
+            const std::function<void(Derived*)> oldCallback = onFlowStartedCallback;
+            onFlowStartedCallback = [oldCallback, callback](Derived* flowController) {
+                oldCallback(flowController);
+                callback(flowController);
+            };
+
+            return self();
+        }
 
     protected:
-        void reportFlowRetry();
-        void reportFlowStarted();
+        void reportFlowRetry() {
+            onFlowRetryCallback(self());
+        }
 
-        void armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
+        void reportFlowStarted() {
+            onFlowStartedCallback(self());
+        }
+
+        void armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {
+            if (retryEnabled) {
+                retryTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(dispatcher, timeoutSeconds));
+            }
+        }
 
         virtual void terminateAsyncSubFlow() = 0;
 
     private:
-        uint64_t id{idCounter++};
-        static uint64_t idCounter;
-        void cancelRetryTimer();
-        void notifyFlowTerminated();
+        Derived* self() {
+            return static_cast<Derived*>(this);
+        }
+
+        void cancelRetryTimer() {
+            if (retryTimer) {
+                retryTimer->cancel();
+                retryTimer.reset();
+            }
+        }
+
+        void notifyFlowTerminated() {
+            onFlowTerminatedCallback(self());
+        }
+
+        net::config::ConfigInstance* observedConfigInstance;
+        uint64_t id;
 
         bool retryEnabled{true};
         bool terminated{false};
 
-        net::config::ConfigInstance* observedConfigInstance;
-
         std::unique_ptr<core::timer::Timer> retryTimer;
 
-        std::function<void(FlowController*)> onDestroy;
+        std::function<void(Derived*)> onDestroy;
 
-        std::function<void(FlowController*)> onFlowRetryCallback;
-        std::function<void(FlowController*)> onFlowTerminatedCallback;
-        std::function<void(FlowController*)> onFlowStartedCallback;
-    };
-
-    class ClientFlowController : public FlowController {
-    public:
-        ClientFlowController(net::config::ConfigInstance* configInstance);
-
-        void stopReconnect();
-        bool isReconnectEnabled() const;
-
-        ClientFlowController* onFlowReconnect(const std::function<void(ClientFlowController*)>& callback);
-
-    private:
-        void reportFlowReconnect();
-
-        void observeConnectEventReceiver(core::eventreceiver::ConnectEventReceiver* connectEventReceiver);
-
-        void armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
-
-        void terminateAsyncSubFlow() override;
-
-        void cancelReconnectTimer();
-
-        bool reconnectEnabled{true};
-
-        core::eventreceiver::ConnectEventReceiver* connectEventReceiver{nullptr};
-
-        std::unique_ptr<core::timer::Timer> reconnectTimer;
-
-        std::function<void(ClientFlowController*)> onFlowReconnectCallback;
-
-        template <typename SocketConnectorT, typename SocketContextFactoryT, typename... Args>
-            requires std::is_base_of_v<core::eventreceiver::ConnectEventReceiver, SocketConnectorT> &&
-                     std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
-        friend class SocketClient;
-    };
-
-    class ServerFlowController : public FlowController {
-    public:
-        ServerFlowController(net::config::ConfigInstance* configInstance);
-
-    private:
-        void observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver);
-
-        void terminateAsyncSubFlow() override;
-
-        core::eventreceiver::AcceptEventReceiver* acceptEventReceiver{nullptr};
-
-        template <typename SocketAcceptorT, typename SocketContextFactoryT, typename... Args>
-            requires std::is_base_of_v<core::eventreceiver::AcceptEventReceiver, SocketAcceptorT> &&
-                     std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
-        friend class SocketServer;
+        std::function<void(Derived*)> onFlowRetryCallback;
+        std::function<void(Derived*)> onFlowTerminatedCallback;
+        std::function<void(Derived*)> onFlowStartedCallback;
     };
 
 } // namespace core::socket::stream

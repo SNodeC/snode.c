@@ -61,7 +61,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
-
     /** Sequence diagram showing how a connect to a peer is performed.
     @startuml
     !include core/socket/stream/pu/SocketClient.pu
@@ -82,6 +81,74 @@ namespace core::socket::stream {
         using SocketAddress = typename SocketConnector::SocketAddress;
         using Config = typename SocketConnector::Config;
 
+        class FlowController final : public core::socket::stream::FlowController<FlowController> {
+        public:
+            explicit FlowController(net::config::ConfigInstance* configInstance)
+                : core::socket::stream::FlowController<FlowController>(configInstance)
+                , onFlowReconnectCallback([](FlowController*) {
+                }) {
+            }
+
+            void stopReconnect() {
+                reconnectEnabled = false;
+                cancelReconnectTimer();
+            }
+
+            bool isReconnectEnabled() const {
+                return reconnectEnabled;
+            }
+
+            FlowController* onFlowReconnect(const std::function<void(FlowController*)>& callback) {
+                const std::function<void(FlowController*)> oldCallback = onFlowReconnectCallback;
+                onFlowReconnectCallback = [oldCallback, callback](FlowController* flowController) {
+                    oldCallback(flowController);
+                    callback(flowController);
+                };
+
+                return this;
+            }
+
+            void reportFlowReconnect() {
+                onFlowReconnectCallback(this);
+            }
+
+            void observeConnectEventReceiver(core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
+                if (connectEventReceiver != nullptr && connectEventReceiver->isEnabled()) {
+                    this->connectEventReceiver = connectEventReceiver;
+                } else {
+                    this->connectEventReceiver = nullptr;
+                }
+            }
+
+            void armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {
+                if (reconnectEnabled) {
+                    reconnectTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(dispatcher, timeoutSeconds));
+                }
+            }
+
+        private:
+            void terminateAsyncSubFlow() override {
+                stopReconnect();
+                this->stopRetry();
+
+                if (connectEventReceiver != nullptr) {
+                    connectEventReceiver->stopConnect();
+                }
+            }
+
+            void cancelReconnectTimer() {
+                if (reconnectTimer) {
+                    reconnectTimer->cancel();
+                    reconnectTimer.reset();
+                }
+            }
+
+            bool reconnectEnabled{true};
+            core::eventreceiver::ConnectEventReceiver* connectEventReceiver{nullptr};
+            std::unique_ptr<core::timer::Timer> reconnectTimer;
+            std::function<void(FlowController*)> onFlowReconnectCallback;
+        };
+
     private:
         struct Context {
             Context(Config* config,
@@ -89,14 +156,14 @@ namespace core::socket::stream {
                     const std::function<void(SocketConnection*)>& onConnect,
                     const std::function<void(SocketConnection*)>& onConnected,
                     const std::function<void(SocketConnection*)>& onDisconnect)
-                : flowController(std::make_shared<ClientFlowController>(config))
+                : flowController(std::make_shared<FlowController>(config))
                 , socketContextFactory(socketContextFactory)
                 , onConnect(onConnect)
                 , onConnected(onConnected)
                 , onDisconnect(onDisconnect) {
             }
 
-            std::shared_ptr<ClientFlowController> flowController;
+            std::shared_ptr<FlowController> flowController;
 
             std::shared_ptr<SocketContextFactory> socketContextFactory;
 
@@ -190,11 +257,8 @@ namespace core::socket::stream {
         const SocketClient& realConnect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                                         unsigned int tries,
                                         double retryTimeoutScale) const {
-            core::EventReceiver::atNextTick(
-                [config = this->config, sharedContext = this->sharedContext, onStatus, tries, retryTimeoutScale] {
-                    sharedContext->flowController->reportFlowStarted();
-
-                    if (config->Instance::getParent() != nullptr || !config->Instance::getRequired()) {
+            sharedContext->flowController->startFlow([config = this->config, sharedContext = this->sharedContext, onStatus, tries, retryTimeoutScale] {
+                if (config->Instance::getParent() != nullptr || !config->Instance::getRequired()) {
                         LOG(DEBUG) << config->getInstanceName() << ": Initiating connect";
 
                         if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
@@ -277,7 +341,7 @@ namespace core::socket::stream {
                     } else {
                         LOG(FATAL) << config->getInstanceName() << " required";
                     }
-                });
+            });
 
             return *this;
         }
@@ -345,7 +409,7 @@ namespace core::socket::stream {
             return *this;
         }
 
-        ClientFlowController* getFlowController() const {
+        FlowController* getFlowController() const {
             return sharedContext->flowController.get();
         }
 

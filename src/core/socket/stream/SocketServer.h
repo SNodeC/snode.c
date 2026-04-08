@@ -61,7 +61,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
-
     template <typename SocketAcceptorT, typename SocketContextFactoryT, typename... Args>
         requires std::is_base_of_v<core::eventreceiver::AcceptEventReceiver, SocketAcceptorT> &&
                  std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
@@ -77,6 +76,32 @@ namespace core::socket::stream {
         using SocketAddress = typename SocketAcceptor::SocketAddress;
         using Config = typename SocketAcceptor::Config;
 
+        class FlowController final : public core::socket::stream::FlowController<FlowController> {
+        public:
+            explicit FlowController(net::config::ConfigInstance* configInstance)
+                : core::socket::stream::FlowController<FlowController>(configInstance) {
+            }
+
+            void observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
+                if (acceptEventReceiver != nullptr && acceptEventReceiver->isEnabled()) {
+                    this->acceptEventReceiver = acceptEventReceiver;
+                } else {
+                    this->acceptEventReceiver = nullptr;
+                }
+            }
+
+        private:
+            void terminateAsyncSubFlow() override {
+                this->stopRetry();
+
+                if (acceptEventReceiver != nullptr) {
+                    acceptEventReceiver->stopListen();
+                }
+            }
+
+            core::eventreceiver::AcceptEventReceiver* acceptEventReceiver{nullptr};
+        };
+
     private:
         struct Context {
             Context(Config* config,
@@ -84,14 +109,14 @@ namespace core::socket::stream {
                     const std::function<void(SocketConnection*)>& onConnect,
                     const std::function<void(SocketConnection*)>& onConnected,
                     const std::function<void(SocketConnection*)>& onDisconnect)
-                : flowController(std::make_shared<ServerFlowController>(config))
+                : flowController(std::make_shared<FlowController>(config))
                 , socketContextFactory(socketContextFactory)
                 , onConnect(onConnect)
                 , onConnected(onConnected)
                 , onDisconnect(onDisconnect) {
             }
 
-            std::shared_ptr<ServerFlowController> flowController = std::make_shared<ServerFlowController>();
+            std::shared_ptr<FlowController> flowController;
             std::shared_ptr<SocketContextFactory> socketContextFactory;
 
             std::function<void(SocketConnection*)> onConnect;
@@ -106,7 +131,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)> onConnected,
                      const std::function<void(SocketConnection*)> onDisconnect)
             : Super(config)
-            , sharedContext(std::make_shared<Context>(config, socketContextFactory, onConnect, onConnected, onDisconnect)) {
+            , sharedContext(std::make_shared<Context>(config.get(), socketContextFactory, onConnect, onConnected, onDisconnect)) {
         }
 
         SocketServer(const std::shared_ptr<Config>& config, const std::shared_ptr<Context>& sharedContext)
@@ -185,11 +210,8 @@ namespace core::socket::stream {
         const SocketServer& realListen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                                        unsigned int tries,
                                        double retryTimeoutScale) const {
-            core::EventReceiver::atNextTick(
-                [config = this->config, sharedContext = this->sharedContext, onStatus, tries, retryTimeoutScale] {
-                    sharedContext->flowController->reportFlowStarted();
-
-                    if (config->Instance::getParent() != nullptr || !config->Instance::getRequired()) {
+            sharedContext->flowController->startFlow([config = this->config, sharedContext = this->sharedContext, onStatus, tries, retryTimeoutScale] {
+                if (config->Instance::getParent() != nullptr || !config->Instance::getRequired()) {
                         LOG(DEBUG) << config->getInstanceName() << ": Initiating listen";
 
                         if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
@@ -245,7 +267,7 @@ namespace core::socket::stream {
                     } else {
                         LOG(FATAL) << config->getInstanceName() << " required";
                     }
-                });
+            });
 
             return *this;
         }
@@ -313,7 +335,7 @@ namespace core::socket::stream {
             return *this;
         }
 
-        ServerFlowController* getFlowController() const {
+        FlowController* getFlowController() const {
             return sharedContext->flowController.get();
         }
 

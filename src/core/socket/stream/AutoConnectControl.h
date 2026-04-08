@@ -9,11 +9,14 @@
 
 namespace core::socket::stream {
 
-    class AutoConnectControl : public ClientFlowController {
+    template <typename FlowControllerT>
+    class AutoConnectControl : public FlowControllerT {
     public:
+        using FlowControllerT::FlowControllerT;
+
         void stopReconnectAndRetry() {
-            stopReconnect();
-            stopRetry();
+            this->stopReconnect();
+            this->stopRetry();
         }
     };
 

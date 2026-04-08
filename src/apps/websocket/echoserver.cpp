@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
             }
         })
         .getFlowController()
-        ->onFlowStarted([](core::socket::stream::FlowController* flowController) {
+        ->onFlowStarted([](auto* flowController) {
             VLOG(0) << "#################################: ";
             flowController->terminateFlow();
         });
@@ -197,7 +197,7 @@ int main(int argc, char* argv[]) {
                 }
             })
             .getFlowController()
-            ->onFlowStarted([](core::socket::stream::FlowController* flowController) {
+            ->onFlowStarted([](auto* flowController) {
                 VLOG(0) << "#################################: ";
                 flowController->terminateFlow();
             });
