@@ -64,7 +64,7 @@ namespace core {
 
 namespace core::socket::stream {
 
-    class ClientFlowController : public FlowController {
+    class ClientFlowController : public FlowController<ClientFlowController> {
     public:
         ClientFlowController(net::config::ConfigInstance* configInstance);
 
@@ -97,6 +97,8 @@ namespace core::socket::stream {
                      std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
         friend class SocketClient;
     };
+
+    extern template class FlowController<ClientFlowController>;
 
 } // namespace core::socket::stream
 

@@ -61,6 +61,7 @@ namespace net::config {
 
 namespace core::socket::stream {
 
+    template <typename ConcreteFlowController>
     class FlowController {
     public:
         FlowController(net::config::ConfigInstance* configInstance);
@@ -83,13 +84,13 @@ namespace core::socket::stream {
         void stopRetry();
         bool isRetryEnabled() const;
 
-        FlowController* setOnDestroy(const std::function<void(FlowController*)>& onDestroy);
+        ConcreteFlowController* setOnDestroy(const std::function<void(ConcreteFlowController*)>& onDestroy);
 
-        FlowController* onFlowRetry(const std::function<void(FlowController*)>& callback);
-        FlowController* onFlowCompleted(const std::function<void(const std::string&)>& callback);
-        FlowController* onFlowCompleted(const std::function<void(uint64_t)>& callback);
-        FlowController* onFlowTerminated(const std::function<void(FlowController*)>& callback);
-        FlowController* onFlowStarted(const std::function<void(FlowController*)>& callback);
+        ConcreteFlowController* onFlowRetry(const std::function<void(ConcreteFlowController*)>& callback);
+        ConcreteFlowController* onFlowCompleted(const std::function<void(const std::string&)>& callback);
+        ConcreteFlowController* onFlowCompleted(const std::function<void(uint64_t)>& callback);
+        ConcreteFlowController* onFlowTerminated(const std::function<void(ConcreteFlowController*)>& callback);
+        ConcreteFlowController* onFlowStarted(const std::function<void(ConcreteFlowController*)>& callback);
 
     protected:
         void reportFlowRetry();
@@ -112,11 +113,11 @@ namespace core::socket::stream {
 
         std::unique_ptr<core::timer::Timer> retryTimer;
 
-        std::function<void(FlowController*)> onDestroy;
+        std::function<void(ConcreteFlowController*)> onDestroy;
 
-        std::function<void(FlowController*)> onFlowRetryCallback;
-        std::function<void(FlowController*)> onFlowTerminatedCallback;
-        std::function<void(FlowController*)> onFlowStartedCallback;
+        std::function<void(ConcreteFlowController*)> onFlowRetryCallback;
+        std::function<void(ConcreteFlowController*)> onFlowTerminatedCallback;
+        std::function<void(ConcreteFlowController*)> onFlowStartedCallback;
     };
 
 } // namespace core::socket::stream

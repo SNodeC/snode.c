@@ -7,6 +7,7 @@
 #include "core/socket/stream/ClientFlowController.h"
 
 #include "core/eventreceiver/ConnectEventReceiver.h"
+#include "core/socket/stream/FlowController.hpp"
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -73,5 +74,7 @@ namespace core::socket::stream {
             reconnectTimer.reset();
         }
     }
+
+    template class FlowController<ClientFlowController>;
 
 } // namespace core::socket::stream

@@ -42,6 +42,7 @@
 #include "core/socket/stream/ServerFlowController.h"
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
+#include "core/socket/stream/FlowController.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -68,5 +69,7 @@ namespace core::socket::stream {
             acceptEventReceiver->stopListen();
         }
     }
+
+    template class FlowController<ServerFlowController>;
 
 } // namespace core::socket::stream
