@@ -92,6 +92,8 @@ namespace core::socket::stream {
         ConcreteFlowController* onFlowTerminated(const std::function<void(ConcreteFlowController*)>& callback);
         ConcreteFlowController* onFlowStarted(const std::function<void(ConcreteFlowController*)>& callback);
 
+        void startFlow(const std::function<void()>& callback);
+
     protected:
         void reportFlowRetry();
         void reportFlowStarted();
