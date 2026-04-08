@@ -47,10 +47,10 @@
 
 namespace core::socket::stream {
 
-    class ServerFlowController final : public core::socket::stream::FlowController<ServerFlowController> {
+    class ServerFlowController final : public core::socket::stream::FlowController {
     public:
         explicit ServerFlowController(net::config::ConfigInstance* configInstance)
-            : core::socket::stream::FlowController<ServerFlowController>(configInstance) {
+            : core::socket::stream::FlowController(configInstance) {
         }
 
         void observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {

@@ -55,10 +55,10 @@
 
 namespace core::socket::stream {
 
-    class ClientFlowController final : public core::socket::stream::FlowController<ClientFlowController> {
+    class ClientFlowController final : public core::socket::stream::FlowController {
     public:
         explicit ClientFlowController(net::config::ConfigInstance* configInstance)
-            : core::socket::stream::FlowController<ClientFlowController>(configInstance)
+            : core::socket::stream::FlowController(configInstance)
             , onFlowReconnectCallback([](ClientFlowController*) {
             }) {
         }
