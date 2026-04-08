@@ -42,21 +42,12 @@
 #ifndef CORE_SOCKET_STREAM_FLOWCONTROLLER_H
 #define CORE_SOCKET_STREAM_FLOWCONTROLLER_H
 
-#include "core/timer/Timer.h"
-
-namespace core {
-    namespace eventreceiver {
-        class AcceptEventReceiver;
-        class ConnectEventReceiver;
-    } // namespace eventreceiver
-
-    namespace socket::stream {
-        class SocketContextFactory;
-    }
-} // namespace core
+namespace core::timer {
+    class Timer;
+}
 
 namespace net::config {
-    class ConfigInstance;
+    class ConfigInstance; // IWYU pragma: export
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -65,7 +56,6 @@ namespace net::config {
 #include <functional>
 #include <memory>
 #include <string>
-#include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -127,57 +117,6 @@ namespace core::socket::stream {
         std::function<void(FlowController*)> onFlowRetryCallback;
         std::function<void(FlowController*)> onFlowTerminatedCallback;
         std::function<void(FlowController*)> onFlowStartedCallback;
-    };
-
-    class ClientFlowController : public FlowController {
-    public:
-        ClientFlowController(net::config::ConfigInstance* configInstance);
-
-        void stopReconnect();
-        bool isReconnectEnabled() const;
-
-        ClientFlowController* onFlowReconnect(const std::function<void(ClientFlowController*)>& callback);
-
-    private:
-        void reportFlowReconnect();
-
-        void observeConnectEventReceiver(core::eventreceiver::ConnectEventReceiver* connectEventReceiver);
-
-        void armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
-
-        void terminateAsyncSubFlow() override;
-
-        void cancelReconnectTimer();
-
-        bool reconnectEnabled{true};
-
-        core::eventreceiver::ConnectEventReceiver* connectEventReceiver{nullptr};
-
-        std::unique_ptr<core::timer::Timer> reconnectTimer;
-
-        std::function<void(ClientFlowController*)> onFlowReconnectCallback;
-
-        template <typename SocketConnectorT, typename SocketContextFactoryT, typename... Args>
-            requires std::is_base_of_v<core::eventreceiver::ConnectEventReceiver, SocketConnectorT> &&
-                     std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
-        friend class SocketClient;
-    };
-
-    class ServerFlowController : public FlowController {
-    public:
-        ServerFlowController(net::config::ConfigInstance* configInstance);
-
-    private:
-        void observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver);
-
-        void terminateAsyncSubFlow() override;
-
-        core::eventreceiver::AcceptEventReceiver* acceptEventReceiver{nullptr};
-
-        template <typename SocketAcceptorT, typename SocketContextFactoryT, typename... Args>
-            requires std::is_base_of_v<core::eventreceiver::AcceptEventReceiver, SocketAcceptorT> &&
-                     std::is_base_of_v<core::socket::stream::SocketContextFactory, SocketContextFactoryT>
-        friend class SocketServer;
     };
 
 } // namespace core::socket::stream

@@ -41,8 +41,6 @@
 
 #include "core/socket/stream/FlowController.h"
 
-#include "core/eventreceiver/AcceptEventReceiver.h"
-#include "core/eventreceiver/ConnectEventReceiver.h"
 #include "core/timer/Timer.h"
 #include "net/config/ConfigInstance.h"
 
@@ -186,85 +184,6 @@ namespace core::socket::stream {
 
     void FlowController::notifyFlowTerminated() {
         onFlowTerminatedCallback(this);
-    }
-
-    ClientFlowController::ClientFlowController(net::config::ConfigInstance* configInstance)
-        : FlowController(configInstance)
-        , onFlowReconnectCallback([](ClientFlowController*) {
-        }) {
-    }
-
-    void ClientFlowController::stopReconnect() {
-        reconnectEnabled = false;
-        cancelReconnectTimer();
-    }
-
-    bool ClientFlowController::isReconnectEnabled() const {
-        return reconnectEnabled;
-    }
-
-    ClientFlowController* ClientFlowController::onFlowReconnect(const std::function<void(ClientFlowController*)>& callback) {
-        const std::function<void(ClientFlowController*)> oldCallback = onFlowReconnectCallback;
-        onFlowReconnectCallback = [oldCallback, callback](ClientFlowController* flowController) {
-            oldCallback(flowController);
-            callback(flowController);
-        };
-
-        return this;
-    }
-
-    void ClientFlowController::reportFlowReconnect() {
-        onFlowReconnectCallback(this);
-    }
-
-    void ClientFlowController::observeConnectEventReceiver(core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
-        if (connectEventReceiver != nullptr && connectEventReceiver->isEnabled()) {
-            this->connectEventReceiver = connectEventReceiver;
-        } else {
-            this->connectEventReceiver = nullptr;
-        }
-    }
-
-    void ClientFlowController::armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {
-        if (reconnectEnabled) {
-            reconnectTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(dispatcher, timeoutSeconds));
-        }
-    }
-
-    void ClientFlowController::terminateAsyncSubFlow() {
-        stopReconnect();
-        stopRetry();
-
-        if (connectEventReceiver != nullptr) {
-            connectEventReceiver->stopConnect();
-        }
-    }
-
-    void ClientFlowController::cancelReconnectTimer() {
-        if (reconnectTimer) {
-            reconnectTimer->cancel();
-            reconnectTimer.reset();
-        }
-    }
-
-    ServerFlowController::ServerFlowController(net::config::ConfigInstance* configInstance)
-        : FlowController(configInstance) {
-    }
-
-    void ServerFlowController::observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
-        if (acceptEventReceiver != nullptr && acceptEventReceiver->isEnabled()) {
-            this->acceptEventReceiver = acceptEventReceiver;
-        } else {
-            this->acceptEventReceiver = nullptr;
-        }
-    }
-
-    void ServerFlowController::terminateAsyncSubFlow() {
-        stopRetry();
-
-        if (acceptEventReceiver != nullptr) {
-            acceptEventReceiver->stopListen();
-        }
     }
 
 } // namespace core::socket::stream

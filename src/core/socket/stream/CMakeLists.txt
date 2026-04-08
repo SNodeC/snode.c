@@ -40,12 +40,20 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(CORE_SOCKET_STREAM_CPP
-    FlowController.cpp SocketContext.cpp SocketContextFactory.cpp
-    SocketConnection.cpp SocketReader.cpp SocketWriter.cpp
+    FlowController.cpp
+    ClientFlowController.cpp
+    ServerFlowController.cpp
+    SocketContext.cpp
+    SocketContextFactory.cpp
+    SocketConnection.cpp
+    SocketReader.cpp
+    SocketWriter.cpp
 )
 
 set(CORE_SOCKET_STREAM_H
     FlowController.h
+    ClientFlowController.h
+    ServerFlowController.h
     SocketAcceptor.h
     SocketAcceptor.hpp
     SocketClient.h

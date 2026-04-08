@@ -44,9 +44,9 @@
 
 #include "core/EventReceiver.h"
 #include "core/SNodeC.h"
-#include "core/socket/Socket.h"                // IWYU pragma: export
-#include "core/socket/State.h"                 // IWYU pragma: export
-#include "core/socket/stream/FlowController.h" // IWYU pragma: export
+#include "core/socket/Socket.h"                      // IWYU pragma: export
+#include "core/socket/State.h"                       // IWYU pragma: export
+#include "core/socket/stream/ServerFlowController.h" // IWYU pragma: export
 #include "core/timer/Timer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
