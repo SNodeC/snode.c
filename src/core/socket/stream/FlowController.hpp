@@ -40,6 +40,7 @@
  */
 
 #include "core/socket/stream/FlowController.h"
+#include "core/EventReceiver.h"
 #include "core/timer/Timer.h"
 #include "net/config/ConfigInstance.h"
 
@@ -178,6 +179,17 @@ namespace core::socket::stream {
         };
 
         return dynamic_cast<ConcreteFlowController*>(this);
+    }
+
+
+    template <typename ConcreteFlowController>
+    void FlowController<ConcreteFlowController>::startFlow(const std::function<void()>& callback) {
+        core::EventReceiver::atNextTick([this, callback] {
+            if (!terminated) {
+                reportFlowStarted();
+                callback();
+            }
+        });
     }
 
     template <typename ConcreteFlowController>
