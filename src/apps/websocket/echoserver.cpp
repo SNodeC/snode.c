@@ -121,11 +121,7 @@ int main(int argc, char* argv[]) {
                     break;
             }
         })
-        .getFlowController()
-        ->onFlowStarted([](core::socket::stream::ServerFlowController* flowController) {
-            VLOG(0) << "#################################: ";
-            flowController->terminateFlow();
-        });
+        .getFlowController();
 
     VLOG(1) << "Legacy Routes:";
     for (std::string& route : legacyApp.getRoutes()) {
@@ -196,11 +192,7 @@ int main(int argc, char* argv[]) {
                         break;
                 }
             })
-            .getFlowController()
-            ->onFlowStarted([](core::socket::stream::ServerFlowController* flowController) {
-                VLOG(0) << "#################################: ";
-                flowController->terminateFlow();
-            });
+            .getFlowController();
 
         VLOG(1) << "Tls Routes:";
         for (std::string& route : legacyApp.getRoutes()) {

@@ -44,6 +44,8 @@
 
 #include "core/socket/stream/FlowController.h" // IWYU pragma: export
 
+// IWYU pragma: no_include "core/socket/stream/FlowController.hpp"
+
 namespace core {
     namespace socket::stream {
         class SocketContextFactory;

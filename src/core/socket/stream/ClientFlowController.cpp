@@ -31,7 +31,7 @@ namespace core::socket::stream {
         return reconnectEnabled;
     }
 
-    ClientFlowController* ClientFlowController::onFlowReconnect(const std::function<void(ClientFlowController*)>& callback) {
+    ClientFlowController* ClientFlowController::setOnFlowReconnect(const std::function<void(ClientFlowController*)>& callback) {
         const std::function<void(ClientFlowController*)> oldCallback = onFlowReconnectCallback;
         onFlowReconnectCallback = [oldCallback, callback](ClientFlowController* flowController) {
             oldCallback(flowController);

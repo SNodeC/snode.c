@@ -45,6 +45,8 @@
 #include "core/socket/stream/FlowController.h" // IWYU pragma: export
 #include "core/timer/Timer.h"
 
+// IWYU pragma: no_include "core/socket/stream/FlowController.hpp"
+
 namespace core {
     namespace socket::stream {
         class SocketContextFactory;
@@ -71,7 +73,7 @@ namespace core::socket::stream {
         void stopReconnect();
         bool isReconnectEnabled() const;
 
-        ClientFlowController* onFlowReconnect(const std::function<void(ClientFlowController*)>& callback);
+        ClientFlowController* setOnFlowReconnect(const std::function<void(ClientFlowController*)>& callback);
 
     private:
         void reportFlowReconnect();
