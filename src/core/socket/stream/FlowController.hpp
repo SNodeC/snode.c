@@ -39,8 +39,8 @@
  * THE SOFTWARE.
  */
 
-#include "core/socket/stream/FlowController.h"
 #include "core/EventReceiver.h"
+#include "core/socket/stream/FlowController.h"
 #include "core/timer/Timer.h"
 #include "net/config/ConfigInstance.h"
 
@@ -56,20 +56,14 @@ namespace core::socket::stream {
     template <typename ConcreteFlowController>
     FlowController<ConcreteFlowController>::FlowController(net::config::ConfigInstance* configInstance)
         : observedConfigInstance(configInstance)
-        , onDestroy([](FlowController*) {
-        })
         , onFlowRetryCallback([](FlowController*) {
         })
         , onFlowTerminatedCallback([](FlowController*) {
-        })
-        , onFlowStartedCallback([](FlowController*) {
         }) {
     }
 
     template <typename ConcreteFlowController>
-    FlowController<ConcreteFlowController>::~FlowController() {
-        onDestroy(dynamic_cast<ConcreteFlowController*>(this));
-    }
+    FlowController<ConcreteFlowController>::~FlowController() = default;
 
     template <typename ConcreteFlowController>
     std::string FlowController<ConcreteFlowController>::getInstanceName() const {
@@ -117,17 +111,7 @@ namespace core::socket::stream {
 
     template <typename ConcreteFlowController>
     ConcreteFlowController*
-    FlowController<ConcreteFlowController>::setOnDestroy(const std::function<void(ConcreteFlowController*)>& onDestroy) {
-        observedConfigInstance->setOnDestroy([this, onDestroy](net::config::ConfigInstance*) {
-            onDestroy(dynamic_cast<ConcreteFlowController*>(this));
-        });
-
-        return dynamic_cast<ConcreteFlowController*>(this);
-    }
-
-    template <typename ConcreteFlowController>
-    ConcreteFlowController*
-    FlowController<ConcreteFlowController>::onFlowRetry(const std::function<void(ConcreteFlowController*)>& callback) {
+    FlowController<ConcreteFlowController>::setOnFlowRetry(const std::function<void(ConcreteFlowController*)>& callback) {
         const std::function<void(ConcreteFlowController*)> oldCallback = onFlowRetryCallback;
         onFlowRetryCallback = [oldCallback, callback](ConcreteFlowController* flowController) {
             oldCallback(flowController);
@@ -139,7 +123,7 @@ namespace core::socket::stream {
 
     template <typename ConcreteFlowController>
     ConcreteFlowController*
-    FlowController<ConcreteFlowController>::onFlowCompleted(const std::function<void(const std::string& instanceName)>& callback) {
+    FlowController<ConcreteFlowController>::setOnFlowCompleted(const std::function<void(const std::string& instanceName)>& callback) {
         observedConfigInstance->setOnDestroy(
             [instanceName = observedConfigInstance->getInstanceName(), callback](net::config::ConfigInstance*) {
                 callback(instanceName);
@@ -149,7 +133,7 @@ namespace core::socket::stream {
     }
 
     template <typename ConcreteFlowController>
-    ConcreteFlowController* FlowController<ConcreteFlowController>::onFlowCompleted(const std::function<void(uint64_t)>& callback) {
+    ConcreteFlowController* FlowController<ConcreteFlowController>::setOnFlowCompleted(const std::function<void(uint64_t)>& callback) {
         observedConfigInstance->setOnDestroy([id = getId(), callback](net::config::ConfigInstance*) {
             callback(id);
         });
@@ -159,7 +143,7 @@ namespace core::socket::stream {
 
     template <typename ConcreteFlowController>
     ConcreteFlowController*
-    FlowController<ConcreteFlowController>::onFlowTerminated(const std::function<void(ConcreteFlowController*)>& callback) {
+    FlowController<ConcreteFlowController>::setOnFlowTerminated(const std::function<void(ConcreteFlowController*)>& callback) {
         const std::function<void(ConcreteFlowController*)> oldCallback = onFlowTerminatedCallback;
         onFlowTerminatedCallback = [oldCallback, callback](ConcreteFlowController* flowController) {
             oldCallback(flowController);
@@ -170,23 +154,9 @@ namespace core::socket::stream {
     }
 
     template <typename ConcreteFlowController>
-    ConcreteFlowController*
-    FlowController<ConcreteFlowController>::onFlowStarted(const std::function<void(ConcreteFlowController*)>& callback) {
-        const std::function<void(ConcreteFlowController*)> oldCallback = onFlowStartedCallback;
-        onFlowStartedCallback = [oldCallback, callback](ConcreteFlowController* flowController) {
-            oldCallback(flowController);
-            callback(flowController);
-        };
-
-        return dynamic_cast<ConcreteFlowController*>(this);
-    }
-
-
-    template <typename ConcreteFlowController>
     void FlowController<ConcreteFlowController>::startFlow(const std::function<void()>& callback) {
         core::EventReceiver::atNextTick([this, callback] {
             if (!terminated) {
-                reportFlowStarted();
                 callback();
             }
         });
@@ -195,11 +165,6 @@ namespace core::socket::stream {
     template <typename ConcreteFlowController>
     void FlowController<ConcreteFlowController>::reportFlowRetry() {
         onFlowRetryCallback(dynamic_cast<ConcreteFlowController*>(this));
-    }
-
-    template <typename ConcreteFlowController>
-    void FlowController<ConcreteFlowController>::reportFlowStarted() {
-        onFlowStartedCallback(dynamic_cast<ConcreteFlowController*>(this));
     }
 
     template <typename ConcreteFlowController>

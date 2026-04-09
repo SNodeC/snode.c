@@ -84,19 +84,15 @@ namespace core::socket::stream {
         void stopRetry();
         bool isRetryEnabled() const;
 
-        ConcreteFlowController* setOnDestroy(const std::function<void(ConcreteFlowController*)>& onDestroy);
-
-        ConcreteFlowController* onFlowRetry(const std::function<void(ConcreteFlowController*)>& callback);
-        ConcreteFlowController* onFlowCompleted(const std::function<void(const std::string&)>& callback);
-        ConcreteFlowController* onFlowCompleted(const std::function<void(uint64_t)>& callback);
-        ConcreteFlowController* onFlowTerminated(const std::function<void(ConcreteFlowController*)>& callback);
-        ConcreteFlowController* onFlowStarted(const std::function<void(ConcreteFlowController*)>& callback);
+        ConcreteFlowController* setOnFlowRetry(const std::function<void(ConcreteFlowController*)>& callback);
+        ConcreteFlowController* setOnFlowCompleted(const std::function<void(const std::string&)>& callback);
+        ConcreteFlowController* setOnFlowCompleted(const std::function<void(uint64_t)>& callback);
+        ConcreteFlowController* setOnFlowTerminated(const std::function<void(ConcreteFlowController*)>& callback);
 
         void startFlow(const std::function<void()>& callback);
 
     protected:
         void reportFlowRetry();
-        void reportFlowStarted();
 
         void armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
 
@@ -115,11 +111,8 @@ namespace core::socket::stream {
 
         std::unique_ptr<core::timer::Timer> retryTimer;
 
-        std::function<void(ConcreteFlowController*)> onDestroy;
-
         std::function<void(ConcreteFlowController*)> onFlowRetryCallback;
         std::function<void(ConcreteFlowController*)> onFlowTerminatedCallback;
-        std::function<void(ConcreteFlowController*)> onFlowStartedCallback;
     };
 
 } // namespace core::socket::stream
