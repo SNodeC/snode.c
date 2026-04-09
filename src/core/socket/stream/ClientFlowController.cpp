@@ -46,10 +46,12 @@ namespace core::socket::stream {
     }
 
     void ClientFlowController::observeConnectEventReceiver(core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
-        if (connectEventReceiver != nullptr && connectEventReceiver->isEnabled()) {
-            this->connectEventReceiver = connectEventReceiver;
-        } else {
-            this->connectEventReceiver = nullptr;
+        if (connectEventReceiver != nullptr) {
+            if (connectEventReceiver->isEnabled()) {
+                connectEventReceivers.insert(connectEventReceiver);
+            } else {
+                connectEventReceivers.erase(connectEventReceiver);
+            }
         }
     }
 
@@ -63,8 +65,13 @@ namespace core::socket::stream {
         stopReconnect();
         stopRetry();
 
-        if (connectEventReceiver != nullptr) {
-            connectEventReceiver->stopConnect();
+        const auto stopConnectEventReceivers = connectEventReceivers;
+        connectEventReceivers.clear();
+
+        for (core::eventreceiver::ConnectEventReceiver* connectEventReceiver : stopConnectEventReceivers) {
+            if (connectEventReceiver != nullptr) {
+                connectEventReceiver->stopConnect();
+            }
         }
     }
 

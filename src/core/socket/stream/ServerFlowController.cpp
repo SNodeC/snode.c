@@ -55,18 +55,25 @@ namespace core::socket::stream {
     }
 
     void ServerFlowController::observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
-        if (acceptEventReceiver != nullptr && acceptEventReceiver->isEnabled()) {
-            this->acceptEventReceiver = acceptEventReceiver;
-        } else {
-            this->acceptEventReceiver = nullptr;
+        if (acceptEventReceiver != nullptr) {
+            if (acceptEventReceiver->isEnabled()) {
+                acceptEventReceivers.insert(acceptEventReceiver);
+            } else {
+                acceptEventReceivers.erase(acceptEventReceiver);
+            }
         }
     }
 
     void ServerFlowController::terminateAsyncSubFlow() {
         stopRetry();
 
-        if (acceptEventReceiver != nullptr) {
-            acceptEventReceiver->stopListen();
+        const auto stopAcceptEventReceivers = acceptEventReceivers;
+        acceptEventReceivers.clear();
+
+        for (core::eventreceiver::AcceptEventReceiver* acceptEventReceiver : stopAcceptEventReceivers) {
+            if (acceptEventReceiver != nullptr) {
+                acceptEventReceiver->stopListen();
+            }
         }
     }
 

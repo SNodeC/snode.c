@@ -46,6 +46,12 @@
 
 // IWYU pragma: no_include "core/socket/stream/FlowController.hpp"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <set>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 namespace core {
     namespace socket::stream {
         class SocketContextFactory;
@@ -72,7 +78,7 @@ namespace core::socket::stream {
 
         void terminateAsyncSubFlow() override;
 
-        core::eventreceiver::AcceptEventReceiver* acceptEventReceiver{nullptr};
+        std::set<core::eventreceiver::AcceptEventReceiver*> acceptEventReceivers;
 
         template <typename SocketAcceptorT, typename SocketContextFactoryT, typename... Args>
             requires std::is_base_of_v<core::eventreceiver::AcceptEventReceiver, SocketAcceptorT> &&
