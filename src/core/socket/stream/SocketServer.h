@@ -84,14 +84,14 @@ namespace core::socket::stream {
                     const std::function<void(SocketConnection*)>& onConnect,
                     const std::function<void(SocketConnection*)>& onConnected,
                     const std::function<void(SocketConnection*)>& onDisconnect)
-                : flowController(std::make_shared<ServerFlowController>(config))
+                : flowController(config)
                 , socketContextFactory(socketContextFactory)
                 , onConnect(onConnect)
                 , onConnected(onConnected)
                 , onDisconnect(onDisconnect) {
             }
 
-            std::shared_ptr<ServerFlowController> flowController = std::make_shared<ServerFlowController>();
+            ServerFlowController flowController;
             std::shared_ptr<SocketContextFactory> socketContextFactory;
 
             std::function<void(SocketConnection*)> onConnect;
@@ -185,9 +185,8 @@ namespace core::socket::stream {
         const SocketServer& realListen(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                                        unsigned int tries,
                                        double retryTimeoutScale) const {
-            sharedContext->flowController->startFlow(
+            sharedContext->flowController.startFlow(
                 [config = this->config, sharedContext = this->sharedContext, onStatus, tries, retryTimeoutScale] {
-
                     if (config->Instance::getParent() != nullptr || !config->Instance::getRequired()) {
                         LOG(DEBUG) << config->getInstanceName() << ": Initiating listen";
 
@@ -198,7 +197,7 @@ namespace core::socket::stream {
                                 sharedContext->onConnected,
                                 sharedContext->onDisconnect,
                                 [sharedContext](core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
-                                    sharedContext->flowController->observeAcceptEventReceiver(acceptEventReceiver);
+                                    sharedContext->flowController.observeAcceptEventReceiver(acceptEventReceiver);
                                 },
                                 [config, sharedContext, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
                                                                                             core::socket::State state) {
@@ -207,7 +206,7 @@ namespace core::socket::stream {
                                     onStatus(socketAddress, state);
 
                                     if (retryFlag && config->getRetry() // Shall we potentially retry? In case are the ...
-                                        && sharedContext->flowController->isRetryEnabled() &&
+                                        && sharedContext->flowController.isRetryEnabled() &&
                                         (config->getRetryTries() == 0 ||
                                          tries < config->getRetryTries()) // ... limits not reached and has an ...
                                         && (state == core::socket::State::ERROR ||
@@ -223,14 +222,14 @@ namespace core::socket::stream {
                                         LOG(INFO)
                                             << config->getInstanceName() << ": Retry listen in " << relativeRetryTimeout << " seconds";
 
-                                        sharedContext->flowController->armRetryTimer(
+                                        sharedContext->flowController.armRetryTimer(
                                             relativeRetryTimeout,
                                             [config, sharedContext, /*generation,*/ onStatus, tries, retryTimeoutScale]() {
-                                                if (!sharedContext->flowController->isRetryEnabled()) {
+                                                if (!sharedContext->flowController.isRetryEnabled()) {
                                                     return;
                                                 }
                                                 if (config->getRetry()) {
-                                                    sharedContext->flowController->reportFlowRetry();
+                                                    sharedContext->flowController.reportFlowRetry();
                                                     SocketServer(config, sharedContext)
                                                         .realListen(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
                                                 } else {
@@ -313,7 +312,7 @@ namespace core::socket::stream {
         }
 
         ServerFlowController* getFlowController() const {
-            return sharedContext->flowController.get();
+            return &sharedContext->flowController;
         }
 
         std::shared_ptr<SocketContextFactory> getSocketContextFactory() const {
