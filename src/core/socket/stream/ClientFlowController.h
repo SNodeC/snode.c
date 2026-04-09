@@ -60,6 +60,7 @@ namespace core {
 
 #include <functional>
 #include <memory>
+#include <set>
 #include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -88,7 +89,7 @@ namespace core::socket::stream {
 
         bool reconnectEnabled{true};
 
-        core::eventreceiver::ConnectEventReceiver* connectEventReceiver{nullptr};
+        std::set<core::eventreceiver::ConnectEventReceiver*> connectEventReceivers;
 
         std::unique_ptr<core::timer::Timer> reconnectTimer;
 
