@@ -67,14 +67,13 @@ namespace core::socket::stream {
     void ServerFlowController::terminateAsyncSubFlow() {
         stopRetry();
 
-        const auto stopAcceptEventReceivers = acceptEventReceivers;
-        acceptEventReceivers.clear();
-
-        for (core::eventreceiver::AcceptEventReceiver* acceptEventReceiver : stopAcceptEventReceivers) {
+        for (core::eventreceiver::AcceptEventReceiver* acceptEventReceiver : acceptEventReceivers) {
             if (acceptEventReceiver != nullptr) {
                 acceptEventReceiver->stopListen();
             }
         }
+
+        acceptEventReceivers.clear();
     }
 
     template class FlowController<ServerFlowController>;

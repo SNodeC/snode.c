@@ -65,14 +65,13 @@ namespace core::socket::stream {
         stopReconnect();
         stopRetry();
 
-        const auto stopConnectEventReceivers = connectEventReceivers;
-        connectEventReceivers.clear();
-
-        for (core::eventreceiver::ConnectEventReceiver* connectEventReceiver : stopConnectEventReceivers) {
+        for (core::eventreceiver::ConnectEventReceiver* connectEventReceiver : connectEventReceivers) {
             if (connectEventReceiver != nullptr) {
                 connectEventReceiver->stopConnect();
             }
         }
+
+        connectEventReceivers.clear();
     }
 
     void ClientFlowController::cancelReconnectTimer() {
