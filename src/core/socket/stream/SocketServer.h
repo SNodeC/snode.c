@@ -97,17 +97,7 @@ namespace core::socket::stream {
             std::function<void(SocketConnection*)> onConnect;
             std::function<void(SocketConnection*)> onConnected;
             std::function<void(SocketConnection*)> onDisconnect;
-            //            std::function<void(core::eventreceiver::AcceptEventReceiver*)> onInitState;
         };
-
-        SocketServer(const std::shared_ptr<Config>& config,
-                     const std::shared_ptr<SocketContextFactory>& socketContextFactory,
-                     const std::function<void(SocketConnection*)> onConnect,
-                     const std::function<void(SocketConnection*)> onConnected,
-                     const std::function<void(SocketConnection*)> onDisconnect)
-            : Super(config)
-            , sharedContext(std::make_shared<Context>(config, socketContextFactory, onConnect, onConnected, onDisconnect)) {
-        }
 
         SocketServer(const std::shared_ptr<Config>& config, const std::shared_ptr<Context>& sharedContext)
             : Super(config)
