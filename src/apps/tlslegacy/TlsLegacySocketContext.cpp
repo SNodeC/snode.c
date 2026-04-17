@@ -46,7 +46,7 @@ namespace apps::tlslegacy {
 
         legacyRetryTimer = core::timer::Timer::intervalTimer(
             [this, payload](const std::function<void()>& stop) {
-                if ((role == Role::CLIENT && legacyReplySeen) || (role == Role::SERVER && legacyPayloadSeen)) {
+                if (role == Role::CLIENT && legacyReplySeen) {
                     stop();
                     return;
                 }
@@ -68,7 +68,7 @@ namespace apps::tlslegacy {
             legacyReplySeen = true;
             legacyRetryTimer.cancel();
             VLOG(1) << getSocketConnection()->getConnectionName() << ": got LEGACY ack -> post-TLS plaintext path works";
-            close();
+            shutdownWrite();
         }
     }
 
@@ -82,7 +82,7 @@ namespace apps::tlslegacy {
             legacyRetryTimer.cancel();
             sendToPeer(LEGACY_ACK);
             VLOG(1) << getSocketConnection()->getConnectionName() << ": received LEGACY payload after TLS shutdown";
-            close();
+            shutdownWrite();
         }
     }
 
