@@ -394,7 +394,7 @@ namespace utils {
         logFileOpt = setConfigurable(addLogFileFlag(logDirectory + "/" + applicationName + ".log"), true);
 
         monochromLogOpt = setConfigurable(addFlagFunction( //
-                                              "-m{true},--monochrom-logmonochromLogOption{true}",
+                                              "-m{true},--monochrom{true}",
                                               [&monochromLogOpt = this->monochromLogOpt]() {
                                                   if (monochromLogOpt->as<bool>()) {
                                                       logger::Logger::setDisableColor(true);
@@ -523,7 +523,7 @@ namespace utils {
             }
         });
 
-        bool proceed = parse2(argc, argv);
+        const bool proceed = parse2(argc, argv);
 
         return proceed;
     }
