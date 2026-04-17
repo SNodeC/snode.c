@@ -88,3 +88,24 @@ For adoption growth, the key multiplier is excellent documentation and compatibi
 ### Interpretation
 - `spdlog` itself is not the limiting factor here; suppressed-path overhead is lower than easylogging++ due to macro short-circuiting before stream creation; enabled-path overhead is also now below easylogging++ after removing custom line assembly and using native spdlog pattern formatting for timestamp/tick rendering.
 - To approach ~1x parity or better, call sites should progressively move from stream insertion chains to native fmt-style `spdlog` calls and avoid stream-buffer assembly on suppressed paths.
+
+## Additional 2026 engineering review addendum
+
+### SNode.C: concrete technical observations
+
+- **TLS shutdown semantics are intentionally transport-reversible.** In `core/socket/stream/tls`, reads and writes transparently fall back to plain socket I/O once TLS close-notify has been exchanged on the corresponding direction. This is unusual in many frameworks and is a powerful capability for controlled protocol transitions.
+- **Backpressure discipline is explicit and predictable.** Writer-side buffering, shutdown fencing (`shutdownInProgress`), and source suspension combine into a coherent flow-control strategy.
+- **SocketContext switching is elegant but under-documented.** The deferred context switch mechanism (via `newSocketContext`) is robust and could support richer protocol upgrade/downgrade paths with clearer official patterns.
+- **Operational defaults remain practical.** Timeouts, TLS options, and cert paths are all CLI/configurable, enabling production override without recompilation.
+
+### MQTTSuite-focused recommendations
+
+1. **Publish an explicit compatibility target grid** for broker/client versions, QoS permutations, retained messages, and session-resume behavior.
+2. **Ship reference topology manifests** (single broker, broker bridge, edge-to-cloud fan-in, MQTT-over-WS ingress) to reduce adoption friction.
+3. **Formalize performance SLO baselines** (connect rate, publish throughput by payload size/QoS, reconnect recovery time) and include reproducible benchmark harness scripts.
+4. **Expand chaos and fault drills** into CI/nightly pipelines (network jitter, packet reorder/loss, abrupt TLS teardown, broker failover).
+5. **Codify observability conventions** (structured logs, correlation IDs, per-session metrics) so multi-process deployments are easier to operate.
+
+### Strategic verdict
+
+SNode.C remains strongest where fine-grained transport control and protocol composition matter. MQTTSuite should continue to position itself as the operational showcase for those strengths, especially around mixed transport paths (plain TCP, TLS, and MQTT-over-WebSocket) and resilient deployment recipes.
