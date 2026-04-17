@@ -85,6 +85,7 @@ namespace core {
         const std::string& getName() const;
 
     private:
+        bool failed = false;
         Event event;
     };
 

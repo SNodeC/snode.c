@@ -201,6 +201,7 @@ namespace core {
     }
 
     void DescriptorEventReceiver::onEventError() {
+        EventReceiver::onEventError();
         disable();
     }
 
