@@ -47,6 +47,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
+#include <exception>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -81,7 +85,15 @@ namespace core {
 
     void Event::dispatch(const utils::Timeval& currentTime) {
         published = false;
-        eventReceiver->onEvent(currentTime);
+        try {
+            eventReceiver->onEvent(currentTime);
+        } catch (const std::exception& ex) {
+            LOG(ERROR) << eventReceiver->getName() << ": Unhandled exception in event handler: " << ex.what();
+            eventReceiver->onEventError();
+        } catch (...) {
+            LOG(ERROR) << eventReceiver->getName() << ": Unhandled unknown exception in event handler";
+            eventReceiver->onEventError();
+        }
     }
 
     EventReceiver* Event::getEventReceiver() const {

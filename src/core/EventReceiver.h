@@ -80,6 +80,7 @@ namespace core {
         void relax();
 
         virtual void onEvent(const utils::Timeval& currentTime) = 0;
+        virtual void onEventError();
 
         const std::string& getName() const;
 

@@ -84,6 +84,10 @@ namespace core {
         event.relax();
     }
 
+    void EventReceiver::onEventError() {
+        destruct();
+    }
+
     const std::string& EventReceiver::getName() const {
         return event.getName();
     }
