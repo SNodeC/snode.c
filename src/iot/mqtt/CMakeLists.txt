@@ -133,7 +133,7 @@ else()
     message(
         WARNING
             " nlohmann-json3-dev not found:\n"
-            "   nlohmann_json is used for MQTT. Plaase install it by executing\n"
+            "   nlohmann_json is used for MQTT. Please install it by executing\n"
             "       sudo apt install nlohmann-json3-dev"
     )
 endif()
