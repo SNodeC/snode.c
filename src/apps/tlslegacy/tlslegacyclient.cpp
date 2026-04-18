@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     using SocketClient = net::in::stream::tls::SocketClient<apps::tlslegacy::TlsLegacyClientSocketContextFactory>;
-    SocketClient client("tls-legacy-client");
+    const SocketClient client("tls-legacy-client");
 
     client.getConfig()->setCaCert("certs/Volker_Christian_-_Web_CA.crt");
     client.getConfig()->setCaCertAcceptUnknown(true);

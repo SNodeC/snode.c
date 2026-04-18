@@ -11,6 +11,11 @@
 #include "core/socket/stream/SocketContextFactory.h"
 #include "core/timer/Timer.h"
 
+namespace core::socket::stream {
+    class SocketConnection;
+}
+
+#include <cstddef>
 #include <string>
 
 namespace apps::tlslegacy {

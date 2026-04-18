@@ -6,8 +6,10 @@
 
 #include "TlsLegacySocketContext.h"
 
+#include "core/socket/stream/SocketConnection.h"
 #include "log/Logger.h"
-#include "utils/Timeval.h"
+
+#include <functional>
 
 namespace {
     constexpr const char* TLS_HELLO = "TLS_HELLO\n";
@@ -60,14 +62,14 @@ namespace apps::tlslegacy {
     void TlsLegacySocketContext::onClientLine(const std::string& line) {
         if (line == TLS_ACK && !tlsReplySeen) {
             tlsReplySeen = true;
-            VLOG(1) << getSocketConnection()->getConnectionName()
-                    << ": got TLS ack, initiating TLS shutdown handshake (close_notify)";
+            VLOG(1) << getSocketConnection()->getConnectionName() << ": got TLS ack, initiating TLS shutdown handshake (close_notify) "
+                    << line;
             shutdownWrite();
             startLegacyRetryTimer(LEGACY_HELLO);
         } else if (line == LEGACY_ACK && !legacyReplySeen) {
             legacyReplySeen = true;
             legacyRetryTimer.cancel();
-            VLOG(1) << getSocketConnection()->getConnectionName() << ": got LEGACY ack -> post-TLS plaintext path works";
+            VLOG(1) << getSocketConnection()->getConnectionName() << ": got LEGACY ack -> post-TLS plaintext path works " << line;
             shutdownWrite();
         }
     }
@@ -76,12 +78,12 @@ namespace apps::tlslegacy {
         if (line == TLS_HELLO && !tlsReplySeen) {
             tlsReplySeen = true;
             sendToPeer(TLS_ACK);
-            VLOG(1) << getSocketConnection()->getConnectionName() << ": TLS phase complete, waiting for peer close_notify";
+            VLOG(1) << getSocketConnection()->getConnectionName() << ": TLS phase complete, waiting for peer close_notify " << line;
         } else if (line == LEGACY_HELLO && !legacyPayloadSeen) {
             legacyPayloadSeen = true;
             legacyRetryTimer.cancel();
             sendToPeer(LEGACY_ACK);
-            VLOG(1) << getSocketConnection()->getConnectionName() << ": received LEGACY payload after TLS shutdown";
+            VLOG(1) << getSocketConnection()->getConnectionName() << ": received LEGACY payload after TLS shutdown " << line;
             shutdownWrite();
         }
     }
@@ -98,7 +100,7 @@ namespace apps::tlslegacy {
 
         std::size_t pos = std::string::npos;
         while ((pos = inboundBuffer.find('\n')) != std::string::npos) {
-            std::string line = inboundBuffer.substr(0, pos + 1);
+            const std::string line = inboundBuffer.substr(0, pos + 1);
             inboundBuffer.erase(0, pos + 1);
 
             if (role == Role::CLIENT) {

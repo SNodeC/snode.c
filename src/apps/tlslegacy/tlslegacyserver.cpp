@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     using SocketServer = net::in::stream::tls::SocketServer<apps::tlslegacy::TlsLegacyServerSocketContextFactory>;
-    SocketServer server("tls-legacy-server");
+    const SocketServer server("tls-legacy-server");
 
     server.getConfig()->setCert("certs/snodec.home.vchrist.at_-_snode.c_-_server.pem");
     server.getConfig()->setCertKey("certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem");
