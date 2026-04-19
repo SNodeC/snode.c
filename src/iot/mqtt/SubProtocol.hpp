@@ -70,6 +70,11 @@ namespace iot::mqtt {
                 buffer.clear();
                 cursor = 0;
             }
+        },
+                                  [this]() {
+                                      LOG(ERROR) << getSocketConnection()->getConnectionName()
+                                                 << " WsMqtt: closing socket due to exception in MQTT receive processing";
+                                      getSocketConnection()->close();
         }) {
     }
 
