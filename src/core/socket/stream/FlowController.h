@@ -85,8 +85,7 @@ namespace core::socket::stream {
         bool isRetryEnabled() const;
 
         ConcreteFlowController* setOnFlowRetry(const std::function<void(ConcreteFlowController*)>& callback);
-        ConcreteFlowController* setOnFlowCompleted(const std::function<void(const std::string&)>& callback);
-        ConcreteFlowController* setOnFlowCompleted(const std::function<void(uint64_t)>& callback);
+        ConcreteFlowController* setOnFlowCompleted(const std::function<void(uint64_t, const std::string&)>& callback);
         ConcreteFlowController* setOnFlowTerminated(const std::function<void(ConcreteFlowController*)>& callback);
 
         void startFlow(const std::function<void()>& callback);

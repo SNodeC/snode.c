@@ -198,9 +198,9 @@ target_link_libraries(
                             net-in-stream-legacy
 )
 set_target_properties(
-    testexpressnext
-    PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
+    testexpressnext PROPERTIES INSTALL_RPATH
+                               "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
 install(TARGETS testexpressnext RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                COMPONENT apps
+                                        COMPONENT apps
 )

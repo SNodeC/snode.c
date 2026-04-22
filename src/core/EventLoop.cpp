@@ -51,7 +51,6 @@
 #include "utils/system/signal.h"
 
 #include <chrono>
-#include <cstring>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -295,7 +294,8 @@ namespace core {
     }
 
     void EventLoop::stoponsig(int sig) {
-        LOG(TRACE) << "Core: Received signal '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
+        LOG(TRACE) << "Core: Received signal '" << utils::system::strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = "
+                   << sig << ")";
         stopsig = sig;
         stop();
     }

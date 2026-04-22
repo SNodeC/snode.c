@@ -123,19 +123,9 @@ namespace core::socket::stream {
 
     template <typename ConcreteFlowController>
     ConcreteFlowController*
-    FlowController<ConcreteFlowController>::setOnFlowCompleted(const std::function<void(const std::string& instanceName)>& callback) {
-        observedConfigInstance->setOnDestroy(
-            [instanceName = observedConfigInstance->getInstanceName(), callback](net::config::ConfigInstance*) {
-                callback(instanceName);
-            });
-
-        return dynamic_cast<ConcreteFlowController*>(this);
-    }
-
-    template <typename ConcreteFlowController>
-    ConcreteFlowController* FlowController<ConcreteFlowController>::setOnFlowCompleted(const std::function<void(uint64_t)>& callback) {
-        observedConfigInstance->setOnDestroy([id = getId(), callback](net::config::ConfigInstance*) {
-            callback(id);
+    FlowController<ConcreteFlowController>::setOnFlowCompleted(const std::function<void(uint64_t, const std::string&)>& callback) {
+        observedConfigInstance->setOnDestroy([callback, id = getId()](net::config::ConfigInstance* configInstance) {
+            callback(id, configInstance->getInstanceName());
         });
 
         return dynamic_cast<ConcreteFlowController*>(this);
