@@ -301,6 +301,12 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onEventError() {
+        LOG(ERROR) << connectionName << ": Disabling connection due to unhandled exception in event handler";
+        close();
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onReceivedFromPeer(std::size_t available) {
         std::size_t consumed = socketContext->readFromPeer();
 
