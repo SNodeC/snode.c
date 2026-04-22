@@ -52,6 +52,7 @@ namespace core {
 
 #include "utils/Timeval.h"
 
+#include <exception>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -108,6 +109,8 @@ namespace core {
         utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
 
         void checkTimeout(const utils::Timeval& currentTime);
+
+        void onEventException(std::exception_ptr exceptionPtr) override;
 
     private:
         void onEvent(const utils::Timeval& currentTime) final;
