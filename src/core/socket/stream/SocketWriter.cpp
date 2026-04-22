@@ -84,6 +84,11 @@ namespace core::socket::stream {
         }
     }
 
+    void SocketWriter::onEventException(std::exception_ptr exceptionPtr) {
+        core::eventreceiver::WriteEventReceiver::onEventException(exceptionPtr);
+        onStatus(EIO);
+    }
+
     ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
         return core::system::send(this->getRegisteredFd(), chunk, chunkLen, MSG_NOSIGNAL);
     }
