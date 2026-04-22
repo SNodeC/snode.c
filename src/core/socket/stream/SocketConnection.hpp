@@ -48,9 +48,7 @@
 #include "utils/PreserveErrno.h"
 #include "utils/system/signal.h"
 
-#include <cstddef>
 #include <iomanip>
-#include <string>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -345,7 +343,7 @@ namespace core::socket::stream {
             case SIGABRT:
                 [[fallthrough]];
             case SIGHUP:
-                LOG(DEBUG) << connectionName << ": Shutting down due to signal '" << strsignal(signum) << "' (SIG"
+                LOG(DEBUG) << connectionName << ": Shutting down due to signal '" << utils::system::strsignal(signum) << "' (SIG"
                            << utils::system::sigabbrev_np(signum) << " [" << signum << "])";
                 break;
             case SIGALRM:

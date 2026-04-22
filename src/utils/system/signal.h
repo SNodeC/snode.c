@@ -59,6 +59,8 @@ namespace utils::system {
 
     std::string sigabbrev_np(int sig);
 
+    std::string strsignal(int sig);
+
 } // namespace utils::system
 
 #endif // NET_SYSTEM_SIGNAL_H
