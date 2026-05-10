@@ -198,6 +198,7 @@ namespace CLI {
         label("Nonpersistent Options", "Options (nonpersistent)");
         label("Usage", "\nUsage");
         label("BOOL:{true,false}", "{true,false}");
+        label("bool:{true,false}", "{true,false}");
         label("TRISTAT:{true,false,default}", "{true,false,default}");
         label("MODE:{standard,active,complete,required}", "{standard,active,complete,required}");
         label("MODE:{standard,exact,expanded}", "{standard,exact,expanded}");
