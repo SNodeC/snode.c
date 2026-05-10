@@ -126,6 +126,7 @@ namespace utils {
     }
 
     SubCommand::~SubCommand() {
+        removeSubCommand();
     }
 
     std::string SubCommand::getName() const {
@@ -153,13 +154,21 @@ namespace utils {
     }
 
     void SubCommand::removeSubCommand() {
-        for (const SubCommand* child : childSubCommands) {
+        while (!childSubCommands.empty()) {
+            SubCommand* child = *childSubCommands.begin();
+            childSubCommands.erase(child);
+
             delete child;
         }
-        childSubCommands.clear();
 
         if (parent != nullptr) {
-            parent->subCommandApp->remove_subcommand(subCommandApp);
+            parent->childSubCommands.erase(this);
+
+            if (parent->subCommandApp != nullptr && subCommandApp != nullptr) {
+                parent->subCommandApp->remove_subcommand(subCommandApp);
+            }
+
+            parent = nullptr;
         }
     }
 

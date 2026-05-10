@@ -256,6 +256,9 @@ namespace utils {
 
     private:
         std::shared_ptr<AppWithPtr> selfAnchoredSubCommandApp;
+        // Owns only SubCommand objects allocated by newSubCommand().
+        // ConfigSection base subobjects registered through multiple inheritance are
+        // attached to the CLI tree but must not be deleted through this set.
         std::set<SubCommand*> childSubCommands;
 
         int requiredCount = 0;
