@@ -95,7 +95,7 @@ namespace net::in::stream {
                              uint16_t bindPort,
                              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setHost(ipOrHostname)->setPort(port);
-            Super::getConfig()->Local::setHost(bindPort);
+            Super::getConfig()->Local::setPort(bindPort);
 
             return connect(onStatus);
         }
