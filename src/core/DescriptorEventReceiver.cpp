@@ -171,6 +171,14 @@ namespace core {
         dispatchEvent();
     }
 
+    void DescriptorEventReceiver::onEventException(std::exception_ptr exceptionPtr) {
+        EventReceiver::onEventException(exceptionPtr);
+
+        if (isEnabled()) {
+            disable();
+        }
+    }
+
     void DescriptorEventReceiver::onSignal(int signum) {
         signalEvent(signum);
     }

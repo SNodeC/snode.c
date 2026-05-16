@@ -48,6 +48,7 @@
 
 #include "utils/Timeval.h"
 
+#include <exception>
 #include <cstddef>
 #include <functional>
 #include <string>
@@ -76,6 +77,7 @@ namespace core::socket::stream {
         virtual void onReceivedFromPeer(std::size_t available) = 0;
 
         void readEvent() final;
+        void onEventException(std::exception_ptr exceptionPtr) override;
 
         std::size_t doRead();
         void signalEvent(int sigNum) final;

@@ -43,6 +43,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
+#include <exception>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -74,6 +78,18 @@ namespace core {
 
     void EventReceiver::destruct() {
         delete this;
+    }
+
+    void EventReceiver::onEventException(std::exception_ptr exceptionPtr) {
+        try {
+            if (exceptionPtr != nullptr) {
+                std::rethrow_exception(exceptionPtr);
+            }
+        } catch (const std::exception& ex) {
+            LOG(ERROR) << getName() << ": Unhandled exception in event callback: " << ex.what();
+        } catch (...) {
+            LOG(ERROR) << getName() << ": Unhandled non-standard exception in event callback";
+        }
     }
 
     void EventReceiver::span() {

@@ -52,6 +52,7 @@ namespace core::pipe {
 
 #include "utils/Timeval.h"
 
+#include <exception>
 #include <cstddef>
 #include <functional>
 #include <string>
@@ -79,6 +80,7 @@ namespace core::socket::stream {
     private:
         void writeEvent() final;
         void signalEvent(int sigNum) final;
+        void onEventException(std::exception_ptr exceptionPtr) override;
 
         void doWrite();
 

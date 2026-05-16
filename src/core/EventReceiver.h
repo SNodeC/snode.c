@@ -46,6 +46,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <exception>
 #include <functional>
 
 namespace utils {
@@ -80,6 +81,7 @@ namespace core {
         void relax();
 
         virtual void onEvent(const utils::Timeval& currentTime) = 0;
+        virtual void onEventException(std::exception_ptr exceptionPtr);
 
         const std::string& getName() const;
 

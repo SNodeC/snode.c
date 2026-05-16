@@ -47,6 +47,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <exception>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -81,7 +83,11 @@ namespace core {
 
     void Event::dispatch(const utils::Timeval& currentTime) {
         published = false;
-        eventReceiver->onEvent(currentTime);
+        try {
+            eventReceiver->onEvent(currentTime);
+        } catch (...) {
+            eventReceiver->onEventException(std::current_exception());
+        }
     }
 
     EventReceiver* Event::getEventReceiver() const {

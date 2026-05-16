@@ -79,6 +79,11 @@ namespace core::socket::stream {
         }
     }
 
+    void SocketReader::onEventException(std::exception_ptr exceptionPtr) {
+        core::eventreceiver::ReadEventReceiver::onEventException(exceptionPtr);
+        onStatus(EIO);
+    }
+
     void SocketReader::signalEvent([[maybe_unused]] int sigNum) { // Do nothing in case a signal was received
     }
 
