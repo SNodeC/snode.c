@@ -47,13 +47,20 @@
 
 namespace iot::mqtt {
 
-    OnReceivedFromPeerEvent::OnReceivedFromPeerEvent(const std::function<void(const utils::Timeval&)>& onReceivedFromPeer)
+    OnReceivedFromPeerEvent::OnReceivedFromPeerEvent(const std::function<void(const utils::Timeval&)>& onReceivedFromPeer,
+                                                     const std::function<void()>& onError)
         : core::EventReceiver("WS-OnData")
-        , onReceivedFromPeer(onReceivedFromPeer) {
+        , onReceivedFromPeer(onReceivedFromPeer)
+        , onError(onError) {
     }
 
     void OnReceivedFromPeerEvent::onEvent(const utils::Timeval& currentTime) {
         onReceivedFromPeer(currentTime);
+    }
+
+    void OnReceivedFromPeerEvent::onEventError() {
+        core::EventReceiver::onEventError();
+        onError();
     }
 
 } // namespace iot::mqtt

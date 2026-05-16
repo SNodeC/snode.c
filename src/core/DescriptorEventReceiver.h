@@ -112,6 +112,7 @@ namespace core {
     private:
         void onEvent(const utils::Timeval& currentTime) final;
         void onSignal(int signum);
+        void onEventError() override;
 
         void triggered(const utils::Timeval& currentTime);
         void setEnabled(const utils::Timeval& currentTime);
