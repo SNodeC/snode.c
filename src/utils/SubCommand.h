@@ -141,6 +141,8 @@ namespace utils {
         SubCommand* setRequireCallback(const std::function<void(void)>& callback);
         SubCommand* finalCallback(const std::function<void()>& finalCallback);
 
+        void runRequireCallbacks() const;
+
         void addSubCommandApp(std::shared_ptr<utils::AppWithPtr> subCommand);
 
         template <typename NewSubCommand, typename... Args>
@@ -260,6 +262,8 @@ namespace utils {
         // ConfigSection base subobjects registered through multiple inheritance are
         // attached to the CLI tree but must not be deleted through this set.
         std::set<SubCommand*> childSubCommands;
+
+        std::function<void()> requireCallback;
 
         int requiredCount = 0;
         bool requiredForced = false;

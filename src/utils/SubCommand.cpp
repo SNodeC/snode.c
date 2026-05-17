@@ -41,8 +41,6 @@
 
 #include "SubCommand.h"
 
-#include "utils/Formatter.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -70,19 +68,15 @@ namespace utils {
             subCommandApp->configurable(false);
             subCommandApp->fallthrough();
 
-            static const std::shared_ptr<CLI::HelpFormatter> helpFormatter = std::make_shared<CLI::HelpFormatter>();
-            subCommandApp->formatter(helpFormatter);
-
-            static const std::shared_ptr<CLI::Config> configFormatter = std::make_shared<CLI::ConfigFormatter>();
-            subCommandApp->config_formatter(configFormatter);
-
             subCommandApp->option_defaults()->take_last()->group(subCommandApp->get_formatter()->get_label("Nonpersistent Options"));
 
+            subCommandApp->set_help_flag("");
             helpOpt = setConfigurable(subCommandApp
-                                          ->set_help_flag(
+                                          ->add_flag_function(
                                               "--help{exact},-h{exact}",
-                                              [subCommandApp = this->subCommandApp](std::size_t) {
+                                              [subCommandApp = this->subCommandApp](std::int64_t) {
                                                   helpTriggerApp = subCommandApp;
+                                                  throw CLI::CallForHelp();
                                               },
                                               "Print help message and exit\n"
                                               "* standard: display help for the last command processed\n"
@@ -90,7 +84,8 @@ namespace utils {
                                           ->type_name("MODE")
                                           ->take_first()
                                           ->check(CLI::IsMember({"standard", "exact"}))
-                                          ->trigger_on_parse(),
+                                          ->trigger_on_parse()
+                                          ->callback_priority(CLI::CallbackPriority::FirstPreHelp),
                                       false);
 
             showConfigOpt = setConfigurable(subCommandApp
@@ -103,7 +98,8 @@ namespace utils {
                                                 ->take_first()
                                                 ->disable_flag_override()
                                                 ->configurable(false)
-                                                ->trigger_on_parse(),
+                                                ->trigger_on_parse()
+                                                ->callback_priority(CLI::CallbackPriority::FirstPreHelp),
                                             false);
 
             commandlineOpt = setConfigurable(subCommandApp
@@ -120,7 +116,8 @@ namespace utils {
                                                  ->type_name("MODE")
                                                  ->take_first()
                                                  ->check(CLI::IsMember({"standard", "active", "complete", "required"}))
-                                                 ->trigger_on_parse(),
+                                                 ->trigger_on_parse()
+                                                 ->callback_priority(CLI::CallbackPriority::FirstPreHelp),
                                              false);
         }
     }
@@ -177,7 +174,29 @@ namespace utils {
     }
 
     std::string SubCommand::help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const {
-        return subCommandApp->help(helpApp, "", mode);
+        if (helpApp == nullptr) {
+            return subCommandApp->help("", mode);
+        }
+
+        std::vector<std::string> parents;
+        const CLI::App* parentApp = helpApp->get_parent();
+        while (parentApp != nullptr) {
+            parents.push_back(parentApp->get_name());
+            if (parentApp == subCommandApp) {
+                break;
+            }
+            parentApp = parentApp->get_parent();
+        }
+
+        std::string previous;
+        for (auto it = parents.rbegin(); it != parents.rend(); ++it) {
+            if (!previous.empty()) {
+                previous += " ";
+            }
+            previous += *it;
+        }
+
+        return helpApp->help(previous, mode);
     }
 
     bool SubCommand::hasParent() const {
@@ -268,9 +287,19 @@ namespace utils {
     }
 
     SubCommand* SubCommand::setRequireCallback(const std::function<void()>& callback) {
-        subCommandApp->require_callback(callback);
+        requireCallback = callback;
 
         return this;
+    }
+
+    void SubCommand::runRequireCallbacks() const {
+        if (requireCallback) {
+            requireCallback();
+        }
+
+        for (const SubCommand* childSubCommand : childSubCommands) {
+            childSubCommand->runRequireCallbacks();
+        }
     }
 
     SubCommand* SubCommand::finalCallback(const std::function<void()>& finalCallback) {
