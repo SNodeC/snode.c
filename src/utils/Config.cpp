@@ -562,6 +562,7 @@ namespace utils {
                     commandlineTriggerApp = nullptr;
 
                     parse(argc, argv);
+                    runRequireCallbacks();
 
                     if (!parse1) {
                         if (showConfigTriggerApp != nullptr) {

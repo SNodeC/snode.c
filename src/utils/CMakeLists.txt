@@ -42,7 +42,6 @@ cmake_minimum_required(VERSION 3.18)
 set(UTILS_CPP
     Config.cpp
     Daemon.cpp
-    Formatter.cpp
     PreserveErrno.cpp
     Random.cpp
     SubCommand.cpp
@@ -60,7 +59,6 @@ set(UTILS_H
     CLI11.hpp
     Config.h
     Daemon.h
-    Formatter.h
     PreserveErrno.h
     Random.h
     SubCommand.h
@@ -76,12 +74,6 @@ set(UTILS_H
 append_source_file_config(
     Config.cpp GROUP_NAME "Group name of group used for config file management"
     snodec
-)
-
-set_property(
-    SOURCE SubCommand.cpp
-    APPEND
-    PROPERTY COMPILE_DEFINITIONS CLI11_USE_OLD_HELP_PROCESSING
 )
 
 add_library(utils SHARED ${UTILS_CPP} ${UTILS_H})
