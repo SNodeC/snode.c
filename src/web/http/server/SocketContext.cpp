@@ -92,13 +92,13 @@ namespace web::http::server {
               }) {
     }
 
-    SocketContext* SocketContext::onConnected(std::function<void()> onConnectEventReceiver) {
+    SocketContext* SocketContext::setOnConnected(std::function<void()> onConnectEventReceiver) {
         onConnectEventReceiverList.push_back(std::move(onConnectEventReceiver));
 
         return this;
     }
 
-    SocketContext* SocketContext::onDisconnected(std::function<void()> onDisconnectEventReceiver) {
+    SocketContext* SocketContext::setOnDisconnected(std::function<void()> onDisconnectEventReceiver) {
         onDisconnectEventReceiverList.push_back(std::move(onDisconnectEventReceiver));
 
         return this;
