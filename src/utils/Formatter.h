@@ -93,8 +93,6 @@ namespace CLI {
         ~HelpFormatter() override;
 
     private:
-        std::string make_group(std::string group, bool is_positional, std::vector<const Option*> opts) const override;
-        std::string make_description(const App* app) const override;
         std::string make_usage(const App* app, std::string name) const override;
         std::string make_footer(const App* app) const override;
         std::string make_subcommands(const App* app, AppFormatMode mode) const override;
