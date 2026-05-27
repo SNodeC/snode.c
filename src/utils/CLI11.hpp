@@ -912,10 +912,10 @@ find_member(std::string name, const std::vector<std::string> names, bool ignore_
     return (it != std::end(names)) ? (it - std::begin(names)) : (-1);
 }
 
-CLI11_MODULE_INLINE const std::string &escapedChars("\b\t\n\f\r\"\\");
-CLI11_MODULE_INLINE const std::string &escapedCharsCode("btnfr\"\\");
-CLI11_MODULE_INLINE const std::string &bracketChars("\"'`[(<{");
-CLI11_MODULE_INLINE const std::string &matchBracketChars("\"'`])>}");
+CLI11_MODULE_INLINE const std::string escapedChars("\b\t\n\f\r\"\\");
+CLI11_MODULE_INLINE const std::string escapedCharsCode("btnfr\"\\");
+CLI11_MODULE_INLINE const std::string bracketChars("\"'`[(<{");
+CLI11_MODULE_INLINE const std::string matchBracketChars("\"'`])>}");
 
 CLI11_INLINE bool has_escapable_character(const std::string &str) {
     return (str.find_first_of(escapedChars) != std::string::npos);
@@ -5313,7 +5313,6 @@ class FormatterBase {
     CLI11_NODISCARD std::size_t get_footer_paragraph_width() const { return footer_paragraph_width_; }
 
     /// @brief Get the current alignment ratio for long options within the left column
-    /// @return
     CLI11_NODISCARD float get_long_option_alignment_ratio() const { return long_option_alignment_ratio_; }
 
     /// Get the current status of description paragraph formatting
@@ -7121,6 +7120,9 @@ class App {
     /// This is a function that runs when all processing has completed
     std::function<void()> final_callback_{};
 
+    /// This is a function tat runs after all standard requirement checks havv been processed
+    std::function<void()> require_callback_{};
+
     ///@}
     /// @name Options
     ///@{
@@ -7210,6 +7212,11 @@ class App {
     /// Allow options or other arguments to fallthrough, so that parent commands can collect options after subcommand.
     /// INHERITABLE
     bool fallthrough_{false};
+
+    /// Show parent options found by fallthrough in option listings/help output.
+    /// This does not affect parsing; fallthrough_ still controls whether parent options are recognized.
+    /// INHERITABLE
+    bool show_fallthrough_parent_options_{true};
 
     /// Allow subcommands to fallthrough, so that parent commands can trigger other subcommands after subcommand.
     bool subcommand_fallthrough_{true};
@@ -7348,6 +7355,13 @@ class App {
     ///
     App *preparse_callback(std::function<void(std::size_t)> pp_callback) {
         pre_parse_callback_ = std::move(pp_callback);
+        return this;
+    }
+
+    /// Set a callback to execute after all standard requirement checks have been processed
+    ///
+    App *require_callback(std::function<void()> req_callback) {
+        require_callback_ = std::move(req_callback);
         return this;
     }
 
@@ -7863,6 +7877,14 @@ class App {
         return this;
     }
 
+    /// Set whether parent options found by fallthrough are included in option listings/help output.
+    /// This does not affect parsing. Use fallthrough() to control whether parent options are recognized.
+    /// Default from parent, usually set on parent.
+    App *show_fallthrough_parent_options(bool value = true) {
+        show_fallthrough_parent_options_ = value;
+        return this;
+    }
+
     /// Set subcommand fallthrough, set to true so that subcommands on parents are recognized
     App *subcommand_fallthrough(bool value = true) {
         subcommand_fallthrough_ = value;
@@ -8040,6 +8062,7 @@ class App {
 
     /// Makes a help message, using the currently configured formatter
     /// Will only do one subcommand at a time
+    CLI11_NODISCARD std::string help(const App* help_app, std::string prev = "", AppFormatMode mode = AppFormatMode::Normal) const;
     CLI11_NODISCARD std::string help(std::string prev = "", AppFormatMode mode = AppFormatMode::Normal) const;
 
     /// Displays a version string
@@ -8117,6 +8140,11 @@ class App {
 
     /// Check the status of fallthrough
     CLI11_NODISCARD bool get_fallthrough() const { return fallthrough_; }
+
+    /// Check whether parent options found by fallthrough are shown in option listings/help output
+    CLI11_NODISCARD bool get_show_fallthrough_parent_options() const {
+        return show_fallthrough_parent_options_;
+    }
 
     /// Check the status of subcommand fallthrough
     CLI11_NODISCARD bool get_subcommand_fallthrough() const { return subcommand_fallthrough_; }
@@ -8535,6 +8563,7 @@ CLI11_INLINE App::App(std::string app_description, std::string app_name, App *pa
         ignore_case_ = parent_->ignore_case_;
         ignore_underscore_ = parent_->ignore_underscore_;
         fallthrough_ = parent_->fallthrough_;
+        show_fallthrough_parent_options_ = parent_->show_fallthrough_parent_options_;
         validate_positionals_ = parent_->validate_positionals_;
         validate_optional_arguments_ = parent_->validate_optional_arguments_;
         configurable_ = parent_->configurable_;
@@ -9284,18 +9313,33 @@ CLI11_INLINE bool App::remove_needs(App *app) {
     return true;
 }
 
-CLI11_NODISCARD CLI11_INLINE std::string App::help(std::string prev, AppFormatMode mode) const {
-    if(prev.empty())
-        prev = get_name();
-    else
-        prev += " " + get_name();
+CLI11_NODISCARD CLI11_INLINE std::string App::help(const App* help_app, std::string prev, AppFormatMode mode) const {
+    if (help_app != nullptr) {
+        for (const App* current = help_app; current != nullptr; current=current->get_parent()) {
+            if(prev.empty())
+                prev = current->get_name();
+            else
+                prev = current->get_name() + " " + prev;
+        }
+    } else {
+        if(prev.empty())
+            prev = get_name();
+        else
+            prev += " " + get_name();
 
-    // Delegate to subcommand if needed
-    auto selected_subcommands = get_subcommands();
-    if(!selected_subcommands.empty()) {
-        return selected_subcommands.back()->help(prev, mode);
+        // Delegate to subcommand if needed
+
+        auto selected_subcommands = get_subcommands();
+        if(!selected_subcommands.empty()) {
+            return selected_subcommands.back()->help(nullptr, prev, mode);
+        }
     }
-    return formatter_->make_help(this, prev, mode);
+
+    return (help_app != nullptr? help_app : this)->formatter_->make_help(help_app == nullptr ? this : help_app, prev, mode);
+}
+
+CLI11_NODISCARD CLI11_INLINE std::string App::help(std::string prev, AppFormatMode mode) const {
+    return help(nullptr, prev, mode);
 }
 
 CLI11_NODISCARD CLI11_INLINE std::string App::version() const {
@@ -9335,7 +9379,7 @@ CLI11_INLINE std::vector<const Option *> App::get_options(const std::function<bo
             options.insert(options.end(), subcopts.begin(), subcopts.end());
         }
     }
-    if(fallthrough_ && parent_ != nullptr) {
+    if(fallthrough_ && show_fallthrough_parent_options_ && parent_ != nullptr) {
         const auto *fallthrough_parent = _get_fallthrough_parent();
         std::vector<const Option *> subcopts = fallthrough_parent->get_options(filter);
         for(const auto *opt : subcopts) {
@@ -9366,7 +9410,7 @@ CLI11_INLINE std::vector<Option *> App::get_options(const std::function<bool(Opt
             options.insert(options.end(), subcopts.begin(), subcopts.end());
         }
     }
-    if(fallthrough_ && parent_ != nullptr) {
+    if(fallthrough_ && show_fallthrough_parent_options_ && parent_ != nullptr) {
         auto *fallthrough_parent = _get_fallthrough_parent();
         std::vector<Option *> subcopts = fallthrough_parent->get_options(filter);
         for(auto *opt : subcopts) {
@@ -9841,15 +9885,38 @@ CLI11_INLINE void App::_process_requirements() {
             missing_need = opt->get_name();
         }
     }
+    for(const auto &subc : need_subcommands_) { // Process subcommands given on the commandline first
+        if (subc->count() > 0) {
+            subc->_process_requirements();
+        }
+    }
     for(const auto &subc : need_subcommands_) {
-        if(subc->count_all() == 0) {
-            missing_needed = true;
-            missing_need = subc->get_display_name();
+        if (subc->count() == 0) {
+            try {
+                subc->_process_requirements();
+            } catch (const CLI::RequiresError&) {
+                std::string out = get_display_name();
+
+                for(const App* parent = get_parent(); parent != nullptr; parent = parent->get_parent()) {
+                    out = parent->get_display_name() + ":" + out;
+                }
+                throw RequiresError(out, subc->name_);
+            }
+            if(subc->count_all() == 0) {
+                missing_needed = true;
+                missing_need = subc->get_display_name();
+            }
         }
     }
     if(missing_needed) {
         if(count_all() > 0) {
-            throw RequiresError(get_display_name(), missing_need);
+            std::string out = get_display_name();
+
+            for(const App* parent = get_parent(); parent != nullptr; parent = parent->get_parent()) {
+                out = parent->get_display_name() + ":" + out;
+            }
+
+            throw RequiresError(out, missing_need);
         }
         // if we missing something but didn't have any options, just return
         return;
@@ -9926,13 +9993,32 @@ CLI11_INLINE void App::_process_requirements() {
                 }
             }
         }
-        if(sub->count() > 0 || sub->name_.empty()) {
-            sub->_process_requirements();
+        if((sub->count() > 0 || sub->name_.empty()) && need_subcommands_.find(sub.get()) == need_subcommands_.end()) {
+            try {
+                sub->_process_requirements();
+            } catch (const CLI::RequiredError& e) {
+                std::string out = get_display_name() + ":" ;
+
+                for(const App* parent = get_parent(); parent != nullptr; parent = parent->get_parent()) {
+                    out = parent->get_display_name() + ":" + out;
+                }
+                throw RequiredError(out + e.what());
+            }
         }
 
         if(sub->required_ && sub->count_all() == 0) {
-            throw(CLI::RequiredError(sub->get_display_name()));
+            std::string out =  sub->get_display_name();
+
+            for(const App* parent = get_parent(); parent != nullptr; parent = parent->get_parent()) {
+                out = parent->get_display_name() + ":" + out;
+            }
+
+            throw(RequiredError(out));
         }
+    }
+
+    if (require_callback_) {
+        require_callback_();
     }
 }
 

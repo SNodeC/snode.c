@@ -69,6 +69,7 @@ namespace utils {
             subCommandApp->group(group);
             subCommandApp->configurable(false);
             subCommandApp->fallthrough();
+            subCommandApp->show_fallthrough_parent_options(false);
 
             static const std::shared_ptr<CLI::HelpFormatter> helpFormatter = std::make_shared<CLI::HelpFormatter>();
             subCommandApp->formatter(helpFormatter);
@@ -77,12 +78,15 @@ namespace utils {
             subCommandApp->config_formatter(configFormatter);
 
             subCommandApp->option_defaults()->take_last()->group(subCommandApp->get_formatter()->get_label("Nonpersistent Options"));
+            subCommandApp->option_defaults()->callback_priority(CLI::CallbackPriority::PreRequirementsCheckPreHelp);
 
             helpOpt = setConfigurable(subCommandApp
                                           ->set_help_flag(
                                               "--help{exact},-h{exact}",
                                               [subCommandApp = this->subCommandApp](std::size_t) {
-                                                  helpTriggerApp = subCommandApp;
+                                                  if (helpTriggerApp == nullptr) {
+                                                      helpTriggerApp = subCommandApp;
+                                                  }
                                               },
                                               "Print help message and exit\n"
                                               "* standard: display help for the last command processed\n"
@@ -97,7 +101,9 @@ namespace utils {
                                                 ->add_flag_function(
                                                     "-s,--show-config",
                                                     [subCommandApp = this->subCommandApp](std::size_t) {
-                                                        showConfigTriggerApp = subCommandApp;
+                                                        if (showConfigTriggerApp == nullptr) {
+                                                            showConfigTriggerApp = subCommandApp;
+                                                        }
                                                     },
                                                     "Show current configuration and exit")
                                                 ->take_first()
@@ -110,7 +116,9 @@ namespace utils {
                                                  ->add_flag_function(
                                                      "--command-line{standard}",
                                                      [subCommandApp = this->subCommandApp]([[maybe_unused]] std::int64_t count) {
-                                                         commandlineTriggerApp = subCommandApp;
+                                                         if (commandlineTriggerApp == nullptr) {
+                                                             commandlineTriggerApp = subCommandApp;
+                                                         }
                                                      },
                                                      "Print command-line\n"
                                                      "* standard (default): Show all non-default and required options\n"
@@ -421,6 +429,24 @@ namespace utils {
 
     SubCommand* AppWithPtr::getPtr() {
         return ptr;
+    }
+
+    CLI::Option*
+    AppWithPtr::set_help_flag(std::string flag_name, std::function<void(std::size_t)> help_callback, const std::string& help_description) {
+        // take flag_description by const reference otherwise add_flag tries to assign to help_description
+        if (help_ptr_ != nullptr) {
+            remove_option(help_ptr_);
+            help_ptr_ = nullptr;
+        }
+
+        // Empty name will simply remove the help flag
+        if (!flag_name.empty()) {
+            help_ptr_ = add_flag(flag_name, help_callback, help_description);
+            help_ptr_->configurable(false);
+            help_ptr_->callback_priority(CLI::CallbackPriority::PreRequirementsCheck);
+        }
+
+        return help_ptr_;
     }
 
     std::map<std::string, std::string> SubCommand::aliases;
