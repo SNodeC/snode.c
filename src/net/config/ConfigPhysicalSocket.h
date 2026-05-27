@@ -96,7 +96,7 @@ namespace net::config {
         double getRetryBase() const;
 
         ConfigPhysicalSocket* setRetryLimit(unsigned int limit);
-        unsigned int getRetryLimit() const;
+        double getRetryLimit() const;
 
         ConfigPhysicalSocket* setRetryJitter(double percent);
         double getRetryJitter() const;
@@ -113,11 +113,11 @@ namespace net::config {
     private:
         static const std::string retry;
         static const std::string retryOnFatal;
-        static float retryTimeout;
+        static double retryTimeout;
         static uint16_t retryTries;
         static double retryBase;
-        static float retryJitter;
-        static float retryLimit;
+        static double retryJitter;
+        static double retryLimit;
 
         CLI::Option* retryOpt = nullptr;
         CLI::Option* retryOnFatalOpt = nullptr;

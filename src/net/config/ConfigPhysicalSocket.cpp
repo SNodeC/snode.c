@@ -192,8 +192,8 @@ namespace net::config {
         return this;
     }
 
-    unsigned int ConfigPhysicalSocket::getRetryLimit() const {
-        return retryLimitOpt->as<unsigned int>();
+    double ConfigPhysicalSocket::getRetryLimit() const {
+        return retryLimitOpt->as<double>();
     }
 
     ConfigPhysicalSocket* ConfigPhysicalSocket::setRetryJitter(double percent) {
@@ -208,10 +208,10 @@ namespace net::config {
 
     const std::string ConfigPhysicalSocket::retry = XSTR(RETRY);
     const std::string ConfigPhysicalSocket::retryOnFatal = XSTR(RETRY_ON_FATAL);
-    float ConfigPhysicalSocket::retryTimeout = RETRY_TIMEOUT;
+    double ConfigPhysicalSocket::retryTimeout = RETRY_TIMEOUT;
     uint16_t ConfigPhysicalSocket::retryTries = RETRY_TRIES;
     double ConfigPhysicalSocket::retryBase = RETRY_BASE;
-    float ConfigPhysicalSocket::retryJitter = RETRY_JITTER;
-    float ConfigPhysicalSocket::retryLimit = RETRY_LIMIT;
+    double ConfigPhysicalSocket::retryJitter = RETRY_JITTER;
+    double ConfigPhysicalSocket::retryLimit = RETRY_LIMIT;
 
 } // namespace net::config
