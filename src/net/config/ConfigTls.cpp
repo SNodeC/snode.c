@@ -43,6 +43,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
@@ -170,5 +172,12 @@ namespace net::config {
         return shutdownTimeoutOpt //
             ->as<double>();
     }
+
+    CLI::Validator ConfigTls::IsEmpty = CLI::Validator(
+        [](std::string& s) -> std::string {
+            return s.empty() ? std::string{} : "value is not empty";
+        },
+        "EMPTY",
+        "EMPTY");
 
 } // namespace net::config

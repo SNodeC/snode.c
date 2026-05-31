@@ -56,7 +56,7 @@ namespace net::config {
 namespace net::config {
 
     ConfigTlsServer::ConfigTlsServer(ConfigInstance* instance)
-        : ConfigTls(instance, this) {
+        : ConfigTls(instance, this, TLS_INIT_TIMEOUT, TLS_SHUTDOWN_TIMEOUT) {
         sniCertsOpt = addOptionVariable("--sni-cert",
                                         configuredSniCerts,
                                         "Server Name Indication (SNI) Certificates:\n"
