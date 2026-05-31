@@ -121,8 +121,8 @@ namespace net::config {
         CLI::Option* shutdownTimeoutOpt = nullptr;
         bool noCloseNotifyIsEOFOpt = false;
 
-        static float tlsInitTimeout;
-        static float tlsShutdownTimeout;
+        double tlsInitTimeout;
+        double tlsShutdownTimeout;
     };
 
 } // namespace net::config
