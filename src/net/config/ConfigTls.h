@@ -66,7 +66,7 @@ namespace net::config {
 
     protected:
         template <typename ConcretConfigTls>
-        explicit ConfigTls(ConfigInstance* instance, ConcretConfigTls section);
+        explicit ConfigTls(ConfigInstance* instance, ConcretConfigTls section, double tlsInitTimeout, double tlsShutdownTimeout);
 
         ~ConfigTls() override;
 
@@ -108,6 +108,8 @@ namespace net::config {
         bool getNoCloseNotifyIsEOF() const;
 
     private:
+        static CLI::Validator IsEmpty;
+
         CLI::Option* certOpt = nullptr;
         CLI::Option* certKeyOpt = nullptr;
         CLI::Option* certKeyPasswordOpt = nullptr;
