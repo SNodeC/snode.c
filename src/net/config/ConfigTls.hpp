@@ -50,7 +50,9 @@ namespace net::config {
 
     template <typename ConcretConfigTls>
     ConfigTls::ConfigTls(ConfigInstance* instance, ConcretConfigTls section)
-        : ConfigSection(instance, section) {
+        : ConfigSection(instance, section)
+        , tlsInitTimeout(TLS_INIT_TIMEOUT)
+        , tlsShutdownTimeout(TLS_SHUTDOWN_TIMEOUT) {
         certOpt = addOption( //
             "--cert",
             "Certificate chain file",

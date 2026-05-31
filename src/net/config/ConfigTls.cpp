@@ -157,7 +157,7 @@ namespace net::config {
     }
 
     utils::Timeval ConfigTls::getInitTimeout() const {
-        return initTimeoutOpt->as<utils::Timeval>();
+        return initTimeoutOpt->as<double>();
     }
 
     ConfigTls* ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeout) {
@@ -168,10 +168,7 @@ namespace net::config {
 
     utils::Timeval ConfigTls::getShutdownTimeout() const {
         return shutdownTimeoutOpt //
-            ->as<utils::Timeval>();
+            ->as<double>();
     }
-
-    float ConfigTls::tlsInitTimeout = TLS_INIT_TIMEOUT;
-    float ConfigTls::tlsShutdownTimeout = TLS_SHUTDOWN_TIMEOUT;
 
 } // namespace net::config
