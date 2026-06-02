@@ -205,6 +205,8 @@ namespace CLI {
         label("MODE:{standard,exact}", "{standard,exact}");
 
         column_width(7);
+
+        enable_default_flag_values(false);
     }
 
     HelpFormatter::~HelpFormatter() {
