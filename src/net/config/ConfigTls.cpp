@@ -174,7 +174,7 @@ namespace net::config {
     }
 
     CLI::Validator ConfigTls::IsEmpty = CLI::Validator(
-        [](std::string& s) -> std::string {
+        [](const std::string& s) {
             return s.empty() ? std::string{} : "value is not empty";
         },
         "EMPTY",
