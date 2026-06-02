@@ -128,7 +128,6 @@ namespace utils {
         friend class ConfigRoot;
     };
 
-    //////////////////
 } // namespace utils
 
 #endif // UTILS_CONFIG_H
