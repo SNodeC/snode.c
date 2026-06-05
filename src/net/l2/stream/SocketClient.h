@@ -77,7 +77,7 @@ namespace net::l2::stream {
                              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setBtAddress(btAddress)->setPsm(psm);
 
-            return connect(SocketAddress(btAddress, psm), onStatus);
+            return connect(onStatus);
         }
 
         const Super& connect(const std::string& btAddress,

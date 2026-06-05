@@ -77,7 +77,7 @@ namespace net::rc::stream {
                              const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setBtAddress(btAddress)->setChannel(channel);
 
-            return connect(SocketAddress(btAddress, channel), onStatus);
+            return connect(onStatus);
         }
 
         const Super& connect(const std::string& btAddress,
