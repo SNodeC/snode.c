@@ -174,10 +174,6 @@ namespace net::in6 {
                                             .append(expanded && !canonName.empty() ? std::string(" (").append(canonName).append(")") : ""));
     }
 
-    std::string SocketAddress::getEndpoint(const std::string_view& format) const {
-        return std::vformat(format, std::make_format_args((port)));
-    }
-
     bool SocketAddress::useNext() {
         const bool useNext = socketAddrInfo->useNext();
 
