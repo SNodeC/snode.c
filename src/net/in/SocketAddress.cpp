@@ -49,7 +49,6 @@
 
 #include <cerrno>
 #include <cstring>
-#include <format>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

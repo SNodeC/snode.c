@@ -48,7 +48,6 @@
 
 #include <stdexcept>
 #include <string>
-#include <string_view>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
