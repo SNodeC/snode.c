@@ -46,9 +46,7 @@ get_target_property(HTTP_INSTALL_RPATH http-server HTTP_INSTALL_RPATH)
 get_target_property(HTTP_INSTALL_RPATH http-client HTTP_INSTALL_RPATH)
 
 add_executable(snode.c main.cpp)
-target_link_libraries(
-    snode.c PUBLIC core http-server-express net-in-stream-legacy
-)
+target_link_libraries(snode.c PUBLIC http-server-express net-in-stream-legacy)
 set_target_properties(
     snode.c PROPERTIES INSTALL_RPATH
                        "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
@@ -59,7 +57,7 @@ install(TARGETS snode.c RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 
 add_executable(express-compat-server express_compat_server.cpp)
 target_link_libraries(
-    express-compat-server PUBLIC core http-server-express net-in-stream-legacy
+    express-compat-server PUBLIC http-server-express net-in-stream-legacy
 )
 set_target_properties(
     express-compat-server
