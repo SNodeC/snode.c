@@ -61,6 +61,7 @@ namespace core {
 #include <functional>
 #include <memory>
 #include <set>
+#include <string>
 #include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -69,7 +70,10 @@ namespace core::socket::stream {
 
     class ClientFlowController : public FlowController<ClientFlowController> {
     public:
-        ClientFlowController(net::config::ConfigInstance* configInstance);
+        using Super = FlowController<ClientFlowController>;
+        using OnDestroyRegistrar = Super::OnDestroyRegistrar;
+
+        ClientFlowController(const std::string& instanceName, const OnDestroyRegistrar& onDestroyRegistrar);
 
         void stopReconnect();
         bool isReconnectEnabled() const;

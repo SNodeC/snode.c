@@ -16,8 +16,9 @@
 
 namespace core::socket::stream {
 
-    ClientFlowController::ClientFlowController(net::config::ConfigInstance* configInstance)
-        : FlowController(configInstance)
+    ClientFlowController::ClientFlowController(const std::string& instanceName,
+                                               const OnDestroyRegistrar& onDestroyRegistrar)
+        : FlowController(instanceName, onDestroyRegistrar)
         , onFlowReconnectCallback([](ClientFlowController*) {
         }) {
     }

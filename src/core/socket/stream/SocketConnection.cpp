@@ -43,7 +43,6 @@
 
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
-#include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -59,8 +58,8 @@ struct tm;
 
 namespace core::socket::stream {
 
-    SocketConnection::SocketConnection(int fd, const net::config::ConfigInstance* config)
-        : instanceName(config->getInstanceName())
+    SocketConnection::SocketConnection(int fd, const std::string& instanceName, const net::config::ConfigInstance* config)
+        : instanceName(instanceName)
         , connectionName("[" + std::to_string(fd) + "]" + (!instanceName.empty() ? " " + instanceName : ""))
         , onlineSinceTimePoint(std::chrono::system_clock::now())
         , config(config) {

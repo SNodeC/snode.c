@@ -84,12 +84,18 @@ namespace core::socket::stream {
 
     private:
         struct Context {
-            Context(Config* config,
+            Context(const std::shared_ptr<Config>& config,
                     const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                     const std::function<void(SocketConnection*)>& onConnect,
                     const std::function<void(SocketConnection*)>& onConnected,
                     const std::function<void(SocketConnection*)>& onDisconnect)
-                : flowController(config)
+                : flowController(
+                      config->getInstanceName(),
+                      [config](const std::function<void()>& callback) {
+                          config->setOnDestroy([callback](auto*) {
+                              callback();
+                          });
+                      })
                 , socketContextFactory(socketContextFactory)
                 , onConnect(onConnect)
                 , onConnected(onConnected)
@@ -118,7 +124,7 @@ namespace core::socket::stream {
                      Args&&... args)
             : Super(name)
             , sharedContext(std::make_shared<Context>(
-                  this->config.get(),
+                  this->config,
                   std::make_shared<SocketContextFactory>(std::forward<Args>(args)...),
                   [onConnect](SocketConnection* socketConnection) { // onConnect
                       LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";

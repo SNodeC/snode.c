@@ -42,7 +42,6 @@
 #include "core/EventReceiver.h"
 #include "core/socket/stream/FlowController.h"
 #include "core/timer/Timer.h"
-#include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -54,8 +53,11 @@ namespace core::socket::stream {
     uint64_t FlowController<ConcreteFlowController>::idCounter = 0;
 
     template <typename ConcreteFlowController>
-    FlowController<ConcreteFlowController>::FlowController(net::config::ConfigInstance* configInstance)
-        : observedConfigInstance(configInstance)
+    FlowController<ConcreteFlowController>::FlowController(const std::string& instanceName,
+                                                           const OnDestroyRegistrar& onDestroyRegistrar)
+        : observedInstanceName(instanceName)
+        , onDestroyRegistrar(onDestroyRegistrar ? onDestroyRegistrar
+                                                : [](const std::function<void()>&) {})
         , onFlowRetryCallback([](FlowController*) {
         })
         , onFlowTerminatedCallback([](FlowController*) {
@@ -67,7 +69,7 @@ namespace core::socket::stream {
 
     template <typename ConcreteFlowController>
     std::string FlowController<ConcreteFlowController>::getInstanceName() const {
-        return observedConfigInstance->getInstanceName();
+        return observedInstanceName;
     }
 
     template <typename ConcreteFlowController>
@@ -124,8 +126,8 @@ namespace core::socket::stream {
     template <typename ConcreteFlowController>
     ConcreteFlowController*
     FlowController<ConcreteFlowController>::setOnFlowCompleted(const std::function<void(uint64_t, const std::string&)>& callback) {
-        observedConfigInstance->setOnDestroy([callback, id = getId()](net::config::ConfigInstance* configInstance) {
-            callback(id, configInstance->getInstanceName());
+        onDestroyRegistrar([callback, id = getId(), instanceName = observedInstanceName]() {
+            callback(id, instanceName);
         });
 
         return dynamic_cast<ConcreteFlowController*>(this);

@@ -46,10 +46,6 @@ namespace core::timer {
     class Timer;
 }
 
-namespace net::config {
-    class ConfigInstance; // IWYU pragma: export
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
@@ -64,7 +60,10 @@ namespace core::socket::stream {
     template <typename ConcreteFlowController>
     class FlowController {
     public:
-        FlowController(net::config::ConfigInstance* configInstance);
+        using OnDestroyRegistrar = std::function<void(const std::function<void()>&)>;
+
+        FlowController(const std::string& instanceName,
+                       const OnDestroyRegistrar& onDestroyRegistrar);
 
         FlowController(const FlowController&) = delete;
         FlowController& operator=(const FlowController&) = delete;
@@ -106,7 +105,8 @@ namespace core::socket::stream {
         bool retryEnabled{true};
         bool terminated{false};
 
-        net::config::ConfigInstance* observedConfigInstance;
+        std::string observedInstanceName;
+        OnDestroyRegistrar onDestroyRegistrar;
 
         std::unique_ptr<core::timer::Timer> retryTimer;
 

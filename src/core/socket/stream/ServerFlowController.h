@@ -63,6 +63,7 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
 #include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -71,7 +72,10 @@ namespace core::socket::stream {
 
     class ServerFlowController : public FlowController<ServerFlowController> {
     public:
-        ServerFlowController(net::config::ConfigInstance* configInstance);
+        using Super = FlowController<ServerFlowController>;
+        using OnDestroyRegistrar = Super::OnDestroyRegistrar;
+
+        ServerFlowController(const std::string& instanceName, const OnDestroyRegistrar& onDestroyRegistrar);
 
     private:
         void observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver);

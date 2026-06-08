@@ -50,8 +50,9 @@
 
 namespace core::socket::stream {
 
-    ServerFlowController::ServerFlowController(net::config::ConfigInstance* configInstance)
-        : FlowController(configInstance) {
+    ServerFlowController::ServerFlowController(const std::string& instanceName,
+                                               const OnDestroyRegistrar& onDestroyRegistrar)
+        : FlowController(instanceName, onDestroyRegistrar) {
     }
 
     void ServerFlowController::observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
