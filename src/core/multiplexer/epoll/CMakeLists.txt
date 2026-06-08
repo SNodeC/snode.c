@@ -58,6 +58,8 @@ set_target_properties(
                OUTPUT_NAME snodec-core-mux-epoll
 )
 
+target_link_options(mux-epoll PRIVATE LINKER:-z,undefs)
+
 install(
     TARGETS mux-epoll
     EXPORT snodec_mux-epoll_Targets

@@ -58,6 +58,8 @@ set_target_properties(
                OUTPUT_NAME snodec-core-mux-select
 )
 
+target_link_options(mux-select PRIVATE LINKER:-z,undefs)
+
 install(
     TARGETS mux-select
     EXPORT snodec_mux-select_Targets

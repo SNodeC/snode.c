@@ -108,7 +108,7 @@ add_compile_options(
     $<$<OR:$<STREQUAL:${CMAKE_SYSTEM_NAME},Android>,$<BOOL:$ENV{TERMUX_ARCH}>>:-Wno-deprecated-declarations>
 )
 
-add_link_options(LINKER:--as-needed)
+add_link_options(LINKER:--as-needed --no-undefined)
 
 # add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer -g)
 # add_link_options(-fsanitize=address,undefined) export

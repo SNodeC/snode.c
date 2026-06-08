@@ -58,6 +58,8 @@ set_target_properties(
                OUTPUT_NAME snodec-core-mux-poll
 )
 
+target_link_options(mux-poll PRIVATE LINKER:-z,undefs)
+
 install(
     TARGETS mux-poll
     EXPORT snodec_mux-poll_Targets

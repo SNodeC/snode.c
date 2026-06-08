@@ -193,7 +193,10 @@ target_include_directories(
                "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(net PUBLIC utils)
+target_link_libraries(
+    net PUBLIC utils "LINKER:--push-state,--no-as-needed" core-socket
+               "LINKER:--pop-state"
+)
 
 set_target_properties(
     net

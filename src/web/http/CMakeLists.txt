@@ -132,7 +132,9 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(http PUBLIC ${LIBMAGIC_LIBRARIES})
+target_link_libraries(
+    http PUBLIC core-socket-stream logger ${LIBMAGIC_LIBRARIES}
+)
 
 set_target_properties(
     http

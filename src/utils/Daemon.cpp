@@ -43,14 +43,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/poll.h"
-
 #include <cerrno>
+#include <csignal>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <grp.h>
+#include <poll.h>
 #include <pwd.h>
 #include <sys/syscall.h>
 
@@ -184,7 +184,7 @@ namespace utils {
         pollfd.fd = pidfd;
         pollfd.events = POLLIN;
 
-        const int ready = core::system::poll(&pollfd, 1, 5000);
+        const int ready = poll(&pollfd, 1, 5000);
         close(pidfd);
 
         if (ready == -1) {

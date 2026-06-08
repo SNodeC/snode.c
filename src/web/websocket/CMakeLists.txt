@@ -78,7 +78,7 @@ target_include_directories(
                      "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(websocket PUBLIC logger)
+target_link_libraries(websocket PUBLIC utils)
 
 set_target_properties(
     websocket
