@@ -122,8 +122,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-    http-server-express PUBLIC http-server net-in-stream-legacy
-                               ${NLOHMANN_JSON_LIBRARIES}
+    http-server-express PUBLIC http-server ${NLOHMANN_JSON_LIBRARIES}
 )
 
 get_target_property(HTTP_COMPILE_LIBDIR http-server HTTP_COMPILE_LIBDIR)
