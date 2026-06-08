@@ -60,7 +60,7 @@ if(BLUEZ_FOUND)
     )
 
     target_link_libraries(
-        http-server-express-legacy-rc PUBLIC http-server net-rc-stream-legacy
+        http-server-express-legacy-rc PUBLIC net-rc-stream-legacy
                                              http-server-express
     )
 

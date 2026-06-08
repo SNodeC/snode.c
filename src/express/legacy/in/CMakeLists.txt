@@ -58,7 +58,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-    http-server-express-legacy-in PUBLIC http-server net-in-stream-legacy
+    http-server-express-legacy-in PUBLIC net-in-stream-legacy
                                          http-server-express
 )
 
