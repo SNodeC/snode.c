@@ -194,7 +194,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-    net PUBLIC utils "LINKER:--push-state,--no-as-needed" core-socket
+    net PUBLIC "LINKER:--push-state,--no-as-needed" core-socket
                "LINKER:--pop-state"
 )
 
