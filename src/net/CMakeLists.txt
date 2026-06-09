@@ -194,8 +194,10 @@ target_include_directories(
 )
 
 target_link_libraries(
-    net PUBLIC "LINKER:--push-state,--no-as-needed" core-socket
-               "LINKER:--pop-state"
+    net
+    PRIVATE "-Wl,--push-state,--no-as-needed"
+    PUBLIC core-socket
+    PRIVATE "-Wl,--pop-state"
 )
 
 set_target_properties(
