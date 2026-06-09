@@ -39,6 +39,12 @@
 
 find_program(iwyu_path NAMES include-what-you-use iwyu)
 if(iwyu_path)
+    if(CMAKE_CROSSCOMPILING)
+        set(CHECK_INCLUDES_DEFAULT OFF)
+    else()
+        set(CHECK_INCLUDES_DEFAULT ON)
+    endif()
+
     option(CHECK_INCLUDES "Check used headers" "ON")
 
     if(CHECK_INCLUDES)
