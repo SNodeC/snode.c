@@ -89,13 +89,12 @@ namespace core::socket::stream {
                     const std::function<void(SocketConnection*)>& onConnect,
                     const std::function<void(SocketConnection*)>& onConnected,
                     const std::function<void(SocketConnection*)>& onDisconnect)
-                : flowController(
-                      config->getInstanceName(),
-                      [config](const std::function<void()>& callback) {
-                          config->setOnDestroy([callback](auto*) {
-                              callback();
-                          });
-                      })
+                : flowController(config->getInstanceName(),
+                                 [config](const std::function<void()>& callback) {
+                                     config->setOnDestroy([callback](auto*) {
+                                         callback();
+                                     });
+                                 })
                 , socketContextFactory(socketContextFactory)
                 , onConnect(onConnect)
                 , onConnected(onConnected)
@@ -363,7 +362,10 @@ namespace core::socket::stream {
         return socketClient;
     }
 
-    template <typename SocketClient, typename... Args>
+    template <
+        typename SocketClient,
+        typename... Args,
+        typename = std::enable_if_t<not std::is_invocable_v<std::tuple_element_t<0, std::tuple<Args...>>, typename SocketClient::Config*>>>
     SocketClient Client(const std::string& instanceName, Args&&... socketContextFactoryArgs) {
         return SocketClient(instanceName, std::forward<Args>(socketContextFactoryArgs)...);
     }
