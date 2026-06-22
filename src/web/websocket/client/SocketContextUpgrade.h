@@ -68,6 +68,9 @@ namespace web::websocket::client {
 
     class SocketContextUpgrade
         : public web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response> {
+    private:
+        using Super = web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response>;
+
     public:
         SocketContextUpgrade(
             core::socket::stream::SocketConnection* socketConnection,

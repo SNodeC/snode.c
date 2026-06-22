@@ -108,11 +108,19 @@ add_compile_options(
     $<$<OR:$<STREQUAL:${CMAKE_SYSTEM_NAME},Android>,$<BOOL:$ENV{TERMUX_ARCH}>>:-Wno-deprecated-declarations>
 )
 
-add_link_options(LINKER:--as-needed LINKER:--no-undefined)
+option(SNODEC_ENABLE_ASAN "Build SNode.C with AddressSanitizer" OFF)
 
-# add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer -g)
-# add_link_options(-fsanitize=address,undefined) export
-# LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/15/libasan.s
+if(SNODEC_ENABLE_ASAN)
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        message(FATAL_ERROR "SNODEC_ENABLE_ASAN requires GCC or Clang")
+    endif()
+
+    add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
+
+    add_link_options(LINKER:--as-needed -fsanitize=address)
+else()
+    add_link_options(LINKER:--as-needed LINKER:--no-undefined)
+endif()
 
 option(SNODEC_DISABLE_LOGLEVEL_LOGGING "Disable LOG() and PLOG() logging")
 option(SNODEC_DISABLE_VERBOSE_LOGGING "Disable VLOG() logging")
