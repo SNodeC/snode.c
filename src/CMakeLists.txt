@@ -184,7 +184,6 @@ set(SUPPORTED_COMPONENTS
     websocket-server
     websocket-client
     mqtt
-    mqtt-fast
     mqtt-server
     mqtt-client
     mqtt-server-websocket
