@@ -49,19 +49,21 @@
 namespace net::config {
 
     template <typename ConcretConfigTls>
-    ConfigTls::ConfigTls(ConfigInstance* instance, ConcretConfigTls section)
-        : ConfigSection(instance, section) {
+    ConfigTls::ConfigTls(ConfigInstance* instance, ConcretConfigTls section, double tlsInitTimeout, double tlsShutdownTimeout)
+        : ConfigSection(instance, section)
+        , tlsInitTimeout(tlsInitTimeout)
+        , tlsShutdownTimeout(tlsShutdownTimeout) {
         certOpt = addOption( //
             "--cert",
             "Certificate chain file",
             "filename",
-            CLI::ExistingFile.description("PEM-FILE"));
+            CLI::ExistingFile.description("PEM-FILE") | IsEmpty);
 
         certKeyOpt = addOption( //
             "--cert-key",
             "Certificate key file",
             "filename",
-            CLI::ExistingFile.description("PEM-FILE"));
+            CLI::ExistingFile.description("PEM-FILE") | IsEmpty);
 
         certKeyPasswordOpt = addOption( //
             "--cert-key-password",
@@ -73,13 +75,13 @@ namespace net::config {
             "--ca-cert",
             "CA-certificate file",
             "filename",
-            CLI::ExistingFile.description("PEM-FILE"));
+            CLI::ExistingFile.description("PEM-FILE") | IsEmpty);
 
         caCertDirOpt = addOption( //
             "--ca-cert-dir",
             "CA-certificate directory",
             "directory",
-            CLI::ExistingDirectory.description("PEM-CONTAINER-DIR"));
+            CLI::ExistingDirectory.description("PEM-CONTAINER-DIR") | IsEmpty);
 
         caCertUseDefaultDirOpt = addFlag( //
             "--ca-cert-dir-use-default{true}",

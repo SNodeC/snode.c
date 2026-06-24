@@ -177,11 +177,19 @@ append_source_file_config(
 )
 
 append_source_file_config(
-    config/ConfigTls.cpp TLS_INIT_TIMEOUT
+    config/ConfigTlsServer.cpp TLS_INIT_TIMEOUT
     "SSL/TLS initial handshake timeout in seconds" 10
 )
 append_source_file_config(
-    config/ConfigTls.cpp TLS_SHUTDOWN_TIMEOUT
+    config/ConfigTlsClient.cpp TLS_INIT_TIMEOUT
+    "SSL/TLS initial handshake timeout in seconds" 10
+)
+append_source_file_config(
+    config/ConfigTlsServer.cpp TLS_SHUTDOWN_TIMEOUT
+    "SSL/TLS teardown timeout in seconds" 1
+)
+append_source_file_config(
+    config/ConfigTlsClient.cpp TLS_SHUTDOWN_TIMEOUT
     "SSL/TLS teardown timeout in seconds" 1
 )
 

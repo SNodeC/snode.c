@@ -44,6 +44,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <functional>
 #include <map>
 #include <memory>
@@ -88,7 +89,8 @@ namespace utils {
         const SubCommand* getPtr() const;
         SubCommand* getPtr();
 
-        void validate();
+        CLI11_INLINE CLI::Option*
+        set_help_flag(std::string flag_name, std::function<void(std::size_t)> help_callback, const std::string& help_description);
 
     private:
         SubCommand* ptr;

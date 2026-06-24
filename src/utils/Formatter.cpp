@@ -205,45 +205,11 @@ namespace CLI {
         label("MODE:{standard,exact}", "{standard,exact}");
 
         column_width(7);
+
+        enable_default_flag_values(false);
     }
 
     HelpFormatter::~HelpFormatter() {
-    }
-
-    CLI11_INLINE std::string HelpFormatter::make_group(std::string group, bool is_positional, std::vector<const Option*> opts) const {
-        std::stringstream out;
-
-        // ############## Next line changed
-        out << "\n" << group << ":\n";
-        for (const Option* opt : opts) {
-            out << make_option(opt, is_positional);
-        }
-
-        return out.str();
-    }
-
-    CLI11_INLINE std::string HelpFormatter::make_description(const App* app) const {
-        std::string desc = app->get_description();
-        auto min_options = app->get_require_option_min();
-        auto max_options = app->get_require_option_max();
-        // ############## Next line changed (if statement removed)
-        if ((max_options == min_options) && (min_options > 0)) {
-            if (min_options == 1) {
-                desc += " \n[Exactly 1 of the following options is required]";
-            } else {
-                desc += " \n[Exactly " + std::to_string(min_options) + " options from the following list are required]";
-            }
-        } else if (max_options > 0) {
-            if (min_options > 0) {
-                desc += " \n[Between " + std::to_string(min_options) + " and " + std::to_string(max_options) +
-                        " of the follow options are required]";
-            } else {
-                desc += " \n[At most " + std::to_string(max_options) + " of the following options are allowed]";
-            }
-        } else if (min_options > 0) {
-            desc += " \n[At least " + std::to_string(min_options) + " of the following options are required]";
-        }
-        return (!desc.empty()) ? desc + "\n" : std::string{};
     }
 
     CLI11_INLINE std::string HelpFormatter::make_usage(const App* app, std::string name) const {

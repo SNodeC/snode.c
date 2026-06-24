@@ -43,6 +43,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
@@ -157,7 +159,7 @@ namespace net::config {
     }
 
     utils::Timeval ConfigTls::getInitTimeout() const {
-        return initTimeoutOpt->as<utils::Timeval>();
+        return initTimeoutOpt->as<double>();
     }
 
     ConfigTls* ConfigTls::setShutdownTimeout(const utils::Timeval& newShutdownTimeout) {
@@ -168,10 +170,14 @@ namespace net::config {
 
     utils::Timeval ConfigTls::getShutdownTimeout() const {
         return shutdownTimeoutOpt //
-            ->as<utils::Timeval>();
+            ->as<double>();
     }
 
-    float ConfigTls::tlsInitTimeout = TLS_INIT_TIMEOUT;
-    float ConfigTls::tlsShutdownTimeout = TLS_SHUTDOWN_TIMEOUT;
+    CLI::Validator ConfigTls::IsEmpty = CLI::Validator(
+        [](const std::string& s) {
+            return s.empty() ? std::string{} : "value is not empty";
+        },
+        "EMPTY",
+        "EMPTY");
 
 } // namespace net::config

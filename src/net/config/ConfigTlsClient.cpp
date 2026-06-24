@@ -54,7 +54,7 @@ namespace net::config {
 namespace net::config {
 
     ConfigTlsClient::ConfigTlsClient(ConfigInstance* instance)
-        : ConfigTls(instance, this) {
+        : ConfigTls(instance, this, TLS_INIT_TIMEOUT, TLS_SHUTDOWN_TIMEOUT) {
         sniOpt = addOption( //
             "--sni",
             "Server Name Indication",
