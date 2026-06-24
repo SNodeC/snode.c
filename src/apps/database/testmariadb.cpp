@@ -43,7 +43,6 @@
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "database/mariadb/MariaDBClient.h"
-#include "database/mariadb/MariaDBCommandSequence.h"
 #include "utils/Config.h"
 #include "utils/SubCommand.h"
 

@@ -53,6 +53,7 @@
 #endif
 #include "database/mariadb/MariaDBClientASyncAPI.h"
 #include "database/mariadb/MariaDBClientSyncAPI.h"
+#include "database/mariadb/MariaDBCommandSequence.h"   // IWYU pragma: export
 #include "database/mariadb/MariaDBConnectionDetails.h" // IWYU pragma: export
 #ifdef __GCC__
 #pragma GCC diagnostic pop

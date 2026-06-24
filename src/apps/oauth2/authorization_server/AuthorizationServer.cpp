@@ -40,7 +40,6 @@
  */
 
 #include "database/mariadb/MariaDBClient.h"
-#include "database/mariadb/MariaDBCommandSequence.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
 #include "express/middleware/StaticMiddleware.h"

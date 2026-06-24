@@ -125,6 +125,7 @@ install(
     COMPONENT http-client
     FILES_MATCHING
     PATTERN "Client.h"
+    PATTERN "EventSource.h"
 )
 
 install(
@@ -133,6 +134,7 @@ install(
     COMPONENT http-client
     FILES_MATCHING
     PATTERN "Client.h"
+    PATTERN "EventSource.h"
 )
 
 install(
