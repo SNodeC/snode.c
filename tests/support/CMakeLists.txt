@@ -37,36 +37,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-cmake_minimum_required(VERSION 3.18)
 
-project(
-    SNode.C
-    DESCRIPTION "Simple Node in C++, a Slim Network Framework"
-    VERSION 1.0.1
-)
-set(SNODEC_SOVERSION ${SNode.C_VERSION_MAJOR})
+add_library(snodec-test-support STATIC TestResult.cpp TestResult.h)
 
-set(ignoreMe ${CMAKE_VERBOSE_MAKEFILE})
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-
-include(format)
-include(doxygen)
-include(uninstall)
-include(graphwiz)
-
-option(SNODEC_BUILD_TESTS "Build SNode.C tests" OFF)
-option(SNODEC_BUILD_APPS "Build SNode.C apps" ON)
-
-if(SNODEC_BUILD_TESTS)
-    include(CTest)
-    enable_testing()
-endif()
-
-add_subdirectory(src)
-
-if(SNODEC_BUILD_TESTS)
-    add_subdirectory(tests)
-endif()
-
-include(Packing)
+target_include_directories(snodec-test-support PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")

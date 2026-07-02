@@ -141,7 +141,10 @@ add_subdirectory(web)
 add_subdirectory(express)
 add_subdirectory(database)
 add_subdirectory(iot)
-add_subdirectory(apps)
+
+if(SNODEC_BUILD_APPS)
+    add_subdirectory(apps)
+endif()
 
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES log)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES utils)
