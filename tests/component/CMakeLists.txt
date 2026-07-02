@@ -38,12 +38,4 @@
 # THE SOFTWARE.
 
 
-cmake_minimum_required(VERSION 3.18)
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
-include(AddSNodeCTest)
-
-add_subdirectory(support)
-add_subdirectory(unit)
-add_subdirectory(component)
+add_subdirectory(core)

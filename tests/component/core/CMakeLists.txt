@@ -38,12 +38,11 @@
 # THE SOFTWARE.
 
 
-cmake_minimum_required(VERSION 3.18)
+snodec_add_test(SingleshotTimerTest SingleshotTimerTest.cpp)
+snodec_add_test(IntervalTimerStopableTest IntervalTimerStopableTest.cpp)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+target_link_libraries(SingleshotTimerTest PRIVATE snodec-test-support snodec::core)
+target_link_libraries(IntervalTimerStopableTest PRIVATE snodec-test-support snodec::core)
 
-include(AddSNodeCTest)
-
-add_subdirectory(support)
-add_subdirectory(unit)
-add_subdirectory(component)
+set_tests_properties(SingleshotTimerTest PROPERTIES LABELS "component;core;timer" SKIP_RETURN_CODE 77)
+set_tests_properties(IntervalTimerStopableTest PROPERTIES LABELS "component;core;timer" SKIP_RETURN_CODE 77)
