@@ -37,35 +37,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-cmake_minimum_required(VERSION 3.18)
 
-project(
-    SNode.C
-    DESCRIPTION "Simple Node in C++, a Slim Network Framework"
-    VERSION 1.0.1
-)
-set(SNODEC_SOVERSION ${SNode.C_VERSION_MAJOR})
+snodec_add_test(SNodeCInitFreeSmokeTest SNodeCInitFreeSmokeTest.cpp)
 
-set(ignoreMe ${CMAKE_VERBOSE_MAKEFILE})
+target_link_libraries(SNodeCInitFreeSmokeTest PRIVATE snodec-test-support snodec::core)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-
-include(format)
-include(doxygen)
-include(uninstall)
-include(graphwiz)
-
-option(SNODEC_BUILD_TESTS "Build SNode.C tests" OFF)
-
-if(SNODEC_BUILD_TESTS)
-    include(CTest)
-    enable_testing()
-endif()
-
-add_subdirectory(src)
-
-if(SNODEC_BUILD_TESTS)
-    add_subdirectory(tests)
-endif()
-
-include(Packing)
+set_tests_properties(SNodeCInitFreeSmokeTest PROPERTIES LABELS "unit;core;smoke")
