@@ -27,7 +27,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake g++ pkg-config libssl-dev nlohmann-json3-dev
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSNODEC_BUILD_TESTS=ON
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=OFF
       - name: Build
         run: cmake --build build --parallel
       - name: Test
