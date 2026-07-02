@@ -50,6 +50,11 @@
 
 namespace tests::support {
 
+    inline constexpr int cTestSkipReturnCode = 77;
+
+    bool shouldSkipRootWithoutSNodeCGroup();
+    void printRootWithoutSNodeCGroupSkipMessage(const std::string& testName);
+
     class TestResult {
     public:
         TestResult();

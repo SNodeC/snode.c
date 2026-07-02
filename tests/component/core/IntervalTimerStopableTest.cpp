@@ -39,49 +39,48 @@
  * THE SOFTWARE.
  */
 
+#include "core/SNodeC.h"
+#include "core/timer/Timer.h"
 #include "support/TestResult.h"
+#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdlib>
-#include <grp.h>
-#include <iostream>
-#include <unistd.h>
+#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace tests::support {
+int main(int argc, char* argv[]) {
+    tests::support::TestResult testResult;
+    int result = tests::support::cTestSkipReturnCode;
 
-    bool shouldSkipRootWithoutSNodeCGroup() {
-        const bool skip = geteuid() == 0 && getgrnam("snodec") == nullptr;
+    if (tests::support::shouldSkipRootWithoutSNodeCGroup()) {
+        tests::support::printRootWithoutSNodeCGroupSkipMessage("IntervalTimerStopableTest");
+    } else {
+        constexpr int expectedCallbackCount = 3;
+        int callbackCount = 0;
 
-        return skip;
+        core::SNodeC::init(argc, argv);
+
+        core::timer::Timer intervalTimer = core::timer::Timer::intervalTimer(
+            [&callbackCount, expectedCallbackCount](const std::function<void()>& stop) {
+                ++callbackCount;
+
+                if (callbackCount == expectedCallbackCount) {
+                    stop();
+                    core::SNodeC::stop();
+                }
+            },
+            utils::Timeval({0, 1000}));
+
+        const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
+
+        testResult.expectEqual(expectedCallbackCount, callbackCount, "stoppable interval timer fires until the callback stops it");
+        testResult.expectEqual(0, startResult, "event loop stops successfully after the interval timer reaches the expected count");
+
+        core::SNodeC::free();
+        result = testResult.processResult();
     }
 
-    void printRootWithoutSNodeCGroupSkipMessage(const std::string& testName) {
-        std::cout << "SKIP: " << testName << " is skipped for uid 0 because the configured snodec group is unavailable" << std::endl;
-    }
-
-    TestResult::TestResult()
-        : result(EXIT_SUCCESS) {
-    }
-
-    void TestResult::expectTrue(bool condition, const std::string& message) {
-        if (!condition) {
-            std::cerr << "FAIL: " << message << std::endl;
-            result = EXIT_FAILURE;
-        }
-    }
-
-    void TestResult::expectEqual(int expected, int actual, const std::string& message) {
-        if (expected != actual) {
-            std::cerr << "FAIL: " << message << " expected=" << expected << " actual=" << actual << std::endl;
-            result = EXIT_FAILURE;
-        }
-    }
-
-    int TestResult::processResult() const {
-        return result;
-    }
-
-} // namespace tests::support
+    return result;
+}
