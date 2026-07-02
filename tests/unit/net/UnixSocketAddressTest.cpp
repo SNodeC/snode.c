@@ -63,11 +63,16 @@ int main() {
 
     net::un::SocketAddress pathSocketAddress(path);
     testResult.expectTrue(pathSocketAddress.getSunPath() == path, "Unix-domain path constructor stores path");
-    testResult.expectTrue(pathSocketAddress.toString() == "@", "Unix-domain string remains uninitialized until init is called");
+    pathSocketAddress.init();
+    testResult.expectTrue(pathSocketAddress.toString() == path, "initialized Unix-domain string includes path");
+    testResult.expectTrue(pathSocketAddress.toString(false) == path, "compact initialized Unix-domain string includes path");
 
     pathSocketAddress.setSunPath(alternatePath);
     testResult.expectTrue(pathSocketAddress.getSunPath() == alternatePath, "Unix-domain setSunPath updates path");
-    testResult.expectTrue(pathSocketAddress.toString() == "@", "Unix-domain string still remains uninitialized after setSunPath only");
+    pathSocketAddress.init();
+    testResult.expectTrue(pathSocketAddress.toString() == alternatePath, "reinitialized Unix-domain string includes updated path");
+    testResult.expectTrue(pathSocketAddress.toString(false) == alternatePath,
+                          "compact reinitialized Unix-domain string includes updated path");
 
     const int result = testResult.processResult();
 
