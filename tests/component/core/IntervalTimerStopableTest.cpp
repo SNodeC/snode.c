@@ -47,31 +47,15 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <grp.h>
-#include <iostream>
-#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace {
-
-    constexpr int cTestSkipReturnCode = 77;
-
-    bool shouldSkipRootWithoutSNodeCGroup() {
-        const bool skip = geteuid() == 0 && getgrnam("snodec") == nullptr;
-
-        return skip;
-    }
-
-} // namespace
-
 int main(int argc, char* argv[]) {
     tests::support::TestResult testResult;
-    int result = cTestSkipReturnCode;
+    int result = tests::support::cTestSkipReturnCode;
 
-    if (shouldSkipRootWithoutSNodeCGroup()) {
-        std::cout << "SKIP: SNode.C timer component test is skipped for uid 0 because the configured snodec group is unavailable"
-                  << std::endl;
+    if (tests::support::shouldSkipRootWithoutSNodeCGroup()) {
+        tests::support::printRootWithoutSNodeCGroupSkipMessage("IntervalTimerStopableTest");
     } else {
         constexpr int expectedCallbackCount = 3;
         int callbackCount = 0;

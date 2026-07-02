@@ -44,11 +44,23 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdlib>
+#include <grp.h>
 #include <iostream>
+#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace tests::support {
+
+    bool shouldSkipRootWithoutSNodeCGroup() {
+        const bool skip = geteuid() == 0 && getgrnam("snodec") == nullptr;
+
+        return skip;
+    }
+
+    void printRootWithoutSNodeCGroupSkipMessage(const std::string& testName) {
+        std::cout << "SKIP: " << testName << " is skipped for uid 0 because the configured snodec group is unavailable" << std::endl;
+    }
 
     TestResult::TestResult()
         : result(EXIT_SUCCESS) {
