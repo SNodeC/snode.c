@@ -38,6 +38,14 @@
 # THE SOFTWARE.
 
 
-add_subdirectory(core)
+snodec_add_test(InetSocketAddressTest InetSocketAddressTest.cpp)
+snodec_add_test(Inet6SocketAddressTest Inet6SocketAddressTest.cpp)
+snodec_add_test(UnixSocketAddressTest UnixSocketAddressTest.cpp)
 
-add_subdirectory(net)
+target_link_libraries(InetSocketAddressTest PRIVATE snodec-test-support snodec::net-in)
+target_link_libraries(Inet6SocketAddressTest PRIVATE snodec-test-support snodec::net-in6)
+target_link_libraries(UnixSocketAddressTest PRIVATE snodec-test-support snodec::net-un)
+
+set_tests_properties(InetSocketAddressTest PROPERTIES LABELS "unit;net;address" TIMEOUT 5)
+set_tests_properties(Inet6SocketAddressTest PROPERTIES LABELS "unit;net;address" TIMEOUT 5)
+set_tests_properties(UnixSocketAddressTest PROPERTIES LABELS "unit;net;address" TIMEOUT 5)
