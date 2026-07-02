@@ -47,6 +47,7 @@
 
 #include "log/Logger.h"
 
+#include <exception>
 #include <climits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -160,7 +161,15 @@ namespace core {
 
     void DescriptorEventReceiver::checkTimeout(const utils::Timeval& currentTime) {
         if (maxInactivity > 0 && currentTime - lastTriggered >= maxInactivity) {
-            timeoutEvent();
+            try {
+                timeoutEvent();
+            } catch (const std::exception& ex) {
+                LOG(ERROR) << getName() << ": Unhandled exception in timeout handler: " << ex.what();
+                onEventError();
+            } catch (...) {
+                LOG(ERROR) << getName() << ": Unhandled unknown exception in timeout handler";
+                onEventError();
+            }
         }
     }
 
@@ -168,11 +177,32 @@ namespace core {
         eventCounter++;
         triggered(currentTime);
 
-        dispatchEvent();
+        try {
+            dispatchEvent();
+        } catch (const std::exception& ex) {
+            LOG(ERROR) << getName() << ": Unhandled exception in descriptor event handler: " << ex.what();
+            onEventError();
+        } catch (...) {
+            LOG(ERROR) << getName() << ": Unhandled unknown exception in descriptor event handler";
+            onEventError();
+        }
     }
 
     void DescriptorEventReceiver::onSignal(int signum) {
-        signalEvent(signum);
+        try {
+            signalEvent(signum);
+        } catch (const std::exception& ex) {
+            LOG(ERROR) << getName() << ": Unhandled exception in signal handler: " << ex.what();
+            onEventError();
+        } catch (...) {
+            LOG(ERROR) << getName() << ": Unhandled unknown exception in signal handler";
+            onEventError();
+        }
+    }
+
+    void DescriptorEventReceiver::onEventError() {
+        EventReceiver::onEventError();
+        disable();
     }
 
     void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) {

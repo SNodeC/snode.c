@@ -61,6 +61,10 @@ namespace core {
                 delete this;
             }
 
+            void onEventError() override {
+                delete this;
+            }
+
         private:
             std::function<void(void)> callBack;
         };
@@ -77,11 +81,18 @@ namespace core {
     }
 
     void EventReceiver::span() {
-        event.span();
+        if (!failed) {
+            event.span();
+        }
     }
 
     void EventReceiver::relax() {
         event.relax();
+    }
+
+    void EventReceiver::onEventError() {
+        failed = true;
+        relax();
     }
 
     const std::string& EventReceiver::getName() const {
