@@ -49,6 +49,17 @@ set_tests_properties(InetLegacyServerClientCompositionTest PROPERTIES
                      TIMEOUT 5)
 
 
+snodec_add_test(InetLegacyServerClientPayloadExchangeTest InetLegacyServerClientPayloadExchangeTest.cpp)
+
+target_link_libraries(InetLegacyServerClientPayloadExchangeTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
+target_compile_features(InetLegacyServerClientPayloadExchangeTest PRIVATE cxx_std_20)
+
+set_tests_properties(InetLegacyServerClientPayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv4;payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+
 snodec_add_test(InetLegacyServerEffectiveListenAddressTest InetLegacyServerEffectiveListenAddressTest.cpp)
 snodec_add_test(InetPhysicalServerEffectiveBindAddressTest InetPhysicalServerEffectiveBindAddressTest.cpp)
 
