@@ -100,11 +100,14 @@ set_tests_properties(UnixLegacyClientConnectFailureTest PROPERTIES
 
 snodec_add_test(InetLegacyServerClientPayloadExchangeTest InetLegacyServerClientPayloadExchangeTest.cpp)
 snodec_add_test(InetLegacyServerClientDisconnectLifecycleTest InetLegacyServerClientDisconnectLifecycleTest.cpp)
+snodec_add_test(InetLegacyClientConnectFailureTest InetLegacyClientConnectFailureTest.cpp)
 
 target_link_libraries(InetLegacyServerClientPayloadExchangeTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
 target_link_libraries(InetLegacyServerClientDisconnectLifecycleTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
+target_link_libraries(InetLegacyClientConnectFailureTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
 target_compile_features(InetLegacyServerClientPayloadExchangeTest PRIVATE cxx_std_20)
 target_compile_features(InetLegacyServerClientDisconnectLifecycleTest PRIVATE cxx_std_20)
+target_compile_features(InetLegacyClientConnectFailureTest PRIVATE cxx_std_20)
 
 set_tests_properties(InetLegacyServerClientPayloadExchangeTest PROPERTIES
                      LABELS "component;net;stream;legacy;ipv4;payload"
@@ -116,14 +119,22 @@ set_tests_properties(InetLegacyServerClientDisconnectLifecycleTest PROPERTIES
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
 
+set_tests_properties(InetLegacyClientConnectFailureTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv4;connect-failure"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
 
 snodec_add_test(Inet6LegacyServerClientPayloadExchangeTest Inet6LegacyServerClientPayloadExchangeTest.cpp)
 snodec_add_test(Inet6LegacyServerClientDisconnectLifecycleTest Inet6LegacyServerClientDisconnectLifecycleTest.cpp)
+snodec_add_test(Inet6LegacyClientConnectFailureTest Inet6LegacyClientConnectFailureTest.cpp)
 
 target_link_libraries(Inet6LegacyServerClientPayloadExchangeTest PRIVATE snodec-test-support snodec::net-in6-stream-legacy)
 target_link_libraries(Inet6LegacyServerClientDisconnectLifecycleTest PRIVATE snodec-test-support snodec::net-in6-stream-legacy)
+target_link_libraries(Inet6LegacyClientConnectFailureTest PRIVATE snodec-test-support snodec::net-in6-stream-legacy)
 target_compile_features(Inet6LegacyServerClientPayloadExchangeTest PRIVATE cxx_std_20)
 target_compile_features(Inet6LegacyServerClientDisconnectLifecycleTest PRIVATE cxx_std_20)
+target_compile_features(Inet6LegacyClientConnectFailureTest PRIVATE cxx_std_20)
 
 set_tests_properties(Inet6LegacyServerClientPayloadExchangeTest PROPERTIES
                      LABELS "component;net;stream;legacy;ipv6;payload"
@@ -132,6 +143,11 @@ set_tests_properties(Inet6LegacyServerClientPayloadExchangeTest PROPERTIES
 
 set_tests_properties(Inet6LegacyServerClientDisconnectLifecycleTest PROPERTIES
                      LABELS "component;net;stream;legacy;ipv6;disconnect"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(Inet6LegacyClientConnectFailureTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv6;connect-failure"
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
 
