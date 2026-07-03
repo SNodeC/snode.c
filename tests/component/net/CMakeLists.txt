@@ -71,6 +71,25 @@ set_tests_properties(UnixLegacyServerClientCompositionTest PROPERTIES
                      TIMEOUT 5)
 
 
+snodec_add_test(UnixLegacyServerClientPayloadExchangeTest UnixLegacyServerClientPayloadExchangeTest.cpp)
+snodec_add_test(UnixLegacyClientConnectFailureTest UnixLegacyClientConnectFailureTest.cpp)
+
+target_link_libraries(UnixLegacyServerClientPayloadExchangeTest PRIVATE snodec-test-support snodec::net-un-stream-legacy)
+target_link_libraries(UnixLegacyClientConnectFailureTest PRIVATE snodec-test-support snodec::net-un-stream-legacy)
+target_compile_features(UnixLegacyServerClientPayloadExchangeTest PRIVATE cxx_std_20)
+target_compile_features(UnixLegacyClientConnectFailureTest PRIVATE cxx_std_20)
+
+set_tests_properties(UnixLegacyServerClientPayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(UnixLegacyClientConnectFailureTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;connect-failure"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+
 snodec_add_test(InetLegacyServerClientPayloadExchangeTest InetLegacyServerClientPayloadExchangeTest.cpp)
 
 target_link_libraries(InetLegacyServerClientPayloadExchangeTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
