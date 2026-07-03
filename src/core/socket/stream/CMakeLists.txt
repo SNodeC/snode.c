@@ -56,6 +56,8 @@ set(CORE_SOCKET_STREAM_H
     ServerFlowController.h
     SocketAcceptor.h
     SocketAcceptor.hpp
+    SocketAddressUtils.h
+    SocketAddressUtils.hpp
     SocketClient.h
     SocketConnection.h
     SocketConnection.hpp

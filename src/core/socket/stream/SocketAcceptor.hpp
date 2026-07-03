@@ -41,6 +41,7 @@
 
 #include "core/State.h"
 #include "core/socket/stream/SocketAcceptor.h"
+#include "core/socket/stream/SocketAddressUtils.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -100,6 +101,8 @@ namespace core::socket::stream {
         if (!config->getDisabled()) {
             try {
                 core::socket::State state = core::socket::STATE_OK;
+                SocketAddress currentLocalAddress;
+                bool hasEffectiveLocalAddress = false;
 
                 LOG(DEBUG) << config->getInstanceName() << " Listen: starting";
 
@@ -152,6 +155,9 @@ namespace core::socket::stream {
                         } else {
                             LOG(DEBUG) << config->getInstanceName() << " listen " << bindAddress.toString() << ": success";
 
+                            currentLocalAddress = getLocalSocketAddress<SocketAddress>(physicalServerSocket, config);
+                            hasEffectiveLocalAddress = true;
+
                             if (enable(physicalServerSocket.getFd())) {
                                 LOG(DEBUG) << config->getInstanceName() << " enable " << bindAddress.toString() << ": success";
                             } else {
@@ -164,7 +170,9 @@ namespace core::socket::stream {
                     }
                 }
 
-                SocketAddress currentLocalAddress = bindAddress;
+                if (!hasEffectiveLocalAddress) {
+                    currentLocalAddress = bindAddress;
+                }
                 if (bindAddress.useNext()) {
                     onStatus(currentLocalAddress, (state | core::socket::State::NO_RETRY));
 

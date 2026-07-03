@@ -40,6 +40,7 @@
  */
 
 #include "core/socket/stream/SocketConnection.h"
+#include "core/socket/stream/SocketAddressUtils.hpp"
 #include "core/socket/stream/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -48,58 +49,11 @@
 #include "utils/PreserveErrno.h"
 #include "utils/system/signal.h"
 
-#include <iomanip>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
-
-    template <typename SocketAddress, typename PhysicalSocket, typename Config>
-    SocketAddress getLocalSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
-        typename SocketAddress::SockAddr localSockAddr;
-        typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
-
-        SocketAddress localPeerAddress;
-        if (physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
-            try {
-                localPeerAddress = config->Local::getSocketAddress(localSockAddr, localSockAddrLen);
-                LOG(TRACE) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                           << "  PeerAddress (local): " << localPeerAddress.toString();
-            } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                             << "  PeerAddress (local): " << badSocketAddress.what();
-            }
-        } else {
-            PLOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                          << " PeerAddress (local) not retrievable";
-        }
-
-        return localPeerAddress;
-    }
-
-    template <typename SocketAddress, typename PhysicalSocket, typename Config>
-    SocketAddress getRemoteSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
-        typename SocketAddress::SockAddr remoteSockAddr;
-        typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
-
-        SocketAddress remotePeerAddress;
-        if (physicalSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
-            try {
-                remotePeerAddress = config->Remote::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                LOG(TRACE) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                           << "  PeerAddress (remote): " << remotePeerAddress.toString();
-            } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                LOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                             << "  PeerAddress (remote): " << badSocketAddress.what();
-            }
-        } else {
-            PLOG(WARNING) << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                          << " PeerAddress (remote) not retrievble";
-        }
-
-        return remotePeerAddress;
-    }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::SocketConnectionT(PhysicalSocket&& physicalSocket,
