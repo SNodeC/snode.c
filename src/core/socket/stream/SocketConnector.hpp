@@ -103,13 +103,13 @@ namespace core::socket::stream {
 
                 LOG(DEBUG) << config->getInstanceName() << " Connect: starting";
 
-                SocketAddress bindAddress = config->Local::getSocketAddress();
+                SocketAddress configuredLocalAddress = config->Local::getSocketAddress();
 
                 try {
                     remoteAddress = config->Remote::getSocketAddress();
 
                     if (physicalClientSocket.open(config->getSocketOptions(), PhysicalClientSocket::Flags::NONBLOCK) < 0) {
-                        PLOG(DEBUG) << config->getInstanceName() << " open " << bindAddress.toString();
+                        PLOG(DEBUG) << config->getInstanceName() << " open " << configuredLocalAddress.toString();
 
                         switch (errno) {
                             case EMFILE:
@@ -123,12 +123,12 @@ namespace core::socket::stream {
                                 break;
                         }
 
-                        onStatus(bindAddress, state);
+                        onStatus(configuredLocalAddress, state);
                     } else {
-                        LOG(TRACE) << config->getInstanceName() << " open " << bindAddress.toString() << ": success";
+                        LOG(TRACE) << config->getInstanceName() << " open " << configuredLocalAddress.toString() << ": success";
 
-                        if (physicalClientSocket.bind(bindAddress) < 0) {
-                            PLOG(DEBUG) << config->getInstanceName() << " bind " << bindAddress.toString();
+                        if (physicalClientSocket.bind(configuredLocalAddress) < 0) {
+                            PLOG(DEBUG) << config->getInstanceName() << " bind " << configuredLocalAddress.toString();
 
                             switch (errno) {
                                 case EADDRINUSE:
@@ -139,9 +139,9 @@ namespace core::socket::stream {
                                     break;
                             }
 
-                            onStatus(bindAddress, state);
+                            onStatus(configuredLocalAddress, state);
                         } else {
-                            LOG(TRACE) << config->getInstanceName() << " bind " << bindAddress.toString() << ": success";
+                            LOG(TRACE) << config->getInstanceName() << " bind " << configuredLocalAddress.toString() << ": success";
 
                             if (physicalClientSocket.connect(remoteAddress) < 0 && !PhysicalClientSocket::connectInProgress(errno)) {
                                 PLOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString();

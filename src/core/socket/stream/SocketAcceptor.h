@@ -102,7 +102,7 @@ namespace core::socket::stream {
 
     private:
         PhysicalServerSocket physicalServerSocket;
-        SocketAddress bindAddress;
+        SocketAddress configuredAddress;
 
     protected:
         std::function<void(SocketConnection*)> onConnect;

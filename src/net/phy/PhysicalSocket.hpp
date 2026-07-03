@@ -103,11 +103,22 @@ namespace net::phy {
     }
 
     template <typename SocketAddress>
-    int PhysicalSocket<SocketAddress>::bind(SocketAddress& bindAddress) {
-        int ret = core::system::bind(core::Descriptor::getFd(), &bindAddress.getSockAddr(), bindAddress.getSockAddrLen());
+    int PhysicalSocket<SocketAddress>::bind(SocketAddress& configuredAddress) {
+        int ret = core::system::bind(core::Descriptor::getFd(), &configuredAddress.getSockAddr(), configuredAddress.getSockAddrLen());
 
         if (ret == 0) {
-            this->bindAddress = bindAddress;
+            typename SocketAddress::SockAddr effectiveSockAddr = {};
+            typename SocketAddress::SockLen effectiveSockAddrLen = sizeof(effectiveSockAddr);
+
+            if (getSockName(effectiveSockAddr, effectiveSockAddrLen) == 0) {
+                try {
+                    this->bindAddress = SocketAddress(effectiveSockAddr, effectiveSockAddrLen);
+                } catch (const typename SocketAddress::BadSocketAddress&) {
+                    this->bindAddress = configuredAddress;
+                }
+            } else {
+                this->bindAddress = configuredAddress;
+            }
         }
 
         return ret;
