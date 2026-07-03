@@ -138,7 +138,15 @@ namespace core::socket::stream {
                         }
                     } else {
                         bindSucceeded = true;
-                        LOG(DEBUG) << config->getInstanceName() << " bind " << physicalServerSocket.getBindAddress().toString() << ": success";
+
+                        const std::string configuredAddressString = configuredAddress.toString();
+                        const std::string effectiveBindAddressString = physicalServerSocket.getBindAddress().toString();
+
+                        LOG(DEBUG) << config->getInstanceName() << " bind " << configuredAddressString
+                                   << (configuredAddressString == effectiveBindAddressString
+                                           ? ""
+                                           : " (effective: " + effectiveBindAddressString + ")")
+                                   << ": success";
 
                         if (physicalServerSocket.listen(config->getBacklog()) < 0) {
                             PLOG(ERROR) << config->getInstanceName() << " listen " << physicalServerSocket.getBindAddress().toString();

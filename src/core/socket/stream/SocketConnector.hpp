@@ -141,7 +141,14 @@ namespace core::socket::stream {
 
                             onStatus(configuredLocalAddress, state);
                         } else {
-                            LOG(TRACE) << config->getInstanceName() << " bind " << configuredLocalAddress.toString() << ": success";
+                            const std::string configuredLocalAddressString = configuredLocalAddress.toString();
+                            const std::string effectiveBindAddressString = physicalClientSocket.getBindAddress().toString();
+
+                            LOG(TRACE) << config->getInstanceName() << " bind " << configuredLocalAddressString
+                                       << (configuredLocalAddressString == effectiveBindAddressString
+                                               ? ""
+                                               : " (effective: " + effectiveBindAddressString + ")")
+                                       << ": success";
 
                             if (physicalClientSocket.connect(remoteAddress) < 0 && !PhysicalClientSocket::connectInProgress(errno)) {
                                 PLOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString();
