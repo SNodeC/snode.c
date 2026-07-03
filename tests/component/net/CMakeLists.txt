@@ -60,6 +60,17 @@ set_tests_properties(Inet6LegacyServerClientCompositionTest PROPERTIES
                      TIMEOUT 5)
 
 
+snodec_add_test(UnixLegacyServerClientCompositionTest UnixLegacyServerClientCompositionTest.cpp)
+
+target_link_libraries(UnixLegacyServerClientCompositionTest PRIVATE snodec-test-support snodec::net-un-stream-legacy)
+target_compile_features(UnixLegacyServerClientCompositionTest PRIVATE cxx_std_20)
+
+set_tests_properties(UnixLegacyServerClientCompositionTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;composition"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+
 snodec_add_test(InetLegacyServerClientPayloadExchangeTest InetLegacyServerClientPayloadExchangeTest.cpp)
 
 target_link_libraries(InetLegacyServerClientPayloadExchangeTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
