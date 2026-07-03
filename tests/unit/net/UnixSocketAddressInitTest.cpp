@@ -47,7 +47,6 @@
 #include <cstddef>
 #include <exception>
 #include <string>
-#include <sys/socket.h>
 #include <sys/un.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
