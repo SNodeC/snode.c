@@ -44,10 +44,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <arpa/inet.h>
-#include <cstdint>
 #include <netinet/in.h>
-#include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
