@@ -85,7 +85,7 @@ namespace net::phy {
 
         int open(const std::map<int, std::map<int, PhysicalSocketOption>>& socketOptionsMapMap, Flags flags);
 
-        int bind(SocketAddress& bindAddress);
+        int bind(SocketAddress& configuredAddress);
 
         bool isValid() const;
 
