@@ -54,7 +54,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
 #include <string>
 #include <string_view>
 
@@ -213,7 +212,7 @@ int main(int argc, char* argv[]) {
         core::SNodeC::init(argc, argv);
 
         net::in::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("payload-exchange-client",
-                                                                                                        testState);
+                                                                                                       testState);
         const net::in::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("payload-exchange-server",
                                                                                                              testState);
 

@@ -56,7 +56,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <iostream>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
