@@ -251,6 +251,9 @@ set_tests_properties(InetPhysicalServerEffectiveBindAddressTest PROPERTIES
                      TIMEOUT 5)
 
 snodec_add_test(InetLegacyServerClientLargePayloadExchangeTest InetLegacyServerClientLargePayloadExchangeTest.cpp)
+snodec_add_test(InetLegacyServerClientFramedPayloadExchangeTest InetLegacyServerClientFramedPayloadExchangeTest.cpp)
+snodec_add_test(Inet6LegacyServerClientFramedPayloadExchangeTest Inet6LegacyServerClientFramedPayloadExchangeTest.cpp)
+snodec_add_test(UnixLegacyServerClientFramedPayloadExchangeTest UnixLegacyServerClientFramedPayloadExchangeTest.cpp)
 snodec_add_test(Inet6LegacyServerClientLargePayloadExchangeTest Inet6LegacyServerClientLargePayloadExchangeTest.cpp)
 snodec_add_test(UnixLegacyServerClientLargePayloadExchangeTest UnixLegacyServerClientLargePayloadExchangeTest.cpp)
 snodec_add_test(InetLegacyServerControlledCloseLifecycleTest InetLegacyServerControlledCloseLifecycleTest.cpp)
@@ -261,6 +264,9 @@ snodec_add_test(Inet6LegacyServerMultipleClientsDisconnectLifecycleTest Inet6Leg
 snodec_add_test(UnixLegacyServerMultipleClientsDisconnectLifecycleTest UnixLegacyServerMultipleClientsDisconnectLifecycleTest.cpp)
 
 target_link_libraries(InetLegacyServerClientLargePayloadExchangeTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
+target_link_libraries(InetLegacyServerClientFramedPayloadExchangeTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
+target_link_libraries(Inet6LegacyServerClientFramedPayloadExchangeTest PRIVATE snodec-test-support snodec::net-in6-stream-legacy)
+target_link_libraries(UnixLegacyServerClientFramedPayloadExchangeTest PRIVATE snodec-test-support snodec::net-un-stream-legacy)
 target_link_libraries(Inet6LegacyServerClientLargePayloadExchangeTest PRIVATE snodec-test-support snodec::net-in6-stream-legacy)
 target_link_libraries(UnixLegacyServerClientLargePayloadExchangeTest PRIVATE snodec-test-support snodec::net-un-stream-legacy)
 target_link_libraries(InetLegacyServerControlledCloseLifecycleTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
@@ -271,6 +277,9 @@ target_link_libraries(Inet6LegacyServerMultipleClientsDisconnectLifecycleTest PR
 target_link_libraries(UnixLegacyServerMultipleClientsDisconnectLifecycleTest PRIVATE snodec-test-support snodec::net-un-stream-legacy)
 
 target_compile_features(InetLegacyServerClientLargePayloadExchangeTest PRIVATE cxx_std_20)
+target_compile_features(InetLegacyServerClientFramedPayloadExchangeTest PRIVATE cxx_std_20)
+target_compile_features(Inet6LegacyServerClientFramedPayloadExchangeTest PRIVATE cxx_std_20)
+target_compile_features(UnixLegacyServerClientFramedPayloadExchangeTest PRIVATE cxx_std_20)
 target_compile_features(Inet6LegacyServerClientLargePayloadExchangeTest PRIVATE cxx_std_20)
 target_compile_features(UnixLegacyServerClientLargePayloadExchangeTest PRIVATE cxx_std_20)
 target_compile_features(InetLegacyServerControlledCloseLifecycleTest PRIVATE cxx_std_20)
@@ -282,6 +291,18 @@ target_compile_features(UnixLegacyServerMultipleClientsDisconnectLifecycleTest P
 
 set_tests_properties(InetLegacyServerClientLargePayloadExchangeTest PROPERTIES
                      LABELS "component;net;stream;legacy;ipv4;large-payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(InetLegacyServerClientFramedPayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv4;framed-payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(Inet6LegacyServerClientFramedPayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv6;framed-payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(UnixLegacyServerClientFramedPayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;framed-payload"
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
 set_tests_properties(Inet6LegacyServerClientLargePayloadExchangeTest PROPERTIES
