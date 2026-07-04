@@ -122,6 +122,10 @@ namespace web::http::server {
     void RequestParser::analyzeHeader() {
         Parser::analyzeHeader();
 
+        if (parserState == Parser::ParserState::ERROR) {
+            return;
+        }
+
         if (headers.contains("Connection")) {
             const std::string& connection = headers["Connection"];
             if (web::http::ciContains(connection, "keep-alive")) {
