@@ -280,12 +280,39 @@ target_compile_features(InetLegacyServerMultipleClientsDisconnectLifecycleTest P
 target_compile_features(Inet6LegacyServerMultipleClientsDisconnectLifecycleTest PRIVATE cxx_std_20)
 target_compile_features(UnixLegacyServerMultipleClientsDisconnectLifecycleTest PRIVATE cxx_std_20)
 
-set_tests_properties(InetLegacyServerClientLargePayloadExchangeTest PROPERTIES LABELS "component;net;stream;legacy;ipv4;large-payload" SKIP_RETURN_CODE 77 TIMEOUT 5)
-set_tests_properties(Inet6LegacyServerClientLargePayloadExchangeTest PROPERTIES LABELS "component;net;stream;legacy;ipv6;large-payload" SKIP_RETURN_CODE 77 TIMEOUT 5)
-set_tests_properties(UnixLegacyServerClientLargePayloadExchangeTest PROPERTIES LABELS "component;net;stream;legacy;unix;large-payload" SKIP_RETURN_CODE 77 TIMEOUT 5)
-set_tests_properties(InetLegacyServerControlledCloseLifecycleTest PROPERTIES LABELS "component;net;stream;legacy;ipv4;server-close" SKIP_RETURN_CODE 77 TIMEOUT 5)
-set_tests_properties(Inet6LegacyServerControlledCloseLifecycleTest PROPERTIES LABELS "component;net;stream;legacy;ipv6;server-close" SKIP_RETURN_CODE 77 TIMEOUT 5)
-set_tests_properties(UnixLegacyServerControlledCloseLifecycleTest PROPERTIES LABELS "component;net;stream;legacy;unix;server-close" SKIP_RETURN_CODE 77 TIMEOUT 5)
-set_tests_properties(InetLegacyServerMultipleClientsDisconnectLifecycleTest PROPERTIES LABELS "component;net;stream;legacy;ipv4;multi-client;disconnect" SKIP_RETURN_CODE 77 TIMEOUT 5)
-set_tests_properties(Inet6LegacyServerMultipleClientsDisconnectLifecycleTest PROPERTIES LABELS "component;net;stream;legacy;ipv6;multi-client;disconnect" SKIP_RETURN_CODE 77 TIMEOUT 5)
-set_tests_properties(UnixLegacyServerMultipleClientsDisconnectLifecycleTest PROPERTIES LABELS "component;net;stream;legacy;unix;multi-client;disconnect" SKIP_RETURN_CODE 77 TIMEOUT 5)
+set_tests_properties(InetLegacyServerClientLargePayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv4;large-payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(Inet6LegacyServerClientLargePayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv6;large-payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(UnixLegacyServerClientLargePayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;large-payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(InetLegacyServerControlledCloseLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv4;server-close"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(Inet6LegacyServerControlledCloseLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv6;server-close"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(UnixLegacyServerControlledCloseLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;server-close"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(InetLegacyServerMultipleClientsDisconnectLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv4;multi-client;disconnect"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(Inet6LegacyServerMultipleClientsDisconnectLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv6;multi-client;disconnect"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(UnixLegacyServerMultipleClientsDisconnectLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;multi-client;disconnect"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)

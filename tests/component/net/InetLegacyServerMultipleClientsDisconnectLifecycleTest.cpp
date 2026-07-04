@@ -131,58 +131,81 @@ namespace {
         }
         TestState& testState;
     };
-#define CLIENT_CTX(CLASS, CONNECTED, REPLY, RECEIVED, CLOSECOUNT, DISCONNECTED, PAYLOAD)                                                   \
-    class CLASS : public core::socket::stream::SocketContext {                                                                             \
-    public:                                                                                                                                \
-        CLASS(core::socket::stream::SocketConnection* c, TestState& s)                                                                     \
-            : SocketContext(c)                                                                                                             \
-            , testState(s) {                                                                                                               \
-        }                                                                                                                                  \
-                                                                                                                                           \
-    private:                                                                                                                               \
-        void onConnected() override {                                                                                                      \
-            ++testState.CONNECTED;                                                                                                         \
-            sendToPeer(PAYLOAD.data(), PAYLOAD.size());                                                                                    \
-        }                                                                                                                                  \
-        void onDisconnected() override {                                                                                                   \
-            ++testState.DISCONNECTED;                                                                                                      \
-            stopWhenMultipleClientDisconnectLifecycleIsComplete(testState);                                                                \
-        }                                                                                                                                  \
-        std::size_t onReceivedFromPeer() override {                                                                                        \
-            char chunk[4096];                                                                                                              \
-            const std::size_t n = readFromPeer(chunk, sizeof(chunk));                                                                      \
-            if (n > 0) {                                                                                                                   \
-                const std::string payload(chunk, n);                                                                                       \
-                if (payload == REPLY) {                                                                                                    \
-                    ++testState.RECEIVED;                                                                                                  \
-                    close();                                                                                                               \
-                    ++testState.CLOSECOUNT;                                                                                                \
-                } else {                                                                                                                   \
-                    ++testState.unexpectedPayloadCount;                                                                                    \
-                    core::SNodeC::stop();                                                                                                  \
-                }                                                                                                                          \
-            }                                                                                                                              \
-            return n;                                                                                                                      \
-        }                                                                                                                                  \
-        bool onSignal([[maybe_unused]] int signum) override {                                                                              \
-            return true;                                                                                                                   \
-        }                                                                                                                                  \
-        TestState& testState;                                                                                                              \
+    class TestClientASocketContext : public core::socket::stream::SocketContext {
+    public:
+        TestClientASocketContext(core::socket::stream::SocketConnection* c, TestState& s)
+            : SocketContext(c)
+            , testState(s) {
+        }
+
+    private:
+        void onConnected() override {
+            ++testState.clientAConnectedCount;
+            sendToPeer(clientAPayload.data(), clientAPayload.size());
+        }
+        void onDisconnected() override {
+            ++testState.clientADisconnectedCount;
+            stopWhenMultipleClientDisconnectLifecycleIsComplete(testState);
+        }
+        std::size_t onReceivedFromPeer() override {
+            char chunk[4096];
+            const std::size_t n = readFromPeer(chunk, sizeof(chunk));
+            if (n > 0) {
+                const std::string payload(chunk, n);
+                if (payload == clientAReply) {
+                    ++testState.clientAReplyReceivedCount;
+                    close();
+                    ++testState.clientACloseIssuedCount;
+                } else {
+                    ++testState.unexpectedPayloadCount;
+                    core::SNodeC::stop();
+                }
+            }
+            return n;
+        }
+        bool onSignal([[maybe_unused]] int signum) override {
+            return true;
+        }
+        TestState& testState;
     };
-    CLIENT_CTX(TestClientASocketContext,
-               clientAConnectedCount,
-               clientAReply,
-               clientAReplyReceivedCount,
-               clientACloseIssuedCount,
-               clientADisconnectedCount,
-               clientAPayload)
-    CLIENT_CTX(TestClientBSocketContext,
-               clientBConnectedCount,
-               clientBReply,
-               clientBReplyReceivedCount,
-               clientBCloseIssuedCount,
-               clientBDisconnectedCount,
-               clientBPayload)
+
+    class TestClientBSocketContext : public core::socket::stream::SocketContext {
+    public:
+        TestClientBSocketContext(core::socket::stream::SocketConnection* c, TestState& s)
+            : SocketContext(c)
+            , testState(s) {
+        }
+
+    private:
+        void onConnected() override {
+            ++testState.clientBConnectedCount;
+            sendToPeer(clientBPayload.data(), clientBPayload.size());
+        }
+        void onDisconnected() override {
+            ++testState.clientBDisconnectedCount;
+            stopWhenMultipleClientDisconnectLifecycleIsComplete(testState);
+        }
+        std::size_t onReceivedFromPeer() override {
+            char chunk[4096];
+            const std::size_t n = readFromPeer(chunk, sizeof(chunk));
+            if (n > 0) {
+                const std::string payload(chunk, n);
+                if (payload == clientBReply) {
+                    ++testState.clientBReplyReceivedCount;
+                    close();
+                    ++testState.clientBCloseIssuedCount;
+                } else {
+                    ++testState.unexpectedPayloadCount;
+                    core::SNodeC::stop();
+                }
+            }
+            return n;
+        }
+        bool onSignal([[maybe_unused]] int signum) override {
+            return true;
+        }
+        TestState& testState;
+    };
     class TestServerSocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
         explicit TestServerSocketContextFactory(TestState& s)
@@ -196,22 +219,33 @@ namespace {
     private:
         TestState& testState;
     };
-#define FACTORY(F, CTX, COUNT)                                                                                                             \
-    class F : public core::socket::stream::SocketContextFactory {                                                                          \
-    public:                                                                                                                                \
-        explicit F(TestState& s)                                                                                                           \
-            : testState(s) {                                                                                                               \
-        }                                                                                                                                  \
-        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* c) override {                                  \
-            ++testState.COUNT;                                                                                                             \
-            return new CTX(c, testState);                                                                                                  \
-        }                                                                                                                                  \
-                                                                                                                                           \
-    private:                                                                                                                               \
-        TestState& testState;                                                                                                              \
+    class TestClientASocketContextFactory : public core::socket::stream::SocketContextFactory {
+    public:
+        explicit TestClientASocketContextFactory(TestState& s)
+            : testState(s) {
+        }
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* c) override {
+            ++testState.clientAFactoryCreateCount;
+            return new TestClientASocketContext(c, testState);
+        }
+
+    private:
+        TestState& testState;
     };
-    FACTORY(TestClientASocketContextFactory, TestClientASocketContext, clientAFactoryCreateCount)
-    FACTORY(TestClientBSocketContextFactory, TestClientBSocketContext, clientBFactoryCreateCount)
+
+    class TestClientBSocketContextFactory : public core::socket::stream::SocketContextFactory {
+    public:
+        explicit TestClientBSocketContextFactory(TestState& s)
+            : testState(s) {
+        }
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* c) override {
+            ++testState.clientBFactoryCreateCount;
+            return new TestClientBSocketContext(c, testState);
+        }
+
+    private:
+        TestState& testState;
+    };
 } // namespace
 int main(int argc, char* argv[]) {
     tests::support::TestResult testResult;
