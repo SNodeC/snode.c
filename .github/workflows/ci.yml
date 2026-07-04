@@ -20,15 +20,21 @@ on:
 jobs:
   gcc-debug:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake g++ pkg-config libssl-dev nlohmann-json3-dev
+
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=OFF
+
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build build --parallel 2
+
       - name: Test
         run: ctest --test-dir build --output-on-failure
