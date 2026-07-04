@@ -270,6 +270,7 @@ namespace web::http::client {
     MasterRequest::MasterRequest(MasterRequest&& request) noexcept
         : Request(std::move(request))
         , requestCommands(std::move(request.requestCommands))
+        , requestHeaderQueued(request.requestHeaderQueued)
         , contentLengthSent(request.contentLengthSent)
         , onResponseReceived(std::move(request.onResponseReceived))
         , onResponseParseError(std::move(request.onResponseParseError))
@@ -298,6 +299,7 @@ namespace web::http::client {
         cookies.clear();
         trailer.clear();
         requestCommands.clear();
+        requestHeaderQueued = false;
         transferEncoding = TransferEncoding::HTTP10;
         contentLength = 0;
         contentLengthSent = 0;
@@ -502,6 +504,7 @@ namespace web::http::client {
     MasterRequest& MasterRequest::sendHeader() {
         if (isConnected()) {
             requestCommands.push_back(new commands::SendHeaderCommand());
+            requestHeaderQueued = true;
         }
 
         return *this;
@@ -529,7 +532,9 @@ namespace web::http::client {
         if (isConnected()) {
             const std::shared_ptr<MasterRequest> newRequest = std::make_shared<MasterRequest>(std::move(*this));
 
-            newRequest->sendHeader();
+            if (!newRequest->requestHeaderQueued) {
+                newRequest->sendHeader();
+            }
 
             newRequest->requestCommands.push_back(new commands::EndCommand(onResponseReceived, onResponseParseError));
 

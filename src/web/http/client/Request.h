@@ -220,6 +220,7 @@ namespace web::http::client {
         void onSourceError(int errnum) override;
 
         std::list<RequestCommand*> requestCommands;
+        bool requestHeaderQueued = false;
 
         std::size_t contentLengthSent = 0;
 

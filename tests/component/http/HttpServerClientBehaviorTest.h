@@ -237,6 +237,75 @@ namespace tests::component::http {
         }
     }
 
+
+
+    template <typename Request, typename Response>
+    void handleFragmentedResponseRequest(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response, BehaviorState& state) {
+        ++state.serverRequestCount;
+        state.serverUrls.push_back(request->url);
+        response->status(200).type("text/plain").set("Connection", "close").set("Transfer-Encoding", "chunked").sendHeader();
+        response->sendFragment("fragment-");
+        response->sendFragment("response-");
+        response->sendFragment("ok");
+        response->end();
+    }
+
+    template <typename MasterRequest>
+    void sendFragmentedResponseRequest(const std::shared_ptr<MasterRequest>& request, BehaviorState& state) {
+        ++state.httpConnectedCount;
+        request->method = "GET";
+        request->url = "/fragmented-response";
+        request->set("Connection", "close");
+        if (!request->end(
+                [&state](const auto&, const auto& response) {
+                    ++state.clientResponseCount;
+                    state.clientStatuses.push_back(response->statusCode);
+                    state.clientBodies.push_back(toString(response->body));
+                    state.clientSawContentLength = response->get("Transfer-Encoding") == "chunked";
+                    core::SNodeC::stop();
+                },
+                [&state](const auto&, const std::string&) {
+                    ++state.parseErrorCount;
+                    core::SNodeC::stop();
+                })) {
+            ++state.unexpectedStateCount;
+            core::SNodeC::stop();
+        }
+    }
+
+    template <typename Request, typename Response>
+    void handleFragmentedRequestRequest(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response, BehaviorState& state) {
+        ++state.serverRequestCount;
+        state.serverUrls.push_back(request->url);
+        state.serverBody = toString(request->body);
+        state.clientSawContentLength = request->get("Transfer-Encoding") == "chunked";
+        response->status(200).type("text/plain").set("Connection", "close").send("fragmented-request-ok");
+    }
+
+    template <typename MasterRequest>
+    void sendFragmentedRequestRequest(const std::shared_ptr<MasterRequest>& request, BehaviorState& state) {
+        ++state.httpConnectedCount;
+        request->method = "POST";
+        request->url = "/fragmented-request";
+        request->set("Connection", "close");
+        request->set("Transfer-Encoding", "chunked");
+        request->sendHeader().sendFragment("fragment-").sendFragment("request-").sendFragment("ok");
+        if (!request->end(
+                [&state](const auto&, const auto& response) {
+                    ++state.clientResponseCount;
+                    state.clientStatuses.push_back(response->statusCode);
+                    state.clientBodies.push_back(toString(response->body));
+                    core::SNodeC::stop();
+                },
+                [&state](const auto&, const std::string&) {
+                    ++state.parseErrorCount;
+                    core::SNodeC::stop();
+                })) {
+            ++state.unexpectedStateCount;
+            core::SNodeC::stop();
+        }
+    }
+
     inline void expectBehaviorCommon(tests::support::TestResult& testResult,
                                      const BehaviorState& state,
                                      const std::string& behaviorName,
