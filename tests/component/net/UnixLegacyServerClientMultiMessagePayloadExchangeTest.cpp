@@ -1,0 +1,291 @@
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+#include "core/SNodeC.h"
+#include "core/socket/State.h"
+#include "core/socket/stream/SocketConnection.h"
+#include "core/socket/stream/SocketContext.h"
+#include "core/socket/stream/SocketContextFactory.h"
+#include "net/un/SocketAddress.h"
+#include "net/un/stream/legacy/SocketClient.h"
+#include "net/un/stream/legacy/SocketServer.h"
+#include "support/TestResult.h"
+#include "utils/Timeval.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef>
+#include <cstdio>
+#include <string>
+#include <string_view>
+#include <unistd.h>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+namespace {
+
+    constexpr std::string_view firstClientPayload = "snodec-unix-first-request";
+    constexpr std::string_view firstServerReply = "snodec-unix-first-reply";
+    constexpr std::string_view secondClientPayload = "snodec-unix-second-request";
+    constexpr std::string_view secondServerReply = "snodec-unix-second-reply";
+
+    struct TestState {
+        int serverListenOkCount = 0;
+        int clientConnectOkCount = 0;
+        int serverFactoryCreateCount = 0;
+        int clientFactoryCreateCount = 0;
+        int serverConnectedCount = 0;
+        int clientConnectedCount = 0;
+        int serverFirstPayloadReceivedCount = 0;
+        int serverSecondPayloadReceivedCount = 0;
+        int clientFirstReplyReceivedCount = 0;
+        int clientSecondReplyReceivedCount = 0;
+        int clientSecondPayloadSentCount = 0;
+        int unexpectedStateCount = 0;
+        int unexpectedPayloadCount = 0;
+    };
+
+    std::string makeSocketPath() {
+        return "/tmp/snodec-unix-multi-message-" + std::to_string(getpid()) + ".sock";
+    }
+
+    bool socketPathExists(const std::string& socketPath) {
+        return access(socketPath.c_str(), F_OK) == 0;
+    }
+
+    class TestServerSocketContext : public core::socket::stream::SocketContext {
+    public:
+        TestServerSocketContext(core::socket::stream::SocketConnection* socketConnection, TestState& testState)
+            : core::socket::stream::SocketContext(socketConnection)
+            , testState(testState) {
+        }
+
+    private:
+        void onConnected() override {
+            ++testState.serverConnectedCount;
+        }
+
+        void onDisconnected() override {
+        }
+
+        std::size_t onReceivedFromPeer() override {
+            char chunk[4096];
+
+            const std::size_t chunkLen = readFromPeer(chunk, sizeof(chunk));
+
+            if (chunkLen > 0) {
+                const std::string payload(chunk, chunkLen);
+
+                if (payload == firstClientPayload) {
+                    ++testState.serverFirstPayloadReceivedCount;
+                    sendToPeer(firstServerReply.data(), firstServerReply.size());
+                } else if (payload == secondClientPayload) {
+                    ++testState.serverSecondPayloadReceivedCount;
+                    sendToPeer(secondServerReply.data(), secondServerReply.size());
+                } else {
+                    ++testState.unexpectedPayloadCount;
+                    core::SNodeC::stop();
+                }
+            }
+
+            return chunkLen;
+        }
+
+        bool onSignal([[maybe_unused]] int signum) override {
+            return true;
+        }
+
+        TestState& testState;
+    };
+
+    class TestClientSocketContext : public core::socket::stream::SocketContext {
+    public:
+        TestClientSocketContext(core::socket::stream::SocketConnection* socketConnection, TestState& testState)
+            : core::socket::stream::SocketContext(socketConnection)
+            , testState(testState) {
+        }
+
+    private:
+        void onConnected() override {
+            ++testState.clientConnectedCount;
+            sendToPeer(firstClientPayload.data(), firstClientPayload.size());
+        }
+
+        void onDisconnected() override {
+        }
+
+        std::size_t onReceivedFromPeer() override {
+            char chunk[4096];
+
+            const std::size_t chunkLen = readFromPeer(chunk, sizeof(chunk));
+
+            if (chunkLen > 0) {
+                const std::string payload(chunk, chunkLen);
+
+                if (payload == firstServerReply) {
+                    ++testState.clientFirstReplyReceivedCount;
+                    sendToPeer(secondClientPayload.data(), secondClientPayload.size());
+                    ++testState.clientSecondPayloadSentCount;
+                } else if (payload == secondServerReply) {
+                    ++testState.clientSecondReplyReceivedCount;
+                    core::SNodeC::stop();
+                } else {
+                    ++testState.unexpectedPayloadCount;
+                    core::SNodeC::stop();
+                }
+            }
+
+            return chunkLen;
+        }
+
+        bool onSignal([[maybe_unused]] int signum) override {
+            return true;
+        }
+
+        TestState& testState;
+    };
+
+    class TestServerSocketContextFactory : public core::socket::stream::SocketContextFactory {
+    public:
+        explicit TestServerSocketContextFactory(TestState& testState)
+            : testState(testState) {
+        }
+
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
+            ++testState.serverFactoryCreateCount;
+            core::socket::stream::SocketContext* socketContext = new TestServerSocketContext(socketConnection, testState);
+
+            return socketContext;
+        }
+
+    private:
+        TestState& testState;
+    };
+
+    class TestClientSocketContextFactory : public core::socket::stream::SocketContextFactory {
+    public:
+        explicit TestClientSocketContextFactory(TestState& testState)
+            : testState(testState) {
+        }
+
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
+            ++testState.clientFactoryCreateCount;
+            core::socket::stream::SocketContext* socketContext = new TestClientSocketContext(socketConnection, testState);
+
+            return socketContext;
+        }
+
+    private:
+        TestState& testState;
+    };
+
+} // namespace
+
+int main(int argc, char* argv[]) {
+    tests::support::TestResult testResult;
+    int result = tests::support::cTestSkipReturnCode;
+    const std::string socketPath = makeSocketPath();
+
+    if (tests::support::shouldSkipRootWithoutSNodeCGroup()) {
+        tests::support::printRootWithoutSNodeCGroupSkipMessage("UnixLegacyServerClientMultiMessagePayloadExchangeTest");
+    } else {
+        TestState testState;
+        std::remove(socketPath.c_str());
+        const bool socketPathAbsentBeforeListen = !socketPathExists(socketPath);
+
+        core::SNodeC::init(argc, argv);
+
+        net::un::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("unix-multi-message-client", testState);
+        const net::un::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("unix-multi-message-server", testState);
+
+        socketClient.getConfig()->Instance::forceUnrequired();
+        socketServer.getConfig()->Instance::forceUnrequired();
+
+        socketServer.listen(socketPath,
+                            [&socketClient, &socketPath, &testState](const net::un::SocketAddress&, core::socket::State state) {
+                                if (state == core::socket::State::OK) {
+                                    ++testState.serverListenOkCount;
+                                    socketClient.connect(socketPath,
+                                                         [&testState](const net::un::SocketAddress&, core::socket::State connectState) {
+                                                             if (connectState == core::socket::State::OK) {
+                                                                 ++testState.clientConnectOkCount;
+                                                             } else {
+                                                                 ++testState.unexpectedStateCount;
+                                                                 core::SNodeC::stop();
+                                                             }
+                                                         });
+                                } else {
+                                    ++testState.unexpectedStateCount;
+                                    core::SNodeC::stop();
+                                }
+                            });
+
+        const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
+
+        std::remove(socketPath.c_str());
+        const bool socketPathAbsentAfterCleanup = !socketPathExists(socketPath);
+
+        testResult.expectTrue(socketPathAbsentBeforeListen, "Unix-domain socket path is absent before listen");
+        testResult.expectEqual(0, startResult, "event loop stops successfully after second Unix-domain request/reply payload exchange");
+        testResult.expectEqual(1, testState.serverListenOkCount, "Unix-domain legacy server listen callback reports OK exactly once");
+        testResult.expectEqual(1, testState.clientConnectOkCount, "Unix-domain legacy client connect callback reports OK exactly once");
+        testResult.expectEqual(1, testState.serverFactoryCreateCount, "server socket context factory creates exactly one context");
+        testResult.expectEqual(1, testState.clientFactoryCreateCount, "client socket context factory creates exactly one context");
+        testResult.expectEqual(1, testState.serverConnectedCount, "server socket context reaches onConnected exactly once");
+        testResult.expectEqual(1, testState.clientConnectedCount, "client socket context reaches onConnected exactly once");
+        testResult.expectEqual(1, testState.serverFirstPayloadReceivedCount, "server receives and verifies the first client payload exactly once");
+        testResult.expectEqual(1, testState.serverSecondPayloadReceivedCount, "server receives and verifies the second client payload exactly once");
+        testResult.expectEqual(1, testState.clientFirstReplyReceivedCount, "client receives and verifies the first server reply exactly once");
+        testResult.expectEqual(1, testState.clientSecondReplyReceivedCount, "client receives and verifies the second server reply exactly once");
+        testResult.expectEqual(1, testState.clientSecondPayloadSentCount, "client sends the second payload after verifying the first reply exactly once");
+        testResult.expectEqual(0, testState.unexpectedStateCount, "listen and connect callbacks report no unexpected states");
+        testResult.expectEqual(0, testState.unexpectedPayloadCount, "server and client receive no unexpected payloads");
+        testResult.expectTrue(socketPathAbsentAfterCleanup, "Unix-domain socket path is absent after cleanup");
+
+        result = testResult.processResult();
+
+        core::SNodeC::free();
+    }
+
+    std::remove(socketPath.c_str());
+
+    return result;
+}
