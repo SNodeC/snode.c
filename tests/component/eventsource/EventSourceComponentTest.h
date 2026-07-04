@@ -268,20 +268,21 @@ namespace tests::component::eventsource {
 
     struct CloseState : State {};
 
-    inline int runInetEventSourceCloseDisablesReconnectTest(int argc, char* argv[], CloseState& state) {
+    inline int runInetEventSourceClientCloseAfterEventTest(int argc, char* argv[], CloseState& state) {
         return runInetEventSourceTest(
             argc,
             argv,
-            "InetSseEventSourceCloseDisablesReconnectTest",
-            "ipv4-sse-eventsource-close-disables-reconnect-server",
+            "InetSseEventSourceClientCloseAfterEventTest",
+            "ipv4-sse-eventsource-client-close-after-event-server",
             state,
             {{"measurement", "1", "close-now"}},
             false,
             [](tests::support::TestResult& testResult, const CloseState& observedState, const auto& expectedEvents, int startResult) {
                 expectCommon(testResult, observedState, startResult);
                 expectEvents(testResult, observedState, expectedEvents);
-                testResult.expectEqual(1, observedState.serverRequestCount, "IPv4 SSE server observes no reconnect after close");
-                testResult.expectTrue(observedState.closeInvoked, "IPv4 EventSource close is invoked by the client");
+                testResult.expectEqual(0, startResult, "IPv4 EventSource exits cleanly after client close");
+                testResult.expectEqual(1, observedState.serverRequestCount, "IPv4 EventSource receives the close-after-event message");
+                testResult.expectTrue(observedState.closeInvoked, "IPv4 EventSource close is invoked by the client after receiving the expected event");
             },
             [](const auto&, const auto& response, CloseState&, const auto&) {
                 sendSseEvent(response, {"measurement", "1", "close-now"});
