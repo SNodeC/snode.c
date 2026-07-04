@@ -71,6 +71,33 @@ set_tests_properties(UnixLegacyServerClientCompositionTest PROPERTIES
                      TIMEOUT 5)
 
 
+snodec_add_test(InetLegacyServerMultipleClientsCompositionTest InetLegacyServerMultipleClientsCompositionTest.cpp)
+snodec_add_test(Inet6LegacyServerMultipleClientsCompositionTest Inet6LegacyServerMultipleClientsCompositionTest.cpp)
+snodec_add_test(UnixLegacyServerMultipleClientsCompositionTest UnixLegacyServerMultipleClientsCompositionTest.cpp)
+
+target_link_libraries(InetLegacyServerMultipleClientsCompositionTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
+target_link_libraries(Inet6LegacyServerMultipleClientsCompositionTest PRIVATE snodec-test-support snodec::net-in6-stream-legacy)
+target_link_libraries(UnixLegacyServerMultipleClientsCompositionTest PRIVATE snodec-test-support snodec::net-un-stream-legacy)
+target_compile_features(InetLegacyServerMultipleClientsCompositionTest PRIVATE cxx_std_20)
+target_compile_features(Inet6LegacyServerMultipleClientsCompositionTest PRIVATE cxx_std_20)
+target_compile_features(UnixLegacyServerMultipleClientsCompositionTest PRIVATE cxx_std_20)
+
+set_tests_properties(InetLegacyServerMultipleClientsCompositionTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv4;multi-client;composition"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(Inet6LegacyServerMultipleClientsCompositionTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv6;multi-client;composition"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(UnixLegacyServerMultipleClientsCompositionTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;multi-client;composition"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+
 snodec_add_test(UnixLegacyServerClientPayloadExchangeTest UnixLegacyServerClientPayloadExchangeTest.cpp)
 snodec_add_test(UnixLegacyServerClientDisconnectLifecycleTest UnixLegacyServerClientDisconnectLifecycleTest.cpp)
 snodec_add_test(UnixLegacyClientConnectFailureTest UnixLegacyClientConnectFailureTest.cpp)
