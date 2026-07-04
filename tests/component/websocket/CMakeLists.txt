@@ -11,6 +11,8 @@ snodec_add_test(InetWebSocketServerClientCloseHandshakeTest InetWebSocketServerC
 snodec_add_test(InetWebSocketServerClientPingPongTest InetWebSocketServerClientPingPongTest.cpp)
 snodec_add_test(InetWebSocketServerInitiatedCloseTest InetWebSocketServerInitiatedCloseTest.cpp)
 snodec_add_test(InetWebSocketUnexpectedCloseLifecycleTest InetWebSocketUnexpectedCloseLifecycleTest.cpp)
+snodec_add_test(InetWebSocketLargeTextMessageTest InetWebSocketLargeTextMessageTest.cpp)
+snodec_add_test(InetWebSocketLargeBinaryMessageTest InetWebSocketLargeBinaryMessageTest.cpp)
 
 target_link_libraries(InetWebSocketServerClientTextEchoTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::websocket-server snodec::websocket-client snodec::net-in-stream-legacy)
 target_link_libraries(Inet6WebSocketServerClientTextEchoTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::websocket-server snodec::websocket-client snodec::net-in6-stream-legacy)
@@ -21,6 +23,8 @@ target_link_libraries(InetWebSocketServerClientCloseHandshakeTest PRIVATE snodec
 target_link_libraries(InetWebSocketServerClientPingPongTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::websocket-server snodec::websocket-client snodec::net-in-stream-legacy)
 target_link_libraries(InetWebSocketServerInitiatedCloseTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::websocket-server snodec::websocket-client snodec::net-in-stream-legacy)
 target_link_libraries(InetWebSocketUnexpectedCloseLifecycleTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::websocket-server snodec::websocket-client snodec::net-in-stream-legacy)
+target_link_libraries(InetWebSocketLargeTextMessageTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::websocket-server snodec::websocket-client snodec::net-in-stream-legacy)
+target_link_libraries(InetWebSocketLargeBinaryMessageTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::websocket-server snodec::websocket-client snodec::net-in-stream-legacy)
 
 target_compile_features(InetWebSocketServerClientTextEchoTest PRIVATE cxx_std_20)
 target_compile_features(Inet6WebSocketServerClientTextEchoTest PRIVATE cxx_std_20)
@@ -31,6 +35,8 @@ target_compile_features(InetWebSocketServerClientCloseHandshakeTest PRIVATE cxx_
 target_compile_features(InetWebSocketServerClientPingPongTest PRIVATE cxx_std_20)
 target_compile_features(InetWebSocketServerInitiatedCloseTest PRIVATE cxx_std_20)
 target_compile_features(InetWebSocketUnexpectedCloseLifecycleTest PRIVATE cxx_std_20)
+target_compile_features(InetWebSocketLargeTextMessageTest PRIVATE cxx_std_20)
+target_compile_features(InetWebSocketLargeBinaryMessageTest PRIVATE cxx_std_20)
 
 set_tests_properties(InetWebSocketServerClientTextEchoTest PROPERTIES
                      LABELS "component;websocket;client;server;legacy;ipv4"
@@ -67,14 +73,22 @@ set_tests_properties(InetWebSocketServerClientPingPongTest PROPERTIES
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
 
-
 set_tests_properties(InetWebSocketServerInitiatedCloseTest PROPERTIES
                      LABELS "component;websocket;close;server-initiated;legacy;ipv4"
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
 
-
 set_tests_properties(InetWebSocketUnexpectedCloseLifecycleTest PROPERTIES
                      LABELS "component;websocket;lifecycle;unexpected-close;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(InetWebSocketLargeTextMessageTest PROPERTIES
+                     LABELS "component;websocket;large;text;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(InetWebSocketLargeBinaryMessageTest PROPERTIES
+                     LABELS "component;websocket;large;binary;legacy;ipv4"
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
