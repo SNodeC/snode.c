@@ -154,3 +154,28 @@ set_tests_properties(InetHttpServerClientPipeliningTest PROPERTIES
                      LABELS "component;http;pipelining;legacy;ipv4"
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
+
+snodec_add_test(InetHttpServerMalformedRequestBehaviorTest InetHttpServerMalformedRequestBehaviorTest.cpp)
+snodec_add_test(InetHttpClientMalformedResponseBehaviorTest InetHttpClientMalformedResponseBehaviorTest.cpp)
+snodec_add_test(InetHttpServerClientChunkedRequestTest InetHttpServerClientChunkedRequestTest.cpp)
+
+target_link_libraries(InetHttpServerMalformedRequestBehaviorTest PRIVATE snodec-test-support snodec::http-server snodec::net-in-stream-legacy)
+target_link_libraries(InetHttpClientMalformedResponseBehaviorTest PRIVATE snodec-test-support snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetHttpServerClientChunkedRequestTest PRIVATE snodec-test-support snodec::http-server snodec::net-in-stream-legacy)
+
+target_compile_features(InetHttpServerMalformedRequestBehaviorTest PRIVATE cxx_std_20)
+target_compile_features(InetHttpClientMalformedResponseBehaviorTest PRIVATE cxx_std_20)
+target_compile_features(InetHttpServerClientChunkedRequestTest PRIVATE cxx_std_20)
+
+set_tests_properties(InetHttpServerMalformedRequestBehaviorTest PROPERTIES
+                     LABELS "component;http;malformed-request;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(InetHttpClientMalformedResponseBehaviorTest PROPERTIES
+                     LABELS "component;http;malformed-response;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(InetHttpServerClientChunkedRequestTest PROPERTIES
+                     LABELS "component;http;chunked;request;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
