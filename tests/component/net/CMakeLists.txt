@@ -249,3 +249,70 @@ set_tests_properties(InetLegacyServerEffectiveListenAddressTest PROPERTIES
 set_tests_properties(InetPhysicalServerEffectiveBindAddressTest PROPERTIES
                      LABELS "component;net;stream;legacy;ipv4;listen;effective-address"
                      TIMEOUT 5)
+
+snodec_add_test(InetLegacyServerClientLargePayloadExchangeTest InetLegacyServerClientLargePayloadExchangeTest.cpp)
+snodec_add_test(Inet6LegacyServerClientLargePayloadExchangeTest Inet6LegacyServerClientLargePayloadExchangeTest.cpp)
+snodec_add_test(UnixLegacyServerClientLargePayloadExchangeTest UnixLegacyServerClientLargePayloadExchangeTest.cpp)
+snodec_add_test(InetLegacyServerControlledCloseLifecycleTest InetLegacyServerControlledCloseLifecycleTest.cpp)
+snodec_add_test(Inet6LegacyServerControlledCloseLifecycleTest Inet6LegacyServerControlledCloseLifecycleTest.cpp)
+snodec_add_test(UnixLegacyServerControlledCloseLifecycleTest UnixLegacyServerControlledCloseLifecycleTest.cpp)
+snodec_add_test(InetLegacyServerMultipleClientsDisconnectLifecycleTest InetLegacyServerMultipleClientsDisconnectLifecycleTest.cpp)
+snodec_add_test(Inet6LegacyServerMultipleClientsDisconnectLifecycleTest Inet6LegacyServerMultipleClientsDisconnectLifecycleTest.cpp)
+snodec_add_test(UnixLegacyServerMultipleClientsDisconnectLifecycleTest UnixLegacyServerMultipleClientsDisconnectLifecycleTest.cpp)
+
+target_link_libraries(InetLegacyServerClientLargePayloadExchangeTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
+target_link_libraries(Inet6LegacyServerClientLargePayloadExchangeTest PRIVATE snodec-test-support snodec::net-in6-stream-legacy)
+target_link_libraries(UnixLegacyServerClientLargePayloadExchangeTest PRIVATE snodec-test-support snodec::net-un-stream-legacy)
+target_link_libraries(InetLegacyServerControlledCloseLifecycleTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
+target_link_libraries(Inet6LegacyServerControlledCloseLifecycleTest PRIVATE snodec-test-support snodec::net-in6-stream-legacy)
+target_link_libraries(UnixLegacyServerControlledCloseLifecycleTest PRIVATE snodec-test-support snodec::net-un-stream-legacy)
+target_link_libraries(InetLegacyServerMultipleClientsDisconnectLifecycleTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
+target_link_libraries(Inet6LegacyServerMultipleClientsDisconnectLifecycleTest PRIVATE snodec-test-support snodec::net-in6-stream-legacy)
+target_link_libraries(UnixLegacyServerMultipleClientsDisconnectLifecycleTest PRIVATE snodec-test-support snodec::net-un-stream-legacy)
+
+target_compile_features(InetLegacyServerClientLargePayloadExchangeTest PRIVATE cxx_std_20)
+target_compile_features(Inet6LegacyServerClientLargePayloadExchangeTest PRIVATE cxx_std_20)
+target_compile_features(UnixLegacyServerClientLargePayloadExchangeTest PRIVATE cxx_std_20)
+target_compile_features(InetLegacyServerControlledCloseLifecycleTest PRIVATE cxx_std_20)
+target_compile_features(Inet6LegacyServerControlledCloseLifecycleTest PRIVATE cxx_std_20)
+target_compile_features(UnixLegacyServerControlledCloseLifecycleTest PRIVATE cxx_std_20)
+target_compile_features(InetLegacyServerMultipleClientsDisconnectLifecycleTest PRIVATE cxx_std_20)
+target_compile_features(Inet6LegacyServerMultipleClientsDisconnectLifecycleTest PRIVATE cxx_std_20)
+target_compile_features(UnixLegacyServerMultipleClientsDisconnectLifecycleTest PRIVATE cxx_std_20)
+
+set_tests_properties(InetLegacyServerClientLargePayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv4;large-payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(Inet6LegacyServerClientLargePayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv6;large-payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(UnixLegacyServerClientLargePayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;large-payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(InetLegacyServerControlledCloseLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv4;server-close"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(Inet6LegacyServerControlledCloseLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv6;server-close"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(UnixLegacyServerControlledCloseLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;server-close"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(InetLegacyServerMultipleClientsDisconnectLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv4;multi-client;disconnect"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(Inet6LegacyServerMultipleClientsDisconnectLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv6;multi-client;disconnect"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(UnixLegacyServerMultipleClientsDisconnectLifecycleTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;multi-client;disconnect"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
