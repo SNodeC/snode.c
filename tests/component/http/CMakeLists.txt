@@ -80,3 +80,30 @@ set_tests_properties(UnixHttpServerClientStatusVariantTest PROPERTIES
                      LABELS "component;http;client;server;legacy;unix"
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
+
+snodec_add_test(InetHttpServerClientRepeatedRequestTest InetHttpServerClientRepeatedRequestTest.cpp)
+snodec_add_test(InetHttpServerClientDisconnectLifecycleTest InetHttpServerClientDisconnectLifecycleTest.cpp)
+snodec_add_test(InetHttpClientPrematureServerCloseTest InetHttpClientPrematureServerCloseTest.cpp)
+snodec_add_test(InetHttpServerClientLargeResponseBodyTest InetHttpServerClientLargeResponseBodyTest.cpp)
+snodec_add_test(InetHttpServerClientLargeRequestBodyTest InetHttpServerClientLargeRequestBodyTest.cpp)
+
+target_link_libraries(InetHttpServerClientRepeatedRequestTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetHttpServerClientDisconnectLifecycleTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetHttpClientPrematureServerCloseTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetHttpServerClientLargeResponseBodyTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetHttpServerClientLargeRequestBodyTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+
+target_compile_features(InetHttpServerClientRepeatedRequestTest PRIVATE cxx_std_20)
+target_compile_features(InetHttpServerClientDisconnectLifecycleTest PRIVATE cxx_std_20)
+target_compile_features(InetHttpClientPrematureServerCloseTest PRIVATE cxx_std_20)
+target_compile_features(InetHttpServerClientLargeResponseBodyTest PRIVATE cxx_std_20)
+target_compile_features(InetHttpServerClientLargeRequestBodyTest PRIVATE cxx_std_20)
+
+set_tests_properties(InetHttpServerClientRepeatedRequestTest
+                     InetHttpServerClientDisconnectLifecycleTest
+                     InetHttpClientPrematureServerCloseTest
+                     InetHttpServerClientLargeResponseBodyTest
+                     InetHttpServerClientLargeRequestBodyTest PROPERTIES
+                     LABELS "component;http;client;server;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
