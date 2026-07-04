@@ -49,9 +49,9 @@ std::string toString(const std::vector<char>& bytes) {
     return std::string(bytes.begin(), bytes.end());
 }
 
-class SequencedClient {
+class CaseClientRunner {
 public:
-    explicit SequencedClient(State& state)
+    explicit CaseClientRunner(State& state)
         : state(state)
         , cases({{"exact route", "GET", "/express/basic", 200, "X-Express-Test", "exact", "express basic ok"},
                  {"path parameter", "GET", "/express/items/42", 200, "X-Express-Param", "42", "item id=42"},
@@ -62,15 +62,54 @@ public:
     }
 
     void run(const std::uint16_t port) {
-        client = std::make_shared<Client>(
-            "ipv4-express-routing-middleware-client",
-            [this](const std::shared_ptr<MasterRequest>& connectedRequest) {
+        this->port = port;
+        dispatchNext();
+    }
+
+private:
+    using Client = web::http::legacy::in::Client;
+    using MasterRequest = Client::MasterRequest;
+
+    void dispatchNext() {
+        if (cases.empty()) {
+            core::SNodeC::stop();
+            return;
+        }
+
+        const std::size_t clientIndex = clients.size();
+        const Case current = cases.front();
+        cases.pop_front();
+
+        clients.emplace_back(std::make_shared<Client>(
+            "ipv4-express-routing-middleware-client-" + std::to_string(clientIndex),
+            [this, current](const std::shared_ptr<MasterRequest>& request) {
                 ++state.httpConnectedCount;
-                masterRequest = connectedRequest;
-                dispatchNext();
+                request->method = current.method;
+                request->url = current.url;
+                request->set("Connection", "close");
+                request->end(
+                    [this, current](const auto&, const auto& response) {
+                        ++state.clientResponseCount;
+                        if (response->statusCode != std::to_string(current.status)) {
+                            ++state.unexpectedStateCount;
+                        }
+                        if (!current.headerName.empty() && response->get(current.headerName) != current.headerValue) {
+                            ++state.unexpectedStateCount;
+                        }
+                        if (!current.body.empty() && toString(response->body) != current.body) {
+                            ++state.unexpectedStateCount;
+                        }
+                        dispatchNext();
+                    },
+                    [this](const auto&, const std::string&) {
+                        ++state.parseErrorCount;
+                        dispatchNext();
+                    });
             },
             [](const std::shared_ptr<MasterRequest>&) {
-            });
+            }));
+
+        const std::shared_ptr<Client>& client = clients.back();
         client->getConfig()->Instance::forceUnrequired();
         client->connect(net::in::SocketAddress("127.0.0.1", port), [this](const net::in::SocketAddress&, core::socket::State connectState) {
             if (connectState == core::socket::State::OK) {
@@ -82,50 +121,10 @@ public:
         });
     }
 
-private:
-    using Client = web::http::legacy::in::Client;
-    using MasterRequest = Client::MasterRequest;
-
-    void dispatchNext() {
-        if (cases.empty()) {
-            if (masterRequest && masterRequest->isConnected()) {
-                masterRequest->disconnect();
-            }
-            core::SNodeC::stop();
-            return;
-        }
-
-        const Case current = cases.front();
-        cases.pop_front();
-
-        masterRequest->init();
-        masterRequest->method = current.method;
-        masterRequest->url = current.url;
-        masterRequest->set("Connection", cases.empty() ? "close" : "keep-alive");
-        masterRequest->end(
-            [this, current](const auto&, const auto& response) {
-                ++state.clientResponseCount;
-                if (response->statusCode != std::to_string(current.status)) {
-                    ++state.unexpectedStateCount;
-                }
-                if (!current.headerName.empty() && response->get(current.headerName) != current.headerValue) {
-                    ++state.unexpectedStateCount;
-                }
-                if (!current.body.empty() && toString(response->body) != current.body) {
-                    ++state.unexpectedStateCount;
-                }
-                dispatchNext();
-            },
-            [this](const auto&, const std::string&) {
-                ++state.parseErrorCount;
-                dispatchNext();
-            });
-    }
-
     State& state;
+    std::uint16_t port = 0;
     std::deque<Case> cases;
-    std::shared_ptr<Client> client;
-    std::shared_ptr<MasterRequest> masterRequest;
+    std::vector<std::shared_ptr<Client>> clients;
 };
 
 } // namespace
@@ -198,14 +197,14 @@ int main(int argc, char* argv[]) {
 
         app.getConfig()->Instance::forceUnrequired();
 
-        SequencedClient sequencedClient(state);
-        app.listen(net::in::SocketAddress("127.0.0.1", 0), [&sequencedClient, &state](const net::in::SocketAddress& socketAddress, core::socket::State listenState) {
+        CaseClientRunner caseClientRunner(state);
+        app.listen(net::in::SocketAddress("127.0.0.1", 0), [&caseClientRunner, &state](const net::in::SocketAddress& socketAddress, core::socket::State listenState) {
             if (listenState == core::socket::State::OK) {
                 ++state.listenOkCount;
                 const std::uint16_t effectivePort = socketAddress.getPort();
                 if (effectivePort != 0) {
                     ++state.effectiveListenEndpointOkCount;
-                    sequencedClient.run(effectivePort);
+                    caseClientRunner.run(effectivePort);
                 } else {
                     ++state.unexpectedStateCount;
                     core::SNodeC::stop();
@@ -221,11 +220,11 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(0, startResult, "event loop stops successfully after IPv4 legacy Express requests");
         testResult.expectEqual(1, state.listenOkCount, "Express server listen callback reports OK exactly once");
         testResult.expectEqual(1, state.effectiveListenEndpointOkCount, "Express server reports an effective IPv4 endpoint");
-        testResult.expectEqual(1, state.clientConnectOkCount, "HTTP client connect callback reports OK exactly once");
-        testResult.expectEqual(1, state.httpConnectedCount, "HTTP client reaches HTTP-connected callback exactly once");
+        testResult.expectEqual(6, state.clientConnectOkCount, "HTTP client connect callbacks report OK once per Express request");
+        testResult.expectEqual(6, state.httpConnectedCount, "HTTP client reaches HTTP-connected callback once per Express request");
         testResult.expectEqual(6, state.clientResponseCount, "HTTP client observes all Express responses");
         testResult.expectEqual(0, state.parseErrorCount, "HTTP client reports no response parse errors");
-        testResult.expectEqual(0, state.unexpectedStateCount, "Express routing and middleware sequence reports no unexpected states");
+        testResult.expectEqual(0, state.unexpectedStateCount, "Express routing and middleware cases report no unexpected states");
         testResult.expectEqual(1, state.exactRouteCount, "exact route handler runs exactly once");
         testResult.expectTrue(state.exactRouteObservedRequest, "exact route handler observes deterministic GET request path");
         testResult.expectEqual(1, state.parameterRouteCount, "parameter route handler runs exactly once");
