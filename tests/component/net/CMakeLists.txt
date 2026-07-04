@@ -98,6 +98,33 @@ set_tests_properties(UnixLegacyServerMultipleClientsCompositionTest PROPERTIES
                      TIMEOUT 5)
 
 
+snodec_add_test(InetLegacyServerClientMultiMessagePayloadExchangeTest InetLegacyServerClientMultiMessagePayloadExchangeTest.cpp)
+snodec_add_test(Inet6LegacyServerClientMultiMessagePayloadExchangeTest Inet6LegacyServerClientMultiMessagePayloadExchangeTest.cpp)
+snodec_add_test(UnixLegacyServerClientMultiMessagePayloadExchangeTest UnixLegacyServerClientMultiMessagePayloadExchangeTest.cpp)
+
+target_link_libraries(InetLegacyServerClientMultiMessagePayloadExchangeTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
+target_link_libraries(Inet6LegacyServerClientMultiMessagePayloadExchangeTest PRIVATE snodec-test-support snodec::net-in6-stream-legacy)
+target_link_libraries(UnixLegacyServerClientMultiMessagePayloadExchangeTest PRIVATE snodec-test-support snodec::net-un-stream-legacy)
+target_compile_features(InetLegacyServerClientMultiMessagePayloadExchangeTest PRIVATE cxx_std_20)
+target_compile_features(Inet6LegacyServerClientMultiMessagePayloadExchangeTest PRIVATE cxx_std_20)
+target_compile_features(UnixLegacyServerClientMultiMessagePayloadExchangeTest PRIVATE cxx_std_20)
+
+set_tests_properties(InetLegacyServerClientMultiMessagePayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv4;multi-message;payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(Inet6LegacyServerClientMultiMessagePayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;ipv6;multi-message;payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(UnixLegacyServerClientMultiMessagePayloadExchangeTest PROPERTIES
+                     LABELS "component;net;stream;legacy;unix;multi-message;payload"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+
 snodec_add_test(InetLegacyServerMultipleClientsPayloadExchangeTest InetLegacyServerMultipleClientsPayloadExchangeTest.cpp)
 snodec_add_test(Inet6LegacyServerMultipleClientsPayloadExchangeTest Inet6LegacyServerMultipleClientsPayloadExchangeTest.cpp)
 snodec_add_test(UnixLegacyServerMultipleClientsPayloadExchangeTest UnixLegacyServerMultipleClientsPayloadExchangeTest.cpp)
