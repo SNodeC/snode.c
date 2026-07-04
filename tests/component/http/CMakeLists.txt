@@ -107,3 +107,50 @@ set_tests_properties(InetHttpServerClientRepeatedRequestTest
                      LABELS "component;http;client;server;legacy;ipv4"
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
+
+snodec_add_test(InetHttpServerClientHeaderHeavyRequestTest InetHttpServerClientHeaderHeavyRequestTest.cpp)
+snodec_add_test(InetHttpServerClientHeaderHeavyResponseTest InetHttpServerClientHeaderHeavyResponseTest.cpp)
+snodec_add_test(InetHttpClientConnectFailureTest InetHttpClientConnectFailureTest.cpp)
+
+target_link_libraries(InetHttpServerClientHeaderHeavyRequestTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetHttpServerClientHeaderHeavyResponseTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetHttpClientConnectFailureTest PRIVATE snodec-test-support snodec::http-client snodec::net-in-stream-legacy)
+
+target_compile_features(InetHttpServerClientHeaderHeavyRequestTest PRIVATE cxx_std_20)
+target_compile_features(InetHttpServerClientHeaderHeavyResponseTest PRIVATE cxx_std_20)
+target_compile_features(InetHttpClientConnectFailureTest PRIVATE cxx_std_20)
+
+set_tests_properties(InetHttpServerClientHeaderHeavyRequestTest PROPERTIES
+                     LABELS "component;http;headers;request;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(InetHttpServerClientHeaderHeavyResponseTest PROPERTIES
+                     LABELS "component;http;headers;response;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+set_tests_properties(InetHttpClientConnectFailureTest PROPERTIES
+                     LABELS "component;http;connect-failure;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+snodec_add_test(InetHttpServerClientChunkedResponseTest InetHttpServerClientChunkedResponseTest.cpp)
+
+target_link_libraries(InetHttpServerClientChunkedResponseTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+
+target_compile_features(InetHttpServerClientChunkedResponseTest PRIVATE cxx_std_20)
+
+set_tests_properties(InetHttpServerClientChunkedResponseTest PROPERTIES
+                     LABELS "component;http;chunked;response;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+snodec_add_test(InetHttpServerClientPipeliningTest InetHttpServerClientPipeliningTest.cpp)
+
+target_link_libraries(InetHttpServerClientPipeliningTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+
+target_compile_features(InetHttpServerClientPipeliningTest PRIVATE cxx_std_20)
+
+set_tests_properties(InetHttpServerClientPipeliningTest PROPERTIES
+                     LABELS "component;http;pipelining;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
