@@ -164,7 +164,7 @@ namespace core::socket::stream {
     void SocketContext::onWriteError(int errnum) {
         errno = errnum;
 
-        PLOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: onWriteError";
+        frameworkLog().sysError(logger::LogLevel::Debug, errnum, "SocketContext: onWriteError");
         shutdownRead();
     }
 
@@ -172,9 +172,9 @@ namespace core::socket::stream {
         errno = errnum;
 
         if (errno == 0) {
-            LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: EOF received";
+            frameworkLog().debug("SocketContext: EOF received");
         } else {
-            PLOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: onReadError";
+            frameworkLog().sysError(logger::LogLevel::Debug, errnum, "SocketContext: onReadError");
         }
         shutdownWrite();
     }
@@ -189,11 +189,11 @@ namespace core::socket::stream {
     void SocketContext::detach() {
         onDisconnected();
 
-        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: detached";
-        LOG(DEBUG) << "     Online Since: " << getOnlineSince();
-        LOG(DEBUG) << "  Online Duration: " << getOnlineDuration();
-        LOG(DEBUG) << "       Total Sent: " << getTotalQueued();
-        LOG(DEBUG) << "  Total Processed: " << getTotalProcessed();
+        frameworkLog().debug("SocketContext: detached");
+        frameworkLog().debug("     Online Since: {}", getOnlineSince());
+        frameworkLog().debug("  Online Duration: {}", getOnlineDuration());
+        frameworkLog().debug("       Total Sent: {}", getTotalQueued());
+        frameworkLog().debug("  Total Processed: {}", getTotalProcessed());
 
         delete this;
     }
