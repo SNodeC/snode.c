@@ -44,6 +44,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/SemanticLogger.h"
+
 #include <functional>
 #include <memory>
 #include <ostream> // IWYU pragma: export
@@ -108,6 +110,9 @@ namespace logger {
 
         static bool shouldLog(Level level);
         static bool shouldVerbose(int verboseLevel);
+
+        static void emitSemantic(const LogRecord& record);
+        static BoundaryLogger::Sink semanticSink();
 
     protected:
         static bool disableColorLog;

@@ -81,11 +81,10 @@ namespace core::socket::stream {
     }
 
     logger::BoundaryLogger SocketContext::log() const {
-        // Transitional Round 4 API shape only.
-        // Backend-backed default semantic sinks are introduced in Round 6.
-        // Until then, the no-argument overload returns a no-op logger;
-        // tests and early validation must use the sink-taking overload.
-        return log([](logger::LogRecord) {});
+        // Round 6 backend-backed default semantic logger.
+        // The sink-taking overload remains available for tests and custom capture.
+        // Startup semantic filter configuration is deferred to Round 7.
+        return log(logger::Logger::semanticSink());
     }
 
     logger::BoundaryLogger SocketContext::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
@@ -93,11 +92,10 @@ namespace core::socket::stream {
     }
 
     logger::BoundaryLogger SocketContext::frameworkLog() const {
-        // Transitional Round 4 API shape only.
-        // Backend-backed default semantic sinks are introduced in Round 6.
-        // Until then, the no-argument overload returns a no-op logger;
-        // tests and early validation must use the sink-taking overload.
-        return frameworkLog([](logger::LogRecord) {});
+        // Round 6 backend-backed default semantic logger.
+        // The sink-taking overload remains available for tests and custom capture.
+        // Startup semantic filter configuration is deferred to Round 7.
+        return frameworkLog(logger::Logger::semanticSink());
     }
 
     logger::BoundaryLogger SocketContext::frameworkLog(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {

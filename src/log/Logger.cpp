@@ -43,6 +43,8 @@
 
 #include "log/Logger.h"
 
+#include "log/SemanticLogger.h"
+
 #include <algorithm>
 #include <cerrno>
 #include <chrono>
@@ -53,6 +55,8 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <unistd.h>
+
+#include <optional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -161,6 +165,26 @@ namespace {
         }
 
         return label;
+    }
+
+    std::optional<logger::Level> mapSemanticLevel(const logger::LogLevel level) {
+        switch (level) {
+            case logger::LogLevel::Trace:
+                return logger::Level::TRACE;
+            case logger::LogLevel::Debug:
+                return logger::Level::DEBUG;
+            case logger::LogLevel::Info:
+                return logger::Level::INFO;
+            case logger::LogLevel::Warn:
+                return logger::Level::WARNING;
+            case logger::LogLevel::Error:
+                return logger::Level::ERROR;
+            case logger::LogLevel::Critical:
+                return logger::Level::FATAL;
+            case logger::LogLevel::Off:
+                return std::nullopt;
+        }
+        return std::nullopt;
     }
 
     bool shouldEmit(const logger::Level level) {
@@ -273,6 +297,21 @@ namespace logger {
         if (fileLogger) {
             fileLogger->log(spdlog::level::info, message);
         }
+    }
+
+    void Logger::emitSemantic(const LogRecord& record) {
+        const auto mappedLevel = mapSemanticLevel(record.level);
+        if (!mappedLevel || !shouldLog(*mappedLevel)) {
+            return;
+        }
+
+        emitLine(*mappedLevel, formatText(record), false, 0);
+    }
+
+    BoundaryLogger::Sink Logger::semanticSink() {
+        return [](LogRecord record) {
+            Logger::emitSemantic(record);
+        };
     }
 
     bool Logger::disableColorLog = false;

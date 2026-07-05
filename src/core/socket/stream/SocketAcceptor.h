@@ -45,6 +45,7 @@
 #include "core/eventreceiver/AcceptEventReceiver.h" // IWYU pragma: export
 #include "core/socket/State.h"
 #include "log/LogScopeOwner.h"
+#include "log/Logger.h"
 #include "log/SemanticLogger.h"
 
 namespace core::socket::stream {
@@ -94,11 +95,10 @@ namespace core::socket::stream {
         virtual void init();
 
         logger::BoundaryLogger log() const {
-            // Transitional Round 5 API shape only.
-            // Backend-backed default semantic sinks are introduced in Round 6.
-            // Until then, the no-argument overload returns a no-op logger;
-            // tests and early validation must use the sink-taking overload.
-            return log([](logger::LogRecord) {});
+            // Round 6 backend-backed default semantic logger.
+            // The sink-taking overload remains available for tests and custom capture.
+            // Startup semantic filter configuration is deferred to Round 7.
+            return log(logger::Logger::semanticSink());
         }
 
         logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
