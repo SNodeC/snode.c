@@ -23,3 +23,8 @@ snodec_add_test(SemanticBackendRound6Test SemanticBackendRound6Test.cpp)
 target_include_directories(SemanticBackendRound6Test PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(SemanticBackendRound6Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
 set_tests_properties(SemanticBackendRound6Test PROPERTIES LABELS "unit;log;round6")
+
+snodec_add_test(SemanticFilterRound7Test SemanticFilterRound7Test.cpp)
+target_include_directories(SemanticFilterRound7Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(SemanticFilterRound7Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
+set_tests_properties(SemanticFilterRound7Test PROPERTIES LABELS "unit;log;round7")

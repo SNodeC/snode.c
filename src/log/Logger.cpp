@@ -300,12 +300,16 @@ namespace logger {
     }
 
     void Logger::emitSemantic(const LogRecord& record) {
+        if (!LogManager::shouldEmit(record)) {
+            return;
+        }
+
         const auto mappedLevel = mapSemanticLevel(record.level);
         if (!mappedLevel || !shouldLog(*mappedLevel)) {
             return;
         }
 
-        emitLine(*mappedLevel, formatText(record), false, 0);
+        emitLine(*mappedLevel, LogManager::formatRecord(record), false, 0);
     }
 
     BoundaryLogger::Sink Logger::semanticSink() {
