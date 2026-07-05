@@ -18,3 +18,8 @@ target_include_directories(SocketEndpointLogApiRound5Test PRIVATE ${PROJECT_SOUR
 target_compile_features(SocketEndpointLogApiRound5Test PRIVATE cxx_std_20)
 target_link_libraries(SocketEndpointLogApiRound5Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
 set_tests_properties(SocketEndpointLogApiRound5Test PROPERTIES LABELS "unit;log;round5")
+
+snodec_add_test(SemanticBackendRound6Test SemanticBackendRound6Test.cpp)
+target_include_directories(SemanticBackendRound6Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(SemanticBackendRound6Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
+set_tests_properties(SemanticBackendRound6Test PROPERTIES LABELS "unit;log;round6")
