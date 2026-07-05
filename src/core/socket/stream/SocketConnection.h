@@ -42,6 +42,8 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
+#include "log/LogScopeOwner.h"
+
 namespace core {
     namespace pipe {
         class Source;
@@ -110,6 +112,11 @@ namespace core::socket::stream {
         const std::string& getInstanceName() const;
         const std::string& getConnectionName() const;
 
+        logger::BoundaryLogger log() const;
+        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
+                                   logger::LogLevel threshold = logger::LogLevel::Trace,
+                                   logger::BoundaryLogger::Clock clock = {}) const;
+
         SocketContext* getSocketContext() const;
 
         virtual const core::socket::SocketAddress& getBindAddress() const = 0;
@@ -145,6 +152,7 @@ namespace core::socket::stream {
 
         std::string instanceName;
         std::string connectionName;
+        logger::LogScopeOwner logScope;
 
         std::chrono::time_point<std::chrono::system_clock> onlineSinceTimePoint;
 

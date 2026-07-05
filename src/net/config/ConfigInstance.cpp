@@ -47,9 +47,17 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+namespace {
+    logger::LogRole toLogRole(net::config::ConfigInstance::Role role) {
+        return role == net::config::ConfigInstance::Role::SERVER ? logger::LogRole::Server : logger::LogRole::Client;
+    }
+}
 
 namespace net::config {
 
@@ -67,6 +75,12 @@ namespace net::config {
                             "Instances")
         , instanceName(instanceName)
         , role(role)
+        , logScope(logger::LogOrigin::Framework,
+                   logger::LogBoundary::Configuration,
+                   "configuration",
+                   instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
+                   toLogRole(role),
+                   std::nullopt)
         , disableOpt(setConfigurable(addFlagFunction(
                                          "--disabled{true}",
                                          [this]() {
@@ -93,8 +107,26 @@ namespace net::config {
 
     ConfigInstance* ConfigInstance::setInstanceName(const std::string& instanceName) {
         this->instanceName = instanceName;
+        logScope = logger::LogScopeOwner(logger::LogOrigin::Framework,
+                                         logger::LogBoundary::Configuration,
+                                         "configuration",
+                                         instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
+                                         toLogRole(role),
+                                         std::nullopt);
 
         return this;
+    }
+
+    logger::BoundaryLogger ConfigInstance::log() const {
+        // Transitional Round 4 API shape only.
+        // Backend-backed default semantic sinks are introduced in Round 6.
+        // Until then, the no-argument overload returns a no-op logger;
+        // tests and early validation must use the sink-taking overload.
+        return log([](logger::LogRecord) {});
+    }
+
+    logger::BoundaryLogger ConfigInstance::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+        return logScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
     bool ConfigInstance::getDisabled() const {

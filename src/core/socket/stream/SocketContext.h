@@ -43,6 +43,7 @@
 #define CORE_SOCKET_STREAM_SOCKETCONTEXT_H
 
 #include "core/socket/SocketContext.h"
+#include "log/LogScopeOwner.h"
 
 namespace core::pipe {
     class Source;
@@ -96,6 +97,15 @@ namespace core::socket::stream {
 
         SocketConnection* getSocketConnection() const;
 
+        logger::BoundaryLogger log() const;
+        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
+                                   logger::LogLevel threshold = logger::LogLevel::Trace,
+                                   logger::BoundaryLogger::Clock clock = {}) const;
+        logger::BoundaryLogger frameworkLog() const;
+        logger::BoundaryLogger frameworkLog(logger::BoundaryLogger::Sink sink,
+                                            logger::LogLevel threshold = logger::LogLevel::Trace,
+                                            logger::BoundaryLogger::Clock clock = {}) const;
+
     protected:
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;
@@ -115,6 +125,8 @@ namespace core::socket::stream {
                          const std::chrono::time_point<std::chrono::system_clock>& later = std::chrono::system_clock::now());
 
         core::socket::stream::SocketConnection* socketConnection;
+        logger::LogScopeOwner applicationLogScope;
+        logger::LogScopeOwner frameworkLogScope;
 
         std::string onlineSince;
         std::size_t alreadyTotalQueued = 0;

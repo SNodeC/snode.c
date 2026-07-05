@@ -43,6 +43,7 @@
 #define NET_CONFIG_CONFIGINSTANCE_H
 
 #include "utils/SubCommand.h" // IWYU pragma: export
+#include "log/LogScopeOwner.h"
 
 namespace net::config {
     class ConfigSection;
@@ -78,6 +79,11 @@ namespace net::config {
         const std::string& getInstanceName() const;
         ConfigInstance* setInstanceName(const std::string& instanceName);
 
+        logger::BoundaryLogger log() const;
+        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
+                                   logger::LogLevel threshold = logger::LogLevel::Trace,
+                                   logger::BoundaryLogger::Clock clock = {}) const;
+
         bool getDisabled() const;
         ConfigInstance* setDisabled(bool disabled = true);
 
@@ -95,6 +101,8 @@ namespace net::config {
         static const std::string nameAnonymous;
 
         Role role;
+
+        logger::LogScopeOwner logScope;
 
         CLI::Option* disableOpt = nullptr;
 
