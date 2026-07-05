@@ -87,6 +87,7 @@ int main() {
     result.expectTrue(configRecords[0].boundary == logger::LogBoundary::Configuration, "ConfigInstance log uses configuration boundary");
     result.expectTrue(configRecords[0].component == "configuration", "ConfigInstance log uses configuration component");
     result.expectTrue(configRecords[0].instance && *configRecords[0].instance == "round4-instance", "ConfigInstance log owns instance identity");
+    result.expectTrue(configRecords[0].role && *configRecords[0].role == logger::LogRole::Server, "ConfigInstance log maps server role");
     result.expectTrue(!configRecords[0].connection, "ConfigInstance log leaves connection absent");
 
     TestSocketConnection connection("round4-instance");

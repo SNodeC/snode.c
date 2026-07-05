@@ -78,7 +78,7 @@ cmake --build cmake-build-asan --parallel 2
 ASAN=$(gcc -print-file-name=libasan.so) LD_PRELOAD=$ASAN ctest --test-dir cmake-build-asan --output-on-failure
 ```
 
-Result: ASan configure/build/test passed, 110/110 tests, with the existing environment-dependent component tests reported as skipped by the existing harness. The ASan build emitted linker warnings from libasan about tmpnam/tempnam usage, but the ASan ctest run completed successfully.
+Initial Round 4 result: ASan configure/build/test passed, 110/110 tests, with the existing environment-dependent component tests reported as skipped by the existing harness. The ASan build emitted linker warnings from libasan about tmpnam/tempnam usage, but the ASan ctest run completed successfully. Follow-up result: ASan was rerun after the ConfigInstance role/no-op documentation fix and passed, 110/110 tests, with the same existing environment-dependent skips.
 
 ## ConfigInstance log API result
 
@@ -91,11 +91,11 @@ logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
                            logger::BoundaryLogger::Clock clock = {}) const;
 ```
 
-The zero-argument API returns a lifetime-safe no-op semantic logger. The sink-taking overload is used by tests to prove emitted semantic records contain the expected object scope.
+The zero-argument API intentionally returns a no-op `BoundaryLogger` in Round 4 because backend unification is deferred to Round 6. It exists to establish the object API shape only. No production call sites were migrated to it, and broad migration must not happen before a real default backend sink exists. The sink-taking overload is used by tests to prove emitted semantic records contain the expected object scope.
 
 ## SocketConnection log API result
 
-`SocketConnection` now owns a `logger::LogScopeOwner` member and exposes the same `log()` and sink-taking `log(...)` API shape. The owned scope is initialized after `instanceName` and `connectionName` have been constructed.
+`SocketConnection` now owns a `logger::LogScopeOwner` member and exposes the same `log()` and sink-taking `log(...)` API shape. The zero-argument API intentionally returns a no-op `BoundaryLogger` in Round 4 because backend unification is deferred to Round 6. It exists to establish the object API shape only. No production call sites were migrated to it, and broad migration must not happen before a real default backend sink exists. The owned scope is initialized after `instanceName` and `connectionName` have been constructed.
 
 ## SocketContext log/frameworkLog API result
 
@@ -104,7 +104,7 @@ The zero-argument API returns a lifetime-safe no-op semantic logger. The sink-ta
 * `applicationLogScope`, returned by `log()` with `logger::LogOrigin::Application`
 * `frameworkLogScope`, returned by `frameworkLog()` with `logger::LogOrigin::Framework`
 
-The public APIs are:
+The no-argument `log()`/`frameworkLog()` overloads intentionally return no-op `BoundaryLogger` instances in Round 4 because backend unification is deferred to Round 6. They exist to establish the object API shape only. No production call sites were migrated to them, and broad migration must not happen before a real default backend sink exists. The public APIs are:
 
 ```cpp
 logger::BoundaryLogger log() const;
@@ -125,7 +125,7 @@ logger::BoundaryLogger frameworkLog(logger::BoundaryLogger::Sink sink,
 * boundary: `configuration`
 * component: `configuration`
 * instance: configured instance name when non-empty
-* role: unknown/absent
+* role: server/client mapped from `ConfigInstance::Role`
 * connection: absent
 
 The configuration boundary was chosen because `ConfigInstance` represents configuration identity in the net configuration tree. No fake instance name is invented for empty instance names.

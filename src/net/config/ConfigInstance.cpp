@@ -53,6 +53,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+namespace {
+    logger::LogRole toLogRole(net::config::ConfigInstance::Role role) {
+        return role == net::config::ConfigInstance::Role::SERVER ? logger::LogRole::Server : logger::LogRole::Client;
+    }
+}
+
 namespace net::config {
 
     const std::string ConfigInstance::nameAnonymous = "<anonymous>";
@@ -73,7 +79,7 @@ namespace net::config {
                    logger::LogBoundary::Configuration,
                    "configuration",
                    instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
-                   std::nullopt,
+                   toLogRole(role),
                    std::nullopt)
         , disableOpt(setConfigurable(addFlagFunction(
                                          "--disabled{true}",
@@ -105,13 +111,17 @@ namespace net::config {
                                          logger::LogBoundary::Configuration,
                                          "configuration",
                                          instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
-                                         std::nullopt,
+                                         toLogRole(role),
                                          std::nullopt);
 
         return this;
     }
 
     logger::BoundaryLogger ConfigInstance::log() const {
+        // Transitional Round 4 API shape only.
+        // Backend-backed default semantic sinks are introduced in Round 6.
+        // Until then, the no-argument overload returns a no-op logger;
+        // tests and early validation must use the sink-taking overload.
         return log([](logger::LogRecord) {});
     }
 

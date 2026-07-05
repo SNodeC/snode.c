@@ -121,6 +121,10 @@ namespace core::socket::stream {
     }
 
     logger::BoundaryLogger SocketConnection::log() const {
+        // Transitional Round 4 API shape only.
+        // Backend-backed default semantic sinks are introduced in Round 6.
+        // Until then, the no-argument overload returns a no-op logger;
+        // tests and early validation must use the sink-taking overload.
         return log([](logger::LogRecord) {});
     }
 
