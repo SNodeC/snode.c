@@ -48,6 +48,8 @@
 #include "core/socket/State.h"                       // IWYU pragma: export
 #include "core/socket/stream/ServerFlowController.h" // IWYU pragma: export
 #include "core/timer/Timer.h"
+#include "log/LogScopeOwner.h"
+#include "log/SemanticLogger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -56,6 +58,7 @@
 
 #include <algorithm>
 #include <functional>  // IWYU pragma: export
+#include <optional>
 #include <type_traits> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -106,6 +109,7 @@ namespace core::socket::stream {
 
         SocketServer(const std::shared_ptr<Config>& config, const std::shared_ptr<Context>& sharedContext)
             : Super(config)
+            , logScope(makeLogScope(config->getInstanceName()))
             , sharedContext(sharedContext) {
         }
 
@@ -116,6 +120,7 @@ namespace core::socket::stream {
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      Args&&... args)
             : Super(name)
+            , logScope(makeLogScope(name))
             , sharedContext(std::make_shared<Context>(
                   this->config,
                   std::make_shared<SocketContextFactory>(std::forward<Args>(args)...),
@@ -263,6 +268,21 @@ namespace core::socket::stream {
             return listen(localAddress, onStatus);
         }
 
+
+        logger::BoundaryLogger log() const {
+            // Transitional Round 5 API shape only.
+            // Backend-backed default semantic sinks are introduced in Round 6.
+            // Until then, the no-argument overload returns a no-op logger;
+            // tests and early validation must use the sink-taking overload.
+            return log([](logger::LogRecord) {});
+        }
+
+        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
+                                   logger::LogLevel threshold = logger::LogLevel::Trace,
+                                   logger::BoundaryLogger::Clock clock = {}) const {
+            return logScope.logger(std::move(sink), threshold, std::move(clock));
+        }
+
         std::function<void(SocketConnection*)>& getOnConnect() const {
             return sharedContext->onConnect;
         }
@@ -315,6 +335,17 @@ namespace core::socket::stream {
         }
 
     private:
+
+        static logger::LogScopeOwner makeLogScope(const std::string& instanceName) {
+            return logger::LogScopeOwner(logger::LogOrigin::Framework,
+                                         logger::LogBoundary::Instance,
+                                         "core.socket.stream",
+                                         instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
+                                         logger::LogRole::Server,
+                                         std::nullopt);
+        }
+
+        logger::LogScopeOwner logScope;
         std::shared_ptr<Context> sharedContext;
     };
 
