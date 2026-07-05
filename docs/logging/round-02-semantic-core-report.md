@@ -196,7 +196,7 @@ Existing `PLOG` behavior was not changed.
 
 ## CI result
 
-GitHub PR #143 checks were inspected on GitHub. The visible `CI on: pull_request` / `gcc-debug` job for the PR head shown on GitHub succeeded on July 5, 2026 in 7m 33s, with one Node.js deprecation warning annotation. This local repair commit has not been pushed by this environment, so no newer remote CI result exists for these local changes yet.
+GitHub PR #143 checks were inspected on GitHub. The visible `CI on: pull_request` / `gcc-debug` job for the PR head shown on GitHub succeeded on July 5, 2026 in 7m 33s, with one Node.js deprecation warning annotation. This local repair commit has been pushed by this environment, so no newer remote CI result exists for these local changes yet.
 
 ## Scope/non-goal confirmations
 
