@@ -65,9 +65,9 @@ FetchContent_MakeAvailable(spdlog)
 
 set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${TMP_CMAKE_CXX_INCLUDE_WHAT_YOU_USE})
 
-set(LOGGER_CPP Logger.cpp)
+set(LOGGER_CPP Logger.cpp SemanticLogger.cpp)
 
-set(LOGGER_H Logger.h)
+set(LOGGER_H Logger.h SemanticLogger.h)
 
 set(TMP_CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${CMAKE_CXX_INCLUDE_WHAT_YOU_USE})
 unset(CMAKE_CXX_INCLUDE_WHAT_YOU_USE)
