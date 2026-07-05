@@ -27,7 +27,7 @@ Architectural identity must become structured metadata, not hand-written message
 Intended semantic record fields:
 
 ```text
-ts           event timestamp; canonical JSON name is `ts`, text format may render it as `timestamp`
+ts           timestamp; canonical JSON name is `ts`, text format may render it as `timestamp`
 level        trace | debug | info | warn | error | critical
 origin       framework | application
 boundary     application | configuration | instance | connection | context | system
@@ -234,7 +234,6 @@ level
 origin
 boundary
 component
-role
 message
 ```
 
@@ -242,6 +241,7 @@ Optional JSON fields:
 
 ```text
 instance
+role
 connection
 event
 error
@@ -291,5 +291,5 @@ known non-blocking follow-ups
 For this round, the branch and draft PR are:
 
 ```text
-logging/round-01-baseline-contract
+codex/implement-logging-roadmap-round-1
 ```

@@ -1,6 +1,6 @@
 # Logging Roadmap Round 01 Report: Baseline + Frozen Contract
 
-Branch/report: `logging/round-01-baseline-contract` / Round 01 baseline contract
+Branch/report: `codex/implement-logging-roadmap-round-1` / Round 01 baseline contract
 
 ## Files inspected
 
@@ -71,7 +71,7 @@ Searches used during inspection:
 ## Files changed
 
 - `docs/logging/semantic-logging-contract.md`
-- `docs/logging/round-01-baseline-contract-report.md`
+- this Round 01 report file
 
 No production source files were changed.
 
@@ -188,3 +188,39 @@ The gate must include enabled and disabled `LOG` levels, enabled and disabled `V
 - Add a focused legacy macro compatibility harness before changing macro internals. Prefer using `Logger::setTickResolver(...)`, `Logger::setDisableColor(true)`, and fixed thresholds to produce normalized comparisons.
 - Introduce semantic logging types behind new names only after the macro gate exists.
 - Keep Round 2 limited to `src/log` core logging infrastructure and its focused compatibility tests/harness. Do not integrate `SocketConnection`, `SocketContext`, or other production object boundaries until a later reviewed round after the macro compatibility gate exists and passes.
+
+
+## Round 01 repair validation
+
+Files changed for this repair:
+
+- `docs/logging/semantic-logging-contract.md`
+- this Round 01 report file
+
+Exact validation commands run for this repair:
+
+```sh
+gh --version
+gh pr ready 142 --undo
+git status --short
+git diff --check
+obsolete="logging/round-01-baseline-""contract"; report="docs/logging/round-01-baseline-""contract-report.md"; grep -R "$obsolete" docs/logging/semantic-logging-contract.md "$report"
+```
+
+Exact validation results:
+
+- `gh --version` failed with `/bin/bash: line 1: gh: command not found`.
+- `gh pr ready 142 --undo` failed with `/bin/bash: line 1: gh: command not found`.
+- Could not convert PR #142 to actual GitHub draft state because the GitHub CLI (`gh`) is not installed in this environment.
+- `git status --short` was run to confirm only the two documentation files changed before commit.
+- `git diff --check` passed with no whitespace errors.
+- `obsolete="logging/round-01-baseline-""contract"; report="docs/logging/round-01-baseline-""contract-report.md"; grep -R "$obsolete" docs/logging/semantic-logging-contract.md "$report"` returned no matches.
+
+Repair confirmations:
+
+- No production source files changed.
+- Round 2 was not started.
+- `LOG`, `PLOG`, and `VLOG` macro behavior was not changed.
+- In JSON schema v1, `role` is optional, not mandatory.
+- Obsolete Round 01 branch wording was removed from the Round 01 documentation files.
+- PR #142 was not converted to actual GitHub draft state from this environment because `gh` is unavailable.
