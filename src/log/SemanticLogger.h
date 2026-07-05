@@ -73,6 +73,15 @@ namespace logger {
 
     class BoundaryLogger;
 
+    struct OwnedLogScope {
+        LogOrigin origin;
+        LogBoundary boundary;
+        std::string component;
+        std::optional<std::string> instance;
+        std::optional<LogRole> role;
+        std::optional<std::string> connection;
+    };
+
     class LogStream {
     public:
         LogStream() = default;
@@ -145,7 +154,7 @@ namespace logger {
         void emit(LogLevel level, std::string message, LogRecordOptions options = {}) const;
 
     private:
-        BoundaryLogger(LogScope scope, Sink sink, LogLevel threshold, Clock clock);
+        BoundaryLogger(OwnedLogScope scope, Sink sink, LogLevel threshold, Clock clock);
 
         template <class... Args>
         void emitFormatted(LogLevel level, std::string_view format, Args&&... args) const {
@@ -177,7 +186,7 @@ namespace logger {
             return result;
         }
 
-        LogScope scope;
+        OwnedLogScope scope;
         Sink sink;
         LogLevel threshold;
         Clock clock;

@@ -51,6 +51,12 @@ int main() {
     result.expectTrue(json.find("connection") == std::string::npos, "JSON omits absent connection instead of null");
     result.expectTrue(json.find("null") == std::string::npos, "JSON never emits null for absent optionals");
 
+    auto escapedRecord = logger::materialize(unknownRole, logger::LogLevel::Info, std::string("before") + static_cast<char>(0x08) + static_cast<char>(0x01) + "after", logger::LogRecordOptions{.ts = fixedTimestamp()});
+    const std::string escapedJson = logger::formatJsonV1(escapedRecord);
+    result.expectTrue(escapedJson.find("before\\b\\u0001after") != std::string::npos, "JSON escapes backspace and other control characters");
+    result.expectTrue(escapedJson.find(static_cast<char>(0x08)) == std::string::npos && escapedJson.find(static_cast<char>(0x01)) == std::string::npos,
+                      "JSON does not emit raw control bytes below 0x20");
+
     const std::string text = logger::formatText(owned);
     result.expectTrue(text.find("2026-07-05T12:34:56.789Z") != std::string::npos && text.find("info framework connection mqtt.server") != std::string::npos && text.find("ready") != std::string::npos,
                       "text formatter includes timestamp level origin boundary component and message");
@@ -65,6 +71,25 @@ int main() {
     expectStringEqual(result, "received 42 bytes", records[0].message, "format-style API formats placeholder");
     expectStringEqual(result, "echo session started", records[1].message, "format-style API supports literal message");
     expectStringEqual(result, "received 42 bytes", records[2].message, "stream-style API flushes complete expression once");
+
+
+    std::string loggerComponent = "mqtt.server";
+    std::string loggerInstance = "mqtt-broker";
+    std::string loggerConnection = "#7";
+    std::vector<logger::LogRecord> lifetimeRecords;
+    auto lifetimeLog = logger::BoundaryLogger::createForTest(
+        logger::LogScope{logger::LogOrigin::Framework, logger::LogBoundary::Connection, loggerComponent, loggerInstance, logger::LogRole::Server, loggerConnection},
+        [&](logger::LogRecord record) { lifetimeRecords.push_back(std::move(record)); },
+        logger::LogLevel::Trace,
+        fixedTimestamp);
+    loggerComponent = "changed.component";
+    loggerInstance = "changed-instance";
+    loggerConnection = "changed-connection";
+    lifetimeLog.info("after mutation");
+    result.expectEqual(1, static_cast<int>(lifetimeRecords.size()), "BoundaryLogger emits after original scope strings mutate");
+    expectStringEqual(result, "mqtt.server", lifetimeRecords[0].component, "BoundaryLogger copies component at construction");
+    result.expectTrue(lifetimeRecords[0].instance && *lifetimeRecords[0].instance == "mqtt-broker", "BoundaryLogger copies instance at construction");
+    result.expectTrue(lifetimeRecords[0].connection && *lifetimeRecords[0].connection == "#7", "BoundaryLogger copies connection at construction");
 
     auto filtered = logger::BoundaryLogger::createForTest(scope, [&](logger::LogRecord record) { records.push_back(std::move(record)); }, logger::LogLevel::Info, fixedTimestamp);
     filtered.debug("hidden {}", 1);

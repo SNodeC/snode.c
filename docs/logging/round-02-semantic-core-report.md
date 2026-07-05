@@ -1,6 +1,6 @@
 # Logging Roadmap Round 02 Report: Semantic `src/log` Core
 
-Branch/report: `codex/implement-logging-roadmap-round-2` / Round 02 semantic core
+Branch/report: `codex/draft-pr-for-logging-roadmap-round-2` / Round 02 semantic core
 
 ## Implementation diff summary
 
@@ -16,13 +16,24 @@ Implemented:
 * JSON optional fields `instance`, `role`, `connection`, `event`, `error`, and `source`, emitted only when present; absent optionals are omitted and never emitted as `null`.
 * Minimal text formatter generated from the same owned semantic record.
 * `BoundaryLogger` test/local API with format-style calls, stream-style calls, local threshold checks, and `sysError` overloads for `int` and `std::error_code`.
+* Owned internal `OwnedLogScope` storage so `BoundaryLogger` does not retain borrowed `LogScope` `std::string_view` fields after construction.
+* Complete JSON escaping for all control characters below `0x20`, including `\b`, `\f`, and `\u00XX` fallback escapes.
 * Focused macro compatibility smoke harness proving `LOG`, `PLOG`, and `VLOG` still compile/link/run through the existing macro path.
 
 ## Exact files changed
 
+Repair-only files changed in this follow-up:
+
+* `src/log/SemanticLogger.h`
+* `src/log/SemanticLogger.cpp`
+* `tests/unit/log/SemanticLoggerRound2Test.cpp`
+* `docs/logging/round-02-semantic-core-report.md`
+
+No other files were changed by this repair. The full Round 02 PR file set remains:
+
 * `src/log/CMakeLists.txt` — adds the Round 02 semantic logger source/header to the existing `logger` library.
-* `src/log/SemanticLogger.h` — new semantic types, materialization/formatter declarations, `BoundaryLogger`, and `LogStream` API.
-* `src/log/SemanticLogger.cpp` — new materialization, string rendering, timestamp rendering, JSON v1/text formatting, stream flush, threshold, and sink emission implementation.
+* `src/log/SemanticLogger.h` — new semantic types, owned internal `OwnedLogScope`, materialization/formatter declarations, `BoundaryLogger`, and `LogStream` API.
+* `src/log/SemanticLogger.cpp` — new materialization, owned-scope copying/viewing for `BoundaryLogger`, complete JSON control-character escaping, string rendering, timestamp rendering, JSON v1/text formatting, stream flush, threshold, and sink emission implementation.
 * `tests/unit/CMakeLists.txt` — registers the new `tests/unit/log` subdirectory.
 * `tests/unit/log/CMakeLists.txt` — declares `SemanticLoggerRound2Test` and labels it `unit;log;round2`.
 * `tests/unit/log/SemanticLoggerRound2Test.cpp` — focused Round 02 semantic core and macro compatibility harness.
@@ -72,7 +83,7 @@ Focused Round 02 test:
 ctest --test-dir cmake-build -R SemanticLoggerRound2Test --output-on-failure
 ```
 
-Result: passed, 1/1 tests.
+Result: passed, 1/1 tests. The focused test now includes the BoundaryLogger construction-time scope-copy check and the JSON control-character escaping check.
 
 Full normal test suite:
 
@@ -82,13 +93,14 @@ ctest --test-dir cmake-build --output-on-failure
 
 Result: passed, 108/108 tests, with many existing component tests reported as skipped by the existing harness/environment skip behavior.
 
-Source-level check:
+Source-level/status checks:
 
 ```sh
+git status --short
 git diff --check
 ```
 
-Result: passed with no whitespace errors.
+Result: `git status --short` showed the four expected modified repair files plus local untracked build directories while validation was running; `git diff --check` passed with no whitespace errors. The build directories were not committed.
 
 ## Sanitizer commands/results
 
@@ -106,7 +118,9 @@ LD_PRELOAD=$ASAN ctest --test-dir cmake-build-asan --output-on-failure
 
 Result: passed, 108/108 tests, with many existing component tests reported as skipped by the existing harness/environment skip behavior.
 
-An initial ASan test command without `LD_PRELOAD` failed with:
+The ASan run used `LD_PRELOAD=$(gcc -print-file-name=libasan.so)` so the ASan runtime loaded first.
+
+An earlier Round 02 run without `LD_PRELOAD` failed with:
 
 ```text
 ASan runtime does not come first in initial library list; you should either link runtime to your application or manually preload it with LD_PRELOAD.
@@ -142,6 +156,8 @@ The JSON v1 formatter emits the frozen mandatory fields:
 * `component`
 * `message`
 
+The formatter escapes all JSON string control characters below `0x20`: common controls use short escapes where applicable and other controls use `\u00XX`. The focused test verifies `\b` and `\u0001` output and checks that the corresponding raw control bytes are absent.
+
 The formatter emits optional fields only when present:
 
 * `instance`
@@ -155,7 +171,9 @@ Absent optional fields are omitted rather than emitted as `null`. Unknown role i
 
 ## string_view materialization/lifetime result
 
-The test constructs `LogScope` from mutable `std::string` storage, materializes a `LogRecord`, clears the original strings, and verifies that `record.component`, `record.instance`, and `record.connection` still contain the original values. This proves formatter/sink handoff receives owned bytes, not borrowed `LogScope` references.
+The direct materialization test constructs `LogScope` from mutable `std::string` storage, materializes a `LogRecord`, clears the original strings, and verifies that `record.component`, `record.instance`, and `record.connection` still contain the original values. This proves formatter/sink handoff receives owned bytes, not borrowed `LogScope` references.
+
+The `BoundaryLogger` lifetime repair adds owned internal scope storage. The test constructs a logger from borrowed strings, mutates those original strings before logging, emits a record, and verifies that the emitted record still contains the original `mqtt.server`, `mqtt-broker`, and `#7` values. This proves logger construction copies the borrowed scope data and later log calls do not read stale caller-owned `std::string_view` storage.
 
 ## sysError result
 
@@ -176,6 +194,10 @@ Existing `PLOG` behavior was not changed.
 
 `logger.debug("received {} bytes", 42);` and `logger.info("echo session started");` both work in the focused test. The Round 02 formatter is intentionally minimal and local to the semantic logger test stand.
 
+## CI result
+
+GitHub PR #143 checks were inspected on GitHub. The visible `CI on: pull_request` / `gcc-debug` job for the PR head shown on GitHub succeeded on July 5, 2026 in 7m 33s, with one Node.js deprecation warning annotation. This local repair commit has not been pushed by this environment, so no newer remote CI result exists for these local changes yet.
+
 ## Scope/non-goal confirmations
 
 Confirmed:
@@ -189,6 +211,19 @@ Confirmed:
 * `LOG`, `PLOG`, and `VLOG` runtime behavior was not intentionally changed.
 * Existing `Logger.cpp` CLI/backend behavior was not unified with the semantic logger.
 * Startup filter configuration, filter precedence, `freeze()`, runtime reload, signals, admin endpoints, and mutable atomic thresholds were not implemented.
+
+## Repair-specific confirmations
+
+Confirmed for this repair:
+
+* `BoundaryLogger` no longer stores a borrowed `LogScope` member.
+* `BoundaryLogger` stores owned internal scope data in `OwnedLogScope`.
+* A focused test proves mutating original scope strings after logger construction does not affect emitted records.
+* The direct `materialize(...)` borrowed-to-owned test still passes.
+* JSON escaping handles all control characters below `0x20`.
+* A focused test covers previously unescaped control characters (`\b` and `\u0001`).
+* The report branch name is `codex/draft-pr-for-logging-roadmap-round-2`.
+* No files outside the expected repair set were changed.
 
 ## Extended SNode.C and MQTT/mqttsuite review note
 
