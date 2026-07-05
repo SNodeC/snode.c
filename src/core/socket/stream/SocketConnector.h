@@ -44,6 +44,8 @@
 
 #include "core/eventreceiver/ConnectEventReceiver.h" // IWYU pragma: export
 #include "core/socket/State.h"
+#include "log/LogScopeOwner.h"
+#include "log/SemanticLogger.h"
 
 namespace core::socket::stream {
     class SocketContextFactory;
@@ -53,6 +55,8 @@ namespace core::socket::stream {
 
 #include <functional>
 #include <memory>
+#include <optional>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -84,6 +88,20 @@ namespace core::socket::stream {
 
         virtual void init();
 
+        logger::BoundaryLogger log() const {
+            // Transitional Round 5 API shape only.
+            // Backend-backed default semantic sinks are introduced in Round 6.
+            // Until then, the no-argument overload returns a no-op logger;
+            // tests and early validation must use the sink-taking overload.
+            return log([](logger::LogRecord) {});
+        }
+
+        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
+                                   logger::LogLevel threshold = logger::LogLevel::Trace,
+                                   logger::BoundaryLogger::Clock clock = {}) const {
+            return logScope.logger(std::move(sink), threshold, std::move(clock));
+        }
+
     protected:
         virtual void useNextSocketAddress() = 0;
 
@@ -108,6 +126,17 @@ namespace core::socket::stream {
 
         std::function<void(const SocketAddress&, core::socket::State)> onStatus;
 
+
+        static logger::LogScopeOwner makeLogScope(const std::string& instanceName) {
+            return logger::LogScopeOwner(logger::LogOrigin::Framework,
+                                         logger::LogBoundary::Instance,
+                                         "core.socket.stream",
+                                         instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
+                                         logger::LogRole::Client,
+                                         std::nullopt);
+        }
+
+        logger::LogScopeOwner logScope;
         std::shared_ptr<Config> config = nullptr;
     };
 

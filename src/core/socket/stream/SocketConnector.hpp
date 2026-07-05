@@ -71,6 +71,7 @@ namespace core::socket::stream {
         , onDisconnect(onDisconnect)
         , onInitState(onInitState)
         , onStatus(onStatus)
+        , logScope(makeLogScope(config->getInstanceName()))
         , config(config) {
     }
 
@@ -84,6 +85,7 @@ namespace core::socket::stream {
         , onDisconnect(socketConnector.onDisconnect)
         , onInitState(socketConnector.onInitState)
         , onStatus(socketConnector.onStatus)
+        , logScope(socketConnector.logScope)
         , config(socketConnector.config) {
     }
 
