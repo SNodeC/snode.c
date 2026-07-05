@@ -5,7 +5,6 @@
 
 namespace logger {
 namespace {
-    bool knownRole(LogRole role) { return role == LogRole::Server || role == LogRole::Client; }
     int rank(LogLevel level) { return static_cast<int>(level); }
     std::string escapeJson(const std::string& value) {
         std::ostringstream out;
@@ -29,21 +28,6 @@ namespace {
         }
         return out.str();
     }
-    OwnedLogScope copyScope(LogScope scope) {
-        OwnedLogScope owned{scope.origin, scope.boundary, std::string(scope.component), std::nullopt, std::nullopt, std::nullopt};
-        if (!scope.instance.empty()) owned.instance = std::string(scope.instance);
-        if (knownRole(scope.role)) owned.role = scope.role;
-        if (!scope.connection.empty()) owned.connection = std::string(scope.connection);
-        return owned;
-    }
-    LogScope viewScope(const OwnedLogScope& scope) {
-        return LogScope{scope.origin,
-                        scope.boundary,
-                        scope.component,
-                        scope.instance ? std::string_view(*scope.instance) : std::string_view(),
-                        scope.role.value_or(LogRole::Unknown),
-                        scope.connection ? std::string_view(*scope.connection) : std::string_view()};
-    }
     void appendField(std::ostringstream& out, bool& first, std::string_view name, const std::string& value) {
         out << (first ? "" : ",") << "\"" << name << "\":\"" << escapeJson(value) << "\"";
         first = false;
@@ -63,7 +47,7 @@ LogRecord materialize(const LogScope& scope, LogLevel level, std::string message
     record.boundary = scope.boundary;
     record.component = std::string(scope.component);
     if (!scope.instance.empty()) record.instance = std::string(scope.instance);
-    if (knownRole(scope.role)) record.role = scope.role;
+    if (knownLogRole(scope.role)) record.role = scope.role;
     if (!scope.connection.empty()) record.connection = std::string(scope.connection);
     if (options.event && !options.event->empty()) record.event = std::string(*options.event);
     record.message = std::move(message);
@@ -171,7 +155,26 @@ LogStream& LogStream::operator=(LogStream&& other) noexcept {
 }
 LogStream::~LogStream() { if (!flushed && enabled && logger != nullptr) logger->emit(level, stream.str()); }
 
-BoundaryLogger BoundaryLogger::createForTest(LogScope scope, Sink sink, LogLevel threshold, Clock clock) { return BoundaryLogger(copyScope(scope), std::move(sink), threshold, std::move(clock)); }
+bool knownLogRole(LogRole role) noexcept { return role == LogRole::Server || role == LogRole::Client; }
+
+OwnedLogScope copyLogScope(LogScope scope) {
+    OwnedLogScope owned{scope.origin, scope.boundary, std::string(scope.component), std::nullopt, std::nullopt, std::nullopt};
+    if (!scope.instance.empty()) owned.instance = std::string(scope.instance);
+    if (knownLogRole(scope.role)) owned.role = scope.role;
+    if (!scope.connection.empty()) owned.connection = std::string(scope.connection);
+    return owned;
+}
+
+LogScope viewLogScope(const OwnedLogScope& scope) noexcept {
+    return LogScope{scope.origin,
+                    scope.boundary,
+                    scope.component,
+                    scope.instance ? std::string_view(*scope.instance) : std::string_view(),
+                    scope.role.value_or(LogRole::Unknown),
+                    scope.connection ? std::string_view(*scope.connection) : std::string_view()};
+}
+
+BoundaryLogger BoundaryLogger::createForTest(LogScope scope, Sink sink, LogLevel threshold, Clock clock) { return BoundaryLogger(copyLogScope(scope), std::move(sink), threshold, std::move(clock)); }
 BoundaryLogger::BoundaryLogger(OwnedLogScope scope, Sink sink, LogLevel threshold, Clock clock) : scope(std::move(scope)), sink(std::move(sink)), threshold(threshold), clock(std::move(clock)) {}
 bool BoundaryLogger::enabled(LogLevel level) const noexcept { return level != LogLevel::Off && rank(level) >= rank(threshold) && threshold != LogLevel::Off; }
 LogStream BoundaryLogger::trace() const { return {this, LogLevel::Trace}; }
@@ -185,7 +188,7 @@ void BoundaryLogger::emit(LogLevel level, std::string message, LogRecordOptions 
     if (options.ts == std::chrono::system_clock::time_point{}) {
         options.ts = clock ? clock() : std::chrono::system_clock::now();
     }
-    sink(materialize(viewScope(scope), level, std::move(message), std::move(options)));
+    sink(materialize(viewLogScope(scope), level, std::move(message), std::move(options)));
 }
 
 } // namespace logger

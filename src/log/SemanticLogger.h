@@ -82,6 +82,12 @@ namespace logger {
         std::optional<std::string> connection;
     };
 
+    bool knownLogRole(LogRole role) noexcept;
+    OwnedLogScope copyLogScope(LogScope scope);
+    LogScope viewLogScope(const OwnedLogScope& scope) noexcept;
+
+    class LogScopeOwner;
+
     class LogStream {
     public:
         LogStream() = default;
@@ -192,6 +198,7 @@ namespace logger {
         Clock clock;
 
         friend class LogStream;
+        friend class LogScopeOwner;
     };
 
 } // namespace logger
