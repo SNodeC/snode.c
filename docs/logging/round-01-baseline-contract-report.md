@@ -192,29 +192,53 @@ The gate must include enabled and disabled `LOG` levels, enabled and disabled `V
 
 ## Round 01 repair validation
 
+Actual PR head branch: `codex/implement-logging-roadmap-round-1`.
+
 Files changed for this repair:
 
 - `docs/logging/semantic-logging-contract.md`
 - this Round 01 report file
 
+Exact branch/PR commands run for this repair:
+
+```sh
+git fetch origin
+git checkout codex/implement-logging-roadmap-round-1
+git status --short
+git log --oneline -5
+gh pr ready 142 --undo
+gh pr view 142 --json isDraft,state,headRefName,baseRefName,title
+```
+
+Exact branch/PR results:
+
+- `git fetch origin` failed with `fatal: 'origin' does not appear to be a git repository` and `fatal: Could not read from remote repository.`
+- `git checkout codex/implement-logging-roadmap-round-1` succeeded; the checkout reported `Already on 'codex/implement-logging-roadmap-round-1'`.
+- `git status --short` showed only Round 01 documentation changes before commit.
+- `git log --oneline -5` showed the local branch head was `be1899f Repair round 01 logging docs` before this follow-up repair.
+- `gh pr ready 142 --undo` failed with `/bin/bash: line 1: gh: command not found`.
+- `gh pr view 142 --json isDraft,state,headRefName,baseRefName,title` failed with `/bin/bash: line 2: gh: command not found`.
+- Could not convert PR #142 to actual GitHub draft state because the GitHub CLI (`gh`) is not installed in this environment.
+
 Exact validation commands run for this repair:
 
 ```sh
-gh --version
-gh pr ready 142 --undo
 git status --short
 git diff --check
-obsolete="logging/round-01-baseline-""contract"; report="docs/logging/round-01-baseline-""contract-report.md"; grep -R "$obsolete" docs/logging/semantic-logging-contract.md "$report"
+# Required obsolete-branch grep was run against both Round 01 documentation files.
+grep -n "role" docs/logging/semantic-logging-contract.md
+gh pr view 142 --json isDraft,state,headRefName,baseRefName,title
 ```
+
+The required obsolete-branch grep command used the review-requested search term and both Round 01 documentation files; the literal command is intentionally not duplicated in this file so that the self-referential grep remains clean.
 
 Exact validation results:
 
-- `gh --version` failed with `/bin/bash: line 1: gh: command not found`.
-- `gh pr ready 142 --undo` failed with `/bin/bash: line 1: gh: command not found`.
-- Could not convert PR #142 to actual GitHub draft state because the GitHub CLI (`gh`) is not installed in this environment.
-- `git status --short` was run to confirm only the two documentation files changed before commit.
+- `git status --short` showed only Round 01 documentation changes before commit.
 - `git diff --check` passed with no whitespace errors.
-- `obsolete="logging/round-01-baseline-""contract"; report="docs/logging/round-01-baseline-""contract-report.md"; grep -R "$obsolete" docs/logging/semantic-logging-contract.md "$report"` returned no matches.
+- The required obsolete-branch grep returned no matches.
+- `grep -n "role" docs/logging/semantic-logging-contract.md` showed `role` under the optional JSON field list and not under mandatory JSON fields.
+- `gh pr view 142 --json isDraft,state,headRefName,baseRefName,title` failed with `/bin/bash: line 1: gh: command not found`.
 
 Repair confirmations:
 
@@ -223,4 +247,4 @@ Repair confirmations:
 - `LOG`, `PLOG`, and `VLOG` macro behavior was not changed.
 - In JSON schema v1, `role` is optional, not mandatory.
 - Obsolete Round 01 branch wording was removed from the Round 01 documentation files.
-- PR #142 was not converted to actual GitHub draft state from this environment because `gh` is unavailable.
+- PR #142 is not confirmed as an actual GitHub draft PR from this environment. Draft conversion failed because the exact command `gh pr ready 142 --undo` could not run without the `gh` executable.
