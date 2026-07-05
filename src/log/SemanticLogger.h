@@ -71,6 +71,30 @@ namespace logger {
     std::string formatJsonV1(const LogRecord& record);
     std::string formatText(const LogRecord& record);
 
+    class LogManager {
+    public:
+        enum class Format { Text, Json };
+
+        LogManager() = delete;
+        ~LogManager() = delete;
+
+        static void init();
+        static void setGlobalLevel(LogLevel level);
+        static void setOriginLevel(LogOrigin origin, LogLevel level);
+        static void setBoundaryLevel(LogBoundary boundary, LogLevel level);
+        static void setComponentLevel(std::string component, LogLevel level);
+        static void setInstanceLevel(std::string instance, LogLevel level);
+        static void setFormat(Format format);
+        static void freeze();
+        static bool isFrozen();
+
+        static LogLevel effectiveLevel(const LogScope& scope);
+        static LogLevel effectiveLevel(const LogRecord& record);
+        static bool shouldEmit(const LogRecord& record);
+        static Format format();
+        static std::string formatRecord(const LogRecord& record);
+    };
+
     class BoundaryLogger;
 
     struct OwnedLogScope {

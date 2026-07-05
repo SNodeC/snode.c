@@ -1,7 +1,10 @@
 #include "log/SemanticLogger.h"
 
 #include <iomanip>
+#include <map>
+#include <stdexcept>
 #include <sstream>
+#include <utility>
 
 namespace logger {
 namespace {
@@ -36,6 +39,34 @@ namespace {
         out << (first ? "" : ",") << "\"" << name << "\":" << value;
         first = false;
     }
+
+    struct SemanticPolicy {
+        LogLevel globalLevel = LogLevel::Trace;
+        std::map<LogOrigin, LogLevel> originLevels;
+        std::map<LogBoundary, LogLevel> boundaryLevels;
+        std::map<std::string, LogLevel> componentLevels;
+        std::map<std::string, LogLevel> instanceLevels;
+        LogManager::Format format = LogManager::Format::Text;
+        bool frozen = false;
+    };
+
+    SemanticPolicy& policy() {
+        static SemanticPolicy current;
+        return current;
+    }
+
+    void ensureMutable() {
+        if (policy().frozen) {
+            throw std::logic_error("logger::LogManager semantic policy is frozen");
+        }
+    }
+
+    void ensureNonEmptyKey(const std::string& key, const char* name) {
+        if (key.empty()) {
+            throw std::invalid_argument(std::string("logger::LogManager ") + name + " key must not be empty");
+        }
+    }
+
 }
 
 LogRecord materialize(const LogScope& scope, LogLevel level, std::string message, LogRecordOptions options) {
@@ -54,6 +85,87 @@ LogRecord materialize(const LogScope& scope, LogLevel level, std::string message
     record.error = std::move(options.error);
     record.source = std::move(options.source);
     return record;
+}
+
+
+void LogManager::init() {
+    policy() = SemanticPolicy{};
+}
+
+void LogManager::setGlobalLevel(LogLevel level) {
+    ensureMutable();
+    policy().globalLevel = level;
+}
+
+void LogManager::setOriginLevel(LogOrigin origin, LogLevel level) {
+    ensureMutable();
+    policy().originLevels[origin] = level;
+}
+
+void LogManager::setBoundaryLevel(LogBoundary boundary, LogLevel level) {
+    ensureMutable();
+    policy().boundaryLevels[boundary] = level;
+}
+
+void LogManager::setComponentLevel(std::string component, LogLevel level) {
+    ensureMutable();
+    ensureNonEmptyKey(component, "component");
+    policy().componentLevels[std::move(component)] = level;
+}
+
+void LogManager::setInstanceLevel(std::string instance, LogLevel level) {
+    ensureMutable();
+    ensureNonEmptyKey(instance, "instance");
+    policy().instanceLevels[std::move(instance)] = level;
+}
+
+void LogManager::setFormat(Format format) {
+    ensureMutable();
+    policy().format = format;
+}
+
+void LogManager::freeze() {
+    policy().frozen = true;
+}
+
+bool LogManager::isFrozen() {
+    return policy().frozen;
+}
+
+LogLevel LogManager::effectiveLevel(const LogScope& scope) {
+    const auto& current = policy();
+    if (!scope.instance.empty()) {
+        if (const auto it = current.instanceLevels.find(std::string(scope.instance)); it != current.instanceLevels.end()) return it->second;
+    }
+    if (!scope.component.empty()) {
+        if (const auto it = current.componentLevels.find(std::string(scope.component)); it != current.componentLevels.end()) return it->second;
+    }
+    if (const auto it = current.boundaryLevels.find(scope.boundary); it != current.boundaryLevels.end()) return it->second;
+    if (const auto it = current.originLevels.find(scope.origin); it != current.originLevels.end()) return it->second;
+    return current.globalLevel;
+}
+
+LogLevel LogManager::effectiveLevel(const LogRecord& record) {
+    LogScope scope{record.origin,
+                   record.boundary,
+                   record.component,
+                   record.instance ? std::string_view(*record.instance) : std::string_view(),
+                   record.role.value_or(LogRole::Unknown),
+                   record.connection ? std::string_view(*record.connection) : std::string_view()};
+    return effectiveLevel(scope);
+}
+
+bool LogManager::shouldEmit(const LogRecord& record) {
+    const LogLevel threshold = effectiveLevel(record);
+    return record.level != LogLevel::Off && threshold != LogLevel::Off && rank(record.level) >= rank(threshold);
+}
+
+LogManager::Format LogManager::format() {
+    return policy().format;
+}
+
+std::string LogManager::formatRecord(const LogRecord& record) {
+    return format() == Format::Json ? formatJsonV1(record) : formatText(record);
 }
 
 std::string toString(LogLevel level) {
