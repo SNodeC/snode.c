@@ -50,7 +50,9 @@
 #include <cerrno>
 #include <ctime>
 #include <iomanip>
+#include <optional>
 #include <sstream>
+#include <utility>
 struct tm;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -59,11 +61,39 @@ namespace core::socket::stream {
 
     SocketContext::SocketContext(SocketConnection* socketConnection)
         : socketConnection(socketConnection)
+        , applicationLogScope(logger::LogOrigin::Application,
+                              logger::LogBoundary::Context,
+                              "core.socket.context",
+                              socketConnection->getInstanceName().empty() ? std::nullopt : std::optional<std::string>(socketConnection->getInstanceName()),
+                              std::nullopt,
+                              socketConnection->getConnectionName())
+        , frameworkLogScope(logger::LogOrigin::Framework,
+                            logger::LogBoundary::Context,
+                            "core.socket.context",
+                            socketConnection->getInstanceName().empty() ? std::nullopt : std::optional<std::string>(socketConnection->getInstanceName()),
+                            std::nullopt,
+                            socketConnection->getConnectionName())
         , onlineSinceTimePoint(std::chrono::system_clock::now()) {
     }
 
     SocketConnection* SocketContext::getSocketConnection() const {
         return socketConnection;
+    }
+
+    logger::BoundaryLogger SocketContext::log() const {
+        return log([](logger::LogRecord) {});
+    }
+
+    logger::BoundaryLogger SocketContext::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+        return applicationLogScope.logger(std::move(sink), threshold, std::move(clock));
+    }
+
+    logger::BoundaryLogger SocketContext::frameworkLog() const {
+        return frameworkLog([](logger::LogRecord) {});
+    }
+
+    logger::BoundaryLogger SocketContext::frameworkLog(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+        return frameworkLogScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
     void SocketContext::sendToPeer(const char* chunk, std::size_t chunkLen) const {

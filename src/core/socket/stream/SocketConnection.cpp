@@ -50,7 +50,9 @@
 
 #include <ctime>
 #include <iomanip>
+#include <optional>
 #include <sstream>
+#include <utility>
 #include <vector>
 struct tm;
 
@@ -61,6 +63,12 @@ namespace core::socket::stream {
     SocketConnection::SocketConnection(int fd, const std::string& instanceName, const net::config::ConfigInstance* config)
         : instanceName(instanceName)
         , connectionName("[" + std::to_string(fd) + "]" + (!instanceName.empty() ? " " + instanceName : ""))
+        , logScope(logger::LogOrigin::Framework,
+                   logger::LogBoundary::Connection,
+                   "core.socket.stream",
+                   instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
+                   std::nullopt,
+                   connectionName)
         , onlineSinceTimePoint(std::chrono::system_clock::now())
         , config(config) {
     }
@@ -110,6 +118,14 @@ namespace core::socket::stream {
 
     const std::string& SocketConnection::getConnectionName() const {
         return connectionName;
+    }
+
+    logger::BoundaryLogger SocketConnection::log() const {
+        return log([](logger::LogRecord) {});
+    }
+
+    logger::BoundaryLogger SocketConnection::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+        return logScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
     SocketContext* SocketConnection::getSocketContext() const {

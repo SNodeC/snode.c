@@ -47,7 +47,9 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -67,6 +69,12 @@ namespace net::config {
                             "Instances")
         , instanceName(instanceName)
         , role(role)
+        , logScope(logger::LogOrigin::Framework,
+                   logger::LogBoundary::Configuration,
+                   "configuration",
+                   instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
+                   std::nullopt,
+                   std::nullopt)
         , disableOpt(setConfigurable(addFlagFunction(
                                          "--disabled{true}",
                                          [this]() {
@@ -93,8 +101,22 @@ namespace net::config {
 
     ConfigInstance* ConfigInstance::setInstanceName(const std::string& instanceName) {
         this->instanceName = instanceName;
+        logScope = logger::LogScopeOwner(logger::LogOrigin::Framework,
+                                         logger::LogBoundary::Configuration,
+                                         "configuration",
+                                         instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
+                                         std::nullopt,
+                                         std::nullopt);
 
         return this;
+    }
+
+    logger::BoundaryLogger ConfigInstance::log() const {
+        return log([](logger::LogRecord) {});
+    }
+
+    logger::BoundaryLogger ConfigInstance::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+        return logScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
     bool ConfigInstance::getDisabled() const {
