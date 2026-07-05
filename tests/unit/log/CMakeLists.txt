@@ -33,3 +33,13 @@ snodec_add_test(ControlledMigrationRound8Test ControlledMigrationRound8Test.cpp)
 target_include_directories(ControlledMigrationRound8Test PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(ControlledMigrationRound8Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
 set_tests_properties(ControlledMigrationRound8Test PROPERTIES LABELS "unit;log;round8")
+
+snodec_add_test(SemanticCompatibilityRound9Test SemanticCompatibilityRound9Test.cpp)
+target_include_directories(SemanticCompatibilityRound9Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(SemanticCompatibilityRound9Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
+set_tests_properties(SemanticCompatibilityRound9Test PROPERTIES LABELS "unit;log;round9")
+
+snodec_add_test(SemanticOverheadRound9Test SemanticOverheadRound9Test.cpp)
+target_include_directories(SemanticOverheadRound9Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(SemanticOverheadRound9Test PRIVATE snodec-test-support snodec::logger)
+set_tests_properties(SemanticOverheadRound9Test PROPERTIES LABELS "unit;log;round9")
