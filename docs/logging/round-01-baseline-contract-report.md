@@ -1,6 +1,6 @@
-# Logging Roadmap Round 1 Report: Baseline + Frozen Contract
+# Logging Roadmap Round 01 Report: Baseline + Frozen Contract
 
-Branch: `logging/round-01-baseline-contract`
+Branch/report: `logging/round-01-baseline-contract` / Round 01 baseline contract
 
 ## Files inspected
 
@@ -147,7 +147,7 @@ Sanitizers:
 
 ## Macro baseline method/result
 
-No production macro implementation was changed in Round 1.
+No production macro implementation was changed in Round 01.
 
 Deterministic byte-for-byte comparison across separate process runs is not currently a reliable baseline because current output includes:
 
@@ -156,7 +156,7 @@ Deterministic byte-for-byte comparison across separate process runs is not curre
 - optional ANSI color depending on TTY/color configuration,
 - `PLOG` text derived from captured `errno` and the platform C library's `strerror` text.
 
-Round 1 therefore documents the compatibility gate strategy instead of adding a production harness. Later rounds should either:
+Round 01 therefore documents the compatibility gate strategy instead of adding a production harness. Later rounds should either:
 
 1. run a same-process golden capture using `Logger::setTickResolver(...)`, `Logger::setDisableColor(true)`, fixed log/verbose levels, fixed `errno` values, and controlled sinks; or
 2. run a normalized process capture that strips/normalizes the leading timestamp and elapsed tick fields and strips ANSI escape sequences before comparing level labels, message text, `PLOG` strerror suffixes, and `VLOG` threshold behavior.
@@ -180,11 +180,11 @@ The gate must include enabled and disabled `LOG` levels, enabled and disabled `V
 - The current logger has a useful `setTickResolver` hook for deterministic elapsed ticks, but the wall-clock date/time remains part of the spdlog pattern; a future harness may need a process-local sink or normalization to avoid wall-clock instability.
 - `PLOG` compatibility should check that `errno` is captured at `LogMessage` construction time, not destructor time.
 - The semantic contract maps `WARNING` to intended `Warn` and `FATAL` to intended `Critical`; later implementation should state this mapping explicitly when bridging legacy macros.
-- MQTT currently duplicates identity in strings (`connectionName`, `MQTT Client`, `MQTT Broker`, `WsMqtt`). Round 2 should avoid broad migration and first introduce the semantic model around object boundaries.
+- MQTT currently duplicates identity in strings (`connectionName`, `MQTT Client`, `MQTT Broker`, `WsMqtt`). Round 2 should not integrate MQTT, `SocketConnection`, or `SocketContext`; use this observation only as future migration context after `src/log` core infrastructure and compatibility gates are reviewed.
 
 ## Recommendation for Round 2
 
 - Install or otherwise make available the missing `nlohmann_json>=3.11` dependency so the normal build and tests can run.
 - Add a focused legacy macro compatibility harness before changing macro internals. Prefer using `Logger::setTickResolver(...)`, `Logger::setDisableColor(true)`, and fixed thresholds to produce normalized comparisons.
 - Introduce semantic logging types behind new names only after the macro gate exists.
-- Start with scope metadata definitions and construction points for `SocketConnection`/`SocketContext`, but do not migrate production call sites until the compatibility gate passes.
+- Keep Round 2 limited to `src/log` core logging infrastructure and its focused compatibility tests/harness. Do not integrate `SocketConnection`, `SocketContext`, or other production object boundaries until a later reviewed round after the macro compatibility gate exists and passes.

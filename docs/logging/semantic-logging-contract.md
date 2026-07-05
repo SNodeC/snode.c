@@ -27,6 +27,7 @@ Architectural identity must become structured metadata, not hand-written message
 Intended semantic record fields:
 
 ```text
+ts           event timestamp; canonical JSON name is `ts`, text format may render it as `timestamp`
 level        trace | debug | info | warn | error | critical
 origin       framework | application
 boundary     application | configuration | instance | connection | context | system
@@ -212,6 +213,7 @@ JSON schema v1 must include:
 ```json
 {
   "v": 1,
+  "ts": "2026-07-05T12:34:56.789Z",
   "level": "info",
   "origin": "application",
   "boundary": "context",
@@ -221,6 +223,29 @@ JSON schema v1 must include:
   "role": "server",
   "message": "echo session started"
 }
+```
+
+Mandatory JSON fields:
+
+```text
+v
+ts
+level
+origin
+boundary
+component
+role
+message
+```
+
+Optional JSON fields:
+
+```text
+instance
+connection
+event
+error
+source
 ```
 
 Optional fields are omitted when absent, not emitted as null.
@@ -263,7 +288,7 @@ deliberate deferrals
 known non-blocking follow-ups
 ```
 
-For this round, the PR should be:
+For this round, the branch and draft PR are:
 
 ```text
 logging/round-01-baseline-contract
