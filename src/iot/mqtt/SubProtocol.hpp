@@ -40,6 +40,7 @@
  */
 
 #include "core/socket/stream/SocketConnection.h"
+#include "iot/mqtt/SemanticLog.h"
 #include "iot/mqtt/SubProtocol.h"
 #include "log/Logger.h"
 #include "utils/system/signal.h"
@@ -104,17 +105,19 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onConnected() {
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " WsMqtt: connected:";
+        iot::mqtt::semantic::mqttWebSocketLog().info() << getSocketConnection()->getConnectionName() << " WsMqtt: connected:";
         iot::mqtt::MqttContext::onConnected();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
         if (opCode == web::websocket::SubProtocolContext::OpCode::TEXT) {
-            LOG(ERROR) << getSocketConnection()->getConnectionName() << " WsMqtt: Wrong Opcode: " << opCode << " (TEXT)";
+            iot::mqtt::semantic::mqttWebSocketLog().error()
+                << getSocketConnection()->getConnectionName() << " WsMqtt: Wrong Opcode: " << opCode << " (TEXT)";
             this->close();
         } else {
-            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WsMqtt: Message START: " << opCode << " (BIN)";
+            iot::mqtt::semantic::mqttWebSocketLog().debug()
+                << getSocketConnection()->getConnectionName() << " WsMqtt: Message START: " << opCode << " (BIN)";
         }
     }
 
@@ -122,13 +125,16 @@ namespace iot::mqtt {
     void SubProtocol<WSSubProtocolRole>::onMessageData(const char* chunk, std::size_t chunkLen) {
         data.append(std::string(chunk, chunkLen));
 
-        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WsMqtt: Frame Data:\n"
-                   << std::string(32, ' ').append(utils::hexDump(std::vector<char>(chunk, chunk + chunkLen), 32));
+        auto log = iot::mqtt::semantic::mqttWebSocketLog();
+        if (log.enabled(logger::LogLevel::Debug)) {
+            log.debug() << getSocketConnection()->getConnectionName() << " WsMqtt: Frame Data:\n"
+                        << std::string(32, ' ').append(utils::hexDump(std::vector<char>(chunk, chunk + chunkLen), 32));
+        }
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageEnd() {
-        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WsMqtt: Message END";
+        iot::mqtt::semantic::mqttWebSocketLog().debug() << getSocketConnection()->getConnectionName() << " WsMqtt: Message END";
 
         buffer.insert(buffer.end(), data.begin(), data.end());
         size += data.size();
@@ -144,20 +150,21 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) {
-        LOG(ERROR) << getSocketConnection()->getConnectionName() << " WsMqtt: Message error: " << errnum;
+        iot::mqtt::semantic::mqttWebSocketLog().error()
+            << getSocketConnection()->getConnectionName() << " WsMqtt: Message error: " << errnum;
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onDisconnected() {
         iot::mqtt::MqttContext::onDisconnected();
-        LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WsMqtt: disconnected";
+        iot::mqtt::semantic::mqttWebSocketLog().debug() << getSocketConnection()->getConnectionName() << " WsMqtt: disconnected";
     }
 
     template <typename WSSubProtocolRole>
     bool SubProtocol<WSSubProtocolRole>::onSignal(int sig) {
         bool ret = iot::mqtt::MqttContext::onSignal(sig);
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " WsMqtt: exit due to signal SIG" << utils::system::sigabbrev_np(sig)
-                  << " (" << sig << ")";
+        iot::mqtt::semantic::mqttWebSocketLog().info() << getSocketConnection()->getConnectionName() << " WsMqtt: exit due to signal SIG"
+                                                       << utils::system::sigabbrev_np(sig) << " (" << sig << ")";
 
         this->sendClose();
 
