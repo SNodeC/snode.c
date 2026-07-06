@@ -1,0 +1,232 @@
+#include "core/socket/stream/tls/SocketReader.h"
+#include "core/socket/stream/tls/SocketWriter.h"
+#include "log/Logger.h"
+#include "tests/support/TestResult.h"
+#include "utils/Timeval.h"
+
+#include <cerrno>
+#include <filesystem>
+#include <fstream>
+#include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
+
+namespace {
+    struct ExpensiveValue {
+        int* evaluations;
+    };
+
+    std::ostream& operator<<(std::ostream& out, const ExpensiveValue& value) {
+        ++*value.evaluations;
+        return out << "expensive";
+    }
+
+    class TestTlsReader : public core::socket::stream::tls::SocketReader {
+    public:
+        explicit TestTlsReader(const std::string& instanceName = "migration06-reader")
+            : SocketReader(
+                  instanceName,
+                  [](int) {
+                  },
+                  utils::Timeval{},
+                  1024,
+                  utils::Timeval{}) {
+        }
+
+    private:
+        void onReceivedFromPeer(std::size_t) override {
+        }
+
+        void onReadShutdown() override {
+        }
+
+        bool
+        doSSLHandshake(const std::function<void()>& onSuccess, const std::function<void()>&, const std::function<void(int)>&) override {
+            onSuccess();
+            return true;
+        }
+
+        void unobservedEvent() override {
+        }
+    };
+
+    class TestTlsWriter : public core::socket::stream::tls::SocketWriter {
+    public:
+        explicit TestTlsWriter(const std::string& instanceName = "migration06-writer")
+            : SocketWriter(
+                  instanceName,
+                  [](int) {
+                  },
+                  utils::Timeval{},
+                  1024,
+                  utils::Timeval{}) {
+        }
+
+    private:
+        bool onSignal(int) override {
+            return false;
+        }
+
+        void doWriteShutdown(const std::function<void()>& onShutdown) override {
+            onShutdown();
+        }
+
+        bool
+        doSSLHandshake(const std::function<void()>& onSuccess, const std::function<void()>&, const std::function<void(int)>&) override {
+            onSuccess();
+            return true;
+        }
+
+        void unobservedEvent() override {
+        }
+    };
+
+    class LoggerStateGuard {
+    public:
+        explicit LoggerStateGuard(const std::string& logFile) {
+            logger::Logger::init();
+            logger::LogManager::init();
+            logger::Logger::setLogLevel(6);
+            logger::Logger::setVerboseLevel(0);
+            logger::Logger::setQuiet(true);
+            logger::Logger::setDisableColor(true);
+            logger::Logger::setTickResolver([]() {
+                return std::string("MIGRATION06TICK");
+            });
+            logger::Logger::logToFile(logFile);
+        }
+
+        ~LoggerStateGuard() {
+            logger::Logger::disableLogToFile();
+            logger::Logger::setTickResolver({});
+            logger::Logger::init();
+            logger::LogManager::init();
+            errno = 0;
+        }
+    };
+
+    std::filesystem::path tempLogPath(const std::string& name) {
+        auto path = std::filesystem::temp_directory_path() / name;
+        std::error_code error;
+        std::filesystem::remove(path, error);
+        std::filesystem::remove(path.string() + ".1", error);
+        return path;
+    }
+
+    std::string readFile(const std::filesystem::path& path) {
+        std::ifstream in(path);
+        return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+    }
+} // namespace
+
+int main() {
+    tests::support::TestResult result;
+
+    const auto enabledPath = tempLogPath("snodec-migration06-enabled.log");
+    {
+        LoggerStateGuard guard(enabledPath.string());
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Trace);
+        logger::LogManager::freeze();
+        TestTlsReader reader;
+        TestTlsWriter writer;
+        reader.log().debug("tls reader semantic owner emitted");
+        writer.log().debug("tls writer semantic owner emitted");
+    }
+    const auto enabledLog = readFile(enabledPath);
+    result.expectTrue(enabledLog.find("tls reader semantic owner emitted") != std::string::npos,
+                      "TLS reader semantic owner emits when enabled");
+    result.expectTrue(enabledLog.find("tls writer semantic owner emitted") != std::string::npos,
+                      "TLS writer semantic owner emits when enabled");
+    result.expectTrue(enabledLog.find(" framework connection core.socket.stream.tls ") != std::string::npos,
+                      "emitted records carry framework core.socket.stream.tls component scope");
+
+    const auto managerFilterPath = tempLogPath("snodec-migration06-manager-filter.log");
+    {
+        LoggerStateGuard guard(managerFilterPath.string());
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Error);
+        logger::LogManager::freeze();
+        TestTlsReader reader;
+        reader.log().debug("tls reader suppressed by manager");
+    }
+    result.expectTrue(readFile(managerFilterPath).find("suppressed by manager") == std::string::npos,
+                      "LogManager filtering suppresses migrated TLS semantic calls");
+
+    const auto backendFilterPath = tempLogPath("snodec-migration06-backend-filter.log");
+    {
+        LoggerStateGuard guard(backendFilterPath.string());
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Trace);
+        logger::LogManager::freeze();
+        logger::Logger::setLogLevel(3);
+        TestTlsWriter writer;
+        writer.log().debug("tls writer suppressed by backend");
+    }
+    result.expectTrue(readFile(backendFilterPath).find("suppressed by backend") == std::string::npos,
+                      "Logger::setLogLevel backend filtering suppresses output");
+
+    const auto jsonPath = tempLogPath("snodec-migration06-json.log");
+    {
+        LoggerStateGuard guard(jsonPath.string());
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Debug);
+        logger::LogManager::setFormat(logger::LogManager::Format::Json);
+        logger::LogManager::freeze();
+        TestTlsReader reader;
+        reader.log().debug("tls reader json format respected");
+    }
+    const auto jsonLog = readFile(jsonPath);
+    result.expectTrue(jsonLog.find("{\"v\":1") != std::string::npos &&
+                          jsonLog.find("\"message\":\"tls reader json format respected\"") != std::string::npos &&
+                          jsonLog.find("\"origin\":\"framework\"") != std::string::npos &&
+                          jsonLog.find("\"component\":\"core.socket.stream.tls\"") != std::string::npos,
+                      "JSON format selection is respected");
+
+    std::vector<logger::LogRecord> sysErrorRecords;
+    TestTlsWriter sysErrorOwner;
+    sysErrorOwner
+        .log([&](logger::LogRecord record) {
+            sysErrorRecords.push_back(std::move(record));
+        })
+        .sysError(logger::LogLevel::Warn, EPIPE, "{} SSL/TLS: Syscal error (SIGPIPE detected) on write.", "migration06-writer");
+    result.expectTrue(sysErrorRecords.size() == 1 &&
+                          sysErrorRecords[0].message == "migration06-writer SSL/TLS: Syscal error (SIGPIPE detected) on write." &&
+                          sysErrorRecords[0].error && sysErrorRecords[0].error->code == EPIPE &&
+                          sysErrorRecords[0].error->text.find("Broken pipe") != std::string::npos,
+                      "sysError errno code/text is preserved for migrated TLS writer PLOG sites");
+
+    std::vector<logger::LogRecord> sinkRecords;
+    TestTlsReader sinkOwner;
+    sinkOwner
+        .log([&](logger::LogRecord record) {
+            sinkRecords.push_back(std::move(record));
+        })
+        .info("sink overload still works");
+    result.expectTrue(sinkRecords.size() == 1 && sinkRecords[0].message == "sink overload still works" &&
+                          sinkRecords[0].component == "core.socket.stream.tls" && sinkRecords[0].origin == logger::LogOrigin::Framework,
+                      "sink-taking overload remains compatible");
+
+    const auto suppressedPath = tempLogPath("snodec-migration06-suppressed.log");
+    {
+        LoggerStateGuard guard(suppressedPath.string());
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Error);
+        logger::LogManager::freeze();
+
+        int evaluations = 0;
+        TestTlsReader reader;
+        reader.log().debug("{}", ExpensiveValue{&evaluations});
+        result.expectEqual(0, evaluations, "suppressed production formatting does not evaluate ExpensiveValue after PR #151");
+    }
+    result.expectTrue(readFile(suppressedPath).empty(), "suppressed production formatting emits no backend output");
+
+    std::vector<logger::LogRecord> opensslIoRecords;
+    TestTlsReader opensslIoOwner;
+    opensslIoOwner
+        .log([&](logger::LogRecord record) {
+            opensslIoRecords.push_back(std::move(record));
+        })
+        .warn("{} SSL/TLS: Renegotiation on read timed out", "migration06-reader");
+    result.expectTrue(opensslIoRecords.size() == 1 &&
+                          opensslIoRecords[0].message.find("SSL/TLS: Renegotiation on read timed out") != std::string::npos,
+                      "OpenSSL I/O retry payload text is preserved without requiring live TLS sockets/certs");
+
+    return result.processResult();
+}

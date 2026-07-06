@@ -14,6 +14,12 @@ No TLS socket-stream production logging call sites were migrated in this invento
 ## Exact changed files
 
 - `docs/logging/semantic-migration-06-tls-socket-stream-report.md`
+- `src/core/socket/stream/tls/SocketReader.h`
+- `src/core/socket/stream/tls/SocketReader.cpp`
+- `src/core/socket/stream/tls/SocketWriter.h`
+- `src/core/socket/stream/tls/SocketWriter.cpp`
+- `tests/unit/log/CMakeLists.txt`
+- `tests/unit/log/TlsSocketStreamMigration06Test.cpp`
 
 ## Base verification result
 
@@ -235,3 +241,198 @@ ASan was not run because this PR is report-only and makes no compiled code chang
 - Start Migration 6a for TLS reader/writer I/O paths.
 - Start Migration 6b for TLS handshake/shutdown/OpenSSL error helpers.
 - Keep TLS configuration/SNI under `src/net/config/stream/tls` deferred unless a future dedicated migration includes it.
+
+## Migration 6a — TLS reader/writer I/O paths
+
+### 6a implementation summary
+
+Migration 6a is complete. It migrates only the TLS reader/writer I/O macro call sites from the original inventory and keeps Migration 6b and Migration 6c unstarted. The PR is intentionally still open until 6b and 6c are completed.
+
+The 6a production change adds minimal local semantic owners to the TLS `SocketReader` and `SocketWriter` classes because no existing owner was present directly in the TLS reader/writer classes. The owner uses `logger::LogOrigin::Framework`, existing `logger::LogBoundary::Connection`, and component `core.socket.stream.tls`. The already-available reader/writer instance name is used as both instance and connection identity without adding broader constructor/API plumbing.
+
+The migrated reader/writer call sites now emit through `log().trace`, `log().debug`, `log().warn`, and `log().sysError` while preserving the original TLS diagnostic messages, retry direction, renegotiation phase, and errno payloads.
+
+### 6a changed files
+
+- `src/core/socket/stream/tls/SocketReader.h`
+- `src/core/socket/stream/tls/SocketReader.cpp`
+- `src/core/socket/stream/tls/SocketWriter.h`
+- `src/core/socket/stream/tls/SocketWriter.cpp`
+- `tests/unit/log/CMakeLists.txt`
+- `tests/unit/log/TlsSocketStreamMigration06Test.cpp`
+- `docs/logging/semantic-migration-06-tls-socket-stream-report.md`
+
+### 6a worklist from the original inventory
+
+| Original call site | 6a decision |
+| --- | --- |
+| `src/core/socket/stream/tls/SocketReader.cpp:77` `LOG(TRACE)` start renegotiation on read | Migrate in 6a. |
+| `src/core/socket/stream/tls/SocketReader.cpp:80` `LOG(DEBUG)` renegotiation on read success | Migrate in 6a. |
+| `src/core/socket/stream/tls/SocketReader.cpp:83` `LOG(WARNING)` renegotiation on read timeout | Migrate in 6a. |
+| `src/core/socket/stream/tls/SocketReader.cpp:107` `PLOG(DEBUG)` EOF detected on read syscall path | Migrate in 6a with immediate errno capture. |
+| `src/core/socket/stream/tls/SocketReader.cpp:109` `PLOG(WARNING)` syscall error on read | Migrate in 6a with immediate errno capture. |
+| `src/core/socket/stream/tls/SocketWriter.cpp:71` `LOG(TRACE)` start renegotiation on read while writing | Migrate in 6a. |
+| `src/core/socket/stream/tls/SocketWriter.cpp:74` `LOG(DEBUG)` renegotiation success while writing | Migrate in 6a. |
+| `src/core/socket/stream/tls/SocketWriter.cpp:77` `LOG(WARNING)` renegotiation timeout while writing | Migrate in 6a. |
+| `src/core/socket/stream/tls/SocketWriter.cpp:99` `PLOG(WARNING)` write syscall EPIPE/SIGPIPE | Migrate in 6a with immediate errno capture. |
+| `src/core/socket/stream/tls/SocketWriter.cpp:101` `PLOG(WARNING)` write syscall ECONNRESET | Migrate in 6a with immediate errno capture. |
+| `src/core/socket/stream/tls/SocketWriter.cpp:103` `PLOG(WARNING)` generic write syscall error | Migrate in 6a with immediate errno capture. |
+
+### 6a migrated call-site table
+
+| File | Original severity | New semantic call | Preservation notes |
+| --- | --- | --- | --- |
+| `SocketReader.cpp` | `LOG(TRACE)` | `log().trace` | Preserves `getName()` and `SSL/TLS: Start renegotiation on read`. |
+| `SocketReader.cpp` | `LOG(DEBUG)` | captured `BoundaryLogger::debug` in callback | Preserves async success message and reader name without storing a logger reference. |
+| `SocketReader.cpp` | `LOG(WARNING)` | captured `BoundaryLogger::warn` in callback | Preserves async timeout message and reader name without storing a logger reference. |
+| `SocketReader.cpp` | `PLOG(DEBUG)` | `log().sysError(LogLevel::Debug, errnum, ...)` | Captures `errno` immediately in the `SSL_ERROR_SYSCALL` branch and preserves EOF message. |
+| `SocketReader.cpp` | `PLOG(WARNING)` | `log().sysError(LogLevel::Warn, errnum, ...)` | Captures `errno` immediately in the `SSL_ERROR_SYSCALL` branch and preserves read syscall message. |
+| `SocketWriter.cpp` | `LOG(TRACE)` | `log().trace` | Preserves `getName()` and original renegotiation message text. |
+| `SocketWriter.cpp` | `LOG(DEBUG)` | captured `BoundaryLogger::debug` in callback | Preserves async success message and writer name without storing a logger reference. |
+| `SocketWriter.cpp` | `LOG(WARNING)` | captured `BoundaryLogger::warn` in callback | Preserves async timeout message and writer name without storing a logger reference. |
+| `SocketWriter.cpp` | `PLOG(WARNING)` | `log().sysError(LogLevel::Warn, errnum, ...)` | Captures `errno` immediately and preserves the original EPIPE/SIGPIPE message text, including the existing `Syscal` spelling. |
+| `SocketWriter.cpp` | `PLOG(WARNING)` | `log().sysError(LogLevel::Warn, errnum, ...)` | Captures `errno` immediately and preserves ECONNRESET message text. |
+| `SocketWriter.cpp` | `PLOG(WARNING)` | `log().sysError(LogLevel::Warn, errnum, ...)` | Captures `errno` immediately and preserves generic write syscall message text. |
+
+### 6a deferred call-site table
+
+| Call site group | Reason |
+| --- | --- |
+| `SocketReader.cpp` calls to `ssl_log(...)` for renegotiation/read/unexpected OpenSSL statuses | Deferred to 6b because generic OpenSSL error-drain helper migration and error queue timing are explicitly out of 6a. |
+| `SocketWriter.cpp` calls to `ssl_log(...)` for renegotiation/write/unexpected OpenSSL statuses | Deferred to 6b because generic OpenSSL error-drain helper migration and error queue timing are explicitly out of 6a. |
+| All remaining non-reader/writer macro call sites in `src/core/socket/stream/tls` | Deferred to 6b or 6c per the split. |
+| TLS configuration/SNI call sites under `src/net/config/stream/tls` | Deferred; not part of Migration 6a and not modified. |
+
+### Semantic owner(s) used or added for 6a
+
+- Added `logger::LogScopeOwner` to `core::socket::stream::tls::SocketReader`.
+- Added `logger::LogScopeOwner` to `core::socket::stream::tls::SocketWriter`.
+- Added the standard default `log()` overload backed by `logger::Logger::semanticSink()`.
+- Added the standard sink-taking `log(...)` overload for tests/custom capture.
+- Scope: framework / connection / `core.socket.stream.tls`; instance and connection are set from the existing reader/writer `instanceName` constructor argument when non-empty.
+
+### Severity mapping
+
+| Original | 6a semantic mapping |
+| --- | --- |
+| `LOG(TRACE)` | `trace` |
+| `LOG(DEBUG)` | `debug` |
+| `LOG(WARNING)` | `warn` |
+| `PLOG(DEBUG)` | `sysError(LogLevel::Debug, errnum, ...)` |
+| `PLOG(WARNING)` | `sysError(LogLevel::Warn, errnum, ...)` |
+
+No `INFO`, `ERROR`, or `FATAL` reader/writer macro call sites were part of 6a.
+
+### PLOG/sysError errno handling
+
+The migrated TLS reader/writer `PLOG` sites capture `errno` as `const int errnum = errno;` inside the `SSL_ERROR_SYSCALL` branch before semantic logging. A `utils::PreserveErrno` guard remains in place around semantic emission so the surrounding read/write return-path behavior keeps the old errno-preservation intent. The semantic records include the structured errno code/text via `BoundaryLogger::sysError`.
+
+### OpenSSL I/O error handling preservation
+
+6a does not move or rewrite the `SSL_get_error` calls and does not change `SSL_ERROR_WANT_READ`, `SSL_ERROR_WANT_WRITE`, `SSL_ERROR_ZERO_RETURN`, `SSL_ERROR_SYSCALL`, `SSL_ERROR_SSL`, or default branch control flow. Existing `ssl_log(...)` calls remain in place for 6b so OpenSSL error queue draining is not moved earlier or later in 6a.
+
+### VLOG deferrals to 6c
+
+No `VLOG` call sites were found in the TLS reader/writer 6a worklist. No `VLOG` call sites were migrated.
+
+### Message/identity preservation notes
+
+6a preserves the original message payloads, including connection/reader/writer names from `getName()`, retry direction (`renegotiation on read`), syscall read/write context, EOF context, SIGPIPE/EPIPE, ECONNRESET, and generic syscall wording. The existing `Syscal` spelling in the writer SIGPIPE message was intentionally preserved to avoid changing diagnostic text during the semantic migration.
+
+### Post-6a inventory
+
+Command:
+
+```sh
+rg -n "\b(LOG|PLOG|VLOG)\s*\(" \
+  src/core/socket/stream/tls \
+  -g '*.h' -g '*.hpp' -g '*.cpp'
+```
+
+Result: **56 call sites** remain after 6a. These are expected because 6b and 6c are not started.
+
+```text
+src/core/socket/stream/tls/SocketConnection.hpp:169:                    LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Passive close_notify received and sent";
+src/core/socket/stream/tls/SocketConnection.hpp:171:                    LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Active close_notify sent";
+src/core/socket/stream/tls/SocketConnection.hpp:181:                LOG(ERROR) << Super::getConnectionName() << " SSL/TLS: Shutdown handshake timed out";
+src/core/socket/stream/tls/SocketConnection.hpp:205:                LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Active close_notify sent and received";
+src/core/socket/stream/tls/SocketConnection.hpp:212:                LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Passive close_notify received, answering with close_notify";
+src/core/socket/stream/tls/SocketConnection.hpp:217:            LOG(ERROR) << Super::getConnectionName() << " SSL/TLS: Unexpected EOF error";
+src/core/socket/stream/tls/SocketConnection.hpp:227:            LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Active send close_notify";
+src/core/socket/stream/tls/ssl_utils.cpp:90:            LOG(DEBUG) << connectionName << ": SSL/TLS verify success at depth=" << depth;
+src/core/socket/stream/tls/ssl_utils.cpp:91:            LOG(DEBUG) << "   Issuer: " << issuerName;
+src/core/socket/stream/tls/ssl_utils.cpp:92:            LOG(DEBUG) << "  Subject: " << subjectName;
+src/core/socket/stream/tls/ssl_utils.cpp:96:            LOG(DEBUG) << connectionName << ": SSL/TLS verify error at depth=" << depth << ": " << X509_verify_cert_error_string(err);
+src/core/socket/stream/tls/ssl_utils.cpp:97:            LOG(DEBUG) << "   Issuer: " << issuerName;
+src/core/socket/stream/tls/ssl_utils.cpp:98:            LOG(DEBUG) << "  Subject: " << subjectName;
+src/core/socket/stream/tls/ssl_utils.cpp:140:                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate loaded";
+src/core/socket/stream/tls/ssl_utils.cpp:141:                        LOG(TRACE) << "  " << sslConfig.caCert;
+src/core/socket/stream/tls/ssl_utils.cpp:143:                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
+src/core/socket/stream/tls/ssl_utils.cpp:146:                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates load from";
+src/core/socket/stream/tls/ssl_utils.cpp:147:                        LOG(TRACE) << "  " << sslConfig.caCertDir;
+src/core/socket/stream/tls/ssl_utils.cpp:149:                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
+src/core/socket/stream/tls/ssl_utils.cpp:153:                LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
+src/core/socket/stream/tls/ssl_utils.cpp:154:                LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
+src/core/socket/stream/tls/ssl_utils.cpp:161:                    LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates enabled load from default openssl CA directory";
+src/core/socket/stream/tls/ssl_utils.cpp:164:                LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from default openssl CA directory";
+src/core/socket/stream/tls/ssl_utils.cpp:175:                    LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA requested verify";
+src/core/socket/stream/tls/ssl_utils.cpp:193:                            LOG(TRACE) << "  " << sslConfig.certKey;
+src/core/socket/stream/tls/ssl_utils.cpp:196:                            LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain key loaded";
+src/core/socket/stream/tls/ssl_utils.cpp:197:                            LOG(TRACE) << "  " << sslConfig.certKey;
+src/core/socket/stream/tls/ssl_utils.cpp:199:                            LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain loaded";
+src/core/socket/stream/tls/ssl_utils.cpp:200:                            LOG(TRACE) << "  " << sslConfig.cert;
+src/core/socket/stream/tls/ssl_utils.cpp:342:        LOG(ERROR) << message;
+src/core/socket/stream/tls/ssl_utils.cpp:343:        LOG(ERROR) << "  " << ERR_error_string(ERR_get_error(), nullptr);
+src/core/socket/stream/tls/ssl_utils.cpp:347:            LOG(ERROR) << "  " << ERR_error_string(errorCode, nullptr);
+src/core/socket/stream/tls/ssl_utils.cpp:352:        LOG(WARNING) << message;
+src/core/socket/stream/tls/ssl_utils.cpp:353:        LOG(WARNING) << "  " << ERR_error_string(ERR_get_error(), nullptr);
+src/core/socket/stream/tls/ssl_utils.cpp:357:            LOG(WARNING) << "  " << ERR_error_string(errorCode, nullptr);
+src/core/socket/stream/tls/ssl_utils.cpp:362:        LOG(INFO) << message;
+src/core/socket/stream/tls/ssl_utils.cpp:363:        LOG(INFO) << "  " << ERR_error_string(ERR_get_error(), nullptr);
+src/core/socket/stream/tls/ssl_utils.cpp:367:            LOG(INFO) << "  " << ERR_error_string(errorCode, nullptr);
+src/core/socket/stream/tls/SocketConnector.hpp:81:                  LOG(TRACE) << socketConnection->getConnectionName() << " SSL/TLS: Start handshake";
+src/core/socket/stream/tls/SocketConnector.hpp:86:                              LOG(DEBUG) << socketConnection->getConnectionName() << " SSL/TLS: Handshake success";
+src/core/socket/stream/tls/SocketConnector.hpp:93:                              LOG(ERROR) << socketConnection->getConnectionName() << " SSL/TLS: Handshake timed out";
+src/core/socket/stream/tls/SocketConnector.hpp:102:                      LOG(ERROR) << socketConnection->getConnectionName() + " SSL/TLS: Handshake failed";
+src/core/socket/stream/tls/SocketConnector.hpp:139:            LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
+src/core/socket/stream/tls/SocketConnector.hpp:142:                LOG(DEBUG) << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
+src/core/socket/stream/tls/SocketConnector.hpp:146:                LOG(ERROR) << config->getInstanceName() << " SSL/TLS: SSL_CTX creation failed";
+src/core/socket/stream/tls/SocketAcceptor.hpp:78:                  LOG(TRACE) << socketConnection->getConnectionName() << " SSL/TLS: Start handshake";
+src/core/socket/stream/tls/SocketAcceptor.hpp:83:                              LOG(DEBUG) << socketConnection->getConnectionName() << " SSL/TLS: Handshake success";
+src/core/socket/stream/tls/SocketAcceptor.hpp:90:                              LOG(ERROR) << socketConnection->getConnectionName() << "SSL/TLS: Handshake timed out";
+src/core/socket/stream/tls/SocketAcceptor.hpp:99:                      LOG(ERROR) << socketConnection->getConnectionName() + " SSL/TLS: Handshake failed";
+src/core/socket/stream/tls/SocketAcceptor.hpp:136:            LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
+src/core/socket/stream/tls/SocketAcceptor.hpp:140:                LOG(DEBUG) << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
+src/core/socket/stream/tls/SocketAcceptor.hpp:146:                LOG(ERROR) << config->getInstanceName() << " SSL/TLS: SSL/TLS creation failed";
+src/core/socket/stream/tls/SocketAcceptor.hpp:169:                LOG(DEBUG) << connectionName << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
+src/core/socket/stream/tls/SocketAcceptor.hpp:172:                LOG(ERROR) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
+src/core/socket/stream/tls/SocketAcceptor.hpp:177:                LOG(WARNING) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
+src/core/socket/stream/tls/SocketAcceptor.hpp:181:            LOG(DEBUG) << connectionName << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
+```
+
+### Remaining work for 6b
+
+Migration 6b is not started. Remaining 6b work includes TLS handshake/connect/accept paths, TLS shutdown/close paths, and generic OpenSSL error-drain/error-reporting helpers while preserving OpenSSL error queue timing.
+
+### Remaining work for 6c
+
+Migration 6c is not started. Remaining 6c work includes unclear/SNI-overlap cleanup, any TLS configuration/SNI deferrals that are intentionally accepted into final Migration 6 scope, and final Migration 6 closure. Round 10 remains out of scope.
+
+### Tests run
+
+- `rg -n "\b(LOG|PLOG|VLOG)\s*\(" src/core/socket/stream/tls -g '*.h' -g '*.hpp' -g '*.cpp'`
+- `clang-format -i src/core/socket/stream/tls/SocketReader.h src/core/socket/stream/tls/SocketReader.cpp src/core/socket/stream/tls/SocketWriter.h src/core/socket/stream/tls/SocketWriter.cpp tests/unit/log/TlsSocketStreamMigration06Test.cpp`
+- `cmake -S . -B cmake-build -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON`
+- `cmake --build cmake-build --parallel 2`
+- `ctest --test-dir cmake-build -R "SemanticLoggerRound2Test|LogScopeOwnerRound3Test|ProductionLogApiRound4Test|SocketEndpointLogApiRound5Test|SemanticBackendRound6Test|SemanticFilterRound7Test|ControlledMigrationRound8Test|SemanticCompatibilityRound9Test|SemanticOverheadRound9Test|SemanticProductionThresholdRepairTest|SocketConnectionMigration01Test|SocketConnectorAcceptorMigration02Test|SocketServerClientMigration03Test|CoreRuntimeMigration04Test|NetPhysicalSocketMigration05Test|TlsSocketStreamMigration06Test" --output-on-failure`
+- `ctest --test-dir cmake-build --output-on-failure`
+
+### ASan result or exact reason not run
+
+The focused Migration 6 TLS socket-stream test was built and run under ASan:
+
+- `cmake -S . -B cmake-build-asan -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON -DSNODEC_ENABLE_ASAN=ON`
+- `cmake --build cmake-build-asan --parallel 2 --target TlsSocketStreamMigration06Test`
+- `ASAN=$(gcc -print-file-name=libasan.so) LD_PRELOAD=$ASAN ctest --test-dir cmake-build-asan -R TlsSocketStreamMigration06Test --output-on-failure`
+
+Full ASan was not run in this 6a follow-up to keep the follow-up bounded; the required minimum focused ASan coverage for `TlsSocketStreamMigration06Test` passed.

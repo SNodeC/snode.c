@@ -56,6 +56,29 @@
 
 namespace core::socket::stream::tls {
 
+    SocketReader::SocketReader(const std::string& instanceName,
+                               const std::function<void(int)>& onStatus,
+                               const utils::Timeval& timeout,
+                               std::size_t blockSize,
+                               const utils::Timeval& terminateTimeout)
+        : Super(instanceName, onStatus, timeout, blockSize, terminateTimeout)
+        , logScope(logger::LogOrigin::Framework,
+                   logger::LogBoundary::Connection,
+                   "core.socket.stream.tls",
+                   instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
+                   std::nullopt,
+                   instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName)) {
+    }
+
+    logger::BoundaryLogger SocketReader::log() const {
+        return logScope.logger(logger::Logger::semanticSink());
+    }
+
+    logger::BoundaryLogger
+    SocketReader::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+        return logScope.logger(std::move(sink), threshold, std::move(clock));
+    }
+
     ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
         ssize_t ret = 0;
 
@@ -74,13 +97,13 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case SSL_ERROR_WANT_WRITE:
-                        LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
+                        log().trace("{} SSL/TLS: Start renegotiation on read", getName());
                         doSSLHandshake(
-                            [this]() {
-                                LOG(DEBUG) << getName() << " SSL/TLS: Renegotiation on read success";
+                            [log = this->log(), name = getName()]() {
+                                log.debug("{} SSL/TLS: Renegotiation on read success", name);
                             },
-                            [this]() {
-                                LOG(WARNING) << getName() << " SSL/TLS: Renegotiation on read timed out";
+                            [log = this->log(), name = getName()]() {
+                                log.warn("{} SSL/TLS: Renegotiation on read timed out", name);
                             },
                             [this](int ssl_err) {
                                 ssl_log(getName() + " SSL/TLS: Renegotiation on read", ssl_err);
@@ -101,12 +124,14 @@ namespace core::socket::stream::tls {
                                             // protocol’s  graceful shutdown procedure.
                         // In case ret is -1 a real syscall error (RST = ECONNRESET)
                         {
+                            const int errnum = errno;
                             const utils::PreserveErrno pe;
 
                             if (ret == 0) {
-                                PLOG(DEBUG) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
+                                log().sysError(
+                                    logger::LogLevel::Debug, errnum, "{} SSL/TLS: EOF detected: Connection closed by peer.", getName());
                             } else {
-                                PLOG(WARNING) << getName() + " SSL/TLS: Syscall error on read";
+                                log().sysError(logger::LogLevel::Warn, errnum, "{} SSL/TLS: Syscall error on read", getName());
                             }
                         }
                         ret = -1;

@@ -43,6 +43,7 @@
 #define CORE_SOCKET_STREAM_TLS_SOCKETWRITER_H
 
 #include "core/socket/stream/SocketWriter.h"
+#include "log/LogScopeOwner.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -58,8 +59,21 @@ namespace core::socket::stream::tls {
     class SocketWriter : public core::socket::stream::SocketWriter {
     private:
         using Super = core::socket::stream::SocketWriter;
-        using Super::Super;
 
+    protected:
+        explicit SocketWriter(const std::string& instanceName,
+                              const std::function<void(int)>& onStatus,
+                              const utils::Timeval& timeout,
+                              std::size_t blockSize,
+                              const utils::Timeval& terminateTimeout);
+
+    public:
+        logger::BoundaryLogger log() const;
+        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
+                                   logger::LogLevel threshold = logger::LogLevel::Trace,
+                                   logger::BoundaryLogger::Clock clock = {}) const;
+
+    private:
         ssize_t write(const char* chunk, std::size_t chunkLen) override;
 
     protected:
@@ -68,6 +82,9 @@ namespace core::socket::stream::tls {
                                     const std::function<void(int)>& onStatus) = 0;
 
         SSL* ssl = nullptr;
+
+    private:
+        logger::LogScopeOwner logScope;
     };
 
 } // namespace core::socket::stream::tls
