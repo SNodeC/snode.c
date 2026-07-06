@@ -174,19 +174,19 @@ namespace core::socket::stream::tls {
             SSL_CTX* sniSslCtx = config->getSniCtx(serverNameIndication);
 
             if (sniSslCtx != nullptr) {
-                LOG(DEBUG) << connectionName << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
+                config->log().debug("{} SSL/TLS: Setting sni certificate for '{}'", connectionName, serverNameIndication);
                 core::socket::stream::tls::ssl_set_ssl_ctx(ssl, sniSslCtx);
             } else if (config->getForceSni()) {
-                LOG(ERROR) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
-                           << "' but forceSni set - terminating";
+                config->log().error(
+                    "{} SSL/TLS: No sni certificate found for '{}' but forceSni set - terminating", connectionName, serverNameIndication);
                 ret = SSL_CLIENT_HELLO_ERROR;
                 *al = SSL_AD_UNRECOGNIZED_NAME;
             } else {
-                LOG(WARNING) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
-                             << "'. Still using master certificate";
+                config->log().warn(
+                    "{} SSL/TLS: No sni certificate found for '{}'. Still using master certificate", connectionName, serverNameIndication);
             }
         } else {
-            LOG(DEBUG) << connectionName << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
+            config->log().debug("{} SSL/TLS: No sni certificate requested from client. Still using master certificate", connectionName);
         }
 
         return ret;

@@ -356,35 +356,50 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log_error(const std::string& message) {
-        tlsLog().error("{}", message);
+        auto log = tlsLog();
+        if (!log.enabled(logger::LogLevel::Error)) {
+            return;
+        }
+
+        log.error("{}", message);
         const unsigned long firstErrorCode = ERR_get_error();
-        tlsLog().error("  {}", ERR_error_string(firstErrorCode, nullptr));
+        log.error("  {}", ERR_error_string(firstErrorCode, nullptr));
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            tlsLog().error("  {}", ERR_error_string(errorCode, nullptr));
+            log.error("  {}", ERR_error_string(errorCode, nullptr));
         }
     }
 
     void ssl_log_warning(const std::string& message) {
-        tlsLog().warn("{}", message);
+        auto log = tlsLog();
+        if (!log.enabled(logger::LogLevel::Warn)) {
+            return;
+        }
+
+        log.warn("{}", message);
         const unsigned long firstErrorCode = ERR_get_error();
-        tlsLog().warn("  {}", ERR_error_string(firstErrorCode, nullptr));
+        log.warn("  {}", ERR_error_string(firstErrorCode, nullptr));
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            tlsLog().warn("  {}", ERR_error_string(errorCode, nullptr));
+            log.warn("  {}", ERR_error_string(errorCode, nullptr));
         }
     }
 
     void ssl_log_info(const std::string& message) {
-        tlsLog().info("{}", message);
+        auto log = tlsLog();
+        if (!log.enabled(logger::LogLevel::Info)) {
+            return;
+        }
+
+        log.info("{}", message);
         const unsigned long firstErrorCode = ERR_get_error();
-        tlsLog().info("  {}", ERR_error_string(firstErrorCode, nullptr));
+        log.info("  {}", ERR_error_string(firstErrorCode, nullptr));
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            tlsLog().info("  {}", ERR_error_string(errorCode, nullptr));
+            log.info("  {}", ERR_error_string(errorCode, nullptr));
         }
     }
 

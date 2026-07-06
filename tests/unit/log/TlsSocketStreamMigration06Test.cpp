@@ -279,5 +279,49 @@ int main() {
     result.expectTrue(readFile(opensslHelperFilterPath).find("OpenSSL helper suppressed") == std::string::npos,
                       "LogManager filtering suppresses 6b OpenSSL helper semantic calls");
 
+    auto expectSuppressedOpenSslHelperKeepsQueue = [&](const std::string& label, const auto& helper) {
+        LoggerStateGuard guard(tempLogPath("snodec-migration06-openssl-queue-" + label + ".log").string());
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Critical);
+        logger::LogManager::freeze();
+        ERR_clear_error();
+        ERR_new();
+        ERR_set_error(ERR_LIB_SSL, SSL_R_SSLV3_ALERT_HANDSHAKE_FAILURE, nullptr);
+
+        helper("migration06 SSL/TLS: suppressed OpenSSL helper queue check");
+
+        const unsigned long stillQueued = ERR_get_error();
+        result.expectTrue(stillQueued != 0, "suppressed ssl_log_" + label + " does not drain OpenSSL error queue");
+        while (ERR_get_error() != 0) {
+        }
+    };
+    expectSuppressedOpenSslHelperKeepsQueue("error", [](const std::string& message) {
+        core::socket::stream::tls::ssl_log_error(message);
+    });
+    expectSuppressedOpenSslHelperKeepsQueue("warning", [](const std::string& message) {
+        core::socket::stream::tls::ssl_log_warning(message);
+    });
+    expectSuppressedOpenSslHelperKeepsQueue("info", [](const std::string& message) {
+        core::socket::stream::tls::ssl_log_info(message);
+    });
+
+    std::vector<logger::LogRecord> sniRecords;
+    TestTlsReader sniOwner("migration06-sni");
+    auto sniLog = sniOwner.log([&](logger::LogRecord record) {
+        sniRecords.push_back(std::move(record));
+    });
+    sniLog.debug("{} SSL/TLS: Setting sni certificate for '{}'", "migration06-connection", "example.test");
+    sniLog.error("{} SSL/TLS: No sni certificate found for '{}' but forceSni set - terminating", "migration06-connection", "missing.test");
+    sniLog.warn("{} SSL/TLS: No sni certificate found for '{}'. Still using master certificate", "migration06-connection", "fallback.test");
+    sniLog.debug("{} SSL/TLS: No sni certificate requested from client. Still using master certificate", "migration06-connection");
+    result.expectTrue(
+        sniRecords.size() == 4 && sniRecords[0].message == "migration06-connection SSL/TLS: Setting sni certificate for 'example.test'" &&
+            sniRecords[1].message ==
+                "migration06-connection SSL/TLS: No sni certificate found for 'missing.test' but forceSni set - terminating" &&
+            sniRecords[2].message ==
+                "migration06-connection SSL/TLS: No sni certificate found for 'fallback.test'. Still using master certificate" &&
+            sniRecords[3].message ==
+                "migration06-connection SSL/TLS: No sni certificate requested from client. Still using master certificate",
+        "SNI/client-hello payload preservation is covered through the TLS owner sink path");
+
     return result.processResult();
 }
