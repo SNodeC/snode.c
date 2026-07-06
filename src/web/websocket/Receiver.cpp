@@ -41,9 +41,11 @@
 
 #include "web/websocket/Receiver.h"
 
+#include "web/websocket/SemanticLog.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include "log/SemanticLogger.h"
 #include "utils/hexdump.h"
 
 #include <endian.h>
@@ -127,7 +129,7 @@ namespace web::websocket {
             } else {
                 parserState = ParserState::ERROR;
                 errorState = 1002;
-                LOG(ERROR) << "WebSocket: Error opcode in continuation frame";
+                semantic::webSocketFrameLog().error() << "WebSocket: Error opcode in continuation frame";
             }
             continuation = !fin;
         }
@@ -281,7 +283,10 @@ namespace web::websocket {
                 }
             }
 
-            LOG(TRACE) << "WebSocket receive: Frame data\n" << utils::hexDump(payloadChunk, payloadChunkLen, 32, true);
+            auto log = semantic::webSocketFrameLog();
+            if (log.enabled(logger::LogLevel::Trace)) {
+                log.trace("WebSocket receive: Frame data\n{}", utils::hexDump(payloadChunk, payloadChunkLen, 32, true));
+            }
 
             onMessageData(payloadChunk, payloadChunkLen);
 
