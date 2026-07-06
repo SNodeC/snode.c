@@ -48,3 +48,8 @@ snodec_add_test(SemanticProductionThresholdRepairTest SemanticProductionThreshol
 target_include_directories(SemanticProductionThresholdRepairTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(SemanticProductionThresholdRepairTest PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
 set_tests_properties(SemanticProductionThresholdRepairTest PROPERTIES LABELS "unit;log;repair")
+
+snodec_add_test(SocketConnectionMigration01Test SocketConnectionMigration01Test.cpp)
+target_include_directories(SocketConnectionMigration01Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(SocketConnectionMigration01Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
+set_tests_properties(SocketConnectionMigration01Test PROPERTIES LABELS "unit;log;migration01")

@@ -111,10 +111,10 @@ namespace core::socket::stream {
               [this](int errnum) {
                   {
                       const utils::PreserveErrno pe(errnum);
-                      if (errno == 0) {
-                          LOG(TRACE) << connectionName << " OnReadError: EOF received";
+                      if (errnum == 0) {
+                          this->log().trace("OnReadError: EOF received");
                       } else {
-                          PLOG(TRACE) << connectionName << " OnReadError";
+                          this->log().sysError(logger::LogLevel::Trace, errnum, "OnReadError");
                       }
                   }
                   SocketReader::disable();
@@ -129,7 +129,7 @@ namespace core::socket::stream {
               [this](int errnum) {
                   {
                       const utils::PreserveErrno pe(errnum);
-                      PLOG(TRACE) << connectionName << " OnWriteError";
+                      this->log().sysError(logger::LogLevel::Trace, errnum, "OnWriteError");
                   }
                   SocketWriter::disable();
 
@@ -201,7 +201,7 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             ret = SocketReader::readFromPeer(chunk, chunkLen);
         } else {
-            LOG(TRACE) << connectionName << " ReadFromPeer: New SocketContext != nullptr: SocketContextSwitch still in progress";
+            this->log().trace("ReadFromPeer: New SocketContext != nullptr: SocketContextSwitch still in progress");
         }
 
         return ret;
@@ -224,21 +224,22 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::shutdownRead() {
-        LOG(TRACE) << connectionName << ": Shutdown (RD)";
+        this->log().trace("Shutdown (RD)");
 
         SocketReader::shutdownRead();
 
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::RD) == 0) {
-            LOG(DEBUG) << connectionName << " Shutdown (RD): success";
+            this->log().debug("Shutdown (RD): success");
         } else {
-            PLOG(ERROR) << connectionName << " Shutdown (RD)";
+            const int errnum = errno;
+            this->log().sysError(logger::LogLevel::Error, errnum, "Shutdown (RD)");
         }
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::shutdownWrite() {
         if (!SocketWriter::shutdownInProgress) {
-            LOG(TRACE) << connectionName << ": Stop writing";
+            this->log().trace("Stop writing");
 
             SocketWriter::shutdownWrite([this]() {
                 if (SocketWriter::isEnabled()) {
@@ -289,12 +290,13 @@ namespace core::socket::stream {
 
         setTimeout(SocketWriter::terminateTimeout);
 
-        LOG(TRACE) << connectionName << ": Shutdown (WR)";
+        this->log().trace("Shutdown (WR)");
 
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) == 0) {
-            LOG(DEBUG) << connectionName << " Shutdown (WR): success";
+            this->log().debug("Shutdown (WR): success");
         } else {
-            PLOG(ERROR) << connectionName << " Shutdown (WR)";
+            const int errnum = errno;
+            this->log().sysError(logger::LogLevel::Error, errnum, "Shutdown (WR)");
         }
 
         onShutdown();
@@ -305,7 +307,7 @@ namespace core::socket::stream {
         std::size_t consumed = socketContext->readFromPeer();
 
         if (available != 0 && consumed == 0) {
-            LOG(TRACE) << connectionName << ": Data available: " << available << " but nothing read";
+            this->log().trace("Data available: {} but nothing read", available);
 
             close();
 
@@ -319,7 +321,7 @@ namespace core::socket::stream {
 
             socketContext->attach();
 
-            LOG(DEBUG) << connectionName << " SocketConnection: switch completed";
+            this->log().debug("SocketConnection: switch completed");
         }
     }
 
@@ -343,8 +345,10 @@ namespace core::socket::stream {
             case SIGABRT:
                 [[fallthrough]];
             case SIGHUP:
-                LOG(DEBUG) << connectionName << ": Shutting down due to signal '" << utils::system::strsignal(signum) << "' (SIG"
-                           << utils::system::sigabbrev_np(signum) << " [" << signum << "])";
+                this->log().debug("Shutting down due to signal '{}' (SIG{} [{}])",
+                                  utils::system::strsignal(signum),
+                                  utils::system::sigabbrev_np(signum),
+                                  signum);
                 break;
             case SIGALRM:
                 break;
@@ -355,13 +359,13 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::readTimeout() {
-        LOG(WARNING) << connectionName << ": Read timeout";
+        this->log().warn("Read timeout");
         close();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::writeTimeout() {
-        LOG(WARNING) << connectionName << ": Write timeout";
+        this->log().warn("Write timeout");
         close();
     }
 
@@ -373,7 +377,7 @@ namespace core::socket::stream {
 
         onDisconnect();
 
-        LOG(DEBUG) << connectionName << ": disconnected";
+        this->log().debug("disconnected");
 
         delete this;
     }
