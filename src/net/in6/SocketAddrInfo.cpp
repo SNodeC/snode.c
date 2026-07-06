@@ -43,6 +43,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
 #include <cstring>
@@ -126,7 +127,8 @@ namespace net::in6 {
                       << "                  sin_addr:     " << hostBfr << "\n"
                       << "                  sin_port:     " << servBfr;
 
-            LOG(TRACE) << formatted.str();
+            static const logger::LogScopeOwner logScope(logger::LogOrigin::Framework, logger::LogBoundary::System, "net.address");
+            logScope.logger(logger::Logger::semanticSink()).trace("{}", formatted.str());
         }
     }
 

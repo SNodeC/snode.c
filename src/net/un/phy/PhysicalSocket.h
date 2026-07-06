@@ -42,6 +42,7 @@
 #ifndef NET_UN_PHY_PHYSICALSOCKET_H
 #define NET_UN_PHY_PHYSICALSOCKET_H
 
+#include "log/LogScopeOwner.h"
 #include "net/phy/PhysicalSocket.h"
 #include "net/un/SocketAddress.h" // IWYU pragma: export
 
@@ -58,6 +59,7 @@ namespace net::un::phy {
         using Super::Super;
 
         PhysicalSocket(int type, int protocol);
+        PhysicalSocket(int fd, const SocketAddress& bindAddress);
         PhysicalSocket(PhysicalSocket&& physicalSocket) noexcept;
 
         PhysicalSocket& operator=(PhysicalSocket&& physicalSocket) noexcept;
@@ -66,7 +68,13 @@ namespace net::un::phy {
 
         int bind(SocketAddress& bindAddress);
 
+        logger::BoundaryLogger log() const;
+        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
+                                   logger::LogLevel threshold = logger::LogLevel::Trace,
+                                   logger::BoundaryLogger::Clock clock = {}) const;
+
     private:
+        logger::LogScopeOwner logScope;
         int lockFd = -1;
     };
 
