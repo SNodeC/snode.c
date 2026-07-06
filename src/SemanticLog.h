@@ -4,7 +4,6 @@
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
-#include <cerrno>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -90,7 +89,7 @@ namespace snode::semantic {
 
     class SysErrorStream {
     public:
-        SysErrorStream(logger::BoundaryLogger logger, const logger::LogLevel level, const int errnum = errno)
+        SysErrorStream(logger::BoundaryLogger logger, const logger::LogLevel level, const int errnum)
             : logger(std::move(logger))
             , level(level)
             , errnum(errnum)
@@ -124,7 +123,7 @@ namespace snode::semantic {
         std::ostringstream message;
     };
 
-    inline SysErrorStream sysError(logger::BoundaryLogger logger, const logger::LogLevel level, const int errnum = errno) {
+    inline SysErrorStream sysError(logger::BoundaryLogger logger, const logger::LogLevel level, const int errnum) {
         return SysErrorStream(std::move(logger), level, errnum);
     }
 

@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
             pipeSource.send("Hello World!");
         },
         []([[maybe_unused]] int errnum) {
-            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error) << "Pipe not created";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errnum) << "Pipe not created";
         });
 
     return core::SNodeC::start();

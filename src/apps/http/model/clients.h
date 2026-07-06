@@ -129,7 +129,7 @@ namespace apps::http::legacy {
                             snode::semantic::appLog().error()
                                 << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                 << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error)
+                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
                                 << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
                         }
                     },
@@ -376,8 +376,8 @@ namespace apps::http::legacy {
                     } else {
                         snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                    << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error) << "
-            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                                    << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                     }
                 },
                 [&req](const std::shared_ptr<Request>& reqa, const std::shared_ptr<Response>& res) {
@@ -397,8 +397,8 @@ namespace apps::http::legacy {
                             } else {
                                 snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                            << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error) << "
-            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                                    << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                             }
                         },
                         [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -434,8 +434,8 @@ namespace apps::http::legacy {
                         } else {
                             snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                        << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error) << "
-            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                                    << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         }
                     },
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -460,8 +460,8 @@ namespace apps::http::legacy {
                         } else {
                             snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                        << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error) << "
-            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                                    << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         }
                     },
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {

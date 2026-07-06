@@ -72,7 +72,8 @@ namespace core::socket::stream {
                                                         << std::setw(25) << "  PeerAddress (local): " << badSocketAddress.what();
             }
         } else {
-            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Warn)
+            const int errnum = errno;
+            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Warn, errnum)
                 << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
                 << " PeerAddress (local) not retrievable";
         }
@@ -96,7 +97,8 @@ namespace core::socket::stream {
                                                         << std::setw(25) << "  PeerAddress (remote): " << badSocketAddress.what();
             }
         } else {
-            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Warn)
+            const int errnum = errno;
+            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Warn, errnum)
                 << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
                 << " PeerAddress (remote) not retrievble";
         }

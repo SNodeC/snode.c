@@ -110,10 +110,11 @@ namespace core::socket::stream {
                 configuredAddress = config->Local::getSocketAddress();
 
                 if (physicalServerSocket.open(config->getSocketOptions(), PhysicalServerSocket::Flags::NONBLOCK) < 0) {
-                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error)
+                    const int errnum = errno;
+                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error, errnum)
                         << config->getInstanceName() << " open " << configuredAddress.toString();
 
-                    switch (errno) {
+                    switch (errnum) {
                         case EMFILE:
                         case ENFILE:
                         case ENOBUFS:
@@ -129,10 +130,11 @@ namespace core::socket::stream {
                         << config->getInstanceName() << " open " << configuredAddress.toString() << ": success";
 
                     if (physicalServerSocket.bind(configuredAddress) < 0) {
-                        snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error)
+                        const int errnum = errno;
+                        snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error, errnum)
                             << config->getInstanceName() << " bind " << configuredAddress.toString();
 
-                        switch (errno) {
+                        switch (errnum) {
                             case EADDRINUSE:
 
                                 state = core::socket::STATE_ERROR;
@@ -155,10 +157,11 @@ namespace core::socket::stream {
                             << ": success";
 
                         if (physicalServerSocket.listen(config->getBacklog()) < 0) {
-                            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error)
+                            const int errnum = errno;
+                            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error, errnum)
                                 << config->getInstanceName() << " listen " << physicalServerSocket.getBindAddress().toString();
 
-                            switch (errno) {
+                            switch (errnum) {
                                 case EADDRINUSE:
                                     state = core::socket::STATE_ERROR;
                                     break;
@@ -227,6 +230,7 @@ namespace core::socket::stream {
             do {
                 PhysicalServerSocket connectedPhysicalSocket(physicalServerSocket.accept4(PhysicalServerSocket::Flags::NONBLOCK),
                                                              physicalServerSocket.getBindAddress());
+                const int errnum = errno;
 
                 if (connectedPhysicalSocket.isValid()) {
                     SocketConnection* socketConnection = new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, config);
@@ -238,8 +242,8 @@ namespace core::socket::stream {
 
                     onConnect(socketConnection);
                     onConnected(socketConnection);
-                } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Warn)
+                } else if (errnum != EINTR && errnum != EAGAIN && errnum != EWOULDBLOCK) {
+                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Warn, errnum)
                         << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString();
                 }
             } while (--acceptsPerTick > 0);

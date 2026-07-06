@@ -112,10 +112,11 @@ namespace core::socket::stream {
                     remoteAddress = config->Remote::getSocketAddress();
 
                     if (physicalClientSocket.open(config->getSocketOptions(), PhysicalClientSocket::Flags::NONBLOCK) < 0) {
-                        snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+                        const int errnum = errno;
+                        snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
                             << config->getInstanceName() << " open " << configuredLocalAddress.toString();
 
-                        switch (errno) {
+                        switch (errnum) {
                             case EMFILE:
                             case ENFILE:
                             case ENOBUFS:
@@ -133,10 +134,11 @@ namespace core::socket::stream {
                             << config->getInstanceName() << " open " << configuredLocalAddress.toString() << ": success";
 
                         if (physicalClientSocket.bind(configuredLocalAddress) < 0) {
-                            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+                            const int errnum = errno;
+                            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
                                 << config->getInstanceName() << " bind " << configuredLocalAddress.toString();
 
-                            switch (errno) {
+                            switch (errnum) {
                                 case EADDRINUSE:
                                     state = core::socket::STATE_ERROR;
                                     break;
@@ -157,10 +159,12 @@ namespace core::socket::stream {
                                         : " (effective: " + effectiveBindAddressString + ")")
                                 << ": success";
 
-                            if (physicalClientSocket.connect(remoteAddress) < 0 && !PhysicalClientSocket::connectInProgress(errno)) {
-                                snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+                            const int connectResult = physicalClientSocket.connect(remoteAddress);
+                            const int errnum = errno;
+                            if (connectResult < 0 && !PhysicalClientSocket::connectInProgress(errnum)) {
+                                snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
                                     << config->getInstanceName() << " connect " << remoteAddress.toString();
-                                switch (errno) {
+                                switch (errnum) {
                                     case EADDRINUSE:
                                     case EADDRNOTAVAIL:
                                     case ECONNREFUSED:
@@ -189,7 +193,7 @@ namespace core::socket::stream {
                                 snode::semantic::coreSocketLog().trace()
                                     << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
 
-                                if (PhysicalClientSocket::connectInProgress(errno)) {
+                                if (PhysicalClientSocket::connectInProgress(errnum)) {
                                     if (enable(physicalClientSocket.getFd())) {
                                         snode::semantic::coreSocketLog().debug()
                                             << config->getInstanceName() << " enable " << remoteAddress.toString(false) << ": success";
@@ -257,8 +261,9 @@ namespace core::socket::stream {
 
         if (isEnabled() && physicalClientSocket.getSockError(cErrno) == 0) { //  == 0->return valid : < 0->getsockopt failed
             const utils::PreserveErrno pe(cErrno);                           // errno = cErrno
+            const int errnum = cErrno;
 
-            if (errno == 0) {
+            if (errnum == 0) {
                 SocketConnection* socketConnection = new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);
 
                 snode::semantic::coreSocketLog().debug()
@@ -272,7 +277,7 @@ namespace core::socket::stream {
                 onConnected(socketConnection);
 
                 disable();
-            } else if (PhysicalClientSocket::connectInProgress(errno)) {
+            } else if (PhysicalClientSocket::connectInProgress(errnum)) {
                 snode::semantic::coreSocketLog().debug()
                     << config->getInstanceName() << " connect " << remoteAddress.toString() << ": in progress:";
             } else {
@@ -280,7 +285,7 @@ namespace core::socket::stream {
 
                 core::socket::State state = core::socket::STATE_OK;
 
-                switch (errno) {
+                switch (errnum) {
                     case EADDRINUSE:
                     case EADDRNOTAVAIL:
                     case ECONNREFUSED:
@@ -295,7 +300,7 @@ namespace core::socket::stream {
                 }
 
                 if (remoteAddress.useNext()) {
-                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
                         << config->getInstanceName() << " connect '" << remoteAddress.toString();
 
                     onStatus(currentRemoteAddress, (state | core::socket::State::NO_RETRY));
@@ -307,7 +312,7 @@ namespace core::socket::stream {
 
                     disable();
                 } else {
-                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
                         << config->getInstanceName() << " connect " << remoteAddress.toString();
 
                     onStatus(currentRemoteAddress, state);
@@ -316,7 +321,8 @@ namespace core::socket::stream {
                 }
             }
         } else {
-            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+            const int errnum = errno;
+            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
                 << config->getInstanceName() << " getsockopt syscall error: '" << remoteAddress.toString() << "'";
 
             onStatus(remoteAddress, core::socket::STATE_FATAL);

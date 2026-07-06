@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
     /*
         jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) {
             if (err != 0) {
-                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error) << "OnError: " << err;
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, err) << "OnError: " << err;
             }
         });
     */

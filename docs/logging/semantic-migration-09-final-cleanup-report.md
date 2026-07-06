@@ -54,6 +54,39 @@ This PR does not duplicate previous migrations; it only cleans up call sites tha
 - `docs/logging/semantic-migration-09-final-cleanup-report.md`
 
 
+
+## PR #163 follow-up fixes
+
+A follow-up fixed broken string literals in `src/apps/http/model/clients.h`. All migrated production `sysError`/`PLOG` sites were audited. No production migrated `sysError` site relies on the helper default errno argument; the Migration 9 `snode::semantic::sysError(...)` helper now requires an explicit errno/error-code argument. Every production migrated `PLOG`/`sysError` site either captures `errno` immediately after the failing syscall/library call or uses a pre-existing explicit error code supplied by the callback/API. Where `errno` was later used for branching, the captured `errnum` is used instead.
+
+Follow-up audit commands run:
+
+```sh
+rg -n "snode::semantic::sysError\(" src apps examples -g '*.h' -g '*.hpp' -g '*.cpp' -g '!src/log/**'
+rg -n 'sysError\(.*<<\s*"$' src/apps/http/model/clients.h src apps examples -g '*.h' -g '*.hpp' -g '*.cpp' -g '!src/log/**'
+rg -n 'CMakeLists\.txt|CMakeLists\.tt|sysError' src/apps/http/model/clients.h
+rg -n "snode::semantic::sysError\([^,\n]+,\s*logger::LogLevel::[A-Za-z]+\)" src apps examples -g '*.h' -g '*.hpp' -g '*.cpp' -g '!src/log/**'
+rg -n "\b(LOG|PLOG)\s*\(" src apps examples -g '*.h' -g '*.hpp' -g '*.cpp' -g '!src/log/**'
+```
+
+Follow-up results: no broken raw-newline string literal patterns remain; no production migrated `sysError` call relies on a default errno argument; no suitable `LOG`/`PLOG` remains outside `src/log`. The commands still report that this checkout has no top-level `apps` or `examples` directories; application/example code is under `src/apps`.
+
+Follow-up build/test commands run:
+
+```sh
+cmake -S . -B cmake-build -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON
+cmake --build cmake-build --parallel 2 --target FinalCleanupMigration09Test
+ctest --test-dir cmake-build -R FinalCleanupMigration09Test --output-on-failure
+cmake --build cmake-build --parallel 2
+ctest --test-dir cmake-build -R "SemanticLoggerRound2Test|LogScopeOwnerRound3Test|ProductionLogApiRound4Test|SocketEndpointLogApiRound5Test|SemanticBackendRound6Test|SemanticFilterRound7Test|ControlledMigrationRound8Test|SemanticCompatibilityRound9Test|SemanticOverheadRound9Test|SemanticProductionThresholdRepairTest|SocketConnectionMigration01Test|SocketConnectorAcceptorMigration02Test|SocketServerClientMigration03Test|CoreRuntimeMigration04Test|NetPhysicalSocketMigration05Test|TlsSocketStreamMigration06Test|HttpClientMigration07aTest|HttpServerMigration07bTest|WebSocketMigration07cTest|MqttMigration08Test|FinalCleanupMigration09Test" --output-on-failure
+ctest --test-dir cmake-build --output-on-failure
+cmake -S . -B cmake-build-asan -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON -DSNODEC_ENABLE_ASAN=ON
+cmake --build cmake-build-asan --parallel 2 --target FinalCleanupMigration09Test
+ASAN=$(gcc -print-file-name=libasan.so) LD_PRELOAD=$ASAN ctest --test-dir cmake-build-asan -R FinalCleanupMigration09Test --output-on-failure
+```
+
+Follow-up validation passed: `FinalCleanupMigration09Test`, the focused migration suite, full `ctest`, and ASan-focused `FinalCleanupMigration09Test`.
+
 ## Complete remaining inventory command/result
 
 Command:
@@ -1718,6 +1751,9 @@ Result: 6 logging-infrastructure macro definitions; intentionally not migrated.
 ## Build commands run
 
 - `git diff --check`
+- `rg -n 'sysError\(.*<<\s*"$' src/apps/http/model/clients.h src apps examples -g '*.h' -g '*.hpp' -g '*.cpp' -g '!src/log/**'`
+- `rg -n "snode::semantic::sysError\([^,\n]+,\s*logger::LogLevel::[A-Za-z]+\)" src apps examples -g '*.h' -g '*.hpp' -g '*.cpp' -g '!src/log/**'`
+- `rg -n "\b(LOG|PLOG)\s*\(" src apps examples -g '*.h' -g '*.hpp' -g '*.cpp' -g '!src/log/**'`
 - `cmake -S . -B cmake-build -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON`
 - `cmake --build cmake-build --parallel 2`
 - `cmake -S . -B cmake-build-asan -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON -DSNODEC_ENABLE_ASAN=ON`

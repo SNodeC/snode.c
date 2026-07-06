@@ -119,7 +119,7 @@ namespace express::middleware {
                             << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware: GET "
                             << req->url + " -> " << root + decodedPath;
                     } else {
-                        snode::semantic::sysError(snode::semantic::expressLog(), logger::LogLevel::Error)
+                        snode::semantic::sysError(snode::semantic::expressLog(), logger::LogLevel::Error, ret)
                             << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
                             << req->url + " -> " << root + decodedPath;
 

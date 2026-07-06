@@ -140,7 +140,7 @@ state) { // titan #elif (NET_TYPE == RC) // rf
 // titan webApp.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
 // titan #elif (NET_TYPE == UN) // un webApp.listen("/tmp/testme", 5, [](const WebApp::SocketAddress& socketAddress, const
 core::socket::State& state) { // titan #endif if (errnum != 0) { snode::semantic::sysError(snode::semantic::appLog(),
-logger::LogLevel::Critical) << "listen"; } else { VLOG(1) << "snode.c listening on " << socketAddress.toString();
+logger::LogLevel::Critical, errnum) << "listen"; } else { VLOG(1) << "snode.c listening on " << socketAddress.toString();
         }
 
 #ifdef NET_TYPE

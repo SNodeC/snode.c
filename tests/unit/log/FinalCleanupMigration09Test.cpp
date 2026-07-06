@@ -122,7 +122,8 @@ int main() {
     snode::semantic::sysError(snode::semantic::appLog([&](logger::LogRecord record) {
                                   sysErrorRecords.push_back(std::move(record));
                               }),
-                              logger::LogLevel::Error)
+                              logger::LogLevel::Error,
+                              ENOENT)
         << "Pipe not created";
     result.expectTrue(sysErrorRecords.size() == 1 && sysErrorRecords[0].error && sysErrorRecords[0].error->code == ENOENT &&
                           sysErrorRecords[0].error->text.find("No such file") != std::string::npos,

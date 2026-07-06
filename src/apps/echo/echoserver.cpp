@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
      server.listen("/tmp/testme", 5, [](const SocketServer::Socket& socket, int errnum) { // titan
 #endif
         if (errnum != 0) {
-            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Critical) << "listen";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Critical, errnum) << "listen";
         } else {
             VLOG(1) << "snode.c listening on " << socket.getBindAddress().toString();
         }

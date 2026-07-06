@@ -122,10 +122,9 @@ int main(int argc, char* argv[]) {
 #endif
 
     if (errnum < 0) {
-        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error) << "OnError";
+        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errnum) << "OnError";
     } else if (errnum > 0) {
-        errno = errnum;
-        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error) << "OnError: " << socketAddress.toString();
+        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errnum) << "OnError: " << socketAddress.toString();
     } else {
         VLOG(1) << "snode.c connecting to " << socketAddress.toString();
     }
