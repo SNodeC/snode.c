@@ -76,3 +76,9 @@ target_include_directories(NetPhysicalSocketMigration05Test PRIVATE ${PROJECT_SO
 target_compile_features(NetPhysicalSocketMigration05Test PRIVATE cxx_std_20)
 target_link_libraries(NetPhysicalSocketMigration05Test PRIVATE snodec-test-support snodec::net-un-phy-stream snodec::core-socket-stream)
 set_tests_properties(NetPhysicalSocketMigration05Test PROPERTIES LABELS "unit;log;migration05")
+
+snodec_add_test(TlsSocketStreamMigration06Test TlsSocketStreamMigration06Test.cpp)
+target_include_directories(TlsSocketStreamMigration06Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(TlsSocketStreamMigration06Test PRIVATE cxx_std_20)
+target_link_libraries(TlsSocketStreamMigration06Test PRIVATE snodec-test-support snodec::core-socket-stream-tls)
+set_tests_properties(TlsSocketStreamMigration06Test PROPERTIES LABELS "unit;log;migration06")
