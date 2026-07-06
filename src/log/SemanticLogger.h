@@ -1,3 +1,44 @@
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #ifndef LOGGER_SEMANTICLOGGER_H
 #define LOGGER_SEMANTICLOGGER_H
 
@@ -155,20 +196,36 @@ namespace logger {
         LogStream critical() const;
 
         template <class... Args>
-        void trace(std::string_view format, Args&&... args) const { emitFormatted(LogLevel::Trace, format, std::forward<Args>(args)...); }
+        void trace(std::string_view format, Args&&... args) const {
+            emitFormatted(LogLevel::Trace, format, std::forward<Args>(args)...);
+        }
         template <class... Args>
-        void debug(std::string_view format, Args&&... args) const { emitFormatted(LogLevel::Debug, format, std::forward<Args>(args)...); }
+        void debug(std::string_view format, Args&&... args) const {
+            emitFormatted(LogLevel::Debug, format, std::forward<Args>(args)...);
+        }
         template <class... Args>
-        void info(std::string_view format, Args&&... args) const { emitFormatted(LogLevel::Info, format, std::forward<Args>(args)...); }
+        void info(std::string_view format, Args&&... args) const {
+            emitFormatted(LogLevel::Info, format, std::forward<Args>(args)...);
+        }
         template <class... Args>
-        void warn(std::string_view format, Args&&... args) const { emitFormatted(LogLevel::Warn, format, std::forward<Args>(args)...); }
+        void warn(std::string_view format, Args&&... args) const {
+            emitFormatted(LogLevel::Warn, format, std::forward<Args>(args)...);
+        }
         template <class... Args>
-        void error(std::string_view format, Args&&... args) const { emitFormatted(LogLevel::Error, format, std::forward<Args>(args)...); }
+        void error(std::string_view format, Args&&... args) const {
+            emitFormatted(LogLevel::Error, format, std::forward<Args>(args)...);
+        }
         template <class... Args>
-        void critical(std::string_view format, Args&&... args) const { emitFormatted(LogLevel::Critical, format, std::forward<Args>(args)...); }
+        void critical(std::string_view format, Args&&... args) const {
+            emitFormatted(LogLevel::Critical, format, std::forward<Args>(args)...);
+        }
 
         template <class... Args>
         void sysError(LogLevel level, int errnum, std::string_view format, Args&&... args) const {
+            if (!enabled(level)) {
+                return;
+            }
+
             LogRecordOptions options;
             options.error = LogError{errnum, std::error_code(errnum, std::generic_category()).message()};
             emit(level, formatMessage(format, std::forward<Args>(args)...), std::move(options));
@@ -176,6 +233,10 @@ namespace logger {
 
         template <class... Args>
         void sysError(LogLevel level, std::error_code errorCode, std::string_view format, Args&&... args) const {
+            if (!enabled(level)) {
+                return;
+            }
+
             LogRecordOptions options;
             options.error = LogError{errorCode.value(), errorCode.message()};
             emit(level, formatMessage(format, std::forward<Args>(args)...), std::move(options));
@@ -188,10 +249,16 @@ namespace logger {
 
         template <class... Args>
         void emitFormatted(LogLevel level, std::string_view format, Args&&... args) const {
+            if (!enabled(level)) {
+                return;
+            }
+
             emit(level, formatMessage(format, std::forward<Args>(args)...));
         }
 
-        static std::vector<std::string> collectArgs() { return {}; }
+        static std::vector<std::string> collectArgs() {
+            return {};
+        }
         template <class T, class... Args>
         static std::vector<std::string> collectArgs(T&& value, Args&&... args) {
             std::ostringstream out;
