@@ -53,3 +53,8 @@ snodec_add_test(SocketConnectionMigration01Test SocketConnectionMigration01Test.
 target_include_directories(SocketConnectionMigration01Test PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(SocketConnectionMigration01Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
 set_tests_properties(SocketConnectionMigration01Test PROPERTIES LABELS "unit;log;migration01")
+
+snodec_add_test(SocketConnectorAcceptorMigration02Test SocketConnectorAcceptorMigration02Test.cpp)
+target_include_directories(SocketConnectorAcceptorMigration02Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(SocketConnectorAcceptorMigration02Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
+set_tests_properties(SocketConnectorAcceptorMigration02Test PROPERTIES LABELS "unit;log;migration02")
