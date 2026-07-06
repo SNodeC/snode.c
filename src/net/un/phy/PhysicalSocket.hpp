@@ -58,18 +58,27 @@ namespace net::un::phy {
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(int type, int protocol)
-        : Super(PF_UNIX, type, protocol) {
+        : Super(PF_UNIX, type, protocol)
+        , logScope(logger::LogOrigin::Framework, logger::LogBoundary::System, "net.un") {
+    }
+
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(int fd, const SocketAddress& bindAddress)
+        : Super(fd, bindAddress)
+        , logScope(logger::LogOrigin::Framework, logger::LogBoundary::System, "net.un") {
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     PhysicalSocket<PhysicalPeerSocket>::PhysicalSocket(PhysicalSocket&& physicalSocket) noexcept
         : Super(std::move(physicalSocket))
+        , logScope(std::move(physicalSocket.logScope))
         , lockFd(std::exchange(physicalSocket.lockFd, -1)) {
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     PhysicalSocket<PhysicalPeerSocket>& PhysicalSocket<PhysicalPeerSocket>::operator=(PhysicalSocket&& physicalSocket) noexcept {
         Super::operator=(std::move(physicalSocket));
+        logScope = std::move(physicalSocket.logScope);
         lockFd = std::exchange(physicalSocket.lockFd, -1);
 
         return *this;
@@ -79,21 +88,26 @@ namespace net::un::phy {
     PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
         if (lockFd >= 0) {
             if (std::remove(Super::getBindAddress().getSunPath().data()) == 0) {
-                LOG(DEBUG) << "Remove sun path: " << Super::getBindAddress().getSunPath();
+                log().debug("Remove sun path: {}", Super::getBindAddress().getSunPath());
             } else {
-                PLOG(ERROR) << "Remove sun path: " << Super::getBindAddress().getSunPath();
+                const int errnum = errno;
+                log().sysError(logger::LogLevel::Error, errnum, "Remove sun path: {}", Super::getBindAddress().getSunPath());
             }
 
             if (core::system::flock(lockFd, LOCK_UN) == 0) {
-                LOG(DEBUG) << "Remove lock from file: " << Super::getBindAddress().getSunPath().append(".lock");
+                log().debug("Remove lock from file: {}", Super::getBindAddress().getSunPath().append(".lock"));
             } else {
-                PLOG(ERROR) << "Remove lock from file: " << Super::getBindAddress().getSunPath().append(".lock");
+                const int errnum = errno;
+                log().sysError(
+                    logger::LogLevel::Error, errnum, "Remove lock from file: {}", Super::getBindAddress().getSunPath().append(".lock"));
             }
 
             if (std::remove(Super::bindAddress.getSunPath().append(".lock").data()) == 0) {
-                LOG(DEBUG) << "Remove lock file: " << Super::getBindAddress().getSunPath().append(".lock");
+                log().debug("Remove lock file: {}", Super::getBindAddress().getSunPath().append(".lock"));
             } else {
-                PLOG(ERROR) << "Remove lock file: " << Super::getBindAddress().getSunPath().append(".lock");
+                const int errnum = errno;
+                log().sysError(
+                    logger::LogLevel::Error, errnum, "Remove lock file: {}", Super::getBindAddress().getSunPath().append(".lock"));
             }
 
             core::system::close(lockFd);
@@ -102,27 +116,42 @@ namespace net::un::phy {
     }
 
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    logger::BoundaryLogger PhysicalSocket<PhysicalPeerSocket>::log() const {
+        return logScope.logger(logger::Logger::semanticSink());
+    }
+
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
+    logger::BoundaryLogger PhysicalSocket<PhysicalPeerSocket>::log(logger::BoundaryLogger::Sink sink,
+                                                                   logger::LogLevel threshold,
+                                                                   logger::BoundaryLogger::Clock clock) const {
+        return logScope.logger(std::move(sink), threshold, std::move(clock));
+    }
+
+    template <template <typename SocketAddress> typename PhysicalPeerSocket>
     int PhysicalSocket<PhysicalPeerSocket>::bind(SocketAddress& bindAddress) {
         if (!bindAddress.getSunPath().empty() && !bindAddress.getSunPath().starts_with('\0')) {
             if ((lockFd = open(bindAddress.getSunPath().append(".lock").data(), O_RDONLY | O_CREAT, 0600)) >= 0) {
-                LOG(DEBUG) << "Opening lock file: " << bindAddress.getSunPath().append(".lock").data();
+                log().debug("Opening lock file: {}", bindAddress.getSunPath().append(".lock"));
                 if (core::system::flock(lockFd, LOCK_EX | LOCK_NB) == 0) {
-                    LOG(DEBUG) << "Locking lock file: " << bindAddress.getSunPath().append(".lock").data();
+                    log().debug("Locking lock file: {}", bindAddress.getSunPath().append(".lock"));
                     if (std::filesystem::exists(bindAddress.getSunPath().data())) {
                         if (std::remove(bindAddress.getSunPath().data()) == 0) {
-                            LOG(WARNING) << "Removed stalled sun_path: " << bindAddress.getSunPath().data();
+                            log().warn("Removed stalled sun_path: {}", bindAddress.getSunPath());
                         } else {
-                            PLOG(ERROR) << "Removed stalled sun path: " << bindAddress.getSunPath().data();
+                            const int errnum = errno;
+                            log().sysError(logger::LogLevel::Error, errnum, "Removed stalled sun path: {}", bindAddress.getSunPath());
                         }
                     }
                 } else {
-                    PLOG(ERROR) << "Locking lock file " << bindAddress.getSunPath().append(".lock").data();
+                    const int errnum = errno;
+                    log().sysError(logger::LogLevel::Error, errnum, "Locking lock file {}", bindAddress.getSunPath().append(".lock"));
 
                     core::system::close(lockFd);
                     lockFd = -1;
                 }
             } else {
-                PLOG(ERROR) << "Opening lock file: " << bindAddress.getSunPath().append(".lock").data();
+                const int errnum = errno;
+                log().sysError(logger::LogLevel::Error, errnum, "Opening lock file: {}", bindAddress.getSunPath().append(".lock"));
             }
         }
 
