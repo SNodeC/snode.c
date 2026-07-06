@@ -58,7 +58,7 @@ namespace {
     logger::LogRole toLogRole(net::config::ConfigInstance::Role role) {
         return role == net::config::ConfigInstance::Role::SERVER ? logger::LogRole::Server : logger::LogRole::Client;
     }
-}
+} // namespace
 
 namespace net::config {
 
@@ -121,11 +121,12 @@ namespace net::config {
     logger::BoundaryLogger ConfigInstance::log() const {
         // Round 6 backend-backed default semantic logger.
         // The sink-taking overload remains available for tests and custom capture.
-        // Startup semantic filter configuration is deferred to Round 7.
-        return log(logger::Logger::semanticSink());
+        // Production default logger uses the frozen startup semantic policy as its local threshold.
+        return logScope.logger(logger::Logger::semanticSink());
     }
 
-    logger::BoundaryLogger ConfigInstance::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+    logger::BoundaryLogger
+    ConfigInstance::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
         return logScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
