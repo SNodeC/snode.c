@@ -58,3 +58,9 @@ snodec_add_test(SocketConnectorAcceptorMigration02Test SocketConnectorAcceptorMi
 target_include_directories(SocketConnectorAcceptorMigration02Test PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(SocketConnectorAcceptorMigration02Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
 set_tests_properties(SocketConnectorAcceptorMigration02Test PROPERTIES LABELS "unit;log;migration02")
+
+snodec_add_test(SocketServerClientMigration03Test SocketServerClientMigration03Test.cpp)
+target_include_directories(SocketServerClientMigration03Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(SocketServerClientMigration03Test PRIVATE cxx_std_20)
+target_link_libraries(SocketServerClientMigration03Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
+set_tests_properties(SocketServerClientMigration03Test PROPERTIES LABELS "unit;log;migration03")
