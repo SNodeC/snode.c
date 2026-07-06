@@ -52,6 +52,7 @@
 
 // clang-format on
 
+#include "SemanticLog.h"
 #include CLIENT_INCLUDE      // IWYU pragma: export
 #include EVENTSOURCE_INCLUDE // IWYU pragma: export
 
@@ -125,9 +126,11 @@ namespace apps::http::legacy {
                                     << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                             VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
                         } else {
-                            LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
-                                       << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
+                            snode::semantic::appLog().error()
+                                << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
+                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                                << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
                         }
                     },
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -371,9 +374,10 @@ namespace apps::http::legacy {
                                 << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                         VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                     } else {
-                        LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                        snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                    << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                        PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                                    << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                     }
                 },
                 [&req](const std::shared_ptr<Request>& reqa, const std::shared_ptr<Response>& res) {
@@ -391,9 +395,10 @@ namespace apps::http::legacy {
                                         << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                                 VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                             } else {
-                                LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                            << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                                    << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                             }
                         },
                         [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -427,9 +432,10 @@ namespace apps::http::legacy {
                                     << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                             VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         } else {
-                            LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                            snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                        << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                                    << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         }
                     },
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
@@ -452,9 +458,10 @@ namespace apps::http::legacy {
                                     << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
                             VLOG(1) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         } else {
-                            LOG(ERROR) << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                            snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                        << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            PLOG(ERROR) << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                                    << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         }
                     },
                     [](const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {

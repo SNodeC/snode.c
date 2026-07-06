@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
 #include "log/Logger.h"
@@ -111,7 +112,7 @@ int main(int argc, char* argv[]) {
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& req) {
-                LOG(INFO) << " -- OnRequestEnd";
+                snode::semantic::appLog().info() << " -- OnRequestEnd";
             });
 
         legacyClient.connect(

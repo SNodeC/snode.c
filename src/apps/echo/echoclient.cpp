@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "core/SNodeC.h"
 #include "model/clients.h"
 
@@ -65,10 +66,10 @@ int main(int argc, char* argv[]) {
                     VLOG(1) << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         });
@@ -121,10 +122,9 @@ int main(int argc, char* argv[]) {
 #endif
 
     if (errnum < 0) {
-        PLOG(ERROR) << "OnError";
+        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errnum) << "OnError";
     } else if (errnum > 0) {
-        errno = errnum;
-        PLOG(ERROR) << "OnError: " << socketAddress.toString();
+        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errnum) << "OnError: " << socketAddress.toString();
     } else {
         VLOG(1) << "snode.c connecting to " << socketAddress.toString();
     }

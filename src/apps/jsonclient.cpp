@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "core/SNodeC.h"
 #include "web/http/legacy/in/Client.h"
 
@@ -95,29 +96,30 @@ int main(int argc, char* argv[]) {
                 });
         },
         []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
-            LOG(INFO) << " -- OnRequestEnd";
+            snode::semantic::appLog().info() << " -- OnRequestEnd";
         });
 
-    jsonClient.connect("localhost",
-                       8080,
-                       [instanceName = jsonClient.getConfig()->getInstanceName()](
-                           const SocketAddress& socketAddress,
-                           const core::socket::State& state) { // example.com:81 simulate connect timeout
-                           switch (state) {
-                               case core::socket::State::OK:
-                                   VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
-                                   break;
-                               case core::socket::State::DISABLED:
-                                   VLOG(1) << instanceName << ": disabled";
-                                   break;
-                               case core::socket::State::ERROR:
-                                   LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                   break;
-                               case core::socket::State::FATAL:
-                                   LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                   break;
-                           }
-                       });
+    jsonClient.connect(
+        "localhost",
+        8080,
+        [instanceName =
+             jsonClient.getConfig()->getInstanceName()](const SocketAddress& socketAddress,
+                                                        const core::socket::State& state) { // example.com:81 simulate connect timeout
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << instanceName << ": disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    break;
+                case core::socket::State::FATAL:
+                    snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    break;
+            }
+        });
     /*
         jsonClient.connect("localhost",
                            8080,
@@ -132,18 +134,16 @@ int main(int argc, char* argv[]) {
                                        VLOG(1) << instanceName << ": disabled";
                                        break;
                                    case core::socket::State::ERROR:
-                                       LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                       break;
-                                   case core::socket::State::FATAL:
-                                       LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                       break;
+                                       snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " <<
+       state.what(); break; case core::socket::State::FATAL: snode::semantic::appLog().critical() << instanceName << ": " <<
+       socketAddress.toString() << ": " << state.what(); break;
                                }
                            });
     */
     /*
         jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) {
             if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, err) << "OnError: " << err;
             }
         });
     */

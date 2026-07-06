@@ -41,6 +41,7 @@
 
 #include "database/mariadb/MariaDBLibrary.h"
 
+#include "SemanticLog.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -59,7 +60,7 @@ namespace database::mariadb {
         std::call_once(initOnce, []() {
             const int rc = mysql_library_init(0, nullptr, nullptr);
             if (rc != 0) {
-                LOG(ERROR) << "MariaDB: mysql_library_init failed (rc=" << rc << ")";
+                snode::semantic::mariaDbLog().error() << "MariaDB: mysql_library_init failed (rc=" << rc << ")";
                 // Best effort: proceed; subsequent mysql_* calls may fail.
             }
 

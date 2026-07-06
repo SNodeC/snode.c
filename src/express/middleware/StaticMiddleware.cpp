@@ -41,6 +41,7 @@
 
 #include "express/middleware/StaticMiddleware.h"
 
+#include "SemanticLog.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/SocketContext.h"
@@ -66,7 +67,8 @@ namespace express::middleware {
              &stdCookies = this->stdCookies,
              &connectionState = this->defaultConnectionState,
              &fallThrough = this->fallThrough] MIDDLEWARE(req, res, next) {
-                LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express " << req->method;
+                snode::semantic::expressLog().debug()
+                    << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express " << req->method;
 
                 if (req->method != "GET") {
                     if (fallThrough) {
@@ -94,12 +96,12 @@ namespace express::middleware {
                     if (index.empty()) {
                         res->status(404).send("Unsupported resource: " + req->url + "\n");
                     } else {
-                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                                  << " Express StaticMiddleware Redirecting: " << req->url << " -> "
-                                  << req->originalPath +
-                                         (!req->originalPath.empty() && req->originalPath.back() != '/' && index.front() != '/' ? "/"
-                                                                                                                                : "") +
-                                         index;
+                        snode::semantic::expressLog().info()
+                            << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                            << " Express StaticMiddleware Redirecting: " << req->url << " -> "
+                            << req->originalPath +
+                                   (!req->originalPath.empty() && req->originalPath.back() != '/' && index.front() != '/' ? "/" : "") +
+                                   index;
                         res->redirect(
                             308,
                             req->originalPath +
@@ -113,11 +115,13 @@ namespace express::middleware {
                 const std::string decodedPath = httputils::url_decode(req->path);
                 res->sendFile(root + decodedPath, [&root, decodedPath, req, res, &next, &fallThrough](int ret) {
                     if (ret == 0) {
-                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                                  << " Express StaticMiddleware: GET " << req->url + " -> " << root + decodedPath;
+                        snode::semantic::expressLog().info()
+                            << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware: GET "
+                            << req->url + " -> " << root + decodedPath;
                     } else {
-                        PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
-                                    << req->url + " -> " << root + decodedPath;
+                        snode::semantic::sysError(snode::semantic::expressLog(), logger::LogLevel::Error, ret)
+                            << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
+                            << req->url + " -> " << root + decodedPath;
 
                         if (fallThrough) {
                             next();

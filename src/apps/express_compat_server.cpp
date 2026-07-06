@@ -3,6 +3,7 @@
  *
  * Intended to be used alongside the Node.js/Express reference server in this suite.
  */
+#include "SemanticLog.h"
 #include "core/SNodeC.h"
 #include "express/legacy/in/WebApp.h"
 #include "log/Logger.h"
@@ -243,10 +244,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "express-compat disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "express-compat " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << "express-compat " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "express-compat " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << "express-compat " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });

@@ -49,6 +49,7 @@
 #define WEBAPP_INCLUDE QUOTE_INCLUDE(express/STREAM/NET/WebApp.h)
 // clang-format on
 
+#include "SemanticLog.h"
 #include WEBAPP_INCLUDE // IWYU pragma: export
 
 #include "express/middleware/VerboseRequest.h"
@@ -162,7 +163,7 @@ namespace apps::http::tls {
 
                 X509_free(server_cert);
             } else {
-                LOG(WARNING) << "\tPeer certificate: no certificate";
+                snode::semantic::appLog().warn() << "\tPeer certificate: no certificate";
             }
         });
 
