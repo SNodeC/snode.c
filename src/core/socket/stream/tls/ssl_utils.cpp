@@ -43,6 +43,7 @@
 
 #include "core/socket/stream/tls/ssl_utils.h"
 
+#include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
@@ -61,6 +62,22 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {
+
+    namespace {
+        const logger::LogScopeOwner& tlsLogScope() {
+            static const logger::LogScopeOwner scope(logger::LogOrigin::Framework,
+                                                     logger::LogBoundary::Connection,
+                                                     "core.socket.stream.tls",
+                                                     std::nullopt,
+                                                     std::nullopt,
+                                                     std::nullopt);
+            return scope;
+        }
+
+        logger::BoundaryLogger tlsLog() {
+            return tlsLogScope().logger(logger::Logger::semanticSink());
+        }
+    } // namespace
 
     static int password_callback(char* buf, int size, [[maybe_unused]] int a, void* u) {
         strncpy(buf, static_cast<char*>(u), static_cast<std::size_t>(size));
@@ -87,15 +104,15 @@ namespace core::socket::stream::tls {
         X509_NAME_oneline(X509_get_issuer_name(curr_cert), issuerName, 256);
 
         if (preverify_ok != 0) {
-            LOG(DEBUG) << connectionName << ": SSL/TLS verify success at depth=" << depth;
-            LOG(DEBUG) << "   Issuer: " << issuerName;
-            LOG(DEBUG) << "  Subject: " << subjectName;
+            tlsLog().debug("{}: SSL/TLS verify success at depth={}", connectionName, depth);
+            tlsLog().debug("   Issuer: {}", issuerName);
+            tlsLog().debug("  Subject: {}", subjectName);
         } else {
             const int err = X509_STORE_CTX_get_error(ctx);
 
-            LOG(DEBUG) << connectionName << ": SSL/TLS verify error at depth=" << depth << ": " << X509_verify_cert_error_string(err);
-            LOG(DEBUG) << "   Issuer: " << issuerName;
-            LOG(DEBUG) << "  Subject: " << subjectName;
+            tlsLog().debug("{}: SSL/TLS verify error at depth={}: {}", connectionName, depth, X509_verify_cert_error_string(err));
+            tlsLog().debug("   Issuer: {}", issuerName);
+            tlsLog().debug("  Subject: {}", subjectName);
 
             /*
              * At this point, err contains the last verification error. We can use
@@ -137,31 +154,31 @@ namespace core::socket::stream::tls {
                     sslErr = true;
                 } else {
                     if (!sslConfig.caCert.empty()) {
-                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate loaded";
-                        LOG(TRACE) << "  " << sslConfig.caCert;
+                        tlsLog().trace("{} SSL/TLS: CA certificate loaded", sslConfig.instanceName);
+                        tlsLog().trace("  {}", sslConfig.caCert);
                     } else {
-                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
+                        tlsLog().trace("{} SSL/TLS: CA certificate not loaded from a file", sslConfig.instanceName);
                     }
                     if (!sslConfig.caCertDir.empty()) {
-                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates load from";
-                        LOG(TRACE) << "  " << sslConfig.caCertDir;
+                        tlsLog().trace("{} SSL/TLS: CA certificates load from", sslConfig.instanceName);
+                        tlsLog().trace("  {}", sslConfig.caCertDir);
                     } else {
-                        LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
+                        tlsLog().trace("{} SSL/TLS: CA certificates not loaded from a directory", sslConfig.instanceName);
                     }
                 }
             } else {
-                LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificate not loaded from a file";
-                LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from a directory";
+                tlsLog().trace("{} SSL/TLS: CA certificate not loaded from a file", sslConfig.instanceName);
+                tlsLog().trace("{} SSL/TLS: CA certificates not loaded from a directory", sslConfig.instanceName);
             }
             if (!sslErr && sslConfig.caCertUseDefaultDir) {
                 if (SSL_CTX_set_default_verify_paths(ctx) == 0) {
                     ssl_log_error(sslConfig.instanceName + " SSL/TLS: CA certificates error load from default openssl CA directory");
                     sslErr = true;
                 } else {
-                    LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates enabled load from default openssl CA directory";
+                    tlsLog().trace("{} SSL/TLS: CA certificates enabled load from default openssl CA directory", sslConfig.instanceName);
                 }
             } else {
-                LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA certificates not loaded from default openssl CA directory";
+                tlsLog().trace("{} SSL/TLS: CA certificates not loaded from default openssl CA directory", sslConfig.instanceName);
             }
             if (!sslErr) {
                 SSL_CTX_set_verify_depth(ctx, 5);
@@ -172,7 +189,7 @@ namespace core::socket::stream::tls {
                                         : 0),
                                    verify_callback);
                 if ((SSL_CTX_get_verify_mode(ctx) & SSL_VERIFY_PEER) != 0) {
-                    LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: CA requested verify";
+                    tlsLog().trace("{} SSL/TLS: CA requested verify", sslConfig.instanceName);
                 }
                 if (!sslConfig.cert.empty()) {
                     if (SSL_CTX_use_certificate_chain_file(ctx, sslConfig.cert.c_str()) == 0) {
@@ -190,14 +207,14 @@ namespace core::socket::stream::tls {
                         } else if (SSL_CTX_check_private_key(ctx) != 1) {
                             ssl_log_error(sslConfig.instanceName + " SSL/TLS: Cert chain key error");
 
-                            LOG(TRACE) << "  " << sslConfig.certKey;
+                            tlsLog().trace("  {}", sslConfig.certKey);
                             sslErr = true;
                         } else {
-                            LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain key loaded";
-                            LOG(TRACE) << "  " << sslConfig.certKey;
+                            tlsLog().trace("{} SSL/TLS: Cert chain key loaded", sslConfig.instanceName);
+                            tlsLog().trace("  {}", sslConfig.certKey);
 
-                            LOG(TRACE) << sslConfig.instanceName << " SSL/TLS: Cert chain loaded";
-                            LOG(TRACE) << "  " << sslConfig.cert;
+                            tlsLog().trace("{} SSL/TLS: Cert chain loaded", sslConfig.instanceName);
+                            tlsLog().trace("  {}", sslConfig.cert);
                         }
                     }
                 }
@@ -339,32 +356,35 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log_error(const std::string& message) {
-        LOG(ERROR) << message;
-        LOG(ERROR) << "  " << ERR_error_string(ERR_get_error(), nullptr);
+        tlsLog().error("{}", message);
+        const unsigned long firstErrorCode = ERR_get_error();
+        tlsLog().error("  {}", ERR_error_string(firstErrorCode, nullptr));
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(ERROR) << "  " << ERR_error_string(errorCode, nullptr);
+            tlsLog().error("  {}", ERR_error_string(errorCode, nullptr));
         }
     }
 
     void ssl_log_warning(const std::string& message) {
-        LOG(WARNING) << message;
-        LOG(WARNING) << "  " << ERR_error_string(ERR_get_error(), nullptr);
+        tlsLog().warn("{}", message);
+        const unsigned long firstErrorCode = ERR_get_error();
+        tlsLog().warn("  {}", ERR_error_string(firstErrorCode, nullptr));
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(WARNING) << "  " << ERR_error_string(errorCode, nullptr);
+            tlsLog().warn("  {}", ERR_error_string(errorCode, nullptr));
         }
     }
 
     void ssl_log_info(const std::string& message) {
-        LOG(INFO) << message;
-        LOG(INFO) << "  " << ERR_error_string(ERR_get_error(), nullptr);
+        tlsLog().info("{}", message);
+        const unsigned long firstErrorCode = ERR_get_error();
+        tlsLog().info("  {}", ERR_error_string(firstErrorCode, nullptr));
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(INFO) << "  " << ERR_error_string(errorCode, nullptr);
+            tlsLog().info("  {}", ERR_error_string(errorCode, nullptr));
         }
     }
 

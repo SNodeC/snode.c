@@ -1,5 +1,6 @@
 #include "core/socket/stream/tls/SocketReader.h"
 #include "core/socket/stream/tls/SocketWriter.h"
+#include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
 #include "tests/support/TestResult.h"
 #include "utils/Timeval.h"
@@ -7,6 +8,8 @@
 #include <cerrno>
 #include <filesystem>
 #include <fstream>
+#include <openssl/err.h>
+#include <openssl/sslerr.h>
 #include <ostream>
 #include <string>
 #include <utility>
@@ -227,6 +230,54 @@ int main() {
     result.expectTrue(opensslIoRecords.size() == 1 &&
                           opensslIoRecords[0].message.find("SSL/TLS: Renegotiation on read timed out") != std::string::npos,
                       "OpenSSL I/O retry payload text is preserved without requiring live TLS sockets/certs");
+
+    std::vector<logger::LogRecord> handshakeRecords;
+    TestTlsReader handshakeOwner("migration06-handshake");
+    handshakeOwner
+        .log([&](logger::LogRecord record) {
+            handshakeRecords.push_back(std::move(record));
+        })
+        .debug("{} SSL/TLS: Handshake success", "migration06-handshake");
+    result.expectTrue(handshakeRecords.size() == 1 && handshakeRecords[0].message == "migration06-handshake SSL/TLS: Handshake success" &&
+                          handshakeRecords[0].component == "core.socket.stream.tls",
+                      "handshake semantic payload preservation is covered through the TLS owner sink path");
+
+    std::vector<logger::LogRecord> shutdownRecords;
+    TestTlsWriter shutdownOwner("migration06-shutdown");
+    shutdownOwner
+        .log([&](logger::LogRecord record) {
+            shutdownRecords.push_back(std::move(record));
+        })
+        .debug("{} SSL/TLS: Passive close_notify received and sent", "migration06-shutdown");
+    result.expectTrue(shutdownRecords.size() == 1 &&
+                          shutdownRecords[0].message == "migration06-shutdown SSL/TLS: Passive close_notify received and sent",
+                      "shutdown close_notify semantic payload preservation is covered through the TLS owner sink path");
+
+    const auto opensslHelperPath = tempLogPath("snodec-migration06-openssl-helper.log");
+    {
+        LoggerStateGuard guard(opensslHelperPath.string());
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Trace);
+        logger::LogManager::freeze();
+        ERR_new();
+        ERR_set_error(ERR_LIB_SSL, SSL_R_SSLV3_ALERT_HANDSHAKE_FAILURE, nullptr);
+        core::socket::stream::tls::ssl_log_error("migration06 SSL/TLS: OpenSSL helper failed");
+    }
+    const auto opensslHelperLog = readFile(opensslHelperPath);
+    result.expectTrue(opensslHelperLog.find("migration06 SSL/TLS: OpenSSL helper failed") != std::string::npos &&
+                          opensslHelperLog.find("SSL routines") != std::string::npos,
+                      "OpenSSL helper severity mapping and queue-drain payload are preserved");
+
+    const auto opensslHelperFilterPath = tempLogPath("snodec-migration06-openssl-helper-filter.log");
+    {
+        LoggerStateGuard guard(opensslHelperFilterPath.string());
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Critical);
+        logger::LogManager::freeze();
+        ERR_new();
+        ERR_set_error(ERR_LIB_SSL, SSL_R_SSLV3_ALERT_HANDSHAKE_FAILURE, nullptr);
+        core::socket::stream::tls::ssl_log_warning("migration06 SSL/TLS: OpenSSL helper suppressed");
+    }
+    result.expectTrue(readFile(opensslHelperFilterPath).find("OpenSSL helper suppressed") == std::string::npos,
+                      "LogManager filtering suppresses 6b OpenSSL helper semantic calls");
 
     return result.processResult();
 }

@@ -2,14 +2,16 @@
 
 ## Implementation summary
 
-This is a clean inventory-only Migration 6 PR from the current local base that already contains PR #151, #154, #155, #156, #157, and #158. It does not duplicate any previous semantic logging PR.
+This is the accumulated Migration 6 PR from the current local base that already contains PR #151, #154, #155, #156, #157, and #158. It does not duplicate any previous semantic logging PR.
 
-The initial TLS socket-stream macro inventory found **67 production LOG/PLOG/VLOG call sites** under `src/core/socket/stream/tls`, which exceeds the stop/split threshold of 35 call sites. Per the Migration 6 instructions, this PR stops before production edits and recommends splitting the work into:
+The initial TLS socket-stream macro inventory found **67 production LOG/PLOG/VLOG call sites** under `src/core/socket/stream/tls`, which exceeds the stop/split threshold of 35 call sites. Per the Migration 6 instructions, the work was split and is being completed in staged follow-ups:
 
-- Migration 6a — TLS reader/writer I/O paths
-- Migration 6b — TLS handshake/shutdown/error helpers
+- Migration 6 inventory/split: done.
+- Migration 6a — TLS reader/writer I/O paths: done.
+- Migration 6b — TLS handshake/shutdown/OpenSSL helpers: done.
+- Migration 6c — TLS VLOG/unclear/SNI-overlap cleanup and final closure: still open.
 
-No TLS socket-stream production logging call sites were migrated in this inventory-only PR.
+This PR remains open until 6c is complete.
 
 ## Exact changed files
 
@@ -20,6 +22,10 @@ No TLS socket-stream production logging call sites were migrated in this invento
 - `src/core/socket/stream/tls/SocketWriter.cpp`
 - `tests/unit/log/CMakeLists.txt`
 - `tests/unit/log/TlsSocketStreamMigration06Test.cpp`
+- `src/core/socket/stream/tls/SocketConnection.hpp`
+- `src/core/socket/stream/tls/SocketConnector.hpp`
+- `src/core/socket/stream/tls/SocketAcceptor.hpp`
+- `src/core/socket/stream/tls/ssl_utils.cpp`
 
 ## Base verification result
 
@@ -98,7 +104,7 @@ src/core/socket/stream/tls/SocketAcceptor.hpp:146:                LOG(ERROR) << 
 src/core/socket/stream/tls/SocketAcceptor.hpp:169:                LOG(DEBUG) << connectionName << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
 src/core/socket/stream/tls/SocketAcceptor.hpp:172:                LOG(ERROR) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
 src/core/socket/stream/tls/SocketAcceptor.hpp:177:                LOG(WARNING) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
-src/core/socket/stream/tls/SocketAcceptor.hpp:181:            LOG(DEBUG) << connectionName << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
+src/core/socket/stream/tls/SocketAcceptor.hpp:189:            LOG(DEBUG) << connectionName << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
 src/core/socket/stream/tls/SocketWriter.cpp:71:                        LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
 src/core/socket/stream/tls/SocketWriter.cpp:74:                                LOG(DEBUG) << getName() << " SSL/TLS: Renegotiation on read success";
 src/core/socket/stream/tls/SocketWriter.cpp:77:                                LOG(WARNING) << getName() << " SSL/TLS: Renegotiation on read timed out";
@@ -159,40 +165,38 @@ Summary: TLS socket-stream files currently rely on connection and instance names
 
 ## Stop/split decision and reason
 
-The stop/split rule applies because the initial production macro inventory found 67 call sites, which is greater than the 35-call-site threshold. This PR therefore stops before editing production code and recommends splitting Migration 6 into smaller PRs:
+The stop/split rule applies because the initial production macro inventory found 67 call sites, which is greater than the 35-call-site threshold. The initial checkpoint therefore stopped before editing production code and split Migration 6 into staged follow-ups. Migration 6a and 6b are now implemented in this accumulated PR, while 6c remains open:
 
 1. Migration 6a — TLS reader/writer I/O paths
 2. Migration 6b — TLS handshake/shutdown/error helpers
 
 ## Post-migration TLS socket-stream inventory command/result
 
-No production migration was performed. The post-migration inventory is therefore expected to match the initial inventory: 67 call sites remain and are deferred to the split migrations.
+The original inventory/split checkpoint left all 67 call sites for the split migrations. Migration 6a reduced the reader/writer I/O subset, and Migration 6b reduced the handshake/shutdown/OpenSSL-helper subset. See the 6a and 6b sections below for current post-migration inventories.
 
 ## Migrated call-site table
 
-| Call site | Result |
-| --- | --- |
-| None | No call sites migrated because the stop/split threshold was exceeded. |
+The initial checkpoint migrated no call sites because the stop/split threshold was exceeded. Migration 6a has since migrated the reader/writer I/O subset, and Migration 6b has migrated the handshake/shutdown/OpenSSL-helper subset; see the dedicated sections below.
 
 ## Deferred call-site table
 
-All 67 initial `src/core/socket/stream/tls` call sites are deferred because the stop/split threshold was exceeded. The 10 `src/net/config/stream/tls` call sites are also deferred because TLS configuration/SNI logging is outside Migration 6.
+The initial checkpoint deferred all 67 `src/core/socket/stream/tls` call sites because the stop/split threshold was exceeded. Migration 6a and 6b have since migrated their scoped subsets. The 10 `src/net/config/stream/tls` call sites remain deferred because TLS configuration/SNI logging is outside Migration 6.
 
 ## Semantic owner(s) used or added
 
-None. No production files were modified and no semantic owner was added.
+The initial checkpoint added none. Migration 6a added TLS reader/writer owners, and this 6b follow-up uses existing socket connection/connector/acceptor owners plus a file-local TLS helper owner for `ssl_utils.cpp`.
 
 ## Severity mapping
 
-No severity mapping was applied in this inventory-only PR. Future split migrations should apply the requested `LOG(TRACE|DEBUG|INFO|WARNING|ERROR|FATAL)` to semantic `trace|debug|info|warn|error|critical` mapping, and `PLOG` to `sysError` only for errno-based call sites.
+The initial checkpoint applied no severity mapping. Migration 6a and 6b apply the requested `LOG(TRACE|DEBUG|INFO|WARNING|ERROR|FATAL)` to semantic `trace|debug|info|warn|error|critical` mapping, and `PLOG` to `sysError` only for errno-based call sites in their scoped subsets.
 
 ## PLOG/sysError errno handling
 
-No `PLOG` call sites were migrated. Future reader/writer migration should capture `errno` immediately after failed TLS read/write syscall conditions before formatting or helper calls.
+Migration 6a migrated errno-based reader/writer `PLOG` call sites and captured `errno` immediately after failed TLS read/write syscall conditions before formatting or helper calls. Migration 6b did not migrate additional `PLOG` call sites.
 
 ## OpenSSL error handling preservation
 
-No OpenSSL error-drain helpers were modified. Future migration must preserve `ERR_get_error()`, `ERR_error_string()`, `SSL_get_error()`, and existing OpenSSL error queue timing.
+Migration 6b migrated OpenSSL error-drain helpers while preserving `ERR_get_error()`, `ERR_error_string()`, `SSL_get_error()` payloads, and existing OpenSSL error queue timing.
 
 ## VLOG result
 
@@ -200,11 +204,11 @@ No `VLOG` call sites were found under `src/core/socket/stream/tls`.
 
 ## Message/identity preservation notes
 
-No messages were changed. Future migrations should preserve connection names, instance names, SSL state/error codes, OpenSSL reason strings, errno code/text, byte counts, handshake phase, shutdown phase, retry wants, and SNI/client-hello identity payloads where applicable.
+Migration 6a and 6b preserve connection names, instance names, SSL state/error codes, OpenSSL reason strings, errno code/text, byte counts, handshake phase, shutdown phase, retry wants, and SNI/client-hello identity payloads where applicable. Remaining SNI/client-hello overlap messages are deferred unchanged to 6c.
 
 ## Filter/backend/format compatibility
 
-No production semantic calls were added, so no new filter/backend/format compatibility behavior was introduced in this inventory-only PR. Split migrations should add focused tests for LogManager filtering, backend `Logger::setLogLevel` filtering, JSON format selection, sink overload compatibility, and suppressed expensive formatting.
+Migration 6a and 6b add production semantic calls in their scoped TLS socket-stream subsets. `TlsSocketStreamMigration06Test` covers LogManager filtering, backend `Logger::setLogLevel` filtering, JSON format selection, sink overload compatibility, OpenSSL-helper filtering, and suppressed expensive formatting.
 
 ## Production-scope confirmations
 
@@ -226,21 +230,21 @@ No production semantic calls were added, so no new filter/backend/format compati
 
 ## Build commands run
 
-No build was required for this inventory-only report. `git diff --check` was run.
+Compiled validation is now part of this accumulated PR. See the 6a and 6b sections for the current build commands and results.
 
 ## Test commands run
 
-No tests were required for this inventory-only report because no production or test code was changed.
+Compiled tests are now part of this accumulated PR. See the 6a and 6b sections for the current focused/full test commands and results.
 
 ## ASan result or exact reason not run
 
-ASan was not run because this PR is report-only and makes no compiled code changes.
+ASan validation is now tracked in the staged migration sections below.
 
 ## Known follow-ups
 
-- Start Migration 6a for TLS reader/writer I/O paths.
-- Start Migration 6b for TLS handshake/shutdown/OpenSSL error helpers.
-- Keep TLS configuration/SNI under `src/net/config/stream/tls` deferred unless a future dedicated migration includes it.
+- Migration 6b is implemented in this follow-up.
+- Migration 6c remains open for TLS VLOG/unclear/SNI-overlap cleanup and final Migration 6 closure.
+- Keep TLS configuration/SNI under `src/net/config/stream/tls` deferred unless 6c explicitly accepts a narrow overlap cleanup.
 
 ## Migration 6a — TLS reader/writer I/O paths
 
@@ -260,6 +264,10 @@ The migrated reader/writer call sites now emit through `log().trace`, `log().deb
 - `src/core/socket/stream/tls/SocketWriter.cpp`
 - `tests/unit/log/CMakeLists.txt`
 - `tests/unit/log/TlsSocketStreamMigration06Test.cpp`
+- `src/core/socket/stream/tls/SocketConnection.hpp`
+- `src/core/socket/stream/tls/SocketConnector.hpp`
+- `src/core/socket/stream/tls/SocketAcceptor.hpp`
+- `src/core/socket/stream/tls/ssl_utils.cpp`
 - `docs/logging/semantic-migration-06-tls-socket-stream-report.md`
 
 ### 6a worklist from the original inventory
@@ -349,7 +357,7 @@ rg -n "\b(LOG|PLOG|VLOG)\s*\(" \
   -g '*.h' -g '*.hpp' -g '*.cpp'
 ```
 
-Result: **56 call sites** remain after 6a. These are expected because 6b and 6c are not started.
+Result: **56 call sites** remained after 6a. These were expected at the 6a checkpoint because 6b and 6c were not started yet; the 6b section below records the current post-6b inventory.
 
 ```text
 src/core/socket/stream/tls/SocketConnection.hpp:169:                    LOG(DEBUG) << Super::getConnectionName() << " SSL/TLS: Passive close_notify received and sent";
@@ -407,12 +415,12 @@ src/core/socket/stream/tls/SocketAcceptor.hpp:146:                LOG(ERROR) << 
 src/core/socket/stream/tls/SocketAcceptor.hpp:169:                LOG(DEBUG) << connectionName << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
 src/core/socket/stream/tls/SocketAcceptor.hpp:172:                LOG(ERROR) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
 src/core/socket/stream/tls/SocketAcceptor.hpp:177:                LOG(WARNING) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
-src/core/socket/stream/tls/SocketAcceptor.hpp:181:            LOG(DEBUG) << connectionName << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
+src/core/socket/stream/tls/SocketAcceptor.hpp:189:            LOG(DEBUG) << connectionName << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
 ```
 
 ### Remaining work for 6b
 
-Migration 6b is not started. Remaining 6b work includes TLS handshake/connect/accept paths, TLS shutdown/close paths, and generic OpenSSL error-drain/error-reporting helpers while preserving OpenSSL error queue timing.
+Migration 6b has since been implemented in this accumulated PR; see the Migration 6b section below.
 
 ### Remaining work for 6c
 
@@ -436,3 +444,146 @@ The focused Migration 6 TLS socket-stream test was built and run under ASan:
 - `ASAN=$(gcc -print-file-name=libasan.so) LD_PRELOAD=$ASAN ctest --test-dir cmake-build-asan -R TlsSocketStreamMigration06Test --output-on-failure`
 
 Full ASan was not run in this 6a follow-up to keep the follow-up bounded; the required minimum focused ASan coverage for `TlsSocketStreamMigration06Test` passed.
+
+
+## Migration 6b — TLS handshake/shutdown/OpenSSL helpers
+
+### 6b implementation summary
+
+Migration 6 inventory/split is complete. Migration 6a is complete. Migration 6b is complete. Migration 6c is not started. The PR is intentionally still open until 6c is completed.
+
+Migration 6b migrates the TLS handshake/connect/accept paths, TLS shutdown/close_notify paths, SSL_CTX lifecycle logging inside `src/core/socket/stream/tls`, OpenSSL verification callback diagnostics, and OpenSSL error-drain helpers. It leaves SNI/client-hello/certificate-selection overlap sites for 6c.
+
+### 6b changed files
+
+- `src/core/socket/stream/tls/SocketConnection.hpp`
+- `src/core/socket/stream/tls/SocketConnector.hpp`
+- `src/core/socket/stream/tls/SocketAcceptor.hpp`
+- `src/core/socket/stream/tls/ssl_utils.cpp`
+- `tests/unit/log/TlsSocketStreamMigration06Test.cpp`
+- `docs/logging/semantic-migration-06-tls-socket-stream-report.md`
+
+### 6b worklist from the original inventory
+
+| Original call-site group | 6b decision |
+| --- | --- |
+| `SocketConnection.hpp` close_notify/shutdown/EOF logs | Migrated in 6b using the existing socket connection semantic owner. |
+| `SocketConnector.hpp` concrete connection handshake start/success/timeout/failure logs | Migrated in 6b using the concrete socket connection semantic owner. |
+| `SocketConnector.hpp` SSL_CTX creation lifecycle logs | Migrated in 6b using the existing connector semantic owner. |
+| `SocketAcceptor.hpp` concrete connection handshake start/success/timeout/failure logs | Migrated in 6b using the concrete socket connection semantic owner. |
+| `SocketAcceptor.hpp` SSL_CTX creation lifecycle logs | Migrated in 6b using the existing acceptor semantic owner. |
+| `ssl_utils.cpp` OpenSSL verification callback diagnostics | Migrated in 6b using a file-local TLS helper scope. |
+| `ssl_utils.cpp` SSL_CTX CA/certificate lifecycle logs | Migrated in 6b using a file-local TLS helper scope. |
+| `ssl_utils.cpp` `ssl_log_error`, `ssl_log_warning`, `ssl_log_info` queue-drain helpers | Migrated in 6b using a file-local TLS helper scope while preserving `ERR_get_error()` order. |
+| `SocketAcceptor.hpp` client-hello/SNI certificate-selection logs | Deferred to 6c. |
+| `src/net/config/stream/tls` TLS configuration/SNI logs | Deferred; outside 6b and not modified. |
+
+### 6b migrated call-site table
+
+| File | Original severity | New semantic call | Preservation notes |
+| --- | --- | --- | --- |
+| `SocketConnection.hpp` | `LOG(DEBUG)` | connection `log().debug` | Preserves passive/active close_notify messages and connection name. |
+| `SocketConnection.hpp` | `LOG(ERROR)` | connection `log().error` | Preserves shutdown timeout and unexpected EOF messages. |
+| `SocketConnector.hpp` | `LOG(TRACE)` | socket connection `log().trace` | Preserves handshake start and connection name. |
+| `SocketConnector.hpp` | `LOG(DEBUG)` | captured connection `BoundaryLogger::debug` | Preserves handshake success payload in callback context. |
+| `SocketConnector.hpp` | `LOG(ERROR)` | connection `log().error` / captured connection logger | Preserves handshake timeout/failure payloads. |
+| `SocketConnector.hpp` | `LOG(TRACE/DEBUG/ERROR)` | connector `this->log()` | Preserves connector SSL_CTX creation lifecycle and instance name. |
+| `SocketAcceptor.hpp` | `LOG(TRACE)` | socket connection `log().trace` | Preserves handshake start and connection name. |
+| `SocketAcceptor.hpp` | `LOG(DEBUG)` | captured connection `BoundaryLogger::debug` | Preserves handshake success payload in callback context. |
+| `SocketAcceptor.hpp` | `LOG(ERROR)` | connection `log().error` / captured connection logger | Preserves handshake timeout/failure payloads, including the original no-space timeout text. |
+| `SocketAcceptor.hpp` | `LOG(TRACE/DEBUG/ERROR)` | acceptor `this->log()` | Preserves acceptor SSL_CTX creation lifecycle and instance name. |
+| `ssl_utils.cpp` verify callback | `LOG(DEBUG)` | `tlsLog().debug` | Preserves connection name, verify depth, issuer, subject, and verify error reason text. |
+| `ssl_utils.cpp` SSL_CTX lifecycle | `LOG(TRACE)` | `tlsLog().trace` | Preserves instance names and CA/certificate/cert-key path detail lines. |
+| `ssl_utils.cpp` OpenSSL helpers | `LOG(ERROR/WARNING/INFO)` | `tlsLog().error/warn/info` | Preserves original message line plus first and remaining queued `ERR_error_string(...)` lines. |
+
+### 6b deferred call-site table
+
+| Call site group | Reason |
+| --- | --- |
+| `SocketAcceptor.hpp` SNI/client-hello certificate-selection logs | Deferred to 6c because they overlap SNI/configuration policy. |
+| `src/net/config/stream/tls` deferred inventory | Deferred to 6c or a future TLS configuration/SNI migration; these files remain untouched. |
+| VLOG cleanup | No VLOG sites were present in the post-6b core TLS inventory. |
+
+### Semantic owner(s) used or added for 6b
+
+- `SocketConnection.hpp` uses the existing socket-stream connection semantic owner via explicit `core::socket::stream::SocketConnection::log()` qualification to avoid ambiguity with the 6a reader/writer owners.
+- `SocketConnector.hpp` uses the concrete socket connection owner for per-connection handshake logs and the existing connector owner for SSL_CTX lifecycle logs.
+- `SocketAcceptor.hpp` uses the concrete socket connection owner for per-connection handshake logs and the existing acceptor owner for SSL_CTX lifecycle logs.
+- `ssl_utils.cpp` adds a file-local static `logger::LogScopeOwner` with framework / connection / `core.socket.stream.tls` scope for helper diagnostics that only receive message strings, instance names, or connection names.
+
+### Severity mapping
+
+| Original | 6b semantic mapping |
+| --- | --- |
+| `LOG(TRACE)` | `trace` |
+| `LOG(DEBUG)` | `debug` |
+| `LOG(INFO)` | `info` |
+| `LOG(WARNING)` | `warn` |
+| `LOG(ERROR)` | `error` |
+
+No 6b `PLOG` sites were present.
+
+### PLOG/sysError errno handling
+
+No errno-based `PLOG` call sites were part of Migration 6b. The 6a reader/writer `PLOG` migrations remain unchanged.
+
+### OpenSSL error handling preservation
+
+The OpenSSL helper migration preserves `ERR_get_error()` sequencing by reading the first queue entry before the first semantic error-detail line, then draining remaining entries in the existing loop shape. The original message line remains separate from the first and subsequent OpenSSL error-string lines. `ssl_log(...)` still preserves `errno` with `utils::PreserveErrno`, keeps the existing `SSL_ERROR_*` switch, and does not convert OpenSSL-only diagnostics into `sysError`.
+
+### SNI/overlap deferrals to 6c
+
+The remaining four macro call sites in `SocketAcceptor.hpp` are the client-hello/SNI certificate-selection overlap logs. They are intentionally deferred to 6c with their SNI names and certificate-selection message payloads preserved in place.
+
+### VLOG deferrals to 6c
+
+No `VLOG` call sites remain in `src/core/socket/stream/tls` after 6b.
+
+### Message/identity preservation notes
+
+6b preserves connection names, instance names, SSL_CTX creation/setup wording, handshake start/success/failure/timeout wording, shutdown/close_notify active/passive distinction, unexpected EOF text, verification depth, issuer/subject lines, and OpenSSL error-string payloads. Manual prefixes were retained where helper scopes do not safely carry a stable instance or connection identity.
+
+### Post-6b inventory
+
+Command:
+
+```sh
+rg -n "\b(LOG|PLOG|VLOG)\s*\(" \
+  src/core/socket/stream/tls \
+  -g '*.h' -g '*.hpp' -g '*.cpp'
+```
+
+Result: **4 call sites** remain after 6b. These are the expected SNI/client-hello/certificate-selection overlap sites for 6c.
+
+```text
+src/core/socket/stream/tls/SocketAcceptor.hpp:177:                LOG(DEBUG) << connectionName << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
+src/core/socket/stream/tls/SocketAcceptor.hpp:180:                LOG(ERROR) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
+src/core/socket/stream/tls/SocketAcceptor.hpp:185:                LOG(WARNING) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
+src/core/socket/stream/tls/SocketAcceptor.hpp:189:            LOG(DEBUG) << connectionName << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
+```
+
+### Tests run
+
+- `git status --short`
+- `git diff --name-only master...HEAD`
+- `git diff --check`
+- `rg -n "\b(LOG|PLOG|VLOG)\s*\(" src/core/socket/stream/tls -g '*.h' -g '*.hpp' -g '*.cpp'`
+- `clang-format -i src/core/socket/stream/tls/SocketConnection.hpp src/core/socket/stream/tls/SocketConnector.hpp src/core/socket/stream/tls/SocketAcceptor.hpp src/core/socket/stream/tls/ssl_utils.cpp tests/unit/log/TlsSocketStreamMigration06Test.cpp`
+- `cmake -S . -B cmake-build -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON`
+- `cmake --build cmake-build --parallel 2`
+- `ctest --test-dir cmake-build -R "SemanticLoggerRound2Test|LogScopeOwnerRound3Test|ProductionLogApiRound4Test|SocketEndpointLogApiRound5Test|SemanticBackendRound6Test|SemanticFilterRound7Test|ControlledMigrationRound8Test|SemanticCompatibilityRound9Test|SemanticOverheadRound9Test|SemanticProductionThresholdRepairTest|SocketConnectionMigration01Test|SocketConnectorAcceptorMigration02Test|SocketServerClientMigration03Test|CoreRuntimeMigration04Test|NetPhysicalSocketMigration05Test|TlsSocketStreamMigration06Test" --output-on-failure`
+- `ctest --test-dir cmake-build --output-on-failure`
+
+### ASan result or exact reason not run
+
+The focused Migration 6 TLS socket-stream test was built and run under ASan:
+
+- `cmake -S . -B cmake-build-asan -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON -DSNODEC_ENABLE_ASAN=ON`
+- `cmake --build cmake-build-asan --parallel 2 --target TlsSocketStreamMigration06Test`
+- `ASAN=$(gcc -print-file-name=libasan.so) LD_PRELOAD=$ASAN ctest --test-dir cmake-build-asan -R TlsSocketStreamMigration06Test --output-on-failure`
+
+Full ASan was not run in this 6b follow-up to keep the follow-up bounded; the required minimum focused ASan coverage for `TlsSocketStreamMigration06Test` passed.
+
+### Remaining work for 6c
+
+Migration 6c remains open for TLS VLOG/unclear/SNI-overlap cleanup and final Migration 6 closure. The remaining core TLS macro inventory is limited to SNI/client-hello/certificate-selection overlap sites in `SocketAcceptor.hpp`; the deferred `src/net/config/stream/tls` inventory remains outside 6b and was not modified.
