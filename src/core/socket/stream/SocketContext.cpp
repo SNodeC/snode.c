@@ -64,13 +64,15 @@ namespace core::socket::stream {
         , applicationLogScope(logger::LogOrigin::Application,
                               logger::LogBoundary::Context,
                               "core.socket.context",
-                              socketConnection->getInstanceName().empty() ? std::nullopt : std::optional<std::string>(socketConnection->getInstanceName()),
+                              socketConnection->getInstanceName().empty() ? std::nullopt
+                                                                          : std::optional<std::string>(socketConnection->getInstanceName()),
                               std::nullopt,
                               socketConnection->getConnectionName())
         , frameworkLogScope(logger::LogOrigin::Framework,
                             logger::LogBoundary::Context,
                             "core.socket.context",
-                            socketConnection->getInstanceName().empty() ? std::nullopt : std::optional<std::string>(socketConnection->getInstanceName()),
+                            socketConnection->getInstanceName().empty() ? std::nullopt
+                                                                        : std::optional<std::string>(socketConnection->getInstanceName()),
                             std::nullopt,
                             socketConnection->getConnectionName())
         , onlineSinceTimePoint(std::chrono::system_clock::now()) {
@@ -83,22 +85,24 @@ namespace core::socket::stream {
     logger::BoundaryLogger SocketContext::log() const {
         // Round 6 backend-backed default semantic logger.
         // The sink-taking overload remains available for tests and custom capture.
-        // Startup semantic filter configuration is deferred to Round 7.
-        return log(logger::Logger::semanticSink());
+        // Production default logger uses the frozen startup semantic policy as its local threshold.
+        return applicationLogScope.logger(logger::Logger::semanticSink());
     }
 
-    logger::BoundaryLogger SocketContext::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+    logger::BoundaryLogger
+    SocketContext::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
         return applicationLogScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
     logger::BoundaryLogger SocketContext::frameworkLog() const {
         // Round 6 backend-backed default semantic logger.
         // The sink-taking overload remains available for tests and custom capture.
-        // Startup semantic filter configuration is deferred to Round 7.
-        return frameworkLog(logger::Logger::semanticSink());
+        // Production default logger uses the frozen startup semantic policy as its local threshold.
+        return frameworkLogScope.logger(logger::Logger::semanticSink());
     }
 
-    logger::BoundaryLogger SocketContext::frameworkLog(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+    logger::BoundaryLogger
+    SocketContext::frameworkLog(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
         return frameworkLogScope.logger(std::move(sink), threshold, std::move(clock));
     }
 

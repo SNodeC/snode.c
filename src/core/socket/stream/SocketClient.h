@@ -57,7 +57,7 @@
 #include "utils/Random.h"
 
 #include <algorithm>
-#include <functional>  // IWYU pragma: export
+#include <functional> // IWYU pragma: export
 #include <optional>
 #include <type_traits> // IWYU pragma: export
 
@@ -301,12 +301,11 @@ namespace core::socket::stream {
             return connect(remoteAddress, onStatus);
         }
 
-
         logger::BoundaryLogger log() const {
             // Round 6 backend-backed default semantic logger.
             // The sink-taking overload remains available for tests and custom capture.
-            // Startup semantic filter configuration is deferred to Round 7.
-            return log(logger::Logger::semanticSink());
+            // Production default logger uses the frozen startup semantic policy as its local threshold.
+            return logScope.logger(logger::Logger::semanticSink());
         }
 
         logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
@@ -367,7 +366,6 @@ namespace core::socket::stream {
         }
 
     private:
-
         static logger::LogScopeOwner makeLogScope(const std::string& instanceName) {
             return logger::LogScopeOwner(logger::LogOrigin::Framework,
                                          logger::LogBoundary::Instance,

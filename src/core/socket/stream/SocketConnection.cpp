@@ -123,11 +123,12 @@ namespace core::socket::stream {
     logger::BoundaryLogger SocketConnection::log() const {
         // Round 6 backend-backed default semantic logger.
         // The sink-taking overload remains available for tests and custom capture.
-        // Startup semantic filter configuration is deferred to Round 7.
-        return log(logger::Logger::semanticSink());
+        // Production default logger uses the frozen startup semantic policy as its local threshold.
+        return logScope.logger(logger::Logger::semanticSink());
     }
 
-    logger::BoundaryLogger SocketConnection::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+    logger::BoundaryLogger
+    SocketConnection::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
         return logScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
