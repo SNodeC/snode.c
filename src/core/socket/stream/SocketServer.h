@@ -124,41 +124,41 @@ namespace core::socket::stream {
             , sharedContext(std::make_shared<Context>(
                   this->config,
                   std::make_shared<SocketContextFactory>(std::forward<Args>(args)...),
-                  [onConnect](SocketConnection* socketConnection) { // onConnect
-                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";
+                  [onConnect, log = this->log()](SocketConnection* socketConnection) { // onConnect
+                      log.debug("{}: OnConnect", socketConnection->getConnectionName());
 
-                      LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+                      log.debug("Local: {}", socketConnection->getLocalAddress().toString());
+                      log.debug("Peer: {}", socketConnection->getRemoteAddress().toString());
 
                       if (onConnect) {
                           onConnect(socketConnection);
                       }
                   },
-                  [onConnected](SocketConnection* socketConnection) { // onConnected
-                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnected";
+                  [onConnected, log = this->log()](SocketConnection* socketConnection) { // onConnected
+                      log.debug("{}: OnConnected", socketConnection->getConnectionName());
 
-                      LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+                      log.debug("Local: {}", socketConnection->getLocalAddress().toString());
+                      log.debug("Peer: {}", socketConnection->getRemoteAddress().toString());
 
                       if (onConnected) {
                           onConnected(socketConnection);
                       }
                   },
-                  [onDisconnect](SocketConnection* socketConnection) { // onDisconnect
-                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnDisconnect";
+                  [onDisconnect, log = this->log()](SocketConnection* socketConnection) { // onDisconnect
+                      log.debug("{}: OnDisconnect", socketConnection->getConnectionName());
 
-                      LOG(DEBUG) << "            Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(DEBUG) << "             Peer: " << socketConnection->getRemoteAddress().toString();
+                      log.debug("Local: {}", socketConnection->getLocalAddress().toString());
+                      log.debug("Peer: {}", socketConnection->getRemoteAddress().toString());
 
-                      LOG(DEBUG) << "     Online Since: " << socketConnection->getOnlineSince();
-                      LOG(DEBUG) << "  Online Duration: " << socketConnection->getOnlineDuration();
+                      log.debug("Online Since: {}", socketConnection->getOnlineSince());
+                      log.debug("Online Duration: {}", socketConnection->getOnlineDuration());
 
-                      LOG(DEBUG) << "     Total Queued: " << socketConnection->getTotalQueued();
-                      LOG(DEBUG) << "       Total Sent: " << socketConnection->getTotalSent();
-                      LOG(DEBUG) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
-                      LOG(DEBUG) << "       Total Read: " << socketConnection->getTotalRead();
-                      LOG(DEBUG) << "  Total Processed: " << socketConnection->getTotalProcessed();
-                      LOG(DEBUG) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
+                      log.debug("Total Queued: {}", socketConnection->getTotalQueued());
+                      log.debug("Total Sent: {}", socketConnection->getTotalSent());
+                      log.debug("Write Delta: {}", socketConnection->getTotalQueued() - socketConnection->getTotalSent());
+                      log.debug("Total Read: {}", socketConnection->getTotalRead());
+                      log.debug("Total Processed: {}", socketConnection->getTotalProcessed());
+                      log.debug("Read Delta: {}", socketConnection->getTotalRead() - socketConnection->getTotalProcessed());
 
                       if (onDisconnect) {
                           onDisconnect(socketConnection);
@@ -186,9 +186,9 @@ namespace core::socket::stream {
                                        unsigned int tries,
                                        double retryTimeoutScale) const {
             sharedContext->flowController.startFlow(
-                [config = this->config, sharedContext = this->sharedContext, onStatus, tries, retryTimeoutScale] {
+                [config = this->config, sharedContext = this->sharedContext, log = this->log(), onStatus, tries, retryTimeoutScale] {
                     if (config->Instance::getParent() != nullptr || !config->Instance::getRequired()) {
-                        LOG(DEBUG) << config->getInstanceName() << ": Initiating listen";
+                        log.debug("Initiating listen");
 
                         if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
                             new SocketAcceptor(
@@ -199,8 +199,8 @@ namespace core::socket::stream {
                                 [sharedContext](core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
                                     sharedContext->flowController.observeAcceptEventReceiver(acceptEventReceiver);
                                 },
-                                [config, sharedContext, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
-                                                                                            core::socket::State state) {
+                                [config, sharedContext, log, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
+                                                                                                 core::socket::State state) {
                                     const bool retryFlag = (state & core::socket::State::NO_RETRY) == 0;
                                     state &= ~core::socket::State::NO_RETRY;
                                     onStatus(socketAddress, state);
@@ -219,12 +219,11 @@ namespace core::socket::stream {
                                             utils::Random::getInRange(-config->getRetryJitter(), config->getRetryJitter()) *
                                             relativeRetryTimeout / 100.;
 
-                                        LOG(INFO)
-                                            << config->getInstanceName() << ": Retry listen in " << relativeRetryTimeout << " seconds";
+                                        log.info("Retry listen in {} seconds", relativeRetryTimeout);
 
                                         sharedContext->flowController.armRetryTimer(
                                             relativeRetryTimeout,
-                                            [config, sharedContext, /*generation,*/ onStatus, tries, retryTimeoutScale]() {
+                                            [config, sharedContext, log, /*generation,*/ onStatus, tries, retryTimeoutScale]() {
                                                 if (!sharedContext->flowController.isRetryEnabled()) {
                                                     return;
                                                 }
@@ -233,7 +232,7 @@ namespace core::socket::stream {
                                                     SocketServer(config, sharedContext)
                                                         .realListen(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
                                                 } else {
-                                                    LOG(INFO) << config->getInstanceName() << ": Retry listen disabled during wait";
+                                                    log.info("Retry listen disabled during wait");
                                                 }
                                             });
                                     }
@@ -241,7 +240,7 @@ namespace core::socket::stream {
                                 config);
                         }
                     } else {
-                        LOG(FATAL) << config->getInstanceName() << " required";
+                        log.critical("{} required", config->getInstanceName());
                     }
                 });
 
