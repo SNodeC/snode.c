@@ -171,5 +171,16 @@ int main() {
     }
     result.expectTrue(!expensiveDumpBuilt, "expensive payload/dump guard suppresses construction when disabled");
 
+    bool webSocketDumpBuilt = false;
+    const auto webSocketLog = iot::mqtt::semantic::mqttWebSocketLog(
+        [](logger::LogRecord) {
+        },
+        logger::LogLevel::Error);
+    if (webSocketLog.enabled(logger::LogLevel::Debug)) {
+        webSocketDumpBuilt = true;
+        webSocketLog.debug("WsMqtt: Frame Data:\n{}", "expensive hex dump");
+    }
+    result.expectTrue(!webSocketDumpBuilt, "WsMqtt frame dump guard suppresses construction when debug is disabled");
+
     return result.processResult();
 }

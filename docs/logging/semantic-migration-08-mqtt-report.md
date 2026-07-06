@@ -137,7 +137,7 @@ The WebSocket subprotocol call sites inside `src/iot/mqtt/SubProtocol.hpp` were 
 
 ## Expensive payload / dump guard notes
 
-Hex-dump and serialized-packet payloads that call `toHexString(...)` or `serializeVP()` are guarded with `enabled(...)` checks before constructing expensive strings. Retained-message and subscription-message dumps are guarded at the corresponding info/debug levels. `MqttMigration08Test` includes an explicit disabled expensive-dump guard assertion.
+Hex-dump and serialized-packet payloads that call `toHexString(...)` or `serializeVP()` are guarded with `enabled(...)` checks before constructing expensive strings. Retained-message and subscription-message dumps are guarded at the corresponding info/debug levels. The MQTT-over-WebSocket `WsMqtt: Frame Data` dump in `src/iot/mqtt/SubProtocol.hpp` is guarded at `Debug` before constructing `std::vector<char>`, calling `utils::hexDump(...)`, or building the padded string. `MqttMigration08Test` includes explicit disabled expensive-dump guard assertions, including a WebSocket frame-dump guard simulation.
 
 ## Post-migration inventory command/result
 

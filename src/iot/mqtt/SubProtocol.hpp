@@ -125,9 +125,11 @@ namespace iot::mqtt {
     void SubProtocol<WSSubProtocolRole>::onMessageData(const char* chunk, std::size_t chunkLen) {
         data.append(std::string(chunk, chunkLen));
 
-        iot::mqtt::semantic::mqttWebSocketLog().debug()
-            << getSocketConnection()->getConnectionName() << " WsMqtt: Frame Data:\n"
-            << std::string(32, ' ').append(utils::hexDump(std::vector<char>(chunk, chunk + chunkLen), 32));
+        auto log = iot::mqtt::semantic::mqttWebSocketLog();
+        if (log.enabled(logger::LogLevel::Debug)) {
+            log.debug() << getSocketConnection()->getConnectionName() << " WsMqtt: Frame Data:\n"
+                        << std::string(32, ' ').append(utils::hexDump(std::vector<char>(chunk, chunk + chunkLen), 32));
+        }
     }
 
     template <typename WSSubProtocolRole>
