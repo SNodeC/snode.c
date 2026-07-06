@@ -43,6 +43,7 @@
 #define CORE_TIMEREVENTRECEIVER_H
 
 #include "core/EventReceiver.h"
+#include "log/LogScopeOwner.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -74,6 +75,11 @@ namespace core {
         utils::Timeval getTimeoutAbsolut() const;
         utils::Timeval getTimeoutRelative(const utils::Timeval& currentTime) const;
 
+        logger::BoundaryLogger log() const;
+        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
+                                   logger::LogLevel threshold = logger::LogLevel::Trace,
+                                   logger::BoundaryLogger::Clock clock = {}) const;
+
         void enable();
         void update();
         void cancel();
@@ -87,6 +93,7 @@ namespace core {
         void setTimer(Timer* timer);
 
         TimerEventPublisher& timerEventPublisher;
+        logger::LogScopeOwner logScope;
 
         Timer* timer = nullptr;
         utils::Timeval absoluteTimeout;

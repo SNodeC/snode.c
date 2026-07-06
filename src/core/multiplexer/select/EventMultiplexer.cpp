@@ -44,6 +44,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/select.h"
+#include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 #include "utils/Timeval.h"
 
@@ -61,6 +62,17 @@ core::EventMultiplexer& EventMultiplexer() {
 
 namespace core::multiplexer::select {
 
+    namespace {
+        const logger::LogScopeOwner& muxLogScope() {
+            static const logger::LogScopeOwner scope(logger::LogOrigin::Framework, logger::LogBoundary::System, "core.mux", "select");
+            return scope;
+        }
+
+        logger::BoundaryLogger muxLog() {
+            return muxLogScope().logger(logger::Logger::semanticSink());
+        }
+    } // namespace
+
     EventMultiplexer::EventMultiplexer()
         : core::EventMultiplexer(new core::multiplexer::select::DescriptorEventPublisher("READ", //
                                                                                          fdSets[core::EventMultiplexer::DISP_TYPE::RD]),
@@ -68,7 +80,7 @@ namespace core::multiplexer::select {
                                                                                          fdSets[core::EventMultiplexer::DISP_TYPE::WR]),
                                  new core::multiplexer::select::DescriptorEventPublisher("EXCEPT", //
                                                                                          fdSets[core::EventMultiplexer::DISP_TYPE::EX])) {
-        LOG(DEBUG) << "Core::multiplexer: select";
+        muxLog().debug("Core::multiplexer: select");
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {

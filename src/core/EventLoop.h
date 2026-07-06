@@ -44,6 +44,7 @@
 
 #include "core/State.h" // IWYU pragma: export
 #include "core/TickStatus.h"
+#include "log/LogScopeOwner.h"
 
 namespace core {
     class EventMultiplexer;
@@ -75,6 +76,11 @@ namespace core {
         static unsigned long getTickCounter();
         EventMultiplexer& getEventMultiplexer();
 
+        logger::BoundaryLogger log() const;
+        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
+                                   logger::LogLevel threshold = logger::LogLevel::Trace,
+                                   logger::BoundaryLogger::Clock clock = {}) const;
+
         static core::State getEventLoopState();
 
     private:
@@ -89,6 +95,7 @@ namespace core {
         static void stoponsig(int sig);
 
         core::EventMultiplexer& eventMultiplexer;
+        logger::LogScopeOwner logScope;
 
         static int stopsig;
 

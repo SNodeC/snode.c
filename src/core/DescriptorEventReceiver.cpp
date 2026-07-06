@@ -48,6 +48,7 @@
 #include "log/Logger.h"
 
 #include <climits>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -77,12 +78,22 @@ namespace core {
                                                      const utils::Timeval& timeout)
         : EventReceiver(name)
         , descriptorEventPublisher(descriptorEventPublisher)
+        , logScope(logger::LogOrigin::Framework, logger::LogBoundary::System, "core.eventreceiver", name)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }
 
     int DescriptorEventReceiver::getRegisteredFd() const {
         return observedFd;
+    }
+
+    logger::BoundaryLogger DescriptorEventReceiver::log() const {
+        return logScope.logger(logger::Logger::semanticSink());
+    }
+
+    logger::BoundaryLogger
+    DescriptorEventReceiver::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+        return logScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
     bool DescriptorEventReceiver::isEnabled() const {
@@ -99,9 +110,9 @@ namespace core {
 
             enabled = true;
             descriptorEventPublisher.enable(this);
-            LOG(TRACE) << getName() << ": Enabled";
+            log().trace("{}: Enabled", getName());
         } else {
-            LOG(WARNING) << getName() << ": Double enable";
+            log().warn("{}: Double enable", getName());
         }
 
         return enabled;
@@ -111,9 +122,9 @@ namespace core {
         if (enabled) {
             enabled = false;
             descriptorEventPublisher.disable(this);
-            LOG(TRACE) << getName() << ": Disabled";
+            log().trace("{}: Disabled", getName());
         } else {
-            LOG(WARNING) << getName() << ": Double disable";
+            log().warn("{}: Double disable", getName());
         }
     }
 
@@ -123,10 +134,10 @@ namespace core {
                 suspended = true;
                 descriptorEventPublisher.suspend(this);
             } else {
-                LOG(WARNING) << getName() << ": Double suspend";
+                log().warn("{}: Double suspend", getName());
             }
         } else {
-            LOG(WARNING) << getName() << ": Suspend while not enabled";
+            log().warn("{}: Suspend while not enabled", getName());
         }
     }
 
@@ -137,10 +148,10 @@ namespace core {
                 lastTriggered = utils::Timeval::currentTime();
                 descriptorEventPublisher.resume(this);
             } else {
-                LOG(WARNING) << getName() << ": Double resume";
+                log().warn("{}: Double resume", getName());
             }
         } else {
-            LOG(WARNING) << getName() << ": Resume while not enabled";
+            log().warn("{}: Resume while not enabled", getName());
         }
     }
 

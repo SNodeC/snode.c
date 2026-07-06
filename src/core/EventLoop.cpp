@@ -50,7 +50,9 @@
 #include "utils/Timeval.h"
 #include "utils/system/signal.h"
 
+#include <cerrno>
 #include <chrono>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -71,7 +73,8 @@ namespace core {
     }
 
     EventLoop::EventLoop()
-        : eventMultiplexer(::EventMultiplexer()) {
+        : eventMultiplexer(::EventMultiplexer())
+        , logScope(logger::LogOrigin::Framework, logger::LogBoundary::System, "core.event-loop") {
     }
 
     EventLoop& EventLoop::instance() {
@@ -86,6 +89,15 @@ namespace core {
 
     EventMultiplexer& EventLoop::getEventMultiplexer() {
         return eventMultiplexer;
+    }
+
+    logger::BoundaryLogger EventLoop::log() const {
+        return logScope.logger(logger::Logger::semanticSink());
+    }
+
+    logger::BoundaryLogger
+    EventLoop::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+        return logScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
     State EventLoop::getEventLoopState() {
@@ -119,7 +131,7 @@ namespace core {
         if (utils::Config::init(argc, argv)) {
             eventLoopState = State::INITIALIZED;
 
-            LOG(TRACE) << "SNode.C: Starting ... HELLO";
+            EventLoop::instance().log().trace("SNode.C: Starting ... HELLO");
         }
 
         sigaction(SIGPIPE, &oldPipeAct, nullptr);
@@ -173,7 +185,11 @@ namespace core {
             EventLoop::instance().eventMultiplexer.clearEventQueue();
             free();
 
-            PLOG(FATAL) << "Core: not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().";
+            const int errnum = errno;
+            EventLoop::instance().log().sysError(
+                logger::LogLevel::Critical,
+                errnum,
+                "Core: not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().");
         }
 
         return tickStatus;
@@ -207,7 +223,7 @@ namespace core {
                 eventLoopState = State::RUNNING;
                 core::TickStatus tickStatus = TickStatus::SUCCESS;
 
-                LOG(TRACE) << "Core::EventLoop: started";
+                EventLoop::instance().log().trace("Core::EventLoop: started");
 
                 do {
                     tickStatus = EventLoop::instance()._tick(timeOut);
@@ -215,16 +231,17 @@ namespace core {
 
                 switch (tickStatus) {
                     case TickStatus::SUCCESS:
-                        LOG(TRACE) << "Core::EventLoop: Stopped";
+                        EventLoop::instance().log().trace("Core::EventLoop: Stopped");
                         break;
                     case TickStatus::NOOBSERVER:
-                        LOG(TRACE) << "Core::EventLoop: No Observer";
+                        EventLoop::instance().log().trace("Core::EventLoop: No Observer");
                         break;
                     case TickStatus::INTERRUPTED:
-                        LOG(TRACE) << "Core::EventLoop: Interrupted";
+                        EventLoop::instance().log().trace("Core::EventLoop: Interrupted");
                         break;
                     case TickStatus::TRACE:
-                        PLOG(FATAL) << "Core::EventLoop: _tick()";
+                        const int errnum = errno;
+                        EventLoop::instance().log().sysError(logger::LogLevel::Critical, errnum, "Core::EventLoop: _tick()");
                         break;
                 }
             } else {
@@ -258,7 +275,7 @@ namespace core {
         }
 
         if (stopsig != 0) {
-            LOG(TRACE) << "Core: Sending signal " << signal << " to all DescriptorEventReceivers";
+            EventLoop::instance().log().trace("Core: Sending signal {} to all DescriptorEventReceivers", signal);
 
             EventLoop::instance().eventMultiplexer.signal(stopsig);
         }
@@ -267,7 +284,7 @@ namespace core {
 
         utils::Timeval timeout = 2;
 
-        LOG(TRACE) << "Core: Terminate all stalled DescriptorEventReceivers";
+        EventLoop::instance().log().trace("Core: Terminate all stalled DescriptorEventReceivers");
 
         EventLoop::instance().eventMultiplexer.terminate();
 
@@ -284,18 +301,18 @@ namespace core {
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS));
 
-        LOG(TRACE) << "Core: Shutdown config system";
+        EventLoop::instance().log().trace("Core: Shutdown config system");
 
         utils::Config::terminate();
 
-        LOG(TRACE) << "Core: All resources released";
+        EventLoop::instance().log().trace("Core: All resources released");
 
-        LOG(TRACE) << "SNode.C: Ended ... BYE";
+        EventLoop::instance().log().trace("SNode.C: Ended ... BYE");
     }
 
     void EventLoop::stoponsig(int sig) {
-        LOG(TRACE) << "Core: Received signal '" << utils::system::strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = "
-                   << sig << ")";
+        EventLoop::instance().log().trace(
+            "Core: Received signal '{}' (SIG{} = {})", utils::system::strsignal(sig), utils::system::sigabbrev_np(sig), sig);
         stopsig = sig;
         stop();
     }
