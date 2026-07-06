@@ -46,6 +46,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 #include "utils/Timeval.h"
 
@@ -65,6 +66,17 @@ core::EventMultiplexer& EventMultiplexer() {
 }
 
 namespace core::multiplexer::poll {
+
+    namespace {
+        const logger::LogScopeOwner& muxLogScope() {
+            static const logger::LogScopeOwner scope(logger::LogOrigin::Framework, logger::LogBoundary::System, "core.mux", "poll");
+            return scope;
+        }
+
+        logger::BoundaryLogger muxLog() {
+            return muxLogScope().logger(logger::Logger::semanticSink());
+        }
+    } // namespace
 
     PollFdsManager::PollFdsManager() {
         pollfds.resize(1, {-1, 0, 0});
@@ -163,7 +175,7 @@ namespace core::multiplexer::poll {
                                                                                        pollFdsManager,
                                                                                        POLLPRI,
                                                                                        POLLPRI)) {
-        LOG(DEBUG) << "Core::multiplexer: poll";
+        muxLog().debug("Core::multiplexer: poll");
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {

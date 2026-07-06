@@ -43,6 +43,7 @@
 #define CORE_DESCRIPTOREVENTRECEIVER_H
 
 #include "core/EventReceiver.h" // IWYU pragma: export
+#include "log/LogScopeOwner.h"
 
 namespace core {
     class DescriptorEventPublisher;
@@ -97,6 +98,11 @@ namespace core {
         bool isEnabled() const;
         bool isSuspended() const;
 
+        logger::BoundaryLogger log() const;
+        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
+                                   logger::LogLevel threshold = logger::LogLevel::Trace,
+                                   logger::BoundaryLogger::Clock clock = {}) const;
+
     protected:
         bool enable(int fd);
         void disable();
@@ -122,6 +128,7 @@ namespace core {
         virtual void signalEvent(int signum) = 0;
 
         DescriptorEventPublisher& descriptorEventPublisher;
+        logger::LogScopeOwner logScope;
 
         int observedFd = -1;
 

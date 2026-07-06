@@ -45,6 +45,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 #include "utils/Timeval.h"
 
@@ -60,6 +61,17 @@ core::EventMultiplexer& EventMultiplexer() {
 }
 
 namespace core::multiplexer::epoll {
+
+    namespace {
+        const logger::LogScopeOwner& muxLogScope() {
+            static const logger::LogScopeOwner scope(logger::LogOrigin::Framework, logger::LogBoundary::System, "core.mux", "epoll");
+            return scope;
+        }
+
+        logger::BoundaryLogger muxLog() {
+            return muxLogScope().logger(logger::Logger::semanticSink());
+        }
+    } // namespace
 
     EventMultiplexer::EventMultiplexer()
         : core::EventMultiplexer(new core::multiplexer::epoll::DescriptorEventPublisher("READ", //
@@ -87,7 +99,7 @@ namespace core::multiplexer::epoll {
         event.data.ptr = descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::EX];
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::EventMultiplexer::DISP_TYPE::EX], &event);
 
-        LOG(DEBUG) << "Core::multiplexer: epoll";
+        muxLog().debug("Core::multiplexer: epoll");
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeout, const sigset_t& sigMask) {

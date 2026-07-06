@@ -50,6 +50,8 @@
 
 #include "log/Logger.h"
 
+#include <utility>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -57,6 +59,7 @@ namespace core {
     TimerEventReceiver::TimerEventReceiver(const std::string& name, const utils::Timeval& delay)
         : EventReceiver(name)
         , timerEventPublisher(EventLoop::instance().getEventMultiplexer().getTimerEventPublisher())
+        , logScope(logger::LogOrigin::Framework, logger::LogBoundary::System, "core.timer", name)
         , absoluteTimeout(utils::Timeval::currentTime() + delay)
         , delay(delay) {
     }
@@ -73,6 +76,15 @@ namespace core {
         }
     }
 
+    logger::BoundaryLogger TimerEventReceiver::log() const {
+        return logScope.logger(logger::Logger::semanticSink());
+    }
+
+    logger::BoundaryLogger
+    TimerEventReceiver::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
+        return logScope.logger(std::move(sink), threshold, std::move(clock));
+    }
+
     utils::Timeval TimerEventReceiver::getTimeoutAbsolut() const {
         return absoluteTimeout;
     }
@@ -85,7 +97,7 @@ namespace core {
         if (core::eventLoopState() != core::State::STOPPING) {
             timerEventPublisher.insert(this);
         } else {
-            LOG(WARNING) << "TimerEventReceiver - Enable after signal: Not enabled";
+            log().warn("TimerEventReceiver - Enable after signal: Not enabled");
             delete this;
         }
     }
@@ -101,7 +113,7 @@ namespace core {
     }
 
     void TimerEventReceiver::onEvent(const utils::Timeval& currentTime) {
-        LOG(TRACE) << "TimerEventReceiver: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).getMsd() << " ms";
+        log().trace("TimerEventReceiver: Dispatch delta = {} ms", (currentTime - getTimeoutAbsolut()).getMsd());
 
         dispatchEvent();
     }
