@@ -91,6 +91,7 @@ namespace core::socket::stream {
 
         logger::BoundaryLogger log() const {
             // Round 6 backend-backed default semantic logger.
+            // Migration 02 keeps SocketConnector production logging on this object-owned semantic scope.
             // The sink-taking overload remains available for tests and custom capture.
             // Production default logger uses the frozen startup semantic policy as its local threshold.
             return logScope.logger(logger::Logger::semanticSink());
