@@ -42,13 +42,14 @@
 #include "web/websocket/client/SubProtocolFactorySelector.h"
 
 #include "utils/Config.h"
+#include "web/websocket/SemanticLog.h"
 #include "web/websocket/SubProtocolFactory.h"
 #include "web/websocket/SubProtocolFactorySelector.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #if !defined(NDEBUG)
-#include "log/Logger.h"
+#include "log/SemanticLogger.h"
 
 #include <cstdlib>
 #endif
@@ -80,7 +81,7 @@ namespace web::websocket::client {
 
 #if !defined(NDEBUG)
         if (const char* websocketSubprotocolInstallLibdirEnv = std::getenv("WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR")) {
-            LOG(WARNING) << "WebSocket: Overriding websocket subprotocol library dir";
+            semantic::webSocketFactoryLog().warn() << "WebSocket: Overriding websocket subprotocol library dir";
             websocketSubprotocolInstallLibdir = std::string(websocketSubprotocolInstallLibdirEnv);
         }
 #endif

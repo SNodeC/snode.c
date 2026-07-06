@@ -42,6 +42,7 @@
 #ifndef WEB_HTTP_LEGACY_IN_EVENTSOURCE_H
 #define WEB_HTTP_LEGACY_IN_EVENTSOURCE_H
 
+#include "web/http/client/SemanticLog.h"
 #include "web/http/client/tools/EventSource.h"
 #include "web/http/legacy/in/Client.h"
 
@@ -107,10 +108,10 @@ namespace web::http::legacy::in {
             if (scheme == "http") {
                 eventSource = EventSource(scheme, net::in::SocketAddress(host, port), path + query);
             } else {
-                LOG(ERROR) << "Scheme not valid: " << scheme;
+                web::http::client::semantic::httpClientEventSourceLog().error() << "Scheme not valid: " << scheme;
             }
         } else {
-            LOG(ERROR) << "EventSource url not accepted: " << url;
+            web::http::client::semantic::httpClientEventSourceLog().error() << "EventSource url not accepted: " << url;
         }
 
         return eventSource;

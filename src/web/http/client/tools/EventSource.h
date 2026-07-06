@@ -47,7 +47,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/socket/State.h"
-#include "log/Logger.h"
+#include "log/SemanticLogger.h"
+#include "web/http/client/SemanticLog.h"
 
 #include <cctype>
 #include <cstddef>
@@ -288,24 +289,24 @@ namespace web::http::client::tools {
             sharedState->path = path;
             sharedState->origin = scheme + "://" + socketAddress.toString(false);
 
-            LOG(TRACE) << "Origin: " << sharedState->origin;
-            LOG(TRACE) << "  Path: " << sharedState->path;
+            web::http::client::semantic::httpClientLog().trace() << "Origin: " << sharedState->origin;
+            web::http::client::semantic::httpClientLog().trace() << "  Path: " << sharedState->path;
 
             const std::weak_ptr<EventSourceT> eventSourceWeak = this->weak_from_this();
 
             client = std::make_shared<Client>(
                 [eventSourceWeak](SocketConnection* socketConnection) {
-                    LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";
+                    web::http::client::semantic::httpClientLog().debug() << socketConnection->getConnectionName() << ": OnConnect";
 
                     if (const std::shared_ptr<EventSourceT> eventStream = eventSourceWeak.lock()) {
                         eventStream->socketConnection = socketConnection;
                     }
                 },
                 [](SocketConnection* socketConnection) {
-                    LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnected";
+                    web::http::client::semantic::httpClientLog().debug() << socketConnection->getConnectionName() << ": OnConnected";
                 },
                 [eventSourceWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](SocketConnection* socketConnection) {
-                    LOG(DEBUG) << socketConnection->getConnectionName() << " : OnDisconnect";
+                    web::http::client::semantic::httpClientLog().debug() << socketConnection->getConnectionName() << " : OnDisconnect";
 
                     if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
                         eventSource->socketConnection = nullptr;
@@ -338,7 +339,7 @@ namespace web::http::client::tools {
                     const std::shared_ptr<MasterRequest>& masterRequest) {
                     const std::string connectionName = masterRequest->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                    LOG(DEBUG) << connectionName << ": OnRequestStart";
+                    web::http::client::semantic::httpClientLog().debug() << connectionName << ": OnRequestStart";
 
                     if (!sharedState->lastId.empty()) {
                         masterRequest->set("Last-Event-ID", sharedState->lastId);
@@ -360,13 +361,15 @@ namespace web::http::client::tools {
                                         masterRequest->getSocketContext()->close();
                                     }
                                 } else {
-                                    LOG(DEBUG) << connectionName << ": server-sent event: server disconnect";
+                                    web::http::client::semantic::httpClientLog().debug()
+                                        << connectionName << ": server-sent event: server disconnect";
                                 }
 
                                 return consumed;
                             },
                             [sharedState, sharedConfig, connectionName]() {
-                                LOG(DEBUG) << connectionName << ": server-sent event stream start";
+                                web::http::client::semantic::httpClientLog().debug()
+                                    << connectionName << ": server-sent event stream start";
 
                                 sharedState->ready = ReadyState::OPEN;
 
@@ -386,8 +389,8 @@ namespace web::http::client::tools {
                                 }
                             },
                             [sharedState, connectionName]() {
-                                LOG(DEBUG) << connectionName
-                                           << ": not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
+                                web::http::client::semantic::httpClientLog().debug()
+                                    << connectionName << ": not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
                                 if (auto it = sharedState->onEventListener.find("error"); it != sharedState->onEventListener.end()) {
                                     EventSource::MessageEvent e{"error", "", sharedState->lastId, sharedState->origin};
 
@@ -406,7 +409,7 @@ namespace web::http::client::tools {
                     }
                 },
                 [](const std::shared_ptr<Request>& req) {
-                    LOG(DEBUG) << req->getConnectionName() << ": OnRequestEnd";
+                    web::http::client::semantic::httpClientLog().debug() << req->getConnectionName() << ": OnRequestEnd";
                 });
 
             client->getConfig()->Remote::setSocketAddress(socketAddress);
@@ -422,16 +425,19 @@ namespace web::http::client::tools {
                                 const core::socket::State& state) { // example.com:81 simulate connnect timeout
                 switch (state) {
                     case core::socket::State::OK:
-                        LOG(DEBUG) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        web::http::client::semantic::httpClientLog().debug()
+                            << instanceName << ": connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        LOG(DEBUG) << instanceName << ": disabled";
+                        web::http::client::semantic::httpClientLog().debug() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        LOG(DEBUG) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        web::http::client::semantic::httpClientLog().debug()
+                            << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        LOG(DEBUG) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        web::http::client::semantic::httpClientLog().debug()
+                            << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             });

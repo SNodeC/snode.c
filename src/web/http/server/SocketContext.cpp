@@ -48,7 +48,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include "log/SemanticLogger.h"
 #include "utils/Timeval.h"
 
 #include <string>
@@ -67,11 +67,11 @@ namespace web::http::server {
         , parser(
               this,
               [this]() {
-                  LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request start";
+                  frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Request start";
               },
               [this](web::http::server::Request&& request) {
-                  LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request parse success: " << request.method << " "
-                            << request.url << " HTTP/" << request.httpMajor << "." << request.httpMinor;
+                  frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Request parse success: " << request.method
+                                        << " " << request.url << " HTTP/" << request.httpMajor << "." << request.httpMinor;
 
                   pendingRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
@@ -80,8 +80,8 @@ namespace web::http::server {
                   }
               },
               [this](int status, const std::string& reason) {
-                  LOG(ERROR) << getSocketConnection()->getConnectionName() << " HTTP: Request parse error: " << reason << " (" << status
-                             << ") ";
+                  frameworkLog().error() << getSocketConnection()->getConnectionName() << " HTTP: Request parse error: " << reason << " ("
+                                         << status << ") ";
                   shutdownRead();
 
                   pendingRequests.emplace_back(std::make_shared<Request>(Request(status, reason)));
@@ -109,8 +109,9 @@ namespace web::http::server {
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
             if (pendingRequest->status == 0) {
-                LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Request deliver: " << pendingRequest->method << " "
-                          << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+                frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Request deliver: " << pendingRequest->method
+                                      << " " << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "."
+                                      << pendingRequest->httpMinor;
 
                 masterResponse->init();
                 masterResponse->requestMethod = pendingRequest->method;
@@ -134,7 +135,7 @@ namespace web::http::server {
                 masterResponse->status(pendingRequest->status).send(pendingRequest->reason);
             }
         } else {
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: No more pending request";
+            frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: No more pending request";
         }
     }
 
@@ -148,16 +149,17 @@ namespace web::http::server {
                 getSocketConnection()->setReadTimeout(0);
             }
 
-            LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response start for request: " << pendingRequest->method
-                      << " " << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
-            LOG(INFO) << getSocketConnection()->getConnectionName() << "   "
-                      << "HTTP/" + std::to_string(response.httpMajor)
-                                       .append(".")
-                                       .append(std::to_string(response.httpMinor))
-                                       .append(" ")
-                                       .append(std::to_string(response.statusCode))
-                                       .append(" ")
-                                       .append(StatusCode::reason(response.statusCode));
+            frameworkLog().info() << getSocketConnection()->getConnectionName()
+                                  << " HTTP: Response start for request: " << pendingRequest->method << " " << pendingRequest->url
+                                  << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+            frameworkLog().info() << getSocketConnection()->getConnectionName() << "   "
+                                  << "HTTP/" + std::to_string(response.httpMajor)
+                                                   .append(".")
+                                                   .append(std::to_string(response.httpMinor))
+                                                   .append(" ")
+                                                   .append(std::to_string(response.statusCode))
+                                                   .append(" ")
+                                                   .append(StatusCode::reason(response.statusCode));
         }
     }
 
@@ -165,8 +167,9 @@ namespace web::http::server {
         if (success) {
             requestCompleted(response);
         } else {
-            LOG(WARNING) << getSocketConnection()->getConnectionName() << " HTTP: Response completed with error: " << response.statusCode
-                         << " " << StatusCode::reason(response.statusCode);
+            frameworkLog().warn() << getSocketConnection()->getConnectionName()
+                                  << " HTTP: Response completed with error: " << response.statusCode << " "
+                                  << StatusCode::reason(response.statusCode);
 
             close();
         }
@@ -176,27 +179,27 @@ namespace web::http::server {
         const std::shared_ptr<Request> request = std::move(pendingRequests.front());
         pendingRequests.pop_front();
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Response completed for request: " << request->method << " "
-                  << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
-        LOG(INFO) << getSocketConnection()->getConnectionName() << "   "
-                  << "HTTP/" + std::to_string(response.httpMajor)
-                                   .append(".")
-                                   .append(std::to_string(response.httpMinor))
-                                   .append(" ")
-                                   .append(std::to_string(response.statusCode))
-                                   .append(" ")
-                                   .append(StatusCode::reason(response.statusCode));
+        frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Response completed for request: " << request->method
+                              << " " << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+        frameworkLog().info() << getSocketConnection()->getConnectionName() << "   "
+                              << "HTTP/" + std::to_string(response.httpMajor)
+                                               .append(".")
+                                               .append(std::to_string(response.httpMinor))
+                                               .append(" ")
+                                               .append(std::to_string(response.statusCode))
+                                               .append(" ")
+                                               .append(StatusCode::reason(response.statusCode));
 
         httpClose = response.connectionState == ConnectionState::Close ||
                     (response.connectionState == ConnectionState::Default &&
                      ((response.httpMajor == 0 && response.httpMinor == 9) || (response.httpMajor == 1 && response.httpMinor == 0)));
 
         if (httpClose) {
-            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
+            frameworkLog().debug() << getSocketConnection()->getConnectionName() << " HTTP: Connection = Close";
 
             shutdownWrite();
         } else {
-            LOG(DEBUG) << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
+            frameworkLog().debug() << getSocketConnection()->getConnectionName() << " HTTP: Connection = Keep-Alive";
 
             if (!pendingRequests.empty()) {
                 core::EventReceiver::atNextTick([response = std::weak_ptr<Response>(masterResponse)]() {
@@ -213,7 +216,7 @@ namespace web::http::server {
     }
 
     void SocketContext::onConnected() {
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Connected";
+        frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Connected";
 
         for (const auto& onConnectEventReceiver : onConnectEventReceiverList) {
             onConnectEventReceiver();
@@ -233,7 +236,7 @@ namespace web::http::server {
     void SocketContext::onDisconnected() {
         masterResponse->disconnect();
 
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received disconnect";
+        frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Received disconnect";
 
         for (const auto& onDisconnectEventReceiver : onDisconnectEventReceiverList) {
             onDisconnectEventReceiver();
@@ -241,7 +244,7 @@ namespace web::http::server {
     }
 
     bool SocketContext::onSignal(int signum) {
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " HTTP: Received signal " << signum;
+        frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Received signal " << signum;
 
         return true;
     }

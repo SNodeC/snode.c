@@ -43,11 +43,12 @@
 
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/client/Response.h"
+#include "web/http/client/SemanticLog.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #if !defined(NDEBUG)
-#include "log/Logger.h"
+#include "log/SemanticLogger.h"
 
 #include <cstdlib>
 #endif
@@ -66,7 +67,7 @@ namespace web::http::client {
 
 #if !defined(NDEBUG)
         if (const char* httpUpgradeInstallLibdirEnv = std::getenv("HTTP_UPGRADE_INSTALL_LIBDIR")) {
-            LOG(WARNING) << "HTTP upgrade: Overriding http upgrade library dir";
+            semantic::httpClientUpgradeLog().warn() << "HTTP upgrade: Overriding http upgrade library dir";
             httpUpgradeInstallLibdir = std::string(httpUpgradeInstallLibdirEnv);
         }
 #endif

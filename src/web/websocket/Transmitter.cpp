@@ -41,9 +41,11 @@
 
 #include "web/websocket/Transmitter.h"
 
+#include "web/websocket/SemanticLog.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include "log/SemanticLogger.h"
 #include "utils/hexdump.h"
 
 #include <endian.h>
@@ -139,7 +141,10 @@ namespace web::websocket {
         MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(randomDevice)};
 
         if (payloadLength > 0) {
-            LOG(TRACE) << "WebSocket send: Frame data\n" << utils::hexDump(payload, payloadLength, 32, true);
+            auto log = semantic::webSocketFrameLog();
+            if (log.enabled(logger::LogLevel::Trace)) {
+                log.trace("WebSocket send: Frame data\n{}", utils::hexDump(payload, payloadLength, 32, true));
+            }
         }
 
         if (masking) {

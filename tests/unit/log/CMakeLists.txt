@@ -82,3 +82,21 @@ target_include_directories(TlsSocketStreamMigration06Test PRIVATE ${PROJECT_SOUR
 target_compile_features(TlsSocketStreamMigration06Test PRIVATE cxx_std_20)
 target_link_libraries(TlsSocketStreamMigration06Test PRIVATE snodec-test-support snodec::core-socket-stream-tls)
 set_tests_properties(TlsSocketStreamMigration06Test PROPERTIES LABELS "unit;log;migration06")
+
+snodec_add_test(HttpClientMigration07aTest HttpClientMigration07aTest.cpp)
+target_include_directories(HttpClientMigration07aTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(HttpClientMigration07aTest PRIVATE cxx_std_20)
+target_link_libraries(HttpClientMigration07aTest PRIVATE snodec-test-support snodec::logger)
+set_tests_properties(HttpClientMigration07aTest PROPERTIES LABELS "unit;log;migration07a")
+
+snodec_add_test(HttpServerMigration07bTest HttpServerMigration07bTest.cpp)
+target_include_directories(HttpServerMigration07bTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(HttpServerMigration07bTest PRIVATE cxx_std_20)
+target_link_libraries(HttpServerMigration07bTest PRIVATE snodec-test-support snodec::logger)
+set_tests_properties(HttpServerMigration07bTest PROPERTIES LABELS "unit;log;migration07b")
+
+snodec_add_test(WebSocketMigration07cTest WebSocketMigration07cTest.cpp)
+target_include_directories(WebSocketMigration07cTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(WebSocketMigration07cTest PRIVATE cxx_std_20)
+target_link_libraries(WebSocketMigration07cTest PRIVATE snodec-test-support snodec::logger)
+set_tests_properties(WebSocketMigration07cTest PROPERTIES LABELS "unit;log;migration07c")

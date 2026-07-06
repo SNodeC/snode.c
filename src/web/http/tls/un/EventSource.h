@@ -42,6 +42,7 @@
 #ifndef WEB_HTTP_TLS_UN_EVENTSOURCE_H
 #define WEB_HTTP_TLS_UN_EVENTSOURCE_H
 
+#include "web/http/client/SemanticLog.h"
 #include "web/http/client/tools/EventSource.h"
 #include "web/http/tls/un/Client.h"
 
@@ -132,10 +133,11 @@ namespace web::http::tls::un {
 
                 eventSource = EventSource(scheme, net::un::SocketAddress(socketPath), httpPath + query);
             } else {
-                LOG(ERROR) << "UNIX socket must decode to absolute ('/..') or abstract ('@name'): " << sockToken;
+                web::http::client::semantic::httpClientEventSourceLog().error()
+                    << "UNIX socket must decode to absolute ('/..') or abstract ('@name'): " << sockToken;
             }
         } else {
-            LOG(ERROR) << "EventSource unix-domain url not accepted: " << url;
+            web::http::client::semantic::httpClientEventSourceLog().error() << "EventSource unix-domain url not accepted: " << url;
         }
 
         return eventSource;
