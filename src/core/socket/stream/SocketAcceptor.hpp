@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "core/State.h"
 #include "core/socket/stream/SocketAcceptor.h"
 
@@ -104,12 +105,13 @@ namespace core::socket::stream {
                 core::socket::State state = core::socket::STATE_OK;
                 bool bindSucceeded = false;
 
-                LOG(DEBUG) << config->getInstanceName() << " Listen: starting";
+                snode::semantic::coreSocketLog().debug() << config->getInstanceName() << " Listen: starting";
 
                 configuredAddress = config->Local::getSocketAddress();
 
                 if (physicalServerSocket.open(config->getSocketOptions(), PhysicalServerSocket::Flags::NONBLOCK) < 0) {
-                    PLOG(ERROR) << config->getInstanceName() << " open " << configuredAddress.toString();
+                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error)
+                        << config->getInstanceName() << " open " << configuredAddress.toString();
 
                     switch (errno) {
                         case EMFILE:
@@ -123,10 +125,12 @@ namespace core::socket::stream {
                             break;
                     }
                 } else {
-                    LOG(DEBUG) << config->getInstanceName() << " open " << configuredAddress.toString() << ": success";
+                    snode::semantic::coreSocketLog().debug()
+                        << config->getInstanceName() << " open " << configuredAddress.toString() << ": success";
 
                     if (physicalServerSocket.bind(configuredAddress) < 0) {
-                        PLOG(ERROR) << config->getInstanceName() << " bind " << configuredAddress.toString();
+                        snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error)
+                            << config->getInstanceName() << " bind " << configuredAddress.toString();
 
                         switch (errno) {
                             case EADDRINUSE:
@@ -144,14 +148,15 @@ namespace core::socket::stream {
                         const std::string configuredAddressString = configuredAddress.toString();
                         const std::string effectiveBindAddressString = physicalServerSocket.getBindAddress().toString();
 
-                        LOG(DEBUG) << config->getInstanceName() << " bind " << configuredAddressString
-                                   << (configuredAddressString == effectiveBindAddressString
-                                           ? ""
-                                           : " (effective: " + effectiveBindAddressString + ")")
-                                   << ": success";
+                        snode::semantic::coreSocketLog().debug()
+                            << config->getInstanceName() << " bind " << configuredAddressString
+                            << (configuredAddressString == effectiveBindAddressString ? ""
+                                                                                      : " (effective: " + effectiveBindAddressString + ")")
+                            << ": success";
 
                         if (physicalServerSocket.listen(config->getBacklog()) < 0) {
-                            PLOG(ERROR) << config->getInstanceName() << " listen " << physicalServerSocket.getBindAddress().toString();
+                            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error)
+                                << config->getInstanceName() << " listen " << physicalServerSocket.getBindAddress().toString();
 
                             switch (errno) {
                                 case EADDRINUSE:
@@ -162,13 +167,16 @@ namespace core::socket::stream {
                                     break;
                             }
                         } else {
-                            LOG(DEBUG) << config->getInstanceName() << " listen " << physicalServerSocket.getBindAddress().toString() << ": success";
+                            snode::semantic::coreSocketLog().debug() << config->getInstanceName() << " listen "
+                                                                     << physicalServerSocket.getBindAddress().toString() << ": success";
 
                             if (enable(physicalServerSocket.getFd())) {
-                                LOG(DEBUG) << config->getInstanceName() << " enable " << physicalServerSocket.getBindAddress().toString() << ": success";
+                                snode::semantic::coreSocketLog().debug() << config->getInstanceName() << " enable "
+                                                                         << physicalServerSocket.getBindAddress().toString() << ": success";
                             } else {
-                                LOG(ERROR) << config->getInstanceName() << " enable " << physicalServerSocket.getBindAddress().toString()
-                                           << ": failed. No valid descriptor created";
+                                snode::semantic::coreSocketLog().error()
+                                    << config->getInstanceName() << " enable " << physicalServerSocket.getBindAddress().toString()
+                                    << ": failed. No valid descriptor created";
 
                                 state = core::socket::STATE(core::socket::STATE_FATAL, ECANCELED, "SocketAcceptor not enabled");
                             }
@@ -180,8 +188,8 @@ namespace core::socket::stream {
                 if (configuredAddress.useNext()) {
                     onStatus(currentLocalAddress, (state | core::socket::State::NO_RETRY));
 
-                    LOG(INFO) << config->getInstanceName()
-                              << ": Using next SocketAddress: " << config->Local::getSocketAddress().toString();
+                    snode::semantic::coreSocketLog().info()
+                        << config->getInstanceName() << ": Using next SocketAddress: " << config->Local::getSocketAddress().toString();
 
                     useNextSocketAddress();
                 } else {
@@ -191,12 +199,12 @@ namespace core::socket::stream {
                 core::socket::State state =
                     core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what());
 
-                LOG(ERROR) << state.what();
+                snode::semantic::coreSocketLog().error() << state.what();
 
                 onStatus({}, state);
             }
         } else {
-            LOG(DEBUG) << config->getInstanceName() << ": disabled";
+            snode::semantic::coreSocketLog().debug() << config->getInstanceName() << ": disabled";
 
             onStatus({}, core::socket::STATE_DISABLED);
         }
@@ -223,14 +231,16 @@ namespace core::socket::stream {
                 if (connectedPhysicalSocket.isValid()) {
                     SocketConnection* socketConnection = new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, config);
 
-                    LOG(DEBUG) << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString() << ": success";
-                    LOG(DEBUG) << "  " << socketConnection->getRemoteAddress().toString() << " -> "
-                               << socketConnection->getLocalAddress().toString();
+                    snode::semantic::coreSocketLog().debug()
+                        << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString() << ": success";
+                    snode::semantic::coreSocketLog().debug() << "  " << socketConnection->getRemoteAddress().toString() << " -> "
+                                                             << socketConnection->getLocalAddress().toString();
 
                     onConnect(socketConnection);
                     onConnected(socketConnection);
                 } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                    PLOG(WARNING) << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString();
+                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Warn)
+                        << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString();
                 }
             } while (--acceptsPerTick > 0);
         }

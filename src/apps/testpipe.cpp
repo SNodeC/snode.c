@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "core/SNodeC.h"
 #include "core/pipe/Pipe.h"
 #include "core/pipe/PipeSink.h"
@@ -82,7 +83,7 @@ int main(int argc, char* argv[]) {
             pipeSource.send("Hello World!");
         },
         []([[maybe_unused]] int errnum) {
-            PLOG(ERROR) << "Pipe not created";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error) << "Pipe not created";
         });
 
     return core::SNodeC::start();

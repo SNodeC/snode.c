@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "log/Logger.h"
@@ -53,7 +54,7 @@ int main(int argc, char* argv[]) {
             res->sendFile("/home/rathalin/projects/snode.c/src/oauth2/client_app/vue-frontend-oauth2-client/dist/index.html",
                           [req](int ret) {
                               if (ret != 0) {
-                                  PLOG(ERROR) << req->url;
+                                  snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error) << req->url;
                               }
                           });
             /*

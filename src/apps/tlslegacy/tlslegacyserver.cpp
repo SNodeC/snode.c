@@ -4,6 +4,7 @@
  *               2020, 2021, 2022, 2023, 2024, 2025, 2026
  */
 
+#include "SemanticLog.h"
 #include "TlsLegacySocketContext.h"
 #include "core/SNodeC.h"
 #include "log/Logger.h"
@@ -29,7 +30,7 @@ int main(int argc, char* argv[]) {
         if (state == core::socket::State::OK) {
             VLOG(1) << instanceName << ": listening on " << socketAddress.toString();
         } else if (state == core::socket::State::ERROR) {
-            LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+            snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
         }
     });
 

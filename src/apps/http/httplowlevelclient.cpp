@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "core/SNodeC.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
@@ -223,25 +224,26 @@ namespace tls {
 
         const SocketAddress remoteAddress("localhost", 8088);
 
-        tlsClient.connect(remoteAddress,
-                          [instanceName = tlsClient.getConfig()->getInstanceName()](
-                              const SocketAddress& socketAddress,
-                              const core::socket::State& state) { // example.com:81 simulate connnect timeout
-                              switch (state) {
-                                  case core::socket::State::OK:
-                                      VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
-                                      break;
-                                  case core::socket::State::DISABLED:
-                                      VLOG(1) << instanceName << ": disabled";
-                                      break;
-                                  case core::socket::State::ERROR:
-                                      LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                      break;
-                                  case core::socket::State::FATAL:
-                                      LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                      break;
-                              }
-                          });
+        tlsClient.connect(
+            remoteAddress,
+            [instanceName =
+                 tlsClient.getConfig()->getInstanceName()](const SocketAddress& socketAddress,
+                                                           const core::socket::State& state) { // example.com:81 simulate connnect timeout
+                switch (state) {
+                    case core::socket::State::OK:
+                        VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        break;
+                    case core::socket::State::DISABLED:
+                        VLOG(1) << instanceName << ": disabled";
+                        break;
+                    case core::socket::State::ERROR:
+                        snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        break;
+                    case core::socket::State::FATAL:
+                        snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        break;
+                }
+            });
         return tlsClient;
     }
 
@@ -293,10 +295,12 @@ namespace legacy {
                                          VLOG(1) << instanceName << ": disabled";
                                          break;
                                      case core::socket::State::ERROR:
-                                         LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                         snode::semantic::appLog().error()
+                                             << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                          break;
                                      case core::socket::State::FATAL:
-                                         LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                         snode::semantic::appLog().critical()
+                                             << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                          break;
                                  }
                              });
@@ -326,10 +330,12 @@ int main(int argc, char* argv[]) {
                                          VLOG(1) << instanceName << ": disabled";
                                          break;
                                      case core::socket::State::ERROR:
-                                         LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                         snode::semantic::appLog().error()
+                                             << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                          break;
                                      case core::socket::State::FATAL:
-                                         LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                         snode::semantic::appLog().critical()
+                                             << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                          break;
                                  }
                              });
@@ -338,25 +344,26 @@ int main(int argc, char* argv[]) {
 
         const tls::SocketClient tlsClient = tls::getClient();
 
-        tlsClient.connect(tlsRemoteAddress,
-                          [instanceName = tlsClient.getConfig()->getInstanceName()](
-                              const tls::SocketAddress& socketAddress,
-                              const core::socket::State& state) { // example.com:81 simulate connnect timeout
-                              switch (state) {
-                                  case core::socket::State::OK:
-                                      VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
-                                      break;
-                                  case core::socket::State::DISABLED:
-                                      VLOG(1) << instanceName << ": disabled";
-                                      break;
-                                  case core::socket::State::ERROR:
-                                      LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                      break;
-                                  case core::socket::State::FATAL:
-                                      LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                      break;
-                              }
-                          });
+        tlsClient.connect(
+            tlsRemoteAddress,
+            [instanceName =
+                 tlsClient.getConfig()->getInstanceName()](const tls::SocketAddress& socketAddress,
+                                                           const core::socket::State& state) { // example.com:81 simulate connnect timeout
+                switch (state) {
+                    case core::socket::State::OK:
+                        VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        break;
+                    case core::socket::State::DISABLED:
+                        VLOG(1) << instanceName << ": disabled";
+                        break;
+                    case core::socket::State::ERROR:
+                        snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        break;
+                    case core::socket::State::FATAL:
+                        snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        break;
+                }
+            });
     }
 
     return core::SNodeC::start();

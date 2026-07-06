@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "express/legacy/in/WebApp.h"
@@ -99,7 +100,7 @@ public:
             [this](const Client::SocketAddress&, const core::socket::State& state) {
                 if (state != core::socket::State::OK) {
                     ++failures;
-                    LOG(ERROR) << "FAIL: connect failed: " << state.what();
+                    snode::semantic::appLog().error() << "FAIL: connect failed: " << state.what();
                     core::timer::Timer::singleshotTimer(
                         [] {
                             core::SNodeC::stop();
@@ -121,7 +122,7 @@ private:
 
     void dispatchNextRequest() {
         if (testCases.empty()) {
-            LOG(INFO) << "All express next() tests executed. failures=" << failures;
+            snode::semantic::appLog().info() << "All express next() tests executed. failures=" << failures;
             if (masterRequest && masterRequest->isConnected()) {
                 masterRequest->disconnect();
             }
@@ -135,7 +136,7 @@ private:
 
         if (!masterRequest || !masterRequest->isConnected()) {
             ++failures;
-            LOG(ERROR) << "FAIL: master request not connected";
+            snode::semantic::appLog().error() << "FAIL: master request not connected";
             core::timer::Timer::singleshotTimer(
                 [] {
                     core::SNodeC::stop();
@@ -158,19 +159,20 @@ private:
                 const bool bodyOk = body.find(current.expectedBody) != std::string::npos;
 
                 if (statusOk && bodyOk) {
-                    LOG(INFO) << "PASS: " << current.name << " status=" << res->statusCode << " body='" << body << "'";
+                    snode::semantic::appLog().info()
+                        << "PASS: " << current.name << " status=" << res->statusCode << " body='" << body << "'";
                 } else {
                     ++failures;
-                    LOG(ERROR) << "FAIL: " << current.name << " expected status=" << current.expectedStatus << " expected body fragment='"
-                               << current.expectedBody << "'"
-                               << " got status=" << res->statusCode << " body='" << body << "'";
+                    snode::semantic::appLog().error() << "FAIL: " << current.name << " expected status=" << current.expectedStatus
+                                                      << " expected body fragment='" << current.expectedBody << "'"
+                                                      << " got status=" << res->statusCode << " body='" << body << "'";
                 }
 
                 dispatchNextRequest();
             },
             [this, current]([[maybe_unused]] const std::shared_ptr<Request>& req, const std::string& reason) {
                 ++failures;
-                LOG(ERROR) << "FAIL: " << current.name << " parse-error: " << reason;
+                snode::semantic::appLog().error() << "FAIL: " << current.name << " parse-error: " << reason;
                 dispatchNextRequest();
             });
     }
@@ -307,10 +309,10 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "testexpressnext disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "testexpressnext " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << "testexpressnext " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "testexpressnext " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << "testexpressnext " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -324,10 +326,10 @@ int main(int argc, char* argv[]) {
 
     const int rc = core::SNodeC::start();
     if (nextTester.getFailures() > 0) {
-        LOG(ERROR) << "testexpressnext finished with failures=" << nextTester.getFailures();
+        snode::semantic::appLog().error() << "testexpressnext finished with failures=" << nextTester.getFailures();
         return 1;
     }
 
-    LOG(INFO) << "testexpressnext finished successfully";
+    snode::semantic::appLog().info() << "testexpressnext finished successfully";
     return rc;
 }

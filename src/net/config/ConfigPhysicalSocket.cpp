@@ -41,6 +41,8 @@
 
 #include "ConfigPhysicalSocket.h"
 
+#include "SemanticLog.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -83,7 +85,7 @@ namespace net::config {
                                removeSocketOption(optLevel, optName);
                            }
                        } catch (CLI::OptionNotFound& err) {
-                           LOG(ERROR) << err.what();
+                           snode::semantic::netConfigLog().error() << err.what();
                        }
                    },
                    description,

@@ -41,6 +41,7 @@
 
 #include "express/dispatcher/MiddlewareDispatcher.h"
 
+#include "SemanticLog.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "express/Next.h"
 #include "express/Request.h"
@@ -70,16 +71,16 @@ namespace express::dispatcher {
                                         bool strictRouting,
                                         bool caseInsensitiveRouting,
                                         bool mergeParams) {
-        LOG(TRACE) << "======================= MIDDLEWARE  DISPATCH =======================";
-        LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
-        LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
-        LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
-        LOG(TRACE) << "            Request Path: " << controller.getRequest()->path;
-        LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
-        LOG(TRACE) << "         Mountpoint Path: " << mountPoint.relativeMountPath;
-        LOG(TRACE) << "           StrictRouting: " << strictRouting;
-        LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
-        LOG(TRACE) << "             MergeParams: " << mergeParams;
+        snode::semantic::expressLog().trace() << "======================= MIDDLEWARE  DISPATCH =======================";
+        snode::semantic::expressLog().trace() << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
+        snode::semantic::expressLog().trace() << "          Request Method: " << controller.getRequest()->method;
+        snode::semantic::expressLog().trace() << "             Request Url: " << controller.getRequest()->url;
+        snode::semantic::expressLog().trace() << "            Request Path: " << controller.getRequest()->path;
+        snode::semantic::expressLog().trace() << "       Mountpoint Method: " << mountPoint.method;
+        snode::semantic::expressLog().trace() << "         Mountpoint Path: " << mountPoint.relativeMountPath;
+        snode::semantic::expressLog().trace() << "           StrictRouting: " << strictRouting;
+        snode::semantic::expressLog().trace() << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
+        snode::semantic::expressLog().trace() << "             MergeParams: " << mergeParams;
 
         bool dispatched = false;
 
@@ -91,7 +92,7 @@ namespace express::dispatcher {
                 matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
 
             if (match.requestMatched) {
-                LOG(TRACE) << "----------------------- MIDDLEWARE     MATCH -----------------------";
+                snode::semantic::expressLog().trace() << "----------------------- MIDDLEWARE     MATCH -----------------------";
 
                 dispatched = true;
 
@@ -109,7 +110,7 @@ namespace express::dispatcher {
 
                         // If next() was called synchronously continue current route-tree traversal
                         if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
-                            LOG(TRACE) << "Express: M - Next called - set to NO MATCH";
+                            snode::semantic::expressLog().trace() << "Express: M - Next called - set to NO MATCH";
                             dispatched = false;
                             controller = next.controller;
                         }
@@ -121,10 +122,10 @@ namespace express::dispatcher {
                 }
 
             } else {
-                LOG(TRACE) << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
+                snode::semantic::expressLog().trace() << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
             }
         } else {
-            LOG(TRACE) << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
+            snode::semantic::expressLog().trace() << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
         }
 
         return dispatched;

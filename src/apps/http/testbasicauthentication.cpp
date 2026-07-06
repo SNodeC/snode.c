@@ -40,6 +40,7 @@
  */
 
 #include "ConfigWWW.h"
+#include "SemanticLog.h"
 #include "express/legacy/in6/WebApp.h"
 #include "express/middleware/BasicAuthentication.h"
 #include "express/middleware/StaticMiddleware.h"
@@ -92,24 +93,25 @@ int main(int argc, char* argv[]) {
         res->status(404).send("The requested resource is not found.");
     });
 
-    legacyServer.listen(8080,
-                        [instanceName = legacyServer.getConfig()->getInstanceName()](
-                            const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
-                            switch (state) {
-                                case core::socket::State::OK:
-                                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
-                                    break;
-                                case core::socket::State::DISABLED:
-                                    VLOG(1) << instanceName << ": disabled";
-                                    break;
-                                case core::socket::State::ERROR:
-                                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                    break;
-                                case core::socket::State::FATAL:
-                                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                    break;
-                            }
-                        });
+    legacyServer.listen(
+        8080,
+        [instanceName = legacyServer.getConfig()->getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
+                                                                     const core::socket::State& state) {
+            switch (state) {
+                case core::socket::State::OK:
+                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                    break;
+                case core::socket::State::DISABLED:
+                    VLOG(1) << instanceName << ": disabled";
+                    break;
+                case core::socket::State::ERROR:
+                    snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    break;
+                case core::socket::State::FATAL:
+                    snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    break;
+            }
+        });
 
     /////////////////////// TLS
 

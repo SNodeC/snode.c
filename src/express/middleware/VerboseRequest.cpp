@@ -41,6 +41,7 @@
 
 #include "express/middleware/VerboseRequest.h"
 
+#include "SemanticLog.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/server/SocketContext.h"
 
@@ -57,17 +58,18 @@ namespace express::middleware {
 
     VerboseRequest::VerboseRequest(Details details) {
         use("/", [details] MIDDLEWARE(req, res, next) {
-            LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                       << " Express VerboseMiddleware: " << req->method << " " << req->url << " " << req->httpVersion << "\n"
-                       << httputils::toString(
-                              req->method,
-                              req->url,
-                              req->httpVersion,
-                              (details & Details::W_QUERIES) == Details::W_QUERIES ? req->queries : std::map<std::string, std::string>(),
-                              (details & Details::W_HEADERS) == Details::W_HEADERS ? req->headers : web::http::CiStringMap<std::string>(),
-                              (details & Details::W_TRAILER) == Details::W_TRAILER ? req->trailer : web::http::CiStringMap<std::string>(),
-                              (details & Details::W_COOKIES) == Details::W_COOKIES ? req->cookies : web::http::CiStringMap<std::string>(),
-                              (details & Details::W_CONTENT) == Details::W_CONTENT ? req->body : std::vector<char>());
+            snode::semantic::expressLog().debug()
+                << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express VerboseMiddleware: " << req->method
+                << " " << req->url << " " << req->httpVersion << "\n"
+                << httputils::toString(
+                       req->method,
+                       req->url,
+                       req->httpVersion,
+                       (details & Details::W_QUERIES) == Details::W_QUERIES ? req->queries : std::map<std::string, std::string>(),
+                       (details & Details::W_HEADERS) == Details::W_HEADERS ? req->headers : web::http::CiStringMap<std::string>(),
+                       (details & Details::W_TRAILER) == Details::W_TRAILER ? req->trailer : web::http::CiStringMap<std::string>(),
+                       (details & Details::W_COOKIES) == Details::W_COOKIES ? req->cookies : web::http::CiStringMap<std::string>(),
+                       (details & Details::W_CONTENT) == Details::W_CONTENT ? req->body : std::vector<char>());
 
             next();
         });

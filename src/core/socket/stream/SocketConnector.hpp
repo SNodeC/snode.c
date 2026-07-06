@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "core/State.h"
 #include "core/socket/stream/SocketConnector.h"
 
@@ -103,7 +104,7 @@ namespace core::socket::stream {
             try {
                 core::socket::State state = core::socket::STATE_OK;
 
-                LOG(DEBUG) << config->getInstanceName() << " Connect: starting";
+                snode::semantic::coreSocketLog().debug() << config->getInstanceName() << " Connect: starting";
 
                 SocketAddress configuredLocalAddress = config->Local::getSocketAddress();
 
@@ -111,7 +112,8 @@ namespace core::socket::stream {
                     remoteAddress = config->Remote::getSocketAddress();
 
                     if (physicalClientSocket.open(config->getSocketOptions(), PhysicalClientSocket::Flags::NONBLOCK) < 0) {
-                        PLOG(DEBUG) << config->getInstanceName() << " open " << configuredLocalAddress.toString();
+                        snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+                            << config->getInstanceName() << " open " << configuredLocalAddress.toString();
 
                         switch (errno) {
                             case EMFILE:
@@ -127,10 +129,12 @@ namespace core::socket::stream {
 
                         onStatus(configuredLocalAddress, state);
                     } else {
-                        LOG(TRACE) << config->getInstanceName() << " open " << configuredLocalAddress.toString() << ": success";
+                        snode::semantic::coreSocketLog().trace()
+                            << config->getInstanceName() << " open " << configuredLocalAddress.toString() << ": success";
 
                         if (physicalClientSocket.bind(configuredLocalAddress) < 0) {
-                            PLOG(DEBUG) << config->getInstanceName() << " bind " << configuredLocalAddress.toString();
+                            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+                                << config->getInstanceName() << " bind " << configuredLocalAddress.toString();
 
                             switch (errno) {
                                 case EADDRINUSE:
@@ -146,14 +150,16 @@ namespace core::socket::stream {
                             const std::string configuredLocalAddressString = configuredLocalAddress.toString();
                             const std::string effectiveBindAddressString = physicalClientSocket.getBindAddress().toString();
 
-                            LOG(TRACE) << config->getInstanceName() << " bind " << configuredLocalAddressString
-                                       << (configuredLocalAddressString == effectiveBindAddressString
-                                               ? ""
-                                               : " (effective: " + effectiveBindAddressString + ")")
-                                       << ": success";
+                            snode::semantic::coreSocketLog().trace()
+                                << config->getInstanceName() << " bind " << configuredLocalAddressString
+                                << (configuredLocalAddressString == effectiveBindAddressString
+                                        ? ""
+                                        : " (effective: " + effectiveBindAddressString + ")")
+                                << ": success";
 
                             if (physicalClientSocket.connect(remoteAddress) < 0 && !PhysicalClientSocket::connectInProgress(errno)) {
-                                PLOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString();
+                                snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+                                    << config->getInstanceName() << " connect " << remoteAddress.toString();
                                 switch (errno) {
                                     case EADDRINUSE:
                                     case EADDRNOTAVAIL:
@@ -172,22 +178,25 @@ namespace core::socket::stream {
                                 if (remoteAddress.useNext()) {
                                     onStatus(currentRemoteAddress, state | core::socket::State::NO_RETRY);
 
-                                    LOG(INFO) << config->getInstanceName() << ": Using next SocketAddress: " << remoteAddress.toString();
+                                    snode::semantic::coreSocketLog().info()
+                                        << config->getInstanceName() << ": Using next SocketAddress: " << remoteAddress.toString();
 
                                     useNextSocketAddress();
                                 } else {
                                     onStatus(currentRemoteAddress, state);
                                 }
                             } else {
-                                LOG(TRACE) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
+                                snode::semantic::coreSocketLog().trace()
+                                    << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
 
                                 if (PhysicalClientSocket::connectInProgress(errno)) {
                                     if (enable(physicalClientSocket.getFd())) {
-                                        LOG(DEBUG)
+                                        snode::semantic::coreSocketLog().debug()
                                             << config->getInstanceName() << " enable " << remoteAddress.toString(false) << ": success";
                                     } else {
-                                        LOG(ERROR) << config->getInstanceName() << " enable " << remoteAddress.toString()
-                                                   << ": failed. No valid descriptor created";
+                                        snode::semantic::coreSocketLog().error()
+                                            << config->getInstanceName() << " enable " << remoteAddress.toString()
+                                            << ": failed. No valid descriptor created";
 
                                         state = core::socket::STATE(core::socket::STATE_FATAL, ECANCELED, "SocketConnector not enabled");
 
@@ -197,9 +206,10 @@ namespace core::socket::stream {
                                     SocketConnection* socketConnection =
                                         new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);
 
-                                    LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
-                                    LOG(DEBUG) << "  " << socketConnection->getLocalAddress().toString() << " -> "
-                                               << socketConnection->getRemoteAddress().toString();
+                                    snode::semantic::coreSocketLog().debug()
+                                        << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
+                                    snode::semantic::coreSocketLog().debug() << "  " << socketConnection->getLocalAddress().toString()
+                                                                             << " -> " << socketConnection->getRemoteAddress().toString();
 
                                     onStatus(remoteAddress, state);
 
@@ -213,7 +223,7 @@ namespace core::socket::stream {
                     core::socket::State state =
                         core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what());
 
-                    LOG(ERROR) << state.what();
+                    snode::semantic::coreSocketLog().error() << state.what();
 
                     onStatus({}, state);
                 }
@@ -221,12 +231,12 @@ namespace core::socket::stream {
                 core::socket::State state =
                     core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what());
 
-                LOG(ERROR) << state.what();
+                snode::semantic::coreSocketLog().error() << state.what();
 
                 onStatus({}, state);
             }
         } else {
-            LOG(DEBUG) << config->getInstanceName() << ": disabled";
+            snode::semantic::coreSocketLog().debug() << config->getInstanceName() << ": disabled";
 
             onStatus({}, core::socket::STATE_DISABLED);
         }
@@ -251,9 +261,10 @@ namespace core::socket::stream {
             if (errno == 0) {
                 SocketConnection* socketConnection = new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);
 
-                LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
-                LOG(DEBUG) << "  " << socketConnection->getLocalAddress().toString() << " -> "
-                           << socketConnection->getRemoteAddress().toString();
+                snode::semantic::coreSocketLog().debug()
+                    << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
+                snode::semantic::coreSocketLog().debug()
+                    << "  " << socketConnection->getLocalAddress().toString() << " -> " << socketConnection->getRemoteAddress().toString();
 
                 onStatus(remoteAddress, core::socket::STATE_OK);
 
@@ -262,7 +273,8 @@ namespace core::socket::stream {
 
                 disable();
             } else if (PhysicalClientSocket::connectInProgress(errno)) {
-                LOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString() << ": in progress:";
+                snode::semantic::coreSocketLog().debug()
+                    << config->getInstanceName() << " connect " << remoteAddress.toString() << ": in progress:";
             } else {
                 SocketAddress currentRemoteAddress = remoteAddress;
 
@@ -283,18 +295,20 @@ namespace core::socket::stream {
                 }
 
                 if (remoteAddress.useNext()) {
-                    PLOG(DEBUG) << config->getInstanceName() << " connect '" << remoteAddress.toString();
+                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+                        << config->getInstanceName() << " connect '" << remoteAddress.toString();
 
                     onStatus(currentRemoteAddress, (state | core::socket::State::NO_RETRY));
 
-                    LOG(DEBUG) << config->getInstanceName()
-                               << " using next SocketAddress: " << config->Remote::getSocketAddress().toString();
+                    snode::semantic::coreSocketLog().debug()
+                        << config->getInstanceName() << " using next SocketAddress: " << config->Remote::getSocketAddress().toString();
 
                     useNextSocketAddress();
 
                     disable();
                 } else {
-                    PLOG(DEBUG) << config->getInstanceName() << " connect " << remoteAddress.toString();
+                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+                        << config->getInstanceName() << " connect " << remoteAddress.toString();
 
                     onStatus(currentRemoteAddress, state);
 
@@ -302,7 +316,8 @@ namespace core::socket::stream {
                 }
             }
         } else {
-            PLOG(DEBUG) << config->getInstanceName() << " getsockopt syscall error: '" << remoteAddress.toString() << "'";
+            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug)
+                << config->getInstanceName() << " getsockopt syscall error: '" << remoteAddress.toString() << "'";
 
             onStatus(remoteAddress, core::socket::STATE_FATAL);
             disable();
@@ -320,16 +335,17 @@ namespace core::socket::stream {
               typename Config,
               template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectTimeout() {
-        LOG(TRACE) << config->getInstanceName() << " connect timeout " << remoteAddress.toString();
+        snode::semantic::coreSocketLog().trace() << config->getInstanceName() << " connect timeout " << remoteAddress.toString();
 
         SocketAddress currentRemoteAddress = remoteAddress;
         if (remoteAddress.useNext()) {
-            LOG(DEBUG) << config->getInstanceName() << " using next SocketAddress: '" << config->Remote::getSocketAddress().toString()
-                       << "'";
+            snode::semantic::coreSocketLog().debug()
+                << config->getInstanceName() << " using next SocketAddress: '" << config->Remote::getSocketAddress().toString() << "'";
 
             useNextSocketAddress();
         } else {
-            LOG(DEBUG) << config->getInstanceName() << " connect timeout '" << remoteAddress.toString() << "'";
+            snode::semantic::coreSocketLog().debug()
+                << config->getInstanceName() << " connect timeout '" << remoteAddress.toString() << "'";
             errno = ETIMEDOUT;
 
             onStatus(currentRemoteAddress, core::socket::STATE_ERROR);

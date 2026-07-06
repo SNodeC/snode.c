@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
@@ -208,7 +209,7 @@ int main(int argc, char* argv[]) {
         res->sendFile("/home/rathalin/projects/snode.c/src/oauth2/authorization_server/vue-frontend-oauth2-auth-server/dist/index.html",
                       [req](int ret) {
                           if (ret != 0) {
-                              PLOG(ERROR) << req->url;
+                              snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error) << req->url;
                           }
                       });
     });
