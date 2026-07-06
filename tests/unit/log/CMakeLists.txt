@@ -100,3 +100,9 @@ target_include_directories(WebSocketMigration07cTest PRIVATE ${PROJECT_SOURCE_DI
 target_compile_features(WebSocketMigration07cTest PRIVATE cxx_std_20)
 target_link_libraries(WebSocketMigration07cTest PRIVATE snodec-test-support snodec::logger)
 set_tests_properties(WebSocketMigration07cTest PROPERTIES LABELS "unit;log;migration07c")
+
+snodec_add_test(MqttMigration08Test MqttMigration08Test.cpp)
+target_include_directories(MqttMigration08Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(MqttMigration08Test PRIVATE cxx_std_20)
+target_link_libraries(MqttMigration08Test PRIVATE snodec-test-support snodec::logger)
+set_tests_properties(MqttMigration08Test PROPERTIES LABELS "unit;log;migration08")
