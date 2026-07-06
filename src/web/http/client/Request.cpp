@@ -45,6 +45,7 @@
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/MimeTypes.h"
 #include "web/http/TransferEncoding.h"
+#include "web/http/client/SemanticLog.h"
 #include "web/http/client/SocketContext.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
@@ -59,7 +60,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include "log/SemanticLogger.h"
 #include "web/http/http_utils.h"
 
 #include <cerrno>
@@ -364,15 +365,16 @@ namespace web::http::client {
                 [masterRequest = this->masterRequest, connectionName = this->connectionName, onResponseReceived](
                     const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
                     if (!masterRequest.expired() && masterRequest.lock()->isConnected()) {
-                        LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " "
-                                   << request->url << " "
-                                   << "HTTP/" << request->httpMajor << "." << request->httpMinor << "\n"
-                                   << httputils::toString(response->httpVersion,
-                                                          response->statusCode,
-                                                          response->reason,
-                                                          response->headers,
-                                                          response->cookies,
-                                                          response->body);
+                        semantic::httpClientLog().debug()
+                            << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " " << request->url
+                            << " "
+                            << "HTTP/" << request->httpMajor << "." << request->httpMinor << "\n"
+                            << httputils::toString(response->httpVersion,
+                                                   response->statusCode,
+                                                   response->reason,
+                                                   response->headers,
+                                                   response->cookies,
+                                                   response->body);
 
                         std::string socketContextUpgradeName;
 
@@ -383,40 +385,44 @@ namespace web::http::client {
                             if (socketContextUpgradeFactory != nullptr) {
                                 socketContextUpgradeName = socketContextUpgradeFactory->name();
 
-                                LOG(DEBUG) << connectionName
-                                           << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << socketContextUpgradeName;
+                                semantic::httpClientLog().debug()
+                                    << connectionName
+                                    << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << socketContextUpgradeName;
 
                                 core::socket::stream::SocketContext* socketContextUpgrade =
                                     socketContextUpgradeFactory->create(masterRequest.lock()->getSocketContext()->getSocketConnection());
 
                                 if (socketContextUpgrade != nullptr) {
-                                    LOG(DEBUG) << connectionName
-                                               << " HTTP upgrade: SocketContextUpgrade create success for: " << socketContextUpgradeName;
+                                    semantic::httpClientLog().debug()
+                                        << connectionName
+                                        << " HTTP upgrade: SocketContextUpgrade create success for: " << socketContextUpgradeName;
                                     masterRequest.lock()->getSocketContext()->getSocketConnection()->setSocketContext(socketContextUpgrade);
                                 } else {
-                                    LOG(DEBUG) << connectionName
-                                               << " HTTP upgrade: SocketContextUpgrade create failed for: " << socketContextUpgradeName;
+                                    semantic::httpClientLog().debug()
+                                        << connectionName
+                                        << " HTTP upgrade: SocketContextUpgrade create failed for: " << socketContextUpgradeName;
 
                                     masterRequest.lock()->getSocketContext()->close();
                                 }
                             } else {
-                                LOG(DEBUG) << connectionName << " HTTP upgrade: SocketContextUpgradeFactory not supported by server: "
-                                           << request->header("upgrade");
+                                semantic::httpClientLog().debug()
+                                    << connectionName
+                                    << " HTTP upgrade: SocketContextUpgradeFactory not supported by server: " << request->header("upgrade");
 
                                 masterRequest.lock()->getSocketContext()->close();
                             }
                         } else {
-                            LOG(DEBUG) << connectionName << " HTTP upgrade: No upgrade requested";
+                            semantic::httpClientLog().debug() << connectionName << " HTTP upgrade: No upgrade requested";
 
                             masterRequest.lock()->getSocketContext()->close();
                         }
 
-                        LOG(DEBUG) << connectionName << " HTTP upgrade: bootstrap "
-                                   << (!socketContextUpgradeName.empty() ? "success" : "failed");
-                        LOG(DEBUG) << "      Protocol selected: " << socketContextUpgradeName;
-                        LOG(DEBUG) << "              requested: " << request->header("upgrade");
-                        LOG(DEBUG) << "  Subprotocol  selected: " << response->get("Sec-WebSocket-Protocol");
-                        LOG(DEBUG) << "              requested: " << request->header("Sec-WebSocket-Protocol");
+                        semantic::httpClientLog().debug()
+                            << connectionName << " HTTP upgrade: bootstrap " << (!socketContextUpgradeName.empty() ? "success" : "failed");
+                        semantic::httpClientLog().debug() << "      Protocol selected: " << socketContextUpgradeName;
+                        semantic::httpClientLog().debug() << "              requested: " << request->header("upgrade");
+                        semantic::httpClientLog().debug() << "  Subprotocol  selected: " << response->get("Sec-WebSocket-Protocol");
+                        semantic::httpClientLog().debug() << "              requested: " << request->header("Sec-WebSocket-Protocol");
 
                         onResponseReceived(request, response, !socketContextUpgradeName.empty());
                     }
@@ -467,7 +473,7 @@ namespace web::http::client {
                 [masterRequest = this->masterRequest, connectionName = this->connectionName, onError](
                     [[maybe_unused]] const std::shared_ptr<Request>& request, const std::string& status) {
                     if (!masterRequest.expired() && masterRequest.lock()->isConnected()) {
-                        LOG(DEBUG) << connectionName << " error in response: " << status;
+                        semantic::httpClientLog().debug() << connectionName << " error in response: " << status;
                         masterRequest.lock()->getSocketContext()->close();
                         onError();
                     }
@@ -618,27 +624,27 @@ namespace web::http::client {
             web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocols, *this);
 
         if (socketContextUpgradeFactory != nullptr) {
-            LOG(DEBUG) << connectionName << " HTTP: "
-                       << "SocketContextUpgradeFactory create success: " << socketContextUpgradeFactory->name();
-            LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade: " << method << " " << url
-                       << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
+            semantic::httpClientLog().debug() << connectionName << " HTTP: "
+                                              << "SocketContextUpgradeFactory create success: " << socketContextUpgradeFactory->name();
+            semantic::httpClientLog().debug() << connectionName << " HTTP: Initiating upgrade: " << method << " " << url
+                                              << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
 
         } else {
-            LOG(DEBUG) << connectionName << " HTTP: "
-                       << "SocketContextUpgradeFactory create failed: " << protocols;
-            LOG(DEBUG) << connectionName << " HTTP: Not initiating upgrade " << method << " " << url
-                       << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
+            semantic::httpClientLog().debug() << connectionName << " HTTP: "
+                                              << "SocketContextUpgradeFactory create failed: " << protocols;
+            semantic::httpClientLog().debug() << connectionName << " HTTP: Not initiating upgrade " << method << " " << url
+                                              << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
         }
 
-        LOG(DEBUG) << connectionName << " HTTP: Upgrade request:\n"
-                   << httputils::toString(method,
-                                          url,
-                                          "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
-                                          queries,
-                                          headers,
-                                          trailer,
-                                          cookies,
-                                          std::vector<char>());
+        semantic::httpClientLog().debug() << connectionName << " HTTP: Upgrade request:\n"
+                                          << httputils::toString(method,
+                                                                 url,
+                                                                 "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
+                                                                 queries,
+                                                                 headers,
+                                                                 trailer,
+                                                                 cookies,
+                                                                 std::vector<char>());
 
         onStatus(socketContextUpgradeFactory != nullptr);
 

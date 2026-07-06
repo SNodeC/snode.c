@@ -42,6 +42,7 @@
 #ifndef WEB_HTTP_LEGACY_RC_EVENTSOURCE_H
 #define WEB_HTTP_LEGACY_RC_EVENTSOURCE_H
 
+#include "web/http/client/SemanticLog.h"
 #include "web/http/client/tools/EventSource.h"
 #include "web/http/legacy/rc/Client.h"
 
@@ -106,7 +107,7 @@ namespace web::http::legacy::rc {
 
             eventSource = EventSource(scheme, net::rc::SocketAddress(addr, chan), path + query);
         } else {
-            LOG(ERROR) << "EventSource RFCOMM url not accepted: " << url;
+            web::http::client::semantic::httpClientEventSourceLog().error() << "EventSource RFCOMM url not accepted: " << url;
         }
 
         return eventSource;
