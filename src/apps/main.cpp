@@ -237,10 +237,10 @@ int main(int argc, char* argv[]) {
                                                                    const core::socket::State& state) {
                    switch (state) {
                        case core::socket::State::OK:
-                           VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                           snode::semantic::appLog().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
                            break;
                        case core::socket::State::DISABLED:
-                           VLOG(1) << instanceName << " disabled";
+                           snode::semantic::appLog().info() << instanceName << " disabled";
                            break;
                        case core::socket::State::ERROR:
                            snode::semantic::appLog().error() << instanceName << " " << socketAddress.toString() << ": " << state.what();

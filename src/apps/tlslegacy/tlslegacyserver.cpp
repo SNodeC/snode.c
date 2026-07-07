@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
     server.listen([instanceName = server.getConfig()->getInstanceName()](const SocketServer::SocketAddress& socketAddress,
                                                                          const core::socket::State& state) {
         if (state == core::socket::State::OK) {
-            VLOG(1) << instanceName << ": listening on " << socketAddress.toString();
+            snode::semantic::appLog().info() << instanceName << ": listening on " << socketAddress.toString();
         } else if (state == core::socket::State::ERROR) {
             snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
         }

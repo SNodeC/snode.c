@@ -61,16 +61,16 @@ int main(int argc, char* argv[]) {
                        const core::socket::State& state) { // example.com:81 simulate connnect timeout
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << instanceName << ": disabled";
+                snode::semantic::appLog().info() << instanceName << ": disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -103,7 +103,7 @@ core::socket::State& state) { #elif (NET_TYPE == RC) // rf
 { client.connect("10:3D:1C:AC:BA:9C", 1, "44:01:BB:A3:63:32", [](const SocketAddress& socketAddress, const core::socket::State&
 state) { #elif (NET_TYPE == UN) // un client.connect("/tmp/testme", [](const SocketAddress& socketAddress, const
 core::socket::State& state) { #endif if (errnum != 0) { snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error,
-errnum) << "OnError: " << errnum; } else { VLOG(1) << "snode.c connecting to " << socketAddress.toString();
+errnum) << "OnError: " << errnum; } else { snode::semantic::appLog().debug() << "snode.c connecting to " << socketAddress.toString();
         }
 
 #ifdef NET_TYPE

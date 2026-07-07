@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
     client.connect([instanceName = client.getConfig()->getInstanceName()](const SocketClient::SocketAddress& socketAddress,
                                                                           const core::socket::State& state) {
         if (state == core::socket::State::OK) {
-            VLOG(1) << instanceName << ": connected to " << socketAddress.toString();
+            snode::semantic::appLog().info() << instanceName << ": connected to " << socketAddress.toString();
         } else if (state == core::socket::State::ERROR) {
             snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
         }

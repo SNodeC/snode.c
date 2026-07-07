@@ -42,6 +42,7 @@
 #ifndef APPS_ECHO_MODEL_SERVER_H
 #define APPS_ECHO_MODEL_SERVER_H
 
+#include "SemanticLog.h"
 #include "log/Logger.h"
 
 #define QUOTE_INCLUDE(a) STR_INCLUDE(a)
@@ -90,10 +91,10 @@ namespace apps::echo::model::tls {
         EchoSocketServer server("echoserver");
 
         server.setOnConnect([&server](SocketConnection* socketConnection) { // onConnect
-            VLOG(1) << "OnConnect " << server.getConfig()->getInstanceName();
+            snode::semantic::appLog().debug() << "OnConnect " << server.getConfig()->getInstanceName();
 
-            VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            snode::semantic::appLog().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            snode::semantic::appLog().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -106,21 +107,21 @@ namespace apps::echo::model::tls {
         });
 
         server.setOnConnected([&server](SocketConnection* socketConnection) { // onConnected
-            VLOG(1) << "OnConnected " << server.getConfig()->getInstanceName();
+            snode::semantic::appLog().debug() << "OnConnected " << server.getConfig()->getInstanceName();
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                VLOG(1) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
-                               std::string(X509_verify_cert_error_string(verifyErr));
+                snode::semantic::appLog().debug() << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
+                                                         std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                VLOG(1) << "\t   Subject: " + std::string(str);
+                snode::semantic::appLog().debug() << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                VLOG(1) << "\t   Issuer: " + std::string(str);
+                snode::semantic::appLog().debug() << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -130,21 +131,21 @@ namespace apps::echo::model::tls {
 
                 int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 
-                VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
+                snode::semantic::appLog().debug() << "\t   Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
                     GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                     if (generalName->type == GEN_URI) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
+                        snode::semantic::appLog().debug() << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
+                        snode::semantic::appLog().debug() << "\t      SAN (DNS): '" + subjectAltName;
                     } else {
-                        VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        snode::semantic::appLog().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
                     }
                 }
 
@@ -152,15 +153,15 @@ namespace apps::echo::model::tls {
 
                 X509_free(server_cert);
             } else {
-                VLOG(1) << "\tPeer certificate: no certificate";
+                snode::semantic::appLog().debug() << "\tPeer certificate: no certificate";
             }
         });
 
         server.setOnDisconnect([&server](SocketConnection* socketConnection) { // onDisconnect
-            VLOG(1) << "OnDisconnect " << server.getConfig()->getInstanceName();
+            snode::semantic::appLog().debug() << "OnDisconnect " << server.getConfig()->getInstanceName();
 
-            VLOG(1) << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            VLOG(1) << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            snode::semantic::appLog().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            snode::semantic::appLog().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         return server;

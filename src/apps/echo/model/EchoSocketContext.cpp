@@ -41,6 +41,8 @@
 
 #include "EchoSocketContext.h"
 
+#include "SemanticLog.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -57,7 +59,7 @@ namespace apps::echo::model {
     }
 
     void EchoSocketContext::onConnected() {
-        VLOG(1) << "Echo connected";
+        snode::semantic::appLog().debug() << "Echo connected";
 
         if (role == Role::CLIENT) {
             sendToPeer("Hello peer! Nice to see you!!!");
@@ -65,7 +67,7 @@ namespace apps::echo::model {
     }
 
     void EchoSocketContext::onDisconnected() {
-        VLOG(1) << "Echo disconnected";
+        snode::semantic::appLog().debug() << "Echo disconnected";
     }
 
     bool EchoSocketContext::onSignal([[maybe_unused]] int signum) {
@@ -78,7 +80,7 @@ namespace apps::echo::model {
         const std::size_t chunklen = readFromPeer(chunk, 4096);
 
         if (chunklen > 0) {
-            VLOG(1) << "Data to reflect: " << std::string(chunk, chunklen);
+            snode::semantic::appLog().debug() << "Data to reflect: " << std::string(chunk, chunklen);
             sendToPeer(chunk, chunklen);
         }
 

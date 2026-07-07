@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/tls/in/WebApp.h"
@@ -104,11 +105,11 @@ Router router(database::mariadb::MariaDBClient& db) {
         .get(
             "/query/:userId",
             [] MIDDLEWARE(req, res, next) {
-                VLOG(1) << "Move on to the next route to query database";
+                snode::semantic::appLog().debug() << "Move on to the next route to query database";
                 next();
             },
             [&db] MIDDLEWARE(req, res, next) { // http://localhost:8080/query/123
-                VLOG(1) << "UserId: " << req->params["userId"];
+                snode::semantic::appLog().debug() << "UserId: " << req->params["userId"];
                 std::string userId = req->params["userId"];
 
                 req->setAttribute<std::string, "html-table">(std::string());
@@ -159,29 +160,29 @@ Router router(database::mariadb::MariaDBClient& db) {
                                                          "  </body>\n"
                                                          "</html>\n"));
                             });
-                            VLOG(1) << "Move on to the next route to send result";
+                            snode::semantic::appLog().debug() << "Move on to the next route to send result";
                             next();
                         }
                     },
                     [res, userId](const std::string& errorString, unsigned int errorNumber) {
-                        VLOG(1) << "Error: " << errorString << " : " << errorNumber;
+                        snode::semantic::appLog().warn() << "Error: " << errorString << " : " << errorNumber;
                         res->status(404).send(userId + ": " + errorString + " - " + std::to_string(errorNumber));
                     });
             },
             [] MIDDLEWARE(req, res, next) {
-                VLOG(1) << "And again 1: Move on to the next route to send result";
+                snode::semantic::appLog().debug() << "And again 1: Move on to the next route to send result";
                 next();
             },
             [] MIDDLEWARE(req, res, next) {
-                VLOG(1) << "And again 2: Move on to the next route to send result";
+                snode::semantic::appLog().debug() << "And again 2: Move on to the next route to send result";
                 next();
             })
         .get([] MIDDLEWARE(req, res, next) {
-            VLOG(1) << "And again 3: Move on to the next route to send result";
+            snode::semantic::appLog().debug() << "And again 3: Move on to the next route to send result";
             next();
         })
         .get([] APPLICATION(req, res) {
-            VLOG(1) << "SendResult";
+            snode::semantic::appLog().debug() << "SendResult";
 
             req->getAttribute<std::string, "html-table">(
                 [res](std::string& table) {
@@ -192,9 +193,9 @@ Router router(database::mariadb::MariaDBClient& db) {
                 });
         });
     router.get("/account/:userId(\\d*)/:userName", [&db] APPLICATION(req, res) { // http://localhost:8080/account/123/perfectNDSgroup
-        VLOG(1) << "Show account of";
-        VLOG(1) << "UserId: " << req->params["userId"];
-        VLOG(1) << "UserName: " << req->params["userName"];
+        snode::semantic::appLog().debug() << "Show account of";
+        snode::semantic::appLog().debug() << "UserId: " << req->params["userId"];
+        snode::semantic::appLog().debug() << "UserName: " << req->params["userName"];
 
         const std::string response = "<html>"
                                      "  <head>"
@@ -219,18 +220,18 @@ Router router(database::mariadb::MariaDBClient& db) {
         db.exec(
             "INSERT INTO `snodec`(`username`, `password`) VALUES ('" + userId + "','" + userName + "')",
             [userId, userName]() {
-                VLOG(1) << "Inserted: -> " << userId << " - " << userName;
+                snode::semantic::appLog().debug() << "Inserted: -> " << userId << " - " << userName;
             },
             [](const std::string& errorString, unsigned int errorNumber) {
-                VLOG(1) << "Error: " << errorString << " : " << errorNumber;
+                snode::semantic::appLog().warn() << "Error: " << errorString << " : " << errorNumber;
             });
 
         res->send(response);
     });
     router.get("/asdf/:testRegex1(d\\d{3}e)/jklö/:testRegex2", [] APPLICATION(req, res) { // http://localhost:8080/asdf/d123e/jklö/hallo
-        VLOG(1) << "Testing Regex";
-        VLOG(1) << "Regex1: " << req->params["testRegex1"];
-        VLOG(1) << "Regex2: " << req->params["testRegex2"];
+        snode::semantic::appLog().debug() << "Testing Regex";
+        snode::semantic::appLog().debug() << "Regex1: " << req->params["testRegex1"];
+        snode::semantic::appLog().debug() << "Regex2: " << req->params["testRegex2"];
 
         const std::string response = "<html>"
                                      "  <head>"
@@ -252,9 +253,9 @@ Router router(database::mariadb::MariaDBClient& db) {
         res->send(response);
     });
     router.get("/search/:search", [] APPLICATION(req, res) { // http://localhost:8080/search/buxtehude123
-        VLOG(1) << "Show Search of";
-        VLOG(1) << "Search: " << req->params["search"];
-        VLOG(1) << "Queries: " << req->query("test");
+        snode::semantic::appLog().debug() << "Show Search of";
+        snode::semantic::appLog().debug() << "Search: " << req->params["search"];
+        snode::semantic::appLog().debug() << "Queries: " << req->query("test");
 
         res->send(req->params["search"]);
     });
@@ -287,11 +288,11 @@ int main(int argc, char* argv[]) {
 
     database::mariadb::MariaDBClient db(details, [](const database::mariadb::MariaDBState& state) {
         if (state.error != 0) {
-            VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
+            snode::semantic::appLog().error() << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
         } else if (state.connected) {
-            VLOG(0) << "MySQL connected";
+            snode::semantic::mariaDbLog().info() << "MySQL connected";
         } else {
-            VLOG(0) << "MySQL disconnected";
+            snode::semantic::mariaDbLog().info() << "MySQL disconnected";
         }
     });
 
@@ -303,32 +304,32 @@ int main(int argc, char* argv[]) {
         legacyApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << "legacy-testregex: listening on '" << socketAddress.toString() << "'";
+                    snode::semantic::appLog().info() << "legacy-testregex: listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << "legacy-testregex: disabled";
+                    snode::semantic::appLog().info() << "legacy-testregex: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "legacy-testregex: error occurred";
+                    snode::semantic::appLog().warn() << "legacy-testregex: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "legacy-testregex: fatal error occurred";
+                    snode::semantic::appLog().error() << "legacy-testregex: fatal error occurred";
                     break;
             }
         });
 
         legacyApp.setOnConnect([](legacy::in::WebApp::SocketConnection* socketConnection) {
-            VLOG(1) << "OnConnect:";
+            snode::semantic::appLog().debug() << "OnConnect:";
 
-            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            snode::semantic::appLog().debug() << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            snode::semantic::appLog().debug() << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
         legacyApp.setOnDisconnect([](legacy::in::WebApp::SocketConnection* socketConnection) {
-            VLOG(1) << "OnDisconnect:";
+            snode::semantic::appLog().debug() << "OnDisconnect:";
 
-            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            snode::semantic::appLog().debug() << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            snode::semantic::appLog().debug() << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
         tls::in::WebApp tlsApp("tls-testregex");
@@ -338,43 +339,43 @@ int main(int argc, char* argv[]) {
         tlsApp.listen(8088, [](const tls::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << "tls-testregex: listening on '" << socketAddress.toString() << "'";
+                    snode::semantic::appLog().info() << "tls-testregex: listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << "tls-testregex: disabled";
+                    snode::semantic::appLog().info() << "tls-testregex: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "tls-testregex: error occurred";
+                    snode::semantic::appLog().warn() << "tls-testregex: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "tls-testregex: fatal error occurred";
+                    snode::semantic::appLog().error() << "tls-testregex: fatal error occurred";
                     break;
             }
         });
 
         tlsApp.setOnConnect([](tls::in::WebApp::SocketConnection* socketConnection) {
-            VLOG(1) << "OnConnect:";
+            snode::semantic::appLog().debug() << "OnConnect:";
 
-            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            snode::semantic::appLog().debug() << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            snode::semantic::appLog().debug() << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
         tlsApp.setOnConnected([](tls::in::WebApp::SocketConnection* socketConnection) {
-            VLOG(1) << "OnConnected:";
+            snode::semantic::appLog().debug() << "OnConnected:";
 
             X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
 
             if (client_cert != nullptr) {
                 const long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                VLOG(1) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                snode::semantic::appLog().debug() << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), nullptr, 0);
-                VLOG(1) << "\t   Subject: " + std::string(str);
+                snode::semantic::appLog().debug() << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(client_cert), nullptr, 0);
-                VLOG(1) << "\t   Issuer: " + std::string(str);
+                snode::semantic::appLog().debug() << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -384,21 +385,21 @@ int main(int argc, char* argv[]) {
 
                 const int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 
-                VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
+                snode::semantic::appLog().debug() << "\t   Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
                     GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                     if (generalName->type == GEN_URI) {
                         const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
+                        snode::semantic::appLog().debug() << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         const std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
+                        snode::semantic::appLog().debug() << "\t      SAN (DNS): '" + subjectAltName;
                     } else {
-                        VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        snode::semantic::appLog().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
                     }
                 }
 
@@ -406,15 +407,15 @@ int main(int argc, char* argv[]) {
 
                 X509_free(client_cert);
             } else {
-                VLOG(1) << "\tClient certificate: no certificate";
+                snode::semantic::appLog().debug() << "\tClient certificate: no certificate";
             }
         });
 
         tlsApp.setOnDisconnect([](tls::in::WebApp::SocketConnection* socketConnection) {
-            VLOG(1) << "OnDisconnect:";
+            snode::semantic::appLog().debug() << "OnDisconnect:";
 
-            VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            snode::semantic::appLog().debug() << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            snode::semantic::appLog().debug() << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
     }
 

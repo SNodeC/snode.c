@@ -64,41 +64,41 @@ int main(int argc, char* argv[]) {
         const std::string queryAccessToken{req->query("access_token")};
         const std::string queryClientId{req->query("client_id")};
         if (queryAccessToken.empty() || queryClientId.empty()) {
-            VLOG(1) << "Missing access_token or client_id in body";
+            snode::semantic::appLog().warn() << "Missing access_token or client_id in body";
             res->sendStatus(401);
             return;
         }
 
         const web::http::legacy::in::Client legacyClient(
             [](web::http::legacy::in::Client::SocketConnection* socketConnection) {
-                VLOG(1) << "OnConnect";
+                snode::semantic::appLog().debug() << "OnConnect";
 
-                VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                snode::semantic::appLog().debug() << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                snode::semantic::appLog().debug() << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             []([[maybe_unused]] web::http::legacy::in::Client::SocketConnection* socketConnection) {
-                VLOG(1) << "OnConnected";
+                snode::semantic::appLog().debug() << "OnConnected";
             },
             [](web::http::legacy::in::Client::SocketConnection* socketConnection) {
-                VLOG(1) << "OnDisconnect";
+                snode::semantic::appLog().debug() << "OnDisconnect";
 
-                VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                snode::semantic::appLog().debug() << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                snode::semantic::appLog().debug() << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             [queryAccessToken, queryClientId, res](const std::shared_ptr<web::http::client::MasterRequest>& request) {
-                VLOG(1) << "OnRequestBegin";
+                snode::semantic::appLog().debug() << "OnRequestBegin";
                 request->url = "/oauth2/token/validate?client_id=" + queryClientId;
                 request->method = "POST";
-                VLOG(1) << "ClientId: " << queryClientId;
-                VLOG(1) << "AccessToken: " << queryAccessToken;
+                snode::semantic::appLog().debug() << "ClientId: " << queryClientId;
+                snode::semantic::appLog().debug() << "AccessToken: " << queryAccessToken;
                 const nlohmann::json requestJson = {{"access_token", queryAccessToken}, {"client_id", queryClientId}};
                 const std::string requestJsonString{requestJson.dump(4)};
                 request->send(
                     requestJsonString,
                     [res]([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& request,
                           const std::shared_ptr<web::http::client::Response>& response) {
-                        VLOG(1) << "OnResponse";
-                        VLOG(1) << "Response: " << std::string(response->body.begin(), response->body.end());
+                        snode::semantic::appLog().debug() << "OnResponse";
+                        snode::semantic::appLog().debug() << "Response: " << std::string(response->body.begin(), response->body.end());
                         if (std::stoi(response->statusCode) != 200) {
                             const nlohmann::json errorJson = {{"error", "Invalid access token"}};
                             res->status(401).send(errorJson.dump(4));
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
                         }
                     },
                     [](const std::shared_ptr<web::http::client::Request>&, const std::string& message) {
-                        VLOG(1) << "OAuth2ResourceServer: Request parse error: " << message;
+                        snode::semantic::appLog().debug() << "OAuth2ResourceServer: Request parse error: " << message;
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<web::http::client::Request>& req) {
@@ -119,16 +119,16 @@ int main(int argc, char* argv[]) {
             "localhost", 8082, [](const web::http::legacy::in::Client::SocketAddress& socketAddress, const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
-                        VLOG(1) << "OAuth2ResourceServer: connected to '" << socketAddress.toString() << "'";
+                        snode::semantic::appLog().info() << "OAuth2ResourceServer: connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        VLOG(1) << "OAuth2ResourceServer: disabled";
+                        snode::semantic::appLog().info() << "OAuth2ResourceServer: disabled";
                         break;
                     case core::socket::State::ERROR:
-                        VLOG(1) << "OAuth2ResourceServer: error occurred";
+                        snode::semantic::appLog().warn() << "OAuth2ResourceServer: error occurred";
                         break;
                     case core::socket::State::FATAL:
-                        VLOG(1) << "OAuth2ResourceServer: fatal error occurred";
+                        snode::semantic::appLog().error() << "OAuth2ResourceServer: fatal error occurred";
                         break;
                 }
             });
@@ -137,16 +137,16 @@ int main(int argc, char* argv[]) {
     app.listen(8083, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "app: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().info() << "app: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "app: disabled";
+                snode::semantic::appLog().info() << "app: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "app: error occurred";
+                snode::semantic::appLog().warn() << "app: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "app: fatal error occurred";
+                snode::semantic::appLog().error() << "app: fatal error occurred";
                 break;
         }
     });

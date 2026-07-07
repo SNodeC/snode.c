@@ -99,10 +99,10 @@ int main(int argc, char* argv[]) {
                                                                      const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                    snode::semantic::appLog().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << ": disabled";
+                    snode::semantic::appLog().info() << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
                     snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
@@ -135,17 +135,17 @@ int main(int argc, char* argv[]) {
     tlsServer.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "tls: listening on '" << socketAddress.toString() << "'"
-                        << "'";
+                snode::semantic::appLog().info() << "tls: listening on '" << socketAddress.toString() << "'"
+                                                 << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "tls: disabled";
+                snode::semantic::appLog().info() << "tls: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "tls: error occurred";
+                snode::semantic::appLog().warn() << "tls: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "tls: fatal error occurred";
+                snode::semantic::appLog().error() << "tls: fatal error occurred";
                 break;
         }
     });

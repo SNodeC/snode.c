@@ -70,13 +70,13 @@ namespace apps::http {
         web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
             socketContext,
             []() {
-                VLOG(1) << "++   OnStarted";
+                snode::semantic::appLog().debug() << "++   OnStarted";
             },
             []([[maybe_unused]] web::http::client::Response& res) {
-                VLOG(1) << "++   OnParsed";
+                snode::semantic::appLog().debug() << "++   OnParsed";
             },
             [](int status, const std::string& reason) {
-                VLOG(1) << "++   OnError: " + std::to_string(status) + " - " + reason;
+                snode::semantic::appLog().debug() << "++   OnError: " + std::to_string(status) + " - " + reason;
             });
 
         return responseParser;
@@ -92,10 +92,10 @@ namespace apps::http {
         ~SimpleSocketProtocol() override;
 
         void onConnected() override {
-            VLOG(1) << "SimpleSocketProtocol connected";
+            snode::semantic::appLog().debug() << "SimpleSocketProtocol connected";
         }
         void onDisconnected() override {
-            VLOG(1) << "SimpleSocketProtocol disconnected";
+            snode::semantic::appLog().debug() << "SimpleSocketProtocol disconnected";
         }
 
         bool onSignal([[maybe_unused]] int signum) override {
@@ -149,10 +149,10 @@ namespace tls {
         SocketClient tlsClient(
             "tls",
             [](SocketConnection* socketConnection) { // onConnect
-                VLOG(1) << "OnConnect";
+                snode::semantic::appLog().debug() << "OnConnect";
 
-                VLOG(1) << "\tServer: " << socketConnection->getRemoteAddress().toString();
-                VLOG(1) << "\tClient: " << socketConnection->getLocalAddress().toString();
+                snode::semantic::appLog().debug() << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                snode::semantic::appLog().debug() << "\tClient: " << socketConnection->getLocalAddress().toString();
 
                 /* Enable automatic hostname checks */
                 // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -164,20 +164,21 @@ namespace tls {
                 // }
             },
             [](SocketConnection* socketConnection) { // onConnected
-                VLOG(1) << "OnConnected";
+                snode::semantic::appLog().debug() << "OnConnected";
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
                     const long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                    VLOG(1) << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                    snode::semantic::appLog().debug()
+                        << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                     char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                    VLOG(1) << "        Subject: " + std::string(str);
+                    snode::semantic::appLog().debug() << "        Subject: " + std::string(str);
                     OPENSSL_free(str);
 
                     str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                    VLOG(1) << "        Issuer: " + std::string(str);
+                    snode::semantic::appLog().debug() << "        Issuer: " + std::string(str);
                     OPENSSL_free(str);
 
                     // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -187,21 +188,21 @@ namespace tls {
 
                     const int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 
-                    VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
+                    snode::semantic::appLog().debug() << "\t   Subject alternative name count: " << altNameCount;
                     for (int32_t i = 0; i < altNameCount; ++i) {
                         GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                         if (generalName->type == GEN_URI) {
                             const std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                            VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
+                            snode::semantic::appLog().debug() << "\t      SAN (URI): '" + subjectAltName;
                         } else if (generalName->type == GEN_DNS) {
                             const std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                            VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
+                            snode::semantic::appLog().debug() << "\t      SAN (DNS): '" + subjectAltName;
                         } else {
-                            VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                            snode::semantic::appLog().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
                         }
                     }
 
@@ -209,16 +210,16 @@ namespace tls {
 
                     X509_free(server_cert);
                 } else {
-                    VLOG(1) << "     Server certificate: no certificate";
+                    snode::semantic::appLog().debug() << "     Server certificate: no certificate";
                 }
 
                 socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) { // onDisconnect
-                VLOG(1) << "OnDisconnect";
+                snode::semantic::appLog().debug() << "OnDisconnect";
 
-                VLOG(1) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(1) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                snode::semantic::appLog().debug() << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                snode::semantic::appLog().debug() << "\tClient: " + socketConnection->getLocalAddress().toString();
 
             });
 
@@ -231,10 +232,10 @@ namespace tls {
                                                            const core::socket::State& state) { // example.com:81 simulate connnect timeout
                 switch (state) {
                     case core::socket::State::OK:
-                        VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        VLOG(1) << instanceName << ": disabled";
+                        snode::semantic::appLog().info() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
                         snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
@@ -259,51 +260,50 @@ namespace legacy {
         SocketClient legacyClient(
             "legacy",
             [](SocketConnection* socketConnection) { // OnConnect
-                VLOG(1) << "OnConnect";
+                snode::semantic::appLog().debug() << "OnConnect";
 
-                VLOG(1) << "\tServer: " << socketConnection->getRemoteAddress().toString();
-                VLOG(1) << "\tClient: " << socketConnection->getLocalAddress().toString();
+                snode::semantic::appLog().debug() << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                snode::semantic::appLog().debug() << "\tClient: " << socketConnection->getLocalAddress().toString();
             },
             [](SocketConnection* socketConnection) { // onConnected
-                VLOG(1) << "OnConnected";
+                snode::semantic::appLog().debug() << "OnConnected";
 
                 socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) { // onDisconnect
-                VLOG(1) << "OnDisconnect";
+                snode::semantic::appLog().debug() << "OnDisconnect";
 
-                VLOG(1) << "\tServer: " << socketConnection->getRemoteAddress().toString();
-                VLOG(1) << "\tClient: " << socketConnection->getLocalAddress().toString();
+                snode::semantic::appLog().debug() << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                snode::semantic::appLog().debug() << "\tClient: " << socketConnection->getLocalAddress().toString();
             });
 
         SocketAddress remoteAddress("localhost", 8080);
 
         remoteAddress.init();
 
-        VLOG(1) << "###############': " << remoteAddress.getCanonName();
-        VLOG(1) << "###############': " << remoteAddress.toString();
+        snode::semantic::appLog().debug() << "###############': " << remoteAddress.getCanonName();
+        snode::semantic::appLog().debug() << "###############': " << remoteAddress.toString();
 
-        legacyClient.connect(remoteAddress,
-                             [instanceName = legacyClient.getConfig()->getInstanceName()](
-                                 const tls::SocketAddress& socketAddress,
-                                 const core::socket::State& state) { // example.com:81 simulate connnect timeout
-                                 switch (state) {
-                                     case core::socket::State::OK:
-                                         VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
-                                         break;
-                                     case core::socket::State::DISABLED:
-                                         VLOG(1) << instanceName << ": disabled";
-                                         break;
-                                     case core::socket::State::ERROR:
-                                         snode::semantic::appLog().error()
-                                             << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                         break;
-                                     case core::socket::State::FATAL:
-                                         snode::semantic::appLog().critical()
-                                             << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                         break;
-                                 }
-                             });
+        legacyClient.connect(
+            remoteAddress,
+            [instanceName = legacyClient.getConfig()->getInstanceName()](
+                const tls::SocketAddress& socketAddress,
+                const core::socket::State& state) { // example.com:81 simulate connnect timeout
+                switch (state) {
+                    case core::socket::State::OK:
+                        snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        break;
+                    case core::socket::State::DISABLED:
+                        snode::semantic::appLog().info() << instanceName << ": disabled";
+                        break;
+                    case core::socket::State::ERROR:
+                        snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        break;
+                    case core::socket::State::FATAL:
+                        snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        break;
+                }
+            });
 
         return legacyClient;
     }
@@ -318,27 +318,26 @@ int main(int argc, char* argv[]) {
 
         const legacy::SocketClient legacyClient = legacy::getLegacyClient();
 
-        legacyClient.connect(legacyRemoteAddress,
-                             [instanceName = legacyClient.getConfig()->getInstanceName()](
-                                 const tls::SocketAddress& socketAddress,
-                                 const core::socket::State& state) { // example.com:81 simulate connnect timeout
-                                 switch (state) {
-                                     case core::socket::State::OK:
-                                         VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
-                                         break;
-                                     case core::socket::State::DISABLED:
-                                         VLOG(1) << instanceName << ": disabled";
-                                         break;
-                                     case core::socket::State::ERROR:
-                                         snode::semantic::appLog().error()
-                                             << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                         break;
-                                     case core::socket::State::FATAL:
-                                         snode::semantic::appLog().critical()
-                                             << instanceName << ": " << socketAddress.toString() << ": " << state.what();
-                                         break;
-                                 }
-                             });
+        legacyClient.connect(
+            legacyRemoteAddress,
+            [instanceName = legacyClient.getConfig()->getInstanceName()](
+                const tls::SocketAddress& socketAddress,
+                const core::socket::State& state) { // example.com:81 simulate connnect timeout
+                switch (state) {
+                    case core::socket::State::OK:
+                        snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        break;
+                    case core::socket::State::DISABLED:
+                        snode::semantic::appLog().info() << instanceName << ": disabled";
+                        break;
+                    case core::socket::State::ERROR:
+                        snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        break;
+                    case core::socket::State::FATAL:
+                        snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        break;
+                }
+            });
 
         const tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
 
@@ -351,10 +350,10 @@ int main(int argc, char* argv[]) {
                                                            const core::socket::State& state) { // example.com:81 simulate connnect timeout
                 switch (state) {
                     case core::socket::State::OK:
-                        VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        VLOG(1) << instanceName << ": disabled";
+                        snode::semantic::appLog().info() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
                         snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();

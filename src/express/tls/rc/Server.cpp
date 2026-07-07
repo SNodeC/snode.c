@@ -41,6 +41,7 @@
 
 #include "express/tls/rc/Server.h"
 
+#include "SemanticLog.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -70,26 +71,27 @@ namespace express::tls::rc {
             } else {
                 switch (state) {
                     case core::socket::State::OK:
-                        VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                        snode::semantic::expressLog().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        VLOG(1) << instanceName << ": disabled";
+                        snode::semantic::expressLog().info() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::semantic::expressLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::semantic::expressLog().critical()
+                            << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             }
         });
 
-        VLOG(1) << "Instance: " << instanceName;
+        snode::semantic::expressLog().trace() << "Instance: " << instanceName;
         for (std::string& route : webApp.getRoutes()) {
             route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
 
-            VLOG(1) << "  " << route;
+            snode::semantic::expressLog().trace() << "  " << route;
         }
 
         return webApp;

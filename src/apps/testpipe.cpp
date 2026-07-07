@@ -62,22 +62,22 @@ int main(int argc, char* argv[]) {
         []([[maybe_unused]] core::pipe::PipeSource& pipeSource, [[maybe_unused]] core::pipe::PipeSink& pipeSink) {
             pipeSink.setOnData([&pipeSource](const char* chunk, std::size_t chunkLen) {
                 const std::string string(chunk, chunkLen);
-                VLOG(1) << "Pipe Data: " << string;
+                snode::semantic::appLog().debug() << "Pipe Data: " << string;
                 pipeSource.send(chunk, chunkLen);
                 // pipeSink.disable();
                 // pipeSource.disable();
             });
 
             pipeSink.setOnEof([]() {
-                VLOG(1) << "Pipe EOF";
+                snode::semantic::appLog().debug() << "Pipe EOF";
             });
 
             pipeSink.setOnError([]([[maybe_unused]] int errnum) {
-                VLOG(1) << "PipeSink";
+                snode::semantic::appLog().debug() << "PipeSink";
             });
 
             pipeSource.setOnError([]([[maybe_unused]] int errnum) {
-                VLOG(1) << "PipeSource";
+                snode::semantic::appLog().debug() << "PipeSource";
             });
 
             pipeSource.send("Hello World!");

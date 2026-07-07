@@ -72,8 +72,8 @@ int main(int argc, char* argv[]) {
     //    tls::WebApp wa;
 
     webApp.get("/jalousien/:id", [] APPLICATION(req, res) {
-        VLOG(1) << "Param: " << req->param("id");
-        VLOG(1) << "Qurey: " << req->query("action");
+        snode::semantic::appLog().debug() << "Param: " << req->param("id");
+        snode::semantic::appLog().debug() << "Qurey: " << req->query("action");
 
         std::string arguments = "aircontrol -t " + jalousien[req->param("id")] + "_" + actions[req->query("action")];
 
@@ -104,10 +104,10 @@ int main(int argc, char* argv[]) {
                                                                          const core::socket::State& state) {
                       switch (state) {
                           case core::socket::State::OK:
-                              VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                              snode::semantic::appLog().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                               break;
                           case core::socket::State::DISABLED:
-                              VLOG(1) << instanceName << ": disabled";
+                              snode::semantic::appLog().info() << instanceName << ": disabled";
                               break;
                           case core::socket::State::ERROR:
                               snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
