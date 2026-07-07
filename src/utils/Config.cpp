@@ -42,6 +42,7 @@
 #include "utils/Config.h"
 
 #include "utils/Daemon.h"
+#include "utils/Formatter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -288,11 +289,28 @@ namespace utils {
         return out.str();
     }
 
+
+    static std::string getShowConfigOptionFormat(CLI::App* configTriggeredApp) {
+        std::string format = "json";
+
+        if (configTriggeredApp != nullptr) {
+            if (const CLI::Option* showConfigOption = configTriggeredApp->get_option_no_throw("--show-config"); showConfigOption != nullptr && showConfigOption->count() > 0) {
+                format = showConfigOption->as<std::string>();
+            }
+        }
+
+        return format;
+    }
+
     static std::string getConfig(CLI::App* configTriggeredApp) {
         std::stringstream out;
 
         try {
-            out << configTriggeredApp->config_to_str(true, true);
+            if (getShowConfigOptionFormat(configTriggeredApp) == "ini") {
+                out << configTriggeredApp->config_to_str(true, true);
+            } else {
+                out << CLI::JsonConfigFormatter().to_json_config(configTriggeredApp);
+            }
         } catch (const CLI::ParseError& e) {
             out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
                 << "] Showing current config: " << configTriggeredApp->get_name() << " " << e.get_name() << " " << e.what();
@@ -585,9 +603,11 @@ namespace utils {
                 } catch (const CLI::ParseError& e) {
                     if (helpTriggerApp != nullptr || showConfigTriggerApp != nullptr || commandlineTriggerApp != nullptr ||
                         versionOpt->count() > 0) {
-                        std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
-                                  << std::endl
-                                  << std::endl;
+                        if (showConfigTriggerApp == nullptr || getShowConfigOptionFormat(showConfigTriggerApp) == "ini") {
+                            std::cout << std::string{"["} << Color::Code::FG_RED << e.get_name() << Color::Code::FG_DEFAULT << "] " << e.what()
+                                      << std::endl
+                                      << std::endl;
+                        }
 
                         if (versionOpt->count() > 0) {
                             throw CLI::CallForVersion();

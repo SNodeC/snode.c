@@ -125,6 +125,7 @@ namespace utils {
 
     public:
         std::string configToStr() const;
+        std::string configToJsonStr() const;
         std::string help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const;
 
         bool hasParent() const;
@@ -238,6 +239,7 @@ namespace utils {
         static CLI::App* getShowConfigTriggerApp();
         static CLI::App* getCommandlineTriggerApp();
 
+
         static std::map<std::string, std::string> aliases;
 
         static CLI::App* helpTriggerApp;
@@ -254,6 +256,7 @@ namespace utils {
     protected:
         CLI::Option* helpOpt = nullptr;
         CLI::Option* showConfigOpt = nullptr;
+        std::string showConfigFlagValue = "json";
         CLI::Option* commandlineOpt = nullptr;
 
     private:

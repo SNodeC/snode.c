@@ -39,7 +39,10 @@
 
 
 snodec_add_test(SNodeCInitFreeSmokeTest SNodeCInitFreeSmokeTest.cpp)
+snodec_add_test(ConfigJsonFormatterTest ConfigJsonFormatterTest.cpp)
 
 target_link_libraries(SNodeCInitFreeSmokeTest PRIVATE snodec-test-support snodec::core)
+target_link_libraries(ConfigJsonFormatterTest PRIVATE snodec-test-support snodec::core)
 
 set_tests_properties(SNodeCInitFreeSmokeTest PROPERTIES LABELS "unit;core;smoke")
+set_tests_properties(ConfigJsonFormatterTest PROPERTIES LABELS "unit;core;config" TIMEOUT 5)

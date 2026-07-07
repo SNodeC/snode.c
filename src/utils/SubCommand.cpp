@@ -98,16 +98,20 @@ namespace utils {
                                       false);
 
             showConfigOpt = setConfigurable(subCommandApp
-                                                ->add_flag_function(
-                                                    "-s,--show-config",
-                                                    [subCommandApp = this->subCommandApp](std::size_t) {
-                                                        if (showConfigTriggerApp == nullptr) {
-                                                            showConfigTriggerApp = subCommandApp;
-                                                        }
-                                                    },
-                                                    "Show current configuration and exit")
+                                                ->add_flag(
+                                                    "-s{json},--show-config{json}",
+                                                    showConfigFlagValue,
+                                                    "Show current configuration and exit\n"
+                                                    "* json (default): canonical JSON config tree\n"
+                                                    "* ini: legacy INI-style config output")
+                                                ->type_name("FORMAT")
                                                 ->take_first()
-                                                ->disable_flag_override()
+                                                ->check(CLI::IsMember({"ini", "json"}))
+                                                ->each([subCommandApp = this->subCommandApp]([[maybe_unused]] std::string value) {
+                                                    if (showConfigTriggerApp == nullptr) {
+                                                        showConfigTriggerApp = subCommandApp;
+                                                    }
+                                                })
                                                 ->configurable(false)
                                                 ->trigger_on_parse(),
                                             false);
@@ -182,6 +186,10 @@ namespace utils {
 
     std::string SubCommand::configToStr() const {
         return subCommandApp->config_to_str(true, true);
+    }
+
+    std::string SubCommand::configToJsonStr() const {
+        return CLI::JsonConfigFormatter().to_json_config(subCommandApp);
     }
 
     std::string SubCommand::help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const {
