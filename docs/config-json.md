@@ -106,6 +106,8 @@ Each option includes stable identity and best-effort CLI/config metadata:
 - `relations`
 - `value`
 
+`id` is the unique identity of the option inside the exported JSON tree. It is derived from the current node ID plus the option name, so options below anonymous nodes include generated segments such as `<anonymous-0>.port`.
+`key` remains the flattened SNode.C/CLI11 config key used for config-file and command-line mapping, and it is intentionally kept separate from `id` so config behavior does not change.
 `commandLine` includes the visible long and short names where CLI11 exposes them, whether values are expected, the value separator, and repeatability.
 `configFile` contains the flattened key used by the current config formatter, an optional section field, and writability derived from configurability.
 

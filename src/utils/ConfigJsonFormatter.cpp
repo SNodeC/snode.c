@@ -432,14 +432,16 @@ namespace utils {
             json.endObject();
         }
 
-        void writeOption(JsonWriter& json, const CLI::Option* opt, const std::string& prefix) {
-            const std::string key = prefix + optionSingleName(opt);
+        void writeOption(JsonWriter& json, const CLI::Option* opt, const std::string& prefix, const std::string& nodeId) {
+            const std::string optionName = optionSingleName(opt);
+            const std::string key = prefix + optionName;
+            const std::string optionId = nodeId == "app" ? key : nodeId + "." + optionName;
             const Classification group = classifyOptionGroup(opt->get_group());
 
             json.beginObject();
 
             json.key("id");
-            json.string(key);
+            json.string(optionId);
 
             json.key("key");
             json.string(key);
@@ -484,7 +486,8 @@ namespace utils {
         void writeOptionGroup(JsonWriter& json,
                               const std::string& group,
                               const std::vector<const CLI::Option*>& options,
-                              const std::string& prefix) {
+                              const std::string& prefix,
+                              const std::string& nodeId) {
             const Classification classification = classifyOptionGroup(group);
 
             json.beginObject();
@@ -501,14 +504,14 @@ namespace utils {
             json.key("options");
             json.beginArray();
             for (const CLI::Option* option : options) {
-                writeOption(json, option, prefix);
+                writeOption(json, option, prefix, nodeId);
             }
             json.endArray();
 
             json.endObject();
         }
 
-        void writeOptionGroups(JsonWriter& json, const CLI::App* app, const std::string& prefix) {
+        void writeOptionGroups(JsonWriter& json, const CLI::App* app, const std::string& prefix, const std::string& nodeId) {
             std::vector<std::string> groups = app->get_groups();
             bool defaultUsed = false;
 
@@ -536,7 +539,7 @@ namespace utils {
                 }
 
                 if (!options.empty()) {
-                    writeOptionGroup(json, group, options, prefix);
+                    writeOptionGroup(json, group, options, prefix, nodeId);
                 }
             }
 
@@ -549,11 +552,12 @@ namespace utils {
                        const std::string& prefix,
                        bool root) {
             const Classification node = classifyNode(app, root);
+            const std::string nodeId = root ? "app" : CLI::detail::join(path, ".");
 
             json.beginObject();
 
             json.key("id");
-            json.string(root ? "app" : CLI::detail::join(path, "."));
+            json.string(nodeId);
 
             json.key("kind");
             json.string(node.kind);
@@ -594,7 +598,7 @@ namespace utils {
             json.key("path");
             writeStringArray(json, path);
 
-            writeOptionGroups(json, app, prefix);
+            writeOptionGroups(json, app, prefix, nodeId);
 
             json.key("children");
             json.beginArray();

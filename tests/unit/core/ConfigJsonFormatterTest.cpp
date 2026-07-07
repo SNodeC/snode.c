@@ -174,9 +174,13 @@ namespace {
 
         CLI::App* firstAnonymous = app.add_subcommand("", "First anonymous");
         firstAnonymous->group("Anonymous Group");
+        int firstPort = 0;
+        firstAnonymous->add_option("--first-port", firstPort, "First port")->configurable(true);
 
         CLI::App* secondAnonymous = app.add_subcommand("", "Second anonymous");
         secondAnonymous->group("Anonymous Group");
+        int secondPort = 0;
+        secondAnonymous->add_option("--second-port", secondPort, "Second port")->configurable(true);
 
         CLI::App* named = app.add_subcommand("named", "Named child");
         CLI::App* nestedAnonymous = named->add_subcommand("", "Nested anonymous");
@@ -193,6 +197,10 @@ namespace {
                           "anonymous path contains generated segment");
         result.expectTrue(json.find("\"displayName\":\"Anonymous Group\"") != std::string::npos,
                           "anonymous display name uses group fallback");
+        result.expectTrue(json.find("\"id\":\"<anonymous-0>.first-port\",\"key\":\"first-port\"") != std::string::npos,
+                          "first anonymous option has unique tree ID and flattened config key");
+        result.expectTrue(json.find("\"id\":\"<anonymous-1>.second-port\",\"key\":\"second-port\"") != std::string::npos,
+                          "second anonymous option has distinct tree ID and flattened config key");
     }
 
     void testShowConfigOptionCompatibility(tests::support::TestResult& result) {
