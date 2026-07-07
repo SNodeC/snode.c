@@ -41,8 +41,10 @@ cmake_minimum_required(VERSION 3.18)
 
 set(UTILS_CPP
     Config.cpp
+    ConfigJsonFormatter.cpp
     Daemon.cpp
     Formatter.cpp
+    JsonWriter.cpp
     PreserveErrno.cpp
     Random.cpp
     SubCommand.cpp
@@ -59,8 +61,10 @@ set(UTILS_H
     AttributeInjector.h
     CLI11.hpp
     Config.h
+    ConfigJsonFormatter.h
     Daemon.h
     Formatter.h
+    JsonWriter.h
     PreserveErrno.h
     Random.h
     SubCommand.h

@@ -256,7 +256,7 @@ namespace utils {
     protected:
         CLI::Option* helpOpt = nullptr;
         CLI::Option* showConfigOpt = nullptr;
-        std::string showConfigFlagValue = "json";
+        std::string showConfigFlagValue = "ini";
         CLI::Option* commandlineOpt = nullptr;
 
     private:

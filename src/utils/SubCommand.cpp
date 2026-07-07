@@ -42,6 +42,7 @@
 #include "SubCommand.h"
 
 #include "utils/Formatter.h"
+#include "utils/ConfigJsonFormatter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -99,11 +100,11 @@ namespace utils {
 
             showConfigOpt = setConfigurable(subCommandApp
                                                 ->add_flag(
-                                                    "-s{json},--show-config{json}",
+                                                    "-s{ini},--show-config{ini}",
                                                     showConfigFlagValue,
                                                     "Show current configuration and exit\n"
-                                                    "* json (default): canonical JSON config tree\n"
-                                                    "* ini: legacy INI-style config output")
+                                                    "* ini (default): legacy INI-style config output\n"
+                                                    "* json: canonical JSON config tree")
                                                 ->type_name("FORMAT")
                                                 ->take_first()
                                                 ->check(CLI::IsMember({"ini", "json"}))
@@ -189,7 +190,7 @@ namespace utils {
     }
 
     std::string SubCommand::configToJsonStr() const {
-        return CLI::JsonConfigFormatter().to_json_config(subCommandApp);
+        return utils::ConfigJsonFormatter().toConfig(subCommandApp);
     }
 
     std::string SubCommand::help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const {

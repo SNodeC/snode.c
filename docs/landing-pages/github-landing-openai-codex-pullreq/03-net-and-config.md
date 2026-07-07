@@ -89,12 +89,12 @@ When presenting SNode.C publicly, call out that configuration is not an aftertho
 
 ## Canonical JSON configuration export
 
-SNode.C applications now support `--show-config[=json|ini]`. The default for `--show-config` and the compatibility alias `-s` is the versioned canonical JSON export; explicit format selection is documented on the long form (`--show-config=json` or `--show-config=ini`), and `--show-config=ini` preserves the legacy INI-style output used by existing config-file workflows.
+SNode.C applications can emit a versioned canonical JSON configuration export with `--show-config=json` while preserving legacy INI behavior for `-s`, bare `--show-config`, and `--show-config=ini`.
+The JSON document has format name `snodec.config`, version `1`, and an explicit `configurable-options-only` scope.
+It is emitted directly from the live CLI11/SNode.C configuration tree without parsing INI and without adding a JSON library dependency.
 
-The JSON document uses format name `snodec.config` and version `1`. It is emitted directly from the live CLI11/SNode.C configuration tree without parsing the INI representation and without adding a JSON library dependency. A small local writer performs deterministic JSON object/array emission and standards-compliant string escaping.
+The tree model is generic: every CLI11/SNode.C app or subcommand is represented as a config node with structured `optionGroups` and recursive `children`.
+Common networking nodes such as `Instances` and `Sections` are recognized from CLI11 groups, but they are not hard-coded hierarchy levels.
+Options expose best-effort command-line/config-file mapping, required/configurable state, default/configured/effective values, validator metadata when available, relations, and explicit source fields for heuristic classifications.
 
-The tree model is generic: every CLI11/SNode.C app or subcommand is represented as a config node with `optionGroups` and `children`. Common networking nodes such as `Instances` and `Sections` are inferred from CLI11 groups, but they are not hard-coded hierarchy levels; arbitrary application categories, nested sections, and future custom subcommands are preserved.
-
-Each option group preserves the CLI11 group name (for example `Options (persistent)`) and classifies it as persistent, nonpersistent, default, or custom. Each option exposes best-effort command-line/config-file mapping, required/configurable state, default/configured/effective values, validator metadata when available, and relation arrays for CLI11 needs/excludes.
-
-Known limitations for version 1: CLI11 does not always expose the original value source, so command-line and config-file values are reported together as `command-line-or-config`; validator details are opaque unless CLI11 exposes a decomposable description; config-file sections are reported as `null` where the current formatter flattens dotted keys.
+See `docs/config-json.md` for the schema, compatibility behavior, output-purity contract, and known limitations.

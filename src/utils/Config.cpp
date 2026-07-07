@@ -41,6 +41,7 @@
 
 #include "utils/Config.h"
 
+#include "utils/ConfigJsonFormatter.h"
 #include "utils/Daemon.h"
 #include "utils/Formatter.h"
 
@@ -291,10 +292,12 @@ namespace utils {
 
 
     static std::string getShowConfigOptionFormat(CLI::App* configTriggeredApp) {
-        std::string format = "json";
+        std::string format = "ini";
 
         if (configTriggeredApp != nullptr) {
-            if (const CLI::Option* showConfigOption = configTriggeredApp->get_option_no_throw("--show-config"); showConfigOption != nullptr && showConfigOption->count() > 0) {
+            const CLI::Option* showConfigOption = configTriggeredApp->get_option_no_throw("--show-config");
+
+            if (showConfigOption != nullptr && showConfigOption->count() > 0) {
                 format = showConfigOption->as<std::string>();
             }
         }
@@ -305,15 +308,22 @@ namespace utils {
     static std::string getConfig(CLI::App* configTriggeredApp) {
         std::stringstream out;
 
+        const bool jsonRequested = getShowConfigOptionFormat(configTriggeredApp) == "json";
+
         try {
-            if (getShowConfigOptionFormat(configTriggeredApp) == "ini") {
-                out << configTriggeredApp->config_to_str(true, true);
+            if (jsonRequested) {
+                out << utils::ConfigJsonFormatter().toConfig(configTriggeredApp);
             } else {
-                out << CLI::JsonConfigFormatter().to_json_config(configTriggeredApp);
+                out << configTriggeredApp->config_to_str(true, true);
             }
         } catch (const CLI::ParseError& e) {
-            out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                << "] Showing current config: " << configTriggeredApp->get_name() << " " << e.get_name() << " " << e.what();
+            if (jsonRequested) {
+                std::cerr << "Showing current config: " << configTriggeredApp->get_name() << " " << e.get_name() << " " << e.what()
+                          << std::endl;
+            } else {
+                out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
+                    << "] Showing current config: " << configTriggeredApp->get_name() << " " << e.get_name() << " " << e.what();
+            }
         }
 
         return out.str();

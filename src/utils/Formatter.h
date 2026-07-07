@@ -68,10 +68,6 @@
 #endif
 
 #include <string>
-#include <ostream>
-#include <string_view>
-#include <utility>
-#include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -90,33 +86,6 @@ namespace CLI {
     };
 
 
-    class JsonConfigFormatter {
-    public:
-        std::string to_json_config(const App* app) const;
-    };
-
-    class JsonWriter {
-    public:
-        explicit JsonWriter(std::ostream& out);
-        void beginObject();
-        void endObject();
-        void beginArray();
-        void endArray();
-        void key(std::string_view key);
-        void string(std::string_view value);
-        void number(std::string_view value);
-        void boolean(bool value);
-        void null();
-
-    private:
-        enum class Container { Object, Array };
-        void commaIfNeeded();
-        void beforeValue();
-        void writeEscaped(std::string_view value);
-        std::ostream& out;
-        std::vector<std::pair<Container, bool>> stack;
-        bool afterKey = false;
-    };
 
     class HelpFormatter : public CLI::Formatter {
 #ifndef CLI11_ORIGINAL_FORMATTER
