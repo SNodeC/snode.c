@@ -31,6 +31,8 @@
 
 namespace utils {
 
+    // Minimal deterministic JSON writer for trusted internal exporters.
+    // Container nesting is checked with assertions in debug builds.
     class JsonWriter {
     public:
         explicit JsonWriter(std::ostream& out);

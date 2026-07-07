@@ -35,6 +35,36 @@ namespace {
                           "JSON writer escapes strings deterministically");
     }
 
+    void testExactSmallJson(tests::support::TestResult& result) {
+        CLI::App app("Tiny desc", "tiny");
+        app.configurable(false);
+
+        std::string name = "default";
+        CLI::Option* option = app.add_option("--name", name, "Name option")->type_name("string")->default_val("default")->configurable(true);
+        option->group("Options");
+
+        const std::string expected =
+            "{\"format\":{\"name\":\"snodec.config\",\"version\":1,\"scope\":\"configurable-options-only\"},"
+            "\"application\":{\"name\":\"tiny\",\"description\":\"Tiny desc\",\"version\":\"\"},"
+            "\"tree\":{\"id\":\"app\",\"kind\":\"application\",\"kindSource\":\"root\",\"name\":\"tiny\","
+            "\"displayName\":\"Application\",\"group\":\"SUBCOMMANDS\",\"description\":\"Tiny desc\",\"configurable\":false,"
+            "\"configurableSource\":\"cli11\",\"required\":false,\"requiredSource\":\"cli11\",\"disabled\":false,"
+            "\"disabledSource\":\"cli11\",\"path\":[],\"optionGroups\":[{\"name\":\"Options\",\"kind\":\"default\","
+            "\"kindSource\":\"cli11-default-group\",\"options\":[{\"id\":\"name\",\"key\":\"name\",\"displayName\":\"name\","
+            "\"description\":\"Name option\",\"configurable\":true,\"configurableSource\":\"cli11\",\"persistent\":true,"
+            "\"persistentSource\":\"cli11-default-group\",\"required\":false,\"requiredSource\":\"cli11\",\"disabled\":false,"
+            "\"commandLine\":{\"long\":\"--name\",\"short\":null,\"takesValue\":true,\"valueSeparator\":\" \",\"repeatable\":false},"
+            "\"configFile\":{\"key\":\"name\",\"section\":null,\"writable\":true,\"writableSource\":\"cli11-configurable\"},"
+            "\"type\":{\"kind\":\"string\",\"kindSource\":\"fallback\",\"name\":\"string\",\"cpp\":null,\"items\":\"single\"},"
+            "\"constraints\":[],\"relations\":{\"needs\":[],\"excludes\":[]},"
+            "\"value\":{\"apiDefault\":\"default\",\"configured\":null,\"effective\":\"default\",\"source\":\"api-default\","
+            "\"isEffectiveDefault\":true,\"isExplicitlyConfigured\":false,\"isMissingRequired\":false,"
+            "\"apiDefaultLiteral\":\"\\\"default\\\"\",\"configuredLiteral\":null,\"effectiveLiteral\":\"\\\"default\\\"\"}}]}],"
+            "\"children\":[]}}\n";
+
+        result.expectTrue(utils::ConfigJsonFormatter().toConfig(&app) == expected, "small JSON document matches exact expected output");
+    }
+
     void testFormatter(tests::support::TestResult& result) {
         CLI::App app("Root description", "test-app");
         app.configurable(false);
@@ -89,8 +119,13 @@ namespace {
         result.expectTrue(json.find("\"key\":\"hidden\"") == std::string::npos, "JSON excludes non-configurable options");
         result.expectTrue(json.find("\"apiDefault\":\"<REQUIRED>\"") != std::string::npos, "JSON includes required placeholder");
         result.expectTrue(json.find("\"isMissingRequired\":true") != std::string::npos, "JSON marks missing required values");
-        result.expectTrue(json.find("\"configured\":\"\\\"configured\\\"\"") != std::string::npos, "JSON includes configured value");
-        result.expectTrue(json.find("\"effective\":\"\\\"configured\\\"\"") != std::string::npos, "JSON includes effective configured value");
+        result.expectTrue(json.find("\"configured\":\"configured\"") != std::string::npos, "JSON includes semantic configured value");
+        result.expectTrue(json.find("\"effective\":\"configured\"") != std::string::npos, "JSON includes semantic effective value");
+        result.expectTrue(json.find("\"configuredLiteral\":\"\\\"configured\\\"\"") != std::string::npos,
+                          "JSON includes explicit configured literal value");
+        result.expectTrue(json.find("\"effectiveLiteral\":\"\\\"configured\\\"\"") != std::string::npos,
+                          "JSON includes explicit effective literal value");
+        result.expectTrue(json.find("\"isExplicitlyConfigured\":true") != std::string::npos, "JSON marks explicit configuration");
         result.expectTrue(json.find("\"kind\":\"integer\",\"kindSource\":\"heuristic-name\"") != std::string::npos,
                           "JSON marks heuristic type information");
         result.expectTrue(json.find("\"needs\":[\"mode\"]") != std::string::npos, "JSON includes needs relations");
@@ -98,6 +133,66 @@ namespace {
 
         const std::string ini = app.config_to_str(true, true);
         result.expectTrue(ini.find("port") != std::string::npos, "INI formatter still emits options");
+    }
+
+    void testValueFlags(tests::support::TestResult& result) {
+        CLI::App defaultApp("Default", "default-app");
+        std::string defaultValue = "same";
+        defaultApp.add_option("--value", defaultValue)->default_val("same")->configurable(true);
+        const std::string defaultJson = utils::ConfigJsonFormatter().toConfig(&defaultApp);
+        result.expectTrue(defaultJson.find("\"isExplicitlyConfigured\":false") != std::string::npos,
+                          "default-only value is not explicitly configured");
+        result.expectTrue(defaultJson.find("\"isEffectiveDefault\":true") != std::string::npos,
+                          "default-only value is effectively default");
+
+        CLI::App differentApp("Different", "different-app");
+        std::string differentValue = "same";
+        differentApp.add_option("--value", differentValue)->default_val("same")->configurable(true);
+        differentApp.parse("--value other");
+        const std::string differentJson = utils::ConfigJsonFormatter().toConfig(&differentApp);
+        result.expectTrue(differentJson.find("\"configured\":\"other\"") != std::string::npos,
+                          "explicit different value is semantic without INI quotes");
+        result.expectTrue(differentJson.find("\"isExplicitlyConfigured\":true") != std::string::npos,
+                          "explicit different value is explicitly configured");
+        result.expectTrue(differentJson.find("\"isEffectiveDefault\":false") != std::string::npos,
+                          "explicit different value is not effectively default");
+
+        CLI::App sameApp("Same", "same-app");
+        std::string sameValue = "same";
+        sameApp.add_option("--value", sameValue)->default_val("same")->configurable(true);
+        sameApp.parse("--value same");
+        const std::string sameJson = utils::ConfigJsonFormatter().toConfig(&sameApp);
+        result.expectTrue(sameJson.find("\"isExplicitlyConfigured\":true") != std::string::npos,
+                          "explicit default value is explicitly configured");
+        result.expectTrue(sameJson.find("\"isEffectiveDefault\":true") != std::string::npos,
+                          "explicit default value is still effectively default");
+    }
+
+    void testAnonymousNodeIds(tests::support::TestResult& result) {
+        CLI::App app("Anonymous root", "anon-app");
+        app.configurable(false);
+
+        CLI::App* firstAnonymous = app.add_subcommand("", "First anonymous");
+        firstAnonymous->group("Anonymous Group");
+
+        CLI::App* secondAnonymous = app.add_subcommand("", "Second anonymous");
+        secondAnonymous->group("Anonymous Group");
+
+        CLI::App* named = app.add_subcommand("named", "Named child");
+        CLI::App* nestedAnonymous = named->add_subcommand("", "Nested anonymous");
+        nestedAnonymous->group("Nested Anonymous Group");
+
+        const std::string json = utils::ConfigJsonFormatter().toConfig(&app);
+
+        result.expectTrue(json.find("\"id\":\"<anonymous-0>\"") != std::string::npos, "first anonymous child has generated ID");
+        result.expectTrue(json.find("\"id\":\"<anonymous-1>\"") != std::string::npos, "second anonymous child has distinct generated ID");
+        result.expectTrue(json.find("\"id\":\"named\"") != std::string::npos, "named sibling keeps named ID");
+        result.expectTrue(json.find("\"id\":\"named.<anonymous-0>\"") != std::string::npos,
+                          "nested anonymous child remains reachable");
+        result.expectTrue(json.find("\"path\":[\"<anonymous-0>\"]") != std::string::npos,
+                          "anonymous path contains generated segment");
+        result.expectTrue(json.find("\"displayName\":\"Anonymous Group\"") != std::string::npos,
+                          "anonymous display name uses group fallback");
     }
 
     void testShowConfigOptionCompatibility(tests::support::TestResult& result) {
@@ -142,7 +237,10 @@ int main() {
     tests::support::TestResult result;
 
     testJsonWriter(result);
+    testExactSmallJson(result);
     testFormatter(result);
+    testValueFlags(result);
+    testAnonymousNodeIds(result);
     testShowConfigOptionCompatibility(result);
 
     return result.processResult();

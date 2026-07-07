@@ -59,7 +59,7 @@ Instances and sections are common SNode.C group names, but arbitrary categories,
 
 Node fields include:
 
-- `id`: `app` for the root node or the stable dotted path for children.
+- `id`: `app` for the root node or the stable dotted path for children, including generated anonymous segments when needed.
 - `kind`: best-effort node kind.
 - `kindSource`: source of the kind classification, for example `root`, `cli11-group`, or `heuristic-cli11-group`.
 - `name`
@@ -76,6 +76,7 @@ Node fields include:
 Kind inference is conservative. Only the root node is authoritative as `application`.
 `Instances` and `Sections` group names produce `instance` and `section` with `kindSource` set to `cli11-group`.
 Other grouped nodes are marked as `category` with a heuristic source, and ungrouped nodes fall back to `subcommand` or `anonymous`.
+Anonymous or empty-name child subcommands are not collapsed into their parent. They receive deterministic generated path segments such as `<anonymous-0>` and `<anonymous-1>` within their sibling set, so IDs can look like `<anonymous-0>` or `named.<anonymous-0>`. The actual CLI11 `name` field remains empty, while `displayName` falls back to the group, description, or `<anonymous>`.
 
 ## Option groups
 
@@ -125,16 +126,20 @@ The exporter does not invent numeric ranges or enum members when CLI11 does not 
 
 ## Value semantics
 
-The `value` object contains:
+The `value` object separates semantic values from INI/config-file literals:
 
-- `apiDefault`: CLI11 default string, `<REQUIRED>` for required options without defaults, or an empty string if that is the effective API default.
-- `configured`: a command-line or config-file value when active; otherwise `null`.
-- `effective`: configured value if present, otherwise the API default or required placeholder.
+- `apiDefault`: semantic CLI11 default string, `<REQUIRED>` for required options without defaults, or an empty string if that is the effective API default.
+- `configured`: semantic command-line or config-file value when active; otherwise `null`. This is not INI quoted.
+- `effective`: semantic configured value if present, otherwise the semantic API default or required placeholder.
 - `source`: `command-line-or-config`, `api-default`, `required-placeholder`, or `empty-default`.
-- `isDefault`
-- `isConfigured`
-- `isMissingRequired`
+- `isEffectiveDefault`: true when the semantic effective value equals the semantic API default, even if the value was explicitly configured.
+- `isExplicitlyConfigured`: true when CLI11 reports an active configured value, regardless of whether it equals the API default.
+- `isMissingRequired`: true when a required option has no usable effective value or the effective value is `<REQUIRED>`.
+- `apiDefaultLiteral`: INI/config-file literal form of `apiDefault`.
+- `configuredLiteral`: INI/config-file literal form of `configured`, or `null` when no configured value is active.
+- `effectiveLiteral`: INI/config-file literal form of `effective`.
 
+For version 1, semantic multi-value options are represented as a deterministic space-joined string and the `type.items` metadata identifies list-like options. The `*Literal` fields preserve CLI11's config-file representation for tools that need to round-trip textual config snippets.
 CLI11 does not currently expose enough origin metadata here to reliably distinguish command-line values from config-file values, so both are intentionally reported as `command-line-or-config`.
 
 ## Output purity
@@ -148,4 +153,5 @@ Diagnostics for JSON export failures are written to stderr and stdout is left em
 - Command-line and config-file value origins are merged as `command-line-or-config`.
 - Validator metadata is opaque unless CLI11 exposes a decomposable description.
 - Config-file section is currently `null` for flattened dotted keys.
+- Semantic multi-value options are currently space-joined strings; consumers should inspect `type.items` and the literal fields when round-tripping.
 - Some node, group, persistence, and type classifications are heuristic; every such field includes source metadata.

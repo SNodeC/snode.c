@@ -19,6 +19,12 @@
 
 #include "utils/JsonWriter.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cassert>
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+
 namespace utils {
 
     JsonWriter::JsonWriter(std::ostream& out)
@@ -33,6 +39,9 @@ namespace utils {
     }
 
     void JsonWriter::endObject() {
+        assert(!stack.empty());
+        assert(stack.back().first == Container::Object);
+
         out << '}';
         stack.pop_back();
     }
@@ -45,6 +54,9 @@ namespace utils {
     }
 
     void JsonWriter::endArray() {
+        assert(!stack.empty());
+        assert(stack.back().first == Container::Array);
+
         out << ']';
         stack.pop_back();
     }

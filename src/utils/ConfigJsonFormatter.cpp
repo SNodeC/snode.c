@@ -43,9 +43,12 @@ namespace utils {
             std::string apiDefault;
             std::string configured;
             std::string effective;
+            std::string apiDefaultLiteral;
+            std::string configuredLiteral;
+            std::string effectiveLiteral;
             std::string source;
-            bool isConfigured = false;
-            bool isDefault = false;
+            bool isExplicitlyConfigured = false;
+            bool isEffectiveDefault = false;
             bool isMissingRequired = false;
         };
 
@@ -107,6 +110,26 @@ namespace utils {
             return classification;
         }
 
+        std::string nodeDisplayName(const CLI::App* app, bool root) {
+            std::string displayName;
+
+            if (root) {
+                displayName = "Application";
+            } else if (app->get_name().empty() && !app->get_group().empty()) {
+                displayName = app->get_group();
+            } else if (!app->get_display_name(false).empty()) {
+                displayName = app->get_display_name(false);
+            } else if (!app->get_name().empty()) {
+                displayName = app->get_name();
+            } else if (!app->get_description().empty()) {
+                displayName = app->get_description();
+            } else {
+                displayName = "<anonymous>";
+            }
+
+            return displayName;
+        }
+
         Classification classifyType(const CLI::Option* opt, const std::string& key) {
             Classification classification{"string", "fallback"};
             const std::string combined = lowerCopy(opt->get_type_name() + " " + key);
@@ -142,46 +165,75 @@ namespace utils {
             return name;
         }
 
-        std::string configuredValue(const CLI::Option* opt) {
-            std::string value;
+        std::vector<std::string> reducedResults(const CLI::Option* opt) {
+            std::vector<std::string> results;
 
             try {
-                value = CLI::detail::ini_join(opt->reduced_results(), ' ', '[', ']', '"', '\'');
-                if (value.empty() && !opt->results().empty()) {
-                    value = CLI::detail::ini_join(opt->results(), ' ', '[', ']', '"', '\'');
+                results = opt->reduced_results();
+                if (results.empty() && !opt->results().empty()) {
+                    results = opt->results();
                 }
             } catch (const CLI::ParseError& e) {
-                value = std::string{"<"} + e.get_name() + ": " + e.what() + ">";
+                results.emplace_back(std::string{"<"} + e.get_name() + ": " + e.what() + ">");
             }
 
-            return value;
+            return results;
+        }
+
+        std::string joinSemanticValues(const std::vector<std::string>& values) {
+            std::string joined;
+
+            for (const std::string& value : values) {
+                if (!joined.empty()) {
+                    joined += ' ';
+                }
+                joined += value;
+            }
+
+            return joined;
+        }
+
+        std::string joinLiteralValues(const std::vector<std::string>& values) {
+            std::string literal;
+
+            try {
+                literal = CLI::detail::ini_join(values, ' ', '[', ']', '"', '\'');
+            } catch (const CLI::ParseError& e) {
+                literal = std::string{"<"} + e.get_name() + ": " + e.what() + ">";
+            }
+
+            return literal;
         }
 
         std::string apiDefaultValue(const CLI::Option* opt) {
-            std::string value = opt->get_default_str();
+            std::string semanticDefault = opt->get_default_str();
 
-            if (value.empty()) {
+            if (semanticDefault.empty()) {
                 if (opt->get_required()) {
-                    value = "<REQUIRED>";
+                    semanticDefault = "<REQUIRED>";
                 } else if (opt->get_expected_min() == 0) {
-                    value = "false";
+                    semanticDefault = "false";
                 }
             }
 
-            return value;
+            return semanticDefault;
         }
 
         OptionValueState extractValueState(const CLI::Option* opt) {
             OptionValueState state;
+            const std::vector<std::string> configuredResults = reducedResults(opt);
 
-            state.configured = configuredValue(opt);
-            state.isConfigured = opt->count() > 0 && !state.configured.empty();
+            state.configured = joinSemanticValues(configuredResults);
+            state.configuredLiteral = joinLiteralValues(configuredResults);
+            state.isExplicitlyConfigured = opt->count() > 0 && !state.configured.empty();
             state.apiDefault = apiDefaultValue(opt);
-            state.effective = state.isConfigured ? state.configured : state.apiDefault;
+            state.apiDefaultLiteral = joinLiteralValues({state.apiDefault});
+            state.effective = state.isExplicitlyConfigured ? state.configured : state.apiDefault;
+            state.effectiveLiteral = state.isExplicitlyConfigured ? state.configuredLiteral : state.apiDefaultLiteral;
             state.isMissingRequired = opt->get_required() && (state.effective.empty() || state.effective == "<REQUIRED>");
-            state.isDefault = !state.isConfigured && state.effective == state.apiDefault;
+            state.isEffectiveDefault = state.effective == state.apiDefault;
 
-            if (state.isConfigured) {
+            if (state.isExplicitlyConfigured) {
                 state.source = "command-line-or-config";
             } else if (state.isMissingRequired) {
                 state.source = "required-placeholder";
@@ -306,6 +358,7 @@ namespace utils {
                     json.endObject();
                 }
             } catch (const CLI::OptionNotFound&) {
+                // CLI11 reports a missing validator by exception; an absent validator means no constraints here.
             }
 
             json.endArray();
@@ -342,7 +395,7 @@ namespace utils {
             json.string(state.apiDefault);
 
             json.key("configured");
-            if (state.isConfigured) {
+            if (state.isExplicitlyConfigured) {
                 json.string(state.configured);
             } else {
                 json.null();
@@ -354,14 +407,27 @@ namespace utils {
             json.key("source");
             json.string(state.source);
 
-            json.key("isDefault");
-            json.boolean(state.isDefault);
+            json.key("isEffectiveDefault");
+            json.boolean(state.isEffectiveDefault);
 
-            json.key("isConfigured");
-            json.boolean(state.isConfigured);
+            json.key("isExplicitlyConfigured");
+            json.boolean(state.isExplicitlyConfigured);
 
             json.key("isMissingRequired");
             json.boolean(state.isMissingRequired);
+
+            json.key("apiDefaultLiteral");
+            json.string(state.apiDefaultLiteral);
+
+            json.key("configuredLiteral");
+            if (state.isExplicitlyConfigured) {
+                json.string(state.configuredLiteral);
+            } else {
+                json.null();
+            }
+
+            json.key("effectiveLiteral");
+            json.string(state.effectiveLiteral);
 
             json.endObject();
         }
@@ -499,13 +565,7 @@ namespace utils {
             json.string(app->get_name());
 
             json.key("displayName");
-            if (root) {
-                json.string("Application");
-            } else if (app->get_display_name(false).empty()) {
-                json.string(app->get_name());
-            } else {
-                json.string(app->get_display_name(false));
-            }
+            json.string(nodeDisplayName(app, root));
 
             json.key("group");
             json.string(app->get_group());
@@ -538,14 +598,20 @@ namespace utils {
 
             json.key("children");
             json.beginArray();
+            std::size_t anonymousIndex = 0;
             for (const CLI::App* subcommand : app->get_subcommands({})) {
                 std::vector<std::string> childPath = path;
                 std::string childPrefix = prefix;
+                std::string childSegment = subcommand->get_name();
 
-                if (!subcommand->get_name().empty()) {
-                    childPath.push_back(subcommand->get_name());
-                    childPrefix += subcommand->get_name() + ".";
+                if (childSegment.empty()) {
+                    childSegment = "<anonymous-" + std::to_string(anonymousIndex) + ">";
+                    ++anonymousIndex;
+                } else {
+                    childPrefix += childSegment + ".";
                 }
+
+                childPath.push_back(childSegment);
 
                 writeNode(json, subcommand, childPath, childPrefix, false);
             }
