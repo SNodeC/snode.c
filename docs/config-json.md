@@ -2,6 +2,7 @@
 
 SNode.C can export its live CLI11/SNode.C configuration tree as a deterministic JSON document for tools such as `snodec-control`.
 The export is generated from the in-memory CLI11 application tree and does not parse the legacy INI output.
+The implementation is split between `src/utils/JsonWriter.*` for deterministic JSON emission and `src/utils/ConfigJsonFormatter.*` for configuration-tree traversal; the legacy INI/help formatter remains in `src/utils/Formatter.*`.
 No external JSON library is used; SNode.C emits this document with its own small JSON writer.
 
 ## Command-line behavior
