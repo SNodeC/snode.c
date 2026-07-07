@@ -89,7 +89,10 @@ int main(int argc, char* argv[]) {
         req->getAttribute<nlohmann::json>(
             [&jsonString](nlohmann::json& json) {
                 jsonString = json.dump(4);
-                snode::semantic::appLog().debug() << "Application received body: " << jsonString;
+                auto log = snode::semantic::appLog();
+                if (log.enabled(logger::LogLevel::Debug)) {
+                    log.debug() << "Application received body: " << jsonString;
+                }
             },
             [](const std::string& key) {
                 snode::semantic::appLog().debug() << key << " attribute not found";

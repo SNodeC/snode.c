@@ -86,11 +86,14 @@ int main(int argc, char* argv[]) {
         webApp.getConfig()->addSniCerts(sniCerts);
 #endif
 
-        snode::semantic::appLog().trace() << "Routes:";
-        for (std::string& route : webApp.getRoutes()) {
-            route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
+        auto log = snode::semantic::appLog();
+        if (log.enabled(logger::LogLevel::Trace)) {
+            log.trace() << "Routes:";
+            for (std::string route : webApp.getRoutes()) {
+                route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
 
-            snode::semantic::appLog().debug() << "  " << route;
+                log.trace() << "  " << route;
+            }
         }
 
         webApp.listen([instanceName = webApp.getConfig()->getInstanceName()](const core::socket::SocketAddress& socketAddress,
@@ -114,37 +117,3 @@ int main(int argc, char* argv[]) {
 
     return WebApp::start();
 }
-
-/*
-#if (NET_TYPE == IN) // in
-#if (STREAM_TYPE == LEGACY)
-    webApp.listen(8080, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
-#elif (STREAM_TYPE == TLS)
-    webApp.listen(8088, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
-#endif
-#elif (NET_TYPE == IN6) // in6
-#if (STREAM_TYPE == LEGACY)
-    webApp.listen(8080, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
-#elif (STREAM_TYPE == TLS)
-    webApp.listen(8088, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
-#endif
-#elif (NET_TYPE == L2) //
-    // ATLAS: 10:3D:1C:AC:BA:9C
-    // TITAN: A4:B1:C1:2C:82:37
-    // USB: 44:01:BB:A3:63:32
-
-    // webApp.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) ->
-void { // titan webApp.listen("10:3D:1C:AC:BA:9C", 0x1023, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State&
-state) { // titan #elif (NET_TYPE == RC) // rf
-    // webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
-// titan webApp.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
-// titan #elif (NET_TYPE == UN) // un webApp.listen("/tmp/testme", 5, [](const WebApp::SocketAddress& socketAddress, const
-core::socket::State& state) { // titan #endif if (errnum != 0) { snode::semantic::sysError(snode::semantic::appLog(),
-logger::LogLevel::Critical, errnum) << "listen"; } else { snode::semantic::appLog().info() << "snode.c listening on " <<
-socketAddress.toString();
-        }
-
-#ifdef NET_TYPE
-    });
-#endif
-*/

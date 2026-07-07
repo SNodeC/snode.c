@@ -88,9 +88,12 @@ int main(int argc, char* argv[]) {
                         }
                     }
 
-                    res->body.push_back(0);
-                    snode::semantic::appLog().debug()
-                        << "     Body:\n----------- start body -----------" << res->body.data() << "------------ end body ------------";
+                    auto log = snode::semantic::appLog();
+                    if (log.enabled(logger::LogLevel::Debug)) {
+                        res->body.push_back(0);
+                        log.debug() << "     Body:\n----------- start body -----------" << res->body.data()
+                                    << "------------ end body ------------";
+                    }
                 },
                 [](const std::shared_ptr<Request>&, const std::string& message) {
                     snode::semantic::appLog().debug() << "legacy: Request parse error: " << message;
@@ -121,22 +124,6 @@ int main(int argc, char* argv[]) {
                     break;
             }
         });
-    /*
-        jsonClient.connect("localhost",
-                           8080,
-                           [instanceName = jsonClient.getConfig()->getInstanceName()](
-                               const SocketAddress& socketAddress,
-                               const core::socket::State& state) { // example.com:81 simulate connnect timeout
-                               switch (state) {
-                                   case core::socket::State::OK:
-                                       snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString()
-       << "'"; break; case core::socket::State::DISABLED: snode::semantic::appLog().info() << instanceName << ": disabled"; break; case
-       core::socket::State::ERROR: snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " <<
-       state.what(); break; case core::socket::State::FATAL: snode::semantic::appLog().critical() << instanceName << ": " <<
-       socketAddress.toString() << ": " << state.what(); break;
-                               }
-                           });
-    */
     /*
         jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) {
             if (err != 0) {

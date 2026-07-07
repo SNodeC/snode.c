@@ -70,19 +70,21 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 static void logResponse(const std::shared_ptr<web::http::client::Request>& req, const std::shared_ptr<web::http::client::Response>& res) {
-    snode::semantic::appLog().debug()
-        << req->getConnectionName() << " HTTP response: " << req->method << " " << req->url << " HTTP/" << req->httpMajor << "."
-        << req->httpMinor << "\n"
-        << httputils::toString(req->method,
-                               req->url,
-                               "HTTP/" + std::to_string(req->httpMajor) + "." + std::to_string(req->httpMinor),
-                               req->getQueries(),
-                               req->getHeaders(),
-                               req->getTrailer(),
-                               req->getCookies(),
-                               {})
-        << "\n"
-        << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
+    auto log = snode::semantic::appLog();
+    if (log.enabled(logger::LogLevel::Trace)) {
+        log.trace() << req->getConnectionName() << " HTTP response: " << req->method << " " << req->url << " HTTP/" << req->httpMajor << "."
+                    << req->httpMinor << "\n"
+                    << httputils::toString(req->method,
+                                           req->url,
+                                           "HTTP/" + std::to_string(req->httpMajor) + "." + std::to_string(req->httpMinor),
+                                           req->getQueries(),
+                                           req->getHeaders(),
+                                           req->getTrailer(),
+                                           req->getCookies(),
+                                           {})
+                    << "\n"
+                    << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
+    }
 }
 
 #if (STREAM_TYPE == LEGACY) // legacy
@@ -689,51 +691,58 @@ namespace apps::http::tls {
 
         client.setOnConnected([](SocketConnection* socketConnection) { // onConnected
             snode::semantic::appLog().debug() << socketConnection->getConnectionName() << ": OnConnected";
-            X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
-            if (server_cert != nullptr) {
-                long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
+            auto log = snode::semantic::appLog();
+            if (log.enabled(logger::LogLevel::Debug)) {
+                X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
+                if (server_cert != nullptr) {
+                    long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                snode::semantic::appLog().debug() << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
-                                                         std::string(X509_verify_cert_error_string(verifyErr));
+                    snode::semantic::appLog().debug() << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
+                                                             std::string(X509_verify_cert_error_string(verifyErr));
 
-                char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                snode::semantic::appLog().debug() << "\t   Subject: " + std::string(str);
-                OPENSSL_free(str);
-
-                str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                snode::semantic::appLog().debug() << "\t   Issuer: " + std::string(str);
-                OPENSSL_free(str);
-
-                // We could do all sorts of certificate verification stuff here before deallocating the certificate.
-
-                GENERAL_NAMES* subjectAltNames =
-                    static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(server_cert, NID_subject_alt_name, nullptr, nullptr));
-
-                int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
-
-                snode::semantic::appLog().debug() << "\t   Subject alternative name count: " << altNameCount;
-                for (int32_t i = 0; i < altNameCount; ++i) {
-                    GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
-                    if (generalName->type == GEN_URI) {
-                        std::string subjectAltName =
-                            std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
-                                        static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        snode::semantic::appLog().debug() << "\t      SAN (URI): '" + subjectAltName;
-                    } else if (generalName->type == GEN_DNS) {
-                        std::string subjectAltName =
-                            std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
-                                        static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        snode::semantic::appLog().debug() << "\t      SAN (DNS): '" + subjectAltName;
-                    } else {
-                        snode::semantic::appLog().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                    char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
+                    if (str != nullptr) {
+                        snode::semantic::appLog().debug() << "\t   Subject: " << str;
+                        OPENSSL_free(str);
                     }
+
+                    str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
+                    if (str != nullptr) {
+                        snode::semantic::appLog().debug() << "\t   Issuer: " << str;
+                        OPENSSL_free(str);
+                    }
+
+                    // We could do all sorts of certificate verification stuff here before deallocating the certificate.
+
+                    GENERAL_NAMES* subjectAltNames =
+                        static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(server_cert, NID_subject_alt_name, nullptr, nullptr));
+
+                    int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
+
+                    snode::semantic::appLog().debug() << "\t   Subject alternative name count: " << altNameCount;
+                    for (int32_t i = 0; i < altNameCount; ++i) {
+                        GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
+                        if (generalName->type == GEN_URI) {
+                            std::string subjectAltName =
+                                std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
+                                            static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
+                            snode::semantic::appLog().debug() << "\t      SAN (URI): '" + subjectAltName;
+                        } else if (generalName->type == GEN_DNS) {
+                            std::string subjectAltName =
+                                std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
+                                            static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
+                            snode::semantic::appLog().debug() << "\t      SAN (DNS): '" + subjectAltName;
+                        } else {
+                            snode::semantic::appLog().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        }
+                    }
+
+                    sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
+
+                    X509_free(server_cert);
+                } else {
+                    snode::semantic::appLog().debug() << "\tPeer certificate: no certificate";
                 }
-
-                sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
-
-                X509_free(server_cert);
-            } else {
-                snode::semantic::appLog().debug() << "\tPeer certificate: no certificate";
             }
         });
 

@@ -80,7 +80,10 @@ namespace apps::echo::model {
         const std::size_t chunklen = readFromPeer(chunk, 4096);
 
         if (chunklen > 0) {
-            snode::semantic::appLog().debug() << "Data to reflect: " << std::string(chunk, chunklen);
+            auto log = snode::semantic::appLog();
+            if (log.enabled(logger::LogLevel::Trace)) {
+                log.trace() << "Data to reflect: " << std::string(chunk, chunklen);
+            }
             sendToPeer(chunk, chunklen);
         }
 

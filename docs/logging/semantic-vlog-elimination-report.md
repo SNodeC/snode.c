@@ -151,7 +151,7 @@ Initial result: no production/application/example `LOG` or `PLOG` call sites out
 - Express server wrappers now use `snode::semantic::expressLog()`.
 - Lifecycle lines are `info()` when externally useful and `debug()` when developer-oriented.
 - Error-like former verbose lines are `warn()` or `error()`.
-- Route-listing diagnostics are `trace()`.
+- Route-listing diagnostics are guarded `trace()` diagnostics.
 - Test-only VLOG compatibility assertions were deleted because the frozen contract explicitly rejects preserving VLOG behavior.
 
 ## Representative migrated examples
@@ -168,7 +168,54 @@ Initial result: no production/application/example `LOG` or `PLOG` call sites out
 
 ## Expensive diagnostics guard notes
 
-The migration avoided introducing a semantic `verbose(n)` layer or a `VLOG` bridge. Existing payload/body/certificate diagnostics were reviewed for semantic classification. No new helper or infrastructure path constructs dynamic component names or changes filtering behavior.
+The migration avoided introducing a semantic `verbose(n)` layer or a `VLOG` bridge.
+
+- Route-list / route-table trace diagnostics are guarded.
+- TLS certificate inspection diagnostics are guarded.
+- Body/payload/frame dump diagnostics are guarded.
+- Mangled commented-out migrated blocks were cleaned up or deleted.
+- No new helper or infrastructure path constructs dynamic component names or changes filtering behavior.
+
+## PR #166 quality follow-up
+
+This follow-up tightens the initial VLOG elimination migration after extended review of the SNode.C application/examples and the MQTT-related tree.
+
+Route-list / route-table trace diagnostics are guarded. The follow-up wraps retained route table output in explicit `enabled(logger::LogLevel::Trace)` checks and logs copied route strings so logging does not mutate stored route state.
+
+TLS certificate inspection diagnostics are guarded. The follow-up wraps diagnostic-only peer certificate inspection blocks in explicit `enabled(logger::LogLevel::Debug)` checks while preserving OpenSSL cleanup paths for `X509_free(...)`, `OPENSSL_free(...)`, and `sk_GENERAL_NAME_pop_free(...)`.
+
+Body/payload/frame dump diagnostics are guarded. The follow-up guards response body dumps, HTTP response formatting, echo payload reflection, WebSocket message fragments/data, JSON body echo logging, and post-TLS legacy payload diagnostics so expensive string/body construction is not performed for disabled diagnostics.
+
+Mangled commented-out migrated blocks were cleaned up or deleted. Stale collapsed example blocks in HTTP/JSON app sources were removed rather than kept as unreadable commented reference code.
+
+Concrete files affected by this follow-up:
+
+- `src/apps/echo/model/EchoSocketContext.cpp`
+- `src/apps/echo/model/clients.h`
+- `src/apps/echo/model/servers.h`
+- `src/apps/http/httpclient.cpp`
+- `src/apps/http/httplowlevelclient.cpp`
+- `src/apps/http/httpserver.cpp`
+- `src/apps/http/model/clients.h`
+- `src/apps/http/model/servers.h`
+- `src/apps/jsonclient.cpp`
+- `src/apps/jsonserver.cpp`
+- `src/apps/testregex.cpp`
+- `src/apps/tlslegacy/TlsLegacySocketContext.cpp`
+- `src/apps/websocket/echoserver.cpp`
+- `src/apps/websocket/subprotocol/client/echo/Echo.cpp`
+- `src/apps/websocket/subprotocol/server/echo/Echo.cpp`
+- `src/express/legacy/in/Server.cpp`
+- `src/express/legacy/in6/Server.cpp`
+- `src/express/legacy/rc/Server.cpp`
+- `src/express/legacy/un/Server.cpp`
+- `src/express/tls/in/Server.cpp`
+- `src/express/tls/in6/Server.cpp`
+- `src/express/tls/rc/Server.cpp`
+- `src/express/tls/un/Server.cpp`
+- `docs/logging/semantic-vlog-elimination-report.md`
+
+Candidate diagnostics intentionally left unguarded are cheap lifecycle/status lines or compatibility-test references, not route-table dumps, certificate inspection, body dumps, payload/frame dumps, or non-trivial formatted strings. The extended MQTT review did not find additional VLOG-related follow-up edits required in `src/iot/mqtt` or the documented mqttsuite material; no external mqttsuite repository was modified.
 
 ## Post-migration VLOG inventory command/result
 

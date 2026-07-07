@@ -124,11 +124,14 @@ int main(int argc, char* argv[]) {
         })
         .getFlowController();
 
-    snode::semantic::appLog().debug() << "Legacy Routes:";
-    for (std::string& route : legacyApp.getRoutes()) {
-        route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
+    auto log = snode::semantic::appLog();
+    if (log.enabled(logger::LogLevel::Trace)) {
+        log.trace() << "Legacy Routes:";
+        for (std::string route : legacyApp.getRoutes()) {
+            route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
 
-        snode::semantic::appLog().debug() << "  " << route;
+            log.trace() << "  " << route;
+        }
     }
 
     {
@@ -195,11 +198,14 @@ int main(int argc, char* argv[]) {
             })
             .getFlowController();
 
-        snode::semantic::appLog().debug() << "Tls Routes:";
-        for (std::string& route : legacyApp.getRoutes()) {
-            route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
+        auto log = snode::semantic::appLog();
+        if (log.enabled(logger::LogLevel::Trace)) {
+            log.trace() << "Tls Routes:";
+            for (std::string route : legacyApp.getRoutes()) {
+                route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
 
-            snode::semantic::appLog().debug() << "  " << route;
+                log.trace() << "  " << route;
+            }
         }
     }
 

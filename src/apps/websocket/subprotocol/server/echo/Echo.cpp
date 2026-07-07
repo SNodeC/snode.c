@@ -72,11 +72,17 @@ namespace apps::websocket::subprotocol::echo::server {
     void Echo::onMessageData(const char* chunk, std::size_t chunkLen) {
         data += std::string(chunk, chunkLen);
 
-        snode::semantic::appLog().debug() << "Message Fragment: " << std::string(chunk, chunkLen);
+        auto log = snode::semantic::appLog();
+        if (log.enabled(logger::LogLevel::Trace)) {
+            log.trace() << "Message Fragment: " << std::string(chunk, chunkLen);
+        }
     }
 
     void Echo::onMessageEnd() {
-        snode::semantic::appLog().debug() << "Message Data: " << data;
+        auto log = snode::semantic::appLog();
+        if (log.enabled(logger::LogLevel::Trace)) {
+            log.trace() << "Message Data: " << data;
+        }
 
         // Alternative
         // forEachClient([&data = this->data](SubProtocol* client) {

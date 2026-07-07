@@ -87,11 +87,14 @@ namespace express::legacy::in6 {
             }
         });
 
-        snode::semantic::expressLog().trace() << "Instance: " << instanceName;
-        for (std::string& route : webApp.getRoutes()) {
-            route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
+        auto log = snode::semantic::expressLog();
+        if (log.enabled(logger::LogLevel::Trace)) {
+            log.trace() << "Instance: " << instanceName;
+            for (std::string route : webApp.getRoutes()) {
+                route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
 
-            snode::semantic::expressLog().trace() << "  " << route;
+                log.trace() << "  " << route;
+            }
         }
 
         return webApp;

@@ -55,8 +55,10 @@ namespace apps::tlslegacy {
                 }
 
                 sendToPeer(payload);
-                snode::semantic::appLog().debug()
-                    << getSocketConnection()->getConnectionName() << ": trying post-TLS legacy payload: " << payload;
+                auto log = snode::semantic::appLog();
+                if (log.enabled(logger::LogLevel::Trace)) {
+                    log.trace() << getSocketConnection()->getConnectionName() << ": trying post-TLS legacy payload: " << payload;
+                }
             },
             utils::Timeval(0.5));
     }
@@ -87,8 +89,10 @@ namespace apps::tlslegacy {
             legacyPayloadSeen = true;
             legacyRetryTimer.cancel();
             sendToPeer(LEGACY_ACK);
-            snode::semantic::appLog().debug() << getSocketConnection()->getConnectionName()
-                                              << ": received LEGACY payload after TLS shutdown " << line;
+            auto log = snode::semantic::appLog();
+            if (log.enabled(logger::LogLevel::Trace)) {
+                log.trace() << getSocketConnection()->getConnectionName() << ": received LEGACY payload after TLS shutdown " << line;
+            }
             shutdownWrite();
         }
     }
