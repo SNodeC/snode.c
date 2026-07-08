@@ -57,18 +57,6 @@ int main(int argc, char* argv[]) {
                                   snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret) << req->url;
                               }
                           });
-            /*
-            std::string tokenRequestUri{"http://localhost:8082/oauth2/token"};
-            tokenRequestUri += "?grant_type=authorization_code";
-            tokenRequestUri += "&code=" + req.query("code");
-            if (!req.query("state").empty()) {
-                tokenRequestUri += "&state=" + req.query("state");
-            }
-            tokenRequestUri += "&client_id=911a821a-ea2d-11ec-8e2e-08002771075f";
-            tokenRequestUri += "&redirect_uri=http://localhost:8081/oauth2";
-            snode::semantic::appLog().debug() << "Recieving auth code from auth server: " << req.query("code") << ", requesting token from "
-            << tokenRequestUri; res.redirect(tokenRequestUri);
-            */
         }
     });
 

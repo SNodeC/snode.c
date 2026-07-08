@@ -44,6 +44,7 @@ int main() {
         root / "src" / "iot" / "mqtt" / "server" / "Mqtt.cpp",
         root / "src" / "apps" / "oauth2" / "authorization_server" / "AuthorizationServer.cpp",
         root / "src" / "apps" / "oauth2" / "resource_server" / "ResourceServer.cpp",
+        root / "src" / "apps" / "oauth2" / "client_app" / "ClientApp.cpp",
     };
     const std::vector<std::string> forbiddenLogFragments = {
         "WillMessage: \" << connect.getWillMessage()",
@@ -53,6 +54,10 @@ int main() {
         "AccessToken: \" <<",
         "Invalid access token '\" <<",
         "Valid access token '\" <<",
+        "Recieving auth code",
+        "Receiving auth code",
+        "req.query(\"code\")",
+        "authorization code value",
     };
 
     bool ok = true;
