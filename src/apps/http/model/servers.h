@@ -119,23 +119,24 @@ namespace apps::http::tls {
             snode::semantic::appLog().debug() << "OnConnected " << instanceName;
 
             auto log = snode::semantic::appLog();
-            if (log.enabled(logger::LogLevel::Debug)) {
-                X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
-                if (server_cert != nullptr) {
+            X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
+            if (server_cert == nullptr) {
+                log.warn() << "\tPeer certificate: no certificate";
+            } else {
+                if (log.enabled(logger::LogLevel::Debug)) {
                     long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                    snode::semantic::appLog().debug() << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
-                                                             std::string(X509_verify_cert_error_string(verifyErr));
+                    log.debug() << "\tPeer certificate verifyErr = " << verifyErr << ": " << X509_verify_cert_error_string(verifyErr);
 
                     char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
                     if (str != nullptr) {
-                        snode::semantic::appLog().debug() << "\t   Subject: " << str;
+                        log.debug() << "\t   Subject: " << str;
                         OPENSSL_free(str);
                     }
 
                     str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
                     if (str != nullptr) {
-                        snode::semantic::appLog().debug() << "\t   Issuer: " << str;
+                        log.debug() << "\t   Issuer: " << str;
                         OPENSSL_free(str);
                     }
 
@@ -146,7 +147,7 @@ namespace apps::http::tls {
 
                     int32_t altNameCount = OPENSSL_sk_num(reinterpret_cast<const OPENSSL_STACK*>(subjectAltNames));
 
-                    snode::semantic::appLog().debug() << "\t   Subject alternative name count: " << altNameCount;
+                    log.debug() << "\t   Subject alternative name count: " << altNameCount;
                     for (int32_t i = 0; i < altNameCount; ++i) {
                         GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
 
@@ -154,23 +155,21 @@ namespace apps::http::tls {
                             std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                            snode::semantic::appLog().debug() << "\t      SAN (URI): '" + subjectAltName;
+                            log.debug() << "\t      SAN (URI): '" << subjectAltName;
                         } else if (generalName->type == GEN_DNS) {
                             std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                            snode::semantic::appLog().debug() << "\t      SAN (DNS): '" + subjectAltName;
+                            log.debug() << "\t      SAN (DNS): '" << subjectAltName;
                         } else {
-                            snode::semantic::appLog().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                            log.debug() << "\t      SAN (Type): '" << generalName->type;
                         }
                     }
 
                     sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
-
-                    X509_free(server_cert);
-                } else {
-                    snode::semantic::appLog().warn() << "\tPeer certificate: no certificate";
                 }
+
+                X509_free(server_cert);
             }
         });
 

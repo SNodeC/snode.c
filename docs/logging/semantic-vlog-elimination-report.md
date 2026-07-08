@@ -188,6 +188,8 @@ Body/payload/frame dump diagnostics are guarded. The follow-up guards response b
 
 Mangled commented-out migrated blocks were cleaned up or deleted. Stale collapsed example blocks in HTTP/JSON app sources were removed rather than kept as unreadable commented reference code.
 
+A final audit ensured that warn/error/critical diagnostics are not hidden behind Debug or Trace guards. The peer-certificate missing warning in `src/apps/http/model/servers.h` remains visible at warn level while detailed certificate inspection remains guarded by Debug.
+
 Concrete files affected by this follow-up:
 
 - `src/apps/echo/model/EchoSocketContext.cpp`
