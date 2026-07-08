@@ -1,40 +1,12 @@
-#include <cstdlib>
+#include "SourcePolicyTestRoot.h"
+
 #include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <string_view>
 #include <vector>
 
 namespace {
-
-    std::filesystem::path projectRoot() {
-        if (const char* sourceDir = std::getenv("SNODEC_SOURCE_DIR")) {
-            return sourceDir;
-        }
-
-        std::filesystem::path current = std::filesystem::current_path();
-        while (!current.empty()) {
-            if (std::filesystem::exists(current / "src" / "SemanticLog.h")) {
-                return current;
-            }
-            current = current.parent_path();
-        }
-
-        return std::filesystem::current_path();
-    }
-
-    std::string readFile(const std::filesystem::path& path) {
-        std::ifstream input(path);
-        std::ostringstream buffer;
-        buffer << input.rdbuf();
-        return buffer.str();
-    }
-
-    bool contains(std::string_view haystack, std::string_view needle) {
-        return haystack.find(needle) != std::string_view::npos;
-    }
 
     struct ForbiddenFragment {
         std::filesystem::path sourceFile;
@@ -44,7 +16,10 @@ namespace {
 } // namespace
 
 int main() {
-    const std::filesystem::path root = projectRoot();
+    const std::filesystem::path root = source_policy::sourcePolicyProjectRoot();
+    if (root.empty()) {
+        return 1;
+    }
     const std::vector<ForbiddenFragment> forbiddenFragments = {
         {root / "src" / "iot" / "mqtt" / "Mqtt.cpp", "mqttLog().info() << connectionName << \" MQTT: \" << packet.getName()"},
         {root / "src" / "iot" / "mqtt" / "Mqtt.cpp",
@@ -85,13 +60,13 @@ int main() {
 
     bool ok = true;
     for (const auto& forbiddenFragment : forbiddenFragments) {
-        const std::string contents = readFile(forbiddenFragment.sourceFile);
+        const std::string contents = source_policy::readSourcePolicyFile(forbiddenFragment.sourceFile);
         if (contents.empty()) {
             std::cerr << "Unable to read " << forbiddenFragment.sourceFile << '\n';
             ok = false;
             continue;
         }
-        if (contains(contents, forbiddenFragment.fragment)) {
+        if (source_policy::contains(contents, forbiddenFragment.fragment)) {
             std::cerr << "Forbidden high-frequency info logging fragment in " << forbiddenFragment.sourceFile << ": "
                       << forbiddenFragment.fragment << '\n';
             ok = false;

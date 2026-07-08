@@ -1,39 +1,12 @@
-#include <cstdlib>
+#include "SourcePolicyTestRoot.h"
+
 #include <filesystem>
-#include <fstream>
+#include <initializer_list>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <string_view>
 
 namespace {
-
-    std::filesystem::path projectRoot() {
-        if (const char* sourceDir = std::getenv("SNODEC_SOURCE_DIR")) {
-            return sourceDir;
-        }
-
-        std::filesystem::path current = std::filesystem::current_path();
-        while (!current.empty()) {
-            if (std::filesystem::exists(current / "src" / "core" / "EventLoop.cpp")) {
-                return current;
-            }
-            current = current.parent_path();
-        }
-
-        return std::filesystem::current_path();
-    }
-
-    std::string readFile(const std::filesystem::path& path) {
-        std::ifstream input(path);
-        std::ostringstream buffer;
-        buffer << input.rdbuf();
-        return buffer.str();
-    }
-
-    bool contains(std::string_view haystack, std::string_view needle) {
-        return haystack.find(needle) != std::string_view::npos;
-    }
 
     bool ordered(std::string_view source, std::initializer_list<std::string_view> fragments) {
         std::size_t pos = 0;
@@ -48,7 +21,7 @@ namespace {
     }
 
     bool requireContains(std::string_view source, std::string_view fragment, std::string_view description) {
-        if (contains(source, fragment)) {
+        if (source_policy::contains(source, fragment)) {
             return true;
         }
 
@@ -68,16 +41,23 @@ namespace {
 } // namespace
 
 int main() {
-    const std::filesystem::path root = projectRoot();
-    const std::string epollMux = readFile(root / "src" / "core" / "multiplexer" / "epoll" / "EventMultiplexer.cpp");
-    const std::string eventLoop = readFile(root / "src" / "core" / "EventLoop.cpp");
-    const std::string innerEpoll = readFile(root / "src" / "core" / "multiplexer" / "epoll" / "DescriptorEventPublisher.cpp");
-    const std::string pollMux = readFile(root / "src" / "core" / "multiplexer" / "poll" / "EventMultiplexer.cpp");
-    const std::string selectMux = readFile(root / "src" / "core" / "multiplexer" / "select" / "EventMultiplexer.cpp");
-    const std::string epollWrapper = readFile(root / "src" / "core" / "system" / "epoll.cpp");
-    const std::string pollWrapper = readFile(root / "src" / "core" / "system" / "poll.cpp");
-    const std::string selectWrapper = readFile(root / "src" / "core" / "system" / "select.cpp");
-    const std::string coreMux = readFile(root / "src" / "core" / "EventMultiplexer.cpp");
+    const std::filesystem::path root = source_policy::sourcePolicyProjectRoot();
+    if (root.empty()) {
+        return 1;
+    }
+    const std::string epollMux =
+        source_policy::readSourcePolicyFile(root / "src" / "core" / "multiplexer" / "epoll" / "EventMultiplexer.cpp");
+    const std::string eventLoop = source_policy::readSourcePolicyFile(root / "src" / "core" / "EventLoop.cpp");
+    const std::string innerEpoll =
+        source_policy::readSourcePolicyFile(root / "src" / "core" / "multiplexer" / "epoll" / "DescriptorEventPublisher.cpp");
+    const std::string pollMux =
+        source_policy::readSourcePolicyFile(root / "src" / "core" / "multiplexer" / "poll" / "EventMultiplexer.cpp");
+    const std::string selectMux =
+        source_policy::readSourcePolicyFile(root / "src" / "core" / "multiplexer" / "select" / "EventMultiplexer.cpp");
+    const std::string epollWrapper = source_policy::readSourcePolicyFile(root / "src" / "core" / "system" / "epoll.cpp");
+    const std::string pollWrapper = source_policy::readSourcePolicyFile(root / "src" / "core" / "system" / "poll.cpp");
+    const std::string selectWrapper = source_policy::readSourcePolicyFile(root / "src" / "core" / "system" / "select.cpp");
+    const std::string coreMux = source_policy::readSourcePolicyFile(root / "src" / "core" / "EventMultiplexer.cpp");
 
     bool ok = true;
     ok &= requireContains(epollMux, ", epfd(core::system::epoll_create1(EPOLL_CLOEXEC))", "outer epoll_create1 remains in the initializer");

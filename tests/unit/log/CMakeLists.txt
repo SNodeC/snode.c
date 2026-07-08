@@ -119,22 +119,28 @@ target_compile_features(SemanticEndToEndOutputTest PRIVATE cxx_std_20)
 target_link_libraries(SemanticEndToEndOutputTest PRIVATE snodec-test-support snodec::logger)
 set_tests_properties(SemanticEndToEndOutputTest PROPERTIES LABELS "unit;log;e2e")
 
+function(snodec_set_source_policy_test_properties test_name labels)
+    set_tests_properties(${test_name} PROPERTIES
+        LABELS "${labels}"
+        ENVIRONMENT "SNODEC_SOURCE_DIR=${CMAKE_SOURCE_DIR}")
+endfunction()
+
 snodec_add_test(SocketContextDetachPolicyTest SocketContextDetachPolicyTest.cpp)
 target_compile_features(SocketContextDetachPolicyTest PRIVATE cxx_std_20)
-set_tests_properties(SocketContextDetachPolicyTest PROPERTIES LABELS "unit;log;socketcontext")
+snodec_set_source_policy_test_properties(SocketContextDetachPolicyTest "unit;log;socketcontext")
 
 snodec_add_test(SensitiveLoggingRedactionTest SensitiveLoggingRedactionTest.cpp)
 target_compile_features(SensitiveLoggingRedactionTest PRIVATE cxx_std_20)
-set_tests_properties(SensitiveLoggingRedactionTest PROPERTIES LABELS "unit;log;security")
+snodec_set_source_policy_test_properties(SensitiveLoggingRedactionTest "unit;log;security")
 
 snodec_add_test(HighFrequencyLoggingSeverityTest HighFrequencyLoggingSeverityTest.cpp)
 target_compile_features(HighFrequencyLoggingSeverityTest PRIVATE cxx_std_20)
-set_tests_properties(HighFrequencyLoggingSeverityTest PROPERTIES LABELS "unit;log;severity")
+snodec_set_source_policy_test_properties(HighFrequencyLoggingSeverityTest "unit;log;severity")
 
 snodec_add_test(InnerEpollDiagnosticsTest InnerEpollDiagnosticsTest.cpp)
 target_compile_features(InnerEpollDiagnosticsTest PRIVATE cxx_std_20)
-set_tests_properties(InnerEpollDiagnosticsTest PROPERTIES LABELS "unit;log;epoll")
+snodec_set_source_policy_test_properties(InnerEpollDiagnosticsTest "unit;log;epoll")
 
 snodec_add_test(BroaderSyscallDisciplineTest BroaderSyscallDisciplineTest.cpp)
 target_compile_features(BroaderSyscallDisciplineTest PRIVATE cxx_std_20)
-set_tests_properties(BroaderSyscallDisciplineTest PROPERTIES LABELS "unit;log;syscall")
+snodec_set_source_policy_test_properties(BroaderSyscallDisciplineTest "unit;log;syscall")

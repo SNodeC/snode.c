@@ -1,43 +1,15 @@
-#include <cstdlib>
+#include "SourcePolicyTestRoot.h"
+
 #include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <string_view>
 #include <vector>
 
 namespace {
 
-    std::filesystem::path projectRoot() {
-        if (const char* sourceDir = std::getenv("SNODEC_SOURCE_DIR")) {
-            return sourceDir;
-        }
-
-        std::filesystem::path current = std::filesystem::current_path();
-        while (!current.empty()) {
-            if (std::filesystem::exists(current / "src" / "SemanticLog.h")) {
-                return current;
-            }
-            current = current.parent_path();
-        }
-
-        return std::filesystem::current_path();
-    }
-
-    std::string readFile(const std::filesystem::path& path) {
-        std::ifstream input(path);
-        std::ostringstream buffer;
-        buffer << input.rdbuf();
-        return buffer.str();
-    }
-
-    bool contains(std::string_view haystack, std::string_view needle) {
-        return haystack.find(needle) != std::string_view::npos;
-    }
-
     bool requireContains(std::string_view contents, std::string_view needle, const std::filesystem::path& path) {
-        if (contains(contents, needle)) {
+        if (source_policy::contains(contents, needle)) {
             return true;
         }
 
@@ -46,7 +18,7 @@ namespace {
     }
 
     bool requireNotContains(std::string_view contents, std::string_view needle, const std::filesystem::path& path) {
-        if (!contains(contents, needle)) {
+        if (!source_policy::contains(contents, needle)) {
             return true;
         }
 
@@ -57,18 +29,21 @@ namespace {
 } // namespace
 
 int main() {
-    const std::filesystem::path root = projectRoot();
+    const std::filesystem::path root = source_policy::sourcePolicyProjectRoot();
+    if (root.empty()) {
+        return 1;
+    }
     const auto socketConnectionPath = root / "src" / "core" / "socket" / "stream" / "SocketConnection.hpp";
     const auto socketContextHeaderPath = root / "src" / "core" / "socket" / "stream" / "SocketContext.h";
     const auto socketContextSourcePath = root / "src" / "core" / "socket" / "stream" / "SocketContext.cpp";
     const auto socketServerPath = root / "src" / "core" / "socket" / "stream" / "SocketServer.h";
     const auto socketClientPath = root / "src" / "core" / "socket" / "stream" / "SocketClient.h";
 
-    const std::string socketConnection = readFile(socketConnectionPath);
-    const std::string socketContextHeader = readFile(socketContextHeaderPath);
-    const std::string socketContextSource = readFile(socketContextSourcePath);
-    const std::string socketServer = readFile(socketServerPath);
-    const std::string socketClient = readFile(socketClientPath);
+    const std::string socketConnection = source_policy::readSourcePolicyFile(socketConnectionPath);
+    const std::string socketContextHeader = source_policy::readSourcePolicyFile(socketContextHeaderPath);
+    const std::string socketContextSource = source_policy::readSourcePolicyFile(socketContextSourcePath);
+    const std::string socketServer = source_policy::readSourcePolicyFile(socketServerPath);
+    const std::string socketClient = source_policy::readSourcePolicyFile(socketClientPath);
 
     bool ok = true;
     ok &= requireContains(socketConnection, "socketContext->detach(SocketContext::DetachReason::ContextSwitch);", socketConnectionPath);
