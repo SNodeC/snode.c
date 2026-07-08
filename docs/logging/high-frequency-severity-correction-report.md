@@ -92,7 +92,7 @@ Remaining `info()` occurrences in the inspected MQTT/HTTP tree are service, sess
 - `git diff --check`
 - `cmake -S . -B cmake-build -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON`
 - `cmake --build cmake-build --parallel 2`
-- `ctest --test-dir cmake-build -R "HighFrequencyLoggingSeverityTest|SensitiveLoggingRedactionTest|MqttMigration08Test|SemanticEndToEndOutputTest|FinalCleanupMigration09Test" --output-on-failure`
+- `ctest --test-dir cmake-build -R "HighFrequencyLoggingSeverityTest|SensitiveLoggingRedactionTest|HttpClientMigration07aTest|HttpServerMigration07bTest|MqttMigration08Test|SemanticEndToEndOutputTest|FinalCleanupMigration09Test" --output-on-failure`
 - `ctest --test-dir cmake-build --output-on-failure`
 - `cmake -S . -B cmake-build-asan -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON -DSNODEC_ENABLE_ASAN=ON`
 - `cmake --build cmake-build-asan --parallel 2 --target MqttMigration08Test HighFrequencyLoggingSeverityTest`
