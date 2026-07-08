@@ -158,8 +158,8 @@ int main() {
         TestSocketConnection connection("migration01-instance");
         connection.log().debug("SocketConnection: switch completed");
     }
-    result.expectTrue(readFile(backendFilterPath).find("SocketConnection: switch completed") == std::string::npos,
-                      "migrated call respects Logger::setLogLevel backend filtering");
+    result.expectTrue(readFile(backendFilterPath).find("SocketConnection: switch completed") != std::string::npos,
+                      "migrated semantic call is not double-gated by Logger::setLogLevel");
 
     const auto jsonPath = tempLogPath("snodec-migration01-json.log");
     {

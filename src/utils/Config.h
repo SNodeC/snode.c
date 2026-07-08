@@ -42,16 +42,32 @@
 #ifndef UTILS_CONFIG_H
 #define UTILS_CONFIG_H
 
+#include "log/SemanticLogger.h"
 #include "utils/SubCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
 #include <string>
+#include <string_view>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace utils::config {} // namespace utils::config
+namespace utils::config {
+
+    struct ParsedLogLevel {
+        int legacyLevel;
+        logger::LogLevel semanticLevel;
+    };
+
+    ParsedLogLevel parseLogLevel(std::string_view value);
+    logger::LogManager::Format parseLogFormat(std::string_view value);
+    logger::LogOrigin parseLogOrigin(std::string_view value);
+    logger::LogBoundary parseLogBoundary(std::string_view value);
+    std::pair<std::string, logger::LogLevel> parseKeyValueLevel(std::string_view value);
+
+} // namespace utils::config
 
 namespace utils {
 
@@ -87,6 +103,11 @@ namespace utils {
         CLI::Option* enforceLogFileOpt = nullptr;
         CLI::Option* logLevelOpt = nullptr;
         CLI::Option* verboseLevelOpt = nullptr;
+        CLI::Option* logFormatOpt = nullptr;
+        CLI::Option* logOriginLevelOpt = nullptr;
+        CLI::Option* logBoundaryLevelOpt = nullptr;
+        CLI::Option* logComponentLevelOpt = nullptr;
+        CLI::Option* logInstanceLevelOpt = nullptr;
         CLI::Option* quietOpt = nullptr;
         CLI::Option* versionOpt = nullptr;
         CLI::Option* writeConfigOpt = nullptr;

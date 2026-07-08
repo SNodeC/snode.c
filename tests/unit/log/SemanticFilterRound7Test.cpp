@@ -27,7 +27,9 @@ namespace {
             logger::Logger::setVerboseLevel(0);
             logger::Logger::setQuiet(true);
             logger::Logger::setDisableColor(true);
-            logger::Logger::setTickResolver([]() { return std::string("ROUND7TICK000"); });
+            logger::Logger::setTickResolver([]() {
+                return std::string("ROUND7TICK000");
+            });
             logger::Logger::logToFile(logFile);
         }
         ~LoggerStateGuard() {
@@ -69,10 +71,11 @@ namespace {
     class TestConfigInstance : public net::config::ConfigInstance {
     public:
         explicit TestConfigInstance(const std::string& instanceName)
-            : ConfigInstance(instanceName, Role::SERVER) {}
+            : ConfigInstance(instanceName, Role::SERVER) {
+        }
         ~TestConfigInstance() override = default;
     };
-}
+} // namespace
 
 int main() {
     tests::support::TestResult result;
@@ -96,11 +99,13 @@ int main() {
     result.expectTrue(logger::LogManager::effectiveLevel(scope()) == logger::LogLevel::Info, "component overrides boundary");
     logger::LogManager::setInstanceLevel("round7-instance", logger::LogLevel::Trace);
     result.expectTrue(logger::LogManager::effectiveLevel(scope()) == logger::LogLevel::Trace, "instance overrides component");
-    result.expectTrue(logger::LogManager::effectiveLevel(scope("")) == logger::LogLevel::Info, "missing instance does not match instance override");
+    result.expectTrue(logger::LogManager::effectiveLevel(scope("")) == logger::LogLevel::Info,
+                      "missing instance does not match instance override");
 
     logger::LogManager::init();
     logger::LogManager::setGlobalLevel(logger::LogLevel::Off);
-    result.expectTrue(!logger::LogManager::shouldEmit(record(logger::LogLevel::Critical, "off hides critical")), "LogLevel::Off suppresses records");
+    result.expectTrue(!logger::LogManager::shouldEmit(record(logger::LogLevel::Critical, "off hides critical")),
+                      "LogLevel::Off suppresses records");
 
     logger::LogManager::init();
     logger::LogManager::setGlobalLevel(logger::LogLevel::Info);
@@ -123,17 +128,19 @@ int main() {
     logger::LogManager::setFormat(logger::LogManager::Format::Json);
     const std::string json = logger::LogManager::formatRecord(sample);
     result.expectTrue(json == logger::formatJsonV1(sample), "Json format uses formatJsonV1");
-    result.expectTrue(json.find("\"v\"") != std::string::npos && json.find("\"ts\"") != std::string::npos && json.find("\"level\"") != std::string::npos &&
-                          json.find("\"origin\"") != std::string::npos && json.find("\"boundary\"") != std::string::npos && json.find("\"component\"") != std::string::npos &&
+    result.expectTrue(json.find("\"v\"") != std::string::npos && json.find("\"ts\"") != std::string::npos &&
+                          json.find("\"level\"") != std::string::npos && json.find("\"origin\"") != std::string::npos &&
+                          json.find("\"boundary\"") != std::string::npos && json.find("\"component\"") != std::string::npos &&
                           json.find("\"message\"") != std::string::npos,
                       "Json output includes mandatory JSON v1 fields");
-    const auto minimal = logger::materialize({logger::LogOrigin::Application, logger::LogBoundary::Application, "round7.minimal", "", logger::LogRole::Unknown, ""},
-                                             logger::LogLevel::Info,
-                                             "minimal",
-                                             logger::LogRecordOptions{.ts = fixedTimestamp()});
+    const auto minimal = logger::materialize(
+        {logger::LogOrigin::Application, logger::LogBoundary::Application, "round7.minimal", "", logger::LogRole::Unknown, ""},
+        logger::LogLevel::Info,
+        "minimal",
+        logger::LogRecordOptions{.ts = fixedTimestamp()});
     const std::string minimalJson = logger::formatJsonV1(minimal);
-    result.expectTrue(minimalJson.find(":null") == std::string::npos && minimalJson.find("\"instance\"") == std::string::npos && minimalJson.find("\"role\"") == std::string::npos &&
-                          minimalJson.find("\"connection\"") == std::string::npos,
+    result.expectTrue(minimalJson.find(":null") == std::string::npos && minimalJson.find("\"instance\"") == std::string::npos &&
+                          minimalJson.find("\"role\"") == std::string::npos && minimalJson.find("\"connection\"") == std::string::npos,
                       "Json output omits absent optional fields rather than null");
 
     const auto semanticPath = tempLogPath("snodec-round7-semantic-filter.log");
@@ -158,8 +165,10 @@ int main() {
         config.log().error("object error visible");
     }
     const auto objectLog = readFile(objectPath);
-    result.expectTrue(objectLog.find("object info hidden") == std::string::npos, "default no-argument object logger respects semantic filtering");
-    result.expectTrue(objectLog.find("object error visible") != std::string::npos, "default no-argument object logger emits allowed semantic record");
+    result.expectTrue(objectLog.find("object info hidden") == std::string::npos,
+                      "default no-argument object logger respects semantic filtering");
+    result.expectTrue(objectLog.find("object error visible") != std::string::npos,
+                      "default no-argument object logger emits allowed semantic record");
 
     const auto gatePath = tempLogPath("snodec-round7-backend-gate.log");
     {
@@ -173,9 +182,11 @@ int main() {
         LOG(WARNING) << "legacy warning visible";
     }
     const auto gateLog = readFile(gatePath);
-    result.expectTrue(gateLog.find("backend info hidden") == std::string::npos, "Logger::setLogLevel remains final backend gate");
-    result.expectTrue(gateLog.find("backend warn visible") != std::string::npos, "backend gate emits warning");
-    result.expectTrue(gateLog.find("legacy info hidden") == std::string::npos && gateLog.find("legacy warning visible") != std::string::npos,
+    result.expectTrue(gateLog.find("backend info hidden") != std::string::npos,
+                      "semantic records accepted by LogManager are not double-gated by Logger::setLogLevel");
+    result.expectTrue(gateLog.find("backend warn visible") != std::string::npos, "semantic warning still emits after semantic filtering");
+    result.expectTrue(gateLog.find("legacy info hidden") == std::string::npos &&
+                          gateLog.find("legacy warning visible") != std::string::npos,
                       "legacy LOG macro behavior remains unchanged");
 
     const auto jsonPath = tempLogPath("snodec-round7-json-format.log");
@@ -186,7 +197,8 @@ int main() {
         logger::Logger::emitSemantic(record(logger::LogLevel::Info, "json backend visible"));
     }
     const auto jsonLog = readFile(jsonPath);
-    result.expectTrue(jsonLog.find("{\"v\":1") != std::string::npos && jsonLog.find("\"message\":\"json backend visible\"") != std::string::npos,
+    result.expectTrue(jsonLog.find("{\"v\":1") != std::string::npos &&
+                          jsonLog.find("\"message\":\"json backend visible\"") != std::string::npos,
                       "Json format reaches semantic backend output");
 
     return result.processResult();

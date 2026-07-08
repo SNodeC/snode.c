@@ -5,10 +5,10 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
-#include <string>
-#include <system_error>
 #include <optional>
 #include <ostream>
+#include <string>
+#include <system_error>
 #include <vector>
 
 namespace {
@@ -30,7 +30,9 @@ namespace {
             logger::Logger::setVerboseLevel(0);
             logger::Logger::setQuiet(true);
             logger::Logger::setDisableColor(true);
-            logger::Logger::setTickResolver([]() { return std::string("ROUND9OVERHD"); });
+            logger::Logger::setTickResolver([]() {
+                return std::string("ROUND9OVERHD");
+            });
             logger::Logger::logToFile(logFile);
         }
         ~StateGuard() {
@@ -55,20 +57,31 @@ namespace {
     }
 
     logger::LogScope scope(std::string_view component = "round9.overhead", std::string_view instance = "round9-overhead") {
-        return {logger::LogOrigin::Framework, logger::LogBoundary::System, component, instance, logger::LogRole::Server, "round9-overhead-connection"};
+        return {logger::LogOrigin::Framework,
+                logger::LogBoundary::System,
+                component,
+                instance,
+                logger::LogRole::Server,
+                "round9-overhead-connection"};
     }
 
     std::chrono::system_clock::time_point fixedTimestamp() {
         using namespace std::chrono;
         return system_clock::time_point{seconds{1783254896} + milliseconds{789}};
     }
-}
+} // namespace
 
 int main() {
     tests::support::TestResult result;
 
     int sinkCalls = 0;
-    auto suppressed = logger::BoundaryLogger::createForTest(scope(), [&](logger::LogRecord) { ++sinkCalls; }, logger::LogLevel::Error, fixedTimestamp);
+    auto suppressed = logger::BoundaryLogger::createForTest(
+        scope(),
+        [&](logger::LogRecord) {
+            ++sinkCalls;
+        },
+        logger::LogLevel::Error,
+        fixedTimestamp);
     suppressed.info("suppressed by threshold");
     result.expectEqual(0, sinkCalls, "BoundaryLogger threshold suppression does not invoke sink");
     suppressed.emit(logger::LogLevel::Off, "suppressed off");
@@ -79,17 +92,21 @@ int main() {
         StateGuard guard(semanticSuppressedPath.string());
         logger::LogManager::setGlobalLevel(logger::LogLevel::Off);
         logger::LogManager::freeze();
-        logger::BoundaryLogger::createForTest(scope(), logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedTimestamp).error("suppressed by LogManager");
+        logger::BoundaryLogger::createForTest(scope(), logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedTimestamp)
+            .error("suppressed by LogManager");
     }
-    result.expectTrue(readFile(semanticSuppressedPath).find("suppressed by LogManager") == std::string::npos, "LogManager semantic suppression prevents backend output");
+    result.expectTrue(readFile(semanticSuppressedPath).find("suppressed by LogManager") == std::string::npos,
+                      "LogManager semantic suppression prevents backend output");
 
     const auto backendSuppressedPath = tempLogPath("snodec-round9-overhead-backend.log");
     {
         StateGuard guard(backendSuppressedPath.string());
         logger::Logger::setLogLevel(2);
-        logger::BoundaryLogger::createForTest(scope(), logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedTimestamp).info("suppressed by backend threshold");
+        logger::BoundaryLogger::createForTest(scope(), logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedTimestamp)
+            .info("suppressed by backend threshold");
     }
-    result.expectTrue(readFile(backendSuppressedPath).find("suppressed by backend threshold") == std::string::npos, "Logger::setLogLevel backend suppression prevents backend output");
+    result.expectTrue(readFile(backendSuppressedPath).find("suppressed by backend threshold") != std::string::npos,
+                      "semantic output accepted by LogManager is not suppressed by Logger::setLogLevel");
 
     int expensiveEvaluations = 0;
     suppressed.info() << ExpensiveValue{&expensiveEvaluations};
@@ -101,7 +118,8 @@ int main() {
         logger::LogManager::setGlobalLevel(logger::LogLevel::Off);
         logger::LogManager::setFormat(logger::LogManager::Format::Json);
         logger::LogManager::freeze();
-        logger::BoundaryLogger::createForTest(scope(), logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedTimestamp).error("format gate message");
+        logger::BoundaryLogger::createForTest(scope(), logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedTimestamp)
+            .error("format gate message");
     }
     const auto gatedLog = readFile(formatGatePath);
     result.expectTrue(gatedLog.find("format gate message") == std::string::npos && gatedLog.find("{\"v\":1") == std::string::npos,
@@ -123,12 +141,19 @@ int main() {
     {
         std::string component = "lifetime.component";
         std::string instance = "lifetime-instance";
-        lifetimeLogger.emplace(logger::BoundaryLogger::createForTest(scope(component, instance), [&](logger::LogRecord record) { records.push_back(std::move(record)); }, logger::LogLevel::Trace, fixedTimestamp));
+        lifetimeLogger.emplace(logger::BoundaryLogger::createForTest(
+            scope(component, instance),
+            [&](logger::LogRecord record) {
+                records.push_back(std::move(record));
+            },
+            logger::LogLevel::Trace,
+            fixedTimestamp));
         component.assign("changed");
         instance.assign("changed");
     }
     lifetimeLogger->info("lifetime safe");
-    result.expectTrue(records.size() == 1 && records[0].component == "lifetime.component" && records[0].instance && *records[0].instance == "lifetime-instance",
+    result.expectTrue(records.size() == 1 && records[0].component == "lifetime.component" && records[0].instance &&
+                          *records[0].instance == "lifetime-instance",
                       "original scope strings may be mutated/destroyed before logger emission");
 
     return result.processResult();

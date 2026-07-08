@@ -46,7 +46,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "log/SemanticLogger.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -75,7 +78,168 @@ namespace utils::CallForCommandline {
     enum class Mode { REQUIRED, STANDARD, ACTIVE, COMPLETE };
 }
 
+namespace utils::config {
+
+    namespace {
+        std::string trimAndLower(std::string_view value) {
+            const auto begin = value.find_first_not_of(" \t\n\r");
+            if (begin == std::string_view::npos) {
+                return {};
+            }
+            const auto end = value.find_last_not_of(" \t\n\r");
+            std::string result(value.substr(begin, end - begin + 1));
+            std::ranges::transform(result, result.begin(), [](unsigned char ch) {
+                return static_cast<char>(std::tolower(ch));
+            });
+            return result;
+        }
+
+        std::string trim(std::string_view value) {
+            const auto begin = value.find_first_not_of(" \t\n\r");
+            if (begin == std::string_view::npos) {
+                return {};
+            }
+            const auto end = value.find_last_not_of(" \t\n\r");
+            return std::string(value.substr(begin, end - begin + 1));
+        }
+    } // namespace
+
+    ParsedLogLevel parseLogLevel(std::string_view value) {
+        const std::string normalized = trimAndLower(value);
+        if (normalized == "0" || normalized == "off") {
+            return {0, logger::LogLevel::Off};
+        }
+        if (normalized == "1" || normalized == "critical") {
+            return {1, logger::LogLevel::Critical};
+        }
+        if (normalized == "2" || normalized == "error") {
+            return {2, logger::LogLevel::Error};
+        }
+        if (normalized == "3" || normalized == "warn" || normalized == "warning") {
+            return {3, logger::LogLevel::Warn};
+        }
+        if (normalized == "4" || normalized == "info") {
+            return {4, logger::LogLevel::Info};
+        }
+        if (normalized == "5" || normalized == "debug") {
+            return {5, logger::LogLevel::Debug};
+        }
+        if (normalized == "6" || normalized == "trace") {
+            return {6, logger::LogLevel::Trace};
+        }
+        throw std::invalid_argument("expected one of 0..6, off, critical, error, warn, warning, info, debug, trace");
+    }
+
+    logger::LogManager::Format parseLogFormat(std::string_view value) {
+        const std::string normalized = trimAndLower(value);
+        if (normalized == "text") {
+            return logger::LogManager::Format::Text;
+        }
+        if (normalized == "json") {
+            return logger::LogManager::Format::Json;
+        }
+        throw std::invalid_argument("expected text or json");
+    }
+
+    logger::LogOrigin parseLogOrigin(std::string_view value) {
+        const std::string normalized = trimAndLower(value);
+        if (normalized == "framework") {
+            return logger::LogOrigin::Framework;
+        }
+        if (normalized == "application") {
+            return logger::LogOrigin::Application;
+        }
+        throw std::invalid_argument("expected framework or application");
+    }
+
+    logger::LogBoundary parseLogBoundary(std::string_view value) {
+        const std::string normalized = trimAndLower(value);
+        if (normalized == "application") {
+            return logger::LogBoundary::Application;
+        }
+        if (normalized == "configuration") {
+            return logger::LogBoundary::Configuration;
+        }
+        if (normalized == "instance") {
+            return logger::LogBoundary::Instance;
+        }
+        if (normalized == "connection") {
+            return logger::LogBoundary::Connection;
+        }
+        if (normalized == "context") {
+            return logger::LogBoundary::Context;
+        }
+        if (normalized == "system") {
+            return logger::LogBoundary::System;
+        }
+        throw std::invalid_argument("expected application, configuration, instance, connection, context, or system");
+    }
+
+    std::pair<std::string, logger::LogLevel> parseKeyValueLevel(std::string_view value) {
+        const std::size_t separator = value.find('=');
+        if (separator == std::string_view::npos) {
+            throw std::invalid_argument("expected key=level");
+        }
+        std::string key = trim(value.substr(0, separator));
+        if (key.empty()) {
+            throw std::invalid_argument("key must not be empty");
+        }
+        std::string level = trim(value.substr(separator + 1));
+        if (level.empty()) {
+            throw std::invalid_argument("level must not be empty");
+        }
+        return {std::move(key), parseLogLevel(level).semanticLevel};
+    }
+
+} // namespace utils::config
+
 namespace utils {
+
+    static std::vector<std::string> normalizeSemanticKeyValueArgs(int argc, char* argv[]) {
+        static const std::unordered_set<std::string_view> semanticKeyValueOptions{
+            "--log-origin-level", "--log-boundary-level", "--log-component-level", "--log-instance-level"};
+        std::vector<std::string> normalized;
+        normalized.reserve(static_cast<std::size_t>(argc));
+        for (int index = 0; index < argc; ++index) {
+            const std::string_view arg = argv[index];
+            if (semanticKeyValueOptions.contains(arg) && index + 1 < argc) {
+                const std::string_view value = argv[index + 1];
+                if (!value.empty() && value.front() != '-' && value.find('=') != std::string_view::npos) {
+                    normalized.emplace_back(std::string(arg).append("=").append(value));
+                    ++index;
+                    continue;
+                }
+            }
+            normalized.emplace_back(arg);
+        }
+        return normalized;
+    }
+
+    static CLI::Validator logLevelValidator() {
+        return CLI::Validator(
+            [](std::string& value) {
+                try {
+                    value = std::to_string(utils::config::parseLogLevel(value).legacyLevel);
+                    return std::string{};
+                } catch (const std::exception& e) {
+                    return std::string(e.what());
+                }
+            },
+            "LOG_LEVEL");
+    }
+
+    static CLI::Validator semanticValidator(const std::function<void(std::string_view)>& parser, std::string name) {
+        return CLI::Validator(
+            [parser](std::string& value) {
+                try {
+                    parser(value);
+                    return std::string{};
+                } catch (const std::exception& e) {
+                    return std::string(e.what());
+                }
+            },
+            std::move(name));
+    }
 
     // Escape characters with special meaning in Bash (except whitespace).
     static std::string bash_backslash_escape_no_whitespace(std::string_view s) {
@@ -353,9 +517,52 @@ namespace utils {
     ConfigRoot::ConfigRoot()
         : utils::SubCommand(nullptr, std::make_shared<utils::AppWithPtr>("Root of config", "", this), "", false) {
         logger::Logger::init();
+        logger::LogManager::init();
     }
 
     ConfigRoot::~ConfigRoot() {
+    }
+
+    static void applySemanticLoggingPolicy(CLI::Option* logLevelOpt,
+                                           CLI::Option* logFormatOpt,
+                                           CLI::Option* logOriginLevelOpt,
+                                           CLI::Option* logBoundaryLevelOpt,
+                                           CLI::Option* logComponentLevelOpt,
+                                           CLI::Option* logInstanceLevelOpt) {
+        const auto parsedLevel = utils::config::parseLogLevel(std::to_string(logLevelOpt->as<int>()));
+        logger::Logger::setLogLevel(parsedLevel.legacyLevel);
+        logger::LogManager::setGlobalLevel(parsedLevel.semanticLevel);
+        logger::LogManager::setFormat(utils::config::parseLogFormat(logFormatOpt->as<std::string>()));
+
+        const auto configuredValues = [](CLI::Option* option) {
+            std::vector<std::string> values;
+            if (option->count() == 0) {
+                return values;
+            }
+            for (const std::string& value : option->as<std::vector<std::string>>()) {
+                if (!value.empty() && value != "false") {
+                    values.push_back(value);
+                }
+            }
+            return values;
+        };
+
+        for (const std::string& value : configuredValues(logOriginLevelOpt)) {
+            const auto [key, level] = utils::config::parseKeyValueLevel(value);
+            logger::LogManager::setOriginLevel(utils::config::parseLogOrigin(key), level);
+        }
+        for (const std::string& value : configuredValues(logBoundaryLevelOpt)) {
+            const auto [key, level] = utils::config::parseKeyValueLevel(value);
+            logger::LogManager::setBoundaryLevel(utils::config::parseLogBoundary(key), level);
+        }
+        for (const std::string& value : configuredValues(logComponentLevelOpt)) {
+            const auto [component, level] = utils::config::parseKeyValueLevel(value);
+            logger::LogManager::setComponentLevel(component, level);
+        }
+        for (const std::string& value : configuredValues(logInstanceLevelOpt)) {
+            const auto [instance, level] = utils::config::parseKeyValueLevel(value);
+            logger::LogManager::setInstanceLevel(instance, level);
+        }
     }
 
     ConfigRoot* ConfigRoot::addRootOptions(const std::string& applicationName,
@@ -387,9 +594,77 @@ namespace utils {
 
         killOpt = setConfigurable(addFlag("-k,--kill", "Kill running daemon", "", CLI::Validator()), false);
 
-        logLevelOpt = setConfigurable(addOption("--log-level", "Log level", "level", 4, CLI::Range(0, 6)), true);
+        logLevelOpt = setConfigurable(
+            addOption(
+                "--log-level", "Log level (0/off, 1/critical, 2/error, 3/warn, 4/info, 5/debug, 6/trace)", "level", 4, logLevelValidator()),
+            true);
 
-        verboseLevelOpt = setConfigurable(addOption("--verbose-level", "Verbose level", "level", 2, CLI::Range(0, 10)), true);
+        verboseLevelOpt = setConfigurable(
+            addOption("--verbose-level", "Legacy verbose level (0..10; no semantic-log effect)", "level", 2, CLI::Range(0, 10)), true);
+
+        logFormatOpt = setConfigurable(addOption("--log-format",
+                                                 "Semantic log format",
+                                                 "text|json",
+                                                 std::string("text"),
+                                                 semanticValidator(
+                                                     [](std::string_view value) {
+                                                         utils::config::parseLogFormat(value);
+                                                     },
+                                                     "FORMAT")),
+                                       true);
+
+        logOriginLevelOpt =
+            setConfigurable(addOption("--log-origin-level",
+                                      "Semantic origin log level override (framework|application=level)",
+                                      "origin=level",
+                                      CLI::TypeValidator<std::string>() & semanticValidator(
+                                                                              [](std::string_view value) {
+                                                                                  const auto [key, level] =
+                                                                                      utils::config::parseKeyValueLevel(value);
+                                                                                  (void) level;
+                                                                                  utils::config::parseLogOrigin(key);
+                                                                              },
+                                                                              "ORIGIN_LEVEL"))
+                                ->expected(0, -1),
+                            true);
+
+        logBoundaryLevelOpt = setConfigurable(
+            addOption("--log-boundary-level",
+                      "Semantic boundary log level override (application|configuration|instance|connection|context|system=level)",
+                      "boundary=level",
+                      CLI::TypeValidator<std::string>() & semanticValidator(
+                                                              [](std::string_view value) {
+                                                                  const auto [key, level] = utils::config::parseKeyValueLevel(value);
+                                                                  (void) level;
+                                                                  utils::config::parseLogBoundary(key);
+                                                              },
+                                                              "BOUNDARY_LEVEL"))
+                ->expected(0, -1),
+            true);
+
+        logComponentLevelOpt =
+            setConfigurable(addOption("--log-component-level",
+                                      "Semantic component log level override (component=level)",
+                                      "component=level",
+                                      CLI::TypeValidator<std::string>() & semanticValidator(
+                                                                              [](std::string_view value) {
+                                                                                  utils::config::parseKeyValueLevel(value);
+                                                                              },
+                                                                              "COMPONENT_LEVEL"))
+                                ->expected(0, -1),
+                            true);
+
+        logInstanceLevelOpt =
+            setConfigurable(addOption("--log-instance-level",
+                                      "Semantic instance log level override (instance=level)",
+                                      "instance=level",
+                                      CLI::TypeValidator<std::string>() & semanticValidator(
+                                                                              [](std::string_view value) {
+                                                                                  utils::config::parseKeyValueLevel(value);
+                                                                              },
+                                                                              "INSTANCE_LEVEL"))
+                                ->expected(0, -1),
+                            true);
 
         logFileOpt = setConfigurable(addLogFileFlag(logDirectory + "/" + applicationName + ".log"), true);
 
@@ -485,7 +760,8 @@ namespace utils {
             } else {
                 if (helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && commandlineTriggerApp == nullptr &&
                     versionOpt->count() == 0 && writeConfigOpt->count() == 0) {
-                    logger::Logger::setLogLevel(logLevelOpt->as<int>());
+                    applySemanticLoggingPolicy(
+                        logLevelOpt, logFormatOpt, logOriginLevelOpt, logBoundaryLevelOpt, logComponentLevelOpt, logInstanceLevelOpt);
                     logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
                 }
 
@@ -500,6 +776,14 @@ namespace utils {
 
     bool ConfigRoot::bootstrap(int argc, char* argv[]) {
         finalCallback([this]() {
+            if (helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && commandlineTriggerApp == nullptr &&
+                writeConfigOpt->count() == 0) {
+                applySemanticLoggingPolicy(
+                    logLevelOpt, logFormatOpt, logOriginLevelOpt, logBoundaryLevelOpt, logComponentLevelOpt, logInstanceLevelOpt);
+                logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+                logger::LogManager::freeze();
+            }
+
             if (daemonizeOpt->as<bool>() && helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && writeConfigOpt->count() == 0 &&
                 commandlineTriggerApp == nullptr) {
                 std::cout << "Running as daemon (double fork)" << std::endl;
@@ -561,7 +845,14 @@ namespace utils {
                     showConfigTriggerApp = nullptr;
                     commandlineTriggerApp = nullptr;
 
-                    parse(argc, argv);
+                    auto normalizedArgs = normalizeSemanticKeyValueArgs(argc, argv);
+                    std::vector<char*> normalizedArgv;
+                    normalizedArgv.reserve(normalizedArgs.size());
+                    for (std::string& arg : normalizedArgs) {
+                        normalizedArgv.push_back(arg.data());
+                    }
+
+                    parse(static_cast<int>(normalizedArgv.size()), normalizedArgv.data());
 
                     if (!parse1) {
                         if (showConfigTriggerApp != nullptr) {

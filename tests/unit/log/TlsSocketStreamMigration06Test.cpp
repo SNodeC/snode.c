@@ -164,8 +164,8 @@ int main() {
         TestTlsWriter writer;
         writer.log().debug("tls writer suppressed by backend");
     }
-    result.expectTrue(readFile(backendFilterPath).find("suppressed by backend") == std::string::npos,
-                      "Logger::setLogLevel backend filtering suppresses output");
+    result.expectTrue(readFile(backendFilterPath).find("suppressed by backend") != std::string::npos,
+                      "semantic output accepted by LogManager is not suppressed by Logger::setLogLevel");
 
     const auto jsonPath = tempLogPath("snodec-migration06-json.log");
     {

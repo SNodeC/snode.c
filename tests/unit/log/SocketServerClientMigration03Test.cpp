@@ -192,8 +192,8 @@ int main() {
         TestSocketServer("migration03-server").log().debug("server suppressed by backend");
         TestSocketClient("migration03-client").log().debug("client suppressed by backend");
     }
-    result.expectTrue(readFile(backendFilterPath).find("suppressed by backend") == std::string::npos,
-                      "Logger::setLogLevel backend filtering still suppresses output");
+    result.expectTrue(readFile(backendFilterPath).find("suppressed by backend") != std::string::npos,
+                      "semantic output accepted by LogManager is not suppressed by Logger::setLogLevel");
 
     const auto jsonPath = tempLogPath("snodec-migration03-json.log");
     {

@@ -163,8 +163,8 @@ int main() {
         TestAcceptorOwner::logFor("migration02-acceptor").debug("acceptor suppressed by backend");
     }
     const auto backendFilterLog = readFile(backendFilterPath);
-    result.expectTrue(backendFilterLog.find("suppressed by backend") == std::string::npos,
-                      "Logger::setLogLevel backend filtering still suppresses output");
+    result.expectTrue(backendFilterLog.find("suppressed by backend") != std::string::npos,
+                      "semantic output accepted by LogManager is not suppressed by Logger::setLogLevel");
 
     const auto jsonPath = tempLogPath("snodec-migration02-json.log");
     {
