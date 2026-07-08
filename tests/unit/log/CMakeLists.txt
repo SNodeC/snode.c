@@ -119,6 +119,10 @@ target_compile_features(SemanticEndToEndOutputTest PRIVATE cxx_std_20)
 target_link_libraries(SemanticEndToEndOutputTest PRIVATE snodec-test-support snodec::logger)
 set_tests_properties(SemanticEndToEndOutputTest PROPERTIES LABELS "unit;log;e2e")
 
+snodec_add_test(SocketContextDetachPolicyTest SocketContextDetachPolicyTest.cpp)
+target_compile_features(SocketContextDetachPolicyTest PRIVATE cxx_std_20)
+set_tests_properties(SocketContextDetachPolicyTest PROPERTIES LABELS "unit;log;socketcontext")
+
 snodec_add_test(SensitiveLoggingRedactionTest SensitiveLoggingRedactionTest.cpp)
 target_compile_features(SensitiveLoggingRedactionTest PRIVATE cxx_std_20)
 set_tests_properties(SensitiveLoggingRedactionTest PROPERTIES LABELS "unit;log;security")

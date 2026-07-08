@@ -319,7 +319,7 @@ namespace core::socket::stream {
             delete newSocketContext;
             newSocketContext = nullptr;
         } else if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-            socketContext->detach();
+            socketContext->detach(SocketContext::DetachReason::ContextSwitch);
 
             socketContext = newSocketContext;
             newSocketContext = nullptr;
@@ -377,7 +377,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::unobservedEvent() {
         if (socketContext != nullptr) {
-            socketContext->detach();
+            socketContext->detach(SocketContext::DetachReason::ConnectionClose);
         }
 
         onDisconnect();

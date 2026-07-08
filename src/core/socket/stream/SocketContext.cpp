@@ -190,14 +190,18 @@ namespace core::socket::stream {
         onConnected();
     }
 
-    void SocketContext::detach() {
+    void SocketContext::detach(DetachReason reason) {
         onDisconnected();
 
-        frameworkLog().debug("SocketContext: detached");
-        frameworkLog().debug("     Online Since: {}", getOnlineSince());
-        frameworkLog().debug("  Online Duration: {}", getOnlineDuration());
-        frameworkLog().debug("       Total Sent: {}", getTotalQueued());
-        frameworkLog().debug("  Total Processed: {}", getTotalProcessed());
+        if (reason == DetachReason::ContextSwitch) {
+            frameworkLog().debug("SocketContext: detached for context switch");
+            frameworkLog().debug("  Context Online Since: {}", getOnlineSince());
+            frameworkLog().debug("  Context Online Duration: {}", getOnlineDuration());
+            frameworkLog().debug("  Context Total Queued: {}", getTotalQueued());
+            frameworkLog().debug("  Context Total Processed: {}", getTotalProcessed());
+        } else {
+            frameworkLog().debug("SocketContext: detached for connection close");
+        }
 
         delete this;
     }
