@@ -326,8 +326,7 @@ namespace logger {
             return;
         }
 
-        const auto mappedLevel = mapSemanticLevel(record.level);
-        if (!mappedLevel || !shouldLog(*mappedLevel)) {
+        if (!mapSemanticLevel(record.level)) {
             return;
         }
 

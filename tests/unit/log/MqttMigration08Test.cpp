@@ -91,8 +91,8 @@ int main() {
         logger::Logger::setLogLevel(3);
         iot::mqtt::semantic::mqttServerLog().debug("mqtt server suppressed by backend");
     }
-    result.expectTrue(readFile(backendFilterPath).find("suppressed by backend") == std::string::npos,
-                      "Logger::setLogLevel backend filtering suppresses output");
+    result.expectTrue(readFile(backendFilterPath).find("suppressed by backend") != std::string::npos,
+                      "semantic output accepted by LogManager is not suppressed by Logger::setLogLevel");
 
     const auto jsonPath = tempLogPath("snodec-migration08-json.log");
     {

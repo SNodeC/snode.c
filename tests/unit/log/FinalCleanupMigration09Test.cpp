@@ -100,8 +100,8 @@ int main() {
         logger::Logger::setLogLevel(3);
         snode::semantic::mariaDbLog().debug() << "suppressed by backend";
     }
-    result.expectTrue(readFile(backendFilterPath).find("suppressed by backend") == std::string::npos,
-                      "Logger::setLogLevel backend filtering suppresses output");
+    result.expectTrue(readFile(backendFilterPath).find("suppressed by backend") != std::string::npos,
+                      "semantic output accepted by LogManager is not suppressed by the legacy Logger::setLogLevel gate");
 
     const auto jsonPath = tempLogPath("snodec-migration09-json.log");
     {
