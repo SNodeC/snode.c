@@ -50,6 +50,7 @@
 #include "utils/Timeval.h"
 
 #include <array>
+#include <cerrno>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -71,6 +72,21 @@ namespace core::multiplexer::epoll {
         logger::BoundaryLogger muxLog() {
             return muxLogScope().logger(logger::Logger::semanticSink());
         }
+
+        bool addPublisherToOuterEpoll(int epfd, int publisherFd, core::DescriptorEventPublisher* publisher, const char* publisherName) {
+            epoll_event event{};
+            event.events = EPOLLIN;
+            event.data.ptr = publisher;
+
+            if (core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, publisherFd, &event) == 0) {
+                return true;
+            }
+
+            const int errnum = errno;
+            muxLog().sysError(
+                logger::LogLevel::Error, errnum, "Core::multiplexer epoll_ctl ADD failed: fd={} publisher={}", publisherFd, publisherName);
+            return false;
+        }
     } // namespace
 
     EventMultiplexer::EventMultiplexer()
@@ -87,19 +103,23 @@ namespace core::multiplexer::epoll {
                                                                                         EPOLLPRI,
                                                                                         EPOLLPRI))
         , epfd(core::system::epoll_create1(EPOLL_CLOEXEC)) {
-        epoll_event event{};
-        event.events = EPOLLIN;
+        if (epfd < 0) {
+            const int errnum = errno;
+            muxLog().sysError(logger::LogLevel::Critical, errnum, "Core::multiplexer epoll_create1 failed");
+            return;
+        }
 
-        event.data.ptr = descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::RD];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::EventMultiplexer::DISP_TYPE::RD], &event);
+        bool setupSucceeded = true;
+        setupSucceeded &= addPublisherToOuterEpoll(
+            epfd, epfds[core::EventMultiplexer::DISP_TYPE::RD], descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::RD], "READ");
+        setupSucceeded &= addPublisherToOuterEpoll(
+            epfd, epfds[core::EventMultiplexer::DISP_TYPE::WR], descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::WR], "WRITE");
+        setupSucceeded &= addPublisherToOuterEpoll(
+            epfd, epfds[core::EventMultiplexer::DISP_TYPE::EX], descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::EX], "EXCEPT");
 
-        event.data.ptr = descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::WR];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::EventMultiplexer::DISP_TYPE::WR], &event);
-
-        event.data.ptr = descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::EX];
-        core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::EventMultiplexer::DISP_TYPE::EX], &event);
-
-        muxLog().debug("Core::multiplexer: epoll");
+        if (setupSucceeded) {
+            muxLog().debug("Core::multiplexer: epoll");
+        }
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeout, const sigset_t& sigMask) {

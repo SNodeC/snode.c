@@ -62,6 +62,48 @@ namespace core {
     unsigned long EventLoop::tickCounter = 0;
     core::State EventLoop::eventLoopState = State::LOADED;
 
+    namespace {
+        std::string signalName(int signum) {
+            std::string signal = "SIG" + utils::system::sigabbrev_np(signum);
+            if (signal == "SIGUNKNOWN") {
+                signal += "(" + std::to_string(signum) + ")";
+            }
+            return signal;
+        }
+
+        bool logSignalFailure(int result, const char* syscall, const char* phase) {
+            if (result == 0) {
+                return true;
+            }
+
+            const int errnum = errno;
+            EventLoop::instance().log().sysError(logger::LogLevel::Error, errnum, "Core::EventLoop {} failed: phase={}", syscall, phase);
+            return false;
+        }
+
+        bool logSigactionFailure(int result, int signum, const char* phase) {
+            if (result == 0) {
+                return true;
+            }
+
+            const int errnum = errno;
+            EventLoop::instance().log().sysError(
+                logger::LogLevel::Error, errnum, "Core::EventLoop sigaction failed: signal={} phase={}", signalName(signum), phase);
+            return false;
+        }
+
+        bool logSigaddsetFailure(int result, int signum, const char* phase) {
+            if (result == 0) {
+                return true;
+            }
+
+            const int errnum = errno;
+            EventLoop::instance().log().sysError(
+                logger::LogLevel::Error, errnum, "Core::EventLoop sigaddset failed: signal={} phase={}", signalName(signum), phase);
+            return false;
+        }
+    } // namespace
+
     static std::string getTickCounterAsString() {
         std::string tick = std::to_string(EventLoop::getTickCounter());
 
@@ -107,24 +149,24 @@ namespace core {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     bool EventLoop::init(int argc, char* argv[]) {
         struct sigaction sact{};
-        sigemptyset(&sact.sa_mask);
+        logSignalFailure(sigemptyset(&sact.sa_mask), "sigemptyset", "init-install-mask");
         sact.sa_flags = 0;
         sact.sa_handler = SIG_IGN;
 
         struct sigaction oldPipeAct{};
-        sigaction(SIGPIPE, &sact, &oldPipeAct);
+        logSigactionFailure(sigaction(SIGPIPE, &sact, &oldPipeAct), SIGPIPE, "init-install-ignore");
 
         struct sigaction oldIntAct{};
-        sigaction(SIGINT, &sact, &oldIntAct);
+        logSigactionFailure(sigaction(SIGINT, &sact, &oldIntAct), SIGINT, "init-install-ignore");
 
         struct sigaction oldTermAct{};
-        sigaction(SIGTERM, &sact, &oldTermAct);
+        logSigactionFailure(sigaction(SIGTERM, &sact, &oldTermAct), SIGTERM, "init-install-ignore");
 
         struct sigaction oldAlarmAct{};
-        sigaction(SIGALRM, &sact, &oldAlarmAct);
+        logSigactionFailure(sigaction(SIGALRM, &sact, &oldAlarmAct), SIGALRM, "init-install-ignore");
 
         struct sigaction oldHupAct{};
-        sigaction(SIGHUP, &sact, &oldHupAct);
+        logSigactionFailure(sigaction(SIGHUP, &sact, &oldHupAct), SIGHUP, "init-install-ignore");
 
         logger::Logger::setTickResolver(core::getTickCounterAsString);
 
@@ -134,11 +176,11 @@ namespace core {
             EventLoop::instance().log().trace("SNode.C: Starting ... HELLO");
         }
 
-        sigaction(SIGPIPE, &oldPipeAct, nullptr);
-        sigaction(SIGINT, &oldIntAct, nullptr);
-        sigaction(SIGTERM, &oldTermAct, nullptr);
-        sigaction(SIGALRM, &oldAlarmAct, nullptr);
-        sigaction(SIGHUP, &oldHupAct, nullptr);
+        logSigactionFailure(sigaction(SIGPIPE, &oldPipeAct, nullptr), SIGPIPE, "init-restore");
+        logSigactionFailure(sigaction(SIGINT, &oldIntAct, nullptr), SIGINT, "init-restore");
+        logSigactionFailure(sigaction(SIGTERM, &oldTermAct, nullptr), SIGTERM, "init-restore");
+        logSigactionFailure(sigaction(SIGALRM, &oldAlarmAct, nullptr), SIGALRM, "init-restore");
+        logSigactionFailure(sigaction(SIGHUP, &oldHupAct, nullptr), SIGHUP, "init-restore");
 
         return eventLoopState == State::INITIALIZED;
     }
@@ -149,19 +191,20 @@ namespace core {
         tickCounter++;
 
         sigset_t newSet{};
-        sigaddset(&newSet, SIGINT);
-        sigaddset(&newSet, SIGTERM);
-        sigaddset(&newSet, SIGALRM);
-        sigaddset(&newSet, SIGHUP);
+        logSignalFailure(sigemptyset(&newSet), "sigemptyset", "tick-block-mask");
+        logSigaddsetFailure(sigaddset(&newSet, SIGINT), SIGINT, "tick-block-mask");
+        logSigaddsetFailure(sigaddset(&newSet, SIGTERM), SIGTERM, "tick-block-mask");
+        logSigaddsetFailure(sigaddset(&newSet, SIGALRM), SIGALRM, "tick-block-mask");
+        logSigaddsetFailure(sigaddset(&newSet, SIGHUP), SIGHUP, "tick-block-mask");
 
         sigset_t oldSet{};
-        sigprocmask(SIG_BLOCK, &newSet, &oldSet);
+        logSignalFailure(sigprocmask(SIG_BLOCK, &newSet, &oldSet), "sigprocmask", "tick-block");
 
         if (eventLoopState == State::RUNNING || eventLoopState == State::STOPPING) {
             tickStatus = eventMultiplexer.tick(timeOut, oldSet);
         }
 
-        sigprocmask(SIG_SETMASK, &oldSet, nullptr);
+        logSignalFailure(sigprocmask(SIG_SETMASK, &oldSet, nullptr), "sigprocmask", "tick-restore");
 
         return tickStatus;
     }
@@ -171,16 +214,16 @@ namespace core {
 
         if (eventLoopState == State::INITIALIZED) {
             struct sigaction sact{};
-            sigemptyset(&sact.sa_mask);
+            logSignalFailure(sigemptyset(&sact.sa_mask), "sigemptyset", "tick-install-mask");
             sact.sa_flags = 0;
             sact.sa_handler = SIG_IGN;
 
             struct sigaction oldPipeAct{};
-            sigaction(SIGPIPE, &sact, &oldPipeAct);
+            logSigactionFailure(sigaction(SIGPIPE, &sact, &oldPipeAct), SIGPIPE, "tick-install-ignore");
 
             tickStatus = EventLoop::instance()._tick(timeOut);
 
-            sigaction(SIGPIPE, &oldPipeAct, nullptr);
+            logSigactionFailure(sigaction(SIGPIPE, &oldPipeAct, nullptr), SIGPIPE, "tick-restore");
         } else {
             EventLoop::instance().eventMultiplexer.clearEventQueue();
             free();
@@ -197,26 +240,26 @@ namespace core {
 
     int EventLoop::start(const utils::Timeval& timeOut) {
         struct sigaction sact{};
-        sigemptyset(&sact.sa_mask);
+        logSignalFailure(sigemptyset(&sact.sa_mask), "sigemptyset", "start-install-mask");
         sact.sa_flags = 0;
         sact.sa_handler = SIG_IGN;
 
         struct sigaction oldPipeAct{};
-        sigaction(SIGPIPE, &sact, &oldPipeAct);
+        logSigactionFailure(sigaction(SIGPIPE, &sact, &oldPipeAct), SIGPIPE, "start-install-ignore");
 
         sact.sa_handler = EventLoop::stoponsig;
 
         struct sigaction oldIntAct{};
-        sigaction(SIGINT, &sact, &oldIntAct);
+        logSigactionFailure(sigaction(SIGINT, &sact, &oldIntAct), SIGINT, "start-install-handler");
 
         struct sigaction oldTermAct{};
-        sigaction(SIGTERM, &sact, &oldTermAct);
+        logSigactionFailure(sigaction(SIGTERM, &sact, &oldTermAct), SIGTERM, "start-install-handler");
 
         struct sigaction oldAlarmAct{};
-        sigaction(SIGALRM, &sact, &oldAlarmAct);
+        logSigactionFailure(sigaction(SIGALRM, &sact, &oldAlarmAct), SIGALRM, "start-install-handler");
 
         struct sigaction oldHupAct{};
-        sigaction(SIGHUP, &sact, &oldHupAct);
+        logSigactionFailure(sigaction(SIGHUP, &sact, &oldHupAct), SIGHUP, "start-install-handler");
 
         if (eventLoopState == State::INITIALIZED) {
             if (utils::Config::bootstrap()) {
@@ -251,14 +294,14 @@ namespace core {
             stopsig = -1;
         }
 
-        sigaction(SIGPIPE, &oldPipeAct, nullptr);
-        sigaction(SIGTERM, &oldTermAct, nullptr);
-        sigaction(SIGALRM, &oldAlarmAct, nullptr);
-        sigaction(SIGHUP, &oldHupAct, nullptr);
+        logSigactionFailure(sigaction(SIGPIPE, &oldPipeAct, nullptr), SIGPIPE, "start-restore");
+        logSigactionFailure(sigaction(SIGTERM, &oldTermAct, nullptr), SIGTERM, "start-restore");
+        logSigactionFailure(sigaction(SIGALRM, &oldAlarmAct, nullptr), SIGALRM, "start-restore");
+        logSigactionFailure(sigaction(SIGHUP, &oldHupAct, nullptr), SIGHUP, "start-restore");
 
         free();
 
-        sigaction(SIGINT, &oldIntAct, nullptr);
+        logSigactionFailure(sigaction(SIGINT, &oldIntAct, nullptr), SIGINT, "start-restore");
 
         return -stopsig;
     }

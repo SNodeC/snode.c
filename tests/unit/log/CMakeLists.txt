@@ -134,3 +134,7 @@ set_tests_properties(HighFrequencyLoggingSeverityTest PROPERTIES LABELS "unit;lo
 snodec_add_test(InnerEpollDiagnosticsTest InnerEpollDiagnosticsTest.cpp)
 target_compile_features(InnerEpollDiagnosticsTest PRIVATE cxx_std_20)
 set_tests_properties(InnerEpollDiagnosticsTest PROPERTIES LABELS "unit;log;epoll")
+
+snodec_add_test(BroaderSyscallDisciplineTest BroaderSyscallDisciplineTest.cpp)
+target_compile_features(BroaderSyscallDisciplineTest PRIVATE cxx_std_20)
+set_tests_properties(BroaderSyscallDisciplineTest PROPERTIES LABELS "unit;log;syscall")
