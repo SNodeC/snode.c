@@ -463,7 +463,8 @@ int main(int argc, char* argv[]) {
         auto queryGrantType = req->query("grant_type");
         snode::semantic::appLog().debug() << "GrandType: " << queryGrantType;
         auto queryRefreshToken = req->query("refresh_token");
-        snode::semantic::appLog().debug() << "RefreshToken: " << queryRefreshToken;
+        snode::semantic::appLog().debug() << "RefreshToken supplied: " << !queryRefreshToken.empty()
+                                          << " (length=" << queryRefreshToken.size() << ")";
         auto queryState = req->query("state");
         snode::semantic::appLog().debug() << "State: " << queryState;
         if (queryGrantType.length() == 0) {
@@ -568,14 +569,14 @@ int main(int argc, char* argv[]) {
                     "' "
                     "and a.uuid = '" +
                     jsonAccessToken + "'",
-                [res, jsonClientId, jsonAccessToken](const MYSQL_ROW row) {
+                [res](const MYSQL_ROW row) {
                     if (row != nullptr) {
                         if (std::stoi(row[0]) == 0) {
                             const nlohmann::json errorJson = {{"error", "Invalid access token"}};
-                            snode::semantic::appLog().debug() << "Sending 401: Invalid access token '" << jsonAccessToken << "'";
+                            snode::semantic::appLog().debug() << "Sending 401: Invalid access token";
                             res->status(401).send(errorJson.dump(4));
                         } else {
-                            snode::semantic::appLog().debug() << "Sending 200: Valid access token '" << jsonAccessToken << "";
+                            snode::semantic::appLog().debug() << "Sending 200: Valid access token";
                             const nlohmann::json successJson = {{"success", "Valid access token"}};
                             res->status(200).send(successJson.dump(4));
                         }

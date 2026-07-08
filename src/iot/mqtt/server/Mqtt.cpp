@@ -232,18 +232,18 @@ namespace iot::mqtt::server {
         iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   CleanSession: " << connect.getCleanSession();
 
         if (connect.getWillFlag()) {
-            iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   WillTopic: " << connect.getWillTopic();
-            iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   WillMessage: " << connect.getWillMessage();
+            iot::mqtt::semantic::mqttServerLog().debug() << connectionName << " MQTT Broker:   WillTopic: " << connect.getWillTopic();
+            iot::mqtt::semantic::mqttServerLog().debug()
+                << connectionName << " MQTT Broker:   WillMessage supplied: " << !connect.getWillMessage().empty()
+                << " (size=" << connect.getWillMessage().size() << ")";
             iot::mqtt::semantic::mqttServerLog().info()
                 << connectionName << " MQTT Broker:   WillQoS: " << static_cast<uint16_t>(connect.getWillQoS());
             iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   WillRetain: " << connect.getWillRetain();
         }
-        if (connect.getUsernameFlag()) {
-            iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   Username: " << connect.getUsername();
-        }
-        if (connect.getPasswordFlag()) {
-            iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   Password: " << connect.getPassword();
-        }
+        iot::mqtt::semantic::mqttServerLog().debug()
+            << connectionName << " MQTT Broker:   Username supplied: " << connect.getUsernameFlag();
+        iot::mqtt::semantic::mqttServerLog().debug()
+            << connectionName << " MQTT Broker:   Password supplied: " << connect.getPasswordFlag();
 
         if (connect.getProtocol() != "MQTT") {
             iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   Wrong Protocol: " << connect.getProtocol();
