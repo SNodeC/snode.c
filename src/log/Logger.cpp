@@ -49,6 +49,7 @@
 #include <cerrno>
 #include <chrono>
 #include <cstring>
+#include <optional>
 #include <spdlog/logger.h>
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/sinks/basic_file_sink.h>
@@ -56,15 +57,17 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <unistd.h>
 
-#include <optional>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace {
     std::shared_ptr<spdlog::sinks::stdout_color_sink_st> stdoutSink;
+    std::shared_ptr<spdlog::sinks::stdout_color_sink_st> semanticStdoutSink;
     std::shared_ptr<spdlog::sinks::rotating_file_sink_st> fileSink;
+    std::shared_ptr<spdlog::sinks::rotating_file_sink_st> semanticFileSink;
     std::shared_ptr<spdlog::logger> stdoutLogger;
     std::shared_ptr<spdlog::logger> fileLogger;
+    std::shared_ptr<spdlog::logger> semanticStdoutLogger;
+    std::shared_ptr<spdlog::logger> semanticFileLogger;
 
     int configuredLogLevel = 0;
     int configuredVerboseLevel = 0;
@@ -221,9 +224,14 @@ namespace logger {
         auto stdoutPattern = std::make_unique<spdlog::pattern_formatter>();
         stdoutPattern->add_flag<TickFlagFormatter>('*').set_pattern("%Y-%m-%d %H:%M:%S %* %v");
         stdoutLogger->set_formatter(std::move(stdoutPattern));
+        semanticStdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
+        semanticStdoutLogger = std::make_shared<spdlog::logger>("snodec-semantic-stdout", semanticStdoutSink);
+        semanticStdoutLogger->set_pattern("%v");
 
         fileSink.reset();
+        semanticFileSink.reset();
         fileLogger.reset();
+        semanticFileLogger.reset();
         quietMode = false;
         disableColorLog = ::isatty(::fileno(stdout)) == 0;
         configuredVerboseLevel = 0;
@@ -250,9 +258,14 @@ namespace logger {
         auto filePattern = std::make_unique<spdlog::pattern_formatter>();
         filePattern->add_flag<TickFlagFormatter>('*').set_pattern("%Y-%m-%d %H:%M:%S %* %v");
         fileLogger->set_formatter(std::move(filePattern));
+        semanticFileSink = std::make_shared<spdlog::sinks::rotating_file_sink_st>(logFile, maxSize, maxFiles);
+        semanticFileLogger = std::make_shared<spdlog::logger>("snodec-semantic-file", semanticFileSink);
+        semanticFileLogger->set_pattern("%v");
     }
 
     void Logger::disableLogToFile() {
+        semanticFileLogger.reset();
+        semanticFileSink.reset();
         fileLogger.reset();
         fileSink.reset();
     }
@@ -275,6 +288,15 @@ namespace logger {
 
     bool Logger::shouldVerbose(int verboseLevel) {
         return verboseLevel >= 0 && verboseLevel <= configuredVerboseLevel;
+    }
+
+    static void emitFormattedLine(const std::string& line) {
+        if (!quietMode && semanticStdoutLogger) {
+            semanticStdoutLogger->log(spdlog::level::info, line);
+        }
+        if (semanticFileLogger) {
+            semanticFileLogger->log(spdlog::level::info, line);
+        }
     }
 
     static void emitLine(Level level, std::string message, const bool withErrno, const int errnoValue) {
@@ -309,7 +331,7 @@ namespace logger {
             return;
         }
 
-        emitLine(*mappedLevel, LogManager::formatRecord(record), false, 0);
+        emitFormattedLine(LogManager::formatRecord(record));
     }
 
     BoundaryLogger::Sink Logger::semanticSink() {
