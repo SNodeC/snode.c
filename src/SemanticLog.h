@@ -11,6 +11,12 @@
 
 namespace snode::semantic {
 
+    struct LogIdentity {
+        std::optional<std::string> instance;
+        std::optional<logger::LogRole> role;
+        std::optional<std::string> connection;
+    };
+
     inline logger::BoundaryLogger scopedLog(const logger::LogOrigin origin,
                                             const logger::LogBoundary boundary,
                                             const std::string& component,
@@ -18,6 +24,18 @@ namespace snode::semantic {
                                             const logger::LogLevel threshold = logger::LogLevel::Trace,
                                             logger::BoundaryLogger::Clock clock = {}) {
         return logger::LogScopeOwner(origin, boundary, component).logger(std::move(sink), threshold, std::move(clock));
+    }
+
+    inline logger::BoundaryLogger scopedLog(const logger::LogOrigin origin,
+                                            const logger::LogBoundary boundary,
+                                            const std::string& component,
+                                            LogIdentity identity,
+                                            logger::BoundaryLogger::Sink sink = logger::Logger::semanticSink(),
+                                            const logger::LogLevel threshold = logger::LogLevel::Trace,
+                                            logger::BoundaryLogger::Clock clock = {}) {
+        return logger::LogScopeOwner(
+                   origin, boundary, component, std::move(identity.instance), identity.role, std::move(identity.connection))
+            .logger(std::move(sink), threshold, std::move(clock));
     }
 
     inline logger::BoundaryLogger frameworkLog(logger::BoundaryLogger::Sink sink = logger::Logger::semanticSink(),
@@ -85,6 +103,123 @@ namespace snode::semantic {
                                          logger::BoundaryLogger::Clock clock = {}) {
         return scopedLog(
             logger::LogOrigin::Application, logger::LogBoundary::Application, "app", std::move(sink), threshold, std::move(clock));
+    }
+
+    inline logger::BoundaryLogger frameworkLog(LogIdentity identity,
+                                               logger::BoundaryLogger::Sink sink = logger::Logger::semanticSink(),
+                                               const logger::LogLevel threshold = logger::LogLevel::Trace,
+                                               logger::BoundaryLogger::Clock clock = {}) {
+        return scopedLog(logger::LogOrigin::Framework,
+                         logger::LogBoundary::System,
+                         "framework",
+                         std::move(identity),
+                         std::move(sink),
+                         threshold,
+                         std::move(clock));
+    }
+
+    inline logger::BoundaryLogger coreSystemLog(LogIdentity identity,
+                                                logger::BoundaryLogger::Sink sink = logger::Logger::semanticSink(),
+                                                const logger::LogLevel threshold = logger::LogLevel::Trace,
+                                                logger::BoundaryLogger::Clock clock = {}) {
+        return scopedLog(logger::LogOrigin::Framework,
+                         logger::LogBoundary::System,
+                         "core.system",
+                         std::move(identity),
+                         std::move(sink),
+                         threshold,
+                         std::move(clock));
+    }
+
+    inline logger::BoundaryLogger coreSocketLog(LogIdentity identity,
+                                                logger::BoundaryLogger::Sink sink = logger::Logger::semanticSink(),
+                                                const logger::LogLevel threshold = logger::LogLevel::Trace,
+                                                logger::BoundaryLogger::Clock clock = {}) {
+        return scopedLog(logger::LogOrigin::Framework,
+                         logger::LogBoundary::Connection,
+                         "core.socket",
+                         std::move(identity),
+                         std::move(sink),
+                         threshold,
+                         std::move(clock));
+    }
+
+    inline logger::BoundaryLogger netConfigLog(LogIdentity identity,
+                                               logger::BoundaryLogger::Sink sink = logger::Logger::semanticSink(),
+                                               const logger::LogLevel threshold = logger::LogLevel::Trace,
+                                               logger::BoundaryLogger::Clock clock = {}) {
+        return scopedLog(logger::LogOrigin::Framework,
+                         logger::LogBoundary::Configuration,
+                         "net.config",
+                         std::move(identity),
+                         std::move(sink),
+                         threshold,
+                         std::move(clock));
+    }
+
+    inline logger::BoundaryLogger tlsConfigLog(LogIdentity identity,
+                                               logger::BoundaryLogger::Sink sink = logger::Logger::semanticSink(),
+                                               const logger::LogLevel threshold = logger::LogLevel::Trace,
+                                               logger::BoundaryLogger::Clock clock = {}) {
+        return scopedLog(logger::LogOrigin::Framework,
+                         logger::LogBoundary::Configuration,
+                         "net.config.tls",
+                         std::move(identity),
+                         std::move(sink),
+                         threshold,
+                         std::move(clock));
+    }
+
+    inline logger::BoundaryLogger mariaDbLog(LogIdentity identity,
+                                             logger::BoundaryLogger::Sink sink = logger::Logger::semanticSink(),
+                                             const logger::LogLevel threshold = logger::LogLevel::Trace,
+                                             logger::BoundaryLogger::Clock clock = {}) {
+        return scopedLog(logger::LogOrigin::Framework,
+                         logger::LogBoundary::Connection,
+                         "db.mariadb",
+                         std::move(identity),
+                         std::move(sink),
+                         threshold,
+                         std::move(clock));
+    }
+
+    inline logger::BoundaryLogger webHttpLog(LogIdentity identity,
+                                             logger::BoundaryLogger::Sink sink = logger::Logger::semanticSink(),
+                                             const logger::LogLevel threshold = logger::LogLevel::Trace,
+                                             logger::BoundaryLogger::Clock clock = {}) {
+        return scopedLog(logger::LogOrigin::Framework,
+                         logger::LogBoundary::Connection,
+                         "web.http",
+                         std::move(identity),
+                         std::move(sink),
+                         threshold,
+                         std::move(clock));
+    }
+
+    inline logger::BoundaryLogger expressLog(LogIdentity identity,
+                                             logger::BoundaryLogger::Sink sink = logger::Logger::semanticSink(),
+                                             const logger::LogLevel threshold = logger::LogLevel::Trace,
+                                             logger::BoundaryLogger::Clock clock = {}) {
+        return scopedLog(logger::LogOrigin::Framework,
+                         logger::LogBoundary::Application,
+                         "express",
+                         std::move(identity),
+                         std::move(sink),
+                         threshold,
+                         std::move(clock));
+    }
+
+    inline logger::BoundaryLogger appLog(LogIdentity identity,
+                                         logger::BoundaryLogger::Sink sink = logger::Logger::semanticSink(),
+                                         const logger::LogLevel threshold = logger::LogLevel::Trace,
+                                         logger::BoundaryLogger::Clock clock = {}) {
+        return scopedLog(logger::LogOrigin::Application,
+                         logger::LogBoundary::Application,
+                         "app",
+                         std::move(identity),
+                         std::move(sink),
+                         threshold,
+                         std::move(clock));
     }
 
     class SysErrorStream {
