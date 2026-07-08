@@ -116,8 +116,10 @@ namespace core::socket::stream {
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
 
+        enum class DetachReason { ContextSwitch, ConnectionClose };
+
         virtual void attach();
-        virtual void detach();
+        virtual void detach(DetachReason reason);
 
         static std::string timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint);
         static std::string
