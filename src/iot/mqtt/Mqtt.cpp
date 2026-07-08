@@ -176,13 +176,13 @@ namespace iot::mqtt {
         this->session = session;
 
         for (const auto& [packetIdentifier, publish] : session->outgoingPublishMap) {
-            iot::mqtt::semantic::mqttLog().info() << connectionName << " MQTT: PUBLISH Resend";
+            iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT: PUBLISH Resend";
 
             send(publish);
         }
 
         for (const uint16_t packetIdentifier : session->pubrelPacketIdentifierSet) {
-            iot::mqtt::semantic::mqttLog().info() << connectionName << " MQTT: PUBREL Resend";
+            iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT: PUBREL Resend";
 
             sendPubrel(packetIdentifier);
         }
@@ -205,7 +205,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::send(const ControlPacket& controlPacket) const {
-        iot::mqtt::semantic::mqttLog().info() << connectionName << " MQTT: " << controlPacket.getName() << " send: " << clientId;
+        iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT: " << controlPacket.getName() << " send: " << clientId;
 
         send(controlPacket.serialize());
     }
@@ -223,9 +223,9 @@ namespace iot::mqtt {
 
         send(iot::mqtt::packets::Publish(packetIdentifier, topic, message, qoS, false, retain));
 
-        iot::mqtt::semantic::mqttLog().info() << connectionName << " MQTT:   Topic: " << topic;
-        if (iot::mqtt::semantic::mqttLog().enabled(logger::LogLevel::Info)) {
-            iot::mqtt::semantic::mqttLog().info() << connectionName << " MQTT:   Message:\n" << toHexString(message);
+        iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   Topic: " << topic;
+        if (iot::mqtt::semantic::mqttLog().enabled(logger::LogLevel::Trace)) {
+            iot::mqtt::semantic::mqttLog().trace() << connectionName << " MQTT:   Message:\n" << toHexString(message);
         }
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   QoS: " << static_cast<uint16_t>(qoS);
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   PacketIdentifier: " << packetIdentifier;
@@ -272,9 +272,9 @@ namespace iot::mqtt {
     bool Mqtt::_onPublish(const iot::mqtt::packets::Publish& publish) {
         bool deliver = true;
 
-        iot::mqtt::semantic::mqttLog().info() << connectionName << " MQTT:   Topic: " << publish.getTopic();
-        if (iot::mqtt::semantic::mqttLog().enabled(logger::LogLevel::Info)) {
-            iot::mqtt::semantic::mqttLog().info() << connectionName << " MQTT:   Message:\n" << toHexString(publish.getMessage());
+        iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   Topic: " << publish.getTopic();
+        if (iot::mqtt::semantic::mqttLog().enabled(logger::LogLevel::Trace)) {
+            iot::mqtt::semantic::mqttLog().trace() << connectionName << " MQTT:   Message:\n" << toHexString(publish.getMessage());
         }
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   QoS: " << static_cast<uint16_t>(publish.getQoS());
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   PacketIdentifier: " << publish.getPacketIdentifier();
@@ -317,7 +317,7 @@ namespace iot::mqtt {
                     }
 
                     if (session->incomingPublishMap.contains(pid)) {
-                        iot::mqtt::semantic::mqttLog().info()
+                        iot::mqtt::semantic::mqttLog().debug()
                             << connectionName << " MQTT:   Duplicate QoS2 PUBLISH suppressed for PacketIdentifier: " << pid;
                     } else {
                         session->incomingPublishMap.emplace(pid, publish);
@@ -372,14 +372,14 @@ namespace iot::mqtt {
             const uint16_t pid = pubrel.getPacketIdentifier();
 
             if (session->incomingPublishMap.contains(pid)) {
-                iot::mqtt::semantic::mqttLog().info() << connectionName << " MQTT:   QoS2 PUBREL received. Deliver publish: " << pid;
+                iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   QoS2 PUBREL received. Deliver publish: " << pid;
 
                 distributePublish(session->incomingPublishMap[pid]);
 
                 session->incomingPublishMap.erase(pid);
                 session->pubcompPacketIdentifierSet.insert(pid);
             } else if (session->pubcompPacketIdentifierSet.contains(pid)) {
-                iot::mqtt::semantic::mqttLog().info()
+                iot::mqtt::semantic::mqttLog().debug()
                     << connectionName << " MQTT:   Duplicate QoS2 PUBREL for completed PacketIdentifier: " << pid;
             } else {
                 iot::mqtt::semantic::mqttLog().warn()
@@ -410,7 +410,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::printVP(const iot::mqtt::ControlPacket& packet) const {
-        iot::mqtt::semantic::mqttLog().info() << connectionName << " MQTT: " << packet.getName() << " received: " << clientId;
+        iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT: " << packet.getName() << " received: " << clientId;
 
         if (iot::mqtt::semantic::mqttLog().enabled(logger::LogLevel::Trace)) {
             const std::string hexString = toHexString(packet.serializeVP());
@@ -422,8 +422,6 @@ namespace iot::mqtt {
     }
 
     void Mqtt::printFixedHeader(const FixedHeader& fixedHeader) const {
-        iot::mqtt::semantic::mqttLog().info() << connectionName << " MQTT: ====================================";
-
         if (iot::mqtt::semantic::mqttLog().enabled(logger::LogLevel::Trace)) {
             iot::mqtt::semantic::mqttLog().trace() << connectionName << " MQTT: Received data (fixed header):\n"
                                                    << toHexString(fixedHeader.serialize());
