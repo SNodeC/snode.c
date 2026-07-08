@@ -90,7 +90,8 @@ int main(int argc, char* argv[]) {
                 request->url = "/oauth2/token/validate?client_id=" + queryClientId;
                 request->method = "POST";
                 snode::semantic::appLog().debug() << "ClientId: " << queryClientId;
-                snode::semantic::appLog().debug() << "AccessToken: " << queryAccessToken;
+                snode::semantic::appLog().debug()
+                    << "AccessToken supplied: " << !queryAccessToken.empty() << " (length=" << queryAccessToken.size() << ")";
                 const nlohmann::json requestJson = {{"access_token", queryAccessToken}, {"client_id", queryClientId}};
                 const std::string requestJsonString{requestJson.dump(4)};
                 request->send(
