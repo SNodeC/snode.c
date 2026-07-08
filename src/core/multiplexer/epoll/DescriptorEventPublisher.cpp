@@ -45,6 +45,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/LogScopeOwner.h"
+#include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
@@ -53,51 +55,99 @@
 
 namespace core::multiplexer::epoll {
 
+    namespace {
+        const logger::LogScopeOwner& muxLogScope() {
+            static const logger::LogScopeOwner scope(logger::LogOrigin::Framework, logger::LogBoundary::System, "core.mux", "epoll");
+            return scope;
+        }
+
+        logger::BoundaryLogger muxLog() {
+            return muxLogScope().logger(logger::Logger::semanticSink());
+        }
+    } // namespace
+
     DescriptorEventPublisher::EPollEvents::EPollEvents(int& epfd, uint32_t events)
         : epfd(epfd)
         , events(events) {
         epfd = core::system::epoll_create1(EPOLL_CLOEXEC);
+        if (epfd < 0) {
+            const int errnum = errno;
+            muxLog().sysError(logger::LogLevel::Error, errnum, "core.mux epoll_create1 failed");
+        }
         ePollEvents.resize(1);
     }
 
     void DescriptorEventPublisher::EPollEvents::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
         const utils::PreserveErrno preserveErrno;
 
+        if (epfd < 0) {
+            return;
+        }
+
         epoll_event ePollEvent{};
 
         ePollEvent.data.ptr = eventReceiver;
         ePollEvent.events = events;
 
-        if (core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, eventReceiver->getRegisteredFd(), &ePollEvent) == 0) {
+        const int fd = eventReceiver->getRegisteredFd();
+        if (core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ePollEvent) == 0) {
             interestCount++;
 
             if (interestCount >= ePollEvents.size()) {
                 ePollEvents.resize(ePollEvents.size() * 2);
             }
-        } else if (errno == EEXIST) {
-            muxMod(eventReceiver->getRegisteredFd(), events, eventReceiver);
+        } else {
+            const int errnum = errno;
+            if (errnum == EEXIST) {
+                muxMod(fd, events, eventReceiver);
+            } else {
+                muxLog().sysError(logger::LogLevel::Error, errnum, "core.mux epoll_ctl ADD failed: fd={}", fd);
+            }
         }
     }
 
     void DescriptorEventPublisher::EPollEvents::muxDel(int fd) {
         const utils::PreserveErrno preserveErrno;
 
-        if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, fd, nullptr) == 0 || errno == EBADF) {
-            interestCount--;
+        if (epfd < 0) {
+            return;
+        }
 
-            if (ePollEvents.size() > (interestCount * 2) + 1) {
-                ePollEvents.resize(ePollEvents.size() / 2);
-                ePollEvents.shrink_to_fit();
+        if (core::system::epoll_ctl(epfd, EPOLL_CTL_DEL, fd, nullptr) == 0) {
+            if (interestCount > 0) {
+                interestCount--;
             }
+        } else {
+            const int errnum = errno;
+            if (errnum == EBADF) {
+                if (interestCount > 0) {
+                    interestCount--;
+                }
+            } else {
+                muxLog().sysError(logger::LogLevel::Error, errnum, "core.mux epoll_ctl DEL failed: fd={}", fd);
+                return;
+            }
+        }
+
+        if (ePollEvents.size() > (interestCount * 2) + 1) {
+            ePollEvents.resize(ePollEvents.size() / 2);
+            ePollEvents.shrink_to_fit();
         }
     }
 
     void DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const {
         const utils::PreserveErrno preserveErrno;
 
+        if (epfd < 0) {
+            return;
+        }
+
         epoll_event ePollEvent{events, {eventReceiver}};
 
-        core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &ePollEvent);
+        if (core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &ePollEvent) != 0) {
+            const int errnum = errno;
+            muxLog().sysError(logger::LogLevel::Error, errnum, "core.mux epoll_ctl MOD failed: fd={}", fd);
+        }
     }
 
     void DescriptorEventPublisher::EPollEvents::muxOn(core::DescriptorEventReceiver* eventReceiver) {
@@ -143,7 +193,19 @@ namespace core::multiplexer::epoll {
     }
 
     void DescriptorEventPublisher::spanActiveEvents() {
+        if (ePollEvents.getEPFd() < 0) {
+            return;
+        }
+
         const int count = core::system::epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
+        if (count < 0) {
+            const int errnum = errno;
+            if (errnum != EINTR) {
+                muxLog().sysError(
+                    logger::LogLevel::Error, errnum, "core.mux epoll_wait failed: interestCount={}", ePollEvents.getInterestCount());
+            }
+            return;
+        }
 
         for (int i = 0; i < count; i++) {
             const epoll_event& ev = ePollEvents.getEvents()[i];
