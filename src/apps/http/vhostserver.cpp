@@ -117,26 +117,25 @@ int main(int argc, char* argv[]) {
             res->status(404).send("The requested resource is not found.");
         });
 
-        legacyApp.listen(8080,
-                         [instanceName = legacyApp.getConfig()->getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
-                                                                                   const core::socket::State& state) {
-                             switch (state) {
-                                 case core::socket::State::OK:
-                                     VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
-                                     break;
-                                 case core::socket::State::DISABLED:
-                                     VLOG(1) << instanceName << " disabled";
-                                     break;
-                                 case core::socket::State::ERROR:
-                                     snode::semantic::appLog().error()
-                                         << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                                     break;
-                                 case core::socket::State::FATAL:
-                                     snode::semantic::appLog().critical()
-                                         << instanceName << " " << socketAddress.toString() << ": " << state.what();
-                                     break;
-                             }
-                         });
+        legacyApp.listen(
+            8080,
+            [instanceName = legacyApp.getConfig()->getInstanceName()](const legacy::in6::WebApp::SocketAddress& socketAddress,
+                                                                      const core::socket::State& state) {
+                switch (state) {
+                    case core::socket::State::OK:
+                        snode::semantic::appLog().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
+                        break;
+                    case core::socket::State::DISABLED:
+                        snode::semantic::appLog().info() << instanceName << " disabled";
+                        break;
+                    case core::socket::State::ERROR:
+                        snode::semantic::appLog().error() << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        break;
+                    case core::socket::State::FATAL:
+                        snode::semantic::appLog().critical() << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        break;
+                }
+            });
     }
 
     {
@@ -193,10 +192,10 @@ int main(int argc, char* argv[]) {
                                                                              const core::socket::State& state) {
                           switch (state) {
                               case core::socket::State::OK:
-                                  VLOG(1) << instanceName << " listening on '" << socketAddress.toString() << "'";
+                                  snode::semantic::appLog().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
                                   break;
                               case core::socket::State::DISABLED:
-                                  VLOG(1) << instanceName << " disabled";
+                                  snode::semantic::appLog().info() << instanceName << " disabled";
                                   break;
                               case core::socket::State::ERROR:
                                   snode::semantic::appLog().error()

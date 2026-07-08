@@ -238,10 +238,10 @@ int main(int argc, char* argv[]) {
     app.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "express-compat listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().info() << "express-compat listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "express-compat disabled";
+                snode::semantic::appLog().info() << "express-compat disabled";
                 break;
             case core::socket::State::ERROR:
                 snode::semantic::appLog().error() << "express-compat " << socketAddress.toString() << ": " << state.what();

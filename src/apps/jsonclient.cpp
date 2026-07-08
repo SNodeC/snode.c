@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     const Client jsonClient(
         "legacy",
         [](const std::shared_ptr<MasterRequest>& req) {
-            VLOG(1) << "-- OnRequest";
+            snode::semantic::appLog().debug() << "-- OnRequest";
             req->method = "POST";
             req->url = "/index.html";
             req->type("application/json");
@@ -69,30 +69,34 @@ int main(int argc, char* argv[]) {
             req->send(
                 R"({"userId":1,"schnitzel":"good","hungry":false})",
                 []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                    VLOG(1) << "-- OnResponse";
-                    VLOG(1) << "     Status:";
-                    VLOG(1) << "       " << res->httpVersion;
-                    VLOG(1) << "       " << res->statusCode;
-                    VLOG(1) << "       " << res->reason;
+                    snode::semantic::appLog().debug() << "-- OnResponse";
+                    snode::semantic::appLog().debug() << "     Status:";
+                    snode::semantic::appLog().debug() << "       " << res->httpVersion;
+                    snode::semantic::appLog().debug() << "       " << res->statusCode;
+                    snode::semantic::appLog().debug() << "       " << res->reason;
 
-                    VLOG(1) << "     Headers:";
+                    snode::semantic::appLog().debug() << "     Headers:";
                     for (const auto& [field, value] : res->headers) {
-                        VLOG(1) << "       " << field + " = " + value;
+                        snode::semantic::appLog().debug() << "       " << field + " = " + value;
                     }
 
-                    VLOG(1) << "     Cookies:";
+                    snode::semantic::appLog().debug() << "     Cookies:";
                     for (const auto& [name, cookie] : res->cookies) {
-                        VLOG(1) << "       " + name + " = " + cookie.getValue();
+                        snode::semantic::appLog().debug() << "       " + name + " = " + cookie.getValue();
                         for (const auto& [option, value] : cookie.getOptions()) {
-                            VLOG(1) << "         " + option + " = " + value;
+                            snode::semantic::appLog().debug() << "         " + option + " = " + value;
                         }
                     }
 
-                    res->body.push_back(0);
-                    VLOG(1) << "     Body:\n----------- start body -----------" << res->body.data() << "------------ end body ------------";
+                    auto log = snode::semantic::appLog();
+                    if (log.enabled(logger::LogLevel::Debug)) {
+                        res->body.push_back(0);
+                        log.debug() << "     Body:\n----------- start body -----------" << res->body.data()
+                                    << "------------ end body ------------";
+                    }
                 },
                 [](const std::shared_ptr<Request>&, const std::string& message) {
-                    VLOG(1) << "legacy: Request parse error: " << message;
+                    snode::semantic::appLog().debug() << "legacy: Request parse error: " << message;
                 });
         },
         []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
@@ -107,10 +111,10 @@ int main(int argc, char* argv[]) {
                                                         const core::socket::State& state) { // example.com:81 simulate connect timeout
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                    snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << ": disabled";
+                    snode::semantic::appLog().info() << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
                     snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
@@ -120,26 +124,6 @@ int main(int argc, char* argv[]) {
                     break;
             }
         });
-    /*
-        jsonClient.connect("localhost",
-                           8080,
-                           [instanceName = jsonClient.getConfig()->getInstanceName()](
-                               const SocketAddress& socketAddress,
-                               const core::socket::State& state) { // example.com:81 simulate connnect timeout
-                               switch (state) {
-                                   case core::socket::State::OK:
-                                       VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
-                                       break;
-                                   case core::socket::State::DISABLED:
-                                       VLOG(1) << instanceName << ": disabled";
-                                       break;
-                                   case core::socket::State::ERROR:
-                                       snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " <<
-       state.what(); break; case core::socket::State::FATAL: snode::semantic::appLog().critical() << instanceName << ": " <<
-       socketAddress.toString() << ": " << state.what(); break;
-                               }
-                           });
-    */
     /*
         jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) {
             if (err != 0) {

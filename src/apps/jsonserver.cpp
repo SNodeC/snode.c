@@ -69,10 +69,10 @@ int main(int argc, char* argv[]) {
         [instanceName = legacyApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                    snode::semantic::appLog().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << ": disabled";
+                    snode::semantic::appLog().info() << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
                     snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
@@ -89,10 +89,13 @@ int main(int argc, char* argv[]) {
         req->getAttribute<nlohmann::json>(
             [&jsonString](nlohmann::json& json) {
                 jsonString = json.dump(4);
-                VLOG(1) << "Application received body: " << jsonString;
+                auto log = snode::semantic::appLog();
+                if (log.enabled(logger::LogLevel::Debug)) {
+                    log.debug() << "Application received body: " << jsonString;
+                }
             },
             [](const std::string& key) {
-                VLOG(1) << key << " attribute not found";
+                snode::semantic::appLog().debug() << key << " attribute not found";
             });
 
         res->send(jsonString);

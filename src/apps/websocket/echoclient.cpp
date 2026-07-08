@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "SemanticLog.h"
 #include "core/SNodeC.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/tls/in/Client.h"
@@ -64,7 +65,7 @@ int main(int argc, char* argv[]) {
             [](const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                VLOG(1) << connectionName << ": OnRequestBegin";
+                snode::semantic::appLog().debug() << connectionName << ": OnRequestBegin";
 
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
@@ -72,40 +73,41 @@ int main(int argc, char* argv[]) {
                     "/ws",
                     "websocket",
                     [connectionName](bool success) {
-                        VLOG(1) << connectionName << ": HTTP Upgrade (http -> websocket) start " << (success ? "success" : "failed");
+                        snode::semantic::appLog().debug()
+                            << connectionName << ": HTTP Upgrade (http -> websocket) start " << (success ? "success" : "failed");
                     },
                     [connectionName]([[maybe_unused]] const std::shared_ptr<Request>& req,
                                      const std::shared_ptr<Response>& res,
                                      [[maybe_unused]] bool success) {
-                        VLOG(1) << connectionName << ": Upgrade success:";
+                        snode::semantic::appLog().debug() << connectionName << ": Upgrade success:";
 
-                        VLOG(1) << connectionName << ":   Requested: " << req->header("upgrade");
-                        VLOG(1) << connectionName << ":    Selected: " << res->get("upgrade");
+                        snode::semantic::appLog().debug() << connectionName << ":   Requested: " << req->header("upgrade");
+                        snode::semantic::appLog().debug() << connectionName << ":    Selected: " << res->get("upgrade");
                     },
                     [connectionName](const std::shared_ptr<Request>&, const std::string& message) {
-                        VLOG(1) << connectionName << ": Request parse error: " << message;
+                        snode::semantic::appLog().debug() << connectionName << ": Request parse error: " << message;
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getConnectionName();
 
-                VLOG(1) << connectionName << ": OnRequestEnd";
+                snode::semantic::appLog().debug() << connectionName << ": OnRequestEnd";
             });
 
         legacyClient.connect([instanceName = legacyClient.getConfig()->getInstanceName()](const LegacySocketAddress& socketAddress,
                                                                                           const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
+                    snode::semantic::appLog().info() << instanceName << " connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << " disabled";
+                    snode::semantic::appLog().info() << instanceName << " disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().error() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().critical() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         }); // Connection:keep-alive\r\n\r\n"
@@ -121,7 +123,7 @@ int main(int argc, char* argv[]) {
             [](const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                VLOG(1) << connectionName << ": OnRequestBegin";
+                snode::semantic::appLog().debug() << connectionName << ": OnRequestBegin";
 
                 req->set("Sec-WebSocket-Protocol", "subprotocol, echo");
 
@@ -129,36 +131,37 @@ int main(int argc, char* argv[]) {
                     "/ws",
                     "websocket",
                     [connectionName](bool success) {
-                        VLOG(1) << connectionName << ": HTTP Upgrade (http -> websocket) start " << (success ? "success" : "failed");
+                        snode::semantic::appLog().debug()
+                            << connectionName << ": HTTP Upgrade (http -> websocket) start " << (success ? "success" : "failed");
                     },
                     [connectionName]([[maybe_unused]] const std::shared_ptr<Request>& req,
                                      [[maybe_unused]] const std::shared_ptr<Response>& res,
                                      [[maybe_unused]] bool success) {
                     },
                     [connectionName](const std::shared_ptr<Request>&, const std::string& message) {
-                        VLOG(1) << connectionName << ": Request parse error: " << message;
+                        snode::semantic::appLog().debug() << connectionName << ": Request parse error: " << message;
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
                 const std::string connectionName = req->getConnectionName();
 
-                VLOG(1) << connectionName << ": OnRequestEnd";
+                snode::semantic::appLog().debug() << connectionName << ": OnRequestEnd";
             });
 
         tlsClient.connect([instanceName = tlsClient.getConfig()->getInstanceName()](const TLSSocketAddress& socketAddress,
                                                                                     const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << " connected to '" << socketAddress.toString() << "'";
+                    snode::semantic::appLog().info() << instanceName << " connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << " disabled";
+                    snode::semantic::appLog().info() << instanceName << " disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().error() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().critical() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         }); // Connection:keep-alive\r\n\r\n"

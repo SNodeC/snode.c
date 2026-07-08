@@ -60,10 +60,10 @@ int main(int argc, char* argv[]) {
         [instanceName = client.getConfig()->getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                    snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << ": disabled";
+                    snode::semantic::appLog().info() << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
                     snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
@@ -77,16 +77,16 @@ int main(int argc, char* argv[]) {
         client.connect([](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << "echoclient: connected to '" << socketAddress.toString() << "'" << "'";
+                    snode::semantic::appLog().info() << "echoclient: connected to '" << socketAddress.toString() << "'" << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << "echoclient: disabled";
+                    snode::semantic::appLog().info() << "echoclient: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << "echoclientt: error occurred";
+                    snode::semantic::appLog().warn() << "echoclientt: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << "echoclient: fatal error occurred";
+                    snode::semantic::appLog().error() << "echoclient: fatal error occurred";
                     break;
             }
         });
@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
     } else if (errnum > 0) {
         snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errnum) << "OnError: " << socketAddress.toString();
     } else {
-        VLOG(1) << "snode.c connecting to " << socketAddress.toString();
+        snode::semantic::appLog().debug() << "snode.c connecting to " << socketAddress.toString();
     }
 
 #ifdef NET_TYPE

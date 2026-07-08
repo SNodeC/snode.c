@@ -84,10 +84,10 @@ int main(int argc, char* argv[]) {
                                                                          const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << instanceName << ": disabled";
+                snode::semantic::appLog().info() << instanceName << ": disabled";
                 break;
             case core::socket::State::ERROR:
                 snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
         if (errnum != 0) {
             snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Critical, errnum) << "listen";
         } else {
-            VLOG(1) << "snode.c listening on " << socket.getBindAddress().toString();
+            snode::semantic::appLog().info() << "snode.c listening on " << socket.getBindAddress().toString();
         }
 
 #ifdef NET_TYPE

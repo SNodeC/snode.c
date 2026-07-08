@@ -41,6 +41,8 @@
 
 #include "Echo.h"
 
+#include "SemanticLog.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -60,21 +62,27 @@ namespace apps::websocket::subprotocol::echo::server {
     }
 
     void Echo::onConnected() {
-        VLOG(1) << "Echo connected";
+        snode::semantic::appLog().debug() << "Echo connected";
     }
 
     void Echo::onMessageStart(int opCode) {
-        VLOG(2) << "Message Start - OpCode: " << opCode;
+        snode::semantic::appLog().debug() << "Message Start - OpCode: " << opCode;
     }
 
     void Echo::onMessageData(const char* chunk, std::size_t chunkLen) {
         data += std::string(chunk, chunkLen);
 
-        VLOG(2) << "Message Fragment: " << std::string(chunk, chunkLen);
+        auto log = snode::semantic::appLog();
+        if (log.enabled(logger::LogLevel::Trace)) {
+            log.trace() << "Message Fragment: " << std::string(chunk, chunkLen);
+        }
     }
 
     void Echo::onMessageEnd() {
-        VLOG(1) << "Message Data: " << data;
+        auto log = snode::semantic::appLog();
+        if (log.enabled(logger::LogLevel::Trace)) {
+            log.trace() << "Message Data: " << data;
+        }
 
         // Alternative
         // forEachClient([&data = this->data](SubProtocol* client) {
@@ -87,16 +95,16 @@ namespace apps::websocket::subprotocol::echo::server {
     }
 
     void Echo::onMessageError(uint16_t errnum) {
-        VLOG(1) << "Message error: " << errnum;
+        snode::semantic::appLog().debug() << "Message error: " << errnum;
     }
 
     void Echo::onDisconnected() {
-        VLOG(1) << "Echo disconnected:";
+        snode::semantic::appLog().debug() << "Echo disconnected:";
     }
 
     bool Echo::onSignal(int sig) {
-        VLOG(1) << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
-                << ")";
+        snode::semantic::appLog().debug() << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG"
+                                          << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
 
         sendClose();
 

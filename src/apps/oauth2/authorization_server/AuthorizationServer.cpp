@@ -105,11 +105,12 @@ int main(int argc, char* argv[]) {
     };
     database::mariadb::MariaDBClient db{details, [](const database::mariadb::MariaDBState& state) {
                                             if (state.error != 0) {
-                                                VLOG(0) << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
+                                                snode::semantic::appLog().debug()
+                                                    << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
                                             } else if (state.connected) {
-                                                VLOG(0) << "MySQL connected";
+                                                snode::semantic::mariaDbLog().info() << "MySQL connected";
                                             } else {
-                                                VLOG(0) << "MySQL disconnected";
+                                                snode::semantic::mariaDbLog().info() << "MySQL disconnected";
                                             }
                                         }};
 
@@ -126,17 +127,17 @@ int main(int argc, char* argv[]) {
                 [req, res, next, queryClientId](const MYSQL_ROW row) {
                     if (row != nullptr) {
                         if (std::stoi(row[0]) > 0) {
-                            VLOG(1) << "Valid client id '" << queryClientId << "'";
-                            VLOG(1) << "Next with " << req->httpVersion << " " << req->method << " " << req->url;
+                            snode::semantic::appLog().debug() << "Valid client id '" << queryClientId << "'";
+                            snode::semantic::appLog().debug() << "Next with " << req->httpVersion << " " << req->method << " " << req->url;
                             next();
                         } else {
-                            VLOG(1) << "Invalid client id '" << queryClientId << "'";
+                            snode::semantic::appLog().debug() << "Invalid client id '" << queryClientId << "'";
                             res->sendStatus(401);
                         }
                     }
                 },
                 [res](const std::string& errorString, unsigned int errorNumber) {
-                    VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                    snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                     res->sendStatus(500);
                 });
         } else {
@@ -154,14 +155,14 @@ int main(int argc, char* argv[]) {
         const std::string paramScope{req->query("scope")};
         const std::string paramState{req->query("state")};
 
-        VLOG(1) << "Query params: "
-                << "response_type=" << req->query("response_type") << ", "
-                << "redirect_uri=" << req->query("redirect_uri") << ", "
-                << "scope=" << req->query("scope") << ", "
-                << "state=" << req->query("state") << "\n";
+        snode::semantic::appLog().debug() << "Query params: "
+                                          << "response_type=" << req->query("response_type") << ", "
+                                          << "redirect_uri=" << req->query("redirect_uri") << ", "
+                                          << "scope=" << req->query("scope") << ", "
+                                          << "state=" << req->query("state") << "\n";
 
         if (paramResponseType != "code") {
-            VLOG(1) << "Auth invalid, sending Bad Request";
+            snode::semantic::appLog().debug() << "Auth invalid, sending Bad Request";
             res->sendStatus(400);
             return;
         }
@@ -170,10 +171,10 @@ int main(int argc, char* argv[]) {
             db.exec(
                 "update client set redirect_uri = '" + paramRedirectUri + "' where uuid = '" + paramClientId + "'",
                 [paramRedirectUri]() {
-                    VLOG(1) << "Database: Set redirect_uri to " << paramRedirectUri;
+                    snode::semantic::appLog().debug() << "Database: Set redirect_uri to " << paramRedirectUri;
                 },
                 [](const std::string& errorString, unsigned int errorNumber) {
-                    VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                    snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                 });
         }
 
@@ -181,10 +182,10 @@ int main(int argc, char* argv[]) {
             db.exec(
                 "update client set scope = '" + paramScope + "' where uuid = '" + paramClientId + "'",
                 [paramScope]() {
-                    VLOG(1) << "Database: Set scope to " << paramScope;
+                    snode::semantic::appLog().debug() << "Database: Set scope to " << paramScope;
                 },
                 [](const std::string& errorString, unsigned int errorNumber) {
-                    VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                    snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                 });
         }
 
@@ -192,14 +193,14 @@ int main(int argc, char* argv[]) {
             db.exec(
                 "update client set state = '" + paramState + "' where uuid = '" + paramClientId + "'",
                 [paramState]() {
-                    VLOG(1) << "Database: Set state to " << paramState;
+                    snode::semantic::appLog().debug() << "Database: Set state to " << paramState;
                 },
                 [](const std::string& errorString, unsigned int errorNumber) {
-                    VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                    snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                 });
         }
 
-        VLOG(1) << "Auth request valid, redirecting to login";
+        snode::semantic::appLog().debug() << "Auth request valid, redirecting to login";
         std::string loginUri{"/oauth2/login"};
         addQueryParamToUri(loginUri, "client_id", paramClientId);
         res->redirect(loginUri);
@@ -248,7 +249,7 @@ int main(int argc, char* argv[]) {
                                       []() {
                                       },
                                       [res](const std::string& errorString, unsigned int errorNumber) {
-                                          VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                          snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                                           res->sendStatus(500);
                                       })
                                     .query(
@@ -273,24 +274,25 @@ int main(int argc, char* argv[]) {
                                                         res->set("Access-Control-Allow-Origin", "*");
                                                         const nlohmann::json responseJson = {{"redirect_uri", clientRedirectUri}};
                                                         const std::string responseJsonString{responseJson.dump(4)};
-                                                        VLOG(1) << "Sending json reponse: " << responseJsonString;
+                                                        snode::semantic::appLog().debug() << "Sending json reponse: " << responseJsonString;
                                                         res->send(responseJsonString);
                                                     },
                                                     [res](const std::string& errorString, unsigned int errorNumber) {
-                                                        VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                                        snode::semantic::appLog().debug()
+                                                            << "Database error: " << errorString << " : " << errorNumber;
                                                         res->sendStatus(500);
                                                     });
                                             }
                                         },
                                         [res](const std::string& errorString, unsigned int errorNumber) {
-                                            VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                            snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                                             res->sendStatus(500);
                                         });
                             }
                         }
                     },
                     [res](const std::string& errorString, unsigned int errorNumber) {
-                        VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                        snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                         res->sendStatus(500);
                     });
             },
@@ -302,11 +304,11 @@ int main(int argc, char* argv[]) {
     router.get("/token", [&db] APPLICATION(req, res) {
         res->set("Access-Control-Allow-Origin", "*");
         auto queryGrantType = req->query("grant_type");
-        VLOG(1) << "GrandType: " << queryGrantType;
+        snode::semantic::appLog().debug() << "GrandType: " << queryGrantType;
         auto queryCode = req->query("code");
-        VLOG(1) << "Code: " << queryCode;
+        snode::semantic::appLog().debug() << "Code: " << queryCode;
         auto queryRedirectUri = req->query("redirect_uri");
-        VLOG(1) << "RedirectUri: " << queryRedirectUri;
+        snode::semantic::appLog().debug() << "RedirectUri: " << queryRedirectUri;
         if (queryGrantType != "authorization_code") {
             res->status(400).send("Invalid query parameter 'grant_type', value must be 'authorization_code'");
             return;
@@ -365,7 +367,8 @@ int main(int argc, char* argv[]) {
                                           []() {
                                           },
                                           [res](const std::string& errorString, unsigned int errorNumber) {
-                                              VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                              snode::semantic::appLog().debug()
+                                                  << "Database error: " << errorString << " : " << errorNumber;
                                               res->sendStatus(500);
                                           })
                                         .query(
@@ -382,13 +385,15 @@ int main(int argc, char* argv[]) {
                                                         []() {
                                                         },
                                                         [res](const std::string& errorString, unsigned int errorNumber) {
-                                                            VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                                            snode::semantic::appLog().debug()
+                                                                << "Database error: " << errorString << " : " << errorNumber;
                                                             res->sendStatus(500);
                                                         });
                                                 }
                                             },
                                             [res](const std::string& errorString, unsigned int errorNumber) {
-                                                VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                                snode::semantic::appLog().debug()
+                                                    << "Database error: " << errorString << " : " << errorNumber;
                                                 res->sendStatus(500);
                                             })
                                         .exec(
@@ -401,7 +406,8 @@ int main(int argc, char* argv[]) {
                                             []() {
                                             },
                                             [res](const std::string& errorString, unsigned int errorNumber) {
-                                                VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                                snode::semantic::appLog().debug()
+                                                    << "Database error: " << errorString << " : " << errorNumber;
                                                 res->sendStatus(500);
                                             })
                                         .query(
@@ -424,26 +430,28 @@ int main(int argc, char* argv[]) {
                                                             res->send(jsonResponseString);
                                                         },
                                                         [res](const std::string& errorString, unsigned int errorNumber) {
-                                                            VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                                            snode::semantic::appLog().debug()
+                                                                << "Database error: " << errorString << " : " << errorNumber;
                                                             res->sendStatus(500);
                                                         });
                                                 }
                                             },
                                             [res](const std::string& errorString, unsigned int errorNumber) {
-                                                VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                                snode::semantic::appLog().debug()
+                                                    << "Database error: " << errorString << " : " << errorNumber;
                                                 res->sendStatus(500);
                                             });
                                 }
                             },
                             [res](const std::string& errorString, unsigned int errorNumber) {
-                                VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                                 res->sendStatus(500);
                             });
                     }
                 }
             },
             [res](const std::string& errorString, unsigned int errorNumber) {
-                VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                 res->sendStatus(500);
             });
     });
@@ -451,13 +459,13 @@ int main(int argc, char* argv[]) {
     router.post("/token/refresh", [&db] APPLICATION(req, res) {
         res->set("Access-Control-Allow-Origin", "*");
         auto queryClientId = req->query("client_id");
-        VLOG(1) << "ClientId: " << queryClientId;
+        snode::semantic::appLog().debug() << "ClientId: " << queryClientId;
         auto queryGrantType = req->query("grant_type");
-        VLOG(1) << "GrandType: " << queryGrantType;
+        snode::semantic::appLog().debug() << "GrandType: " << queryGrantType;
         auto queryRefreshToken = req->query("refresh_token");
-        VLOG(1) << "RefreshToken: " << queryRefreshToken;
+        snode::semantic::appLog().debug() << "RefreshToken: " << queryRefreshToken;
         auto queryState = req->query("state");
-        VLOG(1) << "State: " << queryState;
+        snode::semantic::appLog().debug() << "State: " << queryState;
         if (queryGrantType.length() == 0) {
             res->status(400).send("Missing query parameter 'grant_type'");
             return;
@@ -498,7 +506,7 @@ int main(int argc, char* argv[]) {
                           []() {
                           },
                           [res](const std::string& errorString, unsigned int errorNumber) {
-                              VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                              snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                               res->sendStatus(500);
                           })
                         .query(
@@ -518,34 +526,34 @@ int main(int argc, char* argv[]) {
                                             res->send(responseJson.dump(4));
                                         },
                                         [res](const std::string& errorString, unsigned int errorNumber) {
-                                            VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                            snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                                             res->sendStatus(500);
                                         });
                                 }
                             },
                             [res](const std::string& errorString, unsigned int errorNumber) {
-                                VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                                snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                                 res->sendStatus(500);
                             });
                 }
             },
             [res](const std::string& errorString, unsigned int errorNumber) {
-                VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                 res->sendStatus(500);
             });
     });
 
     router.post("/token/validate", [&db] APPLICATION(req, res) {
-        VLOG(1) << "POST /token/validate";
+        snode::semantic::appLog().debug() << "POST /token/validate";
         req->getAttribute<nlohmann::json>([res, &db](nlohmann::json& jsonBody) {
             if (!jsonBody.contains("access_token")) {
-                VLOG(1) << "Missing 'access_token' in json";
+                snode::semantic::appLog().debug() << "Missing 'access_token' in json";
                 res->status(500).send("Missing 'access_token' in json");
                 return;
             }
             const std::string jsonAccessToken{jsonBody["access_token"]};
             if (!jsonBody.contains("client_id")) {
-                VLOG(1) << "Missing 'client_id' in json";
+                snode::semantic::appLog().debug() << "Missing 'client_id' in json";
                 res->status(500).send("Missing 'client_id' in json");
                 return;
             }
@@ -564,17 +572,17 @@ int main(int argc, char* argv[]) {
                     if (row != nullptr) {
                         if (std::stoi(row[0]) == 0) {
                             const nlohmann::json errorJson = {{"error", "Invalid access token"}};
-                            VLOG(1) << "Sending 401: Invalid access token '" << jsonAccessToken << "'";
+                            snode::semantic::appLog().debug() << "Sending 401: Invalid access token '" << jsonAccessToken << "'";
                             res->status(401).send(errorJson.dump(4));
                         } else {
-                            VLOG(1) << "Sending 200: Valid access token '" << jsonAccessToken << "";
+                            snode::semantic::appLog().debug() << "Sending 200: Valid access token '" << jsonAccessToken << "";
                             const nlohmann::json successJson = {{"success", "Valid access token"}};
                             res->status(200).send(successJson.dump(4));
                         }
                     }
                 },
                 [res](const std::string& errorString, unsigned int errorNumber) {
-                    VLOG(1) << "Database error: " << errorString << " : " << errorNumber;
+                    snode::semantic::appLog().debug() << "Database error: " << errorString << " : " << errorNumber;
                     res->sendStatus(500);
                 });
         });
@@ -587,16 +595,16 @@ int main(int argc, char* argv[]) {
     app.listen(8082, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "OAuth2AuthorizationServer: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().info() << "OAuth2AuthorizationServer: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "OAuth2AuthorizationServer: disabled";
+                snode::semantic::appLog().info() << "OAuth2AuthorizationServer: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "OAuth2AuthorizationServer: error occurred";
+                snode::semantic::appLog().warn() << "OAuth2AuthorizationServer: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "OAuth2AuthorizationServer: fatal error occurred";
+                snode::semantic::appLog().error() << "OAuth2AuthorizationServer: fatal error occurred";
                 break;
         }
     });

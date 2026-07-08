@@ -66,8 +66,8 @@ int main(int argc, char* argv[]) {
             }
             tokenRequestUri += "&client_id=911a821a-ea2d-11ec-8e2e-08002771075f";
             tokenRequestUri += "&redirect_uri=http://localhost:8081/oauth2";
-            VLOG(1) << "Recieving auth code from auth server: " << req.query("code") << ", requesting token from " << tokenRequestUri;
-            res.redirect(tokenRequestUri);
+            snode::semantic::appLog().debug() << "Recieving auth code from auth server: " << req.query("code") << ", requesting token from "
+            << tokenRequestUri; res.redirect(tokenRequestUri);
             */
         }
     });
@@ -77,16 +77,16 @@ int main(int argc, char* argv[]) {
     app.listen(8081, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "OAuth2Client: connected to '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().info() << "OAuth2Client: connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "OAuth2Client: disabled";
+                snode::semantic::appLog().info() << "OAuth2Client: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "OAuth2Client: error occurred";
+                snode::semantic::appLog().warn() << "OAuth2Client: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "OAuth2Client: fatal error occurred";
+                snode::semantic::appLog().error() << "OAuth2Client: fatal error occurred";
                 break;
         }
     });
