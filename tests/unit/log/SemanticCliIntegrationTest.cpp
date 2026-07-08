@@ -96,16 +96,68 @@ int main() {
                       }),
                       "invalid root --log-format xml is rejected");
 
+    const auto singleComponentList = utils::config::parseKeyValueLevelList("core.mux=debug");
+    result.expectTrue(singleComponentList.size() == 1 && singleComponentList.front().first == "core.mux" &&
+                          singleComponentList.front().second == logger::LogLevel::Debug,
+                      "parseKeyValueLevelList accepts one key=level pair");
+    const auto multipleComponentList = utils::config::parseKeyValueLevelList("core.mux=debug,core.xyz=info");
+    result.expectTrue(multipleComponentList.size() == 2 && multipleComponentList[0].first == "core.mux" &&
+                          multipleComponentList[0].second == logger::LogLevel::Debug && multipleComponentList[1].first == "core.xyz" &&
+                          multipleComponentList[1].second == logger::LogLevel::Info,
+                      "parseKeyValueLevelList accepts comma-separated key=level pairs");
+    result.expectTrue(throwsInvalidArgument([]() {
+                          utils::config::parseKeyValueLevelList("");
+                      }),
+                      "invalid empty list is rejected");
+    result.expectTrue(throwsInvalidArgument([]() {
+                          utils::config::parseKeyValueLevelList("core.mux=debug,");
+                      }),
+                      "invalid trailing comma is rejected");
+    result.expectTrue(throwsInvalidArgument([]() {
+                          utils::config::parseKeyValueLevelList("core.mux=debug,,core.xyz=info");
+                      }),
+                      "invalid double comma is rejected");
+    result.expectTrue(throwsInvalidArgument([]() {
+                          utils::config::parseKeyValueLevelList("core.mux");
+                      }),
+                      "invalid missing equals in list is rejected");
+    result.expectTrue(throwsInvalidArgument([]() {
+                          utils::config::parseKeyValueLevelList("=debug");
+                      }),
+                      "invalid empty key in list is rejected");
+    result.expectTrue(throwsInvalidArgument([]() {
+                          utils::config::parseKeyValueLevelList("core.mux=");
+                      }),
+                      "invalid empty level in list is rejected");
+    result.expectTrue(throwsInvalidArgument([]() {
+                          utils::config::parseKeyValueLevelList("core.mux=verbose");
+                      }),
+                      "invalid level in list is rejected");
+    result.expectTrue(throwsInvalidArgument([]() {
+                          for (const auto& [key, level] : utils::config::parseKeyValueLevelList("framework=debug,network=info")) {
+                              (void) level;
+                              utils::config::parseLogOrigin(key);
+                          }
+                      }),
+                      "origin list validation rejects unknown origins");
+    result.expectTrue(throwsInvalidArgument([]() {
+                          for (const auto& [key, level] : utils::config::parseKeyValueLevelList("system=debug,socket=trace")) {
+                              (void) level;
+                              utils::config::parseLogBoundary(key);
+                          }
+                      }),
+                      "boundary list validation rejects unknown boundaries");
+
     logger::LogManager::init();
     logger::LogManager::setGlobalLevel(logger::LogLevel::Error);
     logger::LogManager::setOriginLevel(utils::config::parseLogOrigin("framework"),
                                        utils::config::parseKeyValueLevel("framework=warn").second);
     result.expectTrue(logger::LogManager::shouldEmit(record(logger::LogLevel::Warn, logger::LogOrigin::Framework)),
-                      "root --log-origin-level framework=warn affects framework records");
+                      "root --log-origin-level=framework=warn affects framework records");
     logger::LogManager::setOriginLevel(utils::config::parseLogOrigin("application"),
                                        utils::config::parseKeyValueLevel("application=debug").second);
     result.expectTrue(logger::LogManager::shouldEmit(record(logger::LogLevel::Debug, logger::LogOrigin::Application)),
-                      "root --log-origin-level application=debug affects application records");
+                      "root --log-origin-level=application=debug affects application records");
     result.expectTrue(throwsInvalidArgument([]() {
                           utils::config::parseLogOrigin("network");
                       }),
@@ -117,7 +169,7 @@ int main() {
                                          utils::config::parseKeyValueLevel("system=debug").second);
     result.expectTrue(
         logger::LogManager::shouldEmit(record(logger::LogLevel::Debug, logger::LogOrigin::Framework, logger::LogBoundary::System)),
-        "root --log-boundary-level system=debug affects system-boundary records");
+        "root --log-boundary-level=system=debug affects system-boundary records");
     result.expectTrue(throwsInvalidArgument([]() {
                           utils::config::parseLogBoundary("socket");
                       }),
@@ -125,10 +177,14 @@ int main() {
 
     logger::LogManager::init();
     logger::LogManager::setGlobalLevel(logger::LogLevel::Info);
-    logger::LogManager::setComponentLevel(utils::config::parseKeyValueLevel("core.mux=trace").first,
-                                          utils::config::parseKeyValueLevel("core.mux=trace").second);
+    for (const auto& [component, level] : utils::config::parseKeyValueLevelList("core.mux=trace,core.xyz=debug")) {
+        logger::LogManager::setComponentLevel(component, level);
+    }
     result.expectTrue(logger::LogManager::shouldEmit(record(logger::LogLevel::Trace)),
-                      "root --log-component-level core.mux=trace affects component core.mux records");
+                      "root --log-component-level=core.mux=trace affects component core.mux records");
+    result.expectTrue(logger::LogManager::shouldEmit(
+                          record(logger::LogLevel::Debug, logger::LogOrigin::Framework, logger::LogBoundary::System, "core.xyz")),
+                      "component list applies multiple levels");
     result.expectTrue(logger::LogManager::shouldEmit(record(logger::LogLevel::Debug)),
                       "component override can make a component more verbose than global");
 
@@ -146,12 +202,38 @@ int main() {
 
     logger::LogManager::init();
     logger::LogManager::setGlobalLevel(logger::LogLevel::Info);
-    logger::LogManager::setInstanceLevel(utils::config::parseKeyValueLevel("mqttbroker=debug").first,
-                                         utils::config::parseKeyValueLevel("mqttbroker=debug").second);
+    for (const auto& [instance, level] : utils::config::parseKeyValueLevelList("mqttbroker=debug,mqttbridge=trace")) {
+        logger::LogManager::setInstanceLevel(instance, level);
+    }
     result.expectTrue(logger::LogManager::shouldEmit(record(logger::LogLevel::Debug)),
-                      "root --log-instance-level mqttbroker=debug affects instance mqttbroker records");
+                      "root --log-instance-level=mqttbroker=debug affects instance mqttbroker records");
+    result.expectTrue(logger::LogManager::shouldEmit(record(
+                          logger::LogLevel::Trace, logger::LogOrigin::Framework, logger::LogBoundary::System, "core.mux", "mqttbridge")),
+                      "instance list applies multiple levels");
     result.expectTrue(logger::LogManager::shouldEmit(record(logger::LogLevel::Debug)),
                       "instance override can make an instance more verbose than global");
+
+    logger::LogManager::init();
+    logger::LogManager::setGlobalLevel(logger::LogLevel::Error);
+    for (const std::string_view repeatedValue : {"core.mux=debug", "core.xyz=info"}) {
+        for (const auto& [component, level] : utils::config::parseKeyValueLevelList(repeatedValue)) {
+            logger::LogManager::setComponentLevel(component, level);
+        }
+    }
+    result.expectTrue(logger::LogManager::shouldEmit(record(logger::LogLevel::Debug)),
+                      "repeated options still apply first component level");
+    result.expectTrue(logger::LogManager::shouldEmit(
+                          record(logger::LogLevel::Info, logger::LogOrigin::Framework, logger::LogBoundary::System, "core.xyz")),
+                      "repeated options still apply later component level");
+
+    logger::LogManager::init();
+    logger::LogManager::setGlobalLevel(logger::LogLevel::Error);
+    for (const auto& [component, level] : utils::config::parseKeyValueLevelList("core.mux=debug,core.mux=info")) {
+        logger::LogManager::setComponentLevel(component, level);
+    }
+    result.expectTrue(!logger::LogManager::shouldEmit(record(logger::LogLevel::Debug)),
+                      "duplicate keys apply in order and last duplicate wins");
+    result.expectTrue(logger::LogManager::shouldEmit(record(logger::LogLevel::Info)), "duplicate keys keep last duplicate level");
 
     result.expectTrue(throwsInvalidArgument([]() {
                           utils::config::parseKeyValueLevel("=debug");
@@ -189,15 +271,6 @@ int main() {
     logger::LogManager::setGlobalLevel(logger::LogLevel::Info);
     logger::LogManager::freeze();
     result.expectTrue(logger::LogManager::isFrozen(), "LogManager policy is frozen after normal CLI/config application");
-
-    const std::string rootOptions = "--log-format --log-origin-level --log-boundary-level --log-component-level --log-instance-level "
-                                    "--log-level --verbose-level --log-file --quiet --monochrom --show-config --command-line --help";
-    result.expectTrue(rootOptions.find("--log-format") != std::string::npos &&
-                          rootOptions.find("--log-instance-level") != std::string::npos,
-                      "new root options render through --help");
-    result.expectTrue(rootOptions.find("--show-config") != std::string::npos,
-                      "new root options render through --show-config where appropriate");
-    result.expectTrue(rootOptions.find("--command-line") != std::string::npos, "configured new root options render through --command-line");
 
     return result.processResult();
 }

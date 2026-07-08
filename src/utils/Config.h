@@ -51,6 +51,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -66,6 +67,7 @@ namespace utils::config {
     logger::LogOrigin parseLogOrigin(std::string_view value);
     logger::LogBoundary parseLogBoundary(std::string_view value);
     std::pair<std::string, logger::LogLevel> parseKeyValueLevel(std::string_view value);
+    std::vector<std::pair<std::string, logger::LogLevel>> parseKeyValueLevelList(std::string_view value);
 
 } // namespace utils::config
 

@@ -191,29 +191,31 @@ namespace utils::config {
         return {std::move(key), parseLogLevel(level).semanticLevel};
     }
 
+    std::vector<std::pair<std::string, logger::LogLevel>> parseKeyValueLevelList(std::string_view value) {
+        if (trim(value).empty()) {
+            throw std::invalid_argument("expected key=level list");
+        }
+
+        std::vector<std::pair<std::string, logger::LogLevel>> entries;
+        std::size_t begin = 0;
+        while (begin <= value.size()) {
+            const std::size_t comma = value.find(',', begin);
+            const std::string_view item = comma == std::string_view::npos ? value.substr(begin) : value.substr(begin, comma - begin);
+            if (trim(item).empty()) {
+                throw std::invalid_argument("empty key=level list item");
+            }
+            entries.push_back(parseKeyValueLevel(item));
+            if (comma == std::string_view::npos) {
+                break;
+            }
+            begin = comma + 1;
+        }
+        return entries;
+    }
+
 } // namespace utils::config
 
 namespace utils {
-
-    static std::vector<std::string> normalizeSemanticKeyValueArgs(int argc, char* argv[]) {
-        static const std::unordered_set<std::string_view> semanticKeyValueOptions{
-            "--log-origin-level", "--log-boundary-level", "--log-component-level", "--log-instance-level"};
-        std::vector<std::string> normalized;
-        normalized.reserve(static_cast<std::size_t>(argc));
-        for (int index = 0; index < argc; ++index) {
-            const std::string_view arg = argv[index];
-            if (semanticKeyValueOptions.contains(arg) && index + 1 < argc) {
-                const std::string_view value = argv[index + 1];
-                if (!value.empty() && value.front() != '-' && value.find('=') != std::string_view::npos) {
-                    normalized.emplace_back(std::string(arg).append("=").append(value));
-                    ++index;
-                    continue;
-                }
-            }
-            normalized.emplace_back(arg);
-        }
-        return normalized;
-    }
 
     static CLI::Validator logLevelValidator() {
         return CLI::Validator(
@@ -548,20 +550,24 @@ namespace utils {
         };
 
         for (const std::string& value : configuredValues(logOriginLevelOpt)) {
-            const auto [key, level] = utils::config::parseKeyValueLevel(value);
-            logger::LogManager::setOriginLevel(utils::config::parseLogOrigin(key), level);
+            for (const auto& [key, level] : utils::config::parseKeyValueLevelList(value)) {
+                logger::LogManager::setOriginLevel(utils::config::parseLogOrigin(key), level);
+            }
         }
         for (const std::string& value : configuredValues(logBoundaryLevelOpt)) {
-            const auto [key, level] = utils::config::parseKeyValueLevel(value);
-            logger::LogManager::setBoundaryLevel(utils::config::parseLogBoundary(key), level);
+            for (const auto& [key, level] : utils::config::parseKeyValueLevelList(value)) {
+                logger::LogManager::setBoundaryLevel(utils::config::parseLogBoundary(key), level);
+            }
         }
         for (const std::string& value : configuredValues(logComponentLevelOpt)) {
-            const auto [component, level] = utils::config::parseKeyValueLevel(value);
-            logger::LogManager::setComponentLevel(component, level);
+            for (const auto& [component, level] : utils::config::parseKeyValueLevelList(value)) {
+                logger::LogManager::setComponentLevel(component, level);
+            }
         }
         for (const std::string& value : configuredValues(logInstanceLevelOpt)) {
-            const auto [instance, level] = utils::config::parseKeyValueLevel(value);
-            logger::LogManager::setInstanceLevel(instance, level);
+            for (const auto& [instance, level] : utils::config::parseKeyValueLevelList(value)) {
+                logger::LogManager::setInstanceLevel(instance, level);
+            }
         }
     }
 
@@ -619,10 +625,11 @@ namespace utils {
                                       "origin=level",
                                       CLI::TypeValidator<std::string>() & semanticValidator(
                                                                               [](std::string_view value) {
-                                                                                  const auto [key, level] =
-                                                                                      utils::config::parseKeyValueLevel(value);
-                                                                                  (void) level;
-                                                                                  utils::config::parseLogOrigin(key);
+                                                                                  for (const auto& [key, level] :
+                                                                                       utils::config::parseKeyValueLevelList(value)) {
+                                                                                      (void) level;
+                                                                                      utils::config::parseLogOrigin(key);
+                                                                                  }
                                                                               },
                                                                               "ORIGIN_LEVEL"))
                                 ->expected(0, -1),
@@ -634,9 +641,11 @@ namespace utils {
                       "boundary=level",
                       CLI::TypeValidator<std::string>() & semanticValidator(
                                                               [](std::string_view value) {
-                                                                  const auto [key, level] = utils::config::parseKeyValueLevel(value);
-                                                                  (void) level;
-                                                                  utils::config::parseLogBoundary(key);
+                                                                  for (const auto& [key, level] :
+                                                                       utils::config::parseKeyValueLevelList(value)) {
+                                                                      (void) level;
+                                                                      utils::config::parseLogBoundary(key);
+                                                                  }
                                                               },
                                                               "BOUNDARY_LEVEL"))
                 ->expected(0, -1),
@@ -648,7 +657,7 @@ namespace utils {
                                       "component=level",
                                       CLI::TypeValidator<std::string>() & semanticValidator(
                                                                               [](std::string_view value) {
-                                                                                  utils::config::parseKeyValueLevel(value);
+                                                                                  utils::config::parseKeyValueLevelList(value);
                                                                               },
                                                                               "COMPONENT_LEVEL"))
                                 ->expected(0, -1),
@@ -660,7 +669,7 @@ namespace utils {
                                       "instance=level",
                                       CLI::TypeValidator<std::string>() & semanticValidator(
                                                                               [](std::string_view value) {
-                                                                                  utils::config::parseKeyValueLevel(value);
+                                                                                  utils::config::parseKeyValueLevelList(value);
                                                                               },
                                                                               "INSTANCE_LEVEL"))
                                 ->expected(0, -1),
@@ -845,14 +854,7 @@ namespace utils {
                     showConfigTriggerApp = nullptr;
                     commandlineTriggerApp = nullptr;
 
-                    auto normalizedArgs = normalizeSemanticKeyValueArgs(argc, argv);
-                    std::vector<char*> normalizedArgv;
-                    normalizedArgv.reserve(normalizedArgs.size());
-                    for (std::string& arg : normalizedArgs) {
-                        normalizedArgv.push_back(arg.data());
-                    }
-
-                    parse(static_cast<int>(normalizedArgv.size()), normalizedArgv.data());
+                    parse(argc, argv);
 
                     if (!parse1) {
                         if (showConfigTriggerApp != nullptr) {

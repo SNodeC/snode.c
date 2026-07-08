@@ -30,18 +30,18 @@ Numeric root `--log-level` values `0..6` remain accepted. The default remains eq
 
 ## CLI11 validator/transform decision for root `--log-level`
 
-The old integer-only `CLI::Range(0, 6)` validator was replaced with a CLI11-compatible validator/transform that accepts numeric and named levels and normalizes the option value back to the legacy numeric representation. The reusable parsing entry point is declared in `utils::config::parseLogLevel`, making the same mapping available to the mandatory PR G.2 instance-level shorthand. Repeatable key/value semantic options also normalize space-separated CLI input such as `--log-component-level core.mux=debug` into the CLI11-safe `--log-component-level=core.mux=debug` form before parsing, so the documented command-line form remains accepted while config/command-line rendering continues to use CLI11's existing escaping.
+The old integer-only `CLI::Range(0, 6)` validator was replaced with a CLI11-compatible validator/transform that accepts numeric and named levels and normalizes the option value back to the legacy numeric representation. The reusable parsing entry point is declared in `utils::config::parseLogLevel`, making the same mapping available to the mandatory PR G.2 instance-level shorthand. The supported documented semantic override form is `--log-*-level=key=level`; the framework does not rewrite `argv` before CLI11 parsing.
 
 ## New root semantic options
 
 The root command now exposes repeatable semantic policy overrides:
 
-- `--log-origin-level origin=level` for `framework` and `application` origins.
-- `--log-boundary-level boundary=level` for `application`, `configuration`, `instance`, `connection`, `context`, and `system` boundaries.
-- `--log-component-level component=level` for named component overrides.
-- `--log-instance-level instance=level` for named instance overrides.
+- `--log-origin-level=origin=level` for `framework` and `application` origins.
+- `--log-boundary-level=boundary=level` for `application`, `configuration`, `instance`, `connection`, `context`, and `system` boundaries.
+- `--log-component-level=component=level` for named component overrides.
+- `--log-instance-level=instance=level` for named instance overrides.
 
-Component and instance keys must be non-empty. Invalid `key=level` syntax, unknown levels, unknown origins, and unknown boundaries are rejected by CLI11 validation and by the reusable parser helpers.
+Component and instance keys must be non-empty. Comma-separated `key=level` lists are supported, for example `--log-component-level=core.mux=debug,core.xyz=info`, and repeated options are supported. Comma-separated and repeated forms may be combined; duplicate keys are applied in order, so the last duplicate wins. Invalid `key=level` syntax, empty list items, unknown levels, unknown origins, and unknown boundaries are rejected by CLI11 validation and by the reusable parser helpers.
 
 ## Output format option
 
@@ -57,7 +57,7 @@ Root `--log-level` configures both the legacy numeric logger level and the seman
 
 ## Double-gate issue and resolution
 
-Before this PR, `Logger::emitSemantic(...)` first asked `LogManager::shouldEmit(record)` and then mapped the semantic level back to a legacy numeric level for `Logger::shouldLog(...)`. That double-gated semantic records and prevented a command like `--log-level info --log-component-level core.mux=debug` from emitting debug records for `core.mux`. This PR removes the legacy numeric gate from semantic emission after `LogManager` accepts a record. Semantic output is now filtered by `LogManager`; legacy macro output remains filtered by `Logger`.
+Before this PR, `Logger::emitSemantic(...)` first asked `LogManager::shouldEmit(record)` and then mapped the semantic level back to a legacy numeric level for `Logger::shouldLog(...)`. That double-gated semantic records and prevented a command like `--log-level=info --log-component-level=core.mux=debug` from emitting debug records for `core.mux`. This PR removes the legacy numeric gate from semantic emission after `LogManager` accepts a record. Semantic output is now filtered by `LogManager`; legacy macro output remains filtered by `Logger`.
 
 ## Policy precedence
 
@@ -77,7 +77,7 @@ The CLI integration applies root overrides into those existing policy axes and d
 
 ## Help/show-config/command-line output verification
 
-Smoke checks were run against `echoserver-legacy-in`. `--help` shows the new root options and existing logging options. `--show-config` renders configurable root logging options. `--command-line` renders configured root options. Both `--log-component-level=core.mux=debug` and the documented space-separated form `--log-component-level core.mux=debug` are accepted; command-line rendering preserves CLI11's escaped value form `core.mux\=debug`.
+Smoke checks were run against `echoserver-legacy-in`. `--help` shows the new root options and existing logging options. `--show-config` renders configurable root logging options. `--command-line` renders configured root options. Smoke checks use the supported documented equals form, including `--log-component-level=core.mux=debug` and `--log-component-level=core.mux=debug,core.xyz=info`; command-line rendering preserves CLI11's escaped value form for values containing `=`.
 
 ## Explicit G.2 follow-up for `ConfigInstance --log-level`
 
@@ -108,7 +108,7 @@ No `ConfigSection` logging options were added. `LogManager` has no section-level
 
 - Added reusable root logging parse helpers in `utils::config`.
 - Added root CLI/config options for semantic format, origin, boundary, component, and instance thresholds.
-- Normalized documented space-separated key/value CLI arguments before CLI11 parsing so repeatable `key=level` options work both as `--option key=level` and `--option=key=level`.
+- Added reusable comma-separated `key=level` list parsing while preserving repeated option support and normal CLI11 `argv` parsing.
 - Extended root `--log-level` to accept names while preserving numeric values.
 - Applied semantic policy at root config application and froze it before normal runtime.
 - Removed legacy numeric double-gating from semantic emission.
@@ -116,7 +116,7 @@ No `ConfigSection` logging options were added. `LogManager` has no section-level
 
 ## Tests added/updated
 
-- Added `SemanticCliIntegrationTest` for parser mappings, invalid values, semantic override behavior, verbose compatibility, freeze behavior, and double-gate regression coverage.
+- Added `SemanticCliIntegrationTest` for parser mappings, comma-separated lists, invalid values, semantic override behavior, duplicate-key ordering, verbose compatibility, freeze behavior, and double-gate regression coverage.
 - Added `SemanticCliSourcePolicyTest` for root option presence and to guard against accidental ConfigInstance/ConfigSection logging options in PR G.1.
 - Updated migration/round tests that intentionally covered the previous semantic backend double gate.
 

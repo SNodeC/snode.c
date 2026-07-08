@@ -19,6 +19,10 @@ namespace {
 int main() {
     tests::support::TestResult result;
     const std::filesystem::path root = source_policy::sourcePolicyProjectRoot();
+    if (root.empty()) {
+        result.expectTrue(false, "sourcePolicyProjectRoot() must not return an empty path");
+        return result.processResult();
+    }
 
     const std::string configCpp = readFile(root / "src/utils/Config.cpp");
     result.expectTrue(contains(configCpp, "--log-format"), "root options include --log-format");
