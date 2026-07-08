@@ -30,6 +30,7 @@ Normal high-volume HTTP/API requests now avoid `info`; per-packet MQTT diagnosti
 - Changed the per-packet `packet.getName()` receive summary in `Mqtt::printVP` from `info` to `debug`.
 - Removed the separator-only `MQTT: ====================================` `info` line from `Mqtt::printFixedHeader`.
 - Left serialized variable-header/payload and fixed-header hex dumps at `trace` behind existing `enabled(logger::LogLevel::Trace)` guards.
+- Strengthened `HighFrequencyLoggingSeverityTest` coverage for the additional MQTT resend/send/topic/message/QoS2 `info` regressions corrected by this PR.
 - Did not change packet parsing, session behavior, callbacks, stored state, validation, or redaction behavior.
 
 ## HTTP server changes
