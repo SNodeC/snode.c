@@ -114,8 +114,8 @@ namespace web::http::client {
 
         if ((flags == Flags::NONE || (flags & Flags::HTTP11) == Flags::HTTP11 || (flags & Flags::KEEPALIVE) == Flags::KEEPALIVE) &&
             (flags & Flags::CLOSE) != Flags::CLOSE) {
-            frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
-                                  << ") accepted: " << requestLine;
+            frameworkLog().debug() << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
+                                   << ") accepted: " << requestLine;
             flags = (flags & Flags::HTTP11) | ((request->httpMajor == 1 && request->httpMinor == 1) ? Flags::HTTP11 : Flags::NONE);
             flags = (flags & Flags::HTTP10) | ((request->httpMajor == 1 && request->httpMinor == 0) ? Flags::HTTP10 : Flags::NONE);
             flags = (flags & Flags::KEEPALIVE) |
@@ -135,15 +135,17 @@ namespace web::http::client {
             frameworkLog().warn() << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
                                   << ") rejected: " << requestLine;
 
-            frameworkLog().warn() << httputils::toString(request->method,
-                                                         request->url,
-                                                         "HTTP/" + std::to_string(request->httpMajor) + "." +
-                                                             std::to_string(request->httpMinor),
-                                                         request->getQueries(),
-                                                         request->getHeaders(),
-                                                         request->getTrailer(),
-                                                         request->getCookies(),
-                                                         {});
+            if (frameworkLog().enabled(logger::LogLevel::Trace)) {
+                frameworkLog().trace() << httputils::toString(request->method,
+                                                              request->url,
+                                                              "HTTP/" + std::to_string(request->httpMajor) + "." +
+                                                                  std::to_string(request->httpMinor),
+                                                              request->getQueries(),
+                                                              request->getHeaders(),
+                                                              request->getTrailer(),
+                                                              request->getCookies(),
+                                                              {});
+            }
         }
     }
 
@@ -253,16 +255,16 @@ namespace web::http::client {
                                             .append(".")
                                             .append(std::to_string(request->httpMinor));
 
-        frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Response received for request (" << request->count
-                              << "): " << requestLine;
+        frameworkLog().debug() << getSocketConnection()->getConnectionName() << " HTTP: Response received for request (" << request->count
+                               << "): " << requestLine;
 
-        frameworkLog().info() << getSocketConnection()->getConnectionName() << "   HTTP/" << response->httpMajor << "."
-                              << response->httpMinor << " " << response->statusCode << " " << response->reason;
+        frameworkLog().debug() << getSocketConnection()->getConnectionName() << "   HTTP/" << response->httpMajor << "."
+                               << response->httpMinor << " " << response->statusCode << " " << response->reason;
 
         request->deliverResponse(request, response);
 
-        frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
-                              << ") completed: " << requestLine;
+        frameworkLog().debug() << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
+                               << ") completed: " << requestLine;
 
         requestCompleted(response);
     }
@@ -334,7 +336,7 @@ namespace web::http::client {
     }
 
     void SocketContext::onConnected() {
-        frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Connected";
+        frameworkLog().debug() << getSocketConnection()->getConnectionName() << " HTTP: Connected";
 
         onHttpConnected(masterRequest);
     }

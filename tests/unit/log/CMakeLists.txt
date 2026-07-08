@@ -122,3 +122,7 @@ set_tests_properties(SemanticEndToEndOutputTest PROPERTIES LABELS "unit;log;e2e"
 snodec_add_test(SensitiveLoggingRedactionTest SensitiveLoggingRedactionTest.cpp)
 target_compile_features(SensitiveLoggingRedactionTest PRIVATE cxx_std_20)
 set_tests_properties(SensitiveLoggingRedactionTest PROPERTIES LABELS "unit;log;security")
+
+snodec_add_test(HighFrequencyLoggingSeverityTest HighFrequencyLoggingSeverityTest.cpp)
+target_compile_features(HighFrequencyLoggingSeverityTest PRIVATE cxx_std_20)
+set_tests_properties(HighFrequencyLoggingSeverityTest PROPERTIES LABELS "unit;log;severity")

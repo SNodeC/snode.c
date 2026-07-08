@@ -67,11 +67,11 @@ namespace web::http::server {
         , parser(
               this,
               [this]() {
-                  frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Request start";
+                  frameworkLog().debug() << getSocketConnection()->getConnectionName() << " HTTP: Request start";
               },
               [this](web::http::server::Request&& request) {
-                  frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Request parse success: " << request.method
-                                        << " " << request.url << " HTTP/" << request.httpMajor << "." << request.httpMinor;
+                  frameworkLog().debug() << getSocketConnection()->getConnectionName() << " HTTP: Request parse success: " << request.method
+                                         << " " << request.url << " HTTP/" << request.httpMajor << "." << request.httpMinor;
 
                   pendingRequests.emplace_back(std::make_shared<Request>(std::move(request)));
 
@@ -109,9 +109,9 @@ namespace web::http::server {
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
 
             if (pendingRequest->status == 0) {
-                frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Request deliver: " << pendingRequest->method
-                                      << " " << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "."
-                                      << pendingRequest->httpMinor;
+                frameworkLog().debug() << getSocketConnection()->getConnectionName() << " HTTP: Request deliver: " << pendingRequest->method
+                                       << " " << pendingRequest->url << " HTTP/" << pendingRequest->httpMajor << "."
+                                       << pendingRequest->httpMinor;
 
                 masterResponse->init();
                 masterResponse->requestMethod = pendingRequest->method;
@@ -135,7 +135,7 @@ namespace web::http::server {
                 masterResponse->status(pendingRequest->status).send(pendingRequest->reason);
             }
         } else {
-            frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: No more pending request";
+            frameworkLog().trace() << getSocketConnection()->getConnectionName() << " HTTP: No more pending request";
         }
     }
 
@@ -149,17 +149,17 @@ namespace web::http::server {
                 getSocketConnection()->setReadTimeout(0);
             }
 
-            frameworkLog().info() << getSocketConnection()->getConnectionName()
-                                  << " HTTP: Response start for request: " << pendingRequest->method << " " << pendingRequest->url
-                                  << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
-            frameworkLog().info() << getSocketConnection()->getConnectionName() << "   "
-                                  << "HTTP/" + std::to_string(response.httpMajor)
-                                                   .append(".")
-                                                   .append(std::to_string(response.httpMinor))
-                                                   .append(" ")
-                                                   .append(std::to_string(response.statusCode))
-                                                   .append(" ")
-                                                   .append(StatusCode::reason(response.statusCode));
+            frameworkLog().debug() << getSocketConnection()->getConnectionName()
+                                   << " HTTP: Response start for request: " << pendingRequest->method << " " << pendingRequest->url
+                                   << " HTTP/" << pendingRequest->httpMajor << "." << pendingRequest->httpMinor;
+            frameworkLog().debug() << getSocketConnection()->getConnectionName() << "   "
+                                   << "HTTP/" + std::to_string(response.httpMajor)
+                                                    .append(".")
+                                                    .append(std::to_string(response.httpMinor))
+                                                    .append(" ")
+                                                    .append(std::to_string(response.statusCode))
+                                                    .append(" ")
+                                                    .append(StatusCode::reason(response.statusCode));
         }
     }
 
@@ -179,16 +179,16 @@ namespace web::http::server {
         const std::shared_ptr<Request> request = std::move(pendingRequests.front());
         pendingRequests.pop_front();
 
-        frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Response completed for request: " << request->method
-                              << " " << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
-        frameworkLog().info() << getSocketConnection()->getConnectionName() << "   "
-                              << "HTTP/" + std::to_string(response.httpMajor)
-                                               .append(".")
-                                               .append(std::to_string(response.httpMinor))
-                                               .append(" ")
-                                               .append(std::to_string(response.statusCode))
-                                               .append(" ")
-                                               .append(StatusCode::reason(response.statusCode));
+        frameworkLog().debug() << getSocketConnection()->getConnectionName() << " HTTP: Response completed for request: " << request->method
+                               << " " << request->url << " HTTP/" << request->httpMajor << "." << request->httpMinor;
+        frameworkLog().debug() << getSocketConnection()->getConnectionName() << "   "
+                               << "HTTP/" + std::to_string(response.httpMajor)
+                                                .append(".")
+                                                .append(std::to_string(response.httpMinor))
+                                                .append(" ")
+                                                .append(std::to_string(response.statusCode))
+                                                .append(" ")
+                                                .append(StatusCode::reason(response.statusCode));
 
         httpClose = response.connectionState == ConnectionState::Close ||
                     (response.connectionState == ConnectionState::Default &&
@@ -216,7 +216,7 @@ namespace web::http::server {
     }
 
     void SocketContext::onConnected() {
-        frameworkLog().info() << getSocketConnection()->getConnectionName() << " HTTP: Connected";
+        frameworkLog().debug() << getSocketConnection()->getConnectionName() << " HTTP: Connected";
 
         for (const auto& onConnectEventReceiver : onConnectEventReceiverList) {
             onConnectEventReceiver();
