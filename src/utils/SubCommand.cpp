@@ -224,9 +224,15 @@ namespace utils {
 
     SubCommand* SubCommand::required(bool required) {
         const bool previousCanonicalRequired = requiredCount > 0;
+        const bool previousEffectiveRequired = subCommandApp->effectiveRequired();
 
-        requiredCount += required ? 1 : -1;
-        effectiveRequiredCount += required ? 1 : -1;
+        if (required) {
+            requiredCount++;
+            effectiveRequiredCount++;
+        } else {
+            requiredCount = requiredCount > 0 ? requiredCount - 1 : 0;
+            effectiveRequiredCount = effectiveRequiredCount > 0 ? effectiveRequiredCount - 1 : 0;
+        }
         const bool countedRequired = requiredCount > 0;
         const bool effectivelyCountedRequired = effectiveRequiredCount > 0;
         subCommandApp->ignore_case(countedRequired);
@@ -239,8 +245,10 @@ namespace utils {
             SubCommand* parent = getParent();
 
             parent->needs(this, countedRequired);
-            parent->required(effectiveRequired);
+            parent->applyCanonicalRequiredContribution(previousCanonicalRequired, countedRequired);
         }
+
+        applyEffectiveRequiredContribution(previousEffectiveRequired, effectiveRequired);
 
         return this;
     }
@@ -270,12 +278,40 @@ namespace utils {
         return this;
     }
 
+    void SubCommand::applyCanonicalRequiredContribution(bool previousCanonicalRequired, bool canonicalRequired) {
+        if (previousCanonicalRequired != canonicalRequired) {
+            const bool previousParentCanonicalRequired = requiredCount > 0;
+
+            if (canonicalRequired) {
+                requiredCount++;
+            } else {
+                requiredCount = requiredCount > 0 ? requiredCount - 1 : 0;
+            }
+
+            const bool parentCanonicalRequired = requiredCount > 0;
+            subCommandApp->ignore_case(parentCanonicalRequired);
+            subCommandApp->setCanonicalRequired(parentCanonicalRequired);
+            subCommandApp->setEffectiveRequiredBase(effectiveRequiredCount > 0);
+
+            if (hasParent() && previousParentCanonicalRequired != parentCanonicalRequired) {
+                SubCommand* parent = getParent();
+
+                parent->needs(this, parentCanonicalRequired);
+                parent->applyCanonicalRequiredContribution(previousParentCanonicalRequired, parentCanonicalRequired);
+            }
+        }
+    }
+
     void SubCommand::applyEffectiveRequiredContribution(bool previousEffectiveRequired, bool effectiveRequired) {
         if (hasParent() && previousEffectiveRequired != effectiveRequired) {
             SubCommand* parent = getParent();
             const bool previousParentEffectiveRequired = parent->subCommandApp->effectiveRequired();
 
-            parent->effectiveRequiredCount += effectiveRequired ? 1 : -1;
+            if (effectiveRequired) {
+                parent->effectiveRequiredCount++;
+            } else {
+                parent->effectiveRequiredCount = parent->effectiveRequiredCount > 0 ? parent->effectiveRequiredCount - 1 : 0;
+            }
             parent->subCommandApp->setEffectiveRequiredBase(parent->effectiveRequiredCount > 0);
             parent->subCommandApp->setEffectiveNeed(subCommandApp, effectiveRequired);
 

@@ -301,6 +301,7 @@ namespace utils {
         static CLI::App* commandlineTriggerApp;
 
     private:
+        void applyCanonicalRequiredContribution(bool previousCanonicalRequired, bool canonicalRequired);
         void applyEffectiveRequiredContribution(bool previousEffectiveRequired, bool effectiveRequired);
 
         CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;

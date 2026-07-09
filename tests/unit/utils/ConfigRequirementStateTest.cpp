@@ -150,6 +150,65 @@ int main() {
     child.forceUnrequired(false);
     require(child.getAppWithPtr()->effectiveRequired(), "mixed SubCommand suppressions did not restore effective required state");
 
+    TestSubCommand suppressedRoot{nullptr, "suppressed-root"};
+    TestSubCommand suppressedChild{&suppressedRoot, "suppressed-child"};
+    suppressedChild.forceUnrequired(true);
+    suppressedChild.required(true);
+    require(suppressedChild.getAppWithPtr()->canonicalRequired(), "required while suppressed did not record child canonical required");
+    require(!suppressedChild.getAppWithPtr()->effectiveRequired(), "required while suppressed restored child effective required too early");
+    require(suppressedRoot.getAppWithPtr()->canonicalNeeds(suppressedChild.getAppWithPtr()),
+            "required while suppressed did not record parent canonical need");
+    require(!suppressedRoot.getAppWithPtr()->effectiveNeeds(suppressedChild.getAppWithPtr()),
+            "required while suppressed applied parent effective need too early");
+    require(suppressedRoot.getAppWithPtr()->canonicalRequired(), "required while suppressed did not record parent canonical contribution");
+    require(!suppressedRoot.getAppWithPtr()->effectiveRequired(), "required while suppressed applied parent effective contribution too early");
+
+    TestSubCommand removeRoot{nullptr, "remove-root"};
+    TestSubCommand removeChild{&removeRoot, "remove-child"};
+    removeChild.required(true);
+    removeChild.forceUnrequired(true);
+    removeChild.required(false);
+    require(!removeChild.getAppWithPtr()->canonicalRequired(), "required(false) while suppressed left child canonical required");
+    require(!removeChild.getAppWithPtr()->effectiveRequired(), "required(false) while suppressed left child effective required");
+    require(!removeRoot.getAppWithPtr()->canonicalNeeds(removeChild.getAppWithPtr()),
+            "required(false) while suppressed left parent canonical need");
+    require(!removeRoot.getAppWithPtr()->effectiveNeeds(removeChild.getAppWithPtr()),
+            "required(false) while suppressed left parent effective need");
+    require(!removeRoot.getAppWithPtr()->canonicalRequired(), "required(false) while suppressed left parent canonical contribution");
+    require(!removeRoot.getAppWithPtr()->effectiveRequired(), "required(false) while suppressed decremented/restored parent effective contribution incorrectly");
+    removeChild.forceUnrequired(false);
+    require(!removeChild.getAppWithPtr()->canonicalRequired(), "restore after suppressed removal changed child canonical required");
+    require(!removeChild.getAppWithPtr()->effectiveRequired(), "restore after suppressed removal changed child effective required");
+    require(!removeRoot.getAppWithPtr()->canonicalNeeds(removeChild.getAppWithPtr()),
+            "restore after suppressed removal restored parent canonical need");
+    require(!removeRoot.getAppWithPtr()->effectiveNeeds(removeChild.getAppWithPtr()),
+            "restore after suppressed removal restored parent effective need");
+    require(!removeRoot.getAppWithPtr()->effectiveRequired(), "restore after suppressed removal corrupted parent effective count");
+
+    TestSubCommand countedRoot{nullptr, "counted-root"};
+    TestSubCommand countedChild{&countedRoot, "counted-child"};
+    countedChild.required(true);
+    countedChild.required(true);
+    countedChild.forceUnrequired(true);
+    countedChild.required(false);
+    require(countedChild.getAppWithPtr()->canonicalRequired(), "balanced counted sequence removed child canonical required too early");
+    require(!countedChild.getAppWithPtr()->effectiveRequired(), "balanced counted sequence restored child effective while still suppressed");
+    require(countedRoot.getAppWithPtr()->canonicalNeeds(countedChild.getAppWithPtr()),
+            "balanced counted sequence removed parent canonical need too early");
+    require(!countedRoot.getAppWithPtr()->effectiveNeeds(countedChild.getAppWithPtr()),
+            "balanced counted sequence restored parent effective need while child still suppressed");
+    countedChild.forceUnrequired(false);
+    require(countedChild.getAppWithPtr()->effectiveRequired(), "balanced counted sequence did not restore child effective required");
+    require(countedRoot.getAppWithPtr()->effectiveRequired(), "balanced counted sequence did not restore parent effective required");
+    countedChild.required(false);
+    require(!countedChild.getAppWithPtr()->canonicalRequired(), "balanced counted sequence left child canonical required");
+    require(!countedChild.getAppWithPtr()->effectiveRequired(), "balanced counted sequence left child effective required");
+    require(!countedRoot.getAppWithPtr()->canonicalNeeds(countedChild.getAppWithPtr()),
+            "balanced counted sequence left parent canonical need");
+    require(!countedRoot.getAppWithPtr()->effectiveNeeds(countedChild.getAppWithPtr()),
+            "balanced counted sequence left parent effective need");
+    require(!countedRoot.getAppWithPtr()->effectiveRequired(), "balanced counted sequence left parent effective required");
+
     TestConfigInstance instance;
     instance.required(true);
     require(utils::Config::configRoot.getAppWithPtr()->canonicalNeeds(instance.getAppWithPtr()),
