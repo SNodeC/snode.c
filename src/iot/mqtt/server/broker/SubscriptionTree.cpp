@@ -170,9 +170,9 @@ namespace iot::mqtt::server::broker {
         if (topic.empty()) {
             iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: Found match:";
             iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Topic: '" << message.getTopic() << "';";
-            if (iot::mqtt::semantic::mqttBrokerLog().enabled(logger::LogLevel::Info)) {
-                iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Message:\n"
-                                                            << iot::mqtt::Mqtt::toHexString(message.getMessage());
+            auto log = iot::mqtt::semantic::mqttBrokerLog();
+            if (log.enabled(logger::LogLevel::Info)) {
+                log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
             }
 
             iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: Distribute PUBLISH for match ...";
@@ -185,9 +185,9 @@ namespace iot::mqtt::server::broker {
             if (nextHashLevel != topicLevels.end()) {
                 iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: Found parent match:";
                 iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Topic: '" << message.getTopic() << "'";
-                if (iot::mqtt::semantic::mqttBrokerLog().enabled(logger::LogLevel::Info)) {
-                    iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Message:\n"
-                                                                << iot::mqtt::Mqtt::toHexString(message.getMessage());
+                auto log = iot::mqtt::semantic::mqttBrokerLog();
+                if (log.enabled(logger::LogLevel::Info)) {
+                    log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
                 }
 
                 iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: Distribute PUBLISH for match ...";
@@ -215,9 +215,9 @@ namespace iot::mqtt::server::broker {
             if (foundNode != topicLevels.end()) {
                 iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: Found match:";
                 iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Topic: '" << message.getTopic() << "'";
-                if (iot::mqtt::semantic::mqttBrokerLog().enabled(logger::LogLevel::Info)) {
-                    iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Message:\n"
-                                                                << iot::mqtt::Mqtt::toHexString(message.getMessage());
+                auto log = iot::mqtt::semantic::mqttBrokerLog();
+                if (log.enabled(logger::LogLevel::Info)) {
+                    log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
                 }
 
                 iot::mqtt::semantic::mqttBrokerLog().info()

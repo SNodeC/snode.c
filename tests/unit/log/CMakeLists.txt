@@ -163,3 +163,9 @@ target_include_directories(SemanticCliSourcePolicyTest PRIVATE ${PROJECT_SOURCE_
 target_compile_features(SemanticCliSourcePolicyTest PRIVATE cxx_std_20)
 target_link_libraries(SemanticCliSourcePolicyTest PRIVATE snodec-test-support)
 snodec_set_source_policy_test_properties(SemanticCliSourcePolicyTest "unit;log;cli;source-policy")
+
+snodec_add_test(SemanticCachedLoggerOverheadTest SemanticCachedLoggerOverheadTest.cpp)
+target_include_directories(SemanticCachedLoggerOverheadTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(SemanticCachedLoggerOverheadTest PRIVATE cxx_std_20)
+target_link_libraries(SemanticCachedLoggerOverheadTest PRIVATE snodec-test-support snodec::logger)
+snodec_set_source_policy_test_properties(SemanticCachedLoggerOverheadTest "unit;log;overhead;source-policy")
