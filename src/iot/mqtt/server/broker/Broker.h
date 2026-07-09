@@ -58,6 +58,7 @@ namespace iot::mqtt::server {
 #include <list>
 #include <map> // IWYU pragma: keep
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -107,6 +108,8 @@ namespace iot::mqtt::server::broker {
         void sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool retain);
 
     private:
+        const logger::BoundaryLogger& log() const;
+
         std::string sessionStoreFileName;
         uint8_t maxQoS;
 
@@ -115,7 +118,8 @@ namespace iot::mqtt::server::broker {
 
         std::map<std::string, iot::mqtt::server::broker::Session> sessionStore;
 
-        logger::BoundaryLogger log_;
+        mutable std::optional<logger::BoundaryLogger> log_;
+        mutable unsigned long logGeneration_ = 0;
     };
 
 } // namespace iot::mqtt::server::broker

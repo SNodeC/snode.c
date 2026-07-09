@@ -60,8 +60,16 @@
 namespace iot::mqtt::server::broker {
 
     SubscriptionTree::SubscriptionTree(iot::mqtt::server::broker::Broker* broker)
-        : head(broker, "")
-        , log_(iot::mqtt::semantic::mqttBrokerLog()) {
+        : head(broker, "") {
+    }
+
+    const logger::BoundaryLogger& SubscriptionTree::log() const {
+        const unsigned long generation = logger::LogManager::generation();
+        if (!log_ || logGeneration_ != generation) {
+            logGeneration_ = generation;
+            log_.emplace(iot::mqtt::semantic::mqttBrokerLog());
+        }
+        return *log_;
     }
 
     void SubscriptionTree::appear(const std::string& clientId) {
@@ -77,7 +85,7 @@ namespace iot::mqtt::server::broker {
 
             success = true;
         } else {
-            log_.error() << "MQTT Broker: Subscribe: Wrong '#' placement: " << topic;
+            log().error() << "MQTT Broker: Subscribe: Wrong '#' placement: " << topic;
         }
 
         return success;
@@ -88,7 +96,7 @@ namespace iot::mqtt::server::broker {
         if (!message.getTopic().empty() && (hashCount == 0 || (hashCount == 1 && message.getTopic().ends_with('#')))) {
             head.publish(message, message.getTopic());
         } else {
-            log_.error() << "MQTT Broker: Publish: Wrong '#' placement: " << message.getTopic();
+            log().error() << "MQTT Broker: Publish: Wrong '#' placement: " << message.getTopic();
         }
     }
 
@@ -97,7 +105,7 @@ namespace iot::mqtt::server::broker {
         if (!topic.empty() && (hashCount == 0 || (hashCount == 1 && topic.ends_with('#')))) {
             head.unsubscribe(clientId, topic);
         } else {
-            log_.error() << "MQTT Broker: Unsubscribe: Wrong '#' placement: " << topic;
+            log().error() << "MQTT Broker: Unsubscribe: Wrong '#' placement: " << topic;
         }
     }
 
@@ -129,8 +137,16 @@ namespace iot::mqtt::server::broker {
 
     SubscriptionTree::TopicLevel::TopicLevel(Broker* broker, const std::string& topicLevel)
         : broker(broker)
-        , topicLevel(topicLevel)
-        , log_(iot::mqtt::semantic::mqttBrokerLog()) {
+        , topicLevel(topicLevel) {
+    }
+
+    const logger::BoundaryLogger& SubscriptionTree::TopicLevel::log() const {
+        const unsigned long generation = logger::LogManager::generation();
+        if (!log_ || logGeneration_ != generation) {
+            logGeneration_ = generation;
+            log_.emplace(iot::mqtt::semantic::mqttBrokerLog());
+        }
+        return *log_;
     }
 
     void SubscriptionTree::TopicLevel::appear(const std::string& clientId, const std::string& topic) {
@@ -145,8 +161,8 @@ namespace iot::mqtt::server::broker {
 
     bool SubscriptionTree::TopicLevel::subscribe(const std::string& clientId, uint8_t qoS, std::string topic) {
         if (topic.empty()) {
-            log_.info() << "MQTT Broker: Subscribe";
-            log_.info() << "MQTT Broker:   ClientId: " << clientId;
+            log().info() << "MQTT Broker: Subscribe";
+            log().info() << "MQTT Broker:   ClientId: " << clientId;
 
             clientIds[clientId] = qoS;
         } else {
@@ -157,11 +173,11 @@ namespace iot::mqtt::server::broker {
             const auto& [it, inserted] = topicLevels.insert({topicLevel, SubscriptionTree::TopicLevel(broker, topicLevel)});
 
             if (!it->second.subscribe(clientId, qoS, topic)) {
-                log_.debug() << "MQTT Broker:   Erase topic: " << topicLevel << " /" << topic;
+                log().debug() << "MQTT Broker:   Erase topic: " << topicLevel << " /" << topic;
 
                 topicLevels.erase(it);
             } else {
-                log_.info() << "MQTT Broker:   Topic: " << topicLevel << " /" << topic;
+                log().info() << "MQTT Broker:   Topic: " << topicLevel << " /" << topic;
             }
         }
 
@@ -169,34 +185,33 @@ namespace iot::mqtt::server::broker {
     }
 
     void SubscriptionTree::TopicLevel::publish(Message& message, std::string topic) {
+        const auto& log = this->log();
         if (topic.empty()) {
-            log_.info() << "MQTT Broker: Found match:";
-            log_.info() << "MQTT Broker:   Topic: '" << message.getTopic() << "';";
-            const auto& log = log_;
+            log.info() << "MQTT Broker: Found match:";
+            log.info() << "MQTT Broker:   Topic: '" << message.getTopic() << "';";
             if (log.enabled(logger::LogLevel::Info)) {
                 log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
             }
 
-            log_.info() << "MQTT Broker: Distribute PUBLISH for match ...";
+            log.info() << "MQTT Broker: Distribute PUBLISH for match ...";
             for (auto& [clientId, clientQoS] : clientIds) {
                 broker->sendPublish(clientId, message, clientQoS, false);
             }
-            log_.info() << "MQTT Broker: ... distributing PUBLISH for match completed";
+            log.info() << "MQTT Broker: ... distributing PUBLISH for match completed";
 
             const auto nextHashLevel = topicLevels.find("#");
             if (nextHashLevel != topicLevels.end()) {
-                log_.info() << "MQTT Broker: Found parent match:";
-                log_.info() << "MQTT Broker:   Topic: '" << message.getTopic() << "'";
-                const auto& log = log_;
+                log.info() << "MQTT Broker: Found parent match:";
+                log.info() << "MQTT Broker:   Topic: '" << message.getTopic() << "'";
                 if (log.enabled(logger::LogLevel::Info)) {
                     log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
                 }
 
-                log_.info() << "MQTT Broker: Distribute PUBLISH for match ...";
+                log.info() << "MQTT Broker: Distribute PUBLISH for match ...";
                 for (auto& [clientId, clientQoS] : nextHashLevel->second.clientIds) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
-                log_.info() << "MQTT Broker: ... distributing PUBLISH for match completed";
+                log.info() << "MQTT Broker: ... distributing PUBLISH for match completed";
             }
         } else {
             const std::string topicLevel = topic.substr(0, topic.find('/'));
@@ -215,18 +230,17 @@ namespace iot::mqtt::server::broker {
 
             foundNode = topicLevels.find("#");
             if (foundNode != topicLevels.end()) {
-                log_.info() << "MQTT Broker: Found match:";
-                log_.info() << "MQTT Broker:   Topic: '" << message.getTopic() << "'";
-                const auto& log = log_;
+                log.info() << "MQTT Broker: Found match:";
+                log.info() << "MQTT Broker:   Topic: '" << message.getTopic() << "'";
                 if (log.enabled(logger::LogLevel::Info)) {
                     log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
                 }
 
-                log_.info() << "MQTT Broker: Distribute PUBLISH for match '" << message.getTopic() << "' ...";
+                log.info() << "MQTT Broker: Distribute PUBLISH for match '" << message.getTopic() << "' ...";
                 for (auto& [clientId, clientQoS] : foundNode->second.clientIds) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
-                log_.info() << "MQTT Broker: ... distributing PUBLISH for match completed";
+                log.info() << "MQTT Broker: ... distributing PUBLISH for match completed";
             }
         }
     }
@@ -234,9 +248,9 @@ namespace iot::mqtt::server::broker {
     bool SubscriptionTree::TopicLevel::unsubscribe(const std::string& clientId, std::string topic) {
         if (topic.empty()) {
             if (clientIds.erase(clientId) != 0) {
-                log_.info() << "MQTT Broker: Unsubscribe";
-                log_.info() << "MQTT Broker:   ClientId: " << clientId;
-                log_.info() << "MQTT Broker:   Topic: " << topicLevel;
+                log().info() << "MQTT Broker: Unsubscribe";
+                log().info() << "MQTT Broker:   ClientId: " << clientId;
+                log().info() << "MQTT Broker:   Topic: " << topicLevel;
             }
         } else {
             const std::string topicLevel = topic.substr(0, topic.find('/'));
@@ -246,7 +260,7 @@ namespace iot::mqtt::server::broker {
                 topic.erase(0, topicLevel.size() + 1);
 
                 if (it->second.unsubscribe(clientId, topic)) {
-                    log_.debug() << "MQTT Broker:   Erase Topic: " << it->first;
+                    log().debug() << "MQTT Broker:   Erase Topic: " << it->first;
 
                     topicLevels.erase(it);
                 }
@@ -258,14 +272,14 @@ namespace iot::mqtt::server::broker {
 
     bool SubscriptionTree::TopicLevel::unsubscribe(const std::string& clientId) {
         if (clientIds.erase(clientId) != 0) {
-            log_.info() << "MQTT Broker: Unsubscribe";
-            log_.info() << "MQTT Broker:   ClientId: " << clientId;
-            log_.info() << "MQTT Broker:   Topic: " << topicLevel;
+            log().info() << "MQTT Broker: Unsubscribe";
+            log().info() << "MQTT Broker:   ClientId: " << clientId;
+            log().info() << "MQTT Broker:   Topic: " << topicLevel;
         }
 
         for (auto it = topicLevels.begin(); it != topicLevels.end();) {
             if (it->second.unsubscribe(clientId)) {
-                log_.debug() << "MQTT Broker:   Erase Topic: " << it->first;
+                log().debug() << "MQTT Broker:   Erase Topic: " << it->first;
 
                 it = topicLevels.erase(it);
             } else {

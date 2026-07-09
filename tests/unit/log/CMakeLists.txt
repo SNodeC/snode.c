@@ -173,5 +173,5 @@ snodec_set_source_policy_test_properties(SemanticCachedLoggerOverheadTest "unit;
 snodec_add_test(SemanticStructuralLoggerCacheTest SemanticStructuralLoggerCacheTest.cpp)
 target_include_directories(SemanticStructuralLoggerCacheTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(SemanticStructuralLoggerCacheTest PRIVATE cxx_std_20)
-target_link_libraries(SemanticStructuralLoggerCacheTest PRIVATE snodec-test-support snodec::logger)
+target_link_libraries(SemanticStructuralLoggerCacheTest PRIVATE snodec-test-support snodec::core snodec::logger)
 snodec_set_source_policy_test_properties(SemanticStructuralLoggerCacheTest "unit;log;structural-cache")

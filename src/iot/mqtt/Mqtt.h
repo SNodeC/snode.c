@@ -65,6 +65,7 @@ namespace iot::mqtt {
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -137,6 +138,7 @@ namespace iot::mqtt {
 
     private:
         void send(const std::vector<char>& data) const;
+        const logger::BoundaryLogger& log() const;
 
     protected:
         void printVP(const iot::mqtt::ControlPacket& packet) const;
@@ -153,7 +155,8 @@ namespace iot::mqtt {
 
         core::timer::Timer keepAliveTimer;
 
-        logger::BoundaryLogger log_;
+        mutable std::optional<logger::BoundaryLogger> log_;
+        mutable unsigned long logGeneration_ = 0;
 
         int state = 0;
 

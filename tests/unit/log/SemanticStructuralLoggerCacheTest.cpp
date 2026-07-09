@@ -1,3 +1,4 @@
+#include "core/EventLoop.h"
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 #include "log/SemanticLogger.h"
@@ -122,6 +123,20 @@ int main() {
         result.expectTrue(cachedLog.enabled(logger::LogLevel::Trace), "cached logger honors instance override");
     }
 
+    {
+        SemanticStateGuard guard;
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Info);
+        logger::LogManager::freeze();
+        result.expectTrue(!core::EventLoop::instance().log().enabled(logger::LogLevel::Debug),
+                          "EventLoop cached logger honors initial info generation");
+
+        logger::LogManager::init();
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Debug);
+        logger::LogManager::freeze();
+        result.expectTrue(core::EventLoop::instance().log().enabled(logger::LogLevel::Debug),
+                          "EventLoop cached logger refreshes after LogManager generation changes");
+    }
+
     const std::filesystem::path root = source_policy::sourcePolicyProjectRoot();
     if (root.empty()) {
         result.expectTrue(false, "sourcePolicyProjectRoot() must not return an empty path");
@@ -153,13 +168,32 @@ int main() {
                           source_policy::contains(socketContextSource, "frameworkLog_.emplace"),
                       "SocketContext lazily populates both cached loggers");
 
+    const std::string mqttHeader = source_policy::readSourcePolicyFile(root / "src/iot/mqtt/Mqtt.h");
+    const std::string mqttSource = source_policy::readSourcePolicyFile(root / "src/iot/mqtt/Mqtt.cpp");
+    result.expectTrue(source_policy::contains(mqttHeader, "std::optional<logger::BoundaryLogger> log_") &&
+                          source_policy::contains(mqttHeader, "logGeneration_"),
+                      "Mqtt cache is optional and generation-tracked");
+    result.expectTrue(source_policy::contains(mqttSource, "logger::LogManager::generation()") &&
+                          source_policy::contains(mqttSource, "log_.emplace(iot::mqtt::semantic::mqttLog())"),
+                      "Mqtt cache refreshes from mqttLog when the generation changes");
+    result.expectTrue(!source_policy::contains(mqttHeader, "logger::BoundaryLogger log_;"),
+                      "Mqtt does not use a direct non-refreshable BoundaryLogger member");
+
     const std::string receiverHeader = source_policy::readSourcePolicyFile(root / "src/web/websocket/Receiver.h");
     const std::string receiverSource = source_policy::readSourcePolicyFile(root / "src/web/websocket/Receiver.cpp");
     const std::string transmitterHeader = source_policy::readSourcePolicyFile(root / "src/web/websocket/Transmitter.h");
     const std::string transmitterSource = source_policy::readSourcePolicyFile(root / "src/web/websocket/Transmitter.cpp");
-    result.expectTrue(source_policy::contains(receiverHeader, "logger::BoundaryLogger frameLog_") &&
-                          source_policy::contains(transmitterHeader, "logger::BoundaryLogger frameLog_"),
-                      "WebSocket Receiver and Transmitter cache frame loggers");
+    result.expectTrue(source_policy::contains(receiverHeader, "std::optional<logger::BoundaryLogger> frameLog_") &&
+                          source_policy::contains(receiverHeader, "frameLogGeneration_") &&
+                          source_policy::contains(transmitterHeader, "std::optional<logger::BoundaryLogger> frameLog_") &&
+                          source_policy::contains(transmitterHeader, "frameLogGeneration_"),
+                      "WebSocket Receiver and Transmitter use generation-tracked frame logger caches");
+    result.expectTrue(source_policy::contains(receiverSource, "logger::LogManager::generation()") &&
+                          source_policy::contains(transmitterSource, "logger::LogManager::generation()"),
+                      "WebSocket frame caches check LogManager generation");
+    result.expectTrue(!source_policy::contains(receiverHeader, "logger::BoundaryLogger frameLog_;") &&
+                          !source_policy::contains(transmitterHeader, "logger::BoundaryLogger frameLog_;"),
+                      "WebSocket frame caches are not direct non-refreshable BoundaryLogger members");
     result.expectTrue(!containsDirectWebSocketFrameHotCall(receiverSource) && !containsDirectWebSocketFrameHotCall(transmitterSource),
                       "WebSocket hot paths no longer call webSocketFrameLog directly");
 
@@ -168,13 +202,20 @@ int main() {
                             "src/iot/mqtt/server/broker/SubscriptionTree.h",
                             "src/iot/mqtt/server/broker/Session.h"}) {
         const std::string source = source_policy::readSourcePolicyFile(root / file);
-        result.expectTrue(source_policy::contains(source, "logger::BoundaryLogger log_"), std::string(file) + " caches a BoundaryLogger");
+        result.expectTrue(source_policy::contains(source, "std::optional<logger::BoundaryLogger> log_") &&
+                              source_policy::contains(source, "logGeneration_") &&
+                              !source_policy::contains(source, "logger::BoundaryLogger log_;"),
+                          std::string(file) + " caches a generation-tracked optional BoundaryLogger");
     }
     for (const auto file : {"src/iot/mqtt/server/broker/Broker.cpp",
                             "src/iot/mqtt/server/broker/RetainTree.cpp",
                             "src/iot/mqtt/server/broker/SubscriptionTree.cpp",
                             "src/iot/mqtt/server/broker/Session.cpp"}) {
         const std::string source = source_policy::readSourcePolicyFile(root / file);
+        result.expectTrue(source_policy::contains(source, "logger::LogManager::generation()"),
+                          std::string(file) + " uses LogManager generation for cached logger refresh");
+        result.expectTrue(!source_policy::contains(source, "const auto& log = log_"),
+                          std::string(file) + " has no transitional direct-member logger aliases");
         result.expectTrue(!containsDirectMqttBrokerOrSessionSeverity(source),
                           std::string(file) + " hot diagnostics use cached MQTT loggers");
     }

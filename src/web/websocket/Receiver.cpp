@@ -60,8 +60,16 @@
 namespace web::websocket {
 
     Receiver::Receiver(bool maskingExpected)
-        : maskingExpected(maskingExpected)
-        , frameLog_(semantic::webSocketFrameLog()) {
+        : maskingExpected(maskingExpected) {
+    }
+
+    const logger::BoundaryLogger& Receiver::frameLog() const {
+        const unsigned long generation = logger::LogManager::generation();
+        if (!frameLog_ || frameLogGeneration_ != generation) {
+            frameLogGeneration_ = generation;
+            frameLog_.emplace(semantic::webSocketFrameLog());
+        }
+        return *frameLog_;
     }
 
     Receiver::~Receiver() {
@@ -130,7 +138,7 @@ namespace web::websocket {
             } else {
                 parserState = ParserState::ERROR;
                 errorState = 1002;
-                frameLog_.error() << "WebSocket: Error opcode in continuation frame";
+                frameLog().error() << "WebSocket: Error opcode in continuation frame";
             }
             continuation = !fin;
         }
@@ -284,8 +292,8 @@ namespace web::websocket {
                 }
             }
 
-            if (frameLog_.enabled(logger::LogLevel::Trace)) {
-                frameLog_.trace("WebSocket receive: Frame data\n{}", utils::hexDump(payloadChunk, payloadChunkLen, 32, true));
+            if (frameLog().enabled(logger::LogLevel::Trace)) {
+                frameLog().trace("WebSocket receive: Frame data\n{}", utils::hexDump(payloadChunk, payloadChunkLen, 32, true));
             }
 
             onMessageData(payloadChunk, payloadChunkLen);

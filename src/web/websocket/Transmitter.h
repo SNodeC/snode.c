@@ -48,6 +48,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <random>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -79,6 +80,8 @@ namespace web::websocket {
 
         void sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength);
 
+        const logger::BoundaryLogger& frameLog() const;
+
         void sendFrameData(uint8_t data) const;
         void sendFrameData(uint16_t data) const;
         void sendFrameData(uint32_t data) const;
@@ -96,7 +99,8 @@ namespace web::websocket {
         bool closeSent = false;
 
     private:
-        logger::BoundaryLogger frameLog_;
+        mutable std::optional<logger::BoundaryLogger> frameLog_;
+        mutable unsigned long frameLogGeneration_ = 0;
 
         std::size_t payloadTotalSent = 0;
     };

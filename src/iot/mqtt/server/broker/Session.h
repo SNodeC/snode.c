@@ -56,6 +56,7 @@ namespace iot::mqtt::server {
 #include <cstdint>
 #include <deque>
 #include <nlohmann/json_fwd.hpp>
+#include <optional>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -81,10 +82,13 @@ namespace iot::mqtt::server::broker {
         void fromJson(const nlohmann::json& json);
 
     private:
+        const logger::BoundaryLogger& log() const;
+
         iot::mqtt::server::Mqtt* mqtt = nullptr;
 
         std::deque<Message> messageQueue;
-        logger::BoundaryLogger log_;
+        mutable std::optional<logger::BoundaryLogger> log_;
+        mutable unsigned long logGeneration_ = 0;
     };
 
 } // namespace iot::mqtt::server::broker

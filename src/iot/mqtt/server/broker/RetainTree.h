@@ -57,6 +57,7 @@ namespace iot::mqtt::server::broker {
 #include <list>
 #include <map>
 #include <nlohmann/json_fwd.hpp>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -98,6 +99,8 @@ namespace iot::mqtt::server::broker {
             void clear();
 
         private:
+            const logger::BoundaryLogger& log() const;
+
             void appear(const std::string& clientId, uint8_t clientQoS);
 
             std::list<std::pair<std::string, std::pair<std::string, uint8_t>>>
@@ -108,11 +111,15 @@ namespace iot::mqtt::server::broker {
             std::map<std::string, TopicLevel> subTopicLevels;
 
             iot::mqtt::server::broker::Broker* broker = nullptr;
-            logger::BoundaryLogger log_;
+            mutable std::optional<logger::BoundaryLogger> log_;
+            mutable unsigned long logGeneration_ = 0;
         };
 
+        const logger::BoundaryLogger& log() const;
+
         TopicLevel head;
-        logger::BoundaryLogger log_;
+        mutable std::optional<logger::BoundaryLogger> log_;
+        mutable unsigned long logGeneration_ = 0;
     };
 
 } // namespace iot::mqtt::server::broker
