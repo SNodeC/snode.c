@@ -33,6 +33,23 @@ A cached `BoundaryLogger` captures the threshold selected when it is constructed
 
 `EventLoop` still cannot cache in its constructor because it may be created before `Config::bootstrap()` freezes semantic logging policy. `Broker::instance()` can return a long-lived singleton broker, so it must not hold a stale direct `BoundaryLogger` across a `LogManager::init()` in tests or embedded reuse. The source-policy test now checks generation-aware structure for these long-lived caches, and it includes a behavioral EventLoop generation-invalidation check that proves a cached accessor refreshes when the policy generation changes.
 
+## Generation-aware cache versus pre-freeze-safe cache
+
+`LogManager::generation()` changes when `LogManager::init()` resets the semantic policy. It does not change for every `setGlobalLevel()`, `setComponentLevel()`, `setInstanceLevel()`, or `freeze()` call. Therefore, generation-aware caching alone is not automatically safe for objects that can log during the policy-building window before freeze.
+
+Current class policy:
+
+- **EventLoop:** uses an `isFrozen()` fallback because it can be touched before `Config::bootstrap()` and `LogManager::freeze()`. Pre-freeze log calls continue to resolve dynamically, and only post-freeze calls populate the generation-aware cache.
+- **SocketConnection and SocketContext:** use lazy post-freeze generation-aware caches. This is conservative and safe for framework code that may be constructed near connection setup boundaries while still preserving dynamic behavior before freeze.
+- **Broker / RetainTree / SubscriptionTree / Session:** use private generation-aware accessors. This is safe for the current code because their log accessors are private and call sites are enumerable. If any broker-family logger accessor becomes public or is called from application-controlled pre-freeze setup code, it must gain an `isFrozen()` fallback.
+- **Mqtt / WebSocket Receiver / WebSocket Transmitter:** use generation-aware caches. This is acceptable because these are runtime protocol objects constructed and used through framework-controlled connection/context paths.
+
+Future rule:
+
+- If an object can log before `LogManager::freeze()`, use an `isFrozen()` fallback.
+- If an object is runtime-only or has private, enumerable post-freeze logging call sites, generation-aware caching is sufficient.
+- If unsure, use the `isFrozen()` fallback.
+
 ## EventLoop special case
 
 `EventLoop` is a Meyers singleton and can be initialized before configuration bootstrap freezes logging policy. It therefore does not cache in its constructor. Its default `log()` accessor remains dynamic before freeze and lazily caches the resolved semantic logger after freeze.

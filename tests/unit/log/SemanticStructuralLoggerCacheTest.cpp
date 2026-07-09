@@ -63,6 +63,12 @@ namespace {
         }
         return false;
     }
+
+    bool containsOnlyPrivateLogAccessors(std::string_view source) {
+        return source_policy::contains(source, "const logger::BoundaryLogger& log() const;") &&
+               !source_policy::contains(source, "public:\n        const logger::BoundaryLogger& log() const;") &&
+               !source_policy::contains(source, "public:\n            const logger::BoundaryLogger& log() const;");
+    }
 } // namespace
 
 int main() {
@@ -143,6 +149,7 @@ int main() {
         return result.processResult();
     }
 
+    // Pre-freeze-capable objects must keep an isFrozen() fallback; generation() alone only invalidates caches after LogManager::init().
     const std::string eventLoopHeader = source_policy::readSourcePolicyFile(root / "src/core/EventLoop.h");
     const std::string eventLoopSource = source_policy::readSourcePolicyFile(root / "src/core/EventLoop.cpp");
     result.expectTrue(source_policy::contains(eventLoopHeader, "std::optional<logger::BoundaryLogger> cachedLog_"),
@@ -197,6 +204,7 @@ int main() {
     result.expectTrue(!containsDirectWebSocketFrameHotCall(receiverSource) && !containsDirectWebSocketFrameHotCall(transmitterSource),
                       "WebSocket hot paths no longer call webSocketFrameLog directly");
 
+    // Broker-family caches intentionally rely on private, enumerable runtime call sites plus generation-aware refresh.
     for (const auto file : {"src/iot/mqtt/server/broker/Broker.h",
                             "src/iot/mqtt/server/broker/RetainTree.h",
                             "src/iot/mqtt/server/broker/SubscriptionTree.h",
@@ -206,6 +214,7 @@ int main() {
                               source_policy::contains(source, "logGeneration_") &&
                               !source_policy::contains(source, "logger::BoundaryLogger log_;"),
                           std::string(file) + " caches a generation-tracked optional BoundaryLogger");
+        result.expectTrue(containsOnlyPrivateLogAccessors(source), std::string(file) + " keeps the broker-family logger accessor private");
     }
     for (const auto file : {"src/iot/mqtt/server/broker/Broker.cpp",
                             "src/iot/mqtt/server/broker/RetainTree.cpp",
