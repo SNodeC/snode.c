@@ -71,7 +71,7 @@ int main() {
     const auto enabledLog = readFile(enabledPath);
     result.expectTrue(enabledLog.find("websocket semantic logger emitted") != std::string::npos,
                       "WebSocket semantic logger emits when enabled");
-    result.expectTrue(enabledLog.find(" framework connection web.websocket ") != std::string::npos,
+    result.expectTrue(enabledLog.find("framework/connection web.websocket ") != std::string::npos,
                       "records carry framework web.websocket component scope");
 
     const auto managerFilterPath = tempLogPath("snodec-migration07c-manager-filter.log");

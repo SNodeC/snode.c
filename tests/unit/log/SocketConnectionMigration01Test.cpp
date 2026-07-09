@@ -135,8 +135,8 @@ int main() {
     const auto enabledLog = readFile(enabledPath);
     result.expectTrue(enabledLog.find("SocketConnection: switch completed") != std::string::npos,
                       "migrated non-error SocketConnection.hpp call emits semantically when enabled");
-    result.expectTrue(enabledLog.find(" framework connection core.socket.stream ") != std::string::npos,
-                      "migrated call carries framework connection core.socket.stream scope");
+    result.expectTrue(enabledLog.find("framework/connection core.socket.stream ") != std::string::npos,
+                      "migrated call carriesframework/connection core.socket.stream scope");
 
     const auto managerFilterPath = tempLogPath("snodec-migration01-manager-filter.log");
     {

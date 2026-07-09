@@ -71,7 +71,7 @@ int main() {
     const auto enabledLog = readFile(enabledPath);
     result.expectTrue(enabledLog.find("http client semantic logger emitted") != std::string::npos,
                       "HTTP client semantic logger emits when enabled");
-    result.expectTrue(enabledLog.find(" framework connection web.http.client ") != std::string::npos,
+    result.expectTrue(enabledLog.find("framework/connection web.http.client ") != std::string::npos,
                       "records carry framework web.http.client component scope");
 
     const auto managerFilterPath = tempLogPath("snodec-migration07a-manager-filter.log");

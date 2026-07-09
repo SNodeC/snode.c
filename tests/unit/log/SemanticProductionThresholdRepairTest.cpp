@@ -185,7 +185,7 @@ int main() {
     const auto enabledConnectionLog = readFile(enabledConnectionPath);
     result.expectTrue(enabledConnectionLog.find("expensive") != std::string::npos,
                       "enabled SocketConnection::log writes formatted message");
-    result.expectTrue(enabledConnectionLog.find(" framework connection core.socket.stream ") != std::string::npos,
+    result.expectTrue(enabledConnectionLog.find("DBG framework/connection core.socket.stream ") != std::string::npos,
                       "enabled SocketConnection::log preserves framework connection scope");
 
     const auto suppressedContextPath = tempLogPath("snodec-semantic-repair-context-suppressed.log");

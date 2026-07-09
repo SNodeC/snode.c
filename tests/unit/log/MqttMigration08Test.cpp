@@ -70,7 +70,7 @@ int main() {
     }
     const auto enabledLog = readFile(enabledPath);
     result.expectTrue(enabledLog.find("mqtt semantic logger emitted") != std::string::npos, "MQTT semantic logger emits when enabled");
-    result.expectTrue(enabledLog.find(" framework connection iot.mqtt ") != std::string::npos,
+    result.expectTrue(enabledLog.find("framework/connection iot.mqtt ") != std::string::npos,
                       "records carry framework iot.mqtt component scope");
 
     const auto managerFilterPath = tempLogPath("snodec-migration08-manager-filter.log");

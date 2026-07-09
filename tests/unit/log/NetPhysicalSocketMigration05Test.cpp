@@ -74,7 +74,7 @@ int main() {
     const auto enabledLog = readFile(enabledPath);
     result.expectTrue(enabledLog.find("net physical socket semantic owner emitted") != std::string::npos,
                       "net physical-socket semantic owner emits when enabled");
-    result.expectTrue(enabledLog.find(" framework system net.un ") != std::string::npos,
+    result.expectTrue(enabledLog.find("framework/system net.un ") != std::string::npos,
                       "emitted records carry framework net physical-socket component scope");
 
     const auto managerFilterPath = tempLogPath("snodec-migration05-manager-filter.log");

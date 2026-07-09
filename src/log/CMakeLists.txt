@@ -101,6 +101,7 @@ install(
     COMPONENT logger
     FILES_MATCHING
     PATTERN "*.h"
+    PATTERN "detail" EXCLUDE
     PATTERN "cmake" EXCLUDE
 )
 

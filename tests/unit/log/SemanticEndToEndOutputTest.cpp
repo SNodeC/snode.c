@@ -93,13 +93,14 @@ int main() {
     result.expectEqual(1, static_cast<int>(textLines.size()), "semantic text emits one logical output line");
     if (!textLines.empty()) {
         const auto& line = textLines.front();
-        result.expectTrue(contains(line, "2026-07-05T12:34:56.789Z info framework connection core.socket - semantic text output"),
-                          "semantic text contains the formatter-selected text fields");
+        result.expectTrue(contains(line, "2026-07-05T12:34:56.789Z INF framework/connection core.socket — semantic text output"),
+                          "semantic text contains the compact formatter-selected text fields");
         result.expectTrue(!startsWith(line, "INFO") && !startsWith(line, "DEBUG") && !startsWith(line, "TRACE") &&
                               !startsWith(line, "WARNING") && !startsWith(line, "ERROR") && !startsWith(line, "FATAL"),
                           "semantic text is not wrapped with a legacy severity prefix");
         result.expectTrue(!contains(line, " INFO   ") && !contains(line, " E2ETICK "),
                           "semantic text is not wrapped with legacy logger date/tick output");
+        result.expectTrue(!contains(line, "\033["), "semantic file text remains plain without ANSI styling");
     }
 
     const auto jsonPath = tempLogPath("snodec-semantic-e2e-json.log");
@@ -121,6 +122,7 @@ int main() {
         result.expectTrue(contains(line, "\"component\":\"web.http\""), "semantic JSON line contains component");
         result.expectTrue(contains(line, "\"message\":"), "semantic JSON line contains message");
         result.expectTrue(line.back() == '}', "semantic JSON line ends as one object");
+        result.expectTrue(!contains(line, "\033["), "semantic JSON output remains plain without ANSI styling");
     }
     result.expectTrue(contains(jsonLines.empty() ? std::string() : jsonLines.front(), "\"level\":\"info\""),
                       "semantic JSON info record contains expected level");

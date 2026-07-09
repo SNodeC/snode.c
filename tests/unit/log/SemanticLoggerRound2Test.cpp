@@ -4,7 +4,10 @@
 
 #include <cerrno>
 #include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <string>
 #include <system_error>
 #include <vector>
@@ -69,10 +72,74 @@ int main() {
                       "JSON does not emit raw control bytes below 0x20");
 
     const std::string text = logger::formatText(owned);
-    result.expectTrue(text.find("2026-07-05T12:34:56.789Z") != std::string::npos &&
-                          text.find("info framework connection mqtt.server") != std::string::npos &&
-                          text.find("ready") != std::string::npos,
-                      "text formatter includes timestamp level origin boundary component and message");
+    result.expectTrue(text.find("2026-07-05T12:34:56.789Z INF framework/connection mqtt.server") != std::string::npos &&
+                          text.find("role=server") != std::string::npos && text.find("inst=mqtt-broker") != std::string::npos &&
+                          text.find("conn=#7") != std::string::npos && text.find(" — ready") != std::string::npos,
+                      "text formatter includes compact tagged fields and message");
+
+    logger::LogScope appScope{
+        logger::LogOrigin::Application, logger::LogBoundary::Application, "app", "", logger::LogRole::Unknown, ""};
+    auto appRecord = logger::materialize(appScope, logger::LogLevel::Info, "connected", logger::LogRecordOptions{.ts = fixedTimestamp()});
+    expectStringEqual(result,
+                      "2026-07-05T12:34:56.789Z INF application app — connected",
+                      logger::formatText(appRecord),
+                      "text formatter avoids ambiguous duplicate origin/boundary positioning");
+
+    const std::vector<std::pair<logger::LogLevel, std::string>> levelLabels{{logger::LogLevel::Trace, " TRC "},
+                                                                            {logger::LogLevel::Debug, " DBG "},
+                                                                            {logger::LogLevel::Info, " INF "},
+                                                                            {logger::LogLevel::Warn, " WRN "},
+                                                                            {logger::LogLevel::Error, " ERR "},
+                                                                            {logger::LogLevel::Critical, " CRT "}};
+    for (const auto& [level, label] : levelLabels) {
+        const auto levelRecord = logger::materialize(appScope, level, "level", logger::LogRecordOptions{.ts = fixedTimestamp()});
+        result.expectTrue(logger::formatText(levelRecord).find(label) != std::string::npos, "text formatter uses 3-letter level labels");
+    }
+
+    logger::LogRecordOptions richOptions;
+    richOptions.ts = fixedTimestamp();
+    richOptions.event = "http.response";
+    richOptions.error = logger::LogError{5, "input/output error"};
+    richOptions.source = logger::LogSource{"SocketContext.cpp", 123, "on read"};
+    logger::LogScope richScope{logger::LogOrigin::Framework,
+                               logger::LogBoundary::Connection,
+                               "core.socket",
+                               "httpclient SocketConnector connect",
+                               logger::LogRole::Client,
+                               "[7] httpclient"};
+    const auto richRecord = logger::materialize(richScope, logger::LogLevel::Trace, "GET /index.html", std::move(richOptions));
+    const std::string richText = logger::formatText(richRecord);
+    result.expectTrue(richText.find("role=client") != std::string::npos &&
+                          richText.find("inst=\"httpclient SocketConnector connect\"") != std::string::npos &&
+                          richText.find("conn=\"[7] httpclient\"") != std::string::npos &&
+                          richText.find("event=http.response") != std::string::npos &&
+                          richText.find("error=\"5:input/output error\"") != std::string::npos &&
+                          richText.find("src=\"SocketContext.cpp:123:on read\"") != std::string::npos,
+                      "text formatter renders optional semantic fields as quoted key=value pairs when needed");
+
+    logger::LogScope escapingScope{
+        logger::LogOrigin::Framework, logger::LogBoundary::System, "core.eventreceiver", "a\\b \"c\"", logger::LogRole::Unknown, ""};
+    const std::string escapedText = logger::formatText(
+        logger::materialize(escapingScope, logger::LogLevel::Debug, "escaped", logger::LogRecordOptions{.ts = fixedTimestamp()}));
+    result.expectTrue(escapedText.find("inst=\"a\\\\b \\\"c\\\"\"") != std::string::npos,
+                      "text formatter escapes quotes and backslashes in field values");
+
+    const std::string multilineText = logger::formatText(
+        logger::materialize(appScope, logger::LogLevel::Trace, "GET / HTTP/1.1\nRequest:\n  Method: GET", logger::LogRecordOptions{.ts = fixedTimestamp()}));
+    result.expectTrue(multilineText.find(" — GET / HTTP/1.1\n│ Request:\n│   Method: GET") != std::string::npos,
+                      "text formatter prefixes every multiline continuation line");
+
+    const std::string coloredText = logger::formatText(richRecord, true);
+    result.expectTrue(coloredText.find("\033[") != std::string::npos && coloredText.find("TRC") != std::string::npos,
+                      "color-enabled semantic text contains ANSI level styling");
+    result.expectTrue(richText.find("\033[") == std::string::npos, "plain semantic text contains no ANSI styling");
+    result.expectTrue(logger::formatJsonV1(richRecord).find("\033[") == std::string::npos, "semantic JSON formatter contains no ANSI styling");
+
+    const auto cmakePath = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().parent_path() / "src/log/CMakeLists.txt";
+    std::ifstream cmakeIn(cmakePath);
+    const std::string cmakeText((std::istreambuf_iterator<char>(cmakeIn)), std::istreambuf_iterator<char>());
+    result.expectTrue(cmakeText.find("PATTERN \"detail\" EXCLUDE") != std::string::npos,
+                      "logger install rule excludes internal detail headers");
 
     std::vector<logger::LogRecord> records;
     logger::LogScope scope{logger::LogOrigin::Framework,

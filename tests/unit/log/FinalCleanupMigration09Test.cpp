@@ -75,11 +75,11 @@ int main() {
                       "TLS config semantic logger emits when enabled");
     result.expectTrue(enabledLog.find("application request completed") != std::string::npos,
                       "app/example semantic logger emits when enabled");
-    result.expectTrue(enabledLog.find(" framework connection db.mariadb ") != std::string::npos,
+    result.expectTrue(enabledLog.find("framework/connection db.mariadb ") != std::string::npos,
                       "DB records carry correct framework/connection/component scope");
-    result.expectTrue(enabledLog.find(" framework configuration net.config.tls ") != std::string::npos,
+    result.expectTrue(enabledLog.find("framework/configuration net.config.tls ") != std::string::npos,
                       "TLS records carry correct framework/configuration/component scope");
-    result.expectTrue(enabledLog.find(" application application app ") != std::string::npos,
+    result.expectTrue(enabledLog.find("application app ") != std::string::npos,
                       "application records carry correct application/application/component scope");
 
     const auto managerFilterPath = tempLogPath("snodec-migration09-manager-filter.log");
