@@ -135,16 +135,16 @@ namespace web::http::client {
             frameworkLog().warn() << getSocketConnection()->getConnectionName() << " HTTP: Request (" << request->count
                                   << ") rejected: " << requestLine;
 
-            if (frameworkLog().enabled(logger::LogLevel::Trace)) {
-                frameworkLog().trace() << httputils::toString(request->method,
-                                                              request->url,
-                                                              "HTTP/" + std::to_string(request->httpMajor) + "." +
-                                                                  std::to_string(request->httpMinor),
-                                                              request->getQueries(),
-                                                              request->getHeaders(),
-                                                              request->getTrailer(),
-                                                              request->getCookies(),
-                                                              {});
+            auto log = frameworkLog();
+            if (log.enabled(logger::LogLevel::Trace)) {
+                log.trace() << httputils::toString(request->method,
+                                                   request->url,
+                                                   "HTTP/" + std::to_string(request->httpMajor) + "." + std::to_string(request->httpMinor),
+                                                   request->getQueries(),
+                                                   request->getHeaders(),
+                                                   request->getTrailer(),
+                                                   request->getCookies(),
+                                                   {});
             }
         }
     }
