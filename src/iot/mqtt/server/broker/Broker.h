@@ -52,10 +52,13 @@ namespace iot::mqtt::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/SemanticLogger.h"
+
 #include <cstdint>
 #include <list>
 #include <map> // IWYU pragma: keep
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -105,6 +108,8 @@ namespace iot::mqtt::server::broker {
         void sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool retain);
 
     private:
+        const logger::BoundaryLogger& log() const;
+
         std::string sessionStoreFileName;
         uint8_t maxQoS;
 
@@ -112,6 +117,9 @@ namespace iot::mqtt::server::broker {
         iot::mqtt::server::broker::RetainTree retainTree;
 
         std::map<std::string, iot::mqtt::server::broker::Session> sessionStore;
+
+        mutable std::optional<logger::BoundaryLogger> log_;
+        mutable unsigned long logGeneration_ = 0;
     };
 
 } // namespace iot::mqtt::server::broker

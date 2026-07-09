@@ -134,6 +134,15 @@ namespace core {
     }
 
     logger::BoundaryLogger EventLoop::log() const {
+        if (logger::LogManager::isFrozen()) {
+            const unsigned long generation = logger::LogManager::generation();
+            if (!cachedLog_ || cachedLogGeneration_ != generation) {
+                cachedLogGeneration_ = generation;
+                cachedLog_.emplace(logScope.logger(logger::Logger::semanticSink()));
+            }
+            return *cachedLog_;
+        }
+
         return logScope.logger(logger::Logger::semanticSink());
     }
 

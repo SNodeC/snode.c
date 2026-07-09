@@ -128,6 +128,7 @@ namespace logger {
         static void setFormat(Format format);
         static void freeze();
         static bool isFrozen();
+        static unsigned long generation();
 
         static LogLevel effectiveLevel(const LogScope& scope);
         static LogLevel effectiveLevel(const LogRecord& record);

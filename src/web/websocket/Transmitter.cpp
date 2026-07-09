@@ -64,6 +64,15 @@ namespace web::websocket {
         : masking(masking) {
     }
 
+    const logger::BoundaryLogger& Transmitter::frameLog() const {
+        const unsigned long generation = logger::LogManager::generation();
+        if (!frameLog_ || frameLogGeneration_ != generation) {
+            frameLogGeneration_ = generation;
+            frameLog_.emplace(semantic::webSocketFrameLog());
+        }
+        return *frameLog_;
+    }
+
     Transmitter::~Transmitter() {
     }
 
@@ -141,9 +150,8 @@ namespace web::websocket {
         MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(randomDevice)};
 
         if (payloadLength > 0) {
-            auto log = semantic::webSocketFrameLog();
-            if (log.enabled(logger::LogLevel::Trace)) {
-                log.trace("WebSocket send: Frame data\n{}", utils::hexDump(payload, payloadLength, 32, true));
+            if (frameLog().enabled(logger::LogLevel::Trace)) {
+                frameLog().trace("WebSocket send: Frame data\n{}", utils::hexDump(payload, payloadLength, 32, true));
             }
         }
 

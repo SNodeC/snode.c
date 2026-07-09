@@ -102,17 +102,17 @@ int main() {
         const std::string mqttHeader = source_policy::readSourcePolicyFile(root / "src/iot/mqtt/Mqtt.h");
         const std::string mqttSource = source_policy::readSourcePolicyFile(root / "src/iot/mqtt/Mqtt.cpp");
 
-        result.expectTrue(source_policy::contains(mqttHeader, "logger::BoundaryLogger log_"),
-                          "Mqtt.h contains cached BoundaryLogger member log_");
-        result.expectTrue(source_policy::contains(mqttSource, "log_(iot::mqtt::semantic::mqttLog())"),
-                          "Mqtt.cpp constructors initialize cached MQTT logger from mqttLog()");
+        result.expectTrue(source_policy::contains(mqttHeader, "std::optional<logger::BoundaryLogger> log_"),
+                          "Mqtt.h contains generation-refreshable cached BoundaryLogger member log_");
+        result.expectTrue(source_policy::contains(mqttSource, "log_.emplace(iot::mqtt::semantic::mqttLog())"),
+                          "Mqtt.cpp lazily initializes cached MQTT logger from mqttLog()");
         result.expectTrue(!containsDirectMqttLogSeverity(mqttSource),
                           "Mqtt.cpp uses cached log_ instead of direct same-scope mqttLog severity calls");
-        result.expectTrue(source_policy::contains(mqttSource, "log_.debug()"), "Mqtt.cpp contains cached debug logger usage");
-        result.expectTrue(source_policy::contains(mqttSource, "log_.info()"), "Mqtt.cpp contains cached info logger usage");
-        result.expectTrue(source_policy::contains(mqttSource, "log_.warn()"), "Mqtt.cpp contains cached warn logger usage");
-        result.expectTrue(source_policy::contains(mqttSource, "log_.error()"), "Mqtt.cpp contains cached error logger usage");
-        result.expectTrue(source_policy::contains(mqttSource, "log_.trace()"), "Mqtt.cpp contains cached trace logger usage");
+        result.expectTrue(source_policy::contains(mqttSource, "log().debug()"), "Mqtt.cpp contains cached debug logger usage");
+        result.expectTrue(source_policy::contains(mqttSource, "log().info()"), "Mqtt.cpp contains cached info logger usage");
+        result.expectTrue(source_policy::contains(mqttSource, "log().warn()"), "Mqtt.cpp contains cached warn logger usage");
+        result.expectTrue(source_policy::contains(mqttSource, "log().error()"), "Mqtt.cpp contains cached error logger usage");
+        result.expectTrue(source_policy::contains(mqttSource, "log().trace()"), "Mqtt.cpp contains cached trace logger usage");
     }
 
     {

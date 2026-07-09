@@ -45,6 +45,7 @@
 #include "core/State.h" // IWYU pragma: export
 #include "core/TickStatus.h"
 #include "log/LogScopeOwner.h"
+#include "log/SemanticLogger.h"
 
 namespace core {
     class EventMultiplexer;
@@ -96,6 +97,8 @@ namespace core {
 
         core::EventMultiplexer& eventMultiplexer;
         logger::LogScopeOwner logScope;
+        mutable std::optional<logger::BoundaryLogger> cachedLog_;
+        mutable unsigned long cachedLogGeneration_ = 0;
 
         static int stopsig;
 

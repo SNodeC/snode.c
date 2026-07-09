@@ -83,9 +83,17 @@ namespace core::socket::stream {
     }
 
     logger::BoundaryLogger SocketContext::log() const {
-        // Round 6 backend-backed default semantic logger.
         // The sink-taking overload remains available for tests and custom capture.
-        // Production default logger uses the frozen startup semantic policy as its local threshold.
+        // Before freeze this remains dynamic; after freeze it reuses the cached semantic threshold.
+        if (logger::LogManager::isFrozen()) {
+            const unsigned long generation = logger::LogManager::generation();
+            if (!applicationLog_ || applicationLogGeneration_ != generation) {
+                applicationLogGeneration_ = generation;
+                applicationLog_.emplace(applicationLogScope.logger(logger::Logger::semanticSink()));
+            }
+            return *applicationLog_;
+        }
+
         return applicationLogScope.logger(logger::Logger::semanticSink());
     }
 
@@ -95,9 +103,17 @@ namespace core::socket::stream {
     }
 
     logger::BoundaryLogger SocketContext::frameworkLog() const {
-        // Round 6 backend-backed default semantic logger.
         // The sink-taking overload remains available for tests and custom capture.
-        // Production default logger uses the frozen startup semantic policy as its local threshold.
+        // Before freeze this remains dynamic; after freeze it reuses the cached semantic threshold.
+        if (logger::LogManager::isFrozen()) {
+            const unsigned long generation = logger::LogManager::generation();
+            if (!frameworkLog_ || frameworkLogGeneration_ != generation) {
+                frameworkLogGeneration_ = generation;
+                frameworkLog_.emplace(frameworkLogScope.logger(logger::Logger::semanticSink()));
+            }
+            return *frameworkLog_;
+        }
+
         return frameworkLogScope.logger(logger::Logger::semanticSink());
     }
 

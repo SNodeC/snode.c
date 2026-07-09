@@ -60,21 +60,33 @@
 
 namespace iot::mqtt::server::broker {
 
+    Session::Session() {
+    }
+
     Session::Session(iot::mqtt::server::Mqtt* mqtt)
         : mqtt(mqtt) {
     }
 
+    const logger::BoundaryLogger& Session::log() const {
+        const unsigned long generation = logger::LogManager::generation();
+        if (!log_ || logGeneration_ != generation) {
+            logGeneration_ = generation;
+            log_.emplace(iot::mqtt::semantic::mqttSessionLog());
+        }
+        return *log_;
+    }
+
     void Session::sendPublish(Message& message, uint8_t qoS, bool retain) {
-        iot::mqtt::semantic::mqttSessionLog().info() << "MQTT Broker:   TopicName: " << message.getTopic();
-        auto log = iot::mqtt::semantic::mqttSessionLog();
+        const auto& log = this->log();
+        log.info() << "MQTT Broker:   TopicName: " << message.getTopic();
         if (log.enabled(logger::LogLevel::Info)) {
             log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
         }
-        iot::mqtt::semantic::mqttSessionLog().debug() << "MQTT Broker:   QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
+        log.debug() << "MQTT Broker:   QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
-            iot::mqtt::semantic::mqttSessionLog().debug() << "MQTT Broker:   ClientId: " << mqtt->getClientId();
-            iot::mqtt::semantic::mqttSessionLog().debug() << "MQTT Broker:   OriginClientId: " << message.getOriginClientId();
+            log.debug() << "MQTT Broker:   ClientId: " << mqtt->getClientId();
+            log.debug() << "MQTT Broker:   OriginClientId: " << message.getOriginClientId();
 
             if ((mqtt->getReflect() || mqtt->getClientId() != message.getOriginClientId())) {
                 mqtt->sendPublish(message.getTopic(),
@@ -82,7 +94,7 @@ namespace iot::mqtt::server::broker {
                                   std::min(message.getQoS(), qoS),
                                   !mqtt->getReflect() ? message.getOriginRetain() || retain : retain);
             } else {
-                iot::mqtt::semantic::mqttSessionLog().info() << "MQTT Broker:     Suppress reflection to origin to avoid message looping";
+                log.info() << "MQTT Broker:     Suppress reflection to origin to avoid message looping";
             }
         } else {
             // Offline session behavior:
@@ -93,17 +105,17 @@ namespace iot::mqtt::server::broker {
                 message.setQoS(effectiveQoS);
                 messageQueue.emplace_back(message);
             } else {
-                iot::mqtt::semantic::mqttSessionLog().info() << "MQTT Broker:     Drop QoS0 message for inactive session";
+                log.info() << "MQTT Broker:     Drop QoS0 message for inactive session";
             }
         }
     }
 
     void Session::publishQueued() {
-        iot::mqtt::semantic::mqttSessionLog().info() << "MQTT Broker:     send queued messages ...";
+        log().info() << "MQTT Broker:     send queued messages ...";
         for (iot::mqtt::server::broker::Message& message : messageQueue) {
             sendPublish(message, message.getQoS(), false);
         }
-        iot::mqtt::semantic::mqttSessionLog().info() << "MQTT Broker:     ... done";
+        log().info() << "MQTT Broker:     ... done";
 
         messageQueue.clear();
     }

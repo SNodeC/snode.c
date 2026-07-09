@@ -44,8 +44,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/SemanticLogger.h"
+
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -72,6 +75,8 @@ namespace web::websocket {
         std::size_t readELength();
         std::size_t readMaskingKey();
         std::size_t readPayload();
+
+        const logger::BoundaryLogger& frameLog() const;
 
         std::size_t readELength2();
         std::size_t readELength8();
@@ -118,6 +123,9 @@ namespace web::websocket {
         uint8_t maskingKeyNumBytesLeft = 4;
 
         uint16_t errorState = 0;
+
+        mutable std::optional<logger::BoundaryLogger> frameLog_;
+        mutable unsigned long frameLogGeneration_ = 0;
 
         std::size_t payloadTotalRead = 0;
     };
