@@ -60,7 +60,8 @@
 namespace iot::mqtt::server::broker {
 
     RetainTree::RetainTree(Broker* broker)
-        : head(broker) {
+        : head(broker)
+        , log_(iot::mqtt::semantic::mqttBrokerLog()) {
     }
 
     void RetainTree::retain(Message&& message) {
@@ -100,7 +101,8 @@ namespace iot::mqtt::server::broker {
     }
 
     RetainTree::TopicLevel::TopicLevel(iot::mqtt::server::broker::Broker* broker)
-        : broker(broker) {
+        : broker(broker)
+        , log_(iot::mqtt::semantic::mqttBrokerLog()) {
     }
 
     RetainTree::TopicLevel& RetainTree::TopicLevel::fromJson(const nlohmann::json& json) {
@@ -118,13 +120,13 @@ namespace iot::mqtt::server::broker {
     }
     void RetainTree::TopicLevel::retain(const Message& message, std::string topic) {
         if (topic.empty()) {
-            iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker: Retain:";
-            iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:   Topic: " << message.getTopic();
-            auto log = iot::mqtt::semantic::mqttBrokerLog();
+            log_.debug() << "MQTT Broker: Retain:";
+            log_.debug() << "MQTT Broker:   Topic: " << message.getTopic();
+            const auto& log = log_;
             if (log.enabled(logger::LogLevel::Debug)) {
                 log.debug() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
             }
-            iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
+            log_.debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
 
             this->message = message;
         } else {
@@ -138,8 +140,8 @@ namespace iot::mqtt::server::broker {
 
     bool RetainTree::TopicLevel::release(std::string topic) {
         if (topic.empty()) {
-            iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker: Release retained:";
-            iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:   Topic: " << message.getTopic();
+            log_.debug() << "MQTT Broker: Release retained:";
+            log_.debug() << "MQTT Broker:   Topic: " << message.getTopic();
 
             message = Message();
         } else {
@@ -150,7 +152,7 @@ namespace iot::mqtt::server::broker {
                 topic.erase(0, topicLevel.size() + 1);
 
                 if (it->second.release(topic)) {
-                    iot::mqtt::semantic::mqttBrokerLog().debug() << "               Erase: " << topicLevel;
+                    log_.debug() << "               Erase: " << topicLevel;
 
                     subTopicLevels.erase(it);
                 }
@@ -163,19 +165,19 @@ namespace iot::mqtt::server::broker {
     void RetainTree::TopicLevel::appear(const std::string& clientId, std::string topic, uint8_t qoS) {
         if (topic.empty()) {
             if (!message.getTopic().empty()) {
-                iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: Retained Topic found:";
-                iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Topic: " << message.getTopic();
-                auto log = iot::mqtt::semantic::mqttBrokerLog();
+                log_.info() << "MQTT Broker: Retained Topic found:";
+                log_.info() << "MQTT Broker:   Topic: " << message.getTopic();
+                const auto& log = log_;
                 if (log.enabled(logger::LogLevel::Info)) {
                     log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
                 }
-                iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
-                iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:   Client:";
-                iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(qoS);
+                log_.debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
+                log_.debug() << "MQTT Broker:   Client:";
+                log_.debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(qoS);
 
-                iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: Distributing message ...";
+                log_.info() << "MQTT Broker: Distributing message ...";
                 broker->sendPublish(clientId, message, std::min(message.getQoS(), qoS), true);
-                iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: ... distributing message completed";
+                log_.info() << "MQTT Broker: ... distributing message completed";
             }
         } else {
             const std::string topicLevel = topic.substr(0, topic.find('/'));
@@ -201,19 +203,19 @@ namespace iot::mqtt::server::broker {
 
     void RetainTree::TopicLevel::appear(const std::string& clientId, uint8_t clientQoS) {
         if (!message.getTopic().empty()) {
-            iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: Retained Topic found:";
-            iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Topic: " << message.getTopic();
-            auto log = iot::mqtt::semantic::mqttBrokerLog();
+            log_.info() << "MQTT Broker: Retained Topic found:";
+            log_.info() << "MQTT Broker:   Topic: " << message.getTopic();
+            const auto& log = log_;
             if (log.enabled(logger::LogLevel::Info)) {
                 log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
             }
-            iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
-            iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:   Client:";
-            iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(clientQoS);
+            log_.debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
+            log_.debug() << "MQTT Broker:   Client:";
+            log_.debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(clientQoS);
 
-            iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: Distributing message ...";
+            log_.info() << "MQTT Broker: Distributing message ...";
             broker->sendPublish(clientId, message, std::min(message.getQoS(), clientQoS), true);
-            iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: ... distributing message completed";
+            log_.info() << "MQTT Broker: ... distributing message completed";
         }
 
         for (auto& [topicLevel, subTopicLevel] : subTopicLevels) {

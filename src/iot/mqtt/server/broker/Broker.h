@@ -52,6 +52,8 @@ namespace iot::mqtt::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/SemanticLogger.h"
+
 #include <cstdint>
 #include <list>
 #include <map> // IWYU pragma: keep
@@ -112,6 +114,8 @@ namespace iot::mqtt::server::broker {
         iot::mqtt::server::broker::RetainTree retainTree;
 
         std::map<std::string, iot::mqtt::server::broker::Session> sessionStore;
+
+        logger::BoundaryLogger log_;
     };
 
 } // namespace iot::mqtt::server::broker

@@ -61,7 +61,8 @@
 namespace web::websocket {
 
     Transmitter::Transmitter(bool masking)
-        : masking(masking) {
+        : masking(masking)
+        , frameLog_(semantic::webSocketFrameLog()) {
     }
 
     Transmitter::~Transmitter() {
@@ -141,9 +142,8 @@ namespace web::websocket {
         MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(randomDevice)};
 
         if (payloadLength > 0) {
-            auto log = semantic::webSocketFrameLog();
-            if (log.enabled(logger::LogLevel::Trace)) {
-                log.trace("WebSocket send: Frame data\n{}", utils::hexDump(payload, payloadLength, 32, true));
+            if (frameLog_.enabled(logger::LogLevel::Trace)) {
+                frameLog_.trace("WebSocket send: Frame data\n{}", utils::hexDump(payload, payloadLength, 32, true));
             }
         }
 

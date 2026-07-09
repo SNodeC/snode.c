@@ -1,0 +1,189 @@
+#include "log/LogScopeOwner.h"
+#include "log/Logger.h"
+#include "log/SemanticLogger.h"
+#include "tests/support/TestResult.h"
+#include "tests/unit/log/SourcePolicyTestRoot.h"
+
+#include <filesystem>
+#include <optional>
+#include <ostream>
+#include <string>
+#include <string_view>
+
+namespace {
+    struct ExpensiveArgument {
+        int* counter;
+    };
+
+    std::ostream& operator<<(std::ostream& os, const ExpensiveArgument& value) {
+        ++*value.counter;
+        return os << "expensive";
+    }
+
+    class SemanticStateGuard {
+    public:
+        SemanticStateGuard() {
+            logger::Logger::init();
+            logger::LogManager::init();
+            logger::Logger::setQuiet(true);
+            logger::Logger::setDisableColor(true);
+        }
+
+        ~SemanticStateGuard() {
+            logger::Logger::init();
+            logger::LogManager::init();
+        }
+    };
+
+    bool containsAny(std::string_view source, std::initializer_list<std::string_view> needles) {
+        for (const auto needle : needles) {
+            if (source_policy::contains(source, needle)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool containsDirectWebSocketFrameHotCall(std::string_view source) {
+        return source_policy::contains(source, "auto log = semantic::webSocketFrameLog()") ||
+               source_policy::contains(source, "semantic::webSocketFrameLog().enabled") ||
+               source_policy::contains(source, "semantic::webSocketFrameLog().trace");
+    }
+
+    bool containsDirectMqttBrokerOrSessionSeverity(std::string_view source) {
+        constexpr std::string_view prefixes[] = {"iot::mqtt::semantic::mqttBrokerLog().", "iot::mqtt::semantic::mqttSessionLog()."};
+        constexpr std::string_view severities[] = {"trace", "debug", "info", "warn", "error", "critical", "enabled", "sysError"};
+        for (const auto prefix : prefixes) {
+            for (const auto severity : severities) {
+                if (source_policy::contains(source, std::string(prefix) + std::string(severity))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+} // namespace
+
+int main() {
+    tests::support::TestResult result;
+
+    {
+        SemanticStateGuard guard;
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Info);
+        logger::LogManager::freeze();
+
+        logger::LogScopeOwner scope(logger::LogOrigin::Framework,
+                                    logger::LogBoundary::Connection,
+                                    "core.socket.stream",
+                                    "unit-instance",
+                                    std::nullopt,
+                                    "unit-connection");
+        const auto cachedLog = scope.logger(logger::Logger::semanticSink());
+        result.expectTrue(!cachedLog.enabled(logger::LogLevel::Debug), "cached logger honors global threshold");
+
+        int counter = 0;
+        cachedLog.debug("value={}", ExpensiveArgument{&counter});
+        result.expectEqual(0, counter, "disabled cached logger does not format expensive arguments");
+    }
+
+    {
+        SemanticStateGuard guard;
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Warn);
+        logger::LogManager::setComponentLevel("core.socket.stream", logger::LogLevel::Debug);
+        logger::LogManager::freeze();
+
+        logger::LogScopeOwner scope(logger::LogOrigin::Framework,
+                                    logger::LogBoundary::Connection,
+                                    "core.socket.stream",
+                                    std::nullopt,
+                                    std::nullopt,
+                                    "unit-connection");
+        const auto cachedLog = scope.logger(logger::Logger::semanticSink());
+        result.expectTrue(cachedLog.enabled(logger::LogLevel::Debug), "cached logger honors component override");
+
+        int counter = 0;
+        cachedLog.debug("value={}", ExpensiveArgument{&counter});
+        result.expectEqual(1, counter, "enabled cached logger formats expensive arguments exactly once");
+    }
+
+    {
+        SemanticStateGuard guard;
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Warn);
+        logger::LogManager::setInstanceLevel("unit-instance", logger::LogLevel::Trace);
+        logger::LogManager::freeze();
+
+        logger::LogScopeOwner scope(logger::LogOrigin::Framework,
+                                    logger::LogBoundary::Context,
+                                    "core.socket.context",
+                                    "unit-instance",
+                                    std::nullopt,
+                                    "unit-connection");
+        const auto cachedLog = scope.logger(logger::Logger::semanticSink());
+        result.expectTrue(cachedLog.enabled(logger::LogLevel::Trace), "cached logger honors instance override");
+    }
+
+    const std::filesystem::path root = source_policy::sourcePolicyProjectRoot();
+    if (root.empty()) {
+        result.expectTrue(false, "sourcePolicyProjectRoot() must not return an empty path");
+        return result.processResult();
+    }
+
+    const std::string eventLoopHeader = source_policy::readSourcePolicyFile(root / "src/core/EventLoop.h");
+    const std::string eventLoopSource = source_policy::readSourcePolicyFile(root / "src/core/EventLoop.cpp");
+    result.expectTrue(source_policy::contains(eventLoopHeader, "std::optional<logger::BoundaryLogger> cachedLog_"),
+                      "EventLoop has a lazy cached logger member");
+    result.expectTrue(source_policy::contains(eventLoopSource, "logger::LogManager::isFrozen()"),
+                      "EventLoop gates cached logger use on post-freeze state");
+    result.expectTrue(!source_policy::contains(eventLoopSource, ", cachedLog_"),
+                      "EventLoop does not initialize the semantic logger in the constructor");
+
+    const std::string socketConnectionHeader = source_policy::readSourcePolicyFile(root / "src/core/socket/stream/SocketConnection.h");
+    const std::string socketConnectionSource = source_policy::readSourcePolicyFile(root / "src/core/socket/stream/SocketConnection.cpp");
+    result.expectTrue(source_policy::contains(socketConnectionHeader, "std::optional<logger::BoundaryLogger> cachedLog_"),
+                      "SocketConnection has a cached logger member");
+    result.expectTrue(source_policy::contains(socketConnectionSource, "if (logger::LogManager::isFrozen())"),
+                      "SocketConnection uses lazy post-freeze caching");
+
+    const std::string socketContextHeader = source_policy::readSourcePolicyFile(root / "src/core/socket/stream/SocketContext.h");
+    const std::string socketContextSource = source_policy::readSourcePolicyFile(root / "src/core/socket/stream/SocketContext.cpp");
+    result.expectTrue(source_policy::contains(socketContextHeader, "applicationLog_") &&
+                          source_policy::contains(socketContextHeader, "frameworkLog_"),
+                      "SocketContext has cached application and framework logger members");
+    result.expectTrue(source_policy::contains(socketContextSource, "applicationLog_.emplace") &&
+                          source_policy::contains(socketContextSource, "frameworkLog_.emplace"),
+                      "SocketContext lazily populates both cached loggers");
+
+    const std::string receiverHeader = source_policy::readSourcePolicyFile(root / "src/web/websocket/Receiver.h");
+    const std::string receiverSource = source_policy::readSourcePolicyFile(root / "src/web/websocket/Receiver.cpp");
+    const std::string transmitterHeader = source_policy::readSourcePolicyFile(root / "src/web/websocket/Transmitter.h");
+    const std::string transmitterSource = source_policy::readSourcePolicyFile(root / "src/web/websocket/Transmitter.cpp");
+    result.expectTrue(source_policy::contains(receiverHeader, "logger::BoundaryLogger frameLog_") &&
+                          source_policy::contains(transmitterHeader, "logger::BoundaryLogger frameLog_"),
+                      "WebSocket Receiver and Transmitter cache frame loggers");
+    result.expectTrue(!containsDirectWebSocketFrameHotCall(receiverSource) && !containsDirectWebSocketFrameHotCall(transmitterSource),
+                      "WebSocket hot paths no longer call webSocketFrameLog directly");
+
+    for (const auto file : {"src/iot/mqtt/server/broker/Broker.h",
+                            "src/iot/mqtt/server/broker/RetainTree.h",
+                            "src/iot/mqtt/server/broker/SubscriptionTree.h",
+                            "src/iot/mqtt/server/broker/Session.h"}) {
+        const std::string source = source_policy::readSourcePolicyFile(root / file);
+        result.expectTrue(source_policy::contains(source, "logger::BoundaryLogger log_"), std::string(file) + " caches a BoundaryLogger");
+    }
+    for (const auto file : {"src/iot/mqtt/server/broker/Broker.cpp",
+                            "src/iot/mqtt/server/broker/RetainTree.cpp",
+                            "src/iot/mqtt/server/broker/SubscriptionTree.cpp",
+                            "src/iot/mqtt/server/broker/Session.cpp"}) {
+        const std::string source = source_policy::readSourcePolicyFile(root / file);
+        result.expectTrue(!containsDirectMqttBrokerOrSessionSeverity(source),
+                          std::string(file) + " hot diagnostics use cached MQTT loggers");
+    }
+
+    const std::string allTouchedPolicy = eventLoopHeader + eventLoopSource + socketConnectionHeader + socketConnectionSource +
+                                         socketContextHeader + socketContextSource + receiverHeader + receiverSource + transmitterHeader +
+                                         transmitterSource;
+    result.expectTrue(!containsAny(allTouchedPolicy, {"LOG_IF", "TRACE_IF", "DEBUG_IF", "IF_ENABLED"}),
+                      "No new macro guard API was introduced in structural cache paths");
+
+    return result.processResult();
+}

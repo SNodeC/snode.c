@@ -105,6 +105,7 @@ namespace logger {
             std::map<std::string, LogLevel> instanceLevels;
             LogManager::Format format = LogManager::Format::Text;
             bool frozen = false;
+            unsigned long generation = 0;
         };
 
         SemanticPolicy& policy() {
@@ -149,7 +150,9 @@ namespace logger {
     }
 
     void LogManager::init() {
+        const unsigned long nextGeneration = policy().generation + 1;
         policy() = SemanticPolicy{};
+        policy().generation = nextGeneration;
     }
 
     void LogManager::setGlobalLevel(LogLevel level) {
@@ -190,6 +193,10 @@ namespace logger {
 
     bool LogManager::isFrozen() {
         return policy().frozen;
+    }
+
+    unsigned long LogManager::generation() {
+        return policy().generation;
     }
 
     LogLevel LogManager::effectiveLevel(const LogScope& scope) {

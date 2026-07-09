@@ -44,6 +44,7 @@
 
 #include "core/socket/SocketContext.h"
 #include "log/LogScopeOwner.h"
+#include "log/SemanticLogger.h"
 
 namespace core::pipe {
     class Source;
@@ -58,6 +59,7 @@ namespace core::socket::stream {
 
 #include <chrono>
 #include <cstddef>
+#include <optional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -129,6 +131,10 @@ namespace core::socket::stream {
         core::socket::stream::SocketConnection* socketConnection;
         logger::LogScopeOwner applicationLogScope;
         logger::LogScopeOwner frameworkLogScope;
+        mutable std::optional<logger::BoundaryLogger> applicationLog_;
+        mutable std::optional<logger::BoundaryLogger> frameworkLog_;
+        mutable unsigned long applicationLogGeneration_ = 0;
+        mutable unsigned long frameworkLogGeneration_ = 0;
 
         std::string onlineSince;
         std::size_t alreadyTotalQueued = 0;

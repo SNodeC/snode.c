@@ -51,6 +51,8 @@ namespace iot::mqtt::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/SemanticLogger.h"
+
 #include <cstdint>
 #include <deque>
 #include <nlohmann/json_fwd.hpp>
@@ -61,7 +63,7 @@ namespace iot::mqtt::server::broker {
 
     class Session : public iot::mqtt::Session {
     public:
-        Session() = default;
+        Session();
         explicit Session(iot::mqtt::server::Mqtt* mqtt);
 
         void sendPublish(iot::mqtt::server::broker::Message& message, uint8_t qoS, bool retain);
@@ -82,6 +84,7 @@ namespace iot::mqtt::server::broker {
         iot::mqtt::server::Mqtt* mqtt = nullptr;
 
         std::deque<Message> messageQueue;
+        logger::BoundaryLogger log_;
     };
 
 } // namespace iot::mqtt::server::broker

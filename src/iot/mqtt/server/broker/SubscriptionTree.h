@@ -49,6 +49,8 @@ namespace iot::mqtt::server::broker {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/SemanticLogger.h"
+
 #include <cstdint>
 #include <list>
 #include <map>
@@ -117,9 +119,11 @@ namespace iot::mqtt::server::broker {
             std::map<std::string, TopicLevel> topicLevels;
 
             std::string topicLevel;
+            logger::BoundaryLogger log_;
         };
 
         TopicLevel head;
+        logger::BoundaryLogger log_;
     };
 
 } // namespace iot::mqtt::server::broker

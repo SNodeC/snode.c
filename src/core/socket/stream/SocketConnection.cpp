@@ -121,9 +121,17 @@ namespace core::socket::stream {
     }
 
     logger::BoundaryLogger SocketConnection::log() const {
-        // Round 6 backend-backed default semantic logger.
         // The sink-taking overload remains available for tests and custom capture.
-        // Production default logger uses the frozen startup semantic policy as its local threshold.
+        // Before freeze this remains dynamic; after freeze it reuses the cached semantic threshold.
+        if (logger::LogManager::isFrozen()) {
+            const unsigned long generation = logger::LogManager::generation();
+            if (!cachedLog_ || cachedLogGeneration_ != generation) {
+                cachedLogGeneration_ = generation;
+                cachedLog_.emplace(logScope.logger(logger::Logger::semanticSink()));
+            }
+            return *cachedLog_;
+        }
+
         return logScope.logger(logger::Logger::semanticSink());
     }
 

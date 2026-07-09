@@ -43,6 +43,7 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
 #include "log/LogScopeOwner.h"
+#include "log/SemanticLogger.h"
 
 namespace core {
     namespace pipe {
@@ -72,6 +73,7 @@ namespace utils {
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector> // IWYU pragma: keep
 
@@ -153,6 +155,8 @@ namespace core::socket::stream {
         std::string instanceName;
         std::string connectionName;
         logger::LogScopeOwner logScope;
+        mutable std::optional<logger::BoundaryLogger> cachedLog_;
+        mutable unsigned long cachedLogGeneration_ = 0;
 
         std::chrono::time_point<std::chrono::system_clock> onlineSinceTimePoint;
 

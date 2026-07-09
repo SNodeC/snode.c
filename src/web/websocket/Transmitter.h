@@ -44,6 +44,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/SemanticLogger.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <random>
@@ -94,6 +96,8 @@ namespace web::websocket {
         bool closeSent = false;
 
     private:
+        logger::BoundaryLogger frameLog_;
+
         std::size_t payloadTotalSent = 0;
     };
 
