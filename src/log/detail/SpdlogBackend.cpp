@@ -164,6 +164,10 @@ namespace logger::detail {
             return disableColor;
         }
 
+        bool semanticStdoutUsesColor() const {
+            return !quietMode && semanticStdoutLogger && !disableColor;
+        }
+
         void setTickResolver(Logger::TickResolver resolver) {
             tickResolver = std::move(resolver);
         }
@@ -317,6 +321,10 @@ namespace logger::detail {
 
     bool SpdlogBackend::getDisableColor() const {
         return impl_->getDisableColor();
+    }
+
+    bool SpdlogBackend::semanticStdoutUsesColor() const {
+        return impl_->semanticStdoutUsesColor();
     }
 
     void SpdlogBackend::setTickResolver(Logger::TickResolver resolver) {

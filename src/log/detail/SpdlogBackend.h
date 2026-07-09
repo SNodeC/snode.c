@@ -38,6 +38,7 @@ namespace logger::detail {
         void setQuiet(bool quiet);
         void setDisableColor(bool disableColor);
         bool getDisableColor() const;
+        bool semanticStdoutUsesColor() const;
 
         void setTickResolver(Logger::TickResolver resolver);
 

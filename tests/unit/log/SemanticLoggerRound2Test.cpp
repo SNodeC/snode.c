@@ -12,6 +12,10 @@
 #include <system_error>
 #include <vector>
 
+namespace logger::detail {
+    std::string formatTextColored(const LogRecord& record);
+}
+
 namespace {
     void expectStringEqual(tests::support::TestResult& result,
                            const std::string& expected,
@@ -77,8 +81,7 @@ int main() {
                           text.find("conn=#7") != std::string::npos && text.find(" — ready") != std::string::npos,
                       "text formatter includes compact tagged fields and message");
 
-    logger::LogScope appScope{
-        logger::LogOrigin::Application, logger::LogBoundary::Application, "app", "", logger::LogRole::Unknown, ""};
+    logger::LogScope appScope{logger::LogOrigin::Application, logger::LogBoundary::Application, "app", "", logger::LogRole::Unknown, ""};
     auto appRecord = logger::materialize(appScope, logger::LogLevel::Info, "connected", logger::LogRecordOptions{.ts = fixedTimestamp()});
     expectStringEqual(result,
                       "2026-07-05T12:34:56.789Z INF application app — connected",
@@ -118,24 +121,26 @@ int main() {
                       "text formatter renders optional semantic fields as quoted key=value pairs when needed");
 
     logger::LogScope escapingScope{
-        logger::LogOrigin::Framework, logger::LogBoundary::System, "core.eventreceiver", "a\\b \"c\"", logger::LogRole::Unknown, ""};
+        logger::LogOrigin::Framework, logger::LogBoundary::System, "core.eventreceiver", "a\\b \"c\"\t\r", logger::LogRole::Unknown, ""};
     const std::string escapedText = logger::formatText(
         logger::materialize(escapingScope, logger::LogLevel::Debug, "escaped", logger::LogRecordOptions{.ts = fixedTimestamp()}));
-    result.expectTrue(escapedText.find("inst=\"a\\\\b \\\"c\\\"\"") != std::string::npos,
-                      "text formatter escapes quotes and backslashes in field values");
+    result.expectTrue(escapedText.find("inst=\"a\\\\b \\\"c\\\"\\t\\r\"") != std::string::npos,
+                      "text formatter escapes quotes, backslashes, tabs, and carriage returns in field values");
 
-    const std::string multilineText = logger::formatText(
-        logger::materialize(appScope, logger::LogLevel::Trace, "GET / HTTP/1.1\nRequest:\n  Method: GET", logger::LogRecordOptions{.ts = fixedTimestamp()}));
+    const std::string multilineText = logger::formatText(logger::materialize(
+        appScope, logger::LogLevel::Trace, "GET / HTTP/1.1\nRequest:\n  Method: GET", logger::LogRecordOptions{.ts = fixedTimestamp()}));
     result.expectTrue(multilineText.find(" — GET / HTTP/1.1\n│ Request:\n│   Method: GET") != std::string::npos,
                       "text formatter prefixes every multiline continuation line");
 
-    const std::string coloredText = logger::formatText(richRecord, true);
+    const std::string coloredText = logger::detail::formatTextColored(richRecord);
     result.expectTrue(coloredText.find("\033[") != std::string::npos && coloredText.find("TRC") != std::string::npos,
                       "color-enabled semantic text contains ANSI level styling");
     result.expectTrue(richText.find("\033[") == std::string::npos, "plain semantic text contains no ANSI styling");
-    result.expectTrue(logger::formatJsonV1(richRecord).find("\033[") == std::string::npos, "semantic JSON formatter contains no ANSI styling");
+    result.expectTrue(logger::formatJsonV1(richRecord).find("\033[") == std::string::npos,
+                      "semantic JSON formatter contains no ANSI styling");
 
-    const auto cmakePath = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().parent_path() / "src/log/CMakeLists.txt";
+    const auto cmakePath =
+        std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().parent_path() / "src/log/CMakeLists.txt";
     std::ifstream cmakeIn(cmakePath);
     const std::string cmakeText((std::istreambuf_iterator<char>(cmakeIn)), std::istreambuf_iterator<char>());
     result.expectTrue(cmakeText.find("PATTERN \"detail\" EXCLUDE") != std::string::npos,

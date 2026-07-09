@@ -111,7 +111,6 @@ namespace logger {
     std::string formatTimestamp(std::chrono::system_clock::time_point ts);
     std::string formatJsonV1(const LogRecord& record);
     std::string formatText(const LogRecord& record);
-    std::string formatText(const LogRecord& record, bool colorEnabled);
 
     class LogManager {
     public:

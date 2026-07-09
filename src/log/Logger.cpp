@@ -51,6 +51,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+namespace logger::detail {
+    std::string formatTextColored(const LogRecord& record);
+}
+
 namespace {
     logger::detail::SpdlogBackend backend;
 } // namespace
@@ -112,7 +116,9 @@ namespace logger {
             const std::string json = formatJsonV1(record);
             backend.emitSemantic(record.level, json, json);
         } else {
-            backend.emitSemantic(record.level, formatText(record), formatText(record, true));
+            const std::string plain = formatText(record);
+            const std::string colored = backend.semanticStdoutUsesColor() ? detail::formatTextColored(record) : plain;
+            backend.emitSemantic(record.level, plain, colored);
         }
     }
 

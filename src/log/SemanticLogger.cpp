@@ -338,192 +338,207 @@ namespace logger {
         return out.str();
     }
 
-    std::string toLevelLabel(LogLevel level) {
-        switch (level) {
-            case LogLevel::Trace:
-                return "TRC";
-            case LogLevel::Debug:
-                return "DBG";
-            case LogLevel::Info:
-                return "INF";
-            case LogLevel::Warn:
-                return "WRN";
-            case LogLevel::Error:
-                return "ERR";
-            case LogLevel::Critical:
-                return "CRT";
-            case LogLevel::Off:
-                return "OFF";
+    namespace {
+        std::string toLevelLabel(LogLevel level) {
+            switch (level) {
+                case LogLevel::Trace:
+                    return "TRC";
+                case LogLevel::Debug:
+                    return "DBG";
+                case LogLevel::Info:
+                    return "INF";
+                case LogLevel::Warn:
+                    return "WRN";
+                case LogLevel::Error:
+                    return "ERR";
+                case LogLevel::Critical:
+                    return "CRT";
+                case LogLevel::Off:
+                    return "OFF";
+            }
+            return "OFF";
         }
-        return "OFF";
-    }
 
-    std::string ansiForLevel(LogLevel level) {
-        switch (level) {
-            case LogLevel::Trace:
-                return "\033[35m";
-            case LogLevel::Debug:
-                return "\033[36m";
-            case LogLevel::Info:
-                return "\033[0m";
-            case LogLevel::Warn:
-                return "\033[33m";
-            case LogLevel::Error:
-                return "\033[31m";
-            case LogLevel::Critical:
-                return "\033[1;31m";
-            case LogLevel::Off:
-                return "\033[0m";
+        std::string ansiForLevel(LogLevel level) {
+            switch (level) {
+                case LogLevel::Trace:
+                    return "\033[35m";
+                case LogLevel::Debug:
+                    return "\033[36m";
+                case LogLevel::Info:
+                    return "\033[0m";
+                case LogLevel::Warn:
+                    return "\033[33m";
+                case LogLevel::Error:
+                    return "\033[31m";
+                case LogLevel::Critical:
+                    return "\033[1;31m";
+                case LogLevel::Off:
+                    return "\033[0m";
+            }
+            return "\033[0m";
         }
-        return "\033[0m";
-    }
 
-    bool needsQuoting(std::string_view value) {
-        if (value.empty()) {
-            return true;
-        }
-        for (const unsigned char ch : value) {
-            if (std::isspace(ch) || ch == '"' || ch == '\\' || ch == '=' || ch == '|' || ch == ',' || ch == ';') {
+        bool needsQuoting(std::string_view value) {
+            if (value.empty()) {
                 return true;
             }
-        }
-        return false;
-    }
-
-    std::string quoteFieldValue(std::string_view value) {
-        if (!needsQuoting(value)) {
-            return std::string(value);
-        }
-        std::string quoted;
-        quoted.reserve(value.size() + 2);
-        quoted.push_back('"');
-        for (const char ch : value) {
-            switch (ch) {
-                case '\\':
-                    quoted += "\\\\";
-                    break;
-                case '"':
-                    quoted += "\\\"";
-                    break;
-                case '\n':
-                    quoted += "\\n";
-                    break;
-                default:
-                    quoted.push_back(ch);
-                    break;
+            for (const unsigned char ch : value) {
+                if (std::isspace(ch) || ch == '"' || ch == '\\' || ch == '=' || ch == '|' || ch == ',' || ch == ';') {
+                    return true;
+                }
             }
+            return false;
         }
-        quoted.push_back('"');
-        return quoted;
-    }
 
-    void appendKeyValue(std::ostringstream& out, std::string_view key, std::string_view value, bool colorEnabled) {
-        out << ' ';
-        if (colorEnabled) {
-            out << "\033[2m" << key << "=\033[0m";
-        } else {
-            out << key << '=';
+        std::string quoteFieldValue(std::string_view value) {
+            if (!needsQuoting(value)) {
+                return std::string(value);
+            }
+            std::string quoted;
+            quoted.reserve(value.size() + 2);
+            quoted.push_back('"');
+            for (const char ch : value) {
+                switch (ch) {
+                    case '\\':
+                        quoted += "\\\\";
+                        break;
+                    case '"':
+                        quoted += "\\\"";
+                        break;
+                    case '\n':
+                        quoted += "\\n";
+                        break;
+                    case '\r':
+                        quoted += "\\r";
+                        break;
+                    case '\t':
+                        quoted += "\\t";
+                        break;
+                    default:
+                        quoted.push_back(ch);
+                        break;
+                }
+            }
+            quoted.push_back('"');
+            return quoted;
         }
-        out << quoteFieldValue(value);
-    }
 
-    std::string sourceValue(const LogSource& source) {
-        std::ostringstream out;
-        out << source.file << ':' << source.line;
-        if (!source.func.empty()) {
-            out << ':' << source.func;
-        }
-        return out.str();
-    }
-
-    std::string errorValue(const LogError& error) {
-        std::ostringstream out;
-        out << error.code << ':' << error.text;
-        return out.str();
-    }
-
-    std::pair<std::string, std::string> splitFirstLine(std::string_view message) {
-        const auto newline = message.find('\n');
-        if (newline == std::string_view::npos) {
-            return {std::string(message), {}};
-        }
-        return {std::string(message.substr(0, newline)), std::string(message.substr(newline + 1))};
-    }
-
-    void appendContinuation(std::ostringstream& out, std::string_view rest, bool colorEnabled) {
-        std::size_t start = 0;
-        while (start <= rest.size()) {
-            const auto newline = rest.find('\n', start);
-            const auto end = newline == std::string_view::npos ? rest.size() : newline;
-            out << '\n';
+        void appendKeyValue(std::ostringstream& out, std::string_view key, std::string_view value, bool colorEnabled) {
+            out << ' ';
             if (colorEnabled) {
-                out << "\033[2m│\033[0m ";
+                out << "\033[2m" << key << "=\033[0m";
             } else {
-                out << "│ ";
+                out << key << '=';
             }
-            out << rest.substr(start, end - start);
+            out << quoteFieldValue(value);
+        }
+
+        std::string sourceValue(const LogSource& source) {
+            std::ostringstream out;
+            out << source.file << ':' << source.line;
+            if (!source.func.empty()) {
+                out << ':' << source.func;
+            }
+            return out.str();
+        }
+
+        std::string errorValue(const LogError& error) {
+            std::ostringstream out;
+            out << error.code << ':' << error.text;
+            return out.str();
+        }
+
+        std::pair<std::string, std::string> splitFirstLine(std::string_view message) {
+            const auto newline = message.find('\n');
             if (newline == std::string_view::npos) {
-                break;
+                return {std::string(message), {}};
             }
-            start = newline + 1;
+            return {std::string(message.substr(0, newline)), std::string(message.substr(newline + 1))};
         }
-    }
+
+        void appendContinuation(std::ostringstream& out, std::string_view rest, bool colorEnabled) {
+            std::size_t start = 0;
+            while (start <= rest.size()) {
+                const auto newline = rest.find('\n', start);
+                const auto end = newline == std::string_view::npos ? rest.size() : newline;
+                out << '\n';
+                if (colorEnabled) {
+                    out << "\033[2m│\033[0m ";
+                } else {
+                    out << "│ ";
+                }
+                out << rest.substr(start, end - start);
+                if (newline == std::string_view::npos) {
+                    break;
+                }
+                start = newline + 1;
+            }
+        }
+        std::string formatTextRecord(const LogRecord& record, const bool colorEnabled) {
+            std::ostringstream out;
+            const std::string timestamp = formatTimestamp(record.ts);
+            const std::string level = toLevelLabel(record.level);
+            const std::string origin = toString(record.origin);
+            const std::string boundary = toString(record.boundary);
+            const auto [firstMessageLine, continuation] = splitFirstLine(record.message);
+
+            if (colorEnabled) {
+                out << "\033[2m" << timestamp << "\033[0m " << ansiForLevel(record.level) << level << "\033[0m ";
+                if (origin == boundary) {
+                    out << "\033[2m" << origin << "\033[0m";
+                } else {
+                    out << "\033[2m" << origin << '/' << boundary << "\033[0m";
+                }
+                out << ' ' << "\033[36m" << record.component << "\033[0m";
+            } else {
+                out << timestamp << ' ' << level << ' ';
+                if (origin == boundary) {
+                    out << origin;
+                } else {
+                    out << origin << '/' << boundary;
+                }
+                out << ' ' << record.component;
+            }
+
+            if (record.role) {
+                if (auto role = toString(*record.role)) {
+                    appendKeyValue(out, "role", *role, colorEnabled);
+                }
+            }
+            if (record.instance) {
+                appendKeyValue(out, "inst", *record.instance, colorEnabled);
+            }
+            if (record.connection) {
+                appendKeyValue(out, "conn", *record.connection, colorEnabled);
+            }
+            if (record.event) {
+                appendKeyValue(out, "event", *record.event, colorEnabled);
+            }
+            if (record.error) {
+                appendKeyValue(out, "error", errorValue(*record.error), colorEnabled);
+            }
+            if (record.source) {
+                appendKeyValue(out, "src", sourceValue(*record.source), colorEnabled);
+            }
+            out << " — " << firstMessageLine;
+            if (!continuation.empty()) {
+                appendContinuation(out, continuation, colorEnabled);
+            }
+            return out.str();
+        }
+
+    } // namespace
+
     std::string formatText(const LogRecord& record) {
-        return formatText(record, false);
+        return formatTextRecord(record, false);
     }
 
-    std::string formatText(const LogRecord& record, const bool colorEnabled) {
-        std::ostringstream out;
-        const std::string timestamp = formatTimestamp(record.ts);
-        const std::string level = toLevelLabel(record.level);
-        const std::string origin = toString(record.origin);
-        const std::string boundary = toString(record.boundary);
-        const auto [firstMessageLine, continuation] = splitFirstLine(record.message);
-
-        if (colorEnabled) {
-            out << "\033[2m" << timestamp << "\033[0m " << ansiForLevel(record.level) << level << "\033[0m ";
-            if (origin == boundary) {
-                out << "\033[2m" << origin << "\033[0m";
-            } else {
-                out << "\033[2m" << origin << '/' << boundary << "\033[0m";
-            }
-            out << ' ' << "\033[36m" << record.component << "\033[0m";
-        } else {
-            out << timestamp << ' ' << level << ' ';
-            if (origin == boundary) {
-                out << origin;
-            } else {
-                out << origin << '/' << boundary;
-            }
-            out << ' ' << record.component;
+    namespace detail {
+        std::string formatTextColored(const LogRecord& record) {
+            return formatTextRecord(record, true);
         }
-
-        if (record.role) {
-            if (auto role = toString(*record.role)) {
-                appendKeyValue(out, "role", *role, colorEnabled);
-            }
-        }
-        if (record.instance) {
-            appendKeyValue(out, "inst", *record.instance, colorEnabled);
-        }
-        if (record.connection) {
-            appendKeyValue(out, "conn", *record.connection, colorEnabled);
-        }
-        if (record.event) {
-            appendKeyValue(out, "event", *record.event, colorEnabled);
-        }
-        if (record.error) {
-            appendKeyValue(out, "error", errorValue(*record.error), colorEnabled);
-        }
-        if (record.source) {
-            appendKeyValue(out, "src", sourceValue(*record.source), colorEnabled);
-        }
-        out << " — " << firstMessageLine;
-        if (!continuation.empty()) {
-            appendContinuation(out, continuation, colorEnabled);
-        }
-        return out.str();
-    }
+    } // namespace detail
 
     LogStream::LogStream(const BoundaryLogger* logger, LogLevel level)
         : logger(logger)

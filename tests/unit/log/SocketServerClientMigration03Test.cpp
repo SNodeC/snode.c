@@ -165,11 +165,9 @@ int main() {
                       "SocketServer semantic owner emits when enabled");
     result.expectTrue(enabledLog.find("client semantic owner emitted") != std::string::npos,
                       "SocketClient semantic owner emits when enabled");
-    result.expectTrue(enabledLog.find("framework/instance core.socket.stream role=server inst=migration03-server ") !=
-                          std::string::npos,
+    result.expectTrue(enabledLog.find("framework/instance core.socket.stream role=server inst=migration03-server ") != std::string::npos,
                       "server emitted records carry framework instance core.socket.stream scope and server role");
-    result.expectTrue(enabledLog.find("framework/instance core.socket.stream role=client inst=migration03-client ") !=
-                          std::string::npos,
+    result.expectTrue(enabledLog.find("framework/instance core.socket.stream role=client inst=migration03-client ") != std::string::npos,
                       "client emitted records carry framework instance core.socket.stream scope and client role");
 
     const auto managerFilterPath = tempLogPath("snodec-migration03-manager-filter.log");
