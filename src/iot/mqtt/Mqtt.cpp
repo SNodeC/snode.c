@@ -67,12 +67,14 @@
 namespace iot::mqtt {
 
     Mqtt::Mqtt(const std::string& connectionName)
-        : connectionName(connectionName) {
+        : connectionName(connectionName)
+        , log_(iot::mqtt::semantic::mqttLog()) {
     }
 
     Mqtt::Mqtt(const std::string& connectionName, const std::string& clientId)
         : connectionName(connectionName)
-        , clientId(clientId) {
+        , clientId(clientId)
+        , log_(iot::mqtt::semantic::mqttLog()) {
     }
 
     Mqtt::~Mqtt() {
@@ -211,9 +213,8 @@ namespace iot::mqtt {
     }
 
     void Mqtt::send(const std::vector<char>& data) const {
-        auto log = iot::mqtt::semantic::mqttLog();
-        if (log.enabled(logger::LogLevel::Trace)) {
-            log.trace() << connectionName << " MQTT: Send data (full message):\n" << toHexString(data);
+        if (log_.enabled(logger::LogLevel::Trace)) {
+            log_.trace() << connectionName << " MQTT: Send data (full message):\n" << toHexString(data);
         }
 
         mqttContext->send(data.data(), data.size());
@@ -225,9 +226,8 @@ namespace iot::mqtt {
         send(iot::mqtt::packets::Publish(packetIdentifier, topic, message, qoS, false, retain));
 
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   Topic: " << topic;
-        auto log = iot::mqtt::semantic::mqttLog();
-        if (log.enabled(logger::LogLevel::Trace)) {
-            log.trace() << connectionName << " MQTT:   Message:\n" << toHexString(message);
+        if (log_.enabled(logger::LogLevel::Trace)) {
+            log_.trace() << connectionName << " MQTT:   Message:\n" << toHexString(message);
         }
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   QoS: " << static_cast<uint16_t>(qoS);
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   PacketIdentifier: " << packetIdentifier;
@@ -275,9 +275,8 @@ namespace iot::mqtt {
         bool deliver = true;
 
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   Topic: " << publish.getTopic();
-        auto log = iot::mqtt::semantic::mqttLog();
-        if (log.enabled(logger::LogLevel::Trace)) {
-            log.trace() << connectionName << " MQTT:   Message:\n" << toHexString(publish.getMessage());
+        if (log_.enabled(logger::LogLevel::Trace)) {
+            log_.trace() << connectionName << " MQTT:   Message:\n" << toHexString(publish.getMessage());
         }
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   QoS: " << static_cast<uint16_t>(publish.getQoS());
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT:   PacketIdentifier: " << publish.getPacketIdentifier();
@@ -415,19 +414,17 @@ namespace iot::mqtt {
     void Mqtt::printVP(const iot::mqtt::ControlPacket& packet) const {
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT: " << packet.getName() << " received: " << clientId;
 
-        auto log = iot::mqtt::semantic::mqttLog();
-        if (log.enabled(logger::LogLevel::Trace)) {
+        if (log_.enabled(logger::LogLevel::Trace)) {
             const std::string hexString = toHexString(packet.serializeVP());
             if (!hexString.empty()) {
-                log.trace() << connectionName << " MQTT: Received data (variable header and payload):\n" << hexString;
+                log_.trace() << connectionName << " MQTT: Received data (variable header and payload):\n" << hexString;
             }
         }
     }
 
     void Mqtt::printFixedHeader(const FixedHeader& fixedHeader) const {
-        auto log = iot::mqtt::semantic::mqttLog();
-        if (log.enabled(logger::LogLevel::Trace)) {
-            log.trace() << connectionName << " MQTT: Received data (fixed header):\n" << toHexString(fixedHeader.serialize());
+        if (log_.enabled(logger::LogLevel::Trace)) {
+            log_.trace() << connectionName << " MQTT: Received data (fixed header):\n" << toHexString(fixedHeader.serialize());
         }
 
         iot::mqtt::semantic::mqttLog().debug() << connectionName << " MQTT: Fixed Header: PacketType: 0x" << std::hex << std::setfill('0')

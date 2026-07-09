@@ -66,9 +66,9 @@ namespace iot::mqtt::server::broker {
 
     void Session::sendPublish(Message& message, uint8_t qoS, bool retain) {
         iot::mqtt::semantic::mqttSessionLog().info() << "MQTT Broker:   TopicName: " << message.getTopic();
-        if (iot::mqtt::semantic::mqttSessionLog().enabled(logger::LogLevel::Info)) {
-            iot::mqtt::semantic::mqttSessionLog().info() << "MQTT Broker:   Message:\n"
-                                                         << iot::mqtt::Mqtt::toHexString(message.getMessage());
+        auto log = iot::mqtt::semantic::mqttSessionLog();
+        if (log.enabled(logger::LogLevel::Info)) {
+            log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
         }
         iot::mqtt::semantic::mqttSessionLog().debug() << "MQTT Broker:   QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 

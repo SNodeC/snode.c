@@ -120,9 +120,9 @@ namespace iot::mqtt::server::broker {
         if (topic.empty()) {
             iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker: Retain:";
             iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:   Topic: " << message.getTopic();
-            if (iot::mqtt::semantic::mqttBrokerLog().enabled(logger::LogLevel::Debug)) {
-                iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:   Message:\n"
-                                                             << iot::mqtt::Mqtt::toHexString(message.getMessage());
+            auto log = iot::mqtt::semantic::mqttBrokerLog();
+            if (log.enabled(logger::LogLevel::Debug)) {
+                log.debug() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
             }
             iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
 
@@ -165,9 +165,9 @@ namespace iot::mqtt::server::broker {
             if (!message.getTopic().empty()) {
                 iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: Retained Topic found:";
                 iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Topic: " << message.getTopic();
-                if (iot::mqtt::semantic::mqttBrokerLog().enabled(logger::LogLevel::Info)) {
-                    iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Message:\n"
-                                                                << iot::mqtt::Mqtt::toHexString(message.getMessage());
+                auto log = iot::mqtt::semantic::mqttBrokerLog();
+                if (log.enabled(logger::LogLevel::Info)) {
+                    log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
                 }
                 iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
                 iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:   Client:";
@@ -203,9 +203,9 @@ namespace iot::mqtt::server::broker {
         if (!message.getTopic().empty()) {
             iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker: Retained Topic found:";
             iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Topic: " << message.getTopic();
-            if (iot::mqtt::semantic::mqttBrokerLog().enabled(logger::LogLevel::Info)) {
-                iot::mqtt::semantic::mqttBrokerLog().info() << "MQTT Broker:   Message:\n"
-                                                            << iot::mqtt::Mqtt::toHexString(message.getMessage());
+            auto log = iot::mqtt::semantic::mqttBrokerLog();
+            if (log.enabled(logger::LogLevel::Info)) {
+                log.info() << "MQTT Broker:   Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
             }
             iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:     QoS: " << static_cast<uint16_t>(message.getQoS());
             iot::mqtt::semantic::mqttBrokerLog().debug() << "MQTT Broker:   Client:";

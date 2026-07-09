@@ -44,6 +44,7 @@
 
 #include "core/timer/Timer.h"     // IWYU pragma: export
 #include "iot/mqtt/FixedHeader.h" // IWYU pragma: export
+#include "log/SemanticLogger.h"
 
 namespace iot::mqtt {
     class ControlPacket;
@@ -151,6 +152,8 @@ namespace iot::mqtt {
         mutable uint16_t _packetIdentifier = 0;
 
         core::timer::Timer keepAliveTimer;
+
+        logger::BoundaryLogger log_;
 
         int state = 0;
 
