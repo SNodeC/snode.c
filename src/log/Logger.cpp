@@ -44,281 +44,67 @@
 #include "log/Logger.h"
 
 #include "log/SemanticLogger.h"
+#include "log/detail/SpdlogBackend.h"
 
-#include <algorithm>
 #include <cerrno>
-#include <chrono>
-#include <cstring>
-#include <optional>
-#include <spdlog/logger.h>
-#include <spdlog/pattern_formatter.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/rotating_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <unistd.h>
+#include <string>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace {
-    std::shared_ptr<spdlog::sinks::stdout_color_sink_st> stdoutSink;
-    std::shared_ptr<spdlog::sinks::stdout_color_sink_st> semanticStdoutSink;
-    std::shared_ptr<spdlog::sinks::rotating_file_sink_st> fileSink;
-    std::shared_ptr<spdlog::sinks::rotating_file_sink_st> semanticFileSink;
-    std::shared_ptr<spdlog::logger> stdoutLogger;
-    std::shared_ptr<spdlog::logger> fileLogger;
-    std::shared_ptr<spdlog::logger> semanticStdoutLogger;
-    std::shared_ptr<spdlog::logger> semanticFileLogger;
-
-    int configuredLogLevel = 0;
-    int configuredVerboseLevel = 0;
-    bool quietMode = false;
-    logger::Logger::TickResolver tickResolver;
-
-    using Clock = std::chrono::steady_clock;
-    Clock::time_point startTime = Clock::now();
-
-    std::string defaultTick();
-
-    class TickFlagFormatter final : public spdlog::custom_flag_formatter {
-    public:
-        void format(const spdlog::details::log_msg&, const std::tm&, spdlog::memory_buf_t& dest) override {
-            std::string tick = tickResolver ? tickResolver() : defaultTick();
-            dest.append(tick.data(), tick.data() + static_cast<std::ptrdiff_t>(tick.size()));
-        }
-
-        std::unique_ptr<custom_flag_formatter> clone() const override {
-            return spdlog::details::make_unique<TickFlagFormatter>();
-        }
-    };
-
-    std::string defaultTick() {
-        const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - startTime).count();
-        std::string tick = std::to_string(elapsed);
-        if (tick.size() < 13) {
-            tick.insert(0, 13 - tick.size(), '0');
-        }
-        return tick;
-    }
-
-    std::string levelName(const logger::Level level) {
-        std::string result;
-
-        switch (level) {
-            case logger::Level::TRACE:
-                result = "TRACE  ";
-                break;
-            case logger::Level::DEBUG:
-                result = "DEBUG  ";
-                break;
-            case logger::Level::INFO:
-                result = "INFO   ";
-                break;
-            case logger::Level::WARNING:
-                result = "WARNING";
-                break;
-            case logger::Level::ERROR:
-                result = "ERROR  ";
-                break;
-            case logger::Level::FATAL:
-                result = "FATAL  ";
-                break;
-            case logger::Level::VERBOSE:
-                result = "VERBOSE";
-                break;
-        }
-
-        return result;
-    }
-
-    Color::Code levelColor(const logger::Level level) {
-        Color::Code color = Color::Code::FG_WHITE;
-
-        switch (level) {
-            case logger::Level::TRACE:
-                color = Color::Code::FG_MAGENTA; // +
-                break;
-            case logger::Level::DEBUG:
-                color = Color::Code::FG_LIGHT_GREEN; // +
-                break;
-            case logger::Level::INFO:
-                color = Color::Code::FG_LIGHT_YELLOW; // +
-                break;
-            case logger::Level::WARNING:
-                color = Color::Code::FG_YELLOW; // +
-                break;
-            case logger::Level::ERROR:
-                color = Color::Code::FG_RED; // +
-                break;
-            case logger::Level::FATAL:
-                color = Color::Code::FG_LIGHT_RED; // +
-                break;
-            case logger::Level::VERBOSE:
-                color = Color::Code::FG_WHITE;
-                break;
-        }
-
-        return color;
-    }
-
-    std::string colorizeLevel(const logger::Level level) {
-        std::string label = levelName(level);
-
-        if (!logger::Logger::getDisableColor()) {
-            label = Color::Code::FG_DEFAULT + (levelColor(level) + label) + Color::Code::FG_DEFAULT;
-        }
-
-        return label;
-    }
-
-    std::optional<logger::Level> mapSemanticLevel(const logger::LogLevel level) {
-        switch (level) {
-            case logger::LogLevel::Trace:
-                return logger::Level::TRACE;
-            case logger::LogLevel::Debug:
-                return logger::Level::DEBUG;
-            case logger::LogLevel::Info:
-                return logger::Level::INFO;
-            case logger::LogLevel::Warn:
-                return logger::Level::WARNING;
-            case logger::LogLevel::Error:
-                return logger::Level::ERROR;
-            case logger::LogLevel::Critical:
-                return logger::Level::FATAL;
-            case logger::LogLevel::Off:
-                return std::nullopt;
-        }
-        return std::nullopt;
-    }
-
-    bool shouldEmit(const logger::Level level) {
-        if (level == logger::Level::VERBOSE) {
-            return true;
-        }
-
-        switch (configuredLogLevel) {
-            case 6:
-                return true;
-            case 5:
-                return level != logger::Level::TRACE;
-            case 4:
-                return level == logger::Level::INFO || level == logger::Level::WARNING || level == logger::Level::ERROR ||
-                       level == logger::Level::FATAL;
-            case 3:
-                return level == logger::Level::WARNING || level == logger::Level::ERROR || level == logger::Level::FATAL;
-            case 2:
-                return level == logger::Level::ERROR || level == logger::Level::FATAL;
-            case 1:
-                return level == logger::Level::FATAL;
-            default:
-                return false;
-        }
+    logger::detail::SpdlogBackend& backend() {
+        static logger::detail::SpdlogBackend instance;
+        return instance;
     }
 } // namespace
 
 namespace logger {
 
     void Logger::init() {
-        startTime = Clock::now();
-        stdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
-        stdoutLogger = std::make_shared<spdlog::logger>("snodec-stdout", stdoutSink);
-        auto stdoutPattern = std::make_unique<spdlog::pattern_formatter>();
-        stdoutPattern->add_flag<TickFlagFormatter>('*').set_pattern("%Y-%m-%d %H:%M:%S %* %v");
-        stdoutLogger->set_formatter(std::move(stdoutPattern));
-        semanticStdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
-        semanticStdoutLogger = std::make_shared<spdlog::logger>("snodec-semantic-stdout", semanticStdoutSink);
-        semanticStdoutLogger->set_pattern("%v");
-
-        fileSink.reset();
-        semanticFileSink.reset();
-        fileLogger.reset();
-        semanticFileLogger.reset();
-        quietMode = false;
-        disableColorLog = ::isatty(::fileno(stdout)) == 0;
-        configuredVerboseLevel = 0;
-        configuredLogLevel = 0;
+        backend().init();
+        disableColorLog = backend().getDisableColor();
     }
 
     void Logger::setTickResolver(TickResolver resolver) {
-        tickResolver = std::move(resolver);
+        backend().setTickResolver(std::move(resolver));
     }
 
-    void Logger::setLogLevel(int level) {
-        configuredLogLevel = level;
+    void Logger::setLogLevel(const int level) {
+        backend().setLogLevel(level);
     }
 
-    void Logger::setVerboseLevel(int level) {
-        configuredVerboseLevel = std::max(0, level);
+    void Logger::setVerboseLevel(const int level) {
+        backend().setVerboseLevel(level);
     }
 
     void Logger::logToFile(const std::string& logFile) {
-        constexpr std::size_t maxSize = 2 * 1024 * 1024; // 2 MiB
-        constexpr std::size_t maxFiles = 3;              // keep log, log.1, log.2, log.3
-        fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_st>(logFile, maxSize, maxFiles);
-        fileLogger = std::make_shared<spdlog::logger>("snodec-file", fileSink);
-        auto filePattern = std::make_unique<spdlog::pattern_formatter>();
-        filePattern->add_flag<TickFlagFormatter>('*').set_pattern("%Y-%m-%d %H:%M:%S %* %v");
-        fileLogger->set_formatter(std::move(filePattern));
-        semanticFileSink = std::make_shared<spdlog::sinks::rotating_file_sink_st>(logFile, maxSize, maxFiles);
-        semanticFileLogger = std::make_shared<spdlog::logger>("snodec-semantic-file", semanticFileSink);
-        semanticFileLogger->set_pattern("%v");
+        backend().setLogFile(logFile);
     }
 
     void Logger::disableLogToFile() {
-        semanticFileLogger.reset();
-        semanticFileSink.reset();
-        fileLogger.reset();
-        fileSink.reset();
+        backend().disableLogFile();
     }
 
-    void Logger::setQuiet(bool quiet) {
-        quietMode = quiet;
+    void Logger::setQuiet(const bool quiet) {
+        backend().setQuiet(quiet);
     }
 
-    void Logger::setDisableColor(bool disableColor) {
+    void Logger::setDisableColor(const bool disableColor) {
+        backend().setDisableColor(disableColor);
         disableColorLog = disableColor;
     }
 
     bool Logger::getDisableColor() {
-        return disableColorLog;
+        return backend().getDisableColor();
     }
 
-    bool Logger::shouldLog(Level level) {
-        return shouldEmit(level);
+    bool Logger::shouldLog(const Level level) {
+        return backend().shouldLog(level);
     }
 
-    bool Logger::shouldVerbose(int verboseLevel) {
-        return verboseLevel >= 0 && verboseLevel <= configuredVerboseLevel;
-    }
-
-    static void emitFormattedLine(const std::string& line) {
-        if (!quietMode && semanticStdoutLogger) {
-            semanticStdoutLogger->log(spdlog::level::info, line);
-        }
-        if (semanticFileLogger) {
-            semanticFileLogger->log(spdlog::level::info, line);
-        }
-    }
-
-    static void emitLine(Level level, std::string message, const bool withErrno, const int errnoValue) {
-        if (!shouldEmit(level)) {
-            return;
-        }
-
-        if (withErrno) {
-            message += ": ";
-            message += std::strerror(errnoValue);
-        }
-
-        if (level != Level::VERBOSE) {
-            message = colorizeLevel(level) + " " + message;
-        }
-
-        if (!quietMode && stdoutLogger) {
-            stdoutLogger->log(spdlog::level::info, message);
-        }
-        if (fileLogger) {
-            fileLogger->log(spdlog::level::info, message);
-        }
+    bool Logger::shouldVerbose(const int verboseLevel) {
+        return backend().shouldVerbose(verboseLevel);
     }
 
     void Logger::emitSemantic(const LogRecord& record) {
@@ -326,11 +112,7 @@ namespace logger {
             return;
         }
 
-        if (!mapSemanticLevel(record.level)) {
-            return;
-        }
-
-        emitFormattedLine(LogManager::formatRecord(record));
+        backend().emitSemantic(record.level, LogManager::formatRecord(record));
     }
 
     BoundaryLogger::Sink Logger::semanticSink() {
@@ -351,7 +133,7 @@ namespace logger {
 
     LogMessage::~LogMessage() {
         if (enabled) {
-            emitLine(level, message.str(), withErrno, errnoValue);
+            backend().emitLegacy(level, message.str(), withErrno, errnoValue);
         }
     }
 
