@@ -74,8 +74,8 @@ int main() {
     utils::AppWithPtr parent{"Parent app", "parent", nullptr};
     auto appChild = std::make_shared<utils::AppWithPtr>("Child section", "section", nullptr);
     parent.add_subcommand(appChild);
-    parent.setCanonicalNeed(appChild.get(), true);
     appChild->setCanonicalRequired(true);
+    parent.setCanonicalNeed(appChild.get(), true);
     require(appChild->canonicalRequired(), "child canonical required state was not recorded");
     require(appChild->effectiveRequired(), "child effective required state was not applied initially");
     require(appChild->get_required(), "CLI11 child required state was not applied initially");

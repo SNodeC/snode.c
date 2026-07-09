@@ -322,6 +322,9 @@ namespace utils {
         std::set<SubCommand*> childSubCommands;
 
         int requiredCount = 0;
+        // Effective contribution counting stays in SubCommand because required(bool)
+        // is a counted API and not every config child is owned in childSubCommands.
+        // AppWithPtr derives/applies only the local effective CLI11 state from this base.
         int effectiveRequiredCount = 0;
         bool requiredForced = false;
 

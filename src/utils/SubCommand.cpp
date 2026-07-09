@@ -629,8 +629,6 @@ namespace utils {
     }
 
     void AppWithPtr::applyEffectiveState() {
-        const bool previousEffectiveRequired = configState.required.effectiveRequired;
-
         configState.required.effectiveRequired =
             configState.required.canonicalRequired && configState.required.effectiveRequiredBase && configState.required.suppressions.empty();
         required(configState.required.effectiveRequired);
@@ -669,11 +667,6 @@ namespace utils {
             }
         }
 
-        if (previousEffectiveRequired != configState.required.effectiveRequired) {
-            if (auto* parent = dynamic_cast<AppWithPtr*>(get_parent()); parent != nullptr) {
-                parent->applyEffectiveState();
-            }
-        }
     }
 
     std::map<std::string, std::string> SubCommand::aliases;
