@@ -80,6 +80,31 @@
 namespace utils {
     class SubCommand;
 
+    enum class ConfigSuppressionReason {
+        Disabled,
+        ForceUnrequired
+    };
+
+    struct ConfigRequirementState {
+        bool canonicalRequired = false;
+        bool effectiveRequired = false;
+        std::set<ConfigSuppressionReason> suppressions;
+    };
+
+    struct ConfigOptionState {
+        ConfigRequirementState required;
+        std::set<const CLI::Option*> canonicalNeeds;
+        std::set<const CLI::Option*> effectiveNeeds;
+    };
+
+    struct ConfigNodeState {
+        ConfigRequirementState required;
+        std::set<const CLI::Option*> canonicalOptionNeeds;
+        std::set<const CLI::Option*> effectiveOptionNeeds;
+        std::set<const CLI::App*> canonicalNeeds;
+        std::set<const CLI::App*> effectiveNeeds;
+    };
+
     class AppWithPtr : public CLI::App {
     public:
         AppWithPtr(const std::string& description, const std::string& name, SubCommand* t);
@@ -92,8 +117,34 @@ namespace utils {
         CLI11_INLINE CLI::Option*
         set_help_flag(std::string flag_name, std::function<void(std::size_t)> help_callback, const std::string& help_description);
 
+        void setCanonicalRequired(bool required);
+        void setCanonicalRequired(CLI::Option* option, bool required);
+        void setSuppression(ConfigSuppressionReason reason, bool suppressed);
+        void setSuppression(CLI::Option* option, ConfigSuppressionReason reason, bool suppressed);
+        void setSuppressionRecursive(ConfigSuppressionReason reason, bool suppressed);
+
+        void setCanonicalNeed(CLI::Option* option, bool needed);
+        void setCanonicalNeed(CLI::App* app, bool needed);
+
+        bool canonicalRequired() const;
+        bool effectiveRequired() const;
+        bool canonicalRequired(const CLI::Option* option) const;
+        bool effectiveRequired(const CLI::Option* option) const;
+        bool hasSuppression(ConfigSuppressionReason reason) const;
+        bool hasSuppression(const CLI::Option* option, ConfigSuppressionReason reason) const;
+        bool canonicalNeeds(const CLI::Option* option) const;
+        bool effectiveNeeds(const CLI::Option* option) const;
+        bool canonicalNeeds(const CLI::App* app) const;
+        bool effectiveNeeds(const CLI::App* app) const;
+
     private:
+        ConfigOptionState& optionState(const CLI::Option* option);
+        const ConfigOptionState* findOptionState(const CLI::Option* option) const;
+        void applyEffectiveState();
+
         SubCommand* ptr;
+        ConfigNodeState configState;
+        std::map<const CLI::Option*, ConfigOptionState> optionConfigStates;
     };
 
     class SubCommand {
