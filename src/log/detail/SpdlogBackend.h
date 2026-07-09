@@ -17,19 +17,22 @@
 #include "log/Logger.h"
 
 #include <memory>
-#include <spdlog/sinks/sink.h>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-namespace spdlog {
-    class logger;
-} // namespace spdlog
 
 namespace logger::detail {
 
     class SpdlogBackend {
     public:
+        SpdlogBackend();
+        ~SpdlogBackend();
+
+        SpdlogBackend(const SpdlogBackend&) = delete;
+        SpdlogBackend& operator=(const SpdlogBackend&) = delete;
+        SpdlogBackend(SpdlogBackend&&) = delete;
+        SpdlogBackend& operator=(SpdlogBackend&&) = delete;
+
         void init();
 
         void setQuiet(bool quiet);
@@ -49,23 +52,10 @@ namespace logger::detail {
 
         void setLogLevel(int level);
         void setVerboseLevel(int level);
-        std::string resolveTick() const;
 
     private:
-        std::shared_ptr<spdlog::sinks::sink> stdoutSink;
-        std::shared_ptr<spdlog::sinks::sink> semanticStdoutSink;
-        std::shared_ptr<spdlog::sinks::sink> fileSink;
-        std::shared_ptr<spdlog::sinks::sink> semanticFileSink;
-        std::shared_ptr<spdlog::logger> stdoutLogger;
-        std::shared_ptr<spdlog::logger> fileLogger;
-        std::shared_ptr<spdlog::logger> semanticStdoutLogger;
-        std::shared_ptr<spdlog::logger> semanticFileLogger;
-
-        Logger::TickResolver tickResolver;
-        int configuredLogLevel = 0;
-        int configuredVerboseLevel = 0;
-        bool quietMode = false;
-        bool disableColor = false;
+        class Impl;
+        std::unique_ptr<Impl> impl_;
     };
 
 } // namespace logger::detail
