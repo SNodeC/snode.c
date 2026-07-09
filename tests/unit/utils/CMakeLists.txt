@@ -1,0 +1,3 @@
+snodec_add_test(ConfigFormatterCommentMetadataTest ConfigFormatterCommentMetadataTest.cpp)
+target_link_libraries(ConfigFormatterCommentMetadataTest PRIVATE snodec-test-support snodec::utils)
+set_tests_properties(ConfigFormatterCommentMetadataTest PROPERTIES LABELS "unit;utils;config;format" TIMEOUT 5)
