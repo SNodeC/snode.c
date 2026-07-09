@@ -197,6 +197,14 @@ namespace utils {
         return parent;
     }
 
+    const AppWithPtr* SubCommand::getAppWithPtr() const {
+        return subCommandApp;
+    }
+
+    AppWithPtr* SubCommand::getAppWithPtr() {
+        return subCommandApp;
+    }
+
     SubCommand* SubCommand::allowExtras(bool allow) {
         subCommandApp->allow_extras(allow);
 
@@ -204,26 +212,33 @@ namespace utils {
     }
 
     SubCommand* SubCommand::forceUnrequired(bool unrequired) {
+        const bool previousEffectiveRequired = subCommandApp->effectiveRequired();
+
         requiredForced = unrequired;
         subCommandApp->setSuppressionRecursive(ConfigSuppressionReason::ForceUnrequired, requiredForced);
+
+        applyEffectiveRequiredContribution(previousEffectiveRequired, subCommandApp->effectiveRequired());
 
         return this;
     }
 
     SubCommand* SubCommand::required(bool required) {
-        const bool previousEffectiveRequired = subCommandApp->effectiveRequired();
+        const bool previousCanonicalRequired = requiredCount > 0;
 
         requiredCount += required ? 1 : -1;
+        effectiveRequiredCount += required ? 1 : -1;
         const bool countedRequired = requiredCount > 0;
+        const bool effectivelyCountedRequired = effectiveRequiredCount > 0;
         subCommandApp->ignore_case(countedRequired);
         subCommandApp->setCanonicalRequired(countedRequired);
+        subCommandApp->setEffectiveRequiredBase(effectivelyCountedRequired);
         subCommandApp->setSuppression(ConfigSuppressionReason::ForceUnrequired, requiredForced);
         const bool effectiveRequired = subCommandApp->effectiveRequired();
 
-        if (hasParent() && previousEffectiveRequired != effectiveRequired) {
+        if (hasParent() && previousCanonicalRequired != countedRequired) {
             SubCommand* parent = getParent();
 
-            parent->needs(this, effectiveRequired);
+            parent->needs(this, countedRequired);
             parent->required(effectiveRequired);
         }
 
@@ -253,6 +268,19 @@ namespace utils {
         subCommandApp->setCanonicalNeed(subCommand->subCommandApp, needs);
 
         return this;
+    }
+
+    void SubCommand::applyEffectiveRequiredContribution(bool previousEffectiveRequired, bool effectiveRequired) {
+        if (hasParent() && previousEffectiveRequired != effectiveRequired) {
+            SubCommand* parent = getParent();
+            const bool previousParentEffectiveRequired = parent->subCommandApp->effectiveRequired();
+
+            parent->effectiveRequiredCount += effectiveRequired ? 1 : -1;
+            parent->subCommandApp->setEffectiveRequiredBase(parent->effectiveRequiredCount > 0);
+            parent->subCommandApp->setEffectiveNeed(subCommandApp, effectiveRequired);
+
+            parent->applyEffectiveRequiredContribution(previousParentEffectiveRequired, parent->subCommandApp->effectiveRequired());
+        }
     }
 
     SubCommand* SubCommand::setRequireCallback(const std::function<void()>& callback) {
@@ -441,6 +469,12 @@ namespace utils {
 
     void AppWithPtr::setCanonicalRequired(bool required) {
         configState.required.canonicalRequired = required;
+        configState.required.effectiveRequiredBase = required;
+        applyEffectiveState();
+    }
+
+    void AppWithPtr::setEffectiveRequiredBase(bool required) {
+        configState.required.effectiveRequiredBase = required;
         applyEffectiveState();
     }
 
@@ -510,6 +544,16 @@ namespace utils {
         applyEffectiveState();
     }
 
+    void AppWithPtr::setEffectiveNeed(CLI::App* app, bool needed) {
+        if (needed && configState.canonicalNeeds.contains(app) && configState.required.suppressions.empty()) {
+            needs(app);
+            configState.effectiveNeeds.insert(app);
+        } else {
+            remove_needs(app);
+            configState.effectiveNeeds.erase(app);
+        }
+    }
+
     bool AppWithPtr::canonicalRequired() const {
         return configState.required.canonicalRequired;
     }
@@ -557,7 +601,8 @@ namespace utils {
     }
 
     void AppWithPtr::applyEffectiveState() {
-        configState.required.effectiveRequired = configState.required.canonicalRequired && configState.required.suppressions.empty();
+        configState.required.effectiveRequired =
+            configState.required.canonicalRequired && configState.required.effectiveRequiredBase && configState.required.suppressions.empty();
         required(configState.required.effectiveRequired);
 
         for (auto& [option, state] : optionConfigStates) {

@@ -87,6 +87,7 @@ namespace utils {
 
     struct ConfigRequirementState {
         bool canonicalRequired = false;
+        bool effectiveRequiredBase = false;
         bool effectiveRequired = false;
         std::set<ConfigSuppressionReason> suppressions;
     };
@@ -118,6 +119,7 @@ namespace utils {
         set_help_flag(std::string flag_name, std::function<void(std::size_t)> help_callback, const std::string& help_description);
 
         void setCanonicalRequired(bool required);
+        void setEffectiveRequiredBase(bool required);
         void setCanonicalRequired(CLI::Option* option, bool required);
         void setSuppression(ConfigSuppressionReason reason, bool suppressed);
         void setSuppression(CLI::Option* option, ConfigSuppressionReason reason, bool suppressed);
@@ -125,6 +127,7 @@ namespace utils {
 
         void setCanonicalNeed(CLI::Option* option, bool needed);
         void setCanonicalNeed(CLI::App* app, bool needed);
+        void setEffectiveNeed(CLI::App* app, bool needed);
 
         bool canonicalRequired() const;
         bool effectiveRequired() const;
@@ -180,6 +183,8 @@ namespace utils {
 
         bool hasParent() const;
         SubCommand* getParent() const;
+        const AppWithPtr* getAppWithPtr() const;
+        AppWithPtr* getAppWithPtr();
 
         SubCommand* allowExtras(bool allow = true);
 
@@ -296,6 +301,8 @@ namespace utils {
         static CLI::App* commandlineTriggerApp;
 
     private:
+        void applyEffectiveRequiredContribution(bool previousEffectiveRequired, bool effectiveRequired);
+
         CLI::Option* initialize(CLI::Option* option, const std::string& typeName, const CLI::Validator& validator, bool configurable) const;
 
         AppWithPtr* subCommandApp;
@@ -315,6 +322,7 @@ namespace utils {
         std::set<SubCommand*> childSubCommands;
 
         int requiredCount = 0;
+        int effectiveRequiredCount = 0;
         bool requiredForced = false;
 
         bool final;
