@@ -228,5 +228,37 @@ int main() {
     require(utils::Config::configRoot.getAppWithPtr()->effectiveNeeds(instance.getAppWithPtr()),
             "ConfigInstance re-enable did not restore parent effective need");
 
+    instance.setDisabled(true);
+    require(instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::Disabled),
+            "ConfigInstance setDisabled(true) did not apply Disabled suppression");
+    require(!instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::ForceUnrequired),
+            "ConfigInstance setDisabled(true) incorrectly applied ForceUnrequired suppression");
+    instance.forceUnrequired(true);
+    require(instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::Disabled),
+            "layered ConfigInstance suppression lost Disabled suppression");
+    require(instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::ForceUnrequired),
+            "layered ConfigInstance suppression did not apply ForceUnrequired suppression");
+    instance.setDisabled(false);
+    require(!instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::Disabled),
+            "ConfigInstance setDisabled(false) did not clear Disabled suppression");
+    require(instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::ForceUnrequired),
+            "ConfigInstance setDisabled(false) cleared ForceUnrequired suppression");
+    require(instance.getAppWithPtr()->canonicalRequired(), "layered ConfigInstance suppression erased canonical required state");
+    require(!instance.getAppWithPtr()->effectiveRequired(),
+            "layered ConfigInstance suppression restored effective required while ForceUnrequired remained active");
+    require(utils::Config::configRoot.getAppWithPtr()->canonicalNeeds(instance.getAppWithPtr()),
+            "layered ConfigInstance suppression erased parent canonical need");
+    require(!utils::Config::configRoot.getAppWithPtr()->effectiveNeeds(instance.getAppWithPtr()),
+            "layered ConfigInstance suppression restored parent effective need while ForceUnrequired remained active");
+    instance.forceUnrequired(false);
+    require(!instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::Disabled),
+            "clearing final layered suppression restored Disabled suppression");
+    require(!instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::ForceUnrequired),
+            "forceUnrequired(false) did not clear ForceUnrequired suppression");
+    require(instance.getAppWithPtr()->effectiveRequired(),
+            "layered ConfigInstance suppression did not restore effective required after final suppression cleared");
+    require(utils::Config::configRoot.getAppWithPtr()->effectiveNeeds(instance.getAppWithPtr()),
+            "layered ConfigInstance suppression did not restore parent effective need after final suppression cleared");
+
     return 0;
 }

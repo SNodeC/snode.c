@@ -94,8 +94,6 @@ namespace utils {
 
     struct ConfigOptionState {
         ConfigRequirementState required;
-        std::set<const CLI::Option*> canonicalNeeds;
-        std::set<const CLI::Option*> effectiveNeeds;
     };
 
     struct ConfigNodeState {
@@ -127,7 +125,6 @@ namespace utils {
 
         void setCanonicalNeed(CLI::Option* option, bool needed);
         void setCanonicalNeed(CLI::App* app, bool needed);
-        void setEffectiveNeed(CLI::App* app, bool needed);
 
         bool canonicalRequired() const;
         bool effectiveRequired() const;
@@ -211,6 +208,8 @@ namespace utils {
         RequestedSubCommand* getSubCommand() const;
 
     protected:
+        SubCommand* suppressRequirements(ConfigSuppressionReason reason, bool suppressed);
+
         CLI::Option* addConfigFlag(const std::string& defaultConfigFile) const;
         CLI::Option* addLogFileFlag(const std::string& defaultLogFile) const;
         CLI::Option* addVersionFlag(const std::string& version) const;

@@ -212,10 +212,15 @@ namespace utils {
     }
 
     SubCommand* SubCommand::forceUnrequired(bool unrequired) {
+        requiredForced = unrequired;
+
+        return suppressRequirements(ConfigSuppressionReason::ForceUnrequired, requiredForced);
+    }
+
+    SubCommand* SubCommand::suppressRequirements(ConfigSuppressionReason reason, bool suppressed) {
         const bool previousEffectiveRequired = subCommandApp->effectiveRequired();
 
-        requiredForced = unrequired;
-        subCommandApp->setSuppressionRecursive(ConfigSuppressionReason::ForceUnrequired, requiredForced);
+        subCommandApp->setSuppressionRecursive(reason, suppressed);
 
         applyEffectiveRequiredContribution(previousEffectiveRequired, subCommandApp->effectiveRequired());
 
@@ -235,7 +240,6 @@ namespace utils {
         }
         const bool countedRequired = requiredCount > 0;
         const bool effectivelyCountedRequired = effectiveRequiredCount > 0;
-        subCommandApp->ignore_case(countedRequired);
         subCommandApp->setCanonicalRequired(countedRequired);
         subCommandApp->setEffectiveRequiredBase(effectivelyCountedRequired);
         subCommandApp->setSuppression(ConfigSuppressionReason::ForceUnrequired, requiredForced);
@@ -289,7 +293,6 @@ namespace utils {
             }
 
             const bool parentCanonicalRequired = requiredCount > 0;
-            subCommandApp->ignore_case(parentCanonicalRequired);
             subCommandApp->setCanonicalRequired(parentCanonicalRequired);
             subCommandApp->setEffectiveRequiredBase(effectiveRequiredCount > 0);
 
@@ -313,7 +316,6 @@ namespace utils {
                 parent->effectiveRequiredCount = parent->effectiveRequiredCount > 0 ? parent->effectiveRequiredCount - 1 : 0;
             }
             parent->subCommandApp->setEffectiveRequiredBase(parent->effectiveRequiredCount > 0);
-            parent->subCommandApp->setEffectiveNeed(subCommandApp, effectiveRequired);
 
             parent->applyEffectiveRequiredContribution(previousParentEffectiveRequired, parent->subCommandApp->effectiveRequired());
         }
@@ -580,16 +582,6 @@ namespace utils {
         applyEffectiveState();
     }
 
-    void AppWithPtr::setEffectiveNeed(CLI::App* app, bool needed) {
-        if (needed && configState.canonicalNeeds.contains(app) && configState.required.suppressions.empty()) {
-            needs(app);
-            configState.effectiveNeeds.insert(app);
-        } else {
-            remove_needs(app);
-            configState.effectiveNeeds.erase(app);
-        }
-    }
-
     bool AppWithPtr::canonicalRequired() const {
         return configState.required.canonicalRequired;
     }
@@ -637,6 +629,8 @@ namespace utils {
     }
 
     void AppWithPtr::applyEffectiveState() {
+        const bool previousEffectiveRequired = configState.required.effectiveRequired;
+
         configState.required.effectiveRequired =
             configState.required.canonicalRequired && configState.required.effectiveRequiredBase && configState.required.suppressions.empty();
         required(configState.required.effectiveRequired);
@@ -668,10 +662,16 @@ namespace utils {
 
             for (const CLI::App* app : configState.canonicalNeeds) {
                 const auto* appWithPtr = dynamic_cast<const AppWithPtr*>(app);
-                if (appWithPtr == nullptr || appWithPtr->configState.required.suppressions.empty()) {
+                if (appWithPtr == nullptr || appWithPtr->effectiveRequired()) {
                     needs(const_cast<CLI::App*>(app));
                     configState.effectiveNeeds.insert(app);
                 }
+            }
+        }
+
+        if (previousEffectiveRequired != configState.required.effectiveRequired) {
+            if (auto* parent = dynamic_cast<AppWithPtr*>(get_parent()); parent != nullptr) {
+                parent->applyEffectiveState();
             }
         }
     }

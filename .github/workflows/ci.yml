@@ -18,7 +18,7 @@ on:
       - '.github/workflows/ci.yml'
 
 jobs:
-  gcc-debug:
+  gcc-debug-unit:
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -36,5 +36,26 @@ jobs:
       - name: Build
         run: cmake --build build --parallel 2
 
-      - name: Test
+      - name: Unit tests
         run: ctest --test-dir build --output-on-failure -L unit
+
+  gcc-debug-component:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ pkg-config libssl-dev nlohmann-json3-dev
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON
+
+      - name: Build
+        run: cmake --build build --parallel 2
+
+      - name: Component tests
+        run: ctest --test-dir build --output-on-failure -L component
