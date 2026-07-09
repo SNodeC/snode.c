@@ -44,6 +44,13 @@ target_include_directories(SemanticOverheadRound9Test PRIVATE ${PROJECT_SOURCE_D
 target_link_libraries(SemanticOverheadRound9Test PRIVATE snodec-test-support snodec::logger)
 set_tests_properties(SemanticOverheadRound9Test PROPERTIES LABELS "unit;log;round9")
 
+
+snodec_add_test(SemanticLoggingOverheadTest SemanticLoggingOverheadTest.cpp)
+target_include_directories(SemanticLoggingOverheadTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(SemanticLoggingOverheadTest PRIVATE cxx_std_20)
+target_link_libraries(SemanticLoggingOverheadTest PRIVATE snodec-test-support snodec::logger)
+set_tests_properties(SemanticLoggingOverheadTest PROPERTIES LABELS "unit;log;overhead")
+
 snodec_add_test(SemanticProductionThresholdRepairTest SemanticProductionThresholdRepairTest.cpp)
 target_include_directories(SemanticProductionThresholdRepairTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(SemanticProductionThresholdRepairTest PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
