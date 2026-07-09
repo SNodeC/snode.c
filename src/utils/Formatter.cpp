@@ -46,8 +46,10 @@
 #include "log/Logger.h"
 
 #include <algorithm>
+#include <cctype>
 #include <functional>
 #include <iomanip>
+#include <map>
 #include <set>
 #include <sstream>
 #include <vector>
@@ -63,130 +65,410 @@ namespace CLI {
     ConfigFormatter::~ConfigFormatter() {
     }
 
-    CLI11_INLINE std::string
-    ConfigFormatter::to_config(const App* app, bool default_also, bool write_description, std::string prefix) const {
-        std::stringstream out;
-        std::string commentLead;
-        commentLead.push_back(commentChar);
-        commentLead.push_back(' ');
+    namespace {
+        constexpr const char* MetaSchema = "snodec.config.comment-meta";
 
-        std::vector<std::string> groups = app->get_groups();
-        bool defaultUsed = false;
-        groups.insert(groups.begin(), std::string("Options"));
-        for (const auto& group : groups) {
-            if (group == "Options" || group.empty()) {
-                if (defaultUsed) {
-                    continue;
-                }
-                defaultUsed = true;
-            }
-            if (write_description && group != "Options" && !group.empty() &&
-                !app->get_options([group](const Option* opt) -> bool {
-                        return opt->get_group() == group && opt->get_configurable();
-                    })
-                     .empty()) {
-                out << '\n' << commentChar << commentLead << group << "\n";
-            }
-            for (const Option* opt : app->get_options({})) {
-                // Only process options that are configurable
-                if (opt->get_configurable()) {
-                    if (opt->get_group() != group) {
-                        if (!(group == "Options" && opt->get_group().empty())) {
-                            continue;
+        std::string jsonEscape(const std::string& input) {
+            std::string escaped;
+            for (const char ch : input) {
+                switch (ch) {
+                    case '\\':
+                        escaped += "\\\\";
+                        break;
+                    case '"':
+                        escaped += "\\\"";
+                        break;
+                    case '\b':
+                        escaped += "\\b";
+                        break;
+                    case '\f':
+                        escaped += "\\f";
+                        break;
+                    case '\n':
+                        escaped += "\\n";
+                        break;
+                    case '\r':
+                        escaped += "\\r";
+                        break;
+                    case '\t':
+                        escaped += "\\t";
+                        break;
+                    default:
+                        if (static_cast<unsigned char>(ch) < 0x20) {
+                            std::ostringstream hex;
+                            hex << "\\u" << std::hex << std::setw(4) << std::setfill('0') << static_cast<int>(ch);
+                            escaped += hex.str();
+                        } else {
+                            escaped.push_back(ch);
                         }
-                    }
-                    const std::string name = prefix + opt->get_single_name();
+                }
+            }
+            return escaped;
+        }
+
+        std::string quoteJson(const std::string& value) {
+            return "\"" + jsonEscape(value) + "\"";
+        }
+
+        std::string lower(std::string value) {
+            std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
+                return static_cast<char>(std::tolower(c));
+            });
+            return value;
+        }
+
+        void writeMetaBlock(std::ostream& out, const std::string& entity, const std::vector<std::string>& lines) {
+            out << "#@ snodec.meta begin " << entity << '\n';
+            for (const auto& line : lines) {
+                out << "#@ " << line << '\n';
+            }
+            out << "#@ snodec.meta end " << entity << '\n';
+        }
+
+        std::string jsonStringArray(const std::vector<std::string>& values) {
+            std::ostringstream out;
+            out << '[';
+            for (std::size_t i = 0; i < values.size(); ++i) {
+                if (i > 0)
+                    out << ", ";
+                out << quoteJson(values[i]);
+            }
+            out << ']';
+            return out.str();
+        }
+
+        std::string optionKey(const std::string& prefix, const Option* opt) {
+            return prefix + opt->get_single_name();
+        }
+
+        std::vector<std::string> pathWith(const std::vector<std::string>& parentPath, const std::string& segment) {
+            auto path = parentPath;
+            if (!segment.empty())
+                path.push_back(segment);
+            return path;
+        }
+
+        void writeDocumentMeta(std::ostream& out, const App* app) {
+            writeMetaBlock(out,
+                           "document",
+                           {"{",
+                            "  \"schema\": " + quoteJson(MetaSchema) + ",",
+                            "  \"version\": 1,",
+                            "  \"entity\": \"document\",",
+                            "  \"application\": {",
+                            "    \"name\": " + quoteJson(app->get_name()) + ",",
+                            "    \"description\": " + quoteJson(app->get_description()),
+                            "  },",
+                            "  \"scope\": \"configurable-options-only\",",
+                            "  \"syntax\": \"ini-with-comment-metadata\"",
+                            "}"});
+        }
+
+        std::pair<std::string, std::string> nodeKind(const App* app) {
+            if (app->get_parent() == nullptr)
+                return {"application", "root"};
+            if (app->get_name().empty())
+                return {"anonymous", "cli11-name"};
+            if (app->get_group() == "Instances")
+                return {"instance", "cli11-group"};
+            if (app->get_group() == "Sections")
+                return {"section", "cli11-group"};
+            if (!app->get_group().empty())
+                return {"category", "heuristic-cli11-group"};
+            return {"subcommand", "fallback"};
+        }
+
+        void writeNodeMeta(std::ostream& out, const App* app, const std::vector<std::string>& path, const std::string& prefix) {
+            const auto [kind, kindSource] = nodeKind(app);
+            std::string display = app->get_name();
+            if (display.empty())
+                display = !app->get_group().empty() ? app->get_group()
+                                                    : (!app->get_description().empty() ? app->get_description() : "<anonymous>");
+            writeMetaBlock(out,
+                           "node",
+                           {"{",
+                            "  \"schema\": " + quoteJson(MetaSchema) + ",",
+                            "  \"version\": 1,",
+                            "  \"entity\": \"node\",",
+                            "  \"kind\": " + quoteJson(kind) + ",",
+                            "  \"kindSource\": " + quoteJson(kindSource) + ",",
+                            "  \"name\": " + quoteJson(app->get_name()) + ",",
+                            "  \"displayName\": " + quoteJson(display) + ",",
+                            "  \"path\": " + jsonStringArray(path) + ",",
+                            "  \"configPrefix\": " + quoteJson(prefix) + ",",
+                            "  \"group\": " + quoteJson(app->get_group()) + ",",
+                            "  \"description\": " + quoteJson(app->get_description()) + ",",
+                            std::string("  \"configurable\": ") + (app->get_configurable() ? "true," : "false,"),
+                            "  \"required\": {",
+                            std::string("    \"effective\": ") + (app->get_required() ? "true," : "false,"),
+                            "    \"source\": \"cli11-current-state\"",
+                            "  },",
+                            std::string("  \"disabled\": ") + (app->get_disabled() ? "true" : "false"),
+                            "}"});
+        }
+
+        std::pair<std::string, std::string> groupKind(const std::string& group) {
+            const std::string l = lower(group);
+            if (group.empty() || lower(group) == "options")
+                return {"default", "cli11-default-group"};
+            if (l.find("nonpersistent") != std::string::npos)
+                return {"nonpersistent", "heuristic-group-name"};
+            if (l.find("persistent") != std::string::npos)
+                return {"persistent", "heuristic-group-name"};
+            return {"custom", "heuristic-group-name"};
+        }
+
+        void writeGroupMeta(std::ostream& out, const std::string& group, const std::vector<std::string>& path) {
+            const auto [kind, source] = groupKind(group);
+            writeMetaBlock(out,
+                           "group",
+                           {"{",
+                            "  \"schema\": " + quoteJson(MetaSchema) + ",",
+                            "  \"version\": 1,",
+                            "  \"entity\": \"group\",",
+                            "  \"name\": " + quoteJson(group) + ",",
+                            "  \"kind\": " + quoteJson(kind) + ",",
+                            "  \"kindSource\": " + quoteJson(source) + ",",
+                            "  \"nodePath\": " + jsonStringArray(path),
+                            "}"});
+        }
+
+        std::string typeKind(const Option* opt) {
+            const std::string n = lower(opt->get_single_name() + " " + opt->get_type_name());
+            if (opt->get_expected_min() == 0)
+                return "boolean";
+            if (n.find("port") != std::string::npos || n.find("int") != std::string::npos || n.find("number") != std::string::npos)
+                return "integer";
+            if (n.find("float") != std::string::npos || n.find("double") != std::string::npos)
+                return "number";
+            return "string";
+        }
+
+        std::string semanticFromLiteral(const std::string& literal) {
+            if (literal.size() >= 2 && literal.front() == '"' && literal.back() == '"')
+                return literal.substr(1, literal.size() - 2);
+            return literal;
+        }
+
+        void writeRelations(std::vector<std::string>& lines, const std::string& name, const std::set<Option*>& opts, bool comma) {
+            lines.push_back("    \"" + name + "\": [");
+            std::size_t idx = 0;
+            for (const auto* rel : opts) {
+                lines.push_back("      " + quoteJson(rel->get_single_name()) + (++idx < opts.size() ? "," : ""));
+            }
+            lines.push_back(std::string("    ]") + (comma ? "," : ""));
+        }
+
+        void writeOptionMeta(std::ostream& out,
+                             const Option* opt,
+                             const std::string& key,
+                             const std::string& group,
+                             const std::vector<std::string>& path,
+                             const std::string& defaultValue,
+                             const std::string& value) {
+            const bool explicitValue = opt->count() > 0;
+            const bool missingRequired =
+                opt->get_required() && (defaultValue == "\"<REQUIRED>\"" || (!explicitValue && opt->get_default_str().empty()));
+            const std::string effectiveLiteral = !value.empty() ? value : defaultValue;
+            const std::string source =
+                explicitValue ? "command-line-or-config"
+                              : (missingRequired ? "required-placeholder" : (!defaultValue.empty() ? "cpp-default" : "empty-default"));
+            const std::string longName = opt->get_lnames().empty() ? "null" : quoteJson("--" + opt->get_lnames().front());
+            const std::string shortName = opt->get_snames().empty() ? "null" : quoteJson("-" + opt->get_snames().front());
+            const auto gk = groupKind(group);
+            std::vector<std::string> lines = {
+                "{",
+                "  \"schema\": " + quoteJson(MetaSchema) + ",",
+                "  \"version\": 1,",
+                "  \"entity\": \"option\",",
+                "  \"id\": " + quoteJson(key) + ",",
+                "  \"key\": " + quoteJson(key) + ",",
+                "  \"localName\": " + quoteJson(opt->get_single_name()) + ",",
+                "  \"displayName\": " + quoteJson(opt->get_single_name()) + ",",
+                "  \"nodePath\": " + jsonStringArray(path) + ",",
+                "  \"group\": " + quoteJson(group) + ",",
+                "  \"description\": " + quoteJson(opt->get_description()) + ",",
+                "  \"configurable\": true,",
+                "  \"required\": {",
+                std::string("    \"effective\": ") + (opt->get_required() ? "true," : "false,"),
+                "    \"source\": \"cli11-current-state\"",
+                "  },",
+                std::string("  \"persistent\": ") + (gk.first == "persistent" ? "true," : "false,"),
+                "  \"commandLine\": {",
+                "    \"long\": " + longName + ",",
+                "    \"short\": " + shortName + ",",
+                std::string("    \"takesValue\": ") + (opt->get_expected_min() != 0 ? "true," : "false,"),
+                std::string("    \"repeatable\": ") + (opt->get_expected_max() > 1 ? "true" : "false"),
+                "  },",
+                "  \"configFile\": {",
+                "    \"key\": " + quoteJson(key) + ",",
+                "    \"section\": null,",
+                "    \"writable\": true",
+                "  },",
+                "  \"type\": {",
+                "    \"name\": " + quoteJson(opt->get_type_name().empty() ? opt->get_single_name() : opt->get_type_name()) + ",",
+                "    \"kind\": " + quoteJson(typeKind(opt)) + ",",
+                "    \"kindSource\": \"heuristic-name\",",
+                std::string("    \"items\": ") + (opt->get_items_expected_max() > 1 ? "\"list\"" : "\"single\""),
+                "  },",
+                "  \"constraints\": [],",
+                "  \"relations\": {"};
+            writeRelations(lines, "needs", opt->get_needs(), true);
+            writeRelations(lines, "excludes", opt->get_excludes(), false);
+            lines.insert(lines.end(),
+                         {"  },",
+                          "  \"value\": {",
+                          "    \"registrationDefault\": null,",
+                          "    \"registrationDefaultSource\": \"not-tracked\",",
+                          "    \"cppDefault\": " + (defaultValue.empty() ? "null" : quoteJson(semanticFromLiteral(defaultValue))) + ",",
+                          "    \"configured\": " + (explicitValue && !value.empty() ? quoteJson(semanticFromLiteral(value)) : "null") + ",",
+                          "    \"effective\": " +
+                              (!effectiveLiteral.empty() ? quoteJson(semanticFromLiteral(effectiveLiteral)) : quoteJson("")) + ",",
+                          "    \"source\": " + quoteJson(source) + ",",
+                          std::string("    \"isCppDefault\": ") + (!explicitValue ? "true," : "false,"),
+                          std::string("    \"isExplicitlyConfigured\": ") + (explicitValue ? "true," : "false,"),
+                          std::string("    \"isMissingRequired\": ") + (missingRequired ? "true," : "false,"),
+                          "    \"registrationDefaultLiteral\": null,",
+                          "    \"cppDefaultLiteral\": " + (defaultValue.empty() ? "null" : quoteJson(defaultValue)) + ",",
+                          "    \"configuredLiteral\": " + (explicitValue && !value.empty() ? quoteJson(value) : "null") + ",",
+                          "    \"effectiveLiteral\": " + (!effectiveLiteral.empty() ? quoteJson(effectiveLiteral) : "null"),
+                          "  }",
+                          "}"});
+            writeMetaBlock(out, "option", lines);
+        }
+
+        std::string toConfigWithMeta(const ConfigFormatter* formatter,
+                                     const App* app,
+                                     bool default_also,
+                                     bool write_description,
+                                     const std::string& prefix,
+                                     const std::vector<std::string>& path,
+                                     bool root) {
+            std::stringstream out;
+            std::string commentLead;
+            commentLead.push_back('#');
+            commentLead.push_back(' ');
+            if (root)
+                writeDocumentMeta(out, app);
+            writeNodeMeta(out, app, path, prefix);
+            if (write_description && !app->get_description().empty()) {
+                out << '#' << '#' << commentLead << detail::fix_newlines('#' + commentLead, app->get_description()) << '\n';
+            }
+
+            std::vector<std::string> groups = app->get_groups();
+            bool defaultUsed = false;
+            groups.insert(groups.begin(), std::string("Options"));
+            for (const auto& group : groups) {
+                if (group == "Options" || group.empty()) {
+                    if (defaultUsed)
+                        continue;
+                    defaultUsed = true;
+                }
+                bool hasConfigurable = !app->get_options([group](const Option* opt) {
+                                               return opt->get_configurable() &&
+                                                      (opt->get_group() == group || (group == "Options" && opt->get_group().empty()));
+                                           })
+                                            .empty();
+                if (write_description && hasConfigurable) {
+                    writeGroupMeta(out, group, path);
+                    if (group != "Options" && !group.empty())
+                        out << '\n' << '#' << commentLead << group << "\n";
+                }
+                for (const Option* opt : app->get_options({})) {
+                    if (!opt->get_configurable())
+                        continue;
+                    if (opt->get_group() != group && !(group == "Options" && opt->get_group().empty()))
+                        continue;
+                    const std::string name = optionKey(prefix, opt);
                     std::string value;
                     try {
-                        value = detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
+                        value = detail::ini_join(opt->reduced_results(), ' ', '[', ']', '\"', '\'');
                     } catch (CLI::ParseError& e) {
                         value = std::string{"<["} + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " + e.what() + ">";
                     }
-
                     std::string defaultValue{};
                     if (default_also) {
-                        static_assert(std::string::npos + static_cast<std::string::size_type>(1) == 0,
-                                      "std::string::npos + static_cast<std::string::size_type>(1) != 0");
-                        if (!value.empty() &&
-                            detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote, true) == "\"" + value + "\"") {
+                        if (!value.empty() && detail::convert_arg_for_ini(opt->get_default_str(), '\"', '\'', true) == "\"" + value + "\"")
                             value.clear();
-                        }
                         if (!opt->get_default_str().empty()) {
-                            defaultValue = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote, true);
-                            if (defaultValue == "'\"\"'") {
+                            defaultValue = detail::convert_arg_for_ini(opt->get_default_str(), '\"', '\'', true);
+                            if (defaultValue == "'\"\"'")
                                 defaultValue = "";
-                            }
-                        } else if (opt->get_run_callback_for_default()) {
-                            defaultValue = "\"\""; // empty string default value
-                        } else if (opt->get_required()) {
+                        } else if (opt->get_required())
                             defaultValue = "\"<REQUIRED>\"";
-                        } else if (opt->get_expected_min() == 0) {
-                            defaultValue = "false";
-                        } else {
+                        else if (opt->get_run_callback_for_default())
                             defaultValue = "\"\"";
-                        }
+                        else if (opt->get_expected_min() == 0)
+                            defaultValue = "false";
+                        else
+                            defaultValue = "\"\"";
                     }
-                    if (write_description && opt->has_description() && (default_also || !value.empty())) {
+                    writeOptionMeta(out, opt, name, group, path, defaultValue, value);
+                    if (write_description && opt->has_description() && (default_also || !value.empty()))
                         out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';
-                    }
                     if (default_also && !defaultValue.empty()) {
-                        if (defaultValue == value) {
+                        if (defaultValue == value)
                             value.clear();
-                        }
-                        out << commentChar << name << valueDelimiter << defaultValue << "\n";
+                        out << '#' << name << '=' << defaultValue << "\n";
                     }
                     if (!value.empty()) {
-                        if (!opt->get_fnames().empty()) {
+                        if (!opt->get_fnames().empty())
                             value = opt->get_flag_value(name, value);
-                        }
-                        if (value == "\"default\"") {
+                        if (value == "\"default\"")
                             value = "default";
-                        }
-                        out << name << valueDelimiter << value << "\n\n";
-                    } else {
+                        out << name << '=' << value << "\n\n";
+                    } else
                         out << '\n';
-                    }
                 }
             }
-        }
-        auto subcommands = app->get_subcommands({});
-        for (const App* subcom : subcommands) {
-            if (subcom->get_name().empty()) {
-                if (write_description && !subcom->get_group().empty()) {
-                    out << '\n' << commentLead << subcom->get_group() << " Options\n";
+            std::map<const App*, std::string> anonymousSegments;
+            std::size_t anon = 0;
+            auto subcommands = app->get_subcommands({});
+            for (const App* subcom : subcommands)
+                if (subcom->get_name().empty())
+                    anonymousSegments[subcom] = "<anonymous-" + std::to_string(anon++) + ">";
+            for (const App* subcom : subcommands) {
+                if (subcom->get_name().empty()) {
+                    out << toConfigWithMeta(
+                        formatter, subcom, default_also, write_description, prefix, pathWith(path, anonymousSegments[subcom]), false);
                 }
-                out << to_config(subcom, default_also, write_description, prefix);
             }
-        }
-
-        for (const App* subcom : subcommands) {
-            if (!subcom->get_name().empty()) {
-                if (subcom->get_configurable() && app->got_subcommand(subcom)) {
-                    if (!prefix.empty() || app->get_parent() == nullptr) {
-                        out << '[' << prefix << subcom->get_name() << "]\n";
-                    } else {
-                        std::string subname = app->get_name() + parentSeparatorChar + subcom->get_name();
-                        const auto* p = app->get_parent();
-                        while (p->get_parent() != nullptr) {
-                            subname = p->get_name() + parentSeparatorChar + subname;
-                            p = p->get_parent();
+            for (const App* subcom : subcommands) {
+                if (!subcom->get_name().empty()) {
+                    if (subcom->get_configurable() && app->got_subcommand(subcom)) {
+                        if (!prefix.empty() || app->get_parent() == nullptr)
+                            out << '[' << prefix << subcom->get_name() << "]\n";
+                        else {
+                            std::string subname = app->get_name() + '.' + subcom->get_name();
+                            const auto* p = app->get_parent();
+                            while (p->get_parent() != nullptr) {
+                                subname = p->get_name() + '.' + subname;
+                                p = p->get_parent();
+                            }
+                            out << '[' << subname << "]\n";
                         }
-                        out << '[' << subname << "]\n";
+                        out << toConfigWithMeta(
+                            formatter, subcom, default_also, write_description, "", pathWith(path, subcom->get_name()), false);
+                    } else {
+                        out << toConfigWithMeta(formatter,
+                                                subcom,
+                                                default_also,
+                                                write_description,
+                                                prefix + subcom->get_name() + '.',
+                                                pathWith(path, subcom->get_name()),
+                                                false);
                     }
-                    out << to_config(subcom, default_also, write_description, "");
-                } else {
-                    out << to_config(subcom, default_also, write_description, prefix + subcom->get_name() + parentSeparatorChar);
                 }
             }
+            return out.str();
         }
+    } // namespace
 
-        std::string outString;
-        if (write_description && !out.str().empty()) {
-            outString =
-                commentChar + std::string("#") + commentLead + detail::fix_newlines(commentChar + commentLead, app->get_description());
-        }
-
-        return outString + out.str();
+    CLI11_INLINE std::string
+    ConfigFormatter::to_config(const App* app, bool default_also, bool write_description, std::string prefix) const {
+        const std::vector<std::string> path =
+            app->get_name().empty() ? std::vector<std::string>{} : std::vector<std::string>{app->get_name()};
+        return toConfigWithMeta(this, app, default_also, write_description, prefix, path, app->get_parent() == nullptr && prefix.empty());
     }
 
 #ifndef CLI11_ORIGINAL_FORMATTER
