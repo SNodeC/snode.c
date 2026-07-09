@@ -2,9 +2,9 @@
 #include "log/Logger.h"
 #include "log/SemanticLogger.h"
 #include "tests/support/TestResult.h"
+#include "tests/unit/log/SourcePolicyTestRoot.h"
 
 #include <filesystem>
-#include <fstream>
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -34,14 +34,20 @@ namespace {
         }
     };
 
-    std::string readFile(const std::filesystem::path& path) {
-        std::ifstream input(path);
-        return std::string((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+    bool containsRepeatedHelperGuard(const std::string& source) {
+        return source_policy::contains(source, "semantic::mqttBrokerLog().enabled") ||
+               source_policy::contains(source, "semantic::mqttSessionLog().enabled");
     }
 
-    bool containsRepeatedHelperGuard(const std::string& source) {
-        return source.find("semantic::mqttBrokerLog().enabled") != std::string::npos ||
-               source.find("semantic::mqttSessionLog().enabled") != std::string::npos;
+    bool containsDirectMqttLogSeverity(const std::string& source) {
+        constexpr std::string_view severities[] = {"trace", "debug", "info", "warn", "error", "critical"};
+        for (const std::string_view severity : severities) {
+            const std::string needle = std::string("iot::mqtt::semantic::mqttLog().") + std::string(severity) + "()";
+            if (source_policy::contains(source, needle)) {
+                return true;
+            }
+        }
+        return false;
     }
 } // namespace
 
@@ -86,11 +92,33 @@ int main() {
                           "copied cached logger keeps resolved threshold without re-resolution");
     }
 
+    const std::filesystem::path root = source_policy::sourcePolicyProjectRoot();
+    if (root.empty()) {
+        result.expectTrue(false, "sourcePolicyProjectRoot() must not return an empty path");
+        return result.processResult();
+    }
+
     {
-        const std::filesystem::path root = PROJECT_SOURCE_DIR;
-        const std::string retainTree = readFile(root / "src/iot/mqtt/server/broker/RetainTree.cpp");
-        const std::string subscriptionTree = readFile(root / "src/iot/mqtt/server/broker/SubscriptionTree.cpp");
-        const std::string session = readFile(root / "src/iot/mqtt/server/broker/Session.cpp");
+        const std::string mqttHeader = source_policy::readSourcePolicyFile(root / "src/iot/mqtt/Mqtt.h");
+        const std::string mqttSource = source_policy::readSourcePolicyFile(root / "src/iot/mqtt/Mqtt.cpp");
+
+        result.expectTrue(source_policy::contains(mqttHeader, "logger::BoundaryLogger log_"),
+                          "Mqtt.h contains cached BoundaryLogger member log_");
+        result.expectTrue(source_policy::contains(mqttSource, "log_(iot::mqtt::semantic::mqttLog())"),
+                          "Mqtt.cpp constructors initialize cached MQTT logger from mqttLog()");
+        result.expectTrue(!containsDirectMqttLogSeverity(mqttSource),
+                          "Mqtt.cpp uses cached log_ instead of direct same-scope mqttLog severity calls");
+        result.expectTrue(source_policy::contains(mqttSource, "log_.debug()"), "Mqtt.cpp contains cached debug logger usage");
+        result.expectTrue(source_policy::contains(mqttSource, "log_.info()"), "Mqtt.cpp contains cached info logger usage");
+        result.expectTrue(source_policy::contains(mqttSource, "log_.warn()"), "Mqtt.cpp contains cached warn logger usage");
+        result.expectTrue(source_policy::contains(mqttSource, "log_.error()"), "Mqtt.cpp contains cached error logger usage");
+        result.expectTrue(source_policy::contains(mqttSource, "log_.trace()"), "Mqtt.cpp contains cached trace logger usage");
+    }
+
+    {
+        const std::string retainTree = source_policy::readSourcePolicyFile(root / "src/iot/mqtt/server/broker/RetainTree.cpp");
+        const std::string subscriptionTree = source_policy::readSourcePolicyFile(root / "src/iot/mqtt/server/broker/SubscriptionTree.cpp");
+        const std::string session = source_policy::readSourcePolicyFile(root / "src/iot/mqtt/server/broker/Session.cpp");
 
         result.expectTrue(!containsRepeatedHelperGuard(retainTree), "RetainTree broker diagnostics use local bind-once guards");
         result.expectTrue(!containsRepeatedHelperGuard(subscriptionTree), "SubscriptionTree broker diagnostics use local bind-once guards");

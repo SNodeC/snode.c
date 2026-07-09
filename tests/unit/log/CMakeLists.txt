@@ -167,6 +167,5 @@ snodec_set_source_policy_test_properties(SemanticCliSourcePolicyTest "unit;log;c
 snodec_add_test(SemanticCachedLoggerOverheadTest SemanticCachedLoggerOverheadTest.cpp)
 target_include_directories(SemanticCachedLoggerOverheadTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(SemanticCachedLoggerOverheadTest PRIVATE cxx_std_20)
-target_compile_definitions(SemanticCachedLoggerOverheadTest PRIVATE PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 target_link_libraries(SemanticCachedLoggerOverheadTest PRIVATE snodec-test-support snodec::logger)
-set_tests_properties(SemanticCachedLoggerOverheadTest PROPERTIES LABELS "unit;log;overhead")
+snodec_set_source_policy_test_properties(SemanticCachedLoggerOverheadTest "unit;log;overhead;source-policy")

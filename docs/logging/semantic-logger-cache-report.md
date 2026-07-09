@@ -81,7 +81,8 @@ WebSocket send/receive frame logging uses semantic helper functions in frame tra
 ## Where caching was added
 
 - `iot::mqtt::Mqtt` now stores a resolved `logger::BoundaryLogger log_` member initialized from `iot::mqtt::semantic::mqttLog()` in both constructors.
-- MQTT trace guards in send/publish/receive dump paths use `log_.enabled(...)` and `log_.trace()` instead of reconstructing the helper/accessor logger on every call.
+- `Mqtt.cpp` now uses cached `log_` for all same-scope `trace`/`debug`/`info`/`warn`/`error`/`critical` logs instead of reconstructing `iot::mqtt::semantic::mqttLog()` on each call.
+- No same-scope `mqttLog().trace/debug/info/warn/error/critical` calls remain in `Mqtt.cpp`; any future reintroduction is covered by the source-policy test.
 
 ## Where caching was deliberately not added and why
 
@@ -97,8 +98,10 @@ The remaining repeated-helper guarded diagnostics in `RetainTree.cpp`, `Subscrip
 ## Tests added/updated
 
 - Added `tests/unit/log/SemanticCachedLoggerOverheadTest.cpp`.
+- The cached logger member and constructor initialization are structurally verified by `SemanticCachedLoggerOverheadTest`, which also fails if a direct same-scope `iot::mqtt::semantic::mqttLog().trace/debug/info/warn/error/critical` call returns to `Mqtt.cpp`.
+- The test uses `tests/unit/log/SourcePolicyTestRoot.h` for source-root discovery and source file reading.
 - Registered `SemanticCachedLoggerOverheadTest` in `tests/unit/log/CMakeLists.txt`.
-- The test checks global threshold rejection, component override acceptance, disabled expensive-argument suppression, enabled expensive-argument formatting exactly once, cached logger copy/value threshold behavior, and the source-policy absence of repeated MQTT broker helper guards.
+- The test checks global threshold rejection, component override acceptance, disabled expensive-argument suppression, enabled expensive-argument formatting exactly once, cached logger copy/value threshold behavior, structural cached MQTT member usage, absence of direct same-scope MQTT helper severity calls in `Mqtt.cpp`, and the source-policy absence of repeated MQTT broker helper guards.
 
 ## Search commands run
 
