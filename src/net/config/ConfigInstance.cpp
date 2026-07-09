@@ -85,7 +85,7 @@ namespace net::config {
         , disableOpt(setConfigurable(addFlagFunction(
                                          "--disabled{true}",
                                          [this]() {
-                                             forceUnrequired(disableOpt->as<bool>());
+                                             suppressRequirements(utils::ConfigSuppressionReason::Disabled, disableOpt->as<bool>());
                                          },
                                          "Disable this instance",
                                          "BOOL",
@@ -138,7 +138,7 @@ namespace net::config {
     ConfigInstance* ConfigInstance::setDisabled(bool disabled) {
         setDefaultValue(disableOpt, disabled ? "true" : "false");
 
-        this->forceUnrequired(disabled);
+        suppressRequirements(utils::ConfigSuppressionReason::Disabled, disabled);
 
         return this;
     }
