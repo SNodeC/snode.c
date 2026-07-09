@@ -10,6 +10,7 @@
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace {
     struct ExpensiveArgument {
@@ -64,10 +65,48 @@ namespace {
         return false;
     }
 
-    bool containsOnlyPrivateLogAccessors(std::string_view source) {
-        return source_policy::contains(source, "const logger::BoundaryLogger& log() const;") &&
-               !source_policy::contains(source, "public:\n        const logger::BoundaryLogger& log() const;") &&
-               !source_policy::contains(source, "public:\n            const logger::BoundaryLogger& log() const;");
+    bool isDeclaredAfterNearestPrivateSpecifier(std::string_view source, std::size_t declarationPos) {
+        enum class AccessSpecifier { None, Public, Protected, Private };
+
+        std::size_t nearestPos = 0;
+        AccessSpecifier nearestAccessSpecifier = AccessSpecifier::None;
+
+        const auto consider = [&](std::string_view specifier, AccessSpecifier accessSpecifier) {
+            const std::size_t pos = source.rfind(specifier, declarationPos);
+            if (pos != std::string_view::npos && (nearestAccessSpecifier == AccessSpecifier::None || pos > nearestPos)) {
+                nearestPos = pos;
+                nearestAccessSpecifier = accessSpecifier;
+            }
+        };
+
+        consider("public:", AccessSpecifier::Public);
+        consider("protected:", AccessSpecifier::Protected);
+        consider("private:", AccessSpecifier::Private);
+
+        return nearestAccessSpecifier == AccessSpecifier::Private;
+    }
+
+    bool isDeclaredAfterNearestPrivateSpecifier(std::string_view source, std::string_view declaration) {
+        const std::size_t declarationPos = source.find(declaration);
+        return declarationPos != std::string_view::npos && isDeclaredAfterNearestPrivateSpecifier(source, declarationPos);
+    }
+
+    bool allDeclarationsAfterNearestPrivateSpecifier(std::string_view source, std::string_view declaration, std::size_t expectedCount) {
+        std::size_t count = 0;
+        std::size_t searchPos = 0;
+        while (true) {
+            const std::size_t declarationPos = source.find(declaration, searchPos);
+            if (declarationPos == std::string_view::npos) {
+                break;
+            }
+            ++count;
+            if (!isDeclaredAfterNearestPrivateSpecifier(source, declarationPos)) {
+                return false;
+            }
+            searchPos = declarationPos + declaration.size();
+        }
+
+        return count == expectedCount;
     }
 } // namespace
 
@@ -143,6 +182,35 @@ int main() {
                           "EventLoop cached logger refreshes after LogManager generation changes");
     }
 
+    constexpr std::string_view brokerLogDeclaration = "const logger::BoundaryLogger& log() const;";
+
+    const std::string publicAccessor = R"cpp(
+class Example {
+public:
+    void foo();
+
+    const logger::BoundaryLogger& log() const;
+
+private:
+    int value = 0;
+};
+)cpp";
+    const std::string privateAccessor = R"cpp(
+class Example {
+public:
+    void foo();
+
+private:
+    const logger::BoundaryLogger& log() const;
+
+    int value = 0;
+};
+)cpp";
+    result.expectTrue(!isDeclaredAfterNearestPrivateSpecifier(publicAccessor, brokerLogDeclaration),
+                      "privacy helper rejects public logger accessor placement");
+    result.expectTrue(isDeclaredAfterNearestPrivateSpecifier(privateAccessor, brokerLogDeclaration),
+                      "privacy helper accepts private logger accessor placement");
+
     const std::filesystem::path root = source_policy::sourcePolicyProjectRoot();
     if (root.empty()) {
         result.expectTrue(false, "sourcePolicyProjectRoot() must not return an empty path");
@@ -205,16 +273,17 @@ int main() {
                       "WebSocket hot paths no longer call webSocketFrameLog directly");
 
     // Broker-family caches intentionally rely on private, enumerable runtime call sites plus generation-aware refresh.
-    for (const auto file : {"src/iot/mqtt/server/broker/Broker.h",
-                            "src/iot/mqtt/server/broker/RetainTree.h",
-                            "src/iot/mqtt/server/broker/SubscriptionTree.h",
-                            "src/iot/mqtt/server/broker/Session.h"}) {
+    for (const auto [file, expectedLogAccessorCount] : {std::pair{"src/iot/mqtt/server/broker/Broker.h", std::size_t{1}},
+                                                        std::pair{"src/iot/mqtt/server/broker/RetainTree.h", std::size_t{2}},
+                                                        std::pair{"src/iot/mqtt/server/broker/SubscriptionTree.h", std::size_t{2}},
+                                                        std::pair{"src/iot/mqtt/server/broker/Session.h", std::size_t{1}}}) {
         const std::string source = source_policy::readSourcePolicyFile(root / file);
         result.expectTrue(source_policy::contains(source, "std::optional<logger::BoundaryLogger> log_") &&
                               source_policy::contains(source, "logGeneration_") &&
                               !source_policy::contains(source, "logger::BoundaryLogger log_;"),
                           std::string(file) + " caches a generation-tracked optional BoundaryLogger");
-        result.expectTrue(containsOnlyPrivateLogAccessors(source), std::string(file) + " keeps the broker-family logger accessor private");
+        result.expectTrue(allDeclarationsAfterNearestPrivateSpecifier(source, brokerLogDeclaration, expectedLogAccessorCount),
+                          std::string(file) + " keeps every broker-family logger accessor private");
     }
     for (const auto file : {"src/iot/mqtt/server/broker/Broker.cpp",
                             "src/iot/mqtt/server/broker/RetainTree.cpp",
