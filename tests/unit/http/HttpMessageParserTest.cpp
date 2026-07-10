@@ -227,6 +227,16 @@ namespace {
 int main() {
     tests::support::TestResult testResult;
 
+    {
+        testResult.expectTrue(httputils::splitCommaSeparatedTokens("chunked,") == std::vector<std::string>{"chunked", ""},
+                              "comma splitter preserves trailing empty token");
+        testResult.expectTrue(httputils::splitCommaSeparatedTokens(",chunked") == std::vector<std::string>{"", "chunked"},
+                              "comma splitter preserves leading empty token");
+        testResult.expectTrue(httputils::splitCommaSeparatedTokens(",") == std::vector<std::string>{"", ""},
+                              "comma splitter preserves all-empty comma list");
+        testResult.expectTrue(httputils::splitCommaSeparatedTokens("") == std::vector<std::string>{""},
+                              "comma splitter returns one empty token for empty input");
+    }
 
     {
         const RequestParseResult normalGet = parseRequestMessage("GET / HTTP/1.1\r\nHost: example.test\r\n\r\n");
@@ -269,8 +279,17 @@ int main() {
     }
 
     {
-        const std::vector<std::string> invalidTransferEncodings = {
-            "xchunked", "chunkedx", "gzip", "chunked, gzip", "gzip, chunked", "chunked, chunked"};
+        const std::vector<std::string> invalidTransferEncodings = {"xchunked",
+                                                                    "chunkedx",
+                                                                    "gzip",
+                                                                    "chunked, gzip",
+                                                                    "gzip, chunked",
+                                                                    "chunked, chunked",
+                                                                    "chunked,",
+                                                                    ",chunked",
+                                                                    "gzip,",
+                                                                    ",",
+                                                                    ""};
         for (const std::string& transferEncoding : invalidTransferEncodings) {
             const RequestParseResult result = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: " + transferEncoding + "\r\n\r\n");
             testResult.expectTrue(!result.parsed, "request parser rejects unsupported or malformed Transfer-Encoding: " + transferEncoding);
@@ -292,7 +311,16 @@ int main() {
         const RequestParseResult listCl = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: 5, 5\r\n\r\nhello");
         testResult.expectTrue(listCl.parsed && listCl.request && bodyToString(listCl.request->body) == "hello", "identical listed Content-Length parses");
 
-        const std::vector<std::string> invalidContentLengths = {"5,6", "abc", "", "5x", "-1", "1 2", "184467440737095516160000"};
+        const std::vector<std::string> invalidContentLengths = {"5,6",
+                                                               "abc",
+                                                               "",
+                                                               "5x",
+                                                               "-1",
+                                                               "1 2",
+                                                               "184467440737095516160000",
+                                                               "5,",
+                                                               ",5",
+                                                               ","};
         for (const std::string& contentLength : invalidContentLengths) {
             const RequestParseResult result = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: " + contentLength + "\r\n\r\n");
             testResult.expectTrue(!result.parsed, "request parser rejects invalid Content-Length: " + contentLength);

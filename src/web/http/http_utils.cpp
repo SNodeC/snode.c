@@ -115,14 +115,20 @@ namespace httputils {
 
     std::vector<std::string> splitCommaSeparatedTokens(const std::string& value) {
         std::vector<std::string> tokens;
-        std::string remaining = value;
+        std::size_t start = 0;
 
-        do {
-            std::string token;
-            std::tie(token, remaining) = str_split(remaining, ',');
+        while (true) {
+            const std::size_t comma = value.find(',', start);
+            std::string token = value.substr(start, comma == std::string::npos ? std::string::npos : comma - start);
             str_trimm(token);
             tokens.emplace_back(std::move(token));
-        } while (!remaining.empty());
+
+            if (comma == std::string::npos) {
+                break;
+            }
+
+            start = comma + 1;
+        }
 
         return tokens;
     }
