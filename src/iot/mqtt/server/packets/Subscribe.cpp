@@ -84,6 +84,10 @@ namespace iot::mqtt::server::packets {
                 if (!qoS.isComplete()) {
                     break;
                 }
+                if (static_cast<uint8_t>(qoS) > 2) {
+                    error = true;
+                    break;
+                }
                 topics.emplace_back(topic, qoS);
                 topic.reset();
                 qoS.reset();

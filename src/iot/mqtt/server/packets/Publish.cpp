@@ -56,7 +56,7 @@ namespace iot::mqtt::server::packets {
         this->dup = (flags & 0x08) != 0;
         this->retain = (flags & 0x01) != 0;
 
-        error = this->qoS > 2;
+        error = this->qoS > 2 || (this->qoS == 0 && this->dup);
     }
 
     std::size_t Publish::deserializeVP(iot::mqtt::MqttContext* mqttContext) {
@@ -69,6 +69,11 @@ namespace iot::mqtt::server::packets {
                     break;
                 }
 
+                if (topic.size() == 0) {
+                    error = true;
+                    break;
+                }
+
                 state++;
                 [[fallthrough]];
             case 1:
@@ -77,9 +82,18 @@ namespace iot::mqtt::server::packets {
                     if (!packetIdentifier.isComplete()) {
                         break;
                     }
+                    if (packetIdentifier == 0) {
+                        error = true;
+                        break;
+                    }
                 }
 
-                message.setSize(static_cast<uint16_t>(getRemainingLength() - getConsumed() - consumed));
+                if (getConsumed() + consumed > getRemainingLength()) {
+                    error = true;
+                    break;
+                }
+
+                message.setSize(getRemainingLength() - getConsumed() - consumed);
 
                 state++;
                 [[fallthrough]];

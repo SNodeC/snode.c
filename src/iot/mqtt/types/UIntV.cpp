@@ -69,10 +69,10 @@ namespace iot::mqtt::types {
             if (consumed > 0) {
                 value.push_back(byte);
 
-                if (value.size() > sizeof(uint32_t)) {
+                complete = (byte & 0x80) == 0;
+                if (value.size() > sizeof(uint32_t) || (value.size() == sizeof(uint32_t) && !complete)) {
                     error = true;
-                } else {
-                    complete = (byte & 0x80) == 0;
+                    complete = false;
                 }
             }
         } while (consumed > 0 && !complete && !error);
