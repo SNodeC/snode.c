@@ -46,4 +46,6 @@ add_subdirectory(http)
 
 add_subdirectory(log)
 
+add_subdirectory(mqtt)
+
 add_subdirectory(utils)

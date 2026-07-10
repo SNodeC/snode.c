@@ -254,6 +254,11 @@ namespace iot::mqtt::server {
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
             mqttContext->close();
+        } else if ((connect.getConnectFlags() & 0x01) != 0) {
+            iot::mqtt::semantic::mqttServerLog().error()
+                << connectionName << " MQTT Broker:   CONNECT reserved flag bit set";
+
+            mqttContext->close();
         } else if (connect.isFakedClientId() && !connect.getCleanSession()) {
             iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   Resume session but no ClientId present";
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
