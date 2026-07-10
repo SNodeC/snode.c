@@ -144,14 +144,14 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocketClient, typename Config>
     void SocketConnector<PhysicalSocketClient, Config>::init() {
         if (core::eventLoopState() == core::State::RUNNING && !config->getDisabled()) {
-            this->log().trace("{} SSL/TLS: SSL_CTX creating ...", config->getInstanceName());
+            this->log().trace("SSL/TLS: SSL_CTX creating ...");
 
             if (config->getSslCtx() != nullptr) {
-                this->log().debug("{} SSL/TLS: SSL_CTX created", config->getInstanceName());
+                this->log().debug("SSL/TLS: SSL_CTX created");
 
                 Super::init();
             } else {
-                this->log().error("{} SSL/TLS: SSL_CTX creation failed", config->getInstanceName());
+                this->log().error("SSL/TLS: SSL_CTX creation failed");
 
                 Super::onStatus(config->Remote::getSocketAddress(), core::socket::STATE_FATAL);
                 Super::destruct();

@@ -158,6 +158,13 @@ target_compile_features(SemanticCliIntegrationTest PRIVATE cxx_std_20)
 target_link_libraries(SemanticCliIntegrationTest PRIVATE snodec-test-support snodec::utils snodec::logger)
 set_tests_properties(SemanticCliIntegrationTest PROPERTIES LABELS "unit;log;cli")
 
+
+snodec_add_test(SemanticIdentityMessagePolicyTest SemanticIdentityMessagePolicyTest.cpp)
+target_include_directories(SemanticIdentityMessagePolicyTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(SemanticIdentityMessagePolicyTest PRIVATE cxx_std_20)
+target_link_libraries(SemanticIdentityMessagePolicyTest PRIVATE snodec-test-support)
+snodec_set_source_policy_test_properties(SemanticIdentityMessagePolicyTest "unit;log;identity;source-policy")
+
 snodec_add_test(SemanticCliSourcePolicyTest SemanticCliSourcePolicyTest.cpp)
 target_include_directories(SemanticCliSourcePolicyTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(SemanticCliSourcePolicyTest PRIVATE cxx_std_20)

@@ -141,17 +141,17 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocketServer, typename Config>
     void SocketAcceptor<PhysicalSocketServer, Config>::init() {
         if (core::eventLoopState() == core::State::RUNNING && !config->getDisabled()) {
-            this->log().trace("{} SSL/TLS: SSL_CTX creating ...", config->getInstanceName());
+            this->log().trace("SSL/TLS: SSL_CTX creating ...");
             SSL_CTX* sslCtx = config->getSslCtx();
 
             if (sslCtx != nullptr) {
-                this->log().debug("{} SSL/TLS: SSL_CTX created", config->getInstanceName());
+                this->log().debug("SSL/TLS: SSL_CTX created");
 
                 SSL_CTX_set_client_hello_cb(sslCtx, clientHelloCallback, nullptr);
 
                 Super::init();
             } else {
-                this->log().error("{} SSL/TLS: SSL/TLS creation failed", config->getInstanceName());
+                this->log().error("SSL/TLS: SSL/TLS creation failed");
 
                 Super::onStatus(Super::config->Local::getSocketAddress(), core::socket::STATE_ERROR);
                 Super::destruct();
