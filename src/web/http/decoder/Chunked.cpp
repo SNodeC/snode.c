@@ -42,7 +42,12 @@
 #include "web/http/decoder/Chunked.h"
 
 #include "core/socket/stream/SocketContext.h"
+#include "web/http/http_utils.h"
 
+#include <algorithm>
+#include <cctype>
+#include <limits>
+#include <tuple>
 #include <stdexcept>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -83,7 +88,7 @@ namespace web::http::decoder {
                     }
 
                     state = (completed || error) ? -1 : state;
-                } while (ret > 0 && !completed);
+                } while (ret > 0 && !completed && !error);
                 break;
         }
 
@@ -149,14 +154,44 @@ namespace web::http::decoder {
                 CR = false;
                 LF = false;
 
-                try {
-                    chunkLenTotal = std::stoul(chunkLenTotalS, &pos, 16);
-                    chunk.resize(chunkLenTotal);
+                {
+                    std::string chunkSizeToken = chunkLenTotalS;
+                    std::tie(chunkSizeToken, std::ignore) = httputils::str_split(chunkSizeToken, ';');
+                    httputils::str_trimm(chunkSizeToken);
+                    if (chunkSizeToken.empty() || !std::all_of(chunkSizeToken.begin(), chunkSizeToken.end(), [](unsigned char c) {
+                            return std::isxdigit(c) != 0;
+                        }) ||
+                        chunkSizeToken.size() > maxChunkLenTotalS) {
+                        error = true;
+                        state = -1;
+                        break;
+                    }
 
-                    state = 1;
-                } catch (std::invalid_argument&) {
-                    error = true;
-                    break;
+                    try {
+                        const unsigned long long parsedChunkLen = std::stoull(chunkSizeToken, &pos, 16);
+                        if (pos != chunkSizeToken.size() || parsedChunkLen > std::numeric_limits<std::size_t>::max()) {
+                            error = true;
+                            state = -1;
+                            break;
+                        }
+                        chunkLenTotal = static_cast<std::size_t>(parsedChunkLen);
+                        chunk.resize(chunkLenTotal);
+
+                        if (chunkLenTotal == 0) {
+                            completed = true;
+                            state = -1;
+                            break;
+                        }
+                        state = 1;
+                    } catch (std::invalid_argument&) {
+                        error = true;
+                        state = -1;
+                        break;
+                    } catch (std::out_of_range&) {
+                        error = true;
+                        state = -1;
+                        break;
+                    }
                 }
 
                 [[fallthrough]];

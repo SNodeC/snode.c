@@ -109,6 +109,10 @@ namespace web::http {
 
     protected:
         virtual void analyzeHeader();
+        virtual bool allowsCloseDelimitedBody() const;
+        void useChunkedBodyDecoder();
+        void useIdentityBodyDecoder(std::size_t length);
+        bool configureTrailerDecoder();
 
     private:
         virtual void parseError(int code, const std::string& reason) = 0;

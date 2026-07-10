@@ -51,9 +51,12 @@
 #include <algorithm>
 #include <cctype>
 #include <cerrno>
+#include <charconv>
 #include <iomanip>
 #include <sstream>
+#include <system_error>
 #include <sys/stat.h>
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -107,6 +110,76 @@ namespace httputils {
         text.erase(0, text.find_first_not_of(" \t"));
 
         return text;
+    }
+
+
+    std::vector<std::string> splitCommaSeparatedTokens(const std::string& value) {
+        std::vector<std::string> tokens;
+        std::string remaining = value;
+
+        do {
+            std::string token;
+            std::tie(token, remaining) = str_split(remaining, ',');
+            str_trimm(token);
+            tokens.emplace_back(std::move(token));
+        } while (!remaining.empty());
+
+        return tokens;
+    }
+
+    bool tokenEquals(const std::string& value, const std::string& token) {
+        if (value.size() != token.size()) {
+            return false;
+        }
+
+        return std::equal(value.begin(), value.end(), token.begin(), [](unsigned char a, unsigned char b) {
+            return std::tolower(a) == std::tolower(b);
+        });
+    }
+
+    bool headerHasToken(const std::string& value, const std::string& token) {
+        const std::vector<std::string> tokens = splitCommaSeparatedTokens(value);
+
+        return std::any_of(tokens.begin(), tokens.end(), [&token](const std::string& headerToken) {
+            return tokenEquals(headerToken, token);
+        });
+    }
+
+    ContentLengthParseResult parseContentLength(const web::http::CiStringMap<std::string>& headers, std::size_t& out) {
+        if (!headers.contains("Content-Length")) {
+            return ContentLengthParseResult::Absent;
+        }
+
+        bool haveValue = false;
+        std::size_t expected = 0;
+
+        for (std::string value : splitCommaSeparatedTokens(headers.at("Content-Length"))) {
+            if (value.empty()) {
+                return ContentLengthParseResult::Invalid;
+            }
+
+            unsigned long long parsed = 0;
+            const char* first = value.data();
+            const char* last = value.data() + value.size();
+            const auto [ptr, ec] = std::from_chars(first, last, parsed, 10);
+            if (ec != std::errc{} || ptr != last || static_cast<unsigned long long>(static_cast<std::size_t>(parsed)) != parsed) {
+                return ContentLengthParseResult::Invalid;
+            }
+
+            const std::size_t length = static_cast<std::size_t>(parsed);
+            if (haveValue && length != expected) {
+                return ContentLengthParseResult::Invalid;
+            }
+            expected = length;
+            haveValue = true;
+        }
+
+        if (!haveValue) {
+            return ContentLengthParseResult::Invalid;
+        }
+
+        out = expected;
+        return ContentLengthParseResult::Valid;
     }
 
     std::pair<std::string, std::string> str_split(const std::string& base, char c_middle) {

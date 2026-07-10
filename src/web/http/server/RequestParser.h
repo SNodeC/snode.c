@@ -82,6 +82,7 @@ namespace web::http::server {
         // Parsers and Validators
         void parseStartLine(const std::string& line) override;
         void analyzeHeader() override;
+        bool allowsCloseDelimitedBody() const override;
 
         // Exits
         void parsingFinished() override;

@@ -137,9 +137,6 @@ namespace web::http::decoder {
         } else if ((std::isblank(headerFieldName.back()) != 0) || (std::isblank(headerFieldName.front()) != 0)) {
             errorCode = 400;
             errorReason = "White space before or after field";
-        } else if (value.empty()) {
-            errorCode = 400;
-            errorReason = "Value of field \"" + headerFieldName + "\" empty";
         } else {
             if (fieldsExpected.empty() || fieldsExpected.contains(headerFieldName)) {
                 httputils::str_trimm(value);

@@ -113,10 +113,10 @@ namespace web::http::client {
 
         if (headers.contains("Connection")) {
             const std::string& connection = headers["Connection"];
-            if (web::http::ciContains(connection, "keep-alive")) {
-                response.connectionState = ConnectionState::Keep;
-            } else if (web::http::ciContains(connection, "close")) {
+            if (httputils::headerHasToken(connection, "close")) {
                 response.connectionState = ConnectionState::Close;
+            } else if (httputils::headerHasToken(connection, "keep-alive")) {
+                response.connectionState = ConnectionState::Keep;
             }
         }
         if (headers.contains("Set-Cookie")) {

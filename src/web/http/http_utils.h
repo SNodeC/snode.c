@@ -50,6 +50,7 @@ namespace web::http {
 } // namespace web::http
 
 #include <ctime>
+#include <cstddef>
 #include <map>
 #include <string>
 #include <utility>
@@ -67,6 +68,16 @@ namespace httputils {
     std::string url_encode(const std::string& text);
 
     std::string& str_trimm(std::string& text);
+
+    std::vector<std::string> splitCommaSeparatedTokens(const std::string& value);
+
+    bool tokenEquals(const std::string& value, const std::string& token);
+
+    bool headerHasToken(const std::string& value, const std::string& token);
+
+    enum class ContentLengthParseResult { Absent, Valid, Invalid };
+
+    ContentLengthParseResult parseContentLength(const web::http::CiStringMap<std::string>& headers, std::size_t& out);
 
     std::pair<std::string, std::string> str_split(const std::string& base, char c_middle);
 
