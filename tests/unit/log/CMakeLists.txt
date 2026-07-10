@@ -147,6 +147,7 @@ snodec_set_source_policy_test_properties(HighFrequencyLoggingSeverityTest "unit;
 snodec_add_test(SemanticIdentityMessagePolicyTest SemanticIdentityMessagePolicyTest.cpp)
 target_compile_features(SemanticIdentityMessagePolicyTest PRIVATE cxx_std_20)
 snodec_set_source_policy_test_properties(SemanticIdentityMessagePolicyTest "unit;log;semantic-identity;source-policy")
+set_tests_properties(SemanticIdentityMessagePolicyTest PROPERTIES TIMEOUT 30)
 
 snodec_add_test(InnerEpollDiagnosticsTest InnerEpollDiagnosticsTest.cpp)
 target_compile_features(InnerEpollDiagnosticsTest PRIVATE cxx_std_20)
