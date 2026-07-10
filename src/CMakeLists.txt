@@ -146,6 +146,8 @@ if(SNODEC_BUILD_APPS)
     add_subdirectory(apps)
 endif()
 
+add_subdirectory(tools)
+
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES log)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES utils)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES core)
