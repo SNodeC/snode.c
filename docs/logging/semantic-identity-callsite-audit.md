@@ -478,7 +478,7 @@ Historical migration reports and unit tests produced raw matches, but they are n
 
 ## Raw search inventory appendix
 
-The primary raw evidence command produced 646 matches after excluding this report file from self-matches: production raw matches = 194, application/demo raw matches = 64, test occurrences = 10, documentation occurrences = 378. Because multiline expressions and repeated continuation hits were consolidated into meaningful audit rows, the logging/non-logging table counts are audit-row counts rather than a one-to-one restatement of raw `rg` lines. The report tables above classify the production/application matches into actual logging expressions and non-logging identity uses. The required `rg` command outputs were retained locally during this audit as `/tmp/audit_rg1.txt` through `/tmp/audit_rg6.txt`.
+The primary raw evidence command produced 646 matches after excluding this report file from self-matches: production raw matches = 194, application/demo raw matches = 64, test occurrences = 10, documentation occurrences = 378. Raw matches and audit rows are not one-to-one: multiline expressions may produce several raw matches that are consolidated into one logging call site, while a single source line may contain or represent multiple independently classified identity occurrences. Therefore category-level audit-row totals may be either lower or higher than raw-match totals. The report tables above classify the production/application matches into actual logging expressions and non-logging identity uses. The required `rg` command outputs were retained locally during this audit as `/tmp/audit_rg1.txt` through `/tmp/audit_rg6.txt`.
 
 ## Recommended next PRs
 
