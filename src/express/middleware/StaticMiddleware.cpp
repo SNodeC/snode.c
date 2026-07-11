@@ -67,8 +67,7 @@ namespace express::middleware {
              &stdCookies = this->stdCookies,
              &connectionState = this->defaultConnectionState,
              &fallThrough = this->fallThrough] MIDDLEWARE(req, res, next) {
-                snode::semantic::expressLog().debug()
-                    << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express " << req->method;
+                snode::semantic::expressLog(*res->getSocketContext()->getSocketConnection()).debug() << "Express " << req->method;
 
                 if (req->method != "GET") {
                     if (fallThrough) {
@@ -96,9 +95,8 @@ namespace express::middleware {
                     if (index.empty()) {
                         res->status(404).send("Unsupported resource: " + req->url + "\n");
                     } else {
-                        snode::semantic::expressLog().info()
-                            << res->getSocketContext()->getSocketConnection()->getConnectionName()
-                            << " Express StaticMiddleware Redirecting: " << req->url << " -> "
+                        snode::semantic::expressLog(*res->getSocketContext()->getSocketConnection()).info()
+                            << "Express StaticMiddleware Redirecting: " << req->url << " -> "
                             << req->originalPath +
                                    (!req->originalPath.empty() && req->originalPath.back() != '/' && index.front() != '/' ? "/" : "") +
                                    index;
@@ -115,13 +113,12 @@ namespace express::middleware {
                 const std::string decodedPath = httputils::url_decode(req->path);
                 res->sendFile(root + decodedPath, [&root, decodedPath, req, res, &next, &fallThrough](int ret) {
                     if (ret == 0) {
-                        snode::semantic::expressLog().info()
-                            << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware: GET "
-                            << req->url + " -> " << root + decodedPath;
+                        snode::semantic::expressLog(*res->getSocketContext()->getSocketConnection()).info()
+                            << "Express StaticMiddleware: GET " << req->url + " -> " << root + decodedPath;
                     } else {
-                        snode::semantic::sysError(snode::semantic::expressLog(), logger::LogLevel::Error, ret)
-                            << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
-                            << req->url + " -> " << root + decodedPath;
+                        snode::semantic::sysError(
+                            snode::semantic::expressLog(*res->getSocketContext()->getSocketConnection()), logger::LogLevel::Error, ret)
+                            << "Express StaticMiddleware " << req->url + " -> " << root + decodedPath;
 
                         if (fallThrough) {
                             next();

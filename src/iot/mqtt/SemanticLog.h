@@ -1,9 +1,12 @@
 #ifndef IOT_MQTT_SEMANTICLOG_H
 #define IOT_MQTT_SEMANTICLOG_H
 
+#include "core/socket/stream/SocketConnection.h"
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
+#include <optional>
+#include <string>
 #include <utility>
 
 namespace iot::mqtt::semantic {
@@ -48,6 +51,16 @@ namespace iot::mqtt::semantic {
         return scope;
     }
 
+    inline logger::LogScopeOwner mqttWebSocketLogScope(const core::socket::stream::SocketConnection& connection) {
+        return logger::LogScopeOwner(logger::LogOrigin::Framework,
+                                     logger::LogBoundary::Connection,
+                                     "iot.mqtt.websocket",
+                                     connection.getInstanceName().empty() ? std::nullopt
+                                                                          : std::optional<std::string>(connection.getInstanceName()),
+                                     std::nullopt,
+                                     connection.getConnectionName());
+    }
+
 #define IOT_MQTT_SEMANTIC_HELPER(name)                                                                                                     \
     inline logger::BoundaryLogger name() {                                                                                                 \
         return name##Scope().logger(logger::Logger::semanticSink());                                                                       \
@@ -66,6 +79,17 @@ namespace iot::mqtt::semantic {
     IOT_MQTT_SEMANTIC_HELPER(mqttPacketLog)
     IOT_MQTT_SEMANTIC_HELPER(mqttTopicLog)
     IOT_MQTT_SEMANTIC_HELPER(mqttWebSocketLog)
+
+    inline logger::BoundaryLogger mqttWebSocketLog(const core::socket::stream::SocketConnection& connection) {
+        return mqttWebSocketLogScope(connection).logger(logger::Logger::semanticSink());
+    }
+
+    inline logger::BoundaryLogger mqttWebSocketLog(const core::socket::stream::SocketConnection& connection,
+                                                   logger::BoundaryLogger::Sink sink,
+                                                   logger::LogLevel threshold = logger::LogLevel::Trace,
+                                                   logger::BoundaryLogger::Clock clock = {}) {
+        return mqttWebSocketLogScope(connection).logger(std::move(sink), threshold, std::move(clock));
+    }
 
 #undef IOT_MQTT_SEMANTIC_HELPER
 
