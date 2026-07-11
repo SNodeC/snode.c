@@ -75,25 +75,21 @@ namespace core::socket::stream::tls {
                   }
               },
               [socketContextFactory, onConnected](SocketConnection* socketConnection) { // on Connected
-                  static_cast<core::socket::stream::SocketConnection*>(socketConnection)
-                      ->log()
-                      .trace("{} SSL/TLS: Start handshake", socketConnection->getConnectionName());
+                  static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log().trace("SSL/TLS: Start handshake");
                   if (!socketConnection->doSSLHandshake(
                           [socketContextFactory,
                            onConnected,
                            socketConnection,
-                           log = static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log(),
-                           connectionName = socketConnection->getConnectionName()]() { // onSuccess
-                              log.debug("{} SSL/TLS: Handshake success", connectionName);
+                           log = static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log()]() { // onSuccess
+                              log.debug("SSL/TLS: Handshake success");
 
                               onConnected(socketConnection);
 
                               socketConnection->setSocketContext(socketContextFactory);
                           },
                           [socketConnection,
-                           log = static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log(),
-                           connectionName = socketConnection->getConnectionName()]() { // onTimeout
-                              log.error("{}SSL/TLS: Handshake timed out", connectionName);
+                           log = static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log()]() { // onTimeout
+                              log.error("SSL/TLS: Handshake timed out");
 
                               socketConnection->close();
                           },
@@ -102,9 +98,7 @@ namespace core::socket::stream::tls {
 
                               socketConnection->close();
                           })) {
-                      static_cast<core::socket::stream::SocketConnection*>(socketConnection)
-                          ->log()
-                          .error("{} SSL/TLS: Handshake failed", socketConnection->getConnectionName());
+                      static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log().error("SSL/TLS: Handshake failed");
 
                       socketConnection->close();
                   }
@@ -141,17 +135,17 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocketServer, typename Config>
     void SocketAcceptor<PhysicalSocketServer, Config>::init() {
         if (core::eventLoopState() == core::State::RUNNING && !config->getDisabled()) {
-            this->log().trace("{} SSL/TLS: SSL_CTX creating ...", config->getInstanceName());
+            this->log().trace("SSL/TLS: SSL_CTX creating ...");
             SSL_CTX* sslCtx = config->getSslCtx();
 
             if (sslCtx != nullptr) {
-                this->log().debug("{} SSL/TLS: SSL_CTX created", config->getInstanceName());
+                this->log().debug("SSL/TLS: SSL_CTX created");
 
                 SSL_CTX_set_client_hello_cb(sslCtx, clientHelloCallback, nullptr);
 
                 Super::init();
             } else {
-                this->log().error("{} SSL/TLS: SSL/TLS creation failed", config->getInstanceName());
+                this->log().error("SSL/TLS: SSL/TLS creation failed");
 
                 Super::onStatus(Super::config->Local::getSocketAddress(), core::socket::STATE_ERROR);
                 Super::destruct();
