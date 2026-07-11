@@ -273,7 +273,7 @@ namespace core::socket::stream {
                                 config);
                         }
                     } else {
-                        log.critical("{} required", config->getInstanceName());
+                        log.critical("required");
                     }
                 });
 
