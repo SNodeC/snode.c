@@ -119,8 +119,78 @@ namespace web::http::server {
         }
     }
 
+    bool RequestParser::allowsCloseDelimitedBody() const {
+        return false;
+    }
+
     void RequestParser::analyzeHeader() {
-        Parser::analyzeHeader();
+        if (httpMinor == 1) {
+            if (!headers.contains("Host")) {
+                parseError(400, "Missing Host");
+                return;
+            }
+            std::string host = headers["Host"];
+            httputils::str_trimm(host);
+            if (host.empty() || host.find(',') != std::string::npos) {
+                parseError(400, "Invalid Host");
+                return;
+            }
+        }
+
+        if (headers.contains("Transfer-Encoding")) {
+            if (headers.contains("Content-Length")) {
+                parseError(400, "Transfer-Encoding with Content-Length");
+                return;
+            }
+
+            const std::vector<std::string> codings = httputils::splitCommaSeparatedTokens(headers["Transfer-Encoding"]);
+            if (codings.empty()) {
+                parseError(400, "Invalid Transfer-Encoding");
+                return;
+            }
+
+            std::size_t chunkedCount = 0;
+            for (std::size_t i = 0; i < codings.size(); ++i) {
+                std::string coding = codings[i];
+                std::tie(coding, std::ignore) = httputils::str_split(coding, ';');
+                httputils::str_trimm(coding);
+
+                if (coding.empty()) {
+                    parseError(400, "Invalid Transfer-Encoding");
+                    return;
+                }
+
+                if (httputils::tokenEquals(coding, "chunked")) {
+                    ++chunkedCount;
+                    if (i + 1 != codings.size()) {
+                        parseError(400, "Chunked Transfer-Encoding not final");
+                        return;
+                    }
+                } else {
+                    parseError(501, "Unsupported Transfer-Encoding");
+                    return;
+                }
+            }
+
+            if (chunkedCount != 1 || codings.size() != 1) {
+                parseError(400, "Invalid Transfer-Encoding");
+                return;
+            }
+
+            useChunkedBodyDecoder();
+        } else {
+            std::size_t length = 0;
+            switch (httputils::parseContentLength(headers, length)) {
+                case httputils::ContentLengthParseResult::Absent:
+                    break;
+                case httputils::ContentLengthParseResult::Valid:
+                    useIdentityBodyDecoder(length);
+                    break;
+                case httputils::ContentLengthParseResult::Invalid:
+                    parseError(400, "Invalid Content-Length");
+                    return;
+            }
+        }
 
         if (parserState == Parser::ParserState::ERROR) {
             return;
@@ -128,10 +198,10 @@ namespace web::http::server {
 
         if (headers.contains("Connection")) {
             const std::string& connection = headers["Connection"];
-            if (web::http::ciContains(connection, "keep-alive")) {
-                request.connectionState = ConnectionState::Keep;
-            } else if (web::http::ciContains(connection, "close")) {
+            if (httputils::headerHasToken(connection, "close")) {
                 request.connectionState = ConnectionState::Close;
+            } else if (httputils::headerHasToken(connection, "keep-alive")) {
+                request.connectionState = ConnectionState::Keep;
             }
         }
 

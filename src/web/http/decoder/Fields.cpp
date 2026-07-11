@@ -129,17 +129,24 @@ namespace web::http::decoder {
     }
 
     void Fields::splitLine(const std::string& line) {
-        auto [headerFieldName, value] = httputils::str_split(line, ':');
+        const std::size_t colon = line.find(':');
+
+        if (colon == std::string::npos) {
+            errorCode = 400;
+            errorReason = "Header field missing colon";
+            return;
+        }
+
+        std::string headerFieldName = line.substr(0, colon);
+        std::string value = line.substr(colon + 1);
 
         if (headerFieldName.empty()) {
             errorCode = 400;
             errorReason = "Header field empty";
-        } else if ((std::isblank(headerFieldName.back()) != 0) || (std::isblank(headerFieldName.front()) != 0)) {
+        } else if ((std::isblank(static_cast<unsigned char>(headerFieldName.back())) != 0) ||
+                   (std::isblank(static_cast<unsigned char>(headerFieldName.front())) != 0)) {
             errorCode = 400;
             errorReason = "White space before or after field";
-        } else if (value.empty()) {
-            errorCode = 400;
-            errorReason = "Value of field \"" + headerFieldName + "\" empty";
         } else {
             if (fieldsExpected.empty() || fieldsExpected.contains(headerFieldName)) {
                 httputils::str_trimm(value);

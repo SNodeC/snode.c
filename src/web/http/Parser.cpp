@@ -50,45 +50,12 @@
 
 #include "web/http/http_utils.h"
 
-#include <charconv>
-#include <system_error>
 #include <tuple>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http {
-
-    static bool parseContentLengthStrict(const std::string& s, std::size_t& out) {
-        bool success = false;
-
-        if (!s.empty()) {
-            unsigned long long value = 0;
-
-            const char* first = s.data();
-            const char* last = s.data() + s.size();
-
-            const auto [ptr, ec] = std::from_chars(first, last, value, 10);
-
-            if (ec == std::errc{} && ptr == last) {
-                out = static_cast<std::size_t>(value);
-                success = true;
-            }
-        }
-
-        return success;
-    }
-
-    static bool transferEncodingHasChunked(CiStringMap<std::string>& headers) {
-        bool hasChunked = false;
-
-        if (headers.contains("Transfer-Encoding")) {
-            const std::string& encoding = headers["Transfer-Encoding"];
-            hasChunked = web::http::ciContains(encoding, "chunked");
-        }
-
-        return hasChunked;
-    }
 
     // HTTP/1.0 and HTTP/1.1
     const std::regex Parser::httpVersionRegex("^HTTP/([1])[.]([0-1])$");
@@ -190,77 +157,57 @@ namespace web::http {
         return consumed;
     }
 
-    void Parser::analyzeHeader() {
-        bool success = true;
+    void Parser::useChunkedBodyDecoder() {
+        transferEncoding = TransferEncoding::Chunked;
+        decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext));
+        configureTrailerDecoder();
+    }
 
-        // Determine message framing.
-        // RFC 9112 §6.3: Transfer-Encoding (chunked) overrides Content-Length.
-        const bool hasChunked = transferEncodingHasChunked(headers);
+    void Parser::useIdentityBodyDecoder(std::size_t length) {
+        contentLength = length;
+        transferEncoding = TransferEncoding::Identity;
+        decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, contentLength));
+    }
 
-        if (hasChunked) {
-            transferEncoding = TransferEncoding::Chunked;
-            decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext));
-
-            if (headers.contains("Trailer")) {
-                std::string trailers = headers["Trailer"];
-
-                while (!trailers.empty()) {
-                    std::string trailerField;
-                    std::tie(trailerField, trailers) = httputils::str_split(trailers, ',');
-                    httputils::str_trimm(trailerField);
-                    trailerFieldsExpected.insert(trailerField);
-                    trailerField.clear();
+    bool Parser::configureTrailerDecoder() {
+        if (headers.contains("Trailer")) {
+            for (std::string trailerField : httputils::splitCommaSeparatedTokens(headers["Trailer"])) {
+                if (!trailerField.empty()) {
+                    trailerFieldsExpected.insert(std::move(trailerField));
                 }
-                trailerDecoder.setFieldsExpected(trailerFieldsExpected);
             }
-        } else if (headers.contains("Content-Length")) {
-            std::size_t length = 0;
+            trailerDecoder.setFieldsExpected(trailerFieldsExpected);
+        }
+        return true;
+    }
 
-            if (!parseContentLengthStrict(headers["Content-Length"], length)) {
+    bool Parser::allowsCloseDelimitedBody() const {
+        return true;
+    }
+
+    void Parser::analyzeHeader() {
+        std::size_t length = 0;
+        switch (httputils::parseContentLength(headers, length)) {
+            case httputils::ContentLengthParseResult::Absent:
+                break;
+            case httputils::ContentLengthParseResult::Valid:
+                useIdentityBodyDecoder(length);
+                break;
+            case httputils::ContentLengthParseResult::Invalid:
                 parseError(400, "Invalid Content-Length");
-                success = false;
-            } else {
-                contentLength = length;
-                decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, contentLength));
-            }
+                return;
         }
 
-        if (success) {
-            // Transfer-Encoding (other than chunked) is currently not implemented, but we keep the
-            // existing behavior of not altering the decoder queue here.
-            if (headers.contains("Transfer-Encoding")) {
-                const std::string& encoding = headers["Transfer-Encoding"];
-                if (web::http::ciContains(encoding, "compressed")) {
-                    //  decoderQueue.emplace_back(new web::http::decoder::Compress(socketContext));
-                }
-                if (web::http::ciContains(encoding, "deflate")) {
-                    //  decoderQueue.emplace_back(new web::http::decoder::Deflate(socketContext));
-                }
-                if (web::http::ciContains(encoding, "gzip")) {
-                    //  decoderQueue.emplace_back(new web::http::decoder::GZip(socketContext));
-                }
+        if (headers.contains("Transfer-Encoding") && httputils::headerHasToken(headers["Transfer-Encoding"], "chunked")) {
+            for (const ContentDecoder* contentDecoder : decoderQueue) {
+                delete contentDecoder;
             }
+            decoderQueue.clear();
+            useChunkedBodyDecoder();
+        }
 
-            if (decoderQueue.empty()) {
-                decoderQueue.emplace_back(new web::http::decoder::HTTP10Response(socketContext));
-            }
-
-            if (headers.contains("Content-Encoding")) {
-                const std::string& encoding = headers["Content-Encoding"];
-
-                if (web::http::ciContains(encoding, "compressed")) {
-                    //  decoderQueue.emplace_back(new web::http::decoder::Compress(socketContext));
-                }
-                if (web::http::ciContains(encoding, "deflate")) {
-                    //  decoderQueue.emplace_back(new web::http::decoder::Deflate(socketContext));
-                }
-                if (web::http::ciContains(encoding, "gzip")) {
-                    //  decoderQueue.emplace_back(new web::http::decoder::GZip(socketContext));
-                }
-                if (web::http::ciContains(encoding, "br")) {
-                    //  decoderQueue.emplace_back(new web::http::decoder::Br(socketContext));
-                }
-            }
+        if (decoderQueue.empty() && allowsCloseDelimitedBody()) {
+            decoderQueue.emplace_back(new web::http::decoder::HTTP10Response(socketContext));
         }
     }
 
@@ -275,7 +222,7 @@ namespace web::http {
             std::vector<char> chunk = contentDecoder->getContent();
             content.insert(content.end(), chunk.begin(), chunk.end());
 
-            if (transferEncoding == TransferEncoding::Chunked && headers.contains("Trailer")) {
+            if (transferEncoding == TransferEncoding::Chunked) {
                 parserState = Parser::ParserState::TRAILER;
             } else {
                 parsingFinished();
@@ -294,7 +241,12 @@ namespace web::http {
             parseError(trailerDecoder.getErrorCode(), trailerDecoder.getErrorReason());
         } else if (trailerDecoder.isComplete()) {
             web::http::CiStringMap<std::string>&& trailer = trailerDecoder.getHeader();
-            headers.insert(trailer.begin(), trailer.end());
+            for (const auto& [field, value] : trailer) {
+                if (!web::http::ciEquals(field, "Content-Length") && !web::http::ciEquals(field, "Transfer-Encoding") &&
+                    !web::http::ciEquals(field, "Host") && !web::http::ciEquals(field, "Connection")) {
+                    headers.insert({field, value});
+                }
+            }
             parsingFinished();
         }
 
