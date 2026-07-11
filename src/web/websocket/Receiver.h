@@ -49,6 +49,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -94,14 +95,17 @@ namespace web::websocket {
         enum struct ParserState { BEGIN, OPCODE, LENGTH, ELENGTH, MASKINGKEY, PAYLOAD, ERROR } parserState = ParserState::BEGIN;
 
         bool fin = false;
-        bool continuation = false;
         bool masked = false;
+        bool fragmentedMessageActive = false;
+        bool currentFrameIsControl = false;
 
         bool maskingExpected = false;
 
         uint8_t opCode = 0;
+        uint8_t payloadLengthCode = 0;
 
         char maskingKey[4]{};
+        std::string controlPayload;
 
         union ELength8 {
             uint64_t asValue;

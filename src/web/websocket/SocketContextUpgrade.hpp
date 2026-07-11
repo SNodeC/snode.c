@@ -155,6 +155,7 @@ namespace web::websocket {
             case SubProtocolContext::OpCode::PONG:
                 break;
             default:
+                fragmentedDataOpCode = opCode;
                 subProtocol->onMessageStart(opCode);
                 break;
         }
@@ -201,16 +202,25 @@ namespace web::websocket {
                     sendClose(pongCloseData.data(), pongCloseData.length());
                     pongCloseData.clear();
                 }
+                fragmentedDataOpCode = 0;
                 break;
             case SubProtocolContext::OpCode::PING:
                 sendPong(pongCloseData.data(), pongCloseData.length());
                 pongCloseData.clear();
+                if (fragmentedDataOpCode != 0) {
+                    receivedOpCode = fragmentedDataOpCode;
+                }
                 break;
             case SubProtocolContext::OpCode::PONG:
                 subProtocol->onPongReceived();
+                pongCloseData.clear();
+                if (fragmentedDataOpCode != 0) {
+                    receivedOpCode = fragmentedDataOpCode;
+                }
                 break;
             default:
                 subProtocol->onMessageEnd();
+                fragmentedDataOpCode = 0;
                 break;
         }
     }

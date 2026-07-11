@@ -44,6 +44,8 @@ add_subdirectory(net)
 
 add_subdirectory(http)
 
+add_subdirectory(websocket)
+
 add_subdirectory(log)
 
 add_subdirectory(mqtt)

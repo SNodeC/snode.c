@@ -50,6 +50,7 @@
 
 #include <endian.h>
 #include <string>
+#include <limits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -107,7 +108,7 @@ namespace web::websocket {
                     break;
             }
             consumed += ret;
-        } while (ret > 0 && parserState != ParserState::BEGIN && parserState != ParserState::ERROR);
+        } while (ret > 0 && parserState != ParserState::BEGIN);
 
         return consumed;
     }
@@ -120,33 +121,76 @@ namespace web::websocket {
         return readFrameChunk(chunk, chunkLen);
     }
 
+    namespace {
+        constexpr uint16_t ProtocolError = 1002;
+
+        bool isControlOpCode(uint8_t opCode) {
+            return opCode >= 0x08;
+        }
+
+        bool isKnownOpCode(uint8_t opCode) {
+            return opCode == 0x00 || opCode == 0x01 || opCode == 0x02 || opCode == 0x08 || opCode == 0x09 || opCode == 0x0A;
+        }
+
+        bool isValidCloseStatus(uint16_t status) {
+            return (status >= 1000 && status <= 1014 && status != 1004 && status != 1005 && status != 1006) ||
+                   (status >= 3000 && status <= 4999);
+        }
+    } // namespace
+
     std::size_t Receiver::readOpcode() {
         char byte = 0;
         const std::size_t ret = readFrameData(&byte, 1);
 
         if (ret > 0) {
             const uint8_t opCodeByte = static_cast<uint8_t>(byte);
+            const bool rsvSet = (opCodeByte & 0b01110000) != 0;
 
             fin = (opCodeByte & 0b10000000) != 0;
             opCode = opCodeByte & 0b00001111;
+            currentFrameIsControl = isControlOpCode(opCode);
 
-            if (!continuation) {
+            if (rsvSet) {
+                parserState = ParserState::ERROR;
+                errorState = ProtocolError;
+                frameLog().error() << "WebSocket: RSV bits are not supported without negotiated extensions";
+            } else if (!isKnownOpCode(opCode)) {
+                parserState = ParserState::ERROR;
+                errorState = ProtocolError;
+                frameLog().error() << "WebSocket: Reserved or unknown opcode";
+            } else if (currentFrameIsControl && !fin) {
+                parserState = ParserState::ERROR;
+                errorState = ProtocolError;
+                frameLog().error() << "WebSocket: Control frames must not be fragmented";
+            } else if (opCode == 0) {
+                if (!fragmentedMessageActive) {
+                    parserState = ParserState::ERROR;
+                    errorState = ProtocolError;
+                    frameLog().error() << "WebSocket: Continuation frame without active fragmented message";
+                } else {
+                    parserState = ParserState::LENGTH;
+                }
+            } else if (currentFrameIsControl) {
                 onMessageStart(opCode);
                 parserState = ParserState::LENGTH;
-            } else if (opCode == 0) {
-                parserState = ParserState::LENGTH;
-            } else {
+            } else if (fragmentedMessageActive) {
                 parserState = ParserState::ERROR;
-                errorState = 1002;
-                frameLog().error() << "WebSocket: Error opcode in continuation frame";
+                errorState = ProtocolError;
+                frameLog().error() << "WebSocket: New data frame before fragmented message completed";
+            } else {
+                onMessageStart(opCode);
+                if (!fin) {
+                    fragmentedMessageActive = true;
+                }
+                parserState = ParserState::LENGTH;
             }
-            continuation = !fin;
         }
 
         return ret;
     }
 
     std::size_t Receiver::readLength() {
+        controlPayload.clear();
         char byte = 0;
         const std::size_t ret = readFrameData(&byte, 1);
 
@@ -155,9 +199,14 @@ namespace web::websocket {
 
             masked = (lengthByte & 0b10000000) != 0;
             if (masked == maskingExpected) {
-                payloadNumBytes = payloadNumBytesLeft = lengthByte & 0b01111111;
+                payloadLengthCode = lengthByte & 0b01111111;
+                payloadNumBytes = payloadNumBytesLeft = payloadLengthCode;
 
-                if (payloadNumBytes > 125) {
+                if (currentFrameIsControl && payloadLengthCode > 125) {
+                    parserState = ParserState::ERROR;
+                    errorState = ProtocolError;
+                    frameLog().error() << "WebSocket: Control frame uses extended payload length";
+                } else if (payloadNumBytes > 125) {
                     switch (payloadNumBytes) {
                         case 126:
                             elengthNumBytes = elengthNumBytesLeft = 2;
@@ -182,6 +231,8 @@ namespace web::websocket {
                 }
             } else {
                 parserState = ParserState::ERROR;
+                errorState = ProtocolError;
+                frameLog().error() << "WebSocket: Frame masking does not match endpoint role";
             }
         }
 
@@ -237,9 +288,18 @@ namespace web::websocket {
         }
 
         if (elengthNumBytesLeft == 0) {
-            if ((payloadNumBytes & static_cast<uint64_t>(0x01) << 63) != 0) {
+            if ((payloadNumBytes & (static_cast<uint64_t>(0x01) << 63)) != 0) {
                 parserState = ParserState::ERROR;
-                errorState = 1004;
+                errorState = ProtocolError;
+                frameLog().error() << "WebSocket: 64-bit payload length has MSB set";
+            } else if ((payloadLengthCode == 126 && payloadNumBytes < 126) || (payloadLengthCode == 127 && payloadNumBytes < 65536)) {
+                parserState = ParserState::ERROR;
+                errorState = ProtocolError;
+                frameLog().error() << "WebSocket: Non-minimal payload length encoding";
+            } else if (payloadNumBytes > static_cast<uint64_t>(std::numeric_limits<std::size_t>::max())) {
+                parserState = ParserState::ERROR;
+                errorState = ProtocolError;
+                frameLog().error() << "WebSocket: Payload length exceeds platform size limits";
             } else if (masked) {
                 parserState = ParserState::MASKINGKEY;
             } else {
@@ -265,6 +325,9 @@ namespace web::websocket {
             if (payloadNumBytes > 0) {
                 parserState = ParserState::PAYLOAD;
             } else {
+                if (opCode == 0 && fin) {
+                    fragmentedMessageActive = false;
+                }
                 if (fin) {
                     onMessageEnd();
                 }
@@ -296,6 +359,10 @@ namespace web::websocket {
                 frameLog().trace("WebSocket receive: Frame data\n{}", utils::hexDump(payloadChunk, payloadChunkLen, 32, true));
             }
 
+            if (currentFrameIsControl) {
+                controlPayload.append(payloadChunk, payloadChunkLen);
+            }
+
             onMessageData(payloadChunk, payloadChunkLen);
 
             payloadNumBytesLeft -= payloadChunkLen;
@@ -303,10 +370,30 @@ namespace web::websocket {
         }
 
         if (payloadNumBytesLeft == 0) {
-            if (fin) {
-                onMessageEnd();
+            if (opCode == 0 && fin) {
+                fragmentedMessageActive = false;
             }
-            reset();
+            if (opCode == 8) {
+                if (controlPayload.size() == 1) {
+                    parserState = ParserState::ERROR;
+                    errorState = ProtocolError;
+                    frameLog().error() << "WebSocket: Close frame payload length 1 is invalid";
+                } else if (controlPayload.size() >= 2) {
+                    const uint16_t closeStatus = (static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[0])) << 8) |
+                                                 static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[1]));
+                    if (!isValidCloseStatus(closeStatus)) {
+                        parserState = ParserState::ERROR;
+                        errorState = ProtocolError;
+                        frameLog().error() << "WebSocket: Close frame status code is invalid";
+                    }
+                }
+            }
+            if (parserState != ParserState::ERROR) {
+                if (fin) {
+                    onMessageEnd();
+                }
+                reset();
+            }
         }
 
         return ret;
@@ -316,10 +403,11 @@ namespace web::websocket {
         parserState = ParserState::BEGIN;
 
         fin = false;
-        continuation = false;
         masked = false;
+        currentFrameIsControl = false;
 
         opCode = 0;
+        payloadLengthCode = 0;
 
         elengthNumBytes = 0;
         elengthNumBytesLeft = 0;
@@ -331,6 +419,7 @@ namespace web::websocket {
         maskingKeyNumBytesLeft = 4;
 
         errorState = 0;
+        controlPayload.clear();
     }
 
 } // namespace web::websocket
