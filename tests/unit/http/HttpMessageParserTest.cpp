@@ -242,6 +242,9 @@ int main() {
         const RequestParseResult normalGet = parseRequestMessage("GET / HTTP/1.1\r\nHost: example.test\r\n\r\n");
         testResult.expectTrue(normalGet.parsed, "HTTP/1.1 GET with Host still parses");
 
+        const RequestParseResult emptyGenericHeader = parseRequestMessage("GET / HTTP/1.1\r\nHost: x\r\nX-Empty:\r\n\r\n");
+        testResult.expectTrue(emptyGenericHeader.parsed, "request parser allows empty generic header values");
+
         const RequestParseResult http10Get = parseRequestMessage("GET / HTTP/1.0\r\n\r\n");
         testResult.expectTrue(http10Get.parsed, "HTTP/1.0 request without Host still parses");
 
@@ -469,6 +472,10 @@ int main() {
         testResult.expectTrue(!malformedHeader.errorReason.empty(),
                               "request parser supplies an error reason for malformed header whitespace");
 
+        const RequestParseResult missingColon = parseRequestMessage("GET / HTTP/1.1\r\nHost: x\r\nBadHeaderWithoutColon\r\n\r\n");
+        testResult.expectTrue(!missingColon.parsed, "request header line without colon is rejected");
+        testResult.expectEqual(400, missingColon.errorCode, "missing request header colon is bad request");
+
         const RequestParseResult invalidContentLength = parseRequestMessage("POST / HTTP/1.1\r\nHost: example.test\r\nContent-Length: nope\r\n\r\n");
         testResult.expectTrue(invalidContentLength.started, "request parser starts before rejecting invalid Content-Length");
         testResult.expectTrue(!invalidContentLength.parsed, "request parser does not parse invalid Content-Length");
@@ -516,6 +523,10 @@ int main() {
         testResult.expectEqual(400, malformedHeader.errorCode, "response parser reports malformed header whitespace as bad response");
         testResult.expectTrue(!malformedHeader.errorReason.empty(),
                               "response parser supplies an error reason for malformed header whitespace");
+
+        const ResponseParseResult missingColon = parseResponseMessage("HTTP/1.1 200 OK\r\nBadHeaderWithoutColon\r\n\r\n");
+        testResult.expectTrue(!missingColon.parsed, "response header line without colon is rejected");
+        testResult.expectEqual(400, missingColon.errorCode, "missing response header colon is bad response");
 
         const ResponseParseResult invalidContentLength = parseResponseMessage("HTTP/1.1 200 OK\r\nContent-Length: nope\r\n\r\n");
         testResult.expectTrue(invalidContentLength.started, "response parser starts before rejecting invalid Content-Length");
