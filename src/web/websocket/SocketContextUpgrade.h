@@ -146,6 +146,7 @@ namespace web::websocket {
 
     private:
         int receivedOpCode = 0;
+        int fragmentedDataOpCode = 0;
 
         std::string pongCloseData;
     };
