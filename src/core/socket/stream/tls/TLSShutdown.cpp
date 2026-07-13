@@ -41,31 +41,68 @@
 
 #include "core/socket/stream/tls/TLSShutdown.h"
 #include "core/socket/stream/tls/detail/TLSShutdownPolicy.h"
+#include "core/socket/stream/tls/detail/TLSShutdownTestHooks.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
 #include <cerrno>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <optional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {
 
+    namespace {
+        std::size_t constructedCount = 0;
+        std::size_t activeCount = 0;
+        std::size_t maxActiveCount = 0;
+        std::optional<detail::test::ForcedShutdownResult> forcedResult;
+
+        struct ShutdownAttempt {
+            int ret = -1;
+            int sslErr = SSL_ERROR_NONE;
+            int savedErrno = 0;
+            unsigned long openSslError = 0;
+        };
+
+        ShutdownAttempt performShutdown(SSL* ssl) {
+            if (forcedResult.has_value()) {
+                ShutdownAttempt attempt{forcedResult->ret, forcedResult->sslError, forcedResult->systemError, forcedResult->openSslError};
+                forcedResult.reset();
+                return attempt;
+            }
+
+            ERR_clear_error();
+            errno = 0;
+            const int ret = SSL_shutdown(ssl);
+            const int savedErrno = errno;
+
+            int sslErr = SSL_ERROR_NONE;
+            if (ret < 0) {
+                sslErr = SSL_get_error(ssl, ret);
+            }
+
+            return {ret, sslErr, savedErrno, ret < 0 ? ERR_peek_last_error() : 0};
+        }
+    } // namespace
+
     void TLSShutdown::doShutdown(const std::string& instanceName,
                                  SSL* ssl,
                                  const std::function<void(void)>& onSuccess,
                                  const std::function<void(void)>& onTimeout,
-                                 const std::function<void(int)>& onStatus,
+                                 const std::function<void(int, int)>& onStatus,
                                  const utils::Timeval& timeout) {
-        new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout);
+        (new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout))->start();
     }
 
     TLSShutdown::TLSShutdown(const std::string& instanceName,
                              SSL* ssl,
                              const std::function<void(void)>& onSuccess,
                              const std::function<void(void)>& onTimeout,
-                             const std::function<void(int)>& onStatus,
+                             const std::function<void(int, int)>& onStatus,
                              const utils::Timeval& timeout)
         : ReadEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , WriteEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
@@ -73,138 +110,193 @@ namespace core::socket::stream::tls {
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)
         , onStatus(onStatus)
-        , timeoutTriggered(false)
         , fd(SSL_get_fd(ssl)) {
-        ERR_clear_error();
-        errno = 0;
-        const int ret = SSL_shutdown(ssl);
-        const int savedErrno = errno;
+        constructedCount++;
+        activeCount++;
+        maxActiveCount = std::max(maxActiveCount, activeCount);
+    }
 
-        int sslErr = SSL_ERROR_NONE;
-        if (ret < 0) {
-            sslErr = SSL_get_error(ssl, ret);
-        }
-        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_last_error() : 0;
+    void TLSShutdown::start() {
+        const ShutdownAttempt attempt = performShutdown(ssl);
 
-        if (!ReadEventReceiver::enable(fd)) {
-            delete this;
-        } else if (!WriteEventReceiver::enable(fd)) {
-            ReadEventReceiver::disable();
-        } else {
-            ReadEventReceiver::suspend();
-            WriteEventReceiver::suspend();
-
-            switch (classifyTlsShutdownResult(ret, sslErr, savedErrno, peekedOpenSslError)) {
-                case TlsShutdownClassification::WantRead:
-                    ReadEventReceiver::resume();
-                    break;
-                case TlsShutdownClassification::WantWrite:
-                    WriteEventReceiver::resume();
-                    break;
-                case TlsShutdownClassification::FullShutdownComplete:
-                case TlsShutdownClassification::CloseNotifySent:
-                    ReadEventReceiver::disable();
-                    WriteEventReceiver::disable();
-                    onSuccess();
-                    break;
-                default:
-                    ReadEventReceiver::disable();
-                    WriteEventReceiver::disable();
-                    onStatus(sslErr);
-                    break;
-            }
+        switch (classifyTlsShutdownResult(attempt.ret, attempt.sslErr, attempt.savedErrno, attempt.openSslError)) {
+            case TlsShutdownClassification::FullShutdownComplete:
+            case TlsShutdownClassification::CloseNotifySent:
+                finishSuccess();
+                return;
+            case TlsShutdownClassification::WantRead:
+                if (fd < 0) {
+                    finishError(attempt.sslErr, attempt.savedErrno == 0 ? EBADF : attempt.savedErrno);
+                    return;
+                }
+                if (!ReadEventReceiver::enable(fd)) {
+                    finishError(attempt.sslErr, errno == 0 ? EBADF : errno);
+                    return;
+                }
+                ReadEventReceiver::resume();
+                return;
+            case TlsShutdownClassification::WantWrite:
+                if (fd < 0) {
+                    finishError(attempt.sslErr, attempt.savedErrno == 0 ? EBADF : attempt.savedErrno);
+                    return;
+                }
+                if (!WriteEventReceiver::enable(fd)) {
+                    finishError(attempt.sslErr, errno == 0 ? EBADF : errno);
+                    return;
+                }
+                WriteEventReceiver::resume();
+                return;
+            default:
+                finishError(attempt.sslErr, attempt.savedErrno == 0 ? EIO : attempt.savedErrno);
+                return;
         }
     }
 
     void TLSShutdown::readEvent() {
-        ERR_clear_error();
-        errno = 0;
-        const int ret = SSL_shutdown(ssl);
-        const int savedErrno = errno;
+        const ShutdownAttempt attempt = performShutdown(ssl);
 
-        int sslErr = SSL_ERROR_NONE;
-        if (ret < 0) {
-            sslErr = SSL_get_error(ssl, ret);
-        }
-        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_last_error() : 0;
-
-        switch (classifyTlsShutdownResult(ret, sslErr, savedErrno, peekedOpenSslError)) {
+        switch (classifyTlsShutdownResult(attempt.ret, attempt.sslErr, attempt.savedErrno, attempt.openSslError)) {
             case TlsShutdownClassification::WantRead:
                 break;
             case TlsShutdownClassification::WantWrite:
-                ReadEventReceiver::suspend();
-                WriteEventReceiver::resume();
+                ReadEventReceiver::disable();
+                if (fd < 0) {
+                    finishError(attempt.sslErr, attempt.savedErrno == 0 ? EBADF : attempt.savedErrno);
+                    return;
+                }
+                if (!WriteEventReceiver::enable(fd)) {
+                    finishError(attempt.sslErr, errno == 0 ? EBADF : errno);
+                }
                 break;
             case TlsShutdownClassification::FullShutdownComplete:
             case TlsShutdownClassification::CloseNotifySent:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onSuccess();
+                finishSuccess();
                 break;
             default:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onStatus(sslErr);
+                finishError(attempt.sslErr, attempt.savedErrno == 0 ? EIO : attempt.savedErrno);
                 break;
         }
     }
 
     void TLSShutdown::writeEvent() {
-        ERR_clear_error();
-        errno = 0;
-        const int ret = SSL_shutdown(ssl);
-        const int savedErrno = errno;
+        const ShutdownAttempt attempt = performShutdown(ssl);
 
-        int sslErr = SSL_ERROR_NONE;
-        if (ret < 0) {
-            sslErr = SSL_get_error(ssl, ret);
-        }
-        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_last_error() : 0;
-
-        switch (classifyTlsShutdownResult(ret, sslErr, savedErrno, peekedOpenSslError)) {
+        switch (classifyTlsShutdownResult(attempt.ret, attempt.sslErr, attempt.savedErrno, attempt.openSslError)) {
             case TlsShutdownClassification::WantRead:
-                WriteEventReceiver::suspend();
-                ReadEventReceiver::resume();
+                WriteEventReceiver::disable();
+                if (fd < 0) {
+                    finishError(attempt.sslErr, attempt.savedErrno == 0 ? EBADF : attempt.savedErrno);
+                    return;
+                }
+                if (!ReadEventReceiver::enable(fd)) {
+                    finishError(attempt.sslErr, errno == 0 ? EBADF : errno);
+                }
                 break;
             case TlsShutdownClassification::WantWrite:
                 break;
             case TlsShutdownClassification::FullShutdownComplete:
             case TlsShutdownClassification::CloseNotifySent:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onSuccess();
+                finishSuccess();
                 break;
             default:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onStatus(sslErr);
+                finishError(attempt.sslErr, attempt.savedErrno == 0 ? EIO : attempt.savedErrno);
                 break;
         }
+    }
+
+    void TLSShutdown::disableReceivers() {
+        if (ReadEventReceiver::isEnabled()) {
+            ReadEventReceiver::disable();
+        }
+        if (WriteEventReceiver::isEnabled()) {
+            WriteEventReceiver::disable();
+        }
+    }
+
+    void TLSShutdown::finishSuccess() {
+        if (completed) {
+            return;
+        }
+        completed = true;
+        disableReceivers();
+        const auto callback = std::move(onSuccess);
+        activeCount--;
+        callback();
+        delete this;
+    }
+
+    void TLSShutdown::finishTimeout() {
+        if (completed) {
+            return;
+        }
+        completed = true;
+        disableReceivers();
+        const auto callback = std::move(onTimeout);
+        activeCount--;
+        callback();
+        delete this;
+    }
+
+    void TLSShutdown::finishError(int sslError, int systemError) {
+        if (completed) {
+            return;
+        }
+        completed = true;
+        disableReceivers();
+        const auto callback = std::move(onStatus);
+        activeCount--;
+        callback(sslError, systemError);
+        delete this;
     }
 
     void TLSShutdown::readTimeout() {
-        if (!timeoutTriggered) {
-            timeoutTriggered = true;
-            ReadEventReceiver::disable();
-            WriteEventReceiver::disable();
-            onTimeout();
-        }
+        finishTimeout();
     }
 
     void TLSShutdown::writeTimeout() {
-        if (!timeoutTriggered) {
-            timeoutTriggered = true;
-            ReadEventReceiver::disable();
-            WriteEventReceiver::disable();
-            onTimeout();
-        }
+        finishTimeout();
     }
 
     void TLSShutdown::signalEvent([[maybe_unused]] int signum) { // Do nothing on signal event
     }
 
     void TLSShutdown::unobservedEvent() {
+        if (!completed) {
+            completed = true;
+            activeCount--;
+        }
         delete this;
     }
 
 } // namespace core::socket::stream::tls
+
+namespace core::socket::stream::tls::detail::test {
+
+    void resetTlsShutdownCounters() {
+        constructedCount = 0;
+        activeCount = 0;
+        maxActiveCount = 0;
+        forcedResult.reset();
+    }
+
+    std::size_t tlsShutdownConstructedCount() {
+        return constructedCount;
+    }
+
+    std::size_t tlsShutdownActiveCount() {
+        return activeCount;
+    }
+
+    std::size_t tlsShutdownMaxActiveCount() {
+        return maxActiveCount;
+    }
+
+    void forceNextTlsShutdownResult(const ForcedShutdownResult& result) {
+        forcedResult = result;
+    }
+
+    void clearForcedTlsShutdownResult() {
+        forcedResult.reset();
+    }
+
+} // namespace core::socket::stream::tls::detail::test

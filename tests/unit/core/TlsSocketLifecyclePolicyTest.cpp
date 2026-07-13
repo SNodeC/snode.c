@@ -3,6 +3,8 @@
 #define protected public
 #include "core/socket/stream/tls/SocketReader.h"
 #include "core/socket/stream/tls/SocketWriter.h"
+#include "core/socket/stream/tls/TLSShutdown.h"
+#include "core/socket/stream/tls/detail/TLSShutdownTestHooks.h"
 #undef protected
 #undef private
 
@@ -145,6 +147,76 @@ int main() {
         const ssize_t rawRead = ::recv(sockets.fds[1], buffer, sizeof(buffer), MSG_DONTWAIT);
         result.expectEqual(-1, static_cast<int>(rawRead), "no raw application bytes are sent after TLS write shutdown");
         writer.disable();
+    }
+
+    {
+        using namespace core::socket::stream::tls::detail::test;
+        resetTlsShutdownCounters();
+        SslHandle ssl;
+        int success = 0;
+        int timeout = 0;
+        int status = 0;
+        forceNextTlsShutdownResult({0, SSL_ERROR_NONE, 0, 0});
+        core::socket::stream::tls::TLSShutdown::doShutdown(
+            "tls-shutdown-return-0",
+            ssl.ssl,
+            [&success]() { success++; },
+            [&timeout]() { timeout++; },
+            [&status](int, int) { status++; },
+            utils::Timeval{});
+        result.expectEqual(1, success, "SSL_shutdown return 0 completes unidirectional TLS shutdown synchronously");
+        result.expectEqual(0, timeout, "SSL_shutdown return 0 does not time out");
+        result.expectEqual(0, status, "SSL_shutdown return 0 is not an error");
+        result.expectEqual(1, static_cast<int>(tlsShutdownConstructedCount()), "return 0 constructs exactly one TLSShutdown");
+        result.expectEqual(0, static_cast<int>(tlsShutdownActiveCount()), "return 0 leaves no active TLSShutdown");
+        result.expectEqual(1, static_cast<int>(tlsShutdownMaxActiveCount()), "return 0 active TLSShutdown count never exceeds one");
+    }
+
+    {
+        using namespace core::socket::stream::tls::detail::test;
+        resetTlsShutdownCounters();
+        SslHandle ssl;
+        int success = 0;
+        int status = 0;
+        forceNextTlsShutdownResult({1, SSL_ERROR_NONE, 0, 0});
+        core::socket::stream::tls::TLSShutdown::doShutdown(
+            "tls-shutdown-return-1",
+            ssl.ssl,
+            [&success]() { success++; },
+            []() {},
+            [&status](int, int) { status++; },
+            utils::Timeval{});
+        result.expectEqual(1, success, "SSL_shutdown return 1 completes TLS shutdown synchronously");
+        result.expectEqual(0, status, "SSL_shutdown return 1 is not an error");
+        result.expectEqual(1, static_cast<int>(tlsShutdownConstructedCount()), "return 1 constructs exactly one TLSShutdown");
+        result.expectEqual(0, static_cast<int>(tlsShutdownActiveCount()), "return 1 leaves no active TLSShutdown");
+        result.expectEqual(1, static_cast<int>(tlsShutdownMaxActiveCount()), "return 1 active TLSShutdown count never exceeds one");
+    }
+
+    {
+        using namespace core::socket::stream::tls::detail::test;
+        resetTlsShutdownCounters();
+        SslHandle ssl;
+        int status = 0;
+        int statusSsl = 0;
+        int statusSystem = 0;
+        forceNextTlsShutdownResult({-1, SSL_ERROR_WANT_READ, EBADF, 0});
+        core::socket::stream::tls::TLSShutdown::doShutdown(
+            "tls-shutdown-registration-failure",
+            ssl.ssl,
+            []() {},
+            []() {},
+            [&status, &statusSsl, &statusSystem](int sslErr, int systemErr) {
+                status++;
+                statusSsl = sslErr;
+                statusSystem = systemErr;
+            },
+            utils::Timeval{});
+        result.expectEqual(1, status, "TLSShutdown registration failure reports status exactly once");
+        result.expectEqual(SSL_ERROR_WANT_READ, statusSsl, "TLSShutdown registration failure preserves SSL readiness error");
+        result.expectEqual(EBADF, statusSystem, "TLSShutdown registration failure preserves registration errno");
+        result.expectEqual(1, static_cast<int>(tlsShutdownConstructedCount()), "registration failure constructs exactly one TLSShutdown");
+        result.expectEqual(0, static_cast<int>(tlsShutdownActiveCount()), "registration failure destroys TLSShutdown");
     }
 
     return result.processResult();

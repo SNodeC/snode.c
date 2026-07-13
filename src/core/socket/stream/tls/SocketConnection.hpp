@@ -142,6 +142,14 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::completeTlsTransportShutdown(const std::function<void()>& onShutdown) {
+        Super::doWriteShutdown([this, onShutdown]() {
+            onShutdown();
+            SocketConnection::close();
+        });
+    }
+
+    template <typename PhysicalSocket, typename Config>
     void SocketConnection<PhysicalSocket, Config>::doSSLShutdown(const std::function<void()>& onShutdown) {
         if (!SocketReader::isSuspended()) {
             SocketReader::suspend();
@@ -160,15 +168,23 @@ namespace core::socket::stream::tls {
                 } else {
                     core::socket::stream::SocketConnection::log().debug("SSL/TLS: Active close_notify sent; using unidirectional transport shutdown");
                 }
-                Super::doWriteShutdown(onShutdown);
+                completeTlsTransportShutdown(onShutdown);
             },
             [this, onShutdown]() { // onTimeout
                 core::socket::stream::SocketConnection::log().error("SSL/TLS: Shutdown handshake timed out");
-                Super::doWriteShutdown(onShutdown);
+                completeTlsTransportShutdown(onShutdown);
             },
-            [this, onShutdown](int sslErr) { // onStatus
-                ssl_log(Super::getConnectionName() + " SSL/TLS: Shutdown handshake failed", sslErr);
-                Super::doWriteShutdown(onShutdown);
+            [this, onShutdown](int sslErr, int systemErr) { // onStatus
+                if (sslErr == SSL_ERROR_SYSCALL && systemErr != 0) {
+                    core::socket::stream::SocketConnection::log().sysError(
+                        logger::LogLevel::Warn, systemErr, "SSL/TLS: Shutdown transport failure");
+                } else if (systemErr != 0 && sslErr == SSL_ERROR_NONE) {
+                    core::socket::stream::SocketConnection::log().sysError(
+                        logger::LogLevel::Warn, systemErr, "SSL/TLS: Shutdown event registration failure");
+                } else {
+                    ssl_log(Super::getConnectionName() + " SSL/TLS: Shutdown handshake failed", sslErr);
+                }
+                completeTlsTransportShutdown(onShutdown);
             },
             sslShutdownTimeout);
     }
@@ -183,7 +199,9 @@ namespace core::socket::stream::tls {
             } else {
                 core::socket::stream::SocketConnection::log().debug("SSL/TLS: Passive close_notify received, answering with close_notify");
 
-                doSSLShutdown([]() {});
+                // noCloseNotifyIsEOF suppresses the upper-layer EOF only. TLS application I/O cannot continue after close_notify,
+                // so route the local close_notify reply and deterministic full close through SocketWriter::shutdownWrite().
+                this->shutdownWrite();
                 return closeNotifyIsEOF;
             }
         } else if (statusCode != 0) {
@@ -206,7 +224,7 @@ namespace core::socket::stream::tls {
 
             doSSLShutdown(onShutdown);
         } else {
-            Super::doWriteShutdown(onShutdown);
+            completeTlsTransportShutdown(onShutdown);
         }
     }
 

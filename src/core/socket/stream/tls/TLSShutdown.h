@@ -73,7 +73,7 @@ namespace core::socket::stream::tls {
                                SSL* ssl,
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
-                               const std::function<void(int)>& onStatus,
+                               const std::function<void(int, int)>& onStatus,
                                const utils::Timeval& timeout);
 
     private:
@@ -81,7 +81,7 @@ namespace core::socket::stream::tls {
                     SSL* ssl,
                     const std::function<void(void)>& onSuccess,
                     const std::function<void(void)>& onTimeout,
-                    const std::function<void(int)>& onStatus,
+                    const std::function<void(int, int)>& onStatus,
                     const utils::Timeval& timeout);
 
         void readEvent() final;
@@ -93,12 +93,18 @@ namespace core::socket::stream::tls {
 
         void unobservedEvent() final;
 
+        void start();
+        void finishSuccess();
+        void finishTimeout();
+        void finishError(int sslError, int systemError);
+        void disableReceivers();
+
         SSL* ssl = nullptr;
         std::function<void(void)> onSuccess;
         std::function<void(void)> onTimeout;
-        std::function<void(int)> onStatus;
+        std::function<void(int, int)> onStatus;
 
-        bool timeoutTriggered;
+        bool completed = false;
 
         int fd = -1;
     };
