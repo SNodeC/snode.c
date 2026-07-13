@@ -43,8 +43,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/socket/stream/tls/detail/OpenSslResult.h"
-
 #include <cerrno>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -54,31 +52,38 @@
 namespace core::socket::stream::tls {
 
     void TLSShutdown::doShutdown(const std::string& instanceName,
-                                 SSL* ssl,
-                                 const std::function<void(void)>& onSuccess,
-                                 const std::function<void(void)>& onTimeout,
-                                 const std::function<void(int)>& onStatus,
-                                 const utils::Timeval& timeout) {
-        new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout);
+                                   SSL* ssl,
+                                   const std::function<void(void)>& onSuccess,
+                                   const std::function<void(void)>& onTimeout,
+                                   const std::function<void(int)>& onStatus,
+                                   const utils::Timeval& timeout,
+                                   const std::function<void(void)>& onReleased) {
+        auto* helper = new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, onReleased);
+        helper->start();
     }
 
     TLSShutdown::TLSShutdown(const std::string& instanceName,
-                             SSL* ssl,
-                             const std::function<void(void)>& onSuccess,
-                             const std::function<void(void)>& onTimeout,
-                             const std::function<void(int)>& onStatus,
-                             const utils::Timeval& timeout)
+                               SSL* ssl,
+                               const std::function<void(void)>& onSuccess,
+                               const std::function<void(void)>& onTimeout,
+                               const std::function<void(int)>& onStatus,
+                               const utils::Timeval& timeout,
+                               const std::function<void(void)>& onReleased)
         : ReadEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , WriteEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)
         , onStatus(onStatus)
+        , onReleased(onReleased)
         , fd(SSL_get_fd(ssl)) {
-        start();
     }
 
     void TLSShutdown::start() {
+        if (completed) {
+            return;
+        }
+
         const int sslErr = performOperation();
 
         switch (sslErr) {
@@ -93,12 +98,16 @@ namespace core::socket::stream::tls {
                 break;
             case SSL_ERROR_ZERO_RETURN:
             default:
-                finishError(sslErr);
+                finishError(sslErr, errno);
                 break;
         }
     }
 
     int TLSShutdown::performOperation() {
+        if (completed) {
+            return SSL_ERROR_NONE;
+        }
+
         ERR_clear_error();
         errno = 0;
         const int ret = SSL_shutdown(ssl);
@@ -107,7 +116,6 @@ namespace core::socket::stream::tls {
         if (ret < 0) {
             sslErr = SSL_get_error(ssl, ret);
         }
-        [[maybe_unused]] const unsigned long openSslError = ret < 0 ? ERR_peek_last_error() : 0;
         errno = savedErrno;
         return ret >= 0 ? SSL_ERROR_NONE : sslErr;
     }
@@ -116,43 +124,55 @@ namespace core::socket::stream::tls {
         if (completed) {
             return;
         }
-        if (writeRegistered) {
+        if (writeRegistered && !WriteEventReceiver::isSuspended()) {
             WriteEventReceiver::suspend();
         }
         if (!readRegistered) {
             if (!ReadEventReceiver::enable(fd)) {
-                finishError(SSL_ERROR_SYSCALL);
+                const int registrationErrno = errno;
+                finishError(SSL_ERROR_SYSCALL, registrationErrno == 0 ? EIO : registrationErrno);
                 return;
             }
             readRegistered = true;
-            observed = true;
+            everObserved = true;
         }
-        ReadEventReceiver::resume();
+        if (ReadEventReceiver::isSuspended()) {
+            ReadEventReceiver::resume();
+        }
     }
 
     void TLSShutdown::awaitWrite() {
         if (completed) {
             return;
         }
-        if (readRegistered) {
+        if (readRegistered && !ReadEventReceiver::isSuspended()) {
             ReadEventReceiver::suspend();
         }
         if (!writeRegistered) {
             if (!WriteEventReceiver::enable(fd)) {
-                finishError(SSL_ERROR_SYSCALL);
+                const int registrationErrno = errno;
+                finishError(SSL_ERROR_SYSCALL, registrationErrno == 0 ? EIO : registrationErrno);
                 return;
             }
             writeRegistered = true;
-            observed = true;
+            everObserved = true;
         }
-        WriteEventReceiver::resume();
+        if (WriteEventReceiver::isSuspended()) {
+            WriteEventReceiver::resume();
+        }
     }
 
     void TLSShutdown::readEvent() {
+        if (completed) {
+            return;
+        }
         start();
     }
 
     void TLSShutdown::writeEvent() {
+        if (completed) {
+            return;
+        }
         start();
     }
 
@@ -162,14 +182,9 @@ namespace core::socket::stream::tls {
         }
         completed = true;
         const auto callback = onSuccess;
-        if (readRegistered) {
-            ReadEventReceiver::disable();
-        }
-        if (writeRegistered) {
-            WriteEventReceiver::disable();
-        }
+        disableRegisteredReceivers();
         callback();
-        destroyOrWait();
+        releaseAndDestroy();
     }
 
     void TLSShutdown::finishTimeout() {
@@ -178,42 +193,60 @@ namespace core::socket::stream::tls {
         }
         completed = true;
         const auto callback = onTimeout;
-        if (readRegistered) {
-            ReadEventReceiver::disable();
-        }
-        if (writeRegistered) {
-            WriteEventReceiver::disable();
-        }
+        disableRegisteredReceivers();
         callback();
-        destroyOrWait();
+        releaseAndDestroy();
     }
 
-    void TLSShutdown::finishError(int sslErr) {
+    void TLSShutdown::finishError(int sslErr, int systemErr) {
         if (completed) {
             return;
         }
         completed = true;
         const auto callback = onStatus;
-        if (readRegistered) {
-            ReadEventReceiver::disable();
-        }
-        if (writeRegistered) {
-            WriteEventReceiver::disable();
+        disableRegisteredReceivers();
+        if (systemErr != 0) {
+            errno = systemErr;
         }
         callback(sslErr);
-        destroyOrWait();
+        releaseAndDestroy();
     }
 
     void TLSShutdown::readTimeout() {
+        if (completed) {
+            return;
+        }
         finishTimeout();
     }
 
     void TLSShutdown::writeTimeout() {
+        if (completed) {
+            return;
+        }
         finishTimeout();
     }
 
-    void TLSShutdown::destroyOrWait() {
-        if (!observed) {
+    void TLSShutdown::disableRegisteredReceivers() {
+        if (readRegistered && ReadEventReceiver::isEnabled()) {
+            ReadEventReceiver::disable();
+        }
+        if (writeRegistered && WriteEventReceiver::isEnabled()) {
+            WriteEventReceiver::disable();
+        }
+    }
+
+    void TLSShutdown::notifyReleased() {
+        if (!releaseNotified) {
+            releaseNotified = true;
+            if (onReleased) {
+                onReleased();
+            }
+        }
+    }
+
+    void TLSShutdown::releaseAndDestroy() {
+        if (!everObserved) {
+            notifyReleased();
             delete this;
         }
     }
@@ -222,6 +255,7 @@ namespace core::socket::stream::tls {
     }
 
     void TLSShutdown::unobservedEvent() {
+        notifyReleased();
         delete this;
     }
 

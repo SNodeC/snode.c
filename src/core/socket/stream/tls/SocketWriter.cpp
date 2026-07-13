@@ -48,7 +48,6 @@
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
-#include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <string>
 
@@ -85,15 +84,10 @@ namespace core::socket::stream::tls {
         if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
             ret = Super::write(chunk, chunkLen);
         } else {
-            ERR_clear_error();
-            errno = 0;
             ret = SSL_write(ssl, chunk, static_cast<int>(chunkLen));
-            const int savedErrno = errno;
 
             if (ret <= 0) {
                 const int ssl_err = SSL_get_error(ssl, static_cast<int>(ret));
-                [[maybe_unused]] const unsigned long openSslError = ERR_peek_last_error();
-                errno = savedErrno;
 
                 switch (ssl_err) {
                     case SSL_ERROR_WANT_READ:

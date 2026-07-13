@@ -50,6 +50,7 @@
 #include "log/Logger.h"
 
 #include <openssl/ssl.h>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -114,9 +115,10 @@ namespace core::socket::stream::tls {
                                                                   const std::function<void()>& onTimeout,
                                                                   const std::function<void(int)>& onStatus) {
         bool started = false;
-        if (ssl != nullptr && !sslHandshakeInProgress) {
+        if (ssl != nullptr && (sslHandshakeInProgress == nullptr || !*sslHandshakeInProgress)) {
             started = true;
-            sslHandshakeInProgress = true;
+            sslHandshakeInProgress = std::make_shared<bool>(true);
+            const std::weak_ptr<bool> handshakeInProgress = sslHandshakeInProgress;
             if (!SocketReader::isSuspended()) {
                 SocketReader::suspend();
             }
@@ -128,19 +130,21 @@ namespace core::socket::stream::tls {
                 Super::getConnectionName(),
                 ssl,
                 [onSuccess, this]() { // onSuccess
-                    sslHandshakeInProgress = false;
                     SocketReader::span();
                     onSuccess();
                 },
                 [onTimeout, this]() { // onTimeout
-                    sslHandshakeInProgress = false;
                     onTimeout();
                 },
                 [onStatus, this](int sslErr) { // onStatus
-                    sslHandshakeInProgress = false;
                     onStatus(sslErr);
                 },
-                sslInitTimeout);
+                sslInitTimeout,
+                [handshakeInProgress]() {
+                    if (const std::shared_ptr<bool> inProgress = handshakeInProgress.lock()) {
+                        *inProgress = false;
+                    }
+                });
         }
 
         return started;
@@ -148,10 +152,11 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalSocket, typename Config>
     void SocketConnection<PhysicalSocket, Config>::doSSLShutdown() {
-        if (ssl == nullptr || sslShutdownInProgress) {
+        if (ssl == nullptr || (sslShutdownInProgress != nullptr && *sslShutdownInProgress)) {
             return;
         }
-        sslShutdownInProgress = true;
+        sslShutdownInProgress = std::make_shared<bool>(true);
+        const std::weak_ptr<bool> shutdownInProgress = sslShutdownInProgress;
 
         bool resumeSocketReader = false;
         bool resumeSocketWriter = false;
@@ -176,7 +181,6 @@ namespace core::socket::stream::tls {
                 if (resumeSocketWriter) {
                     SocketWriter::resume();
                 }
-                sslShutdownInProgress = false;
                 if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
                     core::socket::stream::SocketConnection::log().debug("SSL/TLS: Passive close_notify received and sent");
                 } else {
@@ -190,7 +194,6 @@ namespace core::socket::stream::tls {
                 if (resumeSocketWriter) {
                     SocketWriter::resume();
                 }
-                sslShutdownInProgress = false;
                 core::socket::stream::SocketConnection::log().error("SSL/TLS: Shutdown handshake timed out");
                 Super::doWriteShutdown([this]() {
                     SocketConnection::close();
@@ -203,13 +206,17 @@ namespace core::socket::stream::tls {
                 if (resumeSocketWriter) {
                     SocketWriter::resume();
                 }
-                sslShutdownInProgress = false;
                 ssl_log(Super::getConnectionName() + " SSL/TLS: Shutdown handshake failed", sslErr);
                 Super::doWriteShutdown([this]() {
                     SocketConnection::close();
                 });
             },
-            sslShutdownTimeout);
+            sslShutdownTimeout,
+            [shutdownInProgress]() {
+                if (const std::shared_ptr<bool> inProgress = shutdownInProgress.lock()) {
+                    *inProgress = false;
+                }
+            });
     }
 
     template <typename PhysicalSocket, typename Config>

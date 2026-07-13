@@ -74,7 +74,8 @@ namespace core::socket::stream::tls {
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
                                const std::function<void(int)>& onStatus,
-                               const utils::Timeval& timeout);
+                               const utils::Timeval& timeout,
+                               const std::function<void(void)>& onReleased = {});
 
     private:
         TLSShutdown(const std::string& instanceName,
@@ -82,7 +83,8 @@ namespace core::socket::stream::tls {
                     const std::function<void(void)>& onSuccess,
                     const std::function<void(void)>& onTimeout,
                     const std::function<void(int)>& onStatus,
-                    const utils::Timeval& timeout);
+                    const utils::Timeval& timeout,
+                    const std::function<void(void)>& onReleased);
 
         void readEvent() final;
         void writeEvent() final;
@@ -99,16 +101,20 @@ namespace core::socket::stream::tls {
         void awaitWrite();
         void finishSuccess();
         void finishTimeout();
-        void finishError(int sslErr);
-        void destroyOrWait();
+        void finishError(int sslErr, int systemErr = 0);
+        void releaseAndDestroy();
+        void disableRegisteredReceivers();
+        void notifyReleased();
 
         SSL* ssl = nullptr;
         std::function<void(void)> onSuccess;
         std::function<void(void)> onTimeout;
         std::function<void(int)> onStatus;
+        std::function<void(void)> onReleased;
 
         bool completed = false;
-        bool observed = false;
+        bool everObserved = false;
+        bool releaseNotified = false;
         bool readRegistered = false;
         bool writeRegistered = false;
 

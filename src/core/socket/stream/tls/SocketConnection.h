@@ -51,6 +51,7 @@
 #include "utils/Timeval.h"
 
 #include <cstddef>
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -100,8 +101,8 @@ namespace core::socket::stream::tls {
         utils::Timeval sslInitTimeout;
         utils::Timeval sslShutdownTimeout;
         bool closeNotifyIsEOF;
-        bool sslHandshakeInProgress = false;
-        bool sslShutdownInProgress = false;
+        std::shared_ptr<bool> sslHandshakeInProgress;
+        std::shared_ptr<bool> sslShutdownInProgress;
 
         template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;

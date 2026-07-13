@@ -43,3 +43,11 @@ snodec_add_test(SNodeCInitFreeSmokeTest SNodeCInitFreeSmokeTest.cpp)
 target_link_libraries(SNodeCInitFreeSmokeTest PRIVATE snodec-test-support snodec::core)
 
 set_tests_properties(SNodeCInitFreeSmokeTest PROPERTIES LABELS "unit;core;smoke")
+
+
+snodec_add_test(TLSLifecycleHelperOwnershipTest TLSLifecycleHelperOwnershipTest.cpp)
+
+target_include_directories(TLSLifecycleHelperOwnershipTest PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR})
+target_link_libraries(TLSLifecycleHelperOwnershipTest PRIVATE snodec-test-support)
+target_compile_features(TLSLifecycleHelperOwnershipTest PRIVATE cxx_std_20)
+set_tests_properties(TLSLifecycleHelperOwnershipTest PROPERTIES LABELS "unit;core;tls;lifecycle;ownership" TIMEOUT 5)
