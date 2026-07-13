@@ -47,6 +47,7 @@
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
+#include <arpa/inet.h>
 #include <cerrno>
 #include <cstdint>
 #include <cstdlib>
@@ -145,6 +146,9 @@ namespace core::socket::stream::tls {
                 SSL_CTX_set_session_id_context(ctx, reinterpret_cast<const unsigned char*>(&sslSessionCtxId), sizeof(sslSessionCtxId));
                 sslSessionCtxId++;
             }
+            const bool effectiveCaCertUseDefaultDir =
+                sslConfig.caCertUseDefaultDir ||
+                (!sslConfig.server && !sslConfig.caCertAcceptUnknown && sslConfig.caCert.empty() && sslConfig.caCertDir.empty());
             if (!sslConfig.caCert.empty() || !sslConfig.caCertDir.empty()) {
                 if (SSL_CTX_load_verify_locations(ctx,
                                                   !sslConfig.caCert.empty() ? sslConfig.caCert.c_str() : nullptr,
@@ -170,7 +174,7 @@ namespace core::socket::stream::tls {
                 tlsLog().trace("{} SSL/TLS: CA certificate not loaded from a file", sslConfig.instanceName);
                 tlsLog().trace("{} SSL/TLS: CA certificates not loaded from a directory", sslConfig.instanceName);
             }
-            if (!sslErr && sslConfig.caCertUseDefaultDir) {
+            if (!sslErr && effectiveCaCertUseDefaultDir) {
                 if (SSL_CTX_set_default_verify_paths(ctx) == 0) {
                     ssl_log_error(sslConfig.instanceName + " SSL/TLS: CA certificates error load from default openssl CA directory");
                     sslErr = true;
@@ -182,12 +186,19 @@ namespace core::socket::stream::tls {
             }
             if (!sslErr) {
                 SSL_CTX_set_verify_depth(ctx, 5);
-                SSL_CTX_set_verify(ctx,
-                                   (sslConfig.caCertAcceptUnknown ? SSL_VERIFY_NONE
-                                    : (!sslConfig.caCert.empty() || !sslConfig.caCertDir.empty() || sslConfig.caCertUseDefaultDir)
-                                        ? SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE | SSL_VERIFY_FAIL_IF_NO_PEER_CERT
-                                        : 0),
-                                   verify_callback);
+                int verifyMode = SSL_VERIFY_NONE;
+                if (!sslConfig.caCertAcceptUnknown) {
+                    if (sslConfig.server) {
+                        verifyMode = (!sslConfig.caCert.empty() || !sslConfig.caCertDir.empty() || effectiveCaCertUseDefaultDir)
+                                         ? SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE | SSL_VERIFY_FAIL_IF_NO_PEER_CERT
+                                         : SSL_VERIFY_NONE;
+                    } else {
+                        verifyMode = SSL_VERIFY_PEER;
+                    }
+                } else if (!sslConfig.server) {
+                    ssl_log_warning(sslConfig.instanceName + " SSL/TLS: client peer certificate verification is disabled");
+                }
+                SSL_CTX_set_verify(ctx, verifyMode, verify_callback);
                 if ((SSL_CTX_get_verify_mode(ctx) & SSL_VERIFY_PEER) != 0) {
                     tlsLog().trace("{} SSL/TLS: CA requested verify", sslConfig.instanceName);
                 }
@@ -266,6 +277,14 @@ namespace core::socket::stream::tls {
     void ssl_set_sni(SSL* ssl, const std::string& sni) {
         if (!sni.empty()) {
             SSL_set_tlsext_host_name(ssl, sni.data());
+            if ((SSL_get_verify_mode(ssl) & SSL_VERIFY_PEER) != 0) {
+                unsigned char buf[sizeof(struct in6_addr)] = {};
+                if (inet_pton(AF_INET, sni.c_str(), buf) == 1 || inet_pton(AF_INET6, sni.c_str(), buf) == 1) {
+                    X509_VERIFY_PARAM_set1_ip_asc(SSL_get0_param(ssl), sni.c_str());
+                } else {
+                    SSL_set1_host(ssl, sni.c_str());
+                }
+            }
         }
     }
 

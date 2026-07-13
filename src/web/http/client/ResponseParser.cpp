@@ -47,6 +47,7 @@
 
 #include "web/http/http_utils.h"
 
+#include <charconv>
 #include <regex>
 #include <tuple>
 #include <utility>
@@ -91,12 +92,20 @@ namespace web::http::client {
                 }
 
                 std::tie(response.statusCode, response.reason) = httputils::str_split(remaining, ' ');
-                if (StatusCode::contains(std::stoi(response.statusCode))) {
-                    if (response.reason.empty()) {
-                        parseError(400, "No reason phrase");
-                    }
-                } else {
-                    parseError(400, "Unknown status code");
+                if (response.statusCode.size() != 3 ||
+                    !std::all_of(response.statusCode.begin(), response.statusCode.end(), [](unsigned char c) {
+                        return c >= '0' && c <= '9';
+                    })) {
+                    parseError(400, "Malformed status code");
+                    return;
+                }
+                int statusCode = 0;
+                const char* first = response.statusCode.data();
+                const char* last = first + response.statusCode.size();
+                const auto [ptr, ec] = std::from_chars(first, last, statusCode, 10);
+                if (ec != std::errc{} || ptr != last) {
+                    parseError(400, "Malformed status code");
+                    return;
                 }
             }
         } else {

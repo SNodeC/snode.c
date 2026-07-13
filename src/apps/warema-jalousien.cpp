@@ -46,10 +46,17 @@
 
 #include "log/Logger.h"
 
-#include <cstdlib>
+#include <cerrno>
+#include <cstring>
+#include <spawn.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #include <utility>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+extern char** environ;
 
 using namespace express;
 
@@ -73,25 +80,44 @@ int main(int argc, char* argv[]) {
 
     webApp.get("/jalousien/:id", [] APPLICATION(req, res) {
         snode::semantic::appLog().debug() << "Param: " << req->param("id");
-        snode::semantic::appLog().debug() << "Qurey: " << req->query("action");
+        snode::semantic::appLog().debug() << "Query: " << req->query("action");
 
-        std::string arguments = "aircontrol -t " + jalousien[req->param("id")] + "_" + actions[req->query("action")];
+        const auto jalousieIt = jalousien.find(req->param("id"));
+        const auto actionIt = actions.find(req->query("action"));
+        if (jalousieIt == jalousien.end() || actionIt == actions.end()) {
+            res->status(400).send("Unknown jalousie or action");
+            return;
+        }
 
-        int ret = system(arguments.c_str());
-        ret = (ret >> 8) & 0xFF;
-        /* ret:
-               Bits 15-8 = Exit code.
-               Bit     7 = 1 if a core dump was produced.
-               Bits  6-0 = Signal number that killed the process.
-        */
+        const std::string target = jalousieIt->second + "_" + actionIt->second;
+        const std::string command = "aircontrol -t " + target;
+        pid_t pid = 0;
+        char program[] = "aircontrol";
+        char option[] = "-t";
+        std::vector<char> targetArg(target.begin(), target.end());
+        targetArg.push_back('\0');
+        char* const childArgv[] = {program, option, targetArg.data(), nullptr};
 
-        switch (ret) {
-            case 0:
-                res->status(200).send("OK: " + arguments);
-                break;
-            case 127:
-                res->status(404).send("ERROR not found: " + arguments);
-                break;
+        // This example preserves the previous blocking request semantics, but avoids invoking a shell.
+        const int spawnRet = posix_spawnp(&pid, program, nullptr, nullptr, childArgv, environ);
+        if (spawnRet != 0) {
+            if (spawnRet == ENOENT) {
+                res->status(404).send("ERROR not found: " + command);
+            } else {
+                res->status(500).send("ERROR failed to start: " + command);
+            }
+            return;
+        }
+
+        int status = 0;
+        if (waitpid(pid, &status, 0) < 0) {
+            res->status(500).send("ERROR wait failed: " + command);
+        } else if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+            res->status(200).send("OK: " + command);
+        } else if (WIFEXITED(status) && WEXITSTATUS(status) == 127) {
+            res->status(404).send("ERROR not found: " + command);
+        } else {
+            res->status(502).send("ERROR command failed: " + command);
         }
     });
 

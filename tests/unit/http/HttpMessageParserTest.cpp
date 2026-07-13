@@ -262,44 +262,43 @@ int main() {
     }
 
     {
-        const RequestParseResult chunked = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\n\r\n");
+        const RequestParseResult chunked =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\n\r\n");
         testResult.expectTrue(chunked.parsed, "request parser accepts Transfer-Encoding chunked");
         testResult.expectTrue(chunked.request && bodyToString(chunked.request->body) == "hello", "request parser decodes chunked body");
 
-        const RequestParseResult chunkExt = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n5;foo=bar\r\nhello\r\n0\r\n\r\n");
+        const RequestParseResult chunkExt =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n5;foo=bar\r\nhello\r\n0\r\n\r\n");
         testResult.expectTrue(chunkExt.parsed, "chunked decoder accepts and ignores chunk extensions");
-        testResult.expectTrue(chunkExt.request && bodyToString(chunkExt.request->body) == "hello", "chunk extension request body is decoded");
+        testResult.expectTrue(chunkExt.request && bodyToString(chunkExt.request->body) == "hello",
+                              "chunk extension request body is decoded");
 
-        const RequestParseResult trailer = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n0\r\nX-Test: yes\r\n\r\n");
+        const RequestParseResult trailer =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n0\r\nX-Test: yes\r\n\r\n");
         testResult.expectTrue(trailer.parsed, "chunked decoder consumes trailer section after zero chunk");
 
-        const RequestParseResult emptyChunked = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n");
+        const RequestParseResult emptyChunked =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n");
         testResult.expectTrue(emptyChunked.parsed, "chunked decoder accepts empty chunked body");
 
-        const RequestParseResult badChunkSize = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n5xyz\r\nhello\r\n0\r\n\r\n");
+        const RequestParseResult badChunkSize =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n5xyz\r\nhello\r\n0\r\n\r\n");
         testResult.expectTrue(!badChunkSize.parsed, "chunked decoder rejects chunk-size trailing garbage");
         testResult.expectEqual(501, badChunkSize.errorCode, "invalid chunk syntax is reported as content decoding error");
     }
 
     {
-        const std::vector<std::string> invalidTransferEncodings = {"xchunked",
-                                                                    "chunkedx",
-                                                                    "gzip",
-                                                                    "chunked, gzip",
-                                                                    "gzip, chunked",
-                                                                    "chunked, chunked",
-                                                                    "chunked,",
-                                                                    ",chunked",
-                                                                    "gzip,",
-                                                                    ",",
-                                                                    ""};
+        const std::vector<std::string> invalidTransferEncodings = {
+            "xchunked", "chunkedx", "gzip", "chunked, gzip", "gzip, chunked", "chunked, chunked", "chunked,", ",chunked", "gzip,", ",", ""};
         for (const std::string& transferEncoding : invalidTransferEncodings) {
-            const RequestParseResult result = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: " + transferEncoding + "\r\n\r\n");
+            const RequestParseResult result =
+                parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: " + transferEncoding + "\r\n\r\n");
             testResult.expectTrue(!result.parsed, "request parser rejects unsupported or malformed Transfer-Encoding: " + transferEncoding);
             testResult.expectTrue(result.errorCode == 400 || result.errorCode == 501, "Transfer-Encoding rejection is deterministic");
         }
 
-        const RequestParseResult teCl = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\nContent-Length: 5\r\n\r\n0\r\n\r\n");
+        const RequestParseResult teCl =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\nContent-Length: 5\r\n\r\n0\r\n\r\n");
         testResult.expectTrue(!teCl.parsed, "request parser rejects Transfer-Encoding with Content-Length");
         testResult.expectEqual(400, teCl.errorCode, "TE plus CL is bad request");
     }
@@ -308,29 +307,26 @@ int main() {
         const RequestParseResult cl = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: 5\r\n\r\nhello");
         testResult.expectTrue(cl.parsed && cl.request && bodyToString(cl.request->body) == "hello", "Content-Length body parses");
 
-        const RequestParseResult duplicateCl = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: 5\r\nContent-Length: 5\r\n\r\nhello");
-        testResult.expectTrue(duplicateCl.parsed && duplicateCl.request && bodyToString(duplicateCl.request->body) == "hello", "identical duplicate Content-Length parses");
+        const RequestParseResult duplicateCl =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: 5\r\nContent-Length: 5\r\n\r\nhello");
+        testResult.expectTrue(duplicateCl.parsed && duplicateCl.request && bodyToString(duplicateCl.request->body) == "hello",
+                              "identical duplicate Content-Length parses");
 
         const RequestParseResult listCl = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: 5, 5\r\n\r\nhello");
-        testResult.expectTrue(listCl.parsed && listCl.request && bodyToString(listCl.request->body) == "hello", "identical listed Content-Length parses");
+        testResult.expectTrue(listCl.parsed && listCl.request && bodyToString(listCl.request->body) == "hello",
+                              "identical listed Content-Length parses");
 
-        const std::vector<std::string> invalidContentLengths = {"5,6",
-                                                               "abc",
-                                                               "",
-                                                               "5x",
-                                                               "-1",
-                                                               "1 2",
-                                                               "184467440737095516160000",
-                                                               "5,",
-                                                               ",5",
-                                                               ","};
+        const std::vector<std::string> invalidContentLengths = {
+            "5,6", "abc", "", "5x", "-1", "1 2", "184467440737095516160000", "5,", ",5", ","};
         for (const std::string& contentLength : invalidContentLengths) {
-            const RequestParseResult result = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: " + contentLength + "\r\n\r\n");
+            const RequestParseResult result =
+                parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: " + contentLength + "\r\n\r\n");
             testResult.expectTrue(!result.parsed, "request parser rejects invalid Content-Length: " + contentLength);
             testResult.expectEqual(400, result.errorCode, "invalid Content-Length is bad request");
         }
 
-        const RequestParseResult conflictCl = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: 5\r\nContent-Length: 6\r\n\r\nhello!");
+        const RequestParseResult conflictCl =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: 5\r\nContent-Length: 6\r\n\r\nhello!");
         testResult.expectTrue(!conflictCl.parsed, "request parser rejects conflicting duplicate Content-Length");
         testResult.expectEqual(400, conflictCl.errorCode, "conflicting Content-Length is bad request");
     }
@@ -342,23 +338,43 @@ int main() {
         std::vector<std::string> urls;
         web::http::server::RequestParser parser(
             &context,
-            []() {},
+            []() {
+            },
             [&parsedCount, &urls](web::http::server::Request&& request) {
                 ++parsedCount;
                 urls.emplace_back(request.url);
             },
-            [](int, const std::string&) {});
+            [](int, const std::string&) {
+            });
         parser.parse();
         parser.parse();
         testResult.expectEqual(2, parsedCount, "request without length does not consume pipelined request as body");
-        testResult.expectTrue(urls.size() == 2 && urls[0] == "/" && urls[1] == "/next", "pipelined request after body-less request remains parseable");
+        testResult.expectTrue(urls.size() == 2 && urls[0] == "/" && urls[1] == "/next",
+                              "pipelined request after body-less request remains parseable");
     }
 
     {
         testResult.expectTrue(httputils::headerHasToken("close", "close"), "Connection close token is recognized");
         testResult.expectTrue(!httputils::headerHasToken("xclose", "close"), "Connection xclose does not match close");
         testResult.expectTrue(!httputils::headerHasToken("keep-alivex", "keep-alive"), "Connection keep-alivex does not match keep-alive");
-        testResult.expectTrue(httputils::headerHasToken("keep-alive, close", "close") && httputils::headerHasToken("keep-alive, close", "keep-alive"), "Connection comma tokens parse exactly when close and keep-alive are present");
+        testResult.expectTrue(httputils::headerHasToken("keep-alive, close", "close") &&
+                                  httputils::headerHasToken("keep-alive, close", "keep-alive"),
+                              "Connection comma tokens parse exactly when close and keep-alive are present");
+    }
+
+    {
+        std::string decoded;
+        testResult.expectTrue(!httputils::url_decode("%", decoded), "URL decoder rejects trailing percent");
+        testResult.expectTrue(!httputils::url_decode("%A", decoded), "URL decoder rejects one remaining hex digit");
+        testResult.expectTrue(!httputils::url_decode("%GG", decoded), "URL decoder rejects invalid hex");
+        testResult.expectTrue(httputils::url_decode("%2f%2E", decoded, httputils::UrlDecodeMode::Path) && decoded == "/.",
+                              "URL decoder accepts lowercase hex");
+        testResult.expectTrue(httputils::url_decode("a+b", decoded, httputils::UrlDecodeMode::Path) && decoded == "a+b",
+                              "URL path decoder preserves plus");
+        testResult.expectTrue(httputils::url_decode("a+b", decoded, httputils::UrlDecodeMode::Query) && decoded == "a b",
+                              "URL query decoder maps plus to space");
+        testResult.expectTrue(httputils::url_decode("%00", decoded) && decoded.size() == 1 && decoded[0] == '\0',
+                              "URL decoder can represent encoded NUL for callers to reject where needed");
     }
 
     {
@@ -370,7 +386,8 @@ int main() {
     }
 
     {
-        BufferSocketConnection connection("POST /items/search?q=snode%2Ec&empty= HTTP/1.1\r\nHost: example.test\r\nX-Test: one\r\nx-test: two\r\nContent-Length: 7\r\n\r\npayload");
+        BufferSocketConnection connection("POST /items/search?q=snode%2Ec&empty= HTTP/1.1\r\nHost: example.test\r\nX-Test: one\r\nx-test: "
+                                          "two\r\nContent-Length: 7\r\n\r\npayload");
         BufferSocketContext context(&connection);
         bool started = false;
         bool parsed = false;
@@ -380,7 +397,9 @@ int main() {
 
         web::http::server::RequestParser parser(
             &context,
-            [&started]() { started = true; },
+            [&started]() {
+                started = true;
+            },
             [&parsed, &parsedRequest](web::http::server::Request&& request) {
                 parsed = true;
                 parsedRequest.emplace(std::move(request));
@@ -410,7 +429,8 @@ int main() {
     }
 
     {
-        BufferSocketConnection connection("HTTP/1.1 201 Created\r\nContent-Type: application/json\r\nSet-Cookie: sid=abc; Path=/\r\nContent-Length: 2\r\n\r\n{}");
+        BufferSocketConnection connection(
+            "HTTP/1.1 201 Created\r\nContent-Type: application/json\r\nSet-Cookie: sid=abc; Path=/\r\nContent-Length: 2\r\n\r\n{}");
         BufferSocketContext context(&connection);
         bool started = false;
         bool parsed = false;
@@ -420,7 +440,9 @@ int main() {
 
         web::http::client::ResponseParser parser(
             &context,
-            [&started]() { started = true; },
+            [&started]() {
+                started = true;
+            },
             [&parsed, &parsedResponse](web::http::client::Response& response) {
                 parsed = true;
                 parsedResponse = &response;
@@ -443,9 +465,11 @@ int main() {
             testResult.expectEqual(1, parsedResponse->httpMinor, "response parser captures HTTP minor version");
             testResult.expectTrue(parsedResponse->statusCode == "201", "response parser captures status code");
             testResult.expectTrue(parsedResponse->reason == "Created", "response parser captures reason phrase");
-            testResult.expectTrue(parsedResponse->get("content-type") == "application/json", "response parser exposes headers case-insensitively");
+            testResult.expectTrue(parsedResponse->get("content-type") == "application/json",
+                                  "response parser exposes headers case-insensitively");
             testResult.expectTrue(parsedResponse->get("set-cookie").empty(), "response parser removes Set-Cookie from plain headers");
-            testResult.expectTrue(parsedResponse->cookie("sid") == "abc", "response parser exposes Set-Cookie values through cookie lookup");
+            testResult.expectTrue(parsedResponse->cookie("sid") == "abc",
+                                  "response parser exposes Set-Cookie values through cookie lookup");
             testResult.expectTrue(parsedResponse->get("missing").empty(), "response parser returns an empty string for missing headers");
             testResult.expectTrue(bodyToString(parsedResponse->body) == "{}", "response parser captures Content-Length body");
         }
@@ -465,6 +489,10 @@ int main() {
         testResult.expectTrue(!unsupportedVersion.errorReason.empty(),
                               "request parser supplies an error reason for unsupported HTTP version");
 
+        const RequestParseResult badQueryEncoding = parseRequestMessage("GET /?bad=%GG HTTP/1.1\r\nHost: x\r\n\r\n");
+        testResult.expectTrue(!badQueryEncoding.parsed, "request parser rejects malformed query percent encoding");
+        testResult.expectEqual(400, badQueryEncoding.errorCode, "malformed query encoding is bad request");
+
         const RequestParseResult malformedHeader = parseRequestMessage("GET / HTTP/1.1\r\n : value\r\n\r\n");
         testResult.expectTrue(malformedHeader.started, "request parser starts before rejecting malformed header whitespace");
         testResult.expectTrue(!malformedHeader.parsed, "request parser does not parse malformed header whitespace");
@@ -476,14 +504,16 @@ int main() {
         testResult.expectTrue(!missingColon.parsed, "request header line without colon is rejected");
         testResult.expectEqual(400, missingColon.errorCode, "missing request header colon is bad request");
 
-        const RequestParseResult invalidContentLength = parseRequestMessage("POST / HTTP/1.1\r\nHost: example.test\r\nContent-Length: nope\r\n\r\n");
+        const RequestParseResult invalidContentLength =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: example.test\r\nContent-Length: nope\r\n\r\n");
         testResult.expectTrue(invalidContentLength.started, "request parser starts before rejecting invalid Content-Length");
         testResult.expectTrue(!invalidContentLength.parsed, "request parser does not parse invalid Content-Length");
         testResult.expectEqual(400, invalidContentLength.errorCode, "request parser reports invalid Content-Length as bad request");
         testResult.expectTrue(!invalidContentLength.errorReason.empty(),
                               "request parser supplies an error reason for invalid Content-Length");
 
-        const RequestParseResult incompleteBody = parseRequestMessage("POST / HTTP/1.1\r\nHost: example.test\r\nContent-Length: 7\r\n\r\nabc");
+        const RequestParseResult incompleteBody =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: example.test\r\nContent-Length: 7\r\n\r\nabc");
         testResult.expectTrue(incompleteBody.started, "request parser starts incomplete body message");
         testResult.expectTrue(!incompleteBody.parsed, "request parser leaves incomplete body unparsed without EOF error semantics");
         testResult.expectEqual(
@@ -511,11 +541,20 @@ int main() {
         testResult.expectTrue(!unsupportedVersion.errorReason.empty(),
                               "response parser supplies an error reason for unsupported HTTP version");
 
-        const ResponseParseResult unknownStatusCode = parseResponseMessage("HTTP/1.1 999 Unknown\r\n\r\n");
-        testResult.expectTrue(unknownStatusCode.started, "response parser starts before rejecting unknown status code");
-        testResult.expectTrue(!unknownStatusCode.parsed, "response parser does not parse unknown status code");
-        testResult.expectEqual(400, unknownStatusCode.errorCode, "response parser reports unknown status code as bad response");
-        testResult.expectTrue(!unknownStatusCode.errorReason.empty(), "response parser supplies an error reason for unknown status code");
+        const ResponseParseResult unknownStatusCode = parseResponseMessage("HTTP/1.1 599\r\n\r\n");
+        testResult.expectTrue(unknownStatusCode.parsed,
+                              "response parser accepts unknown but syntactically valid status code with empty reason");
+
+        const std::vector<std::string> malformedStatusLines = {
+            "HTTP/1.1 XX Bad", "HTTP/1.1 20 OK", "HTTP/1.1 200x OK", "HTTP/1.1 999999999999 Bad", "HTTP/1.1 2O0 Bad"};
+        for (const std::string& statusLine : malformedStatusLines) {
+            const ResponseParseResult result = parseResponseMessage(statusLine + "\r\n\r\n");
+            testResult.expectTrue(!result.parsed, "response parser rejects malformed status line: " + statusLine);
+            testResult.expectEqual(400, result.errorCode, "malformed status line is rejected without throwing");
+        }
+
+        const ResponseParseResult customStatusCode = parseResponseMessage("HTTP/1.1 299 Custom\r\n\r\n");
+        testResult.expectTrue(customStatusCode.parsed, "response parser accepts valid custom status code");
 
         const ResponseParseResult malformedHeader = parseResponseMessage("HTTP/1.1 200 OK\r\n : value\r\n\r\n");
         testResult.expectTrue(malformedHeader.started, "response parser starts before rejecting malformed header whitespace");
@@ -548,7 +587,6 @@ int main() {
         testResult.expectEqual(0, emptyInput.errorCode, "response parser does not invent an error for empty input boundary");
         testResult.expectTrue(emptyInput.errorReason.empty(), "response parser leaves error reason empty for empty input boundary");
     }
-
 
     {
         web::http::CiStringMap<std::string> headers;

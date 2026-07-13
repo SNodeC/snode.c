@@ -50,11 +50,55 @@
 
 #include "log/Logger.h"
 
+#include <filesystem>
 #include <map>
+#include <optional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::middleware {
+
+    namespace {
+        bool isRootOrDescendant(const std::filesystem::path& root, const std::filesystem::path& candidate) {
+            auto rootIt = root.begin();
+            auto candidateIt = candidate.begin();
+            for (; rootIt != root.end(); ++rootIt, ++candidateIt) {
+                if (candidateIt == candidate.end() || *rootIt != *candidateIt) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        std::optional<std::filesystem::path> resolveStaticPath(const std::string& root, const std::string& requestPath) {
+            std::string decodedPath;
+            if (!httputils::url_decode(requestPath, decodedPath, httputils::UrlDecodeMode::Path) ||
+                decodedPath.find('\0') != std::string::npos) {
+                return std::nullopt;
+            }
+
+            std::error_code ec;
+            const std::filesystem::path canonicalRoot = std::filesystem::weakly_canonical(std::filesystem::path(root), ec);
+            if (ec) {
+                return std::nullopt;
+            }
+
+            std::filesystem::path relative = decodedPath;
+            if (relative.is_absolute()) {
+                relative = relative.relative_path();
+            }
+            const std::filesystem::path candidate = std::filesystem::weakly_canonical(canonicalRoot / relative, ec);
+            if (ec) {
+                return std::nullopt;
+            }
+
+            if (!isRootOrDescendant(canonicalRoot, candidate)) {
+                return std::nullopt;
+            }
+
+            return candidate;
+        }
+    } // namespace
 
     StaticMiddleware::StaticMiddleware(const std::string& root, bool fallThrough)
         : root(root)
@@ -112,16 +156,24 @@ namespace express::middleware {
                 }
             },
             [&root = this->root, &fallThrough = this->fallThrough] MIDDLEWARE(req, res, next) {
-                const std::string decodedPath = httputils::url_decode(req->path);
-                res->sendFile(root + decodedPath, [&root, decodedPath, req, res, &next, &fallThrough](int ret) {
+                const std::optional<std::filesystem::path> staticPath = resolveStaticPath(root, req->path);
+                if (!staticPath) {
+                    if (fallThrough) {
+                        next();
+                    } else {
+                        res->status(404).send("Unsupported resource: " + req->url + "\n");
+                    }
+                    return;
+                }
+                const std::string resolvedPath = staticPath->string();
+                res->sendFile(resolvedPath, [&root, resolvedPath, req, res, &next, &fallThrough](int ret) {
                     if (ret == 0) {
-                        snode::semantic::expressLog().info()
-                            << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware: GET "
-                            << req->url + " -> " << root + decodedPath;
+                        snode::semantic::expressLog().info() << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                                                             << " Express StaticMiddleware: GET " << req->url + " -> " << resolvedPath;
                     } else {
                         snode::semantic::sysError(snode::semantic::expressLog(), logger::LogLevel::Error, ret)
                             << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express StaticMiddleware "
-                            << req->url + " -> " << root + decodedPath;
+                            << req->url + " -> " << resolvedPath;
 
                         if (fallThrough) {
                             next();

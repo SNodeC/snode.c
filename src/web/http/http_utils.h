@@ -49,8 +49,8 @@ namespace web::http {
     class CiStringMap;
 } // namespace web::http
 
-#include <ctime>
 #include <cstddef>
+#include <ctime>
 #include <map>
 #include <string>
 #include <utility>
@@ -62,6 +62,10 @@ namespace web::http {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace httputils {
+
+    enum class UrlDecodeMode { Path, Query };
+
+    bool url_decode(const std::string& text, std::string& output, UrlDecodeMode mode = UrlDecodeMode::Query);
 
     std::string url_decode(const std::string& text);
 

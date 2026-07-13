@@ -54,37 +54,59 @@
 #include <charconv>
 #include <iomanip>
 #include <sstream>
-#include <system_error>
 #include <sys/stat.h>
+#include <system_error>
 #include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace httputils {
 
-    static int from_hex(int ch) {
-        return isdigit(ch) != 0 ? ch - '0' : tolower(ch) - 'a' + 10;
+    static int from_hex(unsigned char ch) {
+        if (ch >= '0' && ch <= '9') {
+            return ch - '0';
+        }
+        if (ch >= 'A' && ch <= 'F') {
+            return ch - 'A' + 10;
+        }
+        if (ch >= 'a' && ch <= 'f') {
+            return ch - 'a' + 10;
+        }
+        return -1;
     }
 
-    std::string url_decode(const std::string& text) {
-        std::string escaped;
+    bool url_decode(const std::string& text, std::string& output, UrlDecodeMode mode) {
+        std::string decoded;
+        decoded.reserve(text.size());
 
-        for (std::string::const_iterator i = text.begin(), n = text.end(); i != n; ++i) {
-            const std::string::value_type c = (*i);
+        for (std::size_t i = 0; i < text.size(); ++i) {
+            const unsigned char c = static_cast<unsigned char>(text[i]);
 
             if (c == '%') {
-                if ((i[1] != 0) && (i[2] != 0)) {
-                    escaped += static_cast<char>(from_hex(i[1]) << 4 | from_hex(i[2]));
-                    i += 2;
+                if (i + 2 >= text.size()) {
+                    return false;
                 }
-            } else if (c == '+') {
-                escaped += ' ';
+                const int hi = from_hex(static_cast<unsigned char>(text[i + 1]));
+                const int lo = from_hex(static_cast<unsigned char>(text[i + 2]));
+                if (hi < 0 || lo < 0) {
+                    return false;
+                }
+                decoded += static_cast<char>((hi << 4) | lo);
+                i += 2;
+            } else if (c == '+' && mode == UrlDecodeMode::Query) {
+                decoded += ' ';
             } else {
-                escaped += c;
+                decoded += static_cast<char>(c);
             }
         }
 
-        return escaped;
+        output = std::move(decoded);
+        return true;
+    }
+
+    std::string url_decode(const std::string& text) {
+        std::string decoded;
+        return url_decode(text, decoded, UrlDecodeMode::Query) ? decoded : std::string();
     }
 
     std::string url_encode(const std::string& text) {
@@ -111,7 +133,6 @@ namespace httputils {
 
         return text;
     }
-
 
     std::vector<std::string> splitCommaSeparatedTokens(const std::string& value) {
         std::vector<std::string> tokens;

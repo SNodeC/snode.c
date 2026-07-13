@@ -46,6 +46,9 @@
 #include "utils/base64.h"
 #include "web/http/http_utils.h"
 
+#include <algorithm>
+#include <cctype>
+#include <cstddef>
 #include <list>
 #include <utility>
 
@@ -53,20 +56,37 @@
 
 namespace express::middleware {
 
+    namespace {
+        bool constantTimeEquals(const std::string& lhs, const std::string& rhs) {
+            const std::size_t maxSize = std::max(lhs.size(), rhs.size());
+            unsigned char diff = static_cast<unsigned char>(lhs.size() ^ rhs.size());
+            for (std::size_t i = 0; i < maxSize; ++i) {
+                const unsigned char l = i < lhs.size() ? static_cast<unsigned char>(lhs[i]) : 0;
+                const unsigned char r = i < rhs.size() ? static_cast<unsigned char>(rhs[i]) : 0;
+                diff |= static_cast<unsigned char>(l ^ r);
+            }
+            return diff == 0;
+        }
+
+        bool equalsIgnoreCase(const std::string& lhs, const std::string& rhs) {
+            return lhs.size() == rhs.size() && std::equal(lhs.begin(), lhs.end(), rhs.begin(), [](unsigned char l, unsigned char r) {
+                       return std::tolower(l) == std::tolower(r);
+                   });
+        }
+    } // namespace
+
     BasicAuthentication::BasicAuthentication(const std::string& userName, const std::string& password, const std::string& realm) {
         std::string userNamePassword = userName + ":" + password;
         const std::string credentials =
             base64::base64_encode(reinterpret_cast<unsigned char*>(userNamePassword.data()), userNamePassword.length());
 
         use([realm, credentials] MIDDLEWARE(req, res, next) {
-            const std::string authCredentials = httputils::str_split(req->get("Authorization"), ' ').second;
+            const auto [scheme, authCredentials] = httputils::str_split(req->get("Authorization"), ' ');
 
-            if (authCredentials == credentials) {
+            if (equalsIgnoreCase(scheme, "Basic") && constantTimeEquals(authCredentials, credentials)) {
                 next();
             } else {
-                if (authCredentials.empty()) {
-                    res->set("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
-                }
+                res->set("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
                 res->sendStatus(401);
             }
         });

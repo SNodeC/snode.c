@@ -106,8 +106,13 @@ namespace web::http::server {
 
                         std::tie(query, queriesLine) = httputils::str_split(queriesLine, '&');
                         const auto [rawKey, rawVal] = httputils::str_split(query, '=');
-                        const std::string key = httputils::url_decode(rawKey);
-                        const std::string val = httputils::url_decode(rawVal);
+                        std::string key;
+                        std::string val;
+                        if (!httputils::url_decode(rawKey, key, httputils::UrlDecodeMode::Query) ||
+                            !httputils::url_decode(rawVal, val, httputils::UrlDecodeMode::Query)) {
+                            parseError(400, "Malformed URL encoding");
+                            return;
+                        }
                         if (!key.empty()) {
                             request.queries.insert_or_assign(key, val); // last value wins
                         }
