@@ -40,6 +40,7 @@
  */
 
 #include "core/socket/stream/tls/SocketWriter.h"
+#include "core/socket/stream/tls/TLSShutdownPolicy.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -48,6 +49,7 @@
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <string>
 
@@ -89,15 +91,18 @@ namespace core::socket::stream::tls {
             if (ret <= 0) {
                 const int ssl_err = SSL_get_error(ssl, static_cast<int>(ret));
 
-                switch (ssl_err) {
-                    case SSL_ERROR_WANT_READ:
-                        log().trace("{} SSL/TLS: Start renegotiation on read", getName());
+                const int savedErrno = errno;
+                const unsigned long peekedOpenSslError = ERR_peek_error();
+
+                switch (classifyTlsIoResult(static_cast<int>(ret), ssl_err, savedErrno, peekedOpenSslError)) {
+                    case TlsIoClassification::WantRead:
+                        log().trace("{} SSL/TLS: Start renegotiation on write", getName());
                         doSSLHandshake(
                             [log = this->log(), name = getName()]() {
-                                log.debug("{} SSL/TLS: Renegotiation on read success", name);
+                                log.debug("{} SSL/TLS: Renegotiation on write success", name);
                             },
                             [log = this->log(), name = getName()]() {
-                                log.warn("{} SSL/TLS: Renegotiation on read timed out", name);
+                                log.warn("{} SSL/TLS: Renegotiation on write timed out", name);
                             },
                             [this](int ssl_err) {
                                 ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
@@ -105,36 +110,38 @@ namespace core::socket::stream::tls {
                         errno = EAGAIN;
                         ret = -1;
                         break;
-                    case SSL_ERROR_WANT_WRITE:
+                    case TlsIoClassification::WantWrite:
                         errno = EAGAIN;
                         ret = -1;
                         break;
-                    case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
+                    case TlsIoClassification::CleanCloseNotify:
+                        log().debug("{} SSL/TLS: Clean close_notify observed on write", getName());
                         errno = EAGAIN;
-                        ret = -1; // on the write side this means a TCP broken pipe
+                        ret = -1;
                         break;
-                    case SSL_ERROR_SYSCALL:
-                        // In case ret is -1 a real syscall error (RST = ECONNRESET)
-                        {
-                            const int errnum = errno;
-                            const utils::PreserveErrno pe;
+                    case TlsIoClassification::UncleanEofWithoutCloseNotify:
+                        log().warn("{} SSL/TLS: Unclean EOF without close_notify on write", getName());
+                        errno = EPROTO;
+                        ret = -1;
+                        break;
+                    case TlsIoClassification::SyscallError: {
+                        const utils::PreserveErrno pe;
 
-                            if (errnum == EPIPE) {
-                                log().sysError(
-                                    logger::LogLevel::Warn, errnum, "{} SSL/TLS: Syscal error (SIGPIPE detected) on write.", getName());
-                            } else if (errnum == ECONNRESET) {
-                                log().sysError(
-                                    logger::LogLevel::Warn, errnum, "{} SSL/TLS: Connection reset by peer (ECONNRESET).", getName());
-                            } else {
-                                log().sysError(logger::LogLevel::Warn, errnum, "{} SSL/TLS: Syscall error on write", getName());
-                            }
+                        if (savedErrno != 0) {
+                            log().sysError(logger::LogLevel::Warn, savedErrno, "{} SSL/TLS: Syscall error on write", getName());
+                        } else {
+                            log().warn("{} SSL/TLS: Syscall error on write without errno", getName());
                         }
                         ret = -1;
                         break;
-                    case SSL_ERROR_SSL:
-                        ssl_log(getName() + " SSL/TLS: Failed", ssl_err);
+                    }
+                    case TlsIoClassification::SslProtocolError:
+                        ssl_log(getName() + " SSL/TLS: Write failed", ssl_err);
+                        errno = EPROTO;
                         ret = -1;
                         break;
+                    case TlsIoClassification::Success:
+                    case TlsIoClassification::UnknownError:
                     default:
                         ssl_log(getName() + " SSL/TLS: Unexpected error", ssl_err);
                         errno = EIO;

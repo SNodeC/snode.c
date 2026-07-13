@@ -40,6 +40,7 @@
  */
 
 #include "core/socket/stream/tls/SocketReader.h"
+#include "core/socket/stream/tls/TLSShutdownPolicy.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -49,6 +50,7 @@
 
 #include <cerrno>
 #include <limits>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <string>
 
@@ -91,12 +93,15 @@ namespace core::socket::stream::tls {
             if (ret <= 0) {
                 const int ssl_err = SSL_get_error(ssl, static_cast<int>(ret));
 
-                switch (ssl_err) {
-                    case SSL_ERROR_WANT_READ:
+                const int savedErrno = errno;
+                const unsigned long peekedOpenSslError = ERR_peek_error();
+
+                switch (classifyTlsIoResult(static_cast<int>(ret), ssl_err, savedErrno, peekedOpenSslError)) {
+                    case TlsIoClassification::WantRead:
                         errno = EAGAIN;
                         ret = -1;
                         break;
-                    case SSL_ERROR_WANT_WRITE:
+                    case TlsIoClassification::WantWrite:
                         log().trace("{} SSL/TLS: Start renegotiation on read", getName());
                         doSSLHandshake(
                             [log = this->log(), name = getName()]() {
@@ -111,36 +116,38 @@ namespace core::socket::stream::tls {
                         errno = EAGAIN;
                         ret = -1;
                         break;
-                    case SSL_ERROR_ZERO_RETURN: // received close_notify
+                    case TlsIoClassification::CleanCloseNotify:
+                        log().debug("{} SSL/TLS: Clean peer close_notify received", getName());
                         onReadShutdown();
                         errno = EAGAIN;
                         ret = -1;
                         break;
-                    case SSL_ERROR_SYSCALL: // When SSL_get_error(ssl, ret) returns SSL_ERROR_SYSCALL
-                                            // and ret is 0, it indicates that the underlying TCP connection
-                                            // was closed unexpectedly by the peer. This situation typically
-                                            // happens when the peer closes (FIN) the connection without
-                                            // sending a close_notify alert, which violates the SSL/TLS
-                                            // protocol’s  graceful shutdown procedure.
-                        // In case ret is -1 a real syscall error (RST = ECONNRESET)
-                        {
-                            const int errnum = errno;
-                            const utils::PreserveErrno pe;
-
-                            if (ret == 0) {
-                                log().sysError(
-                                    logger::LogLevel::Debug, errnum, "{} SSL/TLS: EOF detected: Connection closed by peer.", getName());
-                            } else {
-                                log().sysError(logger::LogLevel::Warn, errnum, "{} SSL/TLS: Syscall error on read", getName());
-                            }
-                        }
+                    case TlsIoClassification::UncleanEofWithoutCloseNotify:
+                        log().warn("{} SSL/TLS: Unclean EOF without close_notify on read", getName());
+                        onReadShutdown();
+                        errno = EPROTO;
                         ret = -1;
                         break;
-                    case SSL_ERROR_SSL:
-                        ssl_log(getName() + " SSL/TLS: Read failed", ssl_err);
+                    case TlsIoClassification::SyscallError: {
+                        const utils::PreserveErrno pe;
+
+                        if (savedErrno != 0) {
+                            log().sysError(logger::LogLevel::Warn, savedErrno, "{} SSL/TLS: Syscall error on read", getName());
+                        } else {
+                            log().warn("{} SSL/TLS: Syscall error on read without errno", getName());
+                        }
                         onReadShutdown();
                         ret = -1;
                         break;
+                    }
+                    case TlsIoClassification::SslProtocolError:
+                        ssl_log(getName() + " SSL/TLS: Read failed", ssl_err);
+                        onReadShutdown();
+                        errno = EPROTO;
+                        ret = -1;
+                        break;
+                    case TlsIoClassification::Success:
+                    case TlsIoClassification::UnknownError:
                     default:
                         ssl_log(getName() + " SSL/TLS: Unexpected error", ssl_err);
                         onReadShutdown();

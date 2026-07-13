@@ -40,9 +40,12 @@
  */
 
 #include "core/socket/stream/tls/TLSShutdown.h"
+#include "core/socket/stream/tls/TLSShutdownPolicy.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -78,6 +81,8 @@ namespace core::socket::stream::tls {
         if (ret < 0) {
             sslErr = SSL_get_error(ssl, ret);
         }
+        const int savedErrno = errno;
+        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_error() : 0;
 
         if (!ReadEventReceiver::enable(fd)) {
             delete this;
@@ -87,15 +92,15 @@ namespace core::socket::stream::tls {
             ReadEventReceiver::suspend();
             WriteEventReceiver::suspend();
 
-            switch (sslErr) {
-                case SSL_ERROR_WANT_READ:
+            switch (classifyTlsShutdownResult(ret, sslErr, savedErrno, peekedOpenSslError)) {
+                case TlsShutdownClassification::WantRead:
                     ReadEventReceiver::resume();
                     break;
-                case SSL_ERROR_WANT_WRITE:
+                case TlsShutdownClassification::WantWrite:
                     WriteEventReceiver::resume();
                     break;
-                case SSL_ERROR_NONE:
-                case SSL_ERROR_ZERO_RETURN:
+                case TlsShutdownClassification::FullShutdownComplete:
+                case TlsShutdownClassification::CloseNotifySent:
                     ReadEventReceiver::disable();
                     WriteEventReceiver::disable();
                     onSuccess();
@@ -116,16 +121,18 @@ namespace core::socket::stream::tls {
         if (ret < 0) {
             sslErr = SSL_get_error(ssl, ret);
         }
+        const int savedErrno = errno;
+        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_error() : 0;
 
-        switch (sslErr) {
-            case SSL_ERROR_WANT_READ:
+        switch (classifyTlsShutdownResult(ret, sslErr, savedErrno, peekedOpenSslError)) {
+            case TlsShutdownClassification::WantRead:
                 break;
-            case SSL_ERROR_WANT_WRITE:
+            case TlsShutdownClassification::WantWrite:
                 ReadEventReceiver::suspend();
                 WriteEventReceiver::resume();
                 break;
-            case SSL_ERROR_NONE:
-            case SSL_ERROR_ZERO_RETURN:
+            case TlsShutdownClassification::FullShutdownComplete:
+            case TlsShutdownClassification::CloseNotifySent:
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 onSuccess();
@@ -145,16 +152,18 @@ namespace core::socket::stream::tls {
         if (ret < 0) {
             sslErr = SSL_get_error(ssl, ret);
         }
+        const int savedErrno = errno;
+        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_error() : 0;
 
-        switch (sslErr) {
-            case SSL_ERROR_WANT_READ:
+        switch (classifyTlsShutdownResult(ret, sslErr, savedErrno, peekedOpenSslError)) {
+            case TlsShutdownClassification::WantRead:
                 WriteEventReceiver::suspend();
                 ReadEventReceiver::resume();
                 break;
-            case SSL_ERROR_WANT_WRITE:
+            case TlsShutdownClassification::WantWrite:
                 break;
-            case SSL_ERROR_NONE:
-            case SSL_ERROR_ZERO_RETURN:
+            case TlsShutdownClassification::FullShutdownComplete:
+            case TlsShutdownClassification::CloseNotifySent:
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 onSuccess();

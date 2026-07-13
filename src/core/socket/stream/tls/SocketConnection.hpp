@@ -49,6 +49,7 @@
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
 
+#include <cerrno>
 #include <openssl/ssl.h>
 #include <string>
 #include <utility>
@@ -214,10 +215,14 @@ namespace core::socket::stream::tls {
                 doSSLShutdown();
             }
         } else {
-            core::socket::stream::SocketConnection::log().error("SSL/TLS: Unexpected EOF error");
+            core::socket::stream::SocketConnection::log().warn(
+                "SSL/TLS: Unclean EOF without close_notify; preserving truncation distinction internally and closing deterministically");
 
             SocketWriter::shutdownInProgress = false;
+            // Do not reply with SSL_shutdown() after an unclean/fatal TLS EOF. Mark both bits to make repeated close paths idempotent.
+            // TODO: If a future upper-layer status API is added, expose this unclean EOF classification for truncation-sensitive protocols.
             SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
+            this->onReadError(EPROTO);
         }
     }
 
