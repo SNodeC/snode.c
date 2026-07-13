@@ -134,7 +134,7 @@ namespace core::socket::stream::tls {
         SSL_CTX* ctx = SSL_CTX_new(sslConfig.server ? TLS_server_method() : TLS_client_method());
 
         if (ctx != nullptr) {
-            SSL_CTX_set_read_ahead(ctx, 1);
+            SSL_CTX_set_read_ahead(ctx, 0);
 
             SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
             SSL_CTX_set_mode(ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);

@@ -106,6 +106,7 @@ else(NOT OpenSSL_FOUND)
         PATTERN "*.h"
         PATTERN "*.hpp"
         PATTERN "cmake" EXCLUDE
+        PATTERN "detail" EXCLUDE
     )
 
     install(

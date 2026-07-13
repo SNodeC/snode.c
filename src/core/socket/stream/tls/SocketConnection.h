@@ -100,6 +100,8 @@ namespace core::socket::stream::tls {
         utils::Timeval sslInitTimeout;
         utils::Timeval sslShutdownTimeout;
         bool closeNotifyIsEOF;
+        bool sslHandshakeInProgress = false;
+        bool sslShutdownInProgress = false;
 
         template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;

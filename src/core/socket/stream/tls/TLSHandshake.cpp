@@ -43,6 +43,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/socket/stream/tls/detail/OpenSslResult.h"
+
+#include <cerrno>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -70,118 +74,147 @@ namespace core::socket::stream::tls {
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)
         , onStatus(onStatus)
-        , timeoutTriggered(false)
         , fd(SSL_get_fd(ssl)) {
-        const int ret = SSL_do_handshake(ssl);
+        start();
+    }
 
+    void TLSHandshake::start() {
+        const int sslErr = performOperation();
+
+        switch (sslErr) {
+            case SSL_ERROR_WANT_READ:
+                awaitRead();
+                break;
+            case SSL_ERROR_WANT_WRITE:
+                awaitWrite();
+                break;
+            case SSL_ERROR_NONE:
+                finishSuccess();
+                break;
+            case SSL_ERROR_ZERO_RETURN:
+            default:
+                finishError(sslErr);
+                break;
+        }
+    }
+
+    int TLSHandshake::performOperation() {
+        ERR_clear_error();
+        errno = 0;
+        const int ret = SSL_do_handshake(ssl);
+        const int savedErrno = errno;
         int sslErr = SSL_ERROR_NONE;
-        if (ret < 1) {
+        if (ret <= 0) {
             sslErr = SSL_get_error(ssl, ret);
         }
+        [[maybe_unused]] const unsigned long openSslError = ret <= 0 ? ERR_peek_last_error() : 0;
+        errno = savedErrno;
+        return ret == 1 ? SSL_ERROR_NONE : sslErr;
+    }
 
-        if (!ReadEventReceiver::enable(fd)) {
-            delete this;
-        } else if (!WriteEventReceiver::enable(fd)) {
-            ReadEventReceiver::disable();
-        } else {
-            ReadEventReceiver::suspend();
-            WriteEventReceiver::suspend();
-
-            switch (sslErr) {
-                case SSL_ERROR_WANT_READ:
-                    ReadEventReceiver::resume();
-                    break;
-                case SSL_ERROR_WANT_WRITE:
-                    WriteEventReceiver::resume();
-                    break;
-                case SSL_ERROR_NONE:
-                case SSL_ERROR_ZERO_RETURN:
-                    ReadEventReceiver::disable();
-                    WriteEventReceiver::disable();
-                    onSuccess();
-                    break;
-                default:
-                    ReadEventReceiver::disable();
-                    WriteEventReceiver::disable();
-                    onStatus(sslErr);
-                    break;
-            }
+    void TLSHandshake::awaitRead() {
+        if (completed) {
+            return;
         }
+        if (writeRegistered) {
+            WriteEventReceiver::suspend();
+        }
+        if (!readRegistered) {
+            if (!ReadEventReceiver::enable(fd)) {
+                finishError(SSL_ERROR_SYSCALL);
+                return;
+            }
+            readRegistered = true;
+            observed = true;
+        }
+        ReadEventReceiver::resume();
+    }
+
+    void TLSHandshake::awaitWrite() {
+        if (completed) {
+            return;
+        }
+        if (readRegistered) {
+            ReadEventReceiver::suspend();
+        }
+        if (!writeRegistered) {
+            if (!WriteEventReceiver::enable(fd)) {
+                finishError(SSL_ERROR_SYSCALL);
+                return;
+            }
+            writeRegistered = true;
+            observed = true;
+        }
+        WriteEventReceiver::resume();
     }
 
     void TLSHandshake::readEvent() {
-        const int ret = SSL_do_handshake(ssl);
-
-        int sslErr = SSL_ERROR_NONE;
-        if (ret < 1) {
-            sslErr = SSL_get_error(ssl, ret);
-        }
-
-        switch (sslErr) {
-            case SSL_ERROR_WANT_READ:
-                break;
-            case SSL_ERROR_WANT_WRITE:
-                ReadEventReceiver::suspend();
-                WriteEventReceiver::resume();
-                break;
-            case SSL_ERROR_NONE:
-            case SSL_ERROR_ZERO_RETURN:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onSuccess();
-                break;
-            default:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onStatus(sslErr);
-                break;
-        }
+        start();
     }
 
     void TLSHandshake::writeEvent() {
-        const int ret = SSL_do_handshake(ssl);
+        start();
+    }
 
-        int sslErr = SSL_ERROR_NONE;
-        if (ret < 1) {
-            sslErr = SSL_get_error(ssl, ret);
+    void TLSHandshake::finishSuccess() {
+        if (completed) {
+            return;
         }
+        completed = true;
+        const auto callback = onSuccess;
+        if (readRegistered) {
+            ReadEventReceiver::disable();
+        }
+        if (writeRegistered) {
+            WriteEventReceiver::disable();
+        }
+        callback();
+        destroyOrWait();
+    }
 
-        switch (sslErr) {
-            case SSL_ERROR_WANT_READ:
-                WriteEventReceiver::suspend();
-                ReadEventReceiver::resume();
-                break;
-            case SSL_ERROR_WANT_WRITE:
-                break;
-            case SSL_ERROR_NONE:
-            case SSL_ERROR_ZERO_RETURN:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onSuccess();
-                break;
-            default:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onStatus(sslErr);
-                break;
+    void TLSHandshake::finishTimeout() {
+        if (completed) {
+            return;
         }
+        completed = true;
+        const auto callback = onTimeout;
+        if (readRegistered) {
+            ReadEventReceiver::disable();
+        }
+        if (writeRegistered) {
+            WriteEventReceiver::disable();
+        }
+        callback();
+        destroyOrWait();
+    }
+
+    void TLSHandshake::finishError(int sslErr) {
+        if (completed) {
+            return;
+        }
+        completed = true;
+        const auto callback = onStatus;
+        if (readRegistered) {
+            ReadEventReceiver::disable();
+        }
+        if (writeRegistered) {
+            WriteEventReceiver::disable();
+        }
+        callback(sslErr);
+        destroyOrWait();
     }
 
     void TLSHandshake::readTimeout() {
-        if (!timeoutTriggered) {
-            timeoutTriggered = true;
-            ReadEventReceiver::disable();
-            WriteEventReceiver::disable();
-            onTimeout();
-        }
+        finishTimeout();
     }
 
     void TLSHandshake::writeTimeout() {
-        if (!timeoutTriggered) {
-            timeoutTriggered = true;
-            ReadEventReceiver::disable();
-            WriteEventReceiver::disable();
-            onTimeout();
+        finishTimeout();
+    }
+
+    void TLSHandshake::destroyOrWait() {
+        if (!observed) {
+            delete this;
         }
     }
 

@@ -93,12 +93,24 @@ namespace core::socket::stream::tls {
 
         void unobservedEvent() final;
 
+        void start();
+        int performOperation();
+        void awaitRead();
+        void awaitWrite();
+        void finishSuccess();
+        void finishTimeout();
+        void finishError(int sslErr);
+        void destroyOrWait();
+
         SSL* ssl = nullptr;
         std::function<void(void)> onSuccess;
         std::function<void(void)> onTimeout;
         std::function<void(int)> onStatus;
 
-        bool timeoutTriggered;
+        bool completed = false;
+        bool observed = false;
+        bool readRegistered = false;
+        bool writeRegistered = false;
 
         int fd = -1;
     };

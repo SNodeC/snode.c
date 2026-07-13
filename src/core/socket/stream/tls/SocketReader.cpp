@@ -49,6 +49,7 @@
 
 #include <cerrno>
 #include <limits>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <string>
 
@@ -86,10 +87,15 @@ namespace core::socket::stream::tls {
             ret = Super::read(chunk, chunkLen);
         } else {
             chunkLen = chunkLen > std::numeric_limits<int>::max() ? std::numeric_limits<int>::max() : chunkLen;
+            ERR_clear_error();
+            errno = 0;
             ret = SSL_read(ssl, chunk, static_cast<int>(chunkLen));
+            const int savedErrno = errno;
 
             if (ret <= 0) {
                 const int ssl_err = SSL_get_error(ssl, static_cast<int>(ret));
+                [[maybe_unused]] const unsigned long openSslError = ERR_peek_last_error();
+                errno = savedErrno;
 
                 switch (ssl_err) {
                     case SSL_ERROR_WANT_READ:

@@ -113,7 +113,10 @@ namespace core::socket::stream::tls {
     bool SocketConnection<PhysicalSocket, Config>::doSSLHandshake(const std::function<void()>& onSuccess,
                                                                   const std::function<void()>& onTimeout,
                                                                   const std::function<void(int)>& onStatus) {
-        if (ssl != nullptr) {
+        bool started = false;
+        if (ssl != nullptr && !sslHandshakeInProgress) {
+            started = true;
+            sslHandshakeInProgress = true;
             if (!SocketReader::isSuspended()) {
                 SocketReader::suspend();
             }
@@ -125,23 +128,31 @@ namespace core::socket::stream::tls {
                 Super::getConnectionName(),
                 ssl,
                 [onSuccess, this]() { // onSuccess
+                    sslHandshakeInProgress = false;
                     SocketReader::span();
                     onSuccess();
                 },
-                [onTimeout]() { // onTimeout
+                [onTimeout, this]() { // onTimeout
+                    sslHandshakeInProgress = false;
                     onTimeout();
                 },
-                [onStatus](int sslErr) { // onStatus
+                [onStatus, this](int sslErr) { // onStatus
+                    sslHandshakeInProgress = false;
                     onStatus(sslErr);
                 },
                 sslInitTimeout);
         }
 
-        return ssl != nullptr;
+        return started;
     }
 
     template <typename PhysicalSocket, typename Config>
     void SocketConnection<PhysicalSocket, Config>::doSSLShutdown() {
+        if (ssl == nullptr || sslShutdownInProgress) {
+            return;
+        }
+        sslShutdownInProgress = true;
+
         bool resumeSocketReader = false;
         bool resumeSocketWriter = false;
 
@@ -165,6 +176,7 @@ namespace core::socket::stream::tls {
                 if (resumeSocketWriter) {
                     SocketWriter::resume();
                 }
+                sslShutdownInProgress = false;
                 if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
                     core::socket::stream::SocketConnection::log().debug("SSL/TLS: Passive close_notify received and sent");
                 } else {
@@ -178,6 +190,7 @@ namespace core::socket::stream::tls {
                 if (resumeSocketWriter) {
                     SocketWriter::resume();
                 }
+                sslShutdownInProgress = false;
                 core::socket::stream::SocketConnection::log().error("SSL/TLS: Shutdown handshake timed out");
                 Super::doWriteShutdown([this]() {
                     SocketConnection::close();
@@ -190,6 +203,7 @@ namespace core::socket::stream::tls {
                 if (resumeSocketWriter) {
                     SocketWriter::resume();
                 }
+                sslShutdownInProgress = false;
                 ssl_log(Super::getConnectionName() + " SSL/TLS: Shutdown handshake failed", sslErr);
                 Super::doWriteShutdown([this]() {
                     SocketConnection::close();
