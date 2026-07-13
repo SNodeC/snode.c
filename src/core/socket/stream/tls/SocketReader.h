@@ -76,7 +76,7 @@ namespace core::socket::stream::tls {
     private:
         ssize_t read(char* chunk, std::size_t chunkLen) override;
 
-        virtual void onReadShutdown() = 0;
+        virtual bool onReadShutdown(int statusCode) = 0;
 
     protected:
         virtual bool doSSLHandshake(const std::function<void()>& onSuccess,

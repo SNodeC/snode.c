@@ -41,7 +41,8 @@ namespace {
         void onReceivedFromPeer(std::size_t) override {
         }
 
-        void onReadShutdown() override {
+        bool onReadShutdown(int) override {
+            return true;
         }
 
         bool

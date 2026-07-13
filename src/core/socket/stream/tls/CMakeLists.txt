@@ -63,7 +63,6 @@ else(NOT OpenSSL_FOUND)
         SocketWriter.h
         TLSHandshake.h
         TLSShutdown.h
-        TLSShutdownPolicy.h
         ssl_utils.h
         system/ssl.h
     )
@@ -106,6 +105,7 @@ else(NOT OpenSSL_FOUND)
         FILES_MATCHING
         PATTERN "*.h"
         PATTERN "*.hpp"
+        PATTERN "detail" EXCLUDE
         PATTERN "cmake" EXCLUDE
     )
 

@@ -40,7 +40,7 @@
  */
 
 #include "core/socket/stream/tls/SocketWriter.h"
-#include "core/socket/stream/tls/TLSShutdownPolicy.h"
+#include "core/socket/stream/tls/detail/TLSShutdownPolicy.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -84,15 +84,17 @@ namespace core::socket::stream::tls {
         ssize_t ret = 0;
 
         if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
-            ret = Super::write(chunk, chunkLen);
+            errno = EPIPE;
+            ret = -1;
         } else {
+            ERR_clear_error();
+            errno = 0;
             ret = SSL_write(ssl, chunk, static_cast<int>(chunkLen));
+            const int savedErrno = errno;
 
             if (ret <= 0) {
                 const int ssl_err = SSL_get_error(ssl, static_cast<int>(ret));
-
-                const int savedErrno = errno;
-                const unsigned long peekedOpenSslError = ERR_peek_error();
+                const unsigned long peekedOpenSslError = ERR_peek_last_error();
 
                 switch (classifyTlsIoResult(static_cast<int>(ret), ssl_err, savedErrno, peekedOpenSslError)) {
                     case TlsIoClassification::WantRead:
@@ -132,6 +134,7 @@ namespace core::socket::stream::tls {
                         } else {
                             log().warn("{} SSL/TLS: Syscall error on write without errno", getName());
                         }
+                        errno = savedErrno == 0 ? EIO : savedErrno;
                         ret = -1;
                         break;
                     }

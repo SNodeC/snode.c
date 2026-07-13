@@ -89,9 +89,9 @@ namespace core::socket::stream::tls {
                             const std::function<void()>& onTimeout,
                             const std::function<void(int)>& onStatus) final;
 
-        void doSSLShutdown();
+        void doSSLShutdown(const std::function<void()>& onShutdown);
 
-        void onReadShutdown() final;
+        bool onReadShutdown(int statusCode) final;
 
         void doWriteShutdown(const std::function<void()>& onShutdown) final;
 

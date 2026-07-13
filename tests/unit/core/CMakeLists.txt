@@ -40,9 +40,12 @@
 
 snodec_add_test(SNodeCInitFreeSmokeTest SNodeCInitFreeSmokeTest.cpp)
 snodec_add_test(TlsShutdownPolicyTest TlsShutdownPolicyTest.cpp)
+snodec_add_test(TlsSocketLifecyclePolicyTest TlsSocketLifecyclePolicyTest.cpp)
 
 target_link_libraries(SNodeCInitFreeSmokeTest PRIVATE snodec-test-support snodec::core)
 target_link_libraries(TlsShutdownPolicyTest PRIVATE snodec-test-support snodec::core-socket-stream-tls)
+target_link_libraries(TlsSocketLifecyclePolicyTest PRIVATE snodec-test-support snodec::core-socket-stream-tls)
 
 set_tests_properties(SNodeCInitFreeSmokeTest PROPERTIES LABELS "unit;core;smoke")
 set_tests_properties(TlsShutdownPolicyTest PROPERTIES LABELS "unit;core;tls;shutdown" TIMEOUT 5)
+set_tests_properties(TlsSocketLifecyclePolicyTest PROPERTIES LABELS "unit;core;tls;shutdown;lifecycle" TIMEOUT 5)

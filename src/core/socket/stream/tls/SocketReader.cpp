@@ -40,7 +40,7 @@
  */
 
 #include "core/socket/stream/tls/SocketReader.h"
-#include "core/socket/stream/tls/TLSShutdownPolicy.h"
+#include "core/socket/stream/tls/detail/TLSShutdownPolicy.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -85,16 +85,18 @@ namespace core::socket::stream::tls {
         ssize_t ret = 0;
 
         if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
-            ret = Super::read(chunk, chunkLen);
+            errno = 0;
+            ret = -1;
         } else {
             chunkLen = chunkLen > std::numeric_limits<int>::max() ? std::numeric_limits<int>::max() : chunkLen;
+            ERR_clear_error();
+            errno = 0;
             ret = SSL_read(ssl, chunk, static_cast<int>(chunkLen));
+            const int savedErrno = errno;
 
             if (ret <= 0) {
                 const int ssl_err = SSL_get_error(ssl, static_cast<int>(ret));
-
-                const int savedErrno = errno;
-                const unsigned long peekedOpenSslError = ERR_peek_error();
+                const unsigned long peekedOpenSslError = ERR_peek_last_error();
 
                 switch (classifyTlsIoResult(static_cast<int>(ret), ssl_err, savedErrno, peekedOpenSslError)) {
                     case TlsIoClassification::WantRead:
@@ -116,15 +118,19 @@ namespace core::socket::stream::tls {
                         errno = EAGAIN;
                         ret = -1;
                         break;
-                    case TlsIoClassification::CleanCloseNotify:
+                    case TlsIoClassification::CleanCloseNotify: {
                         log().debug("{} SSL/TLS: Clean peer close_notify received", getName());
-                        onReadShutdown();
-                        errno = EAGAIN;
+                        const bool reportCleanEof = onReadShutdown(0);
+                        if (!reportCleanEof && !isSuspended()) {
+                            suspend();
+                        }
+                        errno = reportCleanEof ? 0 : EAGAIN;
                         ret = -1;
                         break;
+                    }
                     case TlsIoClassification::UncleanEofWithoutCloseNotify:
                         log().warn("{} SSL/TLS: Unclean EOF without close_notify on read", getName());
-                        onReadShutdown();
+                        (void) onReadShutdown(EPROTO);
                         errno = EPROTO;
                         ret = -1;
                         break;
@@ -136,13 +142,14 @@ namespace core::socket::stream::tls {
                         } else {
                             log().warn("{} SSL/TLS: Syscall error on read without errno", getName());
                         }
-                        onReadShutdown();
+                        (void) onReadShutdown(savedErrno == 0 ? EIO : savedErrno);
+                        errno = savedErrno == 0 ? EIO : savedErrno;
                         ret = -1;
                         break;
                     }
                     case TlsIoClassification::SslProtocolError:
                         ssl_log(getName() + " SSL/TLS: Read failed", ssl_err);
-                        onReadShutdown();
+                        (void) onReadShutdown(EPROTO);
                         errno = EPROTO;
                         ret = -1;
                         break;
@@ -150,7 +157,7 @@ namespace core::socket::stream::tls {
                     case TlsIoClassification::UnknownError:
                     default:
                         ssl_log(getName() + " SSL/TLS: Unexpected error", ssl_err);
-                        onReadShutdown();
+                        (void) onReadShutdown(EIO);
                         errno = EIO;
                         ret = -1;
                         break;

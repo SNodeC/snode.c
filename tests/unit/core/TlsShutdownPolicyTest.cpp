@@ -1,4 +1,4 @@
-#include "core/socket/stream/tls/TLSShutdownPolicy.h"
+#include "core/socket/stream/tls/detail/TLSShutdownPolicy.h"
 
 #include "support/TestResult.h"
 

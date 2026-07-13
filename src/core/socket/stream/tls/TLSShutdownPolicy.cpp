@@ -4,7 +4,7 @@
  *               2020, 2021, 2022, 2023, 2024, 2025, 2026
  */
 
-#include "core/socket/stream/tls/TLSShutdownPolicy.h"
+#include "core/socket/stream/tls/detail/TLSShutdownPolicy.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

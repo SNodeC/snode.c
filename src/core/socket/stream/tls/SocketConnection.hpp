@@ -142,88 +142,61 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocket, typename Config>
-    void SocketConnection<PhysicalSocket, Config>::doSSLShutdown() {
-        bool resumeSocketReader = false;
-        bool resumeSocketWriter = false;
-
+    void SocketConnection<PhysicalSocket, Config>::doSSLShutdown(const std::function<void()>& onShutdown) {
         if (!SocketReader::isSuspended()) {
             SocketReader::suspend();
-            resumeSocketReader = true;
         }
 
         if (!SocketWriter::isSuspended()) {
             SocketWriter::suspend();
-            resumeSocketWriter = true;
         }
 
         TLSShutdown::doShutdown(
             Super::getConnectionName(),
             ssl,
-            [this, resumeSocketReader, resumeSocketWriter]() { // onSuccess
-                if (resumeSocketReader) {
-                    SocketReader::resume();
-                }
-                if (resumeSocketWriter) {
-                    SocketWriter::resume();
-                }
+            [this, onShutdown]() { // onSuccess
                 if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
                     core::socket::stream::SocketConnection::log().debug("SSL/TLS: Passive close_notify received and sent");
                 } else {
-                    core::socket::stream::SocketConnection::log().debug("SSL/TLS: Active close_notify sent");
+                    core::socket::stream::SocketConnection::log().debug("SSL/TLS: Active close_notify sent; using unidirectional transport shutdown");
                 }
+                Super::doWriteShutdown(onShutdown);
             },
-            [this, resumeSocketReader, resumeSocketWriter]() { // onTimeout
-                if (resumeSocketReader) {
-                    SocketReader::resume();
-                }
-                if (resumeSocketWriter) {
-                    SocketWriter::resume();
-                }
+            [this, onShutdown]() { // onTimeout
                 core::socket::stream::SocketConnection::log().error("SSL/TLS: Shutdown handshake timed out");
-                Super::doWriteShutdown([this]() {
-                    SocketConnection::close();
-                });
+                Super::doWriteShutdown(onShutdown);
             },
-            [this, resumeSocketReader, resumeSocketWriter](int sslErr) { // onStatus
-                if (resumeSocketReader) {
-                    SocketReader::resume();
-                }
-                if (resumeSocketWriter) {
-                    SocketWriter::resume();
-                }
+            [this, onShutdown](int sslErr) { // onStatus
                 ssl_log(Super::getConnectionName() + " SSL/TLS: Shutdown handshake failed", sslErr);
-                Super::doWriteShutdown([this]() {
-                    SocketConnection::close();
-                });
+                Super::doWriteShutdown(onShutdown);
             },
             sslShutdownTimeout);
     }
 
     template <typename PhysicalSocket, typename Config>
-    void SocketConnection<PhysicalSocket, Config>::onReadShutdown() {
-        if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
+    bool SocketConnection<PhysicalSocket, Config>::onReadShutdown(int statusCode) {
+        if (statusCode == 0 && (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
             if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
                 core::socket::stream::SocketConnection::log().debug("SSL/TLS: Active close_notify sent and received");
                 SocketWriter::shutdownInProgress = false;
-
-                if (closeNotifyIsEOF) {
-                    this->onReadError(0);
-                }
+                return closeNotifyIsEOF;
             } else {
                 core::socket::stream::SocketConnection::log().debug("SSL/TLS: Passive close_notify received, answering with close_notify");
 
-                doSSLShutdown();
+                doSSLShutdown([]() {});
+                return closeNotifyIsEOF;
             }
-        } else {
-            core::socket::stream::SocketConnection::log().warn(
-                "SSL/TLS: Unclean EOF without close_notify; preserving truncation distinction internally and closing deterministically");
+        } else if (statusCode != 0) {
+            core::socket::stream::SocketConnection::log().debug("SSL/TLS: Terminal TLS read status {}; closing without close_notify reply", statusCode);
 
             SocketWriter::shutdownInProgress = false;
-            // Do not reply with SSL_shutdown() after an unclean/fatal TLS EOF. Mark both bits to make repeated close paths idempotent.
-            // TODO: If a future upper-layer status API is added, expose this unclean EOF classification for truncation-sensitive protocols.
+            // Do not reply with SSL_shutdown() after a fatal TLS read. Mark both bits to make repeated close paths idempotent.
+            // TODO: If a future upper-layer status API is added, expose this terminal TLS classification for truncation-sensitive protocols.
             SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
-            this->onReadError(EPROTO);
+            return true;
         }
+
+        return true;
     }
 
     template <typename PhysicalSocket, typename Config>
@@ -231,7 +204,7 @@ namespace core::socket::stream::tls {
         if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
             core::socket::stream::SocketConnection::log().debug("SSL/TLS: Active send close_notify");
 
-            doSSLShutdown();
+            doSSLShutdown(onShutdown);
         } else {
             Super::doWriteShutdown(onShutdown);
         }

@@ -40,7 +40,7 @@
  */
 
 #include "core/socket/stream/tls/TLSShutdown.h"
-#include "core/socket/stream/tls/TLSShutdownPolicy.h"
+#include "core/socket/stream/tls/detail/TLSShutdownPolicy.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -75,14 +75,16 @@ namespace core::socket::stream::tls {
         , onStatus(onStatus)
         , timeoutTriggered(false)
         , fd(SSL_get_fd(ssl)) {
+        ERR_clear_error();
+        errno = 0;
         const int ret = SSL_shutdown(ssl);
+        const int savedErrno = errno;
 
         int sslErr = SSL_ERROR_NONE;
         if (ret < 0) {
             sslErr = SSL_get_error(ssl, ret);
         }
-        const int savedErrno = errno;
-        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_error() : 0;
+        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_last_error() : 0;
 
         if (!ReadEventReceiver::enable(fd)) {
             delete this;
@@ -115,14 +117,16 @@ namespace core::socket::stream::tls {
     }
 
     void TLSShutdown::readEvent() {
+        ERR_clear_error();
+        errno = 0;
         const int ret = SSL_shutdown(ssl);
+        const int savedErrno = errno;
 
         int sslErr = SSL_ERROR_NONE;
         if (ret < 0) {
             sslErr = SSL_get_error(ssl, ret);
         }
-        const int savedErrno = errno;
-        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_error() : 0;
+        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_last_error() : 0;
 
         switch (classifyTlsShutdownResult(ret, sslErr, savedErrno, peekedOpenSslError)) {
             case TlsShutdownClassification::WantRead:
@@ -146,14 +150,16 @@ namespace core::socket::stream::tls {
     }
 
     void TLSShutdown::writeEvent() {
+        ERR_clear_error();
+        errno = 0;
         const int ret = SSL_shutdown(ssl);
+        const int savedErrno = errno;
 
         int sslErr = SSL_ERROR_NONE;
         if (ret < 0) {
             sslErr = SSL_get_error(ssl, ret);
         }
-        const int savedErrno = errno;
-        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_error() : 0;
+        const unsigned long peekedOpenSslError = ret < 0 ? ERR_peek_last_error() : 0;
 
         switch (classifyTlsShutdownResult(ret, sslErr, savedErrno, peekedOpenSslError)) {
             case TlsShutdownClassification::WantRead:
