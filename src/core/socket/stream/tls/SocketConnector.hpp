@@ -51,6 +51,7 @@
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
 #include <string>
+#include <unordered_map>
 #include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -58,6 +59,29 @@
 namespace core::socket::stream::tls {
 
     namespace {
+        inline std::unordered_map<const void*, bool>& tlsSetupState() {
+            static std::unordered_map<const void*, bool> state;
+            return state;
+        }
+
+        inline void setTlsSetupReady(const void* connection, bool ready) {
+            tlsSetupState()[connection] = ready;
+        }
+
+        inline bool takeTlsSetupReady(const void* connection) {
+            const auto it = tlsSetupState().find(connection);
+            const bool ready = it != tlsSetupState().end() && it->second;
+            if (it != tlsSetupState().end()) {
+                tlsSetupState().erase(it);
+            }
+            return ready;
+        }
+
+        inline void closeAfterTlsSetupFailure(auto* socketConnection, const std::string& reason) {
+            static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log().error("SSL/TLS: {}", reason);
+            socketConnection->close();
+        }
+
         template <typename Config>
         std::string logicalRemoteHost(const std::shared_ptr<Config>& config) {
             if constexpr (requires { config->Remote::getHost(); }) {
@@ -97,22 +121,38 @@ namespace core::socket::stream::tls {
               [onConnect, this](SocketConnection* socketConnection) { // onConnect
                   onConnect(socketConnection);
 
+                  setTlsSetupReady(socketConnection, false);
                   SSL* ssl = socketConnection->startSSL(socketConnection->getFd(), Super::config->getSslCtx());
-                  if (ssl != nullptr) {
-                      SSL_set_connect_state(ssl);
-                      SSL_set_ex_data(ssl, 1, Super::config.get());
-
-                      const std::string sni = resolveSni(Super::config);
-                      const std::string peerIdentity = resolveVerifyHost(Super::config);
-                      if (!ssl_set_sni(ssl, sni) || !ssl_set_peer_identity(ssl, peerIdentity)) {
-                          static_cast<core::socket::stream::SocketConnection*>(socketConnection)
-                              ->log()
-                              .error("SSL/TLS: Peer identity setup failed");
-                          socketConnection->close();
-                      }
+                  if (ssl == nullptr) {
+                      closeAfterTlsSetupFailure(socketConnection, "startSSL failed");
+                      return;
                   }
+
+                  SSL_set_connect_state(ssl);
+                  if (SSL_set_ex_data(ssl, 1, Super::config.get()) != 1) {
+                      closeAfterTlsSetupFailure(socketConnection, "failed to configure SSL ex-data");
+                      return;
+                  }
+
+                  const std::string sni = resolveSni(Super::config);
+                  const std::string peerIdentity = resolveVerifyHost(Super::config);
+                  if (!ssl_set_sni(ssl, sni)) {
+                      closeAfterTlsSetupFailure(socketConnection, "SNI setup failed");
+                      return;
+                  }
+                  if (!ssl_set_peer_identity(ssl, peerIdentity)) {
+                      closeAfterTlsSetupFailure(socketConnection, "peer identity setup failed");
+                      return;
+                  }
+                  setTlsSetupReady(socketConnection, true);
               },
               [socketContextFactory, onConnected](SocketConnection* socketConnection) { // onConnected
+                  if (!takeTlsSetupReady(socketConnection)) {
+                      static_cast<core::socket::stream::SocketConnection*>(socketConnection)
+                          ->log()
+                          .debug("SSL/TLS: Skipping handshake because setup did not complete");
+                      return;
+                  }
                   static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log().trace("SSL/TLS: Start handshake");
                   if (!socketConnection->doSSLHandshake(
                           [socketContextFactory,
@@ -142,6 +182,7 @@ namespace core::socket::stream::tls {
                   }
               },
               [onDisconnect](SocketConnection* socketConnection) { // onDisconnect
+                  takeTlsSetupReady(socketConnection);
                   socketConnection->stopSSL();
                   onDisconnect(socketConnection);
               },

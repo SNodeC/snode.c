@@ -167,12 +167,12 @@ namespace express::middleware {
                 }
                 const std::string resolvedPath = staticPath->string();
                 res->sendFile(resolvedPath, [resolvedPath, req, res, &next, &fallThrough](int ret) {
-                    const auto& connection = *res->getSocketContext()->getSocketConnection();
                     if (ret == 0) {
-                        snode::semantic::expressLog(connection).info()
+                        snode::semantic::expressLog(*res->getSocketContext()->getSocketConnection()).info()
                             << "Express StaticMiddleware: GET " << req->url << " -> " << resolvedPath;
                     } else {
-                        snode::semantic::sysError(snode::semantic::expressLog(connection), logger::LogLevel::Error, ret)
+                        snode::semantic::sysError(
+                            snode::semantic::expressLog(*res->getSocketContext()->getSocketConnection()), logger::LogLevel::Error, ret)
                             << "Express StaticMiddleware " << req->url << " -> " << resolvedPath;
 
                         if (fallThrough) {

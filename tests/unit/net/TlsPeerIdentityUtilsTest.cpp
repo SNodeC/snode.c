@@ -10,7 +10,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <openssl/ssl.h>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -20,13 +19,11 @@ namespace {
         SslCtxGuard()
             : ctx(SSL_CTX_new(TLS_client_method())) {
         }
-
         ~SslCtxGuard() {
             if (ctx != nullptr) {
                 SSL_CTX_free(ctx);
             }
         }
-
         SSL_CTX* get() const {
             return ctx;
         }
@@ -40,13 +37,11 @@ namespace {
         explicit SslGuard(SSL_CTX* ctx)
             : ssl(SSL_new(ctx)) {
         }
-
         ~SslGuard() {
             if (ssl != nullptr) {
                 SSL_free(ssl);
             }
         }
-
         SSL* get() const {
             return ssl;
         }
