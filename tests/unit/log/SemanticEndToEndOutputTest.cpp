@@ -67,6 +67,10 @@ namespace {
         return value.find(needle) != std::string::npos;
     }
 
+    bool containsAnsi(const std::string& value) {
+        return contains(value, "\033[");
+    }
+
     std::chrono::system_clock::time_point fixedTimestamp() {
         using namespace std::chrono;
         return system_clock::time_point{seconds{1783254896} + milliseconds{789}};
@@ -93,8 +97,9 @@ int main() {
     result.expectEqual(1, static_cast<int>(textLines.size()), "semantic text emits one logical output line");
     if (!textLines.empty()) {
         const auto& line = textLines.front();
-        result.expectTrue(contains(line, "2026-07-05T12:34:56.789Z INF framework/connection core.socket — semantic text output"),
-                          "semantic text contains the formatter-selected text fields");
+        result.expectTrue(line == "2026-07-05T12:34:56.789Z INF framework/connection core.socket — semantic text output",
+                          "semantic text file output exactly matches the final plain formatter shape");
+        result.expectTrue(!containsAnsi(line), "semantic text file output contains no ANSI");
         result.expectTrue(!startsWith(line, "INFO") && !startsWith(line, "DEBUG") && !startsWith(line, "TRACE") &&
                               !startsWith(line, "WARNING") && !startsWith(line, "ERROR") && !startsWith(line, "FATAL"),
                           "semantic text is not wrapped with a legacy severity prefix");
@@ -112,18 +117,20 @@ int main() {
     }
     const auto jsonLines = readLines(jsonPath);
     result.expectEqual(2, static_cast<int>(jsonLines.size()), "semantic JSON emits one object per record line");
-    for (const auto& line : jsonLines) {
-        result.expectTrue(startsWith(line, "{"), "semantic JSON line starts with a JSON object");
-        result.expectTrue(!startsWith(line, "INFO ") && !startsWith(line, "WARNING") && !startsWith(line, "ERROR") &&
-                              !contains(line, " E2ETICK "),
-                          "semantic JSON line is not legacy-prefixed");
-        result.expectTrue(contains(line, "\"v\":1"), "semantic JSON line contains schema version");
-        result.expectTrue(contains(line, "\"component\":\"web.http\""), "semantic JSON line contains component");
-        result.expectTrue(contains(line, "\"message\":"), "semantic JSON line contains message");
-        result.expectTrue(line.back() == '}', "semantic JSON line ends as one object");
+    const std::vector<std::string> expectedJsonLines{
+        R"({"v":1,"ts":"2026-07-05T12:34:56.789Z","level":"info","origin":"framework","boundary":"connection","component":"web.http","message":"semantic json output"})",
+        R"({"v":1,"ts":"2026-07-05T12:34:56.789Z","level":"warn","origin":"framework","boundary":"connection","component":"web.http","message":"semantic json warning"})",
+    };
+    if (jsonLines.size() == expectedJsonLines.size()) {
+        for (std::size_t i = 0; i < jsonLines.size(); ++i) {
+            result.expectTrue(jsonLines[i] == expectedJsonLines[i], "semantic JSON file line exactly matches JSON baseline");
+            result.expectTrue(startsWith(jsonLines[i], "{") && jsonLines[i].back() == '}', "semantic JSON line is one complete object");
+            result.expectTrue(!containsAnsi(jsonLines[i]), "semantic JSON file line contains no ANSI");
+            result.expectTrue(!startsWith(jsonLines[i], "INFO ") && !startsWith(jsonLines[i], "WARNING") &&
+                                  !startsWith(jsonLines[i], "ERROR") && !contains(jsonLines[i], " E2ETICK "),
+                              "semantic JSON line is not legacy-prefixed");
+        }
     }
-    result.expectTrue(contains(jsonLines.empty() ? std::string() : jsonLines.front(), "\"level\":\"info\""),
-                      "semantic JSON info record contains expected level");
 
     const auto legacyPath = tempLogPath("snodec-semantic-e2e-legacy.log");
     {

@@ -80,6 +80,21 @@ int main() {
     tests::support::TestResult result;
 
     {
+        const auto stdoutPath = tempPath("snodec-semantic-default-redirected-stdout.log");
+        StdoutCapture capture(stdoutPath);
+        logger::Logger::init();
+        logger::LogManager::init();
+        logger::Logger::setLogLevel(6);
+        logger::Logger::setQuiet(false);
+        logger::LogManager::setFormat(logger::LogManager::Format::Text);
+        auto log = snode::semantic::appLog(logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedClock());
+        log.info("default redirected stdout");
+        const std::string stdoutText = capture.read();
+        result.expectTrue(contains(stdoutText, "default redirected stdout"), "default redirected semantic stdout emits text");
+        result.expectTrue(!contains(stdoutText, "\033["), "non-TTY redirected semantic stdout defaults to plain output");
+    }
+
+    {
         const auto stdoutPath = tempPath("snodec-semantic-color-stdout.log");
         const auto filePath = tempPath("snodec-semantic-color-file.log");
         StdoutCapture capture(stdoutPath);
@@ -118,6 +133,21 @@ int main() {
         const std::string stdoutText = capture.read();
         result.expectTrue(contains(stdoutText, "\"level\":\"info\""), "semantic JSON still uses lowercase JSON level");
         result.expectTrue(!contains(stdoutText, "\033["), "semantic JSON stdout remains ANSI-free when color is enabled");
+    }
+
+    {
+        const auto filePath = tempPath("snodec-semantic-json-file.log");
+        resetLogger();
+        logger::Logger::setDisableColor(false);
+        logger::Logger::logToFile(filePath.string());
+        logger::Logger::setQuiet(true);
+        logger::LogManager::setFormat(logger::LogManager::Format::Json);
+        auto log = snode::semantic::appLog(logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedClock());
+        log.info("json file");
+        logger::Logger::disableLogToFile();
+        const std::string fileText = readFile(filePath);
+        result.expectTrue(contains(fileText, "\"level\":\"info\""), "semantic JSON file contains lowercase JSON level");
+        result.expectTrue(!contains(fileText, "\033["), "semantic JSON file remains ANSI-free when color is enabled");
     }
 
     {
