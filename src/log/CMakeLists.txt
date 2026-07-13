@@ -102,6 +102,7 @@ install(
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "cmake" EXCLUDE
+    PATTERN "detail" EXCLUDE
 )
 
 install(

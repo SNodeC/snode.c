@@ -73,7 +73,7 @@ int main() {
     const auto enabledLog = readFile(enabledPath);
     result.expectTrue(enabledLog.find("core runtime semantic owner emitted") != std::string::npos,
                       "core runtime semantic owner emits when enabled");
-    result.expectTrue(enabledLog.find(" framework system core.event-loop ") != std::string::npos,
+    result.expectTrue(enabledLog.find(" framework/system core.event-loop ") != std::string::npos,
                       "emitted records carry framework core-runtime component scope");
 
     const auto managerFilterPath = tempLogPath("snodec-migration04-manager-filter.log");

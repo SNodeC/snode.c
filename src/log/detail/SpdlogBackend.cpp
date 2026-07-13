@@ -247,16 +247,20 @@ namespace logger::detail {
             }
         }
 
-        void emitSemantic(const LogLevel level, const std::string& formattedRecord) {
+        bool semanticStdoutUsesColor() const {
+            return !quietMode && semanticStdoutLogger && !disableColor;
+        }
+
+        void emitSemantic(const LogLevel level, const std::string& plainRecord, const std::string& coloredRecord) {
             const auto spdlogLevel = mapSemanticLevel(level);
             if (!spdlogLevel) {
                 return;
             }
             if (!quietMode && semanticStdoutLogger) {
-                semanticStdoutLogger->log(*spdlogLevel, formattedRecord);
+                semanticStdoutLogger->log(*spdlogLevel, disableColor ? plainRecord : coloredRecord);
             }
             if (semanticFileLogger) {
-                semanticFileLogger->log(*spdlogLevel, formattedRecord);
+                semanticFileLogger->log(*spdlogLevel, plainRecord);
             }
         }
 
@@ -335,8 +339,12 @@ namespace logger::detail {
         impl_->emitLegacy(level, std::move(message), withErrno, errnoValue);
     }
 
-    void SpdlogBackend::emitSemantic(const LogLevel level, const std::string& formattedRecord) {
-        impl_->emitSemantic(level, formattedRecord);
+    void SpdlogBackend::emitSemantic(const LogLevel level, const std::string& plainRecord, const std::string& coloredRecord) {
+        impl_->emitSemantic(level, plainRecord, coloredRecord);
+    }
+
+    bool SpdlogBackend::semanticStdoutUsesColor() const {
+        return impl_->semanticStdoutUsesColor();
     }
 
     bool SpdlogBackend::shouldLog(const Level level) const {

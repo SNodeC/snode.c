@@ -134,12 +134,11 @@ int main() {
                       "migrated SocketConnector semantic owner emits when enabled");
     result.expectTrue(enabledLog.find("acceptor migrated semantic owner emitted") != std::string::npos,
                       "migrated SocketAcceptor semantic owner emits when enabled");
-    result.expectTrue(enabledLog.find(" framework instance core.socket.stream instance=migration02-connector role=client ") !=
+    result.expectTrue(enabledLog.find(" framework/instance core.socket.stream role=client inst=migration02-connector ") !=
                           std::string::npos,
-                      "connector emitted records carry framework instance client scope");
-    result.expectTrue(enabledLog.find(" framework instance core.socket.stream instance=migration02-acceptor role=server ") !=
-                          std::string::npos,
-                      "acceptor emitted records carry framework instance server scope");
+                      "connector emitted records carry framework/instance client scope");
+    result.expectTrue(enabledLog.find(" framework/instance core.socket.stream role=server inst=migration02-acceptor ") != std::string::npos,
+                      "acceptor emitted records carry framework/instance server scope");
 
     const auto managerFilterPath = tempLogPath("snodec-migration02-manager-filter.log");
     {

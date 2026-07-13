@@ -1,0 +1,52 @@
+# Semantic text output format
+
+Semantic text output is the human-readable presentation for semantic `LogRecord` data. JSON schema v1 is unchanged, production call sites and semantic identity are unchanged, and legacy `LOG`/`PLOG`/`VLOG` output is unchanged.
+
+## Plain grammar
+
+```text
+<timestamp> <LVL> <origin>/<boundary> <component> [role=...] [inst=...] [conn=...] [event=...] [error=...] [src=...] — <message>
+```
+
+Field order is fixed: timestamp, level, origin/boundary, component, role, inst, conn, event, error, src, separator, message. The timestamp remains UTC `YYYY-MM-DDTHH:MM:SS.mmmZ`.
+
+Level labels are `TRC`, `DBG`, `INF`, `WRN`, `ERR`, `CRT`, and `OFF`. Origin and boundary always render both axes, including `application/application`.
+
+## Optional fields and escaping
+
+Optional keys are exactly `role=`, `inst=`, `conn=`, `event=`, `error=`, and `src=`. Present-empty optionals render as `key=""`. Errors render before the message as `error=<code>:<text>`. Event and source are visible in text; source renders as `src=<file>:<line>` or `src=<file>:<line>:<function>`.
+
+Unquoted values must match `[A-Za-z0-9._:/@#%+-]+`; all other values are quoted. Quoted values escape backslash, quote, newline, carriage return, tab, backspace, form feed, and all other controls through `\xNN` with uppercase hex. UTF-8 bytes pass through. User-controlled controls are escaped, so raw ANSI cannot be injected.
+
+## Messages and multiline records
+
+Messages are not quoted. CRLF is one logical newline, LF is a logical newline, and lone CR becomes `\r`. Other controls use the same deterministic escapes. Empty messages omit the em dash separator and leave no trailing whitespace.
+
+Subsequent logical lines start with `│ `, preserving blank and trailing continuation lines without alignment padding.
+
+## Examples
+
+```text
+2026-07-05T12:34:56.789Z INF application/application app
+2026-07-05T12:34:56.789Z INF framework/connection core.socket role=server inst=mqtt-broker conn="[7] mqtt" — Connected
+2026-07-05T12:34:56.789Z ERR framework/system core.runtime error="5:Input/output error" src=Runtime.cpp:42:tick — failed
+2026-07-05T12:34:56.789Z TRC framework/connection web.http — GET / HTTP/1.1
+│ Request:
+│   Method: GET
+2026-07-05T12:34:56.789Z INF application/application app inst="has spaces" conn="[7] mqtt client" — quoted
+```
+
+## Color and routing
+
+Colored output is semantic terminal text only. Files never contain ANSI. JSON never contains ANSI.
+
+Palette: `TRC` 35, `DBG` 92, `INF` 93, `WRN` 33, `ERR` 31, `CRT` 91, `OFF` 39. Timestamp, origin/boundary, field keys, component, and continuation markers may be styled; values and message text remain default.
+
+TTY detection only selects the initial default. Non-TTY stdout defaults to plain text, `Logger::setDisableColor(true)` forces plain, and `Logger::setDisableColor(false)` can force color on redirected stdout.
+
+| Format | stdout with color | stdout without color | file  |
+| ------ | ----------------- | -------------------- | ----- |
+| Text   | colored           | plain                | plain |
+| JSON   | plain             | plain                | plain |
+
+Quiet mode suppresses stdout but not configured file output. No CLI/configuration option is added and no async logging is introduced.

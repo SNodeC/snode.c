@@ -167,8 +167,8 @@ int main() {
     const auto connectionLog = readFile(connectionPath);
     result.expectTrue(connectionLog.find("SocketContext: switch") != std::string::npos,
                       "migrated SocketConnection call emits through semantic backend");
-    result.expectTrue(connectionLog.find(" framework connection core.socket.stream ") != std::string::npos,
-                      "migrated SocketConnection call carries framework connection scope");
+    result.expectTrue(connectionLog.find(" framework/connection core.socket.stream ") != std::string::npos,
+                      "migrated SocketConnection call carries framework/connection scope");
 
     const auto contextPath = tempLogPath("snodec-round8-context.log");
     {
@@ -182,7 +182,7 @@ int main() {
     const auto contextLog = readFile(contextPath);
     result.expectTrue(contextLog.find("SocketContext: EOF received") != std::string::npos,
                       "migrated SocketContext call emits through semantic backend");
-    result.expectTrue(contextLog.find(" framework context core.socket.context ") != std::string::npos,
+    result.expectTrue(contextLog.find(" framework/context core.socket.context ") != std::string::npos,
                       "migrated SocketContext framework-internal call emits with framework origin");
 
     const auto filterPath = tempLogPath("snodec-round8-filter.log");

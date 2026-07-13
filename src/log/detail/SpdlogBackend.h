@@ -45,7 +45,8 @@ namespace logger::detail {
         void disableLogFile();
 
         void emitLegacy(Level level, std::string message, bool withErrno, int errnoValue);
-        void emitSemantic(LogLevel level, const std::string& formattedRecord);
+        void emitSemantic(LogLevel level, const std::string& plainRecord, const std::string& coloredRecord);
+        bool semanticStdoutUsesColor() const;
 
         bool shouldLog(Level level) const;
         bool shouldVerbose(int verboseLevel) const;
