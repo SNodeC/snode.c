@@ -141,7 +141,7 @@ int main() {
                       "TLS reader semantic owner emits when enabled");
     result.expectTrue(enabledLog.find("tls writer semantic owner emitted") != std::string::npos,
                       "TLS writer semantic owner emits when enabled");
-    result.expectTrue(enabledLog.find(" framework connection core.socket.stream.tls ") != std::string::npos,
+    result.expectTrue(enabledLog.find(" framework/connection core.socket.stream.tls ") != std::string::npos,
                       "emitted records carry framework core.socket.stream.tls component scope");
 
     const auto managerFilterPath = tempLogPath("snodec-migration06-manager-filter.log");

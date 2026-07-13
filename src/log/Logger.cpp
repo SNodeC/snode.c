@@ -108,7 +108,15 @@ namespace logger {
             return;
         }
 
-        backend.emitSemantic(record.level, LogManager::formatRecord(record));
+        if (LogManager::format() == LogManager::Format::Json) {
+            const std::string json = formatJsonV1(record);
+            backend.emitSemantic(record.level, json, json);
+            return;
+        }
+
+        const std::string plain = formatText(record);
+        const std::string colored = backend.semanticStdoutUsesColor() ? formatText(record, true) : plain;
+        backend.emitSemantic(record.level, plain, colored);
     }
 
     BoundaryLogger::Sink Logger::semanticSink() {

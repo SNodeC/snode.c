@@ -8,7 +8,10 @@
 #include <vector>
 
 namespace {
-    void expectStringEqual(tests::support::TestResult& result, const std::string& expected, std::string_view actual, const std::string& message) {
+    void expectStringEqual(tests::support::TestResult& result,
+                           const std::string& expected,
+                           std::string_view actual,
+                           const std::string& message) {
         result.expectTrue(expected == actual, message + " expected='" + expected + "' actual='" + std::string(actual) + "'");
     }
 
@@ -21,10 +24,11 @@ namespace {
         std::string component = "core.socket.stream";
         std::string instance = "echo-server";
         std::string connection = "#7";
-        logger::LogScope borrowed{logger::LogOrigin::Framework, logger::LogBoundary::Connection, component, instance, logger::LogRole::Server, connection};
+        logger::LogScope borrowed{
+            logger::LogOrigin::Framework, logger::LogBoundary::Connection, component, instance, logger::LogRole::Server, connection};
         return logger::LogScopeOwner::fromScope(borrowed);
     }
-}
+} // namespace
 
 int main() {
     tests::support::TestResult result;
@@ -37,7 +41,8 @@ int main() {
     std::string component = "core.socket.stream";
     std::string instance = "echo-server";
     std::string connection = "#7";
-    logger::LogScope borrowed{logger::LogOrigin::Framework, logger::LogBoundary::Connection, component, instance, logger::LogRole::Server, connection};
+    logger::LogScope borrowed{
+        logger::LogOrigin::Framework, logger::LogBoundary::Connection, component, instance, logger::LogRole::Server, connection};
 
     auto owner = logger::LogScopeOwner::fromScope(borrowed);
 
@@ -61,7 +66,9 @@ int main() {
 
     std::vector<logger::LogRecord> records;
     auto log = owner.logger(
-        [&](logger::LogRecord record) { records.push_back(std::move(record)); },
+        [&](logger::LogRecord record) {
+            records.push_back(std::move(record));
+        },
         logger::LogLevel::Trace,
         fixedTimestamp);
     log.info("hello");
@@ -71,11 +78,14 @@ int main() {
     result.expectTrue(records[0].role && *records[0].role == logger::LogRole::Server, "logger from owner emits original known role");
     result.expectTrue(records[0].connection && *records[0].connection == "#7", "logger from owner emits original connection");
 
-    logger::LogScope unknownRole{logger::LogOrigin::Application, logger::LogBoundary::Context, "EchoServerContext", "", logger::LogRole::Unknown, ""};
+    logger::LogScope unknownRole{
+        logger::LogOrigin::Application, logger::LogBoundary::Context, "EchoServerContext", "", logger::LogRole::Unknown, ""};
     auto unknownOwner = logger::LogScopeOwner::fromScope(unknownRole);
     auto unknownScope = unknownOwner.scope();
-    result.expectTrue(unknownScope.role == logger::LogRole::Unknown, "unknown role remains absent in owner and appears as Unknown in borrowed view");
-    auto unknownRecord = logger::materialize(unknownScope, logger::LogLevel::Info, "hello", logger::LogRecordOptions{.ts = fixedTimestamp()});
+    result.expectTrue(unknownScope.role == logger::LogRole::Unknown,
+                      "unknown role remains absent in owner and appears as Unknown in borrowed view");
+    auto unknownRecord =
+        logger::materialize(unknownScope, logger::LogLevel::Info, "hello", logger::LogRecordOptions{.ts = fixedTimestamp()});
     const std::string unknownJson = logger::formatJsonV1(unknownRecord);
     result.expectTrue(unknownJson.find("role") == std::string::npos, "unknown role remains omitted from JSON");
     result.expectTrue(unknownJson.find("unknown") == std::string::npos, "unknown role string is not emitted in JSON");

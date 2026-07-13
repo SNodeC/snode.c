@@ -46,6 +46,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 
 namespace logger {
     namespace {
@@ -95,6 +96,141 @@ namespace logger {
         void appendInt(std::ostringstream& out, bool& first, std::string_view name, int value) {
             out << (first ? "" : ",") << "\"" << name << "\":" << value;
             first = false;
+        }
+
+        std::string textLevel(LogLevel level) {
+            switch (level) {
+                case LogLevel::Trace:
+                    return "TRC";
+                case LogLevel::Debug:
+                    return "DBG";
+                case LogLevel::Info:
+                    return "INF";
+                case LogLevel::Warn:
+                    return "WRN";
+                case LogLevel::Error:
+                    return "ERR";
+                case LogLevel::Critical:
+                    return "CRT";
+                case LogLevel::Off:
+                    return "OFF";
+            }
+            return "OFF";
+        }
+
+        const char* levelSgr(LogLevel level) {
+            switch (level) {
+                case LogLevel::Trace:
+                    return "\033[35m";
+                case LogLevel::Debug:
+                    return "\033[92m";
+                case LogLevel::Info:
+                    return "\033[93m";
+                case LogLevel::Warn:
+                    return "\033[33m";
+                case LogLevel::Error:
+                    return "\033[31m";
+                case LogLevel::Critical:
+                    return "\033[91m";
+                case LogLevel::Off:
+                    return "\033[39m";
+            }
+            return "\033[39m";
+        }
+
+        bool safeToken(const std::string& value) {
+            if (value.empty()) {
+                return false;
+            }
+            for (const unsigned char ch : value) {
+                const bool alphaNum = (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
+                switch (ch) {
+                    case '.':
+                    case '_':
+                    case ':':
+                    case '/':
+                    case '@':
+                    case '#':
+                    case '%':
+                    case '+':
+                    case '-':
+                        break;
+                    default:
+                        if (!alphaNum) {
+                            return false;
+                        }
+                }
+            }
+            return true;
+        }
+
+        void appendHexEscape(std::ostringstream& out, unsigned char ch) {
+            constexpr char digits[] = "0123456789ABCDEF";
+            out << "\\x" << digits[(ch >> 4) & 0x0F] << digits[ch & 0x0F];
+        }
+
+        void appendEscapedByte(std::ostringstream& out, unsigned char ch, bool field) {
+            switch (ch) {
+                case '\\':
+                    out << (field ? "\\\\" : "\\");
+                    break;
+                case '"':
+                    out << (field ? "\\\"" : "\"");
+                    break;
+                case '\n':
+                    out << "\\n";
+                    break;
+                case '\r':
+                    out << "\\r";
+                    break;
+                case '\t':
+                    out << "\\t";
+                    break;
+                case '\b':
+                    out << "\\b";
+                    break;
+                case '\f':
+                    out << "\\f";
+                    break;
+                default:
+                    if (ch < 0x20 || ch == 0x7F) {
+                        appendHexEscape(out, ch);
+                    } else {
+                        out << static_cast<char>(ch);
+                    }
+                    break;
+            }
+        }
+
+        std::string encodeFieldValue(const std::string& value) {
+            if (safeToken(value)) {
+                return value;
+            }
+            std::ostringstream out;
+            out << '"';
+            for (const unsigned char ch : value) {
+                appendEscapedByte(out, ch, true);
+            }
+            out << '"';
+            return out.str();
+        }
+
+        std::vector<std::string> sanitizeMessageLines(const std::string& message) {
+            std::vector<std::string> lines(1);
+            for (std::size_t i = 0; i < message.size(); ++i) {
+                const unsigned char ch = static_cast<unsigned char>(message[i]);
+                if (ch == '\r' && i + 1 < message.size() && message[i + 1] == '\n') {
+                    lines.emplace_back();
+                    ++i;
+                } else if (ch == '\n') {
+                    lines.emplace_back();
+                } else {
+                    std::ostringstream escaped;
+                    appendEscapedByte(escaped, ch, false);
+                    lines.back() += escaped.str();
+                }
+            }
+            return lines;
         }
 
         struct SemanticPolicy {
@@ -338,19 +474,55 @@ namespace logger {
     }
 
     std::string formatText(const LogRecord& record) {
+        return formatText(record, false);
+    }
+
+    std::string formatText(const LogRecord& record, bool colorEnabled) {
+        constexpr const char* reset = "\033[0m";
+        constexpr const char* dim = "\033[2m";
+        constexpr const char* cyan = "\033[36m";
+        auto styled = [&](const std::string& value, const char* sgr) {
+            return colorEnabled ? std::string(sgr) + value + reset : value;
+        };
+        auto appendOptional = [&](std::ostringstream& out, std::string_view key, const std::string& value) {
+            out << ' ' << styled(std::string(key) + "=", dim) << encodeFieldValue(value);
+        };
+
         std::ostringstream out;
-        out << formatTimestamp(record.ts) << ' ' << toString(record.level) << ' ' << toString(record.origin) << ' '
-            << toString(record.boundary) << ' ' << record.component;
-        if (record.instance)
-            out << " instance=" << *record.instance;
-        if (record.role)
-            if (auto role = toString(*record.role))
-                out << " role=" << *role;
-        if (record.connection)
-            out << " connection=" << *record.connection;
-        out << " - " << record.message;
-        if (record.error)
-            out << " error=" << record.error->code << ':' << record.error->text;
+        const std::string originBoundary = toString(record.origin) + "/" + toString(record.boundary);
+        out << styled(formatTimestamp(record.ts), dim) << ' ' << styled(textLevel(record.level), levelSgr(record.level)) << ' '
+            << styled(originBoundary, dim) << ' ' << styled(record.component, cyan);
+        if (record.role) {
+            if (auto role = toString(*record.role)) {
+                appendOptional(out, "role", std::string(*role));
+            }
+        }
+        if (record.instance) {
+            appendOptional(out, "inst", *record.instance);
+        }
+        if (record.connection) {
+            appendOptional(out, "conn", *record.connection);
+        }
+        if (record.event) {
+            appendOptional(out, "event", *record.event);
+        }
+        if (record.error) {
+            appendOptional(out, "error", std::to_string(record.error->code) + ":" + record.error->text);
+        }
+        if (record.source) {
+            std::string source = record.source->file + ":" + std::to_string(record.source->line);
+            if (!record.source->func.empty()) {
+                source += ":" + record.source->func;
+            }
+            appendOptional(out, "src", source);
+        }
+        if (!record.message.empty()) {
+            const auto lines = sanitizeMessageLines(record.message);
+            out << " — " << lines.front();
+            for (std::size_t i = 1; i < lines.size(); ++i) {
+                out << '\n' << styled("│ ", dim) << lines[i];
+            }
+        }
         return out.str();
     }
 

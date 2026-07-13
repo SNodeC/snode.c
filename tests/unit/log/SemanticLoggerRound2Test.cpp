@@ -69,10 +69,47 @@ int main() {
                       "JSON does not emit raw control bytes below 0x20");
 
     const std::string text = logger::formatText(owned);
-    result.expectTrue(text.find("2026-07-05T12:34:56.789Z") != std::string::npos &&
-                          text.find("info framework connection mqtt.server") != std::string::npos &&
-                          text.find("ready") != std::string::npos,
-                      "text formatter includes timestamp level origin boundary component and message");
+    expectStringEqual(result,
+                      "2026-07-05T12:34:56.789Z INF framework/connection mqtt.server role=server inst=mqtt-broker conn=#7 — ready",
+                      text,
+                      "text formatter uses final semantic grammar");
+    result.expectTrue(logger::formatText(owned) == logger::formatText(owned, false), "plain overloads are byte-equivalent");
+    const std::string coloredText = logger::formatText(owned, true);
+    result.expectTrue(coloredText.find("\033[") != std::string::npos, "colored formatter emits ANSI SGR");
+
+    auto emptyMessage = logger::materialize(unknownRole, logger::LogLevel::Info, "", logger::LogRecordOptions{.ts = fixedTimestamp()});
+    expectStringEqual(result,
+                      "2026-07-05T12:34:56.789Z INF application/context EchoServerContext",
+                      logger::formatText(emptyMessage),
+                      "empty semantic messages omit separator and trailing whitespace");
+
+    logger::LogRecord rich = owned;
+    rich.event = std::string("http.response");
+    rich.error = logger::LogError{5, "Input/output error"};
+    rich.source = logger::LogSource{"SocketContext.cpp", 123, "onRead"};
+    rich.connection = std::string("[7] mqtt client");
+    expectStringEqual(
+        result,
+        R"(2026-07-05T12:34:56.789Z INF framework/connection mqtt.server role=server inst=mqtt-broker conn="[7] mqtt client" event=http.response error="5:Input/output error" src=SocketContext.cpp:123:onRead — ready)",
+        logger::formatText(rich),
+        "rich text formatter renders deterministic fields before the message");
+
+    logger::LogRecord escaped = emptyMessage;
+    escaped.instance = std::string("space = | , ; [ ] \" \\");
+    escaped.connection = std::string("line\ncr\rtab\tbs\bff\f") + static_cast<char>(0) + static_cast<char>(0x1B) + static_cast<char>(0x7F);
+    escaped.event = std::string("");
+    escaped.message = std::string("first\r\n\nthird\nraw") + static_cast<char>(0x1B) + " utf8=µ";
+    const std::string escapedText = logger::formatText(escaped);
+    result.expectTrue(escapedText.find("inst=\"") != std::string::npos && escapedText.find("\\\"") != std::string::npos &&
+                          escapedText.find("\\\\") != std::string::npos,
+                      "quoted fields escape quotes and backslashes");
+    result.expectTrue(escapedText.find("event=\"\"") != std::string::npos, "present-empty optionals render quoted empty strings");
+    result.expectTrue(escapedText.find("\\x00") != std::string::npos && escapedText.find("\\x1B") != std::string::npos &&
+                          escapedText.find("\\x7F") != std::string::npos,
+                      "control bytes are escaped as deterministic hex");
+    result.expectTrue(escapedText.find("— first\n│ \n│ third\n│ raw\\x1B utf8=µ") != std::string::npos,
+                      "CRLF, blank lines, trailing markers, ESC sanitization, and UTF-8 messages are preserved");
+    result.expectTrue(escapedText.find(static_cast<char>(0x1B)) == std::string::npos, "raw ESC never reaches plain semantic output");
 
     std::vector<logger::LogRecord> records;
     logger::LogScope scope{logger::LogOrigin::Framework,
