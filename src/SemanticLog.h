@@ -1,6 +1,7 @@
 #ifndef SNODEC_SEMANTICLOG_H
 #define SNODEC_SEMANTICLOG_H
 
+#include "core/socket/stream/SocketConnection.h"
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
@@ -16,6 +17,12 @@ namespace snode::semantic {
         std::optional<logger::LogRole> role;
         std::optional<std::string> connection;
     };
+
+    inline LogIdentity logIdentity(const core::socket::stream::SocketConnection& connection) {
+        return {connection.getInstanceName().empty() ? std::nullopt : std::optional<std::string>(connection.getInstanceName()),
+                std::nullopt,
+                connection.getConnectionName()};
+    }
 
     inline logger::BoundaryLogger scopedLog(const logger::LogOrigin origin,
                                             const logger::LogBoundary boundary,
@@ -294,6 +301,27 @@ namespace snode::semantic {
                          logger::LogBoundary::Connection,
                          "web.http",
                          std::move(identity),
+                         std::move(sink),
+                         threshold,
+                         std::move(clock));
+    }
+
+    inline logger::BoundaryLogger expressLog(const core::socket::stream::SocketConnection& connection) {
+        return scopedLog(logger::LogOrigin::Framework,
+                         logger::LogBoundary::Application,
+                         "express",
+                         logIdentity(connection),
+                         logger::Logger::semanticSink());
+    }
+
+    inline logger::BoundaryLogger expressLog(const core::socket::stream::SocketConnection& connection,
+                                             logger::BoundaryLogger::Sink sink,
+                                             const logger::LogLevel threshold = logger::LogLevel::Trace,
+                                             logger::BoundaryLogger::Clock clock = {}) {
+        return scopedLog(logger::LogOrigin::Framework,
+                         logger::LogBoundary::Application,
+                         "express",
+                         logIdentity(connection),
                          std::move(sink),
                          threshold,
                          std::move(clock));

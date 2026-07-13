@@ -48,6 +48,7 @@ snodec_add_test(InetSocketAddressInvalidInputTest InetSocketAddressInvalidInputT
 snodec_add_test(Inet6SocketAddressInvalidInputTest Inet6SocketAddressInvalidInputTest.cpp)
 snodec_add_test(UnixSocketAddressPathLengthTest UnixSocketAddressPathLengthTest.cpp)
 snodec_add_test(SocketAddressFormattingTest SocketAddressFormattingTest.cpp)
+snodec_add_test(TlsPeerIdentityUtilsTest TlsPeerIdentityUtilsTest.cpp)
 
 target_link_libraries(InetSocketAddressTest PRIVATE snodec-test-support snodec::net-in)
 target_link_libraries(InetSocketAddressNativeTest PRIVATE snodec-test-support snodec::net-in)
@@ -59,6 +60,7 @@ target_link_libraries(InetSocketAddressInvalidInputTest PRIVATE snodec-test-supp
 target_link_libraries(Inet6SocketAddressInvalidInputTest PRIVATE snodec-test-support snodec::net-in6)
 target_link_libraries(UnixSocketAddressPathLengthTest PRIVATE snodec-test-support snodec::net-un)
 target_link_libraries(SocketAddressFormattingTest PRIVATE snodec-test-support snodec::net-in snodec::net-in6 snodec::net-un)
+target_link_libraries(TlsPeerIdentityUtilsTest PRIVATE snodec-test-support snodec::core-socket-stream-tls)
 
 set_tests_properties(InetSocketAddressTest PROPERTIES LABELS "unit;net;address" TIMEOUT 5)
 set_tests_properties(InetSocketAddressNativeTest PROPERTIES LABELS "unit;net;address;native;ipv4" TIMEOUT 5)
@@ -70,3 +72,4 @@ set_tests_properties(InetSocketAddressInvalidInputTest PROPERTIES LABELS "unit;n
 set_tests_properties(Inet6SocketAddressInvalidInputTest PROPERTIES LABELS "unit;net;address;invalid;ipv6" TIMEOUT 5)
 set_tests_properties(UnixSocketAddressPathLengthTest PROPERTIES LABELS "unit;net;address;unix;path" TIMEOUT 5)
 set_tests_properties(SocketAddressFormattingTest PROPERTIES LABELS "unit;net;address;format" TIMEOUT 5)
+set_tests_properties(TlsPeerIdentityUtilsTest PROPERTIES LABELS "unit;net;tls;identity" TIMEOUT 5)

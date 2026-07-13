@@ -71,7 +71,7 @@ namespace express::dispatcher {
                                     [[maybe_unused]] bool caseInsensitiveRoutingUnused,
                                     [[maybe_unused]] bool mergeParamsUnused) {
         snode::semantic::expressLog().trace() << "======================= ROUTER      DISPATCH =======================";
-        snode::semantic::expressLog().trace() << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
+        snode::semantic::expressLog(*controller.getResponse()->getSocketContext()->getSocketConnection()).trace() << "Router dispatch";
         snode::semantic::expressLog().trace() << "          Request Method: " << controller.getRequest()->method;
         snode::semantic::expressLog().trace() << "             Request Url: " << controller.getRequest()->url;
         snode::semantic::expressLog().trace() << "            Request Path: " << controller.getRequest()->path;

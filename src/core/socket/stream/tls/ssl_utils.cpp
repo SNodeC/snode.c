@@ -291,8 +291,12 @@ namespace core::socket::stream::tls {
     }
 
     bool ssl_set_peer_identity(SSL* ssl, const std::string& identity) {
-        if (identity.empty() || (SSL_get_verify_mode(ssl) & SSL_VERIFY_PEER) == 0) {
+        if ((SSL_get_verify_mode(ssl) & SSL_VERIFY_PEER) == 0) {
             return true;
+        }
+        if (identity.empty()) {
+            ssl_log_error("SSL/TLS: peer certificate verification is enabled but no verification identity is configured");
+            return false;
         }
         if (ssl_is_ip_address(identity)) {
             if (X509_VERIFY_PARAM_set1_ip_asc(SSL_get0_param(ssl), identity.c_str()) != 1) {

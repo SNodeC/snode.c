@@ -58,9 +58,8 @@ namespace express::middleware {
 
     VerboseRequest::VerboseRequest(Details details) {
         use("/", [details] MIDDLEWARE(req, res, next) {
-            snode::semantic::expressLog().debug()
-                << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express VerboseMiddleware: " << req->method
-                << " " << req->url << " " << req->httpVersion << "\n"
+            snode::semantic::expressLog(*res->getSocketContext()->getSocketConnection()).debug()
+                << "Express VerboseMiddleware: " << req->method << " " << req->url << " " << req->httpVersion << "\n"
                 << httputils::toString(
                        req->method,
                        req->url,
