@@ -88,7 +88,9 @@ namespace core::socket::stream::tls {
     SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig);
     std::map<std::string, SSL_CTX*> ssl_get_sans(SSL_CTX* sslCtx);
 
-    void ssl_set_sni(SSL* ssl, const std::string& sni);
+    bool ssl_is_ip_address(const std::string& value);
+    bool ssl_set_sni(SSL* ssl, const std::string& sni);
+    bool ssl_set_peer_identity(SSL* ssl, const std::string& identity);
     SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx);
 
     void ssl_ctx_free(SSL_CTX* ctx);

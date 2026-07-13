@@ -51,10 +51,38 @@
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
 #include <string>
+#include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream::tls {
+
+    namespace {
+        template <typename Config>
+        std::string logicalRemoteHost(const std::shared_ptr<Config>& config) {
+            if constexpr (requires { config->Remote::getHost(); }) {
+                return config->Remote::getHost();
+            } else {
+                return {};
+            }
+        }
+
+        template <typename Config>
+        std::string resolveVerifyHost(const std::shared_ptr<Config>& config) {
+            const std::string configuredVerifyHost = config->getVerifyHost();
+            return !configuredVerifyHost.empty() ? configuredVerifyHost : logicalRemoteHost(config);
+        }
+
+        template <typename Config>
+        std::string resolveSni(const std::shared_ptr<Config>& config) {
+            const std::string configuredSni = config->getSni();
+            if (!configuredSni.empty()) {
+                return configuredSni;
+            }
+            const std::string remoteHost = logicalRemoteHost(config);
+            return !remoteHost.empty() && !ssl_is_ip_address(remoteHost) ? remoteHost : std::string{};
+        }
+    } // namespace
 
     template <typename PhysicalClientSocket, typename Config>
     SocketConnector<PhysicalClientSocket, Config>::SocketConnector(
@@ -74,7 +102,14 @@ namespace core::socket::stream::tls {
                       SSL_set_connect_state(ssl);
                       SSL_set_ex_data(ssl, 1, Super::config.get());
 
-                      ssl_set_sni(ssl, Super::config->getSni());
+                      const std::string sni = resolveSni(Super::config);
+                      const std::string peerIdentity = resolveVerifyHost(Super::config);
+                      if (!ssl_set_sni(ssl, sni) || !ssl_set_peer_identity(ssl, peerIdentity)) {
+                          static_cast<core::socket::stream::SocketConnection*>(socketConnection)
+                              ->log()
+                              .error("SSL/TLS: Peer identity setup failed");
+                          socketConnection->close();
+                      }
                   }
               },
               [socketContextFactory, onConnected](SocketConnection* socketConnection) { // onConnected

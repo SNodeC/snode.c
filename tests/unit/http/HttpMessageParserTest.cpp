@@ -476,6 +476,17 @@ int main() {
     }
 
     {
+        const std::vector<std::string> malformedPaths = {"/%", "/%A", "/%GG", "/test%0Z"};
+        for (const std::string& malformedPath : malformedPaths) {
+            const RequestParseResult result = parseRequestMessage("GET " + malformedPath + " HTTP/1.1\r\nHost: x\r\n\r\n");
+            testResult.expectTrue(!result.parsed, "request parser rejects malformed path encoding: " + malformedPath);
+            testResult.expectEqual(400, result.errorCode, "malformed path encoding is bad request");
+        }
+        const RequestParseResult validLowerPath = parseRequestMessage("GET /%7e/%2E HTTP/1.1\r\nHost: x\r\n\r\n");
+        testResult.expectTrue(validLowerPath.parsed, "request parser accepts valid lowercase path escapes");
+        const RequestParseResult validUpperPath = parseRequestMessage("GET /%7E/%2e HTTP/1.1\r\nHost: x\r\n\r\n");
+        testResult.expectTrue(validUpperPath.parsed, "request parser accepts valid uppercase path escapes");
+
         const RequestParseResult malformedLine = parseRequestMessage("GET example.test HTTP/1.1\r\n\r\n");
         testResult.expectTrue(malformedLine.started, "request parser starts before rejecting malformed request target");
         testResult.expectTrue(!malformedLine.parsed, "request parser does not parse malformed request target");

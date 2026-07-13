@@ -80,8 +80,15 @@ namespace web::http::server {
             std::tie(request.method, remaining) = httputils::str_split(line, ' ');
             std::tie(request.url, request.httpVersion) = httputils::str_split(remaining, ' ');
 
+            std::string rawPath;
             std::string queriesLine;
-            std::tie(std::ignore, queriesLine) = httputils::str_split(request.url, '?');
+            std::tie(rawPath, queriesLine) = httputils::str_split(request.url, '?');
+
+            std::string decodedPath;
+            if (!httputils::url_decode(rawPath, decodedPath, httputils::UrlDecodeMode::Path)) {
+                parseError(400, "Malformed URL path encoding");
+                return;
+            }
 
             if (!methodSupported(request.method)) {
                 parseError(405, "Bad request method: " + request.method);

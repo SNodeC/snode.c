@@ -60,6 +60,11 @@ namespace net::config {
             "Server Name Indication",
             "sni",
             CLI::TypeValidator<std::string>());
+        verifyHostOpt = addOption( //
+            "--verify-host",
+            "Certificate verification hostname or IP address (independent from SNI; defaults to the logical remote host when available)",
+            "hostname|IP",
+            CLI::TypeValidator<std::string>());
     }
 
     ConfigTlsClient::~ConfigTlsClient() {
@@ -73,6 +78,16 @@ namespace net::config {
 
     std::string ConfigTlsClient::getSni() const {
         return sniOpt->as<std::string>();
+    }
+
+    ConfigTlsClient* ConfigTlsClient::setVerifyHost(const std::string& verifyHost) {
+        setDefaultValue(verifyHostOpt, verifyHost);
+
+        return this;
+    }
+
+    std::string ConfigTlsClient::getVerifyHost() const {
+        return verifyHostOpt->as<std::string>();
     }
 
 } // namespace net::config

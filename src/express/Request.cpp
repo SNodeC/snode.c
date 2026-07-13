@@ -84,9 +84,7 @@ namespace express {
         }
 
         // Keep a decoded variant for middleware that needs filesystem mapping etc.
-        if (!httputils::url_decode(path, originalPath, httputils::UrlDecodeMode::Path)) {
-            originalPath = path;
-        }
+        (void) httputils::url_decode(path, originalPath, httputils::UrlDecodeMode::Path);
 
         // Legacy field; not part of Express API.
         file.clear();

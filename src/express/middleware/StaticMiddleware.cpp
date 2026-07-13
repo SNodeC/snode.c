@@ -71,6 +71,8 @@ namespace express::middleware {
         }
 
         std::optional<std::filesystem::path> resolveStaticPath(const std::string& root, const std::string& requestPath) {
+            // Containment is checked before sendFile(); this assumes the static root is not writable by untrusted local users
+            // between resolution and open (TOCTOU), avoiding a broader platform-specific openat2() refactor here.
             std::string decodedPath;
             if (!httputils::url_decode(requestPath, decodedPath, httputils::UrlDecodeMode::Path) ||
                 decodedPath.find('\0') != std::string::npos) {

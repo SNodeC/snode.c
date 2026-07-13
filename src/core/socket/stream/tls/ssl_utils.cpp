@@ -274,18 +274,36 @@ namespace core::socket::stream::tls {
         return sans;
     }
 
-    void ssl_set_sni(SSL* ssl, const std::string& sni) {
-        if (!sni.empty()) {
-            SSL_set_tlsext_host_name(ssl, sni.data());
-            if ((SSL_get_verify_mode(ssl) & SSL_VERIFY_PEER) != 0) {
-                unsigned char buf[sizeof(struct in6_addr)] = {};
-                if (inet_pton(AF_INET, sni.c_str(), buf) == 1 || inet_pton(AF_INET6, sni.c_str(), buf) == 1) {
-                    X509_VERIFY_PARAM_set1_ip_asc(SSL_get0_param(ssl), sni.c_str());
-                } else {
-                    SSL_set1_host(ssl, sni.c_str());
-                }
-            }
+    bool ssl_is_ip_address(const std::string& value) {
+        unsigned char buf[sizeof(struct in6_addr)] = {};
+        return inet_pton(AF_INET, value.c_str(), buf) == 1 || inet_pton(AF_INET6, value.c_str(), buf) == 1;
+    }
+
+    bool ssl_set_sni(SSL* ssl, const std::string& sni) {
+        if (sni.empty()) {
+            return true;
         }
+        if (SSL_set_tlsext_host_name(ssl, sni.c_str()) != 1) {
+            ssl_log_error("SSL/TLS: failed to set server name indication '" + sni + "'");
+            return false;
+        }
+        return true;
+    }
+
+    bool ssl_set_peer_identity(SSL* ssl, const std::string& identity) {
+        if (identity.empty() || (SSL_get_verify_mode(ssl) & SSL_VERIFY_PEER) == 0) {
+            return true;
+        }
+        if (ssl_is_ip_address(identity)) {
+            if (X509_VERIFY_PARAM_set1_ip_asc(SSL_get0_param(ssl), identity.c_str()) != 1) {
+                ssl_log_error("SSL/TLS: failed to set peer IP verification identity '" + identity + "'");
+                return false;
+            }
+        } else if (SSL_set1_host(ssl, identity.c_str()) != 1) {
+            ssl_log_error("SSL/TLS: failed to set peer hostname verification identity '" + identity + "'");
+            return false;
+        }
+        return true;
     }
 
     SSL_CTX* ssl_set_ssl_ctx(SSL* ssl, SSL_CTX* sslCtx) {

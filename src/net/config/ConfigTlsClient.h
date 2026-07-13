@@ -71,8 +71,12 @@ namespace net::config {
         ConfigTlsClient* setSni(const std::string& sni);
         std::string getSni() const;
 
+        ConfigTlsClient* setVerifyHost(const std::string& verifyHost);
+        std::string getVerifyHost() const;
+
     private:
         CLI::Option* sniOpt = nullptr;
+        CLI::Option* verifyHostOpt = nullptr;
     };
 
 } // namespace net::config

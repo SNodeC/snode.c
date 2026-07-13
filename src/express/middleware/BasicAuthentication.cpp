@@ -59,11 +59,11 @@ namespace express::middleware {
     namespace {
         bool constantTimeEquals(const std::string& lhs, const std::string& rhs) {
             const std::size_t maxSize = std::max(lhs.size(), rhs.size());
-            unsigned char diff = static_cast<unsigned char>(lhs.size() ^ rhs.size());
+            std::size_t diff = lhs.size() ^ rhs.size();
             for (std::size_t i = 0; i < maxSize; ++i) {
                 const unsigned char l = i < lhs.size() ? static_cast<unsigned char>(lhs[i]) : 0;
                 const unsigned char r = i < rhs.size() ? static_cast<unsigned char>(rhs[i]) : 0;
-                diff |= static_cast<unsigned char>(l ^ r);
+                diff |= static_cast<std::size_t>(l ^ r);
             }
             return diff == 0;
         }

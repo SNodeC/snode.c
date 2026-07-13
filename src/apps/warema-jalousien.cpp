@@ -110,7 +110,12 @@ int main(int argc, char* argv[]) {
         }
 
         int status = 0;
-        if (waitpid(pid, &status, 0) < 0) {
+        pid_t waitedPid = 0;
+        do {
+            waitedPid = waitpid(pid, &status, 0);
+        } while (waitedPid < 0 && errno == EINTR);
+
+        if (waitedPid < 0) {
             res->status(500).send("ERROR wait failed: " + command);
         } else if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
             res->status(200).send("OK: " + command);
