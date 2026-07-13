@@ -116,9 +116,8 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendClose(const char* message, std::size_t messageLength) {
         if (!closeSent) {
-            semantic::webSocketSubProtocolLog().debug()
-                << this->getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
-                << "' sending close to peer";
+            semantic::webSocketSubProtocolLog(*this->getSocketConnection()).debug()
+                << "WebSocketContext: Subprotocol '" << subProtocol->name << "' sending close to peer";
 
             sendMessage(8, message, messageLength);
 
@@ -189,15 +188,13 @@ namespace web::websocket {
             case SubProtocolContext::OpCode::CLOSE:
                 if (closeSent) { // active close
                     closeSent = false;
-                    semantic::webSocketSubProtocolLog().debug()
-                        << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
-                        << "' close confirmed from peer";
+                    semantic::webSocketSubProtocolLog(*getSocketConnection()).debug()
+                        << "WebSocketContext: Subprotocol '" << subProtocol->name << "' close confirmed from peer";
 
                     shutdownWrite();
                 } else { // passive close
-                    semantic::webSocketSubProtocolLog().debug()
-                        << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
-                        << "' close request received - replying with close";
+                    semantic::webSocketSubProtocolLog(*getSocketConnection()).debug()
+                        << "WebSocketContext: Subprotocol '" << subProtocol->name << "' close request received - replying with close";
 
                     sendClose(pongCloseData.data(), pongCloseData.length());
                     pongCloseData.clear();
@@ -233,16 +230,16 @@ namespace web::websocket {
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onConnected() {
-        semantic::webSocketSubProtocolLog().info()
-            << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name << "' connect";
+        semantic::webSocketSubProtocolLog(*getSocketConnection()).info()
+            << "WebSocketContext: Subprotocol '" << subProtocol->name << "' connect";
         subProtocol->attach();
     }
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onDisconnected() {
         subProtocol->detach();
-        semantic::webSocketSubProtocolLog().info()
-            << getSocketConnection()->getConnectionName() << " WebSocketContext:  Subprotocol '" << subProtocol->name << "' disconnected";
+        semantic::webSocketSubProtocolLog(*getSocketConnection()).info()
+            << "WebSocketContext:  Subprotocol '" << subProtocol->name << "' disconnected";
     }
 
     template <typename SubProtocol, typename Request, typename Response>

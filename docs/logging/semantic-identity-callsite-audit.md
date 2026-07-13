@@ -485,3 +485,15 @@ The primary raw evidence command produced 646 matches after excluding this repor
 1. Remove duplicated identity prefixes from proven object-scoped logger messages listed under REMOVE_LATER.
 2. Decide static-helper scope design only for surfaces where this audit recommends `FOLLOW_UP_SCOPED_HELPER_DESIGN`.
 3. Improve semantic text formatting and terminal coloring afterward.
+
+## Resolution status
+
+The following `FOLLOW_UP_SCOPED_HELPER_DESIGN` rows are resolved by the scoped semantic logging PR associated with this branch. The original classifications above are intentionally preserved as audit history.
+
+| Rows | Resolution approach | Rows resolved | Structured identity confirmation |
+|---|---|---:|---|
+| CSI-P075–CSI-P084 | WebSocket subprotocol logging now has a narrow connection-scoped helper overload that copies `inst=` and `conn=` from the active `SocketConnection`; the audited WebSocket call sites use that scoped helper before removing the duplicated connection-name prefix from message text. | 10 | `inst=`/`conn=` are populated from the active socket connection before free-text identity removal. |
+| CSI-P135–CSI-P142 | MQTT-over-WebSocket logging now has a narrow connection-scoped helper overload that copies `inst=` and `conn=` from the active `SocketConnection`; the audited MQTT-over-WebSocket call sites use that scoped helper before removing the duplicated connection-name prefix from message text. | 8 | `inst=`/`conn=` are populated from the active socket connection before free-text identity removal. |
+| CSI-P143–CSI-P150 | Express logging now has a narrow connection-scoped helper overload that copies `inst=` and `conn=` from the active request/response socket connection; the audited Express middleware and dispatcher call sites use that scoped helper before removing the duplicated connection-name prefix from message text. | 8 | `inst=`/`conn=` are populated from the active socket connection before free-text identity removal. |
+
+Total resolved in this branch: 26 audited logging call sites. CSI-P085–CSI-P121 were completed by PR #187, CSI-P122–CSI-P134 are KEEP rows and remain unchanged, and the socket/TLS rows completed by PR #189 remain outside this resolution update.

@@ -1,9 +1,12 @@
 #ifndef WEB_WEBSOCKET_SEMANTICLOG_H
 #define WEB_WEBSOCKET_SEMANTICLOG_H
 
+#include "core/socket/stream/SocketConnection.h"
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
+#include <optional>
+#include <string>
 #include <utility>
 
 namespace web::websocket::semantic {
@@ -22,6 +25,16 @@ namespace web::websocket::semantic {
         static const logger::LogScopeOwner scope(
             logger::LogOrigin::Framework, logger::LogBoundary::Connection, "web.websocket.subprotocol");
         return scope;
+    }
+
+    inline logger::LogScopeOwner webSocketSubProtocolLogScope(const core::socket::stream::SocketConnection& connection) {
+        return logger::LogScopeOwner(logger::LogOrigin::Framework,
+                                     logger::LogBoundary::Connection,
+                                     "web.websocket.subprotocol",
+                                     connection.getInstanceName().empty() ? std::nullopt
+                                                                          : std::optional<std::string>(connection.getInstanceName()),
+                                     std::nullopt,
+                                     connection.getConnectionName());
     }
 
     inline const logger::LogScopeOwner& webSocketFactoryLogScope() {
@@ -57,6 +70,17 @@ namespace web::websocket::semantic {
                                                           logger::LogLevel threshold = logger::LogLevel::Trace,
                                                           logger::BoundaryLogger::Clock clock = {}) {
         return webSocketSubProtocolLogScope().logger(std::move(sink), threshold, std::move(clock));
+    }
+
+    inline logger::BoundaryLogger webSocketSubProtocolLog(const core::socket::stream::SocketConnection& connection) {
+        return webSocketSubProtocolLogScope(connection).logger(logger::Logger::semanticSink());
+    }
+
+    inline logger::BoundaryLogger webSocketSubProtocolLog(const core::socket::stream::SocketConnection& connection,
+                                                          logger::BoundaryLogger::Sink sink,
+                                                          logger::LogLevel threshold = logger::LogLevel::Trace,
+                                                          logger::BoundaryLogger::Clock clock = {}) {
+        return webSocketSubProtocolLogScope(connection).logger(std::move(sink), threshold, std::move(clock));
     }
 
     inline logger::BoundaryLogger webSocketFactoryLog() {
