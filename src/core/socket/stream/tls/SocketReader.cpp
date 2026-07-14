@@ -40,6 +40,7 @@
  */
 
 #include "core/socket/stream/tls/SocketReader.h"
+#include "core/socket/stream/tls/detail/TLSResult.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -49,6 +50,7 @@
 
 #include <cerrno>
 #include <limits>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <string>
 
@@ -86,17 +88,30 @@ namespace core::socket::stream::tls {
             ret = Super::read(chunk, chunkLen);
         } else {
             chunkLen = chunkLen > std::numeric_limits<int>::max() ? std::numeric_limits<int>::max() : chunkLen;
+            ERR_clear_error();
+            errno = 0;
             ret = SSL_read(ssl, chunk, static_cast<int>(chunkLen));
+            const int savedErrno = errno;
 
-            if (ret <= 0) {
-                const int ssl_err = SSL_get_error(ssl, static_cast<int>(ret));
+            detail::TlsIoResult result;
+            if (ret > 0) {
+                result = detail::TlsIoSuccess{ret};
+            } else {
+                const int sslErr = SSL_get_error(ssl, static_cast<int>(ret));
+                const unsigned long openSslError = ERR_peek_last_error();
+                result = detail::classifyOpenSslFailure(static_cast<int>(ret), sslErr, savedErrno, openSslError);
+            }
 
-                switch (ssl_err) {
-                    case SSL_ERROR_WANT_READ:
+            if (const auto* success = std::get_if<detail::TlsIoSuccess>(&result)) {
+                ret = success->bytesTransferred;
+            } else {
+                const detail::TlsStatusInfo& status = std::get<detail::TlsStatusInfo>(result);
+                switch (status.status) {
+                    case detail::TlsStatus::WantRead:
                         errno = EAGAIN;
                         ret = -1;
                         break;
-                    case SSL_ERROR_WANT_WRITE:
+                    case detail::TlsStatus::WantWrite:
                         log().trace("{} SSL/TLS: Start renegotiation on read", getName());
                         doSSLHandshake(
                             [log = this->log(), name = getName()]() {
@@ -105,45 +120,38 @@ namespace core::socket::stream::tls {
                             [log = this->log(), name = getName()]() {
                                 log.warn("{} SSL/TLS: Renegotiation on read timed out", name);
                             },
-                            [this](int ssl_err) {
-                                ssl_log(getName() + " SSL/TLS: Renegotiation on read", ssl_err);
+                            [this](int sslErr) {
+                                ssl_log(getName() + " SSL/TLS: Renegotiation on read", sslErr);
                             });
                         errno = EAGAIN;
                         ret = -1;
                         break;
-                    case SSL_ERROR_ZERO_RETURN: // received close_notify
+                    case detail::TlsStatus::CleanPeerShutdown:
+                        log().debug("{} SSL/TLS: Clean peer close_notify on read", getName());
                         onReadShutdown();
                         errno = EAGAIN;
                         ret = -1;
                         break;
-                    case SSL_ERROR_SYSCALL: // When SSL_get_error(ssl, ret) returns SSL_ERROR_SYSCALL
-                                            // and ret is 0, it indicates that the underlying TCP connection
-                                            // was closed unexpectedly by the peer. This situation typically
-                                            // happens when the peer closes (FIN) the connection without
-                                            // sending a close_notify alert, which violates the SSL/TLS
-                                            // protocol’s  graceful shutdown procedure.
-                        // In case ret is -1 a real syscall error (RST = ECONNRESET)
-                        {
-                            const int errnum = errno;
-                            const utils::PreserveErrno pe;
-
-                            if (ret == 0) {
-                                log().sysError(
-                                    logger::LogLevel::Debug, errnum, "{} SSL/TLS: EOF detected: Connection closed by peer.", getName());
-                            } else {
-                                log().sysError(logger::LogLevel::Warn, errnum, "{} SSL/TLS: Syscall error on read", getName());
-                            }
-                        }
+                    case detail::TlsStatus::UncleanEofWithoutCloseNotify:
+                        log().error("{} SSL/TLS: Transport ended without TLS close_notify", getName());
+                        errno = EPROTO;
                         ret = -1;
                         break;
-                    case SSL_ERROR_SSL:
-                        ssl_log(getName() + " SSL/TLS: Read failed", ssl_err);
-                        onReadShutdown();
+                    case detail::TlsStatus::SyscallError: {
+                        const int errnum = detail::fatalTlsStatusToErrno(status);
+                        const utils::PreserveErrno pe;
+                        log().sysError(logger::LogLevel::Warn, errnum, "{} SSL/TLS: Syscall error on read", getName());
+                        errno = errnum;
                         ret = -1;
                         break;
-                    default:
-                        ssl_log(getName() + " SSL/TLS: Unexpected error", ssl_err);
-                        onReadShutdown();
+                    }
+                    case detail::TlsStatus::SslProtocolError:
+                        ssl_log(getName() + " SSL/TLS: Read protocol failure", status.sslError);
+                        errno = EPROTO;
+                        ret = -1;
+                        break;
+                    case detail::TlsStatus::UnknownError:
+                        ssl_log(getName() + " SSL/TLS: Unknown read failure", status.sslError);
                         errno = EIO;
                         ret = -1;
                         break;

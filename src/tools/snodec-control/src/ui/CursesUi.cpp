@@ -345,7 +345,8 @@ namespace snodec::control::ui {
             if (::tcgetattr(STDIN_FILENO, &oldTermios) != 0) {
                 // No controlling terminal to reconfigure (unusual); fall back to a plain blocking read.
                 char discard = 0;
-                static_cast<void>(::read(STDIN_FILENO, &discard, 1));
+                const ssize_t ignoredReadResult = ::read(STDIN_FILENO, &discard, 1);
+                (void) ignoredReadResult;
                 return;
             }
 
@@ -356,7 +357,8 @@ namespace snodec::control::ui {
             ::tcsetattr(STDIN_FILENO, TCSANOW, &rawTermios);
 
             char discard = 0;
-            static_cast<void>(::read(STDIN_FILENO, &discard, 1));
+            const ssize_t ignoredReadResult = ::read(STDIN_FILENO, &discard, 1);
+            (void) ignoredReadResult;
 
             ::tcsetattr(STDIN_FILENO, TCSANOW, &oldTermios);
         }

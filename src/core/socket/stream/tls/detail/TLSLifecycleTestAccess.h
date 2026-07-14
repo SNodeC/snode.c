@@ -14,8 +14,10 @@
 namespace core::socket::stream::tls::detail::test {
 
     struct OperationResult {
+        int returnValue = 1;
         int sslError = SSL_ERROR_NONE;
         int systemError = 0;
+        unsigned long openSslError = 0;
     };
 
     struct Counters {
@@ -65,8 +67,10 @@ namespace core::socket::stream::tls::detail {
         static void resetHandshake() { test::handshakeState().reset(); }
         static void resetShutdown() { test::shutdownState().reset(); }
 
-        static void enqueueHandshake(int sslError, int systemError = 0) { test::handshakeState().operations.push_back({sslError, systemError}); }
-        static void enqueueShutdown(int sslError, int systemError = 0) { test::shutdownState().operations.push_back({sslError, systemError}); }
+        static void enqueueHandshake(int sslError, int systemError = 0) { test::handshakeState().operations.push_back({sslError == SSL_ERROR_NONE ? 1 : -1, sslError, systemError, 0}); }
+        static void enqueueHandshakeResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::handshakeState().operations.push_back({ret, sslError, systemError, openSslError}); }
+        static void enqueueShutdown(int sslError, int systemError = 0) { test::shutdownState().operations.push_back({sslError == SSL_ERROR_NONE ? 1 : -1, sslError, systemError, 0}); }
+        static void enqueueShutdownResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::shutdownState().operations.push_back({ret, sslError, systemError, openSslError}); }
 
         static test::Counters handshakeCounters() { return test::handshakeState().counters; }
         static test::Counters shutdownCounters() { return test::shutdownState().counters; }

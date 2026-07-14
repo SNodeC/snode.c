@@ -40,6 +40,7 @@
  */
 
 #include "core/socket/stream/tls/TLSHandshake.h"
+#include "core/socket/stream/tls/detail/TLSResult.h"
 
 #if defined(SNODEC_BUILD_TESTS)
 #include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
@@ -130,28 +131,34 @@ namespace core::socket::stream::tls {
             return;
         }
 
-        const int sslErr = performOperation();
+        const detail::TlsHandshakeResult result = performOperation();
 
-        switch (sslErr) {
-            case SSL_ERROR_WANT_READ:
+        if (std::holds_alternative<detail::TlsHandshakeSuccess>(result)) {
+            finishSuccess();
+            return;
+        }
+
+        const detail::TlsStatusInfo& status = std::get<detail::TlsStatusInfo>(result);
+        switch (status.status) {
+            case detail::TlsStatus::WantRead:
                 awaitRead();
                 break;
-            case SSL_ERROR_WANT_WRITE:
+            case detail::TlsStatus::WantWrite:
                 awaitWrite();
                 break;
-            case SSL_ERROR_NONE:
-                finishSuccess();
-                break;
-            case SSL_ERROR_ZERO_RETURN:
-            default:
-                finishError(sslErr, errno);
+            case detail::TlsStatus::CleanPeerShutdown:
+            case detail::TlsStatus::UncleanEofWithoutCloseNotify:
+            case detail::TlsStatus::SyscallError:
+            case detail::TlsStatus::SslProtocolError:
+            case detail::TlsStatus::UnknownError:
+                finishError(status.sslError, status.status == detail::TlsStatus::CleanPeerShutdown ? EPROTO : detail::fatalTlsStatusToErrno(status));
                 break;
         }
     }
 
-    int TLSHandshake::performOperation() {
+    detail::TlsHandshakeResult TLSHandshake::performOperation() {
         if (completed) {
-            return SSL_ERROR_NONE;
+            return detail::TlsHandshakeSuccess{};
         }
 
 #if defined(SNODEC_BUILD_TESTS)
@@ -161,7 +168,10 @@ namespace core::socket::stream::tls {
             const detail::test::OperationResult result = state.operations.front();
             state.operations.pop_front();
             errno = result.systemError;
-            return result.sslError;
+            if (result.sslError == SSL_ERROR_NONE) {
+                return detail::TlsHandshakeSuccess{};
+            }
+            return detail::classifyOpenSslFailure(result.returnValue, result.sslError, result.systemError, result.openSslError);
         }
 #endif
 
@@ -169,12 +179,14 @@ namespace core::socket::stream::tls {
         errno = 0;
         const int ret = SSL_do_handshake(ssl);
         const int savedErrno = errno;
-        int sslErr = SSL_ERROR_NONE;
-        if (ret <= 0) {
-            sslErr = SSL_get_error(ssl, ret);
+        if (ret == 1) {
+            errno = savedErrno;
+            return detail::TlsHandshakeSuccess{};
         }
+        const int sslErr = SSL_get_error(ssl, ret);
+        const unsigned long openSslError = ERR_peek_last_error();
         errno = savedErrno;
-        return ret == 1 ? SSL_ERROR_NONE : sslErr;
+        return detail::classifyOpenSslFailure(ret, sslErr, savedErrno, openSslError);
     }
 
     void TLSHandshake::awaitRead() {

@@ -44,6 +44,7 @@
 
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/eventreceiver/WriteEventReceiver.h"
+#include "core/socket/stream/tls/detail/TLSResult.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -114,7 +115,7 @@ namespace core::socket::stream::tls {
         void unobservedEvent() final;
 
         void start();
-        int performOperation();
+        detail::TlsShutdownResult performOperation();
         void awaitRead();
         void awaitWrite();
         void finishSuccess();

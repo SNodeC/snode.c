@@ -136,9 +136,11 @@ namespace core::socket::stream::tls {
                 },
                 [onTimeout, this]() { // onTimeout
                     onTimeout();
+                    SocketConnection::close();
                 },
                 [onStatus, this](int sslErr) { // onStatus
                     onStatus(sslErr);
+                    SocketConnection::close();
                 },
                 sslInitTimeout,
                 [handshakeInProgress]() {
@@ -236,10 +238,12 @@ namespace core::socket::stream::tls {
                 doSSLShutdown();
             }
         } else {
-            core::socket::stream::SocketConnection::log().error("SSL/TLS: Unexpected EOF error");
+            core::socket::stream::SocketConnection::log().error("SSL/TLS: Unexpected EOF without close_notify");
 
             SocketWriter::shutdownInProgress = false;
-            SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
+            errno = EPROTO;
+            this->onReadError(EPROTO);
+            SocketConnection::close();
         }
     }
 
