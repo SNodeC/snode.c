@@ -81,10 +81,8 @@ namespace core::socket::stream {
 
         ClientFlowController* setOnFlowReconnect(const std::function<void(ClientFlowController*)>& callback);
 
-    protected:
-        void reportFlowReconnect();
-
     private:
+        void reportFlowReconnect();
 
         void observeConnectEventReceiver(core::eventreceiver::ConnectEventReceiver* connectEventReceiver);
 
