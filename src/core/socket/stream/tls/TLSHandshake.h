@@ -92,15 +92,6 @@ namespace core::socket::stream::tls {
                                         const utils::Timeval& timeout,
                                         const std::function<void(void)>& onReleased);
 
-#if defined(SNODEC_BUILD_TESTS)
-        static void doHandshakeForTest(const std::string& instanceName,
-                                    int fd,
-                                    const std::function<void(void)>& onSuccess,
-                                    const std::function<void(void)>& onTimeout,
-                                    const std::function<void(int)>& onStatus,
-                                    const utils::Timeval& timeout,
-                                    const std::function<void(void)>& onReleased);
-#endif
 
         TLSHandshake(const std::string& instanceName,
                      SSL* ssl,

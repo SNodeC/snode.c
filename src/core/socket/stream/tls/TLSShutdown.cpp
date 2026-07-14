@@ -88,18 +88,6 @@ namespace core::socket::stream::tls {
         helper->start();
     }
 
-#if defined(SNODEC_BUILD_TESTS)
-    void TLSShutdown::doShutdownForTest(const std::string& instanceName,
-                                          int fd,
-                                          const std::function<void(void)>& onSuccess,
-                                          const std::function<void(void)>& onTimeout,
-                                          const std::function<void(int)>& onStatus,
-                                          const utils::Timeval& timeout,
-                                          const std::function<void(void)>& onReleased) {
-        auto* helper = new TLSShutdown(instanceName, nullptr, onSuccess, onTimeout, onStatus, timeout, onReleased, fd);
-        helper->start();
-    }
-#endif
 
     TLSShutdown::TLSShutdown(const std::string& instanceName,
                                SSL* ssl,
@@ -130,6 +118,7 @@ namespace core::socket::stream::tls {
 #if defined(SNODEC_BUILD_TESTS)
         auto& state = detail::test::shutdownState();
         state.counters.destroyed++;
+        state.counters.lastDestroySequence = ++state.sequence;
         state.counters.active--;
         if (state.last == this) {
             state.last = nullptr;
@@ -350,7 +339,9 @@ namespace core::socket::stream::tls {
         if (!releaseNotified) {
             releaseNotified = true;
 #if defined(SNODEC_BUILD_TESTS)
-            detail::test::shutdownState().counters.releases++;
+            auto& state = detail::test::shutdownState();
+            state.counters.releases++;
+            state.counters.lastReleaseSequence = ++state.sequence;
 #endif
             if (onReleased) {
                 onReleased();

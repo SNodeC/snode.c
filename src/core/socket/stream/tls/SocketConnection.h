@@ -83,6 +83,8 @@ namespace core::socket::stream::tls {
                          const std::function<void(SocketConnection*)>& onDisconnect,
                          const std::shared_ptr<Config>& config);
 
+        ~SocketConnection() override;
+
         SSL* getSSL() const;
 
     private:
@@ -107,6 +109,12 @@ namespace core::socket::stream::tls {
         bool closeNotifyIsEOF;
         std::shared_ptr<bool> sslHandshakeInProgress;
         std::shared_ptr<bool> sslShutdownInProgress;
+
+#if defined(SNODEC_BUILD_TESTS)
+        std::function<void()> onTestDestroyed;
+        std::shared_ptr<std::function<void(bool)>> onTestHandshakeReleased;
+        std::shared_ptr<std::function<void(bool)>> onTestShutdownReleased;
+#endif
 
         template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;
