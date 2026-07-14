@@ -3,19 +3,25 @@
 
 #include "core/socket/stream/tls/TLSHandshake.h"
 #include "core/socket/stream/tls/SocketConnection.h"
+#include "core/socket/stream/tls/SocketReader.h"
+#include "core/socket/stream/tls/SocketWriter.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
+#include "core/socket/stream/tls/detail/TLSResult.h"
 
 #include <cerrno>
 #include <deque>
 #include <functional>
+#include <optional>
 #include <openssl/ssl.h>
 #include <string>
 
 namespace core::socket::stream::tls::detail::test {
 
     struct OperationResult {
+        int returnValue = 1;
         int sslError = SSL_ERROR_NONE;
         int systemError = 0;
+        unsigned long openSslError = 0;
     };
 
     struct Counters {
@@ -52,10 +58,22 @@ namespace core::socket::stream::tls::detail::test {
 
     struct ShutdownState : HelperStateBase {
         TLSShutdown* last = nullptr;
+        std::optional<TlsShutdownSuccess> lastSuccess;
+
+        void reset() {
+            HelperStateBase::reset();
+            last = nullptr;
+            lastSuccess.reset();
+        }
+    };
+
+    struct IoState : HelperStateBase {
     };
 
     HandshakeState& handshakeState();
     ShutdownState& shutdownState();
+    IoState& readerState();
+    IoState& writerState();
 
 } // namespace core::socket::stream::tls::detail::test
 
@@ -64,12 +82,21 @@ namespace core::socket::stream::tls::detail {
     struct TLSLifecycleTestAccess {
         static void resetHandshake() { test::handshakeState().reset(); }
         static void resetShutdown() { test::shutdownState().reset(); }
+        static void resetReader() { test::readerState().reset(); }
+        static void resetWriter() { test::writerState().reset(); }
 
-        static void enqueueHandshake(int sslError, int systemError = 0) { test::handshakeState().operations.push_back({sslError, systemError}); }
-        static void enqueueShutdown(int sslError, int systemError = 0) { test::shutdownState().operations.push_back({sslError, systemError}); }
+        static void enqueueHandshake(int sslError, int systemError = 0) { test::handshakeState().operations.push_back({sslError == SSL_ERROR_NONE ? 1 : -1, sslError, systemError, 0}); }
+        static void enqueueHandshakeResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::handshakeState().operations.push_back({ret, sslError, systemError, openSslError}); }
+        static void enqueueShutdown(int sslError, int systemError = 0) { test::shutdownState().operations.push_back({sslError == SSL_ERROR_NONE ? 1 : -1, sslError, systemError, 0}); }
+        static void enqueueShutdownResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::shutdownState().operations.push_back({ret, sslError, systemError, openSslError}); }
+        static void enqueueReaderResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::readerState().operations.push_back({ret, sslError, systemError, openSslError}); }
+        static void enqueueWriterResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::writerState().operations.push_back({ret, sslError, systemError, openSslError}); }
 
         static test::Counters handshakeCounters() { return test::handshakeState().counters; }
         static test::Counters shutdownCounters() { return test::shutdownState().counters; }
+        static test::Counters readerCounters() { return test::readerState().counters; }
+        static test::Counters writerCounters() { return test::writerState().counters; }
+        static std::optional<TlsShutdownSuccess> lastShutdownSuccess() { return test::shutdownState().lastSuccess; }
 
         static TLSHandshake* lastHandshake() { return test::handshakeState().last; }
         static TLSShutdown* lastShutdown() { return test::shutdownState().last; }
@@ -152,6 +179,41 @@ namespace core::socket::stream::tls::detail {
         template <typename PhysicalSocket, typename Config>
         static bool shutdownGuardActive(const SocketConnection<PhysicalSocket, Config>& connection) {
             return connection.sslShutdownInProgress != nullptr && *connection.sslShutdownInProgress;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool tlsFatalError(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.tlsFatalError;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static void triggerReadEvent(SocketConnection<PhysicalSocket, Config>& connection) {
+            static_cast<core::socket::stream::SocketReader&>(connection).readEvent();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static void triggerWriteEvent(SocketConnection<PhysicalSocket, Config>& connection) {
+            static_cast<core::socket::stream::SocketWriter&>(connection).writeEvent();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool readEnabled(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return static_cast<const core::socket::stream::SocketReader&>(connection).isEnabled();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool writeEnabled(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return static_cast<const core::socket::stream::SocketWriter&>(connection).isEnabled();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool readSuspended(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return static_cast<const core::socket::stream::SocketReader&>(connection).isSuspended();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool writeSuspended(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return static_cast<const core::socket::stream::SocketWriter&>(connection).isSuspended();
         }
     };
 

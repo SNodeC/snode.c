@@ -77,6 +77,14 @@ namespace core::socket::stream::tls {
 
 
     template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::onTlsFatalError(int errnum) {
+        tlsFatalError = true;
+        errno = errnum;
+        SocketConnection::close();
+    }
+
+
+    template <typename PhysicalSocket, typename Config>
     SSL* SocketConnection<PhysicalSocket, Config>::getSSL() const {
         return ssl;
     }
@@ -90,6 +98,7 @@ namespace core::socket::stream::tls {
                 SSL_set_ex_data(ssl, 0, const_cast<std::string*>(&Super::getConnectionName()));
 
                 if (SSL_set_fd(ssl, fd) == 1) {
+                    tlsFatalError = false;
                     SocketReader::ssl = ssl;
                     SocketWriter::ssl = ssl;
                 } else {
@@ -138,9 +147,11 @@ namespace core::socket::stream::tls {
                 },
                 [onTimeout, this]() { // onTimeout
                     onTimeout();
+                    SocketConnection::close();
                 },
                 [onStatus, this](int sslErr) { // onStatus
                     onStatus(sslErr);
+                    SocketConnection::close();
                 },
                 sslInitTimeout,
                 [handshakeInProgress]() {
@@ -238,16 +249,21 @@ namespace core::socket::stream::tls {
                 doSSLShutdown();
             }
         } else {
-            core::socket::stream::SocketConnection::log().error("SSL/TLS: Unexpected EOF error");
+            core::socket::stream::SocketConnection::log().error("SSL/TLS: Unexpected EOF without close_notify");
 
             SocketWriter::shutdownInProgress = false;
-            SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
+            tlsFatalError = true;
+            errno = EPROTO;
+            this->onReadError(EPROTO);
+            SocketConnection::close();
         }
     }
 
     template <typename PhysicalSocket, typename Config>
     void SocketConnection<PhysicalSocket, Config>::doWriteShutdown(const std::function<void()>& onShutdown) {
-        if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
+        if (tlsFatalError) {
+            Super::doWriteShutdown(onShutdown);
+        } else if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
             core::socket::stream::SocketConnection::log().debug("SSL/TLS: Active send close_notify");
 
             doSSLShutdown();

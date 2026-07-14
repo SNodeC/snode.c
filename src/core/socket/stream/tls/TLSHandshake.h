@@ -67,6 +67,7 @@ namespace core::socket::stream::tls {
 
     namespace detail {
         struct TLSLifecycleTestAccess;
+        struct TlsHandshakeResult;
     }
 
     template <typename PhysicalSocketT, typename ConfigT>
@@ -114,7 +115,7 @@ namespace core::socket::stream::tls {
         void unobservedEvent() final;
 
         void start();
-        int performOperation();
+        detail::TlsHandshakeResult performOperation();
         void awaitRead();
         void awaitWrite();
         void finishSuccess();

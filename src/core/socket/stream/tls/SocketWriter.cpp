@@ -40,6 +40,10 @@
  */
 
 #include "core/socket/stream/tls/SocketWriter.h"
+#include "core/socket/stream/tls/detail/TLSResult.h"
+#if defined(SNODEC_BUILD_TESTS)
+#include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
+#endif
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -48,10 +52,21 @@
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
+
+
+#if defined(SNODEC_BUILD_TESTS)
+namespace core::socket::stream::tls::detail::test {
+    IoState& writerState() {
+        static IoState state;
+        return state;
+    }
+}
+#endif
 
 namespace core::socket::stream::tls {
 
@@ -78,68 +93,106 @@ namespace core::socket::stream::tls {
         return logScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
+
     ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
         ssize_t ret = 0;
 
         if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
             ret = Super::write(chunk, chunkLen);
         } else {
-            ret = SSL_write(ssl, chunk, static_cast<int>(chunkLen));
+            detail::TlsIoResult result;
+#if defined(SNODEC_BUILD_TESTS)
+            auto& testState = detail::test::writerState();
+            testState.counters.operationCalls++;
+            if (!testState.operations.empty()) {
+                const detail::test::OperationResult operation = testState.operations.front();
+                testState.operations.pop_front();
+                ret = operation.returnValue;
+                errno = operation.systemError;
+                result = ret > 0 ? detail::TlsIoResult{detail::TlsIoSuccess{ret}}
+                                 : detail::TlsIoResult{detail::classifyOpenSslFailure(static_cast<int>(ret), operation.sslError, operation.systemError, operation.openSslError)};
+            } else
+#endif
+            {
+                ERR_clear_error();
+                errno = 0;
+                ret = SSL_write(ssl, chunk, static_cast<int>(chunkLen));
+                const int savedErrno = errno;
 
-            if (ret <= 0) {
-                const int ssl_err = SSL_get_error(ssl, static_cast<int>(ret));
+                if (ret > 0) {
+                    result = detail::TlsIoResult{detail::TlsIoSuccess{ret}};
+                } else {
+                    const int sslErr = SSL_get_error(ssl, static_cast<int>(ret));
+                    const unsigned long openSslError = ERR_peek_last_error();
+                    result = detail::TlsIoResult{detail::classifyOpenSslFailure(static_cast<int>(ret), sslErr, savedErrno, openSslError)};
+                }
+            }
 
-                switch (ssl_err) {
-                    case SSL_ERROR_WANT_READ:
-                        log().trace("{} SSL/TLS: Start renegotiation on read", getName());
+            if (const auto* success = std::get_if<detail::TlsIoSuccess>(&result.value)) {
+                ret = success->bytesTransferred;
+            } else {
+                const detail::TlsStatusInfo& status = std::get<detail::TlsStatusInfo>(result.value);
+                switch (status.status) {
+                    case detail::TlsStatus::WantRead:
+                        log().trace("{} SSL/TLS: Start renegotiation on write", getName());
                         doSSLHandshake(
                             [log = this->log(), name = getName()]() {
-                                log.debug("{} SSL/TLS: Renegotiation on read success", name);
+                                log.debug("{} SSL/TLS: Renegotiation on write success", name);
                             },
                             [log = this->log(), name = getName()]() {
-                                log.warn("{} SSL/TLS: Renegotiation on read timed out", name);
+                                log.warn("{} SSL/TLS: Renegotiation on write timed out", name);
                             },
-                            [this](int ssl_err) {
-                                ssl_log(getName() + " SSL/TLS: Renegotiation", ssl_err);
+                            [this](int sslErr) {
+                                ssl_log(getName() + " SSL/TLS: Renegotiation on write", sslErr);
                             });
                         errno = EAGAIN;
                         ret = -1;
                         break;
-                    case SSL_ERROR_WANT_WRITE:
+                    case detail::TlsStatus::WantWrite:
                         errno = EAGAIN;
                         ret = -1;
                         break;
-                    case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
+                    case detail::TlsStatus::CleanPeerShutdown:
                         errno = EAGAIN;
-                        ret = -1; // on the write side this means a TCP broken pipe
-                        break;
-                    case SSL_ERROR_SYSCALL:
-                        // In case ret is -1 a real syscall error (RST = ECONNRESET)
-                        {
-                            const int errnum = errno;
-                            const utils::PreserveErrno pe;
-
-                            if (errnum == EPIPE) {
-                                log().sysError(
-                                    logger::LogLevel::Warn, errnum, "{} SSL/TLS: Syscal error (SIGPIPE detected) on write.", getName());
-                            } else if (errnum == ECONNRESET) {
-                                log().sysError(
-                                    logger::LogLevel::Warn, errnum, "{} SSL/TLS: Connection reset by peer (ECONNRESET).", getName());
-                            } else {
-                                log().sysError(logger::LogLevel::Warn, errnum, "{} SSL/TLS: Syscall error on write", getName());
-                            }
-                        }
                         ret = -1;
                         break;
-                    case SSL_ERROR_SSL:
-                        ssl_log(getName() + " SSL/TLS: Failed", ssl_err);
+                    case detail::TlsStatus::UncleanEofWithoutCloseNotify: {
+                        const int errnum = EPROTO;
+                        log().error("{} SSL/TLS: Transport ended without TLS close_notify on write", getName());
+                        errno = errnum;
+                        onTlsFatalError(errnum);
+                        errno = errnum;
                         ret = -1;
                         break;
-                    default:
-                        ssl_log(getName() + " SSL/TLS: Unexpected error", ssl_err);
-                        errno = EIO;
+                    }
+                    case detail::TlsStatus::SyscallError: {
+                        const int errnum = detail::fatalTlsStatusToErrno(status);
+                        const utils::PreserveErrno pe;
+                        log().sysError(logger::LogLevel::Warn, errnum, "{} SSL/TLS: Syscall error on write", getName());
+                        errno = errnum;
+                        onTlsFatalError(errnum);
+                        errno = errnum;
                         ret = -1;
                         break;
+                    }
+                    case detail::TlsStatus::SslProtocolError: {
+                        const int errnum = EPROTO;
+                        ssl_log(getName() + " SSL/TLS: Write protocol failure", status.sslError);
+                        errno = errnum;
+                        onTlsFatalError(errnum);
+                        errno = errnum;
+                        ret = -1;
+                        break;
+                    }
+                    case detail::TlsStatus::UnknownError: {
+                        const int errnum = EIO;
+                        ssl_log(getName() + " SSL/TLS: Unknown write failure", status.sslError);
+                        errno = errnum;
+                        onTlsFatalError(errnum);
+                        errno = errnum;
+                        ret = -1;
+                        break;
+                    }
                 }
             }
         }

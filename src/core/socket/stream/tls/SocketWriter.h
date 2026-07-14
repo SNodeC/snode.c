@@ -56,6 +56,10 @@
 
 namespace core::socket::stream::tls {
 
+    namespace detail {
+        struct TLSLifecycleTestAccess;
+    }
+
     class SocketWriter : public core::socket::stream::SocketWriter {
     private:
         using Super = core::socket::stream::SocketWriter;
@@ -81,10 +85,14 @@ namespace core::socket::stream::tls {
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onStatus) = 0;
 
+        virtual void onTlsFatalError(int errnum) = 0;
+
         SSL* ssl = nullptr;
 
     private:
         logger::LogScopeOwner logScope;
+
+        friend struct detail::TLSLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream::tls

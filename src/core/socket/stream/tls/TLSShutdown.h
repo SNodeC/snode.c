@@ -67,6 +67,7 @@ namespace core::socket::stream::tls {
 
     namespace detail {
         struct TLSLifecycleTestAccess;
+        struct TlsShutdownResult;
     }
 
     template <typename PhysicalSocketT, typename ConfigT>
@@ -114,7 +115,7 @@ namespace core::socket::stream::tls {
         void unobservedEvent() final;
 
         void start();
-        int performOperation();
+        detail::TlsShutdownResult performOperation();
         void awaitRead();
         void awaitWrite();
         void finishSuccess();
