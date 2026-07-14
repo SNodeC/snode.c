@@ -356,7 +356,10 @@ namespace web::websocket {
             }
 
             if (frameLog().enabled(logger::LogLevel::Trace)) {
-                frameLog().trace("WebSocket receive: Frame data\n{}", utils::hexDump(payloadChunk, payloadChunkLen, 32, true));
+                const auto dump = utils::hexDumpPresentation(payloadChunk, payloadChunkLen, 32, true);
+                frameLog().emit(logger::LogLevel::Trace,
+                                logger::PresentedMessage{.plain = "WebSocket receive: Frame data\n" + dump.plain,
+                                                         .terminal = "WebSocket receive: Frame data\n" + dump.terminal});
             }
 
             if (currentFrameIsControl) {

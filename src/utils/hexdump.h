@@ -46,15 +46,36 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
 
+    struct HexDumpPalette {
+        std::string_view offset;
+        std::string_view byte;
+        std::string_view ascii;
+        std::string_view reset;
+    };
+
+    struct HexDumpPresentation {
+        std::string plain;
+        std::string terminal;
+    };
+
+    extern const HexDumpPalette plainHexDumpPalette;
+    extern const HexDumpPalette terminalHexDumpPalette;
+
     std::string hexDump(const std::vector<char>& bytes, int prefixLength = 0, bool prefixAtFirstLine = false);
     std::string hexDump(const std::string& string, int prefixLength = 0, bool prefixAtFirstLine = false);
     std::string hexDump(const char* bytes, uint64_t length, int prefixLength = 0, bool prefixAtFirstLine = false);
+    std::string hexDump(const char* bytes, uint64_t length, int prefixLength, bool prefixAtFirstLine, const HexDumpPalette& palette);
+
+    HexDumpPresentation hexDumpPresentation(const std::vector<char>& bytes, int prefixLength = 0, bool prefixAtFirstLine = false);
+    HexDumpPresentation hexDumpPresentation(const std::string& string, int prefixLength = 0, bool prefixAtFirstLine = false);
+    HexDumpPresentation hexDumpPresentation(const char* bytes, uint64_t length, int prefixLength = 0, bool prefixAtFirstLine = false);
 
 } // namespace utils
 

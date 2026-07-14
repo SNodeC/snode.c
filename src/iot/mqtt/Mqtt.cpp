@@ -65,6 +65,25 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt {
+    namespace {
+        utils::HexDumpPresentation toHexPresentation(const std::vector<char>& data) {
+            const auto dump = utils::hexDumpPresentation(data, 32);
+            if (dump.plain.empty()) {
+                return {};
+            }
+            return {std::string(32, ' ').append(dump.plain), std::string(32, ' ').append(dump.terminal)};
+        }
+
+        utils::HexDumpPresentation toHexPresentation(const std::string& data) {
+            return toHexPresentation(std::vector<char>(data.begin(), data.end()));
+        }
+
+        void emitPresentedTrace(const logger::BoundaryLogger& log, const std::string& prefix, const utils::HexDumpPresentation& dump) {
+            log.emit(logger::LogLevel::Trace,
+                     logger::PresentedMessage{.plain = prefix + dump.plain,
+                                              .terminal = prefix + dump.terminal});
+        }
+    } // namespace
 
     Mqtt::Mqtt(const std::string& connectionName)
         : connectionName(connectionName) {
@@ -75,6 +94,7 @@ namespace iot::mqtt {
         , clientId(clientId) {
     }
 
+    // Cached trace logger usage remains available for ordinary trace messages: log().trace().
     const logger::BoundaryLogger& Mqtt::log() const {
         const unsigned long generation = logger::LogManager::generation();
         if (!log_ || logGeneration_ != generation) {
@@ -219,7 +239,7 @@ namespace iot::mqtt {
 
     void Mqtt::send(const std::vector<char>& data) const {
         if (log().enabled(logger::LogLevel::Trace)) {
-            log().trace() << connectionName << " MQTT: Send data (full message):\n" << toHexString(data);
+            emitPresentedTrace(log(), connectionName + " MQTT: Send data (full message):\n", toHexPresentation(data));
         }
 
         mqttContext->send(data.data(), data.size());
@@ -232,7 +252,7 @@ namespace iot::mqtt {
 
         log().debug() << connectionName << " MQTT:   Topic: " << topic;
         if (log().enabled(logger::LogLevel::Trace)) {
-            log().trace() << connectionName << " MQTT:   Message:\n" << toHexString(message);
+            emitPresentedTrace(log(), connectionName + " MQTT:   Message:\n", toHexPresentation(message));
         }
         log().debug() << connectionName << " MQTT:   QoS: " << static_cast<uint16_t>(qoS);
         log().debug() << connectionName << " MQTT:   PacketIdentifier: " << packetIdentifier;
@@ -281,7 +301,7 @@ namespace iot::mqtt {
 
         log().debug() << connectionName << " MQTT:   Topic: " << publish.getTopic();
         if (log().enabled(logger::LogLevel::Trace)) {
-            log().trace() << connectionName << " MQTT:   Message:\n" << toHexString(publish.getMessage());
+            emitPresentedTrace(log(), connectionName + " MQTT:   Message:\n", toHexPresentation(publish.getMessage()));
         }
         log().debug() << connectionName << " MQTT:   QoS: " << static_cast<uint16_t>(publish.getQoS());
         log().debug() << connectionName << " MQTT:   PacketIdentifier: " << publish.getPacketIdentifier();
@@ -416,16 +436,16 @@ namespace iot::mqtt {
         log().debug() << connectionName << " MQTT: " << packet.getName() << " received: " << clientId;
 
         if (log().enabled(logger::LogLevel::Trace)) {
-            const std::string hexString = toHexString(packet.serializeVP());
-            if (!hexString.empty()) {
-                log().trace() << connectionName << " MQTT: Received data (variable header and payload):\n" << hexString;
+            const auto hexPresentation = toHexPresentation(packet.serializeVP());
+            if (!hexPresentation.plain.empty()) {
+                emitPresentedTrace(log(), connectionName + " MQTT: Received data (variable header and payload):\n", hexPresentation);
             }
         }
     }
 
     void Mqtt::printFixedHeader(const FixedHeader& fixedHeader) const {
         if (log().enabled(logger::LogLevel::Trace)) {
-            log().trace() << connectionName << " MQTT: Received data (fixed header):\n" << toHexString(fixedHeader.serialize());
+            emitPresentedTrace(log(), connectionName + " MQTT: Received data (fixed header):\n", toHexPresentation(fixedHeader.serialize()));
         }
 
         log().debug() << connectionName << " MQTT: Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)

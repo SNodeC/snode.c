@@ -265,6 +265,26 @@ int main() {
     log.sysError(logger::LogLevel::Warn, std::make_error_code(std::errc::permission_denied), "open failed");
     result.expectTrue(records.back().error && records.back().error->code != 0, "sysError(std::error_code) stores error code");
 
+
+
+    const std::string plainDump = ": 00000000  41 42 43 44                                      ABCD";
+    logger::LogRecord presented = simpleRecord(logger::LogLevel::Info, "dump\n" + plainDump);
+    presented.terminalMessage = std::string("dump\n\033[34m: 00000000\033[39m \033[32m 41\033[39m\033[32m 42\033[39m\033[32m 43\033[39m\033[32m 44\033[39m                                      \033[33mABCD\033[39m");
+    const std::string presentedPlain = logger::formatText(presented, false);
+    const std::string presentedColor = logger::formatText(presented, true);
+    result.expectTrue(!containsAnsi(presentedPlain), "presented plain formatter emits no ANSI");
+    result.expectTrue(containsAnsi(presentedColor), "valid presented terminal formatter preserves SGR");
+    result.expectTrue(stripAnsi(presentedColor) == presentedPlain, "valid presented terminal strips to plain text");
+
+    const std::string fallbackPlain = logger::formatText(presented, false);
+    for (const std::string terminal : {std::string("dump\n\033[2J"), std::string("dump\n\033]0;title\a"),
+                                      std::string("dump\n\033[31m") + plainDump + "\033[39m",
+                                      std::string("changed\n\033[34m: 00000000\033[39m")}) {
+        logger::LogRecord invalid = presented;
+        invalid.terminalMessage = terminal;
+        result.expectTrue(stripAnsi(logger::formatText(invalid, true)) == fallbackPlain, "invalid terminal presentation falls back completely to plain");
+    }
+
     logger::Logger::init();
     logger::Logger::setDisableColor(true);
     logger::Logger::setTickResolver([] {
