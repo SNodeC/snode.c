@@ -1,3 +1,4 @@
+#include "core/EventLoop.h"
 #include "core/SNodeC.h"
 #include "core/eventreceiver/AcceptEventReceiver.h"
 #include "core/eventreceiver/ConnectEventReceiver.h"
@@ -509,8 +510,7 @@ int main(int argc, char* argv[]) {
         "server-sequence",
         "client-sequence",
         "expired-weak-context",
-        "callback-reset-first",
-        "callback-reset-second",
+        "pre-shutdown-snapshot",
     };
 
     if (argc == 1) {
@@ -772,18 +772,22 @@ int main(int argc, char* argv[]) {
                           "expired weak endpoint contexts are ignored safely");
     }
 
-    if (scenario == "callback-reset-first" || scenario == "callback-reset-second") {
-        const auto logPath = tempLogPath("snodec-endpoint-" + scenario + ".log");
-        LoggerStateGuard loggerGuard(logPath.string());
-        SNodeCGuard snodeGuard;
-        TestAcceptEventReceiver::reset({ServerAction::ErrorThenStopBeforePolicy});
-        TestSocketServer server("endpoint-" + scenario);
-        server.listen([](const TestSocketAddress&, core::socket::State) {});
-        runLoopOnce();
-        logger::Logger::disableLogToFile();
-        const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated:")),
-                           scenario + " emits one summary without retained callbacks from earlier runs");
+    if (scenario == "pre-shutdown-snapshot") {
+        int callbackInvocations = 0;
+        {
+            SNodeCGuard snodeGuard;
+            core::EventLoop::addPreShutdownCallback([&callbackInvocations] {
+                ++callbackInvocations;
+                core::EventLoop::addPreShutdownCallback([&callbackInvocations] {
+                    ++callbackInvocations;
+                });
+            });
+            runLoopOnce();
+            result.expectEqual(1, callbackInvocations,
+                               "callbacks registered during pre-shutdown dispatch are not invoked in the same shutdown");
+        }
+        result.expectEqual(1, callbackInvocations,
+                           "callbacks registered during pre-shutdown dispatch are cleared before a later free call");
     }
 
     TestAcceptEventReceiver::cleanup();

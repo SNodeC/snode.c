@@ -360,9 +360,14 @@ namespace core {
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS));
 
-        for (const PreShutdownCallback& callback : preShutdownCallbacks) {
-            callback();
+        auto callbacks = std::exchange(preShutdownCallbacks, std::vector<PreShutdownCallback>{});
+
+        for (PreShutdownCallback& callback : callbacks) {
+            if (callback) {
+                callback();
+            }
         }
+
         preShutdownCallbacks.clear();
 
         EventLoop::instance().log().trace("Core: Shutdown config system");
