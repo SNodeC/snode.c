@@ -126,7 +126,7 @@ namespace core::socket::stream::tls {
                 SocketWriter::suspend();
             }
 
-            TLSHandshake::doHandshake(
+            TLSHandshake::doHandshakeWithRelease(
                 Super::getConnectionName(),
                 ssl,
                 [onSuccess, this]() { // onSuccess
@@ -171,7 +171,7 @@ namespace core::socket::stream::tls {
             resumeSocketWriter = true;
         }
 
-        TLSShutdown::doShutdown(
+        TLSShutdown::doShutdownWithRelease(
             Super::getConnectionName(),
             ssl,
             [this, resumeSocketReader, resumeSocketWriter]() { // onSuccess

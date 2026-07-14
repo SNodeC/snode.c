@@ -65,26 +65,53 @@ namespace utils {
 
 namespace core::socket::stream::tls {
 
+    namespace detail {
+        struct TLSLifecycleTestAccess;
+    }
+
+    template <typename PhysicalSocketT, typename ConfigT>
+    class SocketConnection;
+
     class TLSShutdown
         : public core::eventreceiver::ReadEventReceiver
         , public core::eventreceiver::WriteEventReceiver {
     public:
         static void doShutdown(const std::string& instanceName,
-                               SSL* ssl,
-                               const std::function<void(void)>& onSuccess,
-                               const std::function<void(void)>& onTimeout,
-                               const std::function<void(int)>& onStatus,
-                               const utils::Timeval& timeout,
-                               const std::function<void(void)>& onReleased = {});
+                                SSL* ssl,
+                                const std::function<void(void)>& onSuccess,
+                                const std::function<void(void)>& onTimeout,
+                                const std::function<void(int)>& onStatus,
+                                const utils::Timeval& timeout);
 
     private:
+        static void doShutdownWithRelease(const std::string& instanceName,
+                                        SSL* ssl,
+                                        const std::function<void(void)>& onSuccess,
+                                        const std::function<void(void)>& onTimeout,
+                                        const std::function<void(int)>& onStatus,
+                                        const utils::Timeval& timeout,
+                                        const std::function<void(void)>& onReleased);
+
+#if defined(SNODEC_BUILD_TESTS)
+        static void doShutdownForTest(const std::string& instanceName,
+                                    int fd,
+                                    const std::function<void(void)>& onSuccess,
+                                    const std::function<void(void)>& onTimeout,
+                                    const std::function<void(int)>& onStatus,
+                                    const utils::Timeval& timeout,
+                                    const std::function<void(void)>& onReleased);
+#endif
+
         TLSShutdown(const std::string& instanceName,
                     SSL* ssl,
                     const std::function<void(void)>& onSuccess,
                     const std::function<void(void)>& onTimeout,
                     const std::function<void(int)>& onStatus,
                     const utils::Timeval& timeout,
-                    const std::function<void(void)>& onReleased);
+                    const std::function<void(void)>& onReleased,
+                    int fd);
+
+        ~TLSShutdown() override;
 
         void readEvent() final;
         void writeEvent() final;
@@ -119,6 +146,10 @@ namespace core::socket::stream::tls {
         bool writeRegistered = false;
 
         int fd = -1;
+
+        template <typename PhysicalSocketT, typename ConfigT>
+        friend class SocketConnection;
+        friend struct detail::TLSLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream::tls

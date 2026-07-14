@@ -1,195 +1,299 @@
-#include "core/socket/stream/tls/detail/TLSLifecycleTestHooks.h"
+#include "core/EventLoop.h"
+#include "core/EventMultiplexer.h"
+#include "core/DescriptorEventPublisher.h"
+#include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
 #include "tests/support/TestResult.h"
 
 #include <cerrno>
-#include <iostream>
+#include <functional>
+#include <openssl/ssl.h>
 #include <string>
+#include <unistd.h>
 
-using core::socket::stream::tls::detail::test::Axis;
+using core::socket::stream::tls::TLSHandshake;
+using core::socket::stream::tls::TLSShutdown;
+using core::socket::stream::tls::detail::TLSLifecycleTestAccess;
 using core::socket::stream::tls::detail::test::Counters;
-using core::socket::stream::tls::detail::test::LifecycleModel;
-using core::socket::stream::tls::detail::test::Outcome;
 using tests::support::TestResult;
 
 namespace {
 
-    void expectAccounting(TestResult& result, const Counters& counters, int helpers, const std::string& name) {
-        result.expectEqual(helpers, counters.constructed, name + ": constructed count");
-        result.expectEqual(helpers, counters.destroyed, name + ": destroyed count");
-        result.expectEqual(0, counters.active, name + ": active count returns to zero");
-        result.expectEqual(1, counters.maxConcurrent, name + ": max concurrent helpers");
-        result.expectEqual(helpers, counters.releases, name + ": release count");
+    struct PipeFd {
+        int fds[2] = {-1, -1};
+        PipeFd() { pipe(fds); }
+        ~PipeFd() {
+            if (fds[0] >= 0) close(fds[0]);
+            if (fds[1] >= 0) close(fds[1]);
+        }
+        int fd() const { return fds[0]; }
+    };
+
+    void releaseDisabledEvents() {
+        const utils::Timeval now = utils::Timeval::currentTime();
+        core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD).releaseDisabledEvents(now);
+        core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR).releaseDisabledEvents(now);
     }
 
+    struct CallbackCounts {
+        int success = 0;
+        int timeout = 0;
+        int error = 0;
+        int released = 0;
+        int lastStatus = SSL_ERROR_NONE;
+        int lastErrno = 0;
+    };
+
+    template <typename Helper>
+    struct HelperOps;
+
+    template <>
+    struct HelperOps<TLSHandshake> {
+        static void reset() { TLSLifecycleTestAccess::resetHandshake(); }
+        static void enqueue(int sslError, int systemError = 0) { TLSLifecycleTestAccess::enqueueHandshake(sslError, systemError); }
+        static Counters counters() { return TLSLifecycleTestAccess::handshakeCounters(); }
+        static TLSHandshake* last() { return TLSLifecycleTestAccess::lastHandshake(); }
+        static void start(int fd, CallbackCounts& callbacks) {
+            TLSLifecycleTestAccess::doHandshakeForTest(
+                "test", fd, [&] { callbacks.success++; }, [&] { callbacks.timeout++; },
+                [&](int status) { callbacks.error++; callbacks.lastStatus = status; callbacks.lastErrno = errno; }, {1, 0}, [&] { callbacks.released++; });
+        }
+        static void readEvent(TLSHandshake* helper) { TLSLifecycleTestAccess::readEvent(helper); }
+        static void writeEvent(TLSHandshake* helper) { TLSLifecycleTestAccess::writeEvent(helper); }
+        static void readTimeout(TLSHandshake* helper) { TLSLifecycleTestAccess::readTimeout(helper); }
+        static void writeTimeout(TLSHandshake* helper) { TLSLifecycleTestAccess::writeTimeout(helper); }
+        static bool readEnabled(TLSHandshake* helper) { return TLSLifecycleTestAccess::readEnabled(helper); }
+        static bool writeEnabled(TLSHandshake* helper) { return TLSLifecycleTestAccess::writeEnabled(helper); }
+        static bool readSuspended(TLSHandshake* helper) { return TLSLifecycleTestAccess::readSuspended(helper); }
+        static bool writeSuspended(TLSHandshake* helper) { return TLSLifecycleTestAccess::writeSuspended(helper); }
+        static void failReadEnable(int err) { TLSLifecycleTestAccess::failNextHandshakeReadEnable(err); }
+        static void failWriteEnable(int err) { TLSLifecycleTestAccess::failNextHandshakeWriteEnable(err); }
+    };
+
+    template <>
+    struct HelperOps<TLSShutdown> {
+        static void reset() { TLSLifecycleTestAccess::resetShutdown(); }
+        static void enqueue(int sslError, int systemError = 0) { TLSLifecycleTestAccess::enqueueShutdown(sslError, systemError); }
+        static Counters counters() { return TLSLifecycleTestAccess::shutdownCounters(); }
+        static TLSShutdown* last() { return TLSLifecycleTestAccess::lastShutdown(); }
+        static void start(int fd, CallbackCounts& callbacks) {
+            TLSLifecycleTestAccess::doShutdownForTest(
+                "test", fd, [&] { callbacks.success++; }, [&] { callbacks.timeout++; },
+                [&](int status) { callbacks.error++; callbacks.lastStatus = status; callbacks.lastErrno = errno; }, {1, 0}, [&] { callbacks.released++; });
+        }
+        static void readEvent(TLSShutdown* helper) { TLSLifecycleTestAccess::readEvent(helper); }
+        static void writeEvent(TLSShutdown* helper) { TLSLifecycleTestAccess::writeEvent(helper); }
+        static void readTimeout(TLSShutdown* helper) { TLSLifecycleTestAccess::readTimeout(helper); }
+        static void writeTimeout(TLSShutdown* helper) { TLSLifecycleTestAccess::writeTimeout(helper); }
+        static bool readEnabled(TLSShutdown* helper) { return TLSLifecycleTestAccess::readEnabled(helper); }
+        static bool writeEnabled(TLSShutdown* helper) { return TLSLifecycleTestAccess::writeEnabled(helper); }
+        static bool readSuspended(TLSShutdown* helper) { return TLSLifecycleTestAccess::readSuspended(helper); }
+        static bool writeSuspended(TLSShutdown* helper) { return TLSLifecycleTestAccess::writeSuspended(helper); }
+        static void failReadEnable(int err) { TLSLifecycleTestAccess::failNextShutdownReadEnable(err); }
+        static void failWriteEnable(int err) { TLSLifecycleTestAccess::failNextShutdownWriteEnable(err); }
+    };
+
+    template <typename Helper>
+    void expectAccounting(TestResult& result, const std::string& name, int helpers) {
+        const Counters counters = HelperOps<Helper>::counters();
+        result.expectEqual(helpers, counters.constructed, name + ": constructed");
+        result.expectEqual(helpers, counters.destroyed, name + ": destroyed");
+        result.expectEqual(0, counters.active, name + ": active returns to zero");
+        result.expectEqual(helpers, counters.releases, name + ": releases");
+        result.expectTrue(counters.maxConcurrent <= 1, name + ": max concurrent <= 1");
+    }
+
+    template <typename Helper>
     void synchronousSuccess(TestResult& result, const std::string& name) {
-        Counters counters;
-        auto* helper = new LifecycleModel(counters);
-        helper->enqueue(Outcome::Success);
-        helper->start();
-
-        result.expectEqual(1, counters.successes, name + ": success callback once");
-        result.expectEqual(0, counters.readEnables + counters.writeEnables, name + ": no receiver registered");
-        expectAccounting(result, counters, 1, name);
+        PipeFd pipeFd;
+        CallbackCounts callbacks;
+        HelperOps<Helper>::reset();
+        HelperOps<Helper>::enqueue(SSL_ERROR_NONE);
+        HelperOps<Helper>::start(pipeFd.fd(), callbacks);
+        result.expectEqual(1, callbacks.success, name + ": success callback once");
+        result.expectEqual(1, callbacks.released, name + ": release callback once");
+        result.expectTrue(HelperOps<Helper>::last() == nullptr, name + ": destroyed synchronously");
+        expectAccounting<Helper>(result, name, 1);
     }
 
-    void synchronousError(TestResult& result, Outcome outcome, const std::string& name) {
-        Counters counters;
-        auto* helper = new LifecycleModel(counters);
-        helper->enqueue(outcome);
-        helper->start();
-
-        result.expectEqual(1, counters.errors, name + ": error callback once");
-        result.expectEqual(0, counters.readEnables + counters.writeEnables, name + ": no receiver registered");
-        expectAccounting(result, counters, 1, name);
+    template <typename Helper>
+    void synchronousError(TestResult& result, int sslError, const std::string& name) {
+        PipeFd pipeFd;
+        CallbackCounts callbacks;
+        HelperOps<Helper>::reset();
+        HelperOps<Helper>::enqueue(sslError, EPROTO);
+        HelperOps<Helper>::start(pipeFd.fd(), callbacks);
+        result.expectEqual(1, callbacks.error, name + ": error callback once");
+        result.expectEqual(sslError, callbacks.lastStatus, name + ": status retained");
+        result.expectEqual(EPROTO, callbacks.lastErrno, name + ": errno retained");
+        result.expectEqual(1, callbacks.released, name + ": release callback once");
+        expectAccounting<Helper>(result, name, 1);
     }
 
-    void wantReadLifecycle(TestResult& result, const std::string& name) {
-        Counters counters;
-        auto* helper = new LifecycleModel(counters);
-        helper->enqueue(Outcome::WantRead);
-        helper->enqueue(Outcome::Success);
-        helper->start();
-
-        result.expectEqual(1, counters.readEnables, name + ": read receiver registered");
-        result.expectTrue(helper->guardActive(), name + ": guard remains active while observed");
-        helper->readEvent();
-        result.expectEqual(1, counters.successes, name + ": success callback once");
-        result.expectEqual(1, counters.readDisables, name + ": receiver disabled");
-        result.expectTrue(helper->guardActive(), name + ": release deferred");
-        helper->unobservedEvent();
-        expectAccounting(result, counters, 1, name);
-    }
-
-    void wantWriteLifecycle(TestResult& result, const std::string& name) {
-        Counters counters;
-        auto* helper = new LifecycleModel(counters);
-        helper->enqueue(Outcome::WantWrite);
-        helper->enqueue(Outcome::Success);
-        helper->start();
-
-        result.expectEqual(1, counters.writeEnables, name + ": write receiver registered");
-        helper->writeEvent();
-        result.expectEqual(1, counters.successes, name + ": success callback once");
-        result.expectEqual(1, counters.writeDisables, name + ": receiver disabled");
-        result.expectTrue(helper->guardActive(), name + ": release deferred");
-        helper->unobservedEvent();
-        expectAccounting(result, counters, 1, name);
-    }
-
-    void switching(TestResult& result, Outcome first, Outcome second, Axis finalAxis, const std::string& name) {
-        Counters counters;
-        auto* helper = new LifecycleModel(counters);
-        helper->enqueue(first);
-        helper->enqueue(second);
-        helper->enqueue(Outcome::Success);
-        helper->start();
-        if (first == Outcome::WantRead) {
-            helper->readEvent();
+    template <typename Helper>
+    void wantReadWrite(TestResult& result, int initial, const std::string& name) {
+        PipeFd pipeFd;
+        CallbackCounts callbacks;
+        HelperOps<Helper>::reset();
+        HelperOps<Helper>::enqueue(initial);
+        HelperOps<Helper>::enqueue(SSL_ERROR_NONE);
+        HelperOps<Helper>::start(pipeFd.fd(), callbacks);
+        auto* helper = HelperOps<Helper>::last();
+        result.expectTrue(helper != nullptr, name + ": helper observed");
+        if (initial == SSL_ERROR_WANT_READ) {
+            result.expectTrue(HelperOps<Helper>::readEnabled(helper), name + ": read enabled");
+            HelperOps<Helper>::readEvent(helper);
         } else {
-            helper->writeEvent();
+            result.expectTrue(HelperOps<Helper>::writeEnabled(helper), name + ": write enabled");
+            HelperOps<Helper>::writeEvent(helper);
         }
-        result.expectTrue(helper->activeAxis() == finalAxis, name + ": switched to expected active axis");
-        if (second == Outcome::WantRead) {
-            helper->readEvent();
+        result.expectEqual(1, callbacks.success, name + ": success once");
+        result.expectEqual(0, callbacks.released, name + ": not released before publisher cleanup");
+        result.expectEqual(1, HelperOps<Helper>::counters().active, name + ": alive before cleanup");
+        releaseDisabledEvents();
+        result.expectEqual(1, callbacks.released, name + ": released by publisher cleanup");
+        expectAccounting<Helper>(result, name, 1);
+    }
+
+    template <typename Helper>
+    void switching(TestResult& result, int first, int second, const std::string& name) {
+        PipeFd pipeFd;
+        CallbackCounts callbacks;
+        HelperOps<Helper>::reset();
+        HelperOps<Helper>::enqueue(first);
+        HelperOps<Helper>::enqueue(second);
+        HelperOps<Helper>::enqueue(SSL_ERROR_NONE);
+        HelperOps<Helper>::start(pipeFd.fd(), callbacks);
+        auto* helper = HelperOps<Helper>::last();
+        first == SSL_ERROR_WANT_READ ? HelperOps<Helper>::readEvent(helper) : HelperOps<Helper>::writeEvent(helper);
+        result.expectTrue(HelperOps<Helper>::readEnabled(helper), name + ": read remains registered after switch if registered");
+        result.expectTrue(HelperOps<Helper>::writeEnabled(helper), name + ": write remains registered after switch if registered");
+        if (second == SSL_ERROR_WANT_READ) {
+            result.expectTrue(HelperOps<Helper>::writeSuspended(helper), name + ": write suspended");
+            HelperOps<Helper>::readEvent(helper);
         } else {
-            helper->writeEvent();
+            result.expectTrue(HelperOps<Helper>::readSuspended(helper), name + ": read suspended");
+            HelperOps<Helper>::writeEvent(helper);
         }
-        result.expectEqual(1, counters.successes, name + ": one success");
-        result.expectEqual(1, counters.readEnables, name + ": no double read enable");
-        result.expectEqual(1, counters.writeEnables, name + ": no double write enable");
-        helper->unobservedEvent();
-        expectAccounting(result, counters, 1, name);
+        result.expectEqual(1, callbacks.success, name + ": success once");
+        releaseDisabledEvents();
+        expectAccounting<Helper>(result, name, 1);
     }
 
-    void repeatedReadiness(TestResult& result, Outcome repeated, const std::string& name) {
-        Counters counters;
-        auto* helper = new LifecycleModel(counters);
-        helper->enqueue(repeated);
-        helper->enqueue(repeated);
-        helper->enqueue(Outcome::Success);
-        helper->start();
-        repeated == Outcome::WantRead ? helper->readEvent() : helper->writeEvent();
-        repeated == Outcome::WantRead ? helper->readEvent() : helper->writeEvent();
-        result.expectEqual(1, repeated == Outcome::WantRead ? counters.readEnables : counters.writeEnables, name + ": one enable");
-        result.expectEqual(1, repeated == Outcome::WantRead ? counters.readResumes : counters.writeResumes, name + ": one resume");
-        result.expectEqual(1, counters.successes, name + ": success once");
-        helper->unobservedEvent();
-        expectAccounting(result, counters, 1, name);
+    template <typename Helper>
+    void repeatedReadiness(TestResult& result, int readiness, const std::string& name) {
+        PipeFd pipeFd;
+        CallbackCounts callbacks;
+        HelperOps<Helper>::reset();
+        HelperOps<Helper>::enqueue(readiness);
+        HelperOps<Helper>::enqueue(readiness);
+        HelperOps<Helper>::enqueue(SSL_ERROR_NONE);
+        HelperOps<Helper>::start(pipeFd.fd(), callbacks);
+        auto* helper = HelperOps<Helper>::last();
+        readiness == SSL_ERROR_WANT_READ ? HelperOps<Helper>::readEvent(helper) : HelperOps<Helper>::writeEvent(helper);
+        readiness == SSL_ERROR_WANT_READ ? HelperOps<Helper>::readEvent(helper) : HelperOps<Helper>::writeEvent(helper);
+        result.expectEqual(1, callbacks.success, name + ": success once");
+        releaseDisabledEvents();
+        expectAccounting<Helper>(result, name, 1);
     }
 
-    void timeoutAfterObservation(TestResult& result, Outcome readiness, const std::string& name) {
-        Counters counters;
-        auto* helper = new LifecycleModel(counters);
-        helper->enqueue(readiness);
-        helper->start();
-        readiness == Outcome::WantRead ? helper->readTimeout() : helper->writeTimeout();
-        result.expectEqual(1, counters.timeouts, name + ": timeout callback once");
-        result.expectTrue(helper->guardActive(), name + ": still guarded before release");
-        helper->unobservedEvent();
-        expectAccounting(result, counters, 1, name);
+    template <typename Helper>
+    void timeoutAfterObservation(TestResult& result, int readiness, const std::string& name) {
+        PipeFd pipeFd;
+        CallbackCounts callbacks;
+        HelperOps<Helper>::reset();
+        HelperOps<Helper>::enqueue(readiness);
+        HelperOps<Helper>::start(pipeFd.fd(), callbacks);
+        auto* helper = HelperOps<Helper>::last();
+        readiness == SSL_ERROR_WANT_READ ? HelperOps<Helper>::readTimeout(helper) : HelperOps<Helper>::writeTimeout(helper);
+        result.expectEqual(1, callbacks.timeout, name + ": timeout once");
+        result.expectEqual(0, callbacks.released, name + ": deferred release");
+        releaseDisabledEvents();
+        expectAccounting<Helper>(result, name, 1);
     }
 
+    template <typename Helper>
     void registrationFailure(TestResult& result, bool afterObservation, const std::string& name) {
-        Counters counters;
-        auto* helper = new LifecycleModel(counters);
+        PipeFd pipeFd;
+        CallbackCounts callbacks;
+        HelperOps<Helper>::reset();
         if (afterObservation) {
-            helper->enqueue(Outcome::WantRead);
-            helper->enqueue(Outcome::WantWrite);
-            helper->failNextWriteEnable(ENOSPC);
-            helper->start();
-            helper->readEvent();
-            result.expectEqual(1, counters.errors, name + ": error callback once");
-            result.expectEqual(ENOSPC, counters.lastErrno, name + ": registration errno retained");
-            result.expectTrue(helper->guardActive(), name + ": deferred release after partial registration");
-            helper->unobservedEvent();
+            HelperOps<Helper>::enqueue(SSL_ERROR_WANT_READ);
+            HelperOps<Helper>::enqueue(SSL_ERROR_WANT_WRITE);
+            HelperOps<Helper>::failWriteEnable(ENOSPC);
+            HelperOps<Helper>::start(pipeFd.fd(), callbacks);
+            auto* helper = HelperOps<Helper>::last();
+            HelperOps<Helper>::readEvent(helper);
+            result.expectEqual(0, callbacks.released, name + ": release deferred after partial registration");
+            releaseDisabledEvents();
         } else {
-            helper->enqueue(Outcome::WantRead);
-            helper->failNextReadEnable(EMFILE);
-            helper->start();
-            result.expectEqual(1, counters.errors, name + ": error callback once");
-            result.expectEqual(EMFILE, counters.lastErrno, name + ": registration errno retained");
+            HelperOps<Helper>::enqueue(SSL_ERROR_WANT_READ);
+            HelperOps<Helper>::failReadEnable(EMFILE);
+            HelperOps<Helper>::start(pipeFd.fd(), callbacks);
         }
-        expectAccounting(result, counters, 1, name);
+        result.expectEqual(1, callbacks.error, name + ": error once");
+        result.expectEqual(afterObservation ? ENOSPC : EMFILE, callbacks.lastErrno, name + ": registration errno retained");
+        expectAccounting<Helper>(result, name, 1);
     }
 
+    template <typename Helper>
     void queuedEventAfterCompletion(TestResult& result, const std::string& name) {
-        Counters counters;
-        auto* helper = new LifecycleModel(counters);
-        helper->enqueue(Outcome::WantRead);
-        helper->enqueue(Outcome::Success);
-        helper->start();
-        helper->readEvent();
-        const int callsAfterCompletion = counters.operationCalls;
-        helper->readEvent();
-        helper->writeEvent();
-        helper->readTimeout();
-        result.expectEqual(callsAfterCompletion, counters.operationCalls, name + ": no operation after completion");
-        result.expectEqual(1, counters.successes, name + ": no second callback");
-        helper->unobservedEvent();
-        expectAccounting(result, counters, 1, name);
+        PipeFd pipeFd;
+        CallbackCounts callbacks;
+        HelperOps<Helper>::reset();
+        HelperOps<Helper>::enqueue(SSL_ERROR_WANT_READ);
+        HelperOps<Helper>::enqueue(SSL_ERROR_NONE);
+        HelperOps<Helper>::start(pipeFd.fd(), callbacks);
+        auto* helper = HelperOps<Helper>::last();
+        HelperOps<Helper>::readEvent(helper);
+        const int callsAfterCompletion = HelperOps<Helper>::counters().operationCalls;
+        HelperOps<Helper>::readEvent(helper);
+        HelperOps<Helper>::writeEvent(helper);
+        HelperOps<Helper>::readTimeout(helper);
+        result.expectEqual(callsAfterCompletion, HelperOps<Helper>::counters().operationCalls, name + ": no operation after completion");
+        result.expectEqual(1, callbacks.success, name + ": one semantic callback");
+        releaseDisabledEvents();
+        expectAccounting<Helper>(result, name, 1);
     }
 
-    void sequentialHelpers(TestResult& result, const std::string& name) {
-        Counters counters;
-        auto* first = new LifecycleModel(counters);
-        first->enqueue(Outcome::WantRead);
-        first->enqueue(Outcome::Success);
-        first->start();
-        result.expectTrue(first->guardActive(), name + ": first guard active");
-        const bool secondRejected = first->guardActive();
-        result.expectTrue(secondRejected, name + ": concurrent helper rejected by active guard");
-        first->readEvent();
-        first->unobservedEvent();
+    template <typename Helper>
+    void sequentialGuard(TestResult& result, const std::string& name) {
+        PipeFd pipeFd;
+        CallbackCounts first;
+        HelperOps<Helper>::reset();
+        HelperOps<Helper>::enqueue(SSL_ERROR_WANT_READ);
+        HelperOps<Helper>::enqueue(SSL_ERROR_NONE);
+        HelperOps<Helper>::start(pipeFd.fd(), first);
+        auto* helper = HelperOps<Helper>::last();
+        result.expectEqual(1, HelperOps<Helper>::counters().constructed, name + ": first constructed");
+        result.expectEqual(1, HelperOps<Helper>::counters().active, name + ": guard-active equivalent while observed");
+        HelperOps<Helper>::readEvent(helper);
+        result.expectEqual(1, HelperOps<Helper>::counters().active, name + ": still active before cleanup");
+        releaseDisabledEvents();
+        CallbackCounts second;
+        HelperOps<Helper>::enqueue(SSL_ERROR_NONE);
+        HelperOps<Helper>::start(pipeFd.fd(), second);
+        result.expectEqual(2, HelperOps<Helper>::counters().constructed, name + ": sequential helper constructed after release");
+        result.expectEqual(1, second.success, name + ": second helper completed");
+        expectAccounting<Helper>(result, name, 2);
+    }
 
-        auto* second = new LifecycleModel(counters);
-        second->enqueue(Outcome::Success);
-        second->start();
-        result.expectEqual(2, counters.successes, name + ": sequential helper ran");
-        result.expectEqual(2, counters.constructed, name + ": second helper constructed after release");
-        result.expectEqual(2, counters.destroyed, name + ": both helpers destroyed");
-        result.expectEqual(0, counters.active, name + ": active count clear");
-        result.expectEqual(1, counters.maxConcurrent, name + ": maximum concurrent remains one");
-        result.expectEqual(2, counters.releases, name + ": release callback per helper");
+    template <typename Helper>
+    void runHelperSuite(TestResult& result, const std::string& name) {
+        synchronousSuccess<Helper>(result, name + " synchronous success");
+        synchronousError<Helper>(result, SSL_ERROR_SSL, name + " synchronous generic error");
+        synchronousError<Helper>(result, SSL_ERROR_ZERO_RETURN, name + " synchronous zero return error");
+        wantReadWrite<Helper>(result, SSL_ERROR_WANT_READ, name + " WANT_READ to success");
+        wantReadWrite<Helper>(result, SSL_ERROR_WANT_WRITE, name + " WANT_WRITE to success");
+        switching<Helper>(result, SSL_ERROR_WANT_READ, SSL_ERROR_WANT_WRITE, name + " WANT_READ to WANT_WRITE");
+        switching<Helper>(result, SSL_ERROR_WANT_WRITE, SSL_ERROR_WANT_READ, name + " WANT_WRITE to WANT_READ");
+        repeatedReadiness<Helper>(result, SSL_ERROR_WANT_READ, name + " repeated WANT_READ");
+        repeatedReadiness<Helper>(result, SSL_ERROR_WANT_WRITE, name + " repeated WANT_WRITE");
+        timeoutAfterObservation<Helper>(result, SSL_ERROR_WANT_READ, name + " read timeout");
+        timeoutAfterObservation<Helper>(result, SSL_ERROR_WANT_WRITE, name + " write timeout");
+        registrationFailure<Helper>(result, false, name + " registration failure before observation");
+        registrationFailure<Helper>(result, true, name + " partial registration failure after observation");
+        queuedEventAfterCompletion<Helper>(result, name + " queued event after completion");
+        sequentialGuard<Helper>(result, name + " sequential helper after release");
     }
 
 } // namespace
@@ -197,23 +301,8 @@ namespace {
 int main() {
     TestResult result;
 
-    for (const std::string helper : {"handshake", "shutdown"}) {
-        synchronousSuccess(result, helper + " synchronous success");
-        synchronousError(result, Outcome::Error, helper + " synchronous generic error");
-        synchronousError(result, Outcome::Error, helper + " synchronous zero-return-equivalent error");
-        wantReadLifecycle(result, helper + " WANT_READ lifecycle");
-        wantWriteLifecycle(result, helper + " WANT_WRITE lifecycle");
-        switching(result, Outcome::WantRead, Outcome::WantWrite, Axis::Write, helper + " WANT_READ to WANT_WRITE");
-        switching(result, Outcome::WantWrite, Outcome::WantRead, Axis::Read, helper + " WANT_WRITE to WANT_READ");
-        repeatedReadiness(result, Outcome::WantRead, helper + " repeated WANT_READ");
-        repeatedReadiness(result, Outcome::WantWrite, helper + " repeated WANT_WRITE");
-        timeoutAfterObservation(result, Outcome::WantRead, helper + " read timeout");
-        timeoutAfterObservation(result, Outcome::WantWrite, helper + " write timeout");
-        registrationFailure(result, false, helper + " registration failure before observation");
-        registrationFailure(result, true, helper + " partial registration failure after observation");
-        queuedEventAfterCompletion(result, helper + " queued event after completion");
-        sequentialHelpers(result, helper + " sequential/concurrent guard behavior");
-    }
+    runHelperSuite<TLSHandshake>(result, "TLSHandshake");
+    runHelperSuite<TLSShutdown>(result, "TLSShutdown");
 
     return result.processResult();
 }

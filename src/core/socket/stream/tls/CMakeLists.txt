@@ -84,6 +84,10 @@ else(NOT OpenSSL_FOUND)
         core-socket-stream-tls PUBLIC core-socket-stream ${OPENSSL_LIBRARIES}
     )
 
+    if(SNODEC_BUILD_TESTS)
+        target_compile_definitions(core-socket-stream-tls PRIVATE SNODEC_BUILD_TESTS)
+    endif()
+
     set_target_properties(
         core-socket-stream-tls
         PROPERTIES VERSION ${SNode.C_VERSION}

@@ -65,6 +65,13 @@ namespace utils {
 
 namespace core::socket::stream::tls {
 
+    namespace detail {
+        struct TLSLifecycleTestAccess;
+    }
+
+    template <typename PhysicalSocketT, typename ConfigT>
+    class SocketConnection;
+
     class TLSHandshake
         : public core::eventreceiver::ReadEventReceiver
         , public core::eventreceiver::WriteEventReceiver {
@@ -74,17 +81,37 @@ namespace core::socket::stream::tls {
                                 const std::function<void(void)>& onSuccess,
                                 const std::function<void(void)>& onTimeout,
                                 const std::function<void(int)>& onStatus,
-                                const utils::Timeval& timeout,
-                                const std::function<void(void)>& onReleased = {});
+                                const utils::Timeval& timeout);
 
     private:
+        static void doHandshakeWithRelease(const std::string& instanceName,
+                                        SSL* ssl,
+                                        const std::function<void(void)>& onSuccess,
+                                        const std::function<void(void)>& onTimeout,
+                                        const std::function<void(int)>& onStatus,
+                                        const utils::Timeval& timeout,
+                                        const std::function<void(void)>& onReleased);
+
+#if defined(SNODEC_BUILD_TESTS)
+        static void doHandshakeForTest(const std::string& instanceName,
+                                    int fd,
+                                    const std::function<void(void)>& onSuccess,
+                                    const std::function<void(void)>& onTimeout,
+                                    const std::function<void(int)>& onStatus,
+                                    const utils::Timeval& timeout,
+                                    const std::function<void(void)>& onReleased);
+#endif
+
         TLSHandshake(const std::string& instanceName,
                      SSL* ssl,
                      const std::function<void(void)>& onSuccess,
                      const std::function<void(void)>& onTimeout,
                      const std::function<void(int)>& onStatus,
                      const utils::Timeval& timeout,
-                     const std::function<void(void)>& onReleased);
+                     const std::function<void(void)>& onReleased,
+                     int fd);
+
+        ~TLSHandshake() override;
 
         void readEvent() final;
         void writeEvent() final;
@@ -119,6 +146,10 @@ namespace core::socket::stream::tls {
         bool writeRegistered = false;
 
         int fd = -1;
+
+        template <typename PhysicalSocketT, typename ConfigT>
+        friend class SocketConnection;
+        friend struct detail::TLSLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream::tls
