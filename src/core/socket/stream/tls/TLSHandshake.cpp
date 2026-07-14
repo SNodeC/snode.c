@@ -41,11 +41,30 @@
 
 #include "core/socket/stream/tls/TLSHandshake.h"
 
+#if defined(SNODEC_BUILD_TESTS)
+#include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
+#endif
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
+#include <cerrno>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#if defined(SNODEC_BUILD_TESTS)
+namespace core::socket::stream::tls::detail::test {
+
+    HandshakeState& handshakeState() {
+        static HandshakeState state;
+        return state;
+    }
+
+} // namespace core::socket::stream::tls::detail::test
+
+#endif
 
 namespace core::socket::stream::tls {
 
@@ -55,133 +74,276 @@ namespace core::socket::stream::tls {
                                    const std::function<void(void)>& onTimeout,
                                    const std::function<void(int)>& onStatus,
                                    const utils::Timeval& timeout) {
-        new TLSHandshake(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout);
+        doHandshakeWithRelease(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, {});
     }
+
+    void TLSHandshake::doHandshakeWithRelease(const std::string& instanceName,
+                                              SSL* ssl,
+                                              const std::function<void(void)>& onSuccess,
+                                              const std::function<void(void)>& onTimeout,
+                                              const std::function<void(int)>& onStatus,
+                                              const utils::Timeval& timeout,
+                                              const std::function<void(void)>& onReleased) {
+        auto* helper = new TLSHandshake(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, onReleased, SSL_get_fd(ssl));
+        helper->start();
+    }
+
 
     TLSHandshake::TLSHandshake(const std::string& instanceName,
                                SSL* ssl,
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
                                const std::function<void(int)>& onStatus,
-                               const utils::Timeval& timeout)
+                               const utils::Timeval& timeout,
+                               const std::function<void(void)>& onReleased,
+                               int fd)
         : ReadEventReceiver(instanceName + " SSL/TLS: Handshake", timeout)
         , WriteEventReceiver(instanceName + " SSL/TLS: Handshake", timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)
         , onStatus(onStatus)
-        , timeoutTriggered(false)
-        , fd(SSL_get_fd(ssl)) {
-        const int ret = SSL_do_handshake(ssl);
+        , onReleased(onReleased)
+        , fd(fd) {
+#if defined(SNODEC_BUILD_TESTS)
+        auto& state = detail::test::handshakeState();
+        state.last = this;
+        state.counters.constructed++;
+        state.counters.active++;
+        state.counters.maxConcurrent = std::max(state.counters.maxConcurrent, state.counters.active);
+#endif
+    }
 
-        int sslErr = SSL_ERROR_NONE;
-        if (ret < 1) {
-            sslErr = SSL_get_error(ssl, ret);
+    TLSHandshake::~TLSHandshake() {
+#if defined(SNODEC_BUILD_TESTS)
+        auto& state = detail::test::handshakeState();
+        state.counters.destroyed++;
+        state.counters.active--;
+        if (state.last == this) {
+            state.last = nullptr;
+        }
+#endif
+    }
+
+    void TLSHandshake::start() {
+        if (completed) {
+            return;
         }
 
-        if (!ReadEventReceiver::enable(fd)) {
-            delete this;
-        } else if (!WriteEventReceiver::enable(fd)) {
-            ReadEventReceiver::disable();
-        } else {
-            ReadEventReceiver::suspend();
-            WriteEventReceiver::suspend();
+        const int sslErr = performOperation();
 
-            switch (sslErr) {
-                case SSL_ERROR_WANT_READ:
-                    ReadEventReceiver::resume();
-                    break;
-                case SSL_ERROR_WANT_WRITE:
-                    WriteEventReceiver::resume();
-                    break;
-                case SSL_ERROR_NONE:
-                case SSL_ERROR_ZERO_RETURN:
-                    ReadEventReceiver::disable();
-                    WriteEventReceiver::disable();
-                    onSuccess();
-                    break;
-                default:
-                    ReadEventReceiver::disable();
-                    WriteEventReceiver::disable();
-                    onStatus(sslErr);
-                    break;
+        switch (sslErr) {
+            case SSL_ERROR_WANT_READ:
+                awaitRead();
+                break;
+            case SSL_ERROR_WANT_WRITE:
+                awaitWrite();
+                break;
+            case SSL_ERROR_NONE:
+                finishSuccess();
+                break;
+            case SSL_ERROR_ZERO_RETURN:
+            default:
+                finishError(sslErr, errno);
+                break;
+        }
+    }
+
+    int TLSHandshake::performOperation() {
+        if (completed) {
+            return SSL_ERROR_NONE;
+        }
+
+#if defined(SNODEC_BUILD_TESTS)
+        auto& state = detail::test::handshakeState();
+        state.counters.operationCalls++;
+        if (!state.operations.empty()) {
+            const detail::test::OperationResult result = state.operations.front();
+            state.operations.pop_front();
+            errno = result.systemError;
+            return result.sslError;
+        }
+#endif
+
+        ERR_clear_error();
+        errno = 0;
+        const int ret = SSL_do_handshake(ssl);
+        const int savedErrno = errno;
+        int sslErr = SSL_ERROR_NONE;
+        if (ret <= 0) {
+            sslErr = SSL_get_error(ssl, ret);
+        }
+        errno = savedErrno;
+        return ret == 1 ? SSL_ERROR_NONE : sslErr;
+    }
+
+    void TLSHandshake::awaitRead() {
+        if (completed) {
+            return;
+        }
+        if (writeRegistered && !WriteEventReceiver::isSuspended()) {
+            WriteEventReceiver::suspend();
+        }
+        if (!readRegistered) {
+#if defined(SNODEC_BUILD_TESTS)
+            auto& state = detail::test::handshakeState();
+            if (state.failNextReadEnable != 0) {
+                const int registrationErrno = state.failNextReadEnable;
+                state.failNextReadEnable = 0;
+                finishError(SSL_ERROR_SYSCALL, registrationErrno);
+                return;
             }
+#endif
+            if (!ReadEventReceiver::enable(fd)) {
+                const int registrationErrno = errno;
+                finishError(SSL_ERROR_SYSCALL, registrationErrno == 0 ? EIO : registrationErrno);
+                return;
+            }
+            readRegistered = true;
+            everObserved = true;
+        }
+        if (ReadEventReceiver::isSuspended()) {
+            ReadEventReceiver::resume();
+        }
+    }
+
+    void TLSHandshake::awaitWrite() {
+        if (completed) {
+            return;
+        }
+        if (readRegistered && !ReadEventReceiver::isSuspended()) {
+            ReadEventReceiver::suspend();
+        }
+        if (!writeRegistered) {
+#if defined(SNODEC_BUILD_TESTS)
+            auto& state = detail::test::handshakeState();
+            if (state.failNextWriteEnable != 0) {
+                const int registrationErrno = state.failNextWriteEnable;
+                state.failNextWriteEnable = 0;
+                finishError(SSL_ERROR_SYSCALL, registrationErrno);
+                return;
+            }
+#endif
+            if (!WriteEventReceiver::enable(fd)) {
+                const int registrationErrno = errno;
+                finishError(SSL_ERROR_SYSCALL, registrationErrno == 0 ? EIO : registrationErrno);
+                return;
+            }
+            writeRegistered = true;
+            everObserved = true;
+        }
+        if (WriteEventReceiver::isSuspended()) {
+            WriteEventReceiver::resume();
         }
     }
 
     void TLSHandshake::readEvent() {
-        const int ret = SSL_do_handshake(ssl);
-
-        int sslErr = SSL_ERROR_NONE;
-        if (ret < 1) {
-            sslErr = SSL_get_error(ssl, ret);
+        if (completed) {
+            return;
         }
-
-        switch (sslErr) {
-            case SSL_ERROR_WANT_READ:
-                break;
-            case SSL_ERROR_WANT_WRITE:
-                ReadEventReceiver::suspend();
-                WriteEventReceiver::resume();
-                break;
-            case SSL_ERROR_NONE:
-            case SSL_ERROR_ZERO_RETURN:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onSuccess();
-                break;
-            default:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onStatus(sslErr);
-                break;
-        }
+        start();
     }
 
     void TLSHandshake::writeEvent() {
-        const int ret = SSL_do_handshake(ssl);
-
-        int sslErr = SSL_ERROR_NONE;
-        if (ret < 1) {
-            sslErr = SSL_get_error(ssl, ret);
+        if (completed) {
+            return;
         }
+        start();
+    }
 
-        switch (sslErr) {
-            case SSL_ERROR_WANT_READ:
-                WriteEventReceiver::suspend();
-                ReadEventReceiver::resume();
-                break;
-            case SSL_ERROR_WANT_WRITE:
-                break;
-            case SSL_ERROR_NONE:
-            case SSL_ERROR_ZERO_RETURN:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onSuccess();
-                break;
-            default:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onStatus(sslErr);
-                break;
+    void TLSHandshake::finishSuccess() {
+        if (completed) {
+            return;
+        }
+        completed = true;
+        const bool destroyImmediately = !everObserved;
+#if defined(SNODEC_BUILD_TESTS)
+        detail::test::handshakeState().counters.successes++;
+#endif
+        const auto callback = onSuccess;
+        disableRegisteredReceivers();
+        callback();
+        if (destroyImmediately) {
+            notifyReleased();
+            delete this;
+        }
+    }
+
+    void TLSHandshake::finishTimeout() {
+        if (completed) {
+            return;
+        }
+        completed = true;
+        const bool destroyImmediately = !everObserved;
+#if defined(SNODEC_BUILD_TESTS)
+        detail::test::handshakeState().counters.timeouts++;
+#endif
+        const auto callback = onTimeout;
+        disableRegisteredReceivers();
+        callback();
+        if (destroyImmediately) {
+            notifyReleased();
+            delete this;
+        }
+    }
+
+    void TLSHandshake::finishError(int sslErr, int systemErr) {
+        if (completed) {
+            return;
+        }
+        completed = true;
+        const bool destroyImmediately = !everObserved;
+#if defined(SNODEC_BUILD_TESTS)
+        auto& state = detail::test::handshakeState();
+        state.counters.errors++;
+        state.counters.lastStatus = sslErr;
+        state.counters.lastErrno = systemErr;
+#endif
+        const auto callback = onStatus;
+        disableRegisteredReceivers();
+        if (systemErr != 0) {
+            errno = systemErr;
+        }
+        callback(sslErr);
+        if (destroyImmediately) {
+            notifyReleased();
+            delete this;
         }
     }
 
     void TLSHandshake::readTimeout() {
-        if (!timeoutTriggered) {
-            timeoutTriggered = true;
-            ReadEventReceiver::disable();
-            WriteEventReceiver::disable();
-            onTimeout();
+        if (completed) {
+            return;
         }
+        finishTimeout();
     }
 
     void TLSHandshake::writeTimeout() {
-        if (!timeoutTriggered) {
-            timeoutTriggered = true;
+        if (completed) {
+            return;
+        }
+        finishTimeout();
+    }
+
+    void TLSHandshake::disableRegisteredReceivers() {
+        if (readRegistered && ReadEventReceiver::isEnabled()) {
             ReadEventReceiver::disable();
+        }
+        if (writeRegistered && WriteEventReceiver::isEnabled()) {
             WriteEventReceiver::disable();
-            onTimeout();
+        }
+    }
+
+    void TLSHandshake::notifyReleased() {
+        if (!releaseNotified) {
+            releaseNotified = true;
+#if defined(SNODEC_BUILD_TESTS)
+            auto& state = detail::test::handshakeState();
+            state.counters.releases++;
+#endif
+            if (onReleased) {
+                onReleased();
+            }
         }
     }
 
@@ -189,6 +351,7 @@ namespace core::socket::stream::tls {
     }
 
     void TLSHandshake::unobservedEvent() {
+        notifyReleased();
         delete this;
     }
 

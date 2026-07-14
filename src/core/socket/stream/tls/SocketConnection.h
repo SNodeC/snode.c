@@ -51,10 +51,15 @@
 #include "utils/Timeval.h"
 
 #include <cstddef>
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {
+
+    namespace detail {
+        struct TLSLifecycleTestAccess;
+    }
 
     template <typename PhysicalSocketT, typename ConfigT>
     class SocketConnection final
@@ -100,12 +105,17 @@ namespace core::socket::stream::tls {
         utils::Timeval sslInitTimeout;
         utils::Timeval sslShutdownTimeout;
         bool closeNotifyIsEOF;
+        std::shared_ptr<bool> sslHandshakeInProgress;
+        std::shared_ptr<bool> sslShutdownInProgress;
+
 
         template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;
 
         template <typename PhysicalSocket, typename Config>
         friend class SocketConnector;
+
+        friend struct detail::TLSLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream::tls

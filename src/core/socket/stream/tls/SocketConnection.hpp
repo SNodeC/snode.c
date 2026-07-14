@@ -50,6 +50,7 @@
 #include "log/Logger.h"
 
 #include <openssl/ssl.h>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -71,6 +72,7 @@ namespace core::socket::stream::tls {
         , sslShutdownTimeout(config->getShutdownTimeout())
         , closeNotifyIsEOF(!config->getNoCloseNotifyIsEOF()) {
     }
+
 
     template <typename PhysicalSocket, typename Config>
     SSL* SocketConnection<PhysicalSocket, Config>::getSSL() const {
@@ -113,7 +115,11 @@ namespace core::socket::stream::tls {
     bool SocketConnection<PhysicalSocket, Config>::doSSLHandshake(const std::function<void()>& onSuccess,
                                                                   const std::function<void()>& onTimeout,
                                                                   const std::function<void(int)>& onStatus) {
-        if (ssl != nullptr) {
+        bool started = false;
+        if (ssl != nullptr && (sslHandshakeInProgress == nullptr || !*sslHandshakeInProgress)) {
+            started = true;
+            sslHandshakeInProgress = std::make_shared<bool>(true);
+            const std::weak_ptr<bool> handshakeInProgress = sslHandshakeInProgress;
             if (!SocketReader::isSuspended()) {
                 SocketReader::suspend();
             }
@@ -121,27 +127,38 @@ namespace core::socket::stream::tls {
                 SocketWriter::suspend();
             }
 
-            TLSHandshake::doHandshake(
+            TLSHandshake::doHandshakeWithRelease(
                 Super::getConnectionName(),
                 ssl,
                 [onSuccess, this]() { // onSuccess
                     SocketReader::span();
                     onSuccess();
                 },
-                [onTimeout]() { // onTimeout
+                [onTimeout, this]() { // onTimeout
                     onTimeout();
                 },
-                [onStatus](int sslErr) { // onStatus
+                [onStatus, this](int sslErr) { // onStatus
                     onStatus(sslErr);
                 },
-                sslInitTimeout);
+                sslInitTimeout,
+                [handshakeInProgress]() {
+                    if (const std::shared_ptr<bool> inProgress = handshakeInProgress.lock()) {
+                        *inProgress = false;
+                    }
+                });
         }
 
-        return ssl != nullptr;
+        return started;
     }
 
     template <typename PhysicalSocket, typename Config>
     void SocketConnection<PhysicalSocket, Config>::doSSLShutdown() {
+        if (ssl == nullptr || (sslShutdownInProgress != nullptr && *sslShutdownInProgress)) {
+            return;
+        }
+        sslShutdownInProgress = std::make_shared<bool>(true);
+        const std::weak_ptr<bool> shutdownInProgress = sslShutdownInProgress;
+
         bool resumeSocketReader = false;
         bool resumeSocketWriter = false;
 
@@ -155,7 +172,7 @@ namespace core::socket::stream::tls {
             resumeSocketWriter = true;
         }
 
-        TLSShutdown::doShutdown(
+        TLSShutdown::doShutdownWithRelease(
             Super::getConnectionName(),
             ssl,
             [this, resumeSocketReader, resumeSocketWriter]() { // onSuccess
@@ -195,7 +212,12 @@ namespace core::socket::stream::tls {
                     SocketConnection::close();
                 });
             },
-            sslShutdownTimeout);
+            sslShutdownTimeout,
+            [shutdownInProgress]() {
+                if (const std::shared_ptr<bool> inProgress = shutdownInProgress.lock()) {
+                    *inProgress = false;
+                }
+            });
     }
 
     template <typename PhysicalSocket, typename Config>

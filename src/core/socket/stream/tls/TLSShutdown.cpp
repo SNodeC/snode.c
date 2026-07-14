@@ -41,147 +41,309 @@
 
 #include "core/socket/stream/tls/TLSShutdown.h"
 
+#if defined(SNODEC_BUILD_TESTS)
+#include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
+#endif
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
+#include <cerrno>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#if defined(SNODEC_BUILD_TESTS)
+namespace core::socket::stream::tls::detail::test {
+
+    ShutdownState& shutdownState() {
+        static ShutdownState state;
+        return state;
+    }
+
+} // namespace core::socket::stream::tls::detail::test
+
+#endif
+
 namespace core::socket::stream::tls {
 
     void TLSShutdown::doShutdown(const std::string& instanceName,
-                                 SSL* ssl,
-                                 const std::function<void(void)>& onSuccess,
-                                 const std::function<void(void)>& onTimeout,
-                                 const std::function<void(int)>& onStatus,
-                                 const utils::Timeval& timeout) {
-        new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout);
+                                   SSL* ssl,
+                                   const std::function<void(void)>& onSuccess,
+                                   const std::function<void(void)>& onTimeout,
+                                   const std::function<void(int)>& onStatus,
+                                   const utils::Timeval& timeout) {
+        doShutdownWithRelease(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, {});
     }
 
+    void TLSShutdown::doShutdownWithRelease(const std::string& instanceName,
+                                              SSL* ssl,
+                                              const std::function<void(void)>& onSuccess,
+                                              const std::function<void(void)>& onTimeout,
+                                              const std::function<void(int)>& onStatus,
+                                              const utils::Timeval& timeout,
+                                              const std::function<void(void)>& onReleased) {
+        auto* helper = new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, onReleased, SSL_get_fd(ssl));
+        helper->start();
+    }
+
+
     TLSShutdown::TLSShutdown(const std::string& instanceName,
-                             SSL* ssl,
-                             const std::function<void(void)>& onSuccess,
-                             const std::function<void(void)>& onTimeout,
-                             const std::function<void(int)>& onStatus,
-                             const utils::Timeval& timeout)
+                               SSL* ssl,
+                               const std::function<void(void)>& onSuccess,
+                               const std::function<void(void)>& onTimeout,
+                               const std::function<void(int)>& onStatus,
+                               const utils::Timeval& timeout,
+                               const std::function<void(void)>& onReleased,
+                               int fd)
         : ReadEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , WriteEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)
         , onStatus(onStatus)
-        , timeoutTriggered(false)
-        , fd(SSL_get_fd(ssl)) {
-        const int ret = SSL_shutdown(ssl);
+        , onReleased(onReleased)
+        , fd(fd) {
+#if defined(SNODEC_BUILD_TESTS)
+        auto& state = detail::test::shutdownState();
+        state.last = this;
+        state.counters.constructed++;
+        state.counters.active++;
+        state.counters.maxConcurrent = std::max(state.counters.maxConcurrent, state.counters.active);
+#endif
+    }
 
+    TLSShutdown::~TLSShutdown() {
+#if defined(SNODEC_BUILD_TESTS)
+        auto& state = detail::test::shutdownState();
+        state.counters.destroyed++;
+        state.counters.active--;
+        if (state.last == this) {
+            state.last = nullptr;
+        }
+#endif
+    }
+
+    void TLSShutdown::start() {
+        if (completed) {
+            return;
+        }
+
+        const int sslErr = performOperation();
+
+        switch (sslErr) {
+            case SSL_ERROR_WANT_READ:
+                awaitRead();
+                break;
+            case SSL_ERROR_WANT_WRITE:
+                awaitWrite();
+                break;
+            case SSL_ERROR_NONE:
+                finishSuccess();
+                break;
+            case SSL_ERROR_ZERO_RETURN:
+            default:
+                finishError(sslErr, errno);
+                break;
+        }
+    }
+
+    int TLSShutdown::performOperation() {
+        if (completed) {
+            return SSL_ERROR_NONE;
+        }
+
+#if defined(SNODEC_BUILD_TESTS)
+        auto& state = detail::test::shutdownState();
+        state.counters.operationCalls++;
+        if (!state.operations.empty()) {
+            const detail::test::OperationResult result = state.operations.front();
+            state.operations.pop_front();
+            errno = result.systemError;
+            return result.sslError;
+        }
+#endif
+
+        ERR_clear_error();
+        errno = 0;
+        const int ret = SSL_shutdown(ssl);
+        const int savedErrno = errno;
         int sslErr = SSL_ERROR_NONE;
         if (ret < 0) {
             sslErr = SSL_get_error(ssl, ret);
         }
+        errno = savedErrno;
+        return ret >= 0 ? SSL_ERROR_NONE : sslErr;
+    }
 
-        if (!ReadEventReceiver::enable(fd)) {
-            delete this;
-        } else if (!WriteEventReceiver::enable(fd)) {
-            ReadEventReceiver::disable();
-        } else {
-            ReadEventReceiver::suspend();
+    void TLSShutdown::awaitRead() {
+        if (completed) {
+            return;
+        }
+        if (writeRegistered && !WriteEventReceiver::isSuspended()) {
             WriteEventReceiver::suspend();
-
-            switch (sslErr) {
-                case SSL_ERROR_WANT_READ:
-                    ReadEventReceiver::resume();
-                    break;
-                case SSL_ERROR_WANT_WRITE:
-                    WriteEventReceiver::resume();
-                    break;
-                case SSL_ERROR_NONE:
-                case SSL_ERROR_ZERO_RETURN:
-                    ReadEventReceiver::disable();
-                    WriteEventReceiver::disable();
-                    onSuccess();
-                    break;
-                default:
-                    ReadEventReceiver::disable();
-                    WriteEventReceiver::disable();
-                    onStatus(sslErr);
-                    break;
+        }
+        if (!readRegistered) {
+#if defined(SNODEC_BUILD_TESTS)
+            auto& state = detail::test::shutdownState();
+            if (state.failNextReadEnable != 0) {
+                const int registrationErrno = state.failNextReadEnable;
+                state.failNextReadEnable = 0;
+                finishError(SSL_ERROR_SYSCALL, registrationErrno);
+                return;
             }
+#endif
+            if (!ReadEventReceiver::enable(fd)) {
+                const int registrationErrno = errno;
+                finishError(SSL_ERROR_SYSCALL, registrationErrno == 0 ? EIO : registrationErrno);
+                return;
+            }
+            readRegistered = true;
+            everObserved = true;
+        }
+        if (ReadEventReceiver::isSuspended()) {
+            ReadEventReceiver::resume();
+        }
+    }
+
+    void TLSShutdown::awaitWrite() {
+        if (completed) {
+            return;
+        }
+        if (readRegistered && !ReadEventReceiver::isSuspended()) {
+            ReadEventReceiver::suspend();
+        }
+        if (!writeRegistered) {
+#if defined(SNODEC_BUILD_TESTS)
+            auto& state = detail::test::shutdownState();
+            if (state.failNextWriteEnable != 0) {
+                const int registrationErrno = state.failNextWriteEnable;
+                state.failNextWriteEnable = 0;
+                finishError(SSL_ERROR_SYSCALL, registrationErrno);
+                return;
+            }
+#endif
+            if (!WriteEventReceiver::enable(fd)) {
+                const int registrationErrno = errno;
+                finishError(SSL_ERROR_SYSCALL, registrationErrno == 0 ? EIO : registrationErrno);
+                return;
+            }
+            writeRegistered = true;
+            everObserved = true;
+        }
+        if (WriteEventReceiver::isSuspended()) {
+            WriteEventReceiver::resume();
         }
     }
 
     void TLSShutdown::readEvent() {
-        const int ret = SSL_shutdown(ssl);
-
-        int sslErr = SSL_ERROR_NONE;
-        if (ret < 0) {
-            sslErr = SSL_get_error(ssl, ret);
+        if (completed) {
+            return;
         }
-
-        switch (sslErr) {
-            case SSL_ERROR_WANT_READ:
-                break;
-            case SSL_ERROR_WANT_WRITE:
-                ReadEventReceiver::suspend();
-                WriteEventReceiver::resume();
-                break;
-            case SSL_ERROR_NONE:
-            case SSL_ERROR_ZERO_RETURN:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onSuccess();
-                break;
-            default:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onStatus(sslErr);
-                break;
-        }
+        start();
     }
 
     void TLSShutdown::writeEvent() {
-        const int ret = SSL_shutdown(ssl);
-
-        int sslErr = SSL_ERROR_NONE;
-        if (ret < 0) {
-            sslErr = SSL_get_error(ssl, ret);
+        if (completed) {
+            return;
         }
+        start();
+    }
 
-        switch (sslErr) {
-            case SSL_ERROR_WANT_READ:
-                WriteEventReceiver::suspend();
-                ReadEventReceiver::resume();
-                break;
-            case SSL_ERROR_WANT_WRITE:
-                break;
-            case SSL_ERROR_NONE:
-            case SSL_ERROR_ZERO_RETURN:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onSuccess();
-                break;
-            default:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::disable();
-                onStatus(sslErr);
-                break;
+    void TLSShutdown::finishSuccess() {
+        if (completed) {
+            return;
+        }
+        completed = true;
+        const bool destroyImmediately = !everObserved;
+#if defined(SNODEC_BUILD_TESTS)
+        detail::test::shutdownState().counters.successes++;
+#endif
+        const auto callback = onSuccess;
+        disableRegisteredReceivers();
+        callback();
+        if (destroyImmediately) {
+            notifyReleased();
+            delete this;
+        }
+    }
+
+    void TLSShutdown::finishTimeout() {
+        if (completed) {
+            return;
+        }
+        completed = true;
+        const bool destroyImmediately = !everObserved;
+#if defined(SNODEC_BUILD_TESTS)
+        detail::test::shutdownState().counters.timeouts++;
+#endif
+        const auto callback = onTimeout;
+        disableRegisteredReceivers();
+        callback();
+        if (destroyImmediately) {
+            notifyReleased();
+            delete this;
+        }
+    }
+
+    void TLSShutdown::finishError(int sslErr, int systemErr) {
+        if (completed) {
+            return;
+        }
+        completed = true;
+        const bool destroyImmediately = !everObserved;
+#if defined(SNODEC_BUILD_TESTS)
+        auto& state = detail::test::shutdownState();
+        state.counters.errors++;
+        state.counters.lastStatus = sslErr;
+        state.counters.lastErrno = systemErr;
+#endif
+        const auto callback = onStatus;
+        disableRegisteredReceivers();
+        if (systemErr != 0) {
+            errno = systemErr;
+        }
+        callback(sslErr);
+        if (destroyImmediately) {
+            notifyReleased();
+            delete this;
         }
     }
 
     void TLSShutdown::readTimeout() {
-        if (!timeoutTriggered) {
-            timeoutTriggered = true;
-            ReadEventReceiver::disable();
-            WriteEventReceiver::disable();
-            onTimeout();
+        if (completed) {
+            return;
         }
+        finishTimeout();
     }
 
     void TLSShutdown::writeTimeout() {
-        if (!timeoutTriggered) {
-            timeoutTriggered = true;
+        if (completed) {
+            return;
+        }
+        finishTimeout();
+    }
+
+    void TLSShutdown::disableRegisteredReceivers() {
+        if (readRegistered && ReadEventReceiver::isEnabled()) {
             ReadEventReceiver::disable();
+        }
+        if (writeRegistered && WriteEventReceiver::isEnabled()) {
             WriteEventReceiver::disable();
-            onTimeout();
+        }
+    }
+
+    void TLSShutdown::notifyReleased() {
+        if (!releaseNotified) {
+            releaseNotified = true;
+#if defined(SNODEC_BUILD_TESTS)
+            auto& state = detail::test::shutdownState();
+            state.counters.releases++;
+#endif
+            if (onReleased) {
+                onReleased();
+            }
         }
     }
 
@@ -189,6 +351,7 @@ namespace core::socket::stream::tls {
     }
 
     void TLSShutdown::unobservedEvent() {
+        notifyReleased();
         delete this;
     }
 
