@@ -47,8 +47,6 @@ if(NOT OpenSSL_FOUND)
     )
 else(NOT OpenSSL_FOUND)
 
-    set(SNODEC_CORE_SOCKET_STREAM_TLS_SOVERSION 2)
-
     set(CORE-SOCKET_STREAM-TLS_CPP
         ssl_utils.cpp TLSHandshake.cpp TLSShutdown.cpp system/ssl.cpp
         SocketReader.cpp SocketWriter.cpp
@@ -93,7 +91,7 @@ else(NOT OpenSSL_FOUND)
     set_target_properties(
         core-socket-stream-tls
         PROPERTIES VERSION ${SNode.C_VERSION}
-                   SOVERSION ${SNODEC_CORE_SOCKET_STREAM_TLS_SOVERSION}
+                   SOVERSION ${SNODEC_SOVERSION}
                    OUTPUT_NAME snodec-core-socket-stream-tls
     )
 
