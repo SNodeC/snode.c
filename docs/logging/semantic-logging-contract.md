@@ -303,13 +303,15 @@ and the complete stable connection identity is the pair `(inst, conn)`. The
 sequence starts at `1` for each newly constructed shared server or client
 endpoint context, increases monotonically, is not reused during that context's
 lifetime, and is not process-global. It is also not the operating-system file
-descriptor.
+descriptor. Unnamed framework endpoints use the existing `ConfigInstance::getInstanceName()` behavior and therefore emit `inst=<anonymous>` together with the numeric connection ID (for example, `inst=<anonymous> conn=1`).
 
 `SocketConnection::getConnectionName()` remains a separate human-readable
 compatibility/display value, currently shaped like `[fd] instance`. It may
 continue to appear in legacy messages, reader/writer labels, OpenSSL diagnostic
 labels, and compatibility APIs, but semantic connection identity uses the
 numeric connection sequence.
+
+The connection-ID constructor change affects the installed `SocketConnection`, `SocketConnectionT`, `SocketAcceptor`, `SocketConnector`, legacy acceptor/connector/connection variants, and TLS acceptor/connector/connection variants. This is a source and ABI compatibility change for applications or libraries that construct or derive from these public headers; dependent binaries must be rebuilt.
 
 Endpoint lifetime summaries report dispatched continuation attempts. `retries`
 counts retry attempts that were actually dispatched after the initial
