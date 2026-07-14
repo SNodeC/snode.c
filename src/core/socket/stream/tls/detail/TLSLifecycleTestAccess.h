@@ -6,10 +6,12 @@
 #include "core/socket/stream/tls/SocketReader.h"
 #include "core/socket/stream/tls/SocketWriter.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
+#include "core/socket/stream/tls/detail/TLSResult.h"
 
 #include <cerrno>
 #include <deque>
 #include <functional>
+#include <optional>
 #include <openssl/ssl.h>
 #include <string>
 
@@ -56,6 +58,13 @@ namespace core::socket::stream::tls::detail::test {
 
     struct ShutdownState : HelperStateBase {
         TLSShutdown* last = nullptr;
+        std::optional<TlsShutdownSuccess> lastSuccess;
+
+        void reset() {
+            HelperStateBase::reset();
+            last = nullptr;
+            lastSuccess.reset();
+        }
     };
 
     struct IoState : HelperStateBase {
@@ -87,6 +96,7 @@ namespace core::socket::stream::tls::detail {
         static test::Counters shutdownCounters() { return test::shutdownState().counters; }
         static test::Counters readerCounters() { return test::readerState().counters; }
         static test::Counters writerCounters() { return test::writerState().counters; }
+        static std::optional<TlsShutdownSuccess> lastShutdownSuccess() { return test::shutdownState().lastSuccess; }
 
         static TLSHandshake* lastHandshake() { return test::handshakeState().last; }
         static TLSShutdown* lastShutdown() { return test::shutdownState().last; }
@@ -138,9 +148,6 @@ namespace core::socket::stream::tls::detail {
         static bool writeSuspended(TLSShutdown* helper) { return helper->WriteEventReceiver::isSuspended(); }
         static bool completed(TLSShutdown* helper) { return helper->completed; }
 
-        static ssize_t tlsRead(SocketReader& reader, char* chunk, std::size_t chunkLen) { return reader.read(chunk, chunkLen); }
-        static ssize_t tlsWrite(SocketWriter& writer, const char* chunk, std::size_t chunkLen) { return writer.write(chunk, chunkLen); }
-
         template <typename PhysicalSocket, typename Config>
         static SSL* startSSL(SocketConnection<PhysicalSocket, Config>& connection, int fd, SSL_CTX* ctx) {
             return connection.startSSL(fd, ctx);
@@ -177,6 +184,36 @@ namespace core::socket::stream::tls::detail {
         template <typename PhysicalSocket, typename Config>
         static bool tlsFatalError(const SocketConnection<PhysicalSocket, Config>& connection) {
             return connection.tlsFatalError;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static void triggerReadEvent(SocketConnection<PhysicalSocket, Config>& connection) {
+            static_cast<core::socket::stream::SocketReader&>(connection).readEvent();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static void triggerWriteEvent(SocketConnection<PhysicalSocket, Config>& connection) {
+            static_cast<core::socket::stream::SocketWriter&>(connection).writeEvent();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool readEnabled(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return static_cast<const core::socket::stream::SocketReader&>(connection).isEnabled();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool writeEnabled(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return static_cast<const core::socket::stream::SocketWriter&>(connection).isEnabled();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool readSuspended(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return static_cast<const core::socket::stream::SocketReader&>(connection).isSuspended();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool writeSuspended(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return static_cast<const core::socket::stream::SocketWriter&>(connection).isSuspended();
         }
     };
 

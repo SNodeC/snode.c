@@ -137,6 +137,9 @@ namespace core::socket::stream::tls {
             switch (std::get<detail::TlsShutdownSuccess>(result.value)) {
                 case detail::TlsShutdownSuccess::CloseNotifySent:
                 case detail::TlsShutdownSuccess::FullShutdownComplete:
+#if defined(SNODEC_BUILD_TESTS)
+                    detail::test::shutdownState().lastSuccess = std::get<detail::TlsShutdownSuccess>(result.value);
+#endif
                     finishSuccess();
                     break;
             }

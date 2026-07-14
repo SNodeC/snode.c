@@ -94,6 +94,10 @@ namespace core::socket::stream::tls {
         return logScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
+    void SocketReader::setTlsFatalErrorCallback(std::function<void(int)> callback) {
+        onTlsFatalError = std::move(callback);
+    }
+
     ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
         ssize_t ret = 0;
 
@@ -163,7 +167,9 @@ namespace core::socket::stream::tls {
                         const int errnum = EPROTO;
                         log().error("{} SSL/TLS: Transport ended without TLS close_notify", getName());
                         errno = errnum;
-                        onTlsFatalError(errnum);
+                        if (onTlsFatalError) {
+                            onTlsFatalError(errnum);
+                        }
                         errno = errnum;
                         ret = -1;
                         break;
@@ -173,7 +179,9 @@ namespace core::socket::stream::tls {
                         const utils::PreserveErrno pe;
                         log().sysError(logger::LogLevel::Warn, errnum, "{} SSL/TLS: Syscall error on read", getName());
                         errno = errnum;
-                        onTlsFatalError(errnum);
+                        if (onTlsFatalError) {
+                            onTlsFatalError(errnum);
+                        }
                         errno = errnum;
                         ret = -1;
                         break;
@@ -182,7 +190,9 @@ namespace core::socket::stream::tls {
                         const int errnum = EPROTO;
                         ssl_log(getName() + " SSL/TLS: Read protocol failure", status.sslError);
                         errno = errnum;
-                        onTlsFatalError(errnum);
+                        if (onTlsFatalError) {
+                            onTlsFatalError(errnum);
+                        }
                         errno = errnum;
                         ret = -1;
                         break;
@@ -191,7 +201,9 @@ namespace core::socket::stream::tls {
                         const int errnum = EIO;
                         ssl_log(getName() + " SSL/TLS: Unknown read failure", status.sslError);
                         errno = errnum;
-                        onTlsFatalError(errnum);
+                        if (onTlsFatalError) {
+                            onTlsFatalError(errnum);
+                        }
                         errno = errnum;
                         ret = -1;
                         break;

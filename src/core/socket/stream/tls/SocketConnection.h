@@ -98,8 +98,6 @@ namespace core::socket::stream::tls {
 
         void onReadShutdown() final;
 
-        void onTlsFatalError(int errnum) final;
-
         void doWriteShutdown(const std::function<void()>& onShutdown) final;
 
         SSL* ssl = nullptr;
