@@ -49,8 +49,8 @@ namespace web::http {
     class CiStringMap;
 } // namespace web::http
 
-#include <ctime>
 #include <cstddef>
+#include <ctime>
 #include <map>
 #include <string>
 #include <utility>
@@ -91,6 +91,11 @@ namespace httputils {
 
     std::string::iterator to_lower(std::string& string);
 
+    struct MessagePresentation {
+        std::string plain;
+        std::string terminal;
+    };
+
     std::string toString(const std::string& method,
                          const std::string& url,
                          const std::string& version,
@@ -100,12 +105,28 @@ namespace httputils {
                          const web::http::CiStringMap<std::string>& cookies,
                          const std::vector<char>& body);
 
+    MessagePresentation toStringPresentation(const std::string& method,
+                                             const std::string& url,
+                                             const std::string& version,
+                                             const std::map<std::string, std::string>& queries,
+                                             const web::http::CiStringMap<std::string>& header,
+                                             const web::http::CiStringMap<std::string>& trailer,
+                                             const web::http::CiStringMap<std::string>& cookies,
+                                             const std::vector<char>& body);
+
     std::string toString(const std::string& version,
                          const std::string& statusCode,
                          const std::string& reason,
                          const web::http::CiStringMap<std::string>& header,
                          const web::http::CiStringMap<web::http::CookieOptions>& cookies,
                          const std::vector<char>& body);
+
+    MessagePresentation toStringPresentation(const std::string& version,
+                                             const std::string& statusCode,
+                                             const std::string& reason,
+                                             const web::http::CiStringMap<std::string>& header,
+                                             const web::http::CiStringMap<web::http::CookieOptions>& cookies,
+                                             const std::vector<char>& body);
 
 } // namespace httputils
 

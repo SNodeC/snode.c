@@ -265,11 +265,10 @@ int main() {
     log.sysError(logger::LogLevel::Warn, std::make_error_code(std::errc::permission_denied), "open failed");
     result.expectTrue(records.back().error && records.back().error->code != 0, "sysError(std::error_code) stores error code");
 
-
-
     const std::string plainDump = ": 00000000  41 42 43 44                                      ABCD";
     logger::LogRecord presented = simpleRecord(logger::LogLevel::Info, "dump\n" + plainDump);
-    presented.terminalMessage = std::string("dump\n\033[34m: 00000000\033[39m \033[32m 41\033[39m\033[32m 42\033[39m\033[32m 43\033[39m\033[32m 44\033[39m                                      \033[33mABCD\033[39m");
+    presented.terminalMessage = std::string("dump\n\033[34m: 00000000\033[39m \033[32m 41\033[39m\033[32m 42\033[39m\033[32m "
+                                            "43\033[39m\033[32m 44\033[39m                                      \033[33mABCD\033[39m");
     const std::string presentedPlain = logger::formatText(presented, false);
     const std::string presentedColor = logger::formatText(presented, true);
     result.expectTrue(!containsAnsi(presentedPlain), "presented plain formatter emits no ANSI");
@@ -277,13 +276,42 @@ int main() {
     result.expectTrue(stripAnsi(presentedColor) == presentedPlain, "valid presented terminal strips to plain text");
 
     const std::string fallbackPlain = logger::formatText(presented, false);
-    for (const std::string terminal : {std::string("dump\n\033[2J"), std::string("dump\n\033]0;title\a"),
-                                      std::string("dump\n\033[31m") + plainDump + "\033[39m",
-                                      std::string("changed\n\033[34m: 00000000\033[39m")}) {
+    for (const std::string terminal : {std::string("dump\n\033[2J"),
+                                       std::string("dump\n\033]0;title\a"),
+                                       std::string("dump\n\033[31m") + plainDump + "\033[39m",
+                                       std::string("changed\n\033[34m: 00000000\033[39m")}) {
         logger::LogRecord invalid = presented;
         invalid.terminalMessage = terminal;
-        result.expectTrue(stripAnsi(logger::formatText(invalid, true)) == fallbackPlain, "invalid terminal presentation falls back completely to plain");
+        result.expectTrue(stripAnsi(logger::formatText(invalid, true)) == fallbackPlain,
+                          "invalid terminal presentation falls back completely to plain");
     }
+
+    auto presentationRecord = [&](std::string plain, std::string terminal) {
+        logger::LogRecord record = simpleRecord(logger::LogLevel::Info, std::move(plain));
+        record.terminalMessage = std::move(terminal);
+        return record;
+    };
+    for (logger::LogRecord invalid : {
+             presentationRecord("text", "\033[32mtext"),
+             presentationRecord("first\nsecond", "\033[32mfirst\nsecond\033[39m"),
+             presentationRecord("first\r\nsecond", "\033[32mfirst\r\nsecond\033[39m"),
+         }) {
+        const std::string invalidPlain = logger::formatText(invalid, false);
+        const std::string invalidColor = logger::formatText(invalid, true);
+        result.expectTrue(stripAnsi(invalidColor) == invalidPlain, "foreground state violation falls back completely to plain");
+        result.expectTrue(invalidColor.find("\033[32m") == std::string::npos, "rejected presentation does not preserve raw sidecar SGR");
+    }
+
+    logger::LogRecord validLf = presentationRecord("first\nsecond", "\033[32mfirst\033[39m\n\033[33msecond\033[39m");
+    result.expectTrue(containsAnsi(logger::formatText(validLf, true)), "line-reset LF presentation is accepted");
+    result.expectTrue(!containsAnsi(logger::formatText(validLf, false)), "line-reset LF plain output contains no SGR");
+    result.expectTrue(stripAnsi(logger::formatText(validLf, true)) == logger::formatText(validLf, false),
+                      "line-reset LF presentation strips exactly to plain formatter output");
+
+    logger::LogRecord validCrlf = presentationRecord("first\r\nsecond", "\033[32mfirst\033[39m\r\n\033[33msecond\033[39m");
+    result.expectTrue(containsAnsi(logger::formatText(validCrlf, true)), "line-reset CRLF presentation is accepted");
+    result.expectTrue(stripAnsi(logger::formatText(validCrlf, true)) == logger::formatText(validCrlf, false),
+                      "line-reset CRLF presentation strips exactly to plain formatter output");
 
     logger::Logger::init();
     logger::Logger::setDisableColor(true);

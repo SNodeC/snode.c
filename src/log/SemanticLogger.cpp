@@ -215,15 +215,23 @@ namespace logger {
             return out.str();
         }
 
-        bool consumeAllowedSgr(std::string_view text, std::size_t& i) {
-            constexpr std::string_view allowed[] = {"\033[32m", "\033[33m", "\033[34m", "\033[39m", "\033[0m"};
-            for (const std::string_view sgr : allowed) {
+        enum class SgrEffect { SetForeground, ResetForeground };
+
+        std::optional<SgrEffect> consumeAllowedSgr(std::string_view text, std::size_t& i) {
+            constexpr std::pair<std::string_view, SgrEffect> allowed[] = {
+                {"\033[32m", SgrEffect::SetForeground},
+                {"\033[33m", SgrEffect::SetForeground},
+                {"\033[34m", SgrEffect::SetForeground},
+                {"\033[39m", SgrEffect::ResetForeground},
+                {"\033[0m", SgrEffect::ResetForeground},
+            };
+            for (const auto& [sgr, effect] : allowed) {
                 if (text.substr(i, sgr.size()) == sgr) {
                     i += sgr.size();
-                    return true;
+                    return effect;
                 }
             }
-            return false;
+            return std::nullopt;
         }
 
         std::optional<std::string> validatedTerminalMessage(const LogRecord& record) {
@@ -232,16 +240,35 @@ namespace logger {
             }
             std::string stripped;
             stripped.reserve(record.terminalMessage->size());
+            bool foregroundColored = false;
             for (std::size_t i = 0; i < record.terminalMessage->size();) {
                 const unsigned char ch = static_cast<unsigned char>((*record.terminalMessage)[i]);
                 if (ch == 0x1B) {
-                    if (!consumeAllowedSgr(*record.terminalMessage, i)) {
+                    const std::optional<SgrEffect> effect = consumeAllowedSgr(*record.terminalMessage, i);
+                    if (!effect) {
                         return std::nullopt;
                     }
+                    foregroundColored = *effect == SgrEffect::SetForeground;
+                } else if (ch == '\r' && i + 1 < record.terminalMessage->size() && (*record.terminalMessage)[i + 1] == '\n') {
+                    if (foregroundColored) {
+                        return std::nullopt;
+                    }
+                    stripped.push_back('\r');
+                    stripped.push_back('\n');
+                    i += 2;
+                } else if (ch == '\n') {
+                    if (foregroundColored) {
+                        return std::nullopt;
+                    }
+                    stripped.push_back('\n');
+                    ++i;
                 } else {
                     stripped.push_back(static_cast<char>(ch));
                     ++i;
                 }
+            }
+            if (foregroundColored) {
+                return std::nullopt;
             }
             if (stripped != record.message) {
                 return std::nullopt;

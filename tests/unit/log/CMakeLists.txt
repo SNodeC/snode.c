@@ -129,7 +129,7 @@ set_tests_properties(SemanticEndToEndOutputTest PROPERTIES LABELS "unit;log;e2e"
 snodec_add_test(SemanticTerminalColorRoutingTest SemanticTerminalColorRoutingTest.cpp)
 target_include_directories(SemanticTerminalColorRoutingTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(SemanticTerminalColorRoutingTest PRIVATE cxx_std_20)
-target_link_libraries(SemanticTerminalColorRoutingTest PRIVATE snodec-test-support snodec::logger)
+target_link_libraries(SemanticTerminalColorRoutingTest PRIVATE snodec-test-support snodec::logger snodec::utils)
 set_tests_properties(SemanticTerminalColorRoutingTest PROPERTIES LABELS "unit;log;routing")
 
 function(snodec_set_source_policy_test_properties test_name labels)

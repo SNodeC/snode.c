@@ -2,7 +2,9 @@
 #include "log/Logger.h"
 #include "log/SemanticLogger.h"
 #include "tests/support/TestResult.h"
+#include "utils/hexdump.h"
 
+#include <cctype>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -14,6 +16,25 @@
 namespace {
     bool contains(const std::string& value, const std::string& needle) {
         return value.find(needle) != std::string::npos;
+    }
+
+    std::string stripAnsi(const std::string& value) {
+        std::string stripped;
+        for (std::size_t i = 0; i < value.size();) {
+            if (value[i] == '\033' && i + 2 < value.size() && value[i + 1] == '[') {
+                std::size_t j = i + 2;
+                while (j < value.size() && (std::isdigit(static_cast<unsigned char>(value[j])) || value[j] == ';')) {
+                    ++j;
+                }
+                if (j < value.size() && value[j] == 'm') {
+                    i = j + 1;
+                    continue;
+                }
+            }
+            stripped.push_back(value[i]);
+            ++i;
+        }
+        return stripped;
     }
 
     std::chrono::system_clock::time_point fixedTimestamp() {
@@ -74,6 +95,12 @@ namespace {
         logger::Logger::setLogLevel(6);
         logger::Logger::setQuiet(false);
     }
+
+    logger::PresentedMessage dumpMessage() {
+        const std::vector<char> bytes = {'A', 0, static_cast<char>(0x1B), '\n', 'Z'};
+        const auto dump = utils::hexDumpPresentation(bytes, 4);
+        return logger::PresentedMessage{.plain = "dump:\n" + dump.plain, .terminal = "dump:\n" + dump.terminal};
+    }
 } // namespace
 
 int main() {
@@ -88,10 +115,11 @@ int main() {
         logger::Logger::setQuiet(false);
         logger::LogManager::setFormat(logger::LogManager::Format::Text);
         auto log = snode::semantic::appLog(logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedClock());
-        log.info("default redirected stdout");
+        log.emit(logger::LogLevel::Info, dumpMessage());
         const std::string stdoutText = capture.read();
-        result.expectTrue(contains(stdoutText, "default redirected stdout"), "default redirected semantic stdout emits text");
-        result.expectTrue(!contains(stdoutText, "\033["), "non-TTY redirected semantic stdout defaults to plain output");
+        result.expectTrue(contains(stdoutText, ": 00000000  41 00 1b 0a 5a"), "default redirected semantic stdout emits plain dump");
+        result.expectTrue(!contains(stdoutText, "\033["), "non-TTY redirected semantic stdout defaults to plain dump");
+        result.expectTrue(!contains(stdoutText, "\\x1B["), "non-TTY redirected semantic stdout contains no literal color clutter");
     }
 
     {
@@ -103,12 +131,18 @@ int main() {
         logger::Logger::logToFile(filePath.string());
         logger::LogManager::setFormat(logger::LogManager::Format::Text);
         auto log = snode::semantic::appLog(logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedClock());
-        log.info("colored stdout");
+        log.emit(logger::LogLevel::Info, dumpMessage());
         const std::string stdoutText = capture.read();
         logger::Logger::disableLogToFile();
         const std::string fileText = readFile(filePath);
-        result.expectTrue(contains(stdoutText, "\033["), "explicit color enable colors redirected semantic stdout");
-        result.expectTrue(!contains(fileText, "\033["), "semantic text file remains ANSI-free while stdout is colored");
+        result.expectTrue(contains(stdoutText, "\033[34m") && contains(stdoutText, "\033[32m") && contains(stdoutText, "\033[33m"),
+                          "explicit color enable routes real hexdump palette SGR to redirected semantic stdout");
+        result.expectTrue(!contains(stdoutText, "\\x1B[34m") && !contains(stdoutText, "\\x1B[32m") && !contains(stdoutText, "\\x1B[33m"),
+                          "colored stdout contains no literal palette clutter");
+        result.expectTrue(contains(stdoutText, "│ "), "colored stdout preserves continuation markers");
+        result.expectTrue(contains(stripAnsi(stdoutText), ": 00000000  41 00 1b 0a 5a"), "colored stdout strips to readable dump");
+        result.expectTrue(contains(fileText, ": 00000000  41 00 1b 0a 5a"), "semantic text file receives plain dump");
+        result.expectTrue(!contains(fileText, "\033[") && !contains(fileText, "\\x1B["), "semantic text file remains palette-free");
     }
 
     {
@@ -118,8 +152,11 @@ int main() {
         logger::Logger::setDisableColor(true);
         logger::LogManager::setFormat(logger::LogManager::Format::Text);
         auto log = snode::semantic::appLog(logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedClock());
-        log.info("plain stdout");
-        result.expectTrue(!contains(capture.read(), "\033["), "explicit color disable keeps redirected semantic stdout plain");
+        log.emit(logger::LogLevel::Info, dumpMessage());
+        const std::string stdoutText = capture.read();
+        result.expectTrue(contains(stdoutText, ": 00000000  41 00 1b 0a 5a"), "explicit color disable emits plain dump");
+        result.expectTrue(!contains(stdoutText, "\033[") && !contains(stdoutText, "\\x1B["),
+                          "explicit color disable keeps redirected semantic stdout plain");
     }
 
     {
@@ -129,10 +166,14 @@ int main() {
         logger::Logger::setDisableColor(false);
         logger::LogManager::setFormat(logger::LogManager::Format::Json);
         auto log = snode::semantic::appLog(logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedClock());
-        log.info("json stdout");
+        log.emit(logger::LogLevel::Info, dumpMessage());
         const std::string stdoutText = capture.read();
         result.expectTrue(contains(stdoutText, "\"level\":\"info\""), "semantic JSON still uses lowercase JSON level");
-        result.expectTrue(!contains(stdoutText, "\033["), "semantic JSON stdout remains ANSI-free when color is enabled");
+        result.expectTrue(contains(stdoutText, "dump:\\n: 00000000"),
+                          "semantic JSON stdout serializes the plain message with escaped newlines");
+        result.expectTrue(!contains(stdoutText, "\033[") && !contains(stdoutText, "terminalMessage") &&
+                              !contains(stdoutText, "\\u001b[34m"),
+                          "semantic JSON stdout excludes terminal presentation");
     }
 
     {
@@ -143,11 +184,40 @@ int main() {
         logger::Logger::setQuiet(true);
         logger::LogManager::setFormat(logger::LogManager::Format::Json);
         auto log = snode::semantic::appLog(logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedClock());
-        log.info("json file");
+        log.emit(logger::LogLevel::Info, dumpMessage());
         logger::Logger::disableLogToFile();
         const std::string fileText = readFile(filePath);
         result.expectTrue(contains(fileText, "\"level\":\"info\""), "semantic JSON file contains lowercase JSON level");
-        result.expectTrue(!contains(fileText, "\033["), "semantic JSON file remains ANSI-free when color is enabled");
+        result.expectTrue(contains(fileText, "dump:\\n: 00000000"),
+                          "semantic JSON file serializes the plain message with escaped newlines");
+        result.expectTrue(!contains(fileText, "\033[") && !contains(fileText, "terminalMessage") && !contains(fileText, "\\u001b[34m"),
+                          "semantic JSON file excludes terminal presentation");
+    }
+
+    {
+        const auto stdoutPath = tempPath("snodec-semantic-untrusted-esc-stdout.log");
+        StdoutCapture capture(stdoutPath);
+        resetLogger();
+        logger::Logger::setDisableColor(false);
+        logger::LogManager::setFormat(logger::LogManager::Format::Text);
+        auto log = snode::semantic::appLog(logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedClock());
+        log.info(std::string("ordinary ") + static_cast<char>(0x1B) + "[2J");
+        const std::string stdoutText = capture.read();
+        result.expectTrue(contains(stdoutText, "\\x1B[2J"), "ordinary untrusted ESC is printable escaped with color enabled");
+        result.expectTrue(!contains(stdoutText, std::string("\033[2J")), "ordinary untrusted ESC[2J is not emitted raw");
+    }
+
+    {
+        const auto stdoutPath = tempPath("snodec-semantic-invalid-sidecar-stdout.log");
+        StdoutCapture capture(stdoutPath);
+        resetLogger();
+        logger::Logger::setDisableColor(false);
+        logger::LogManager::setFormat(logger::LogManager::Format::Text);
+        auto log = snode::semantic::appLog(logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedClock());
+        log.emit(logger::LogLevel::Info, logger::PresentedMessage{.plain = "text", .terminal = "\033[32mtext"});
+        const std::string stdoutText = capture.read();
+        result.expectTrue(contains(stdoutText, "text"), "invalid presented message routes plain fallback");
+        result.expectTrue(!contains(stdoutText, "\033[32mtext"), "invalid presented message does not route invalid sidecar SGR");
     }
 
     {
